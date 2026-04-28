@@ -1,0 +1,32 @@
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { AdminSidebar } from '@/components/Admin/AdminSidebar';
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
+
+  // Check if user is authenticated
+  if (!session?.user) {
+    redirect('/auth/login?callbackUrl=/admin');
+  }
+
+  // Check if user has ADMIN role
+  if (session.user.role !== 'ADMIN') {
+    redirect('/');
+  }
+
+  return (
+    <div className="min-h-screen bg-[var(--background)]">
+      <AdminSidebar />
+      <main className="lg:ml-64 min-h-screen">
+        <div className="p-4 lg:p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}

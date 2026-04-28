@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PostgreSQL - Database Core
+  postgres:
+    image: postgres:16-alpine
+    container_name: inkverse-postgres
+    environment:
+      POSTGRES_USER: inkverse
+      POSTGRES_PASSWORD: inkverse_password
+      POSTGRES_DB: inkverse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inkverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inkverse-network
+
+  # MongoDB - Analytics & Big Data
+  mongodb:
+    image: mongo:7-jammy
+    container_name: inkverse-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: inkverse
+      MONGO_INITDB_ROOT_PASSWORD: inkverse_password
+      MONGO_INITDB_DATABASE: inkverse_analytics
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inkverse-network
+
+  # Redis - Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: inkverse-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inkverse-network
+
+  # pgAdmin - PostgreSQL Admin (opcional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: inkverse-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@inkverse.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - inkverse-network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+
+networks:
+  inkverse-network:
+    driver: bridge
