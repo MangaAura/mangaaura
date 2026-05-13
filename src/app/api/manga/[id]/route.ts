@@ -70,7 +70,7 @@ export async function GET(
       totalViews: manga.totalViews + 1,
       createdAt: manga.createdAt,
       updatedAt: manga.updatedAt,
-      chapters: chapters.map((ch) => ({
+      chapters: chapters.map((ch: any) => ({
         id: ch.id,
         chapterNumber: ch.chapterNumber,
         title: ch.title,

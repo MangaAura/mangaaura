@@ -6,9 +6,10 @@
 
 import { Server as NetServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next/dist/shared/lib/utils';
 import { getToken } from 'next-auth/jwt';
 import { partyService } from '@/core/services/PartyService';
+import { createRedisAdapter } from '@/lib/socket-redis-adapter';
 import type {
   ServerToClientEvents,
   ClientToServerEvents,
@@ -48,6 +49,13 @@ export const initIO = (httpServer: NetServer): IOServer => {
     transports: ['websocket', 'polling'],
   });
 
+  // Inicializar adaptador Redis para escalabilidad multi-servidor
+  createRedisAdapter(io).then((enabled) => {
+    if (enabled) {
+      console.info('[Socket] Redis adapter initialized');
+    }
+  });
+
   // Middleware de autenticacion
   io.use(async (socket, next) => {
     try {
@@ -59,7 +67,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
 
       // Verificar token con next-auth
       const decoded = await getToken({
-        req: { headers: { cookie: `next-auth.session-token=${token}` } } as any,
+        req: { headers: { cookie: `next-auth.session-token=${token}` } },
         secret: process.env.NEXTAUTH_SECRET,
       });
 
@@ -88,7 +96,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
       return;
     }
 
-    console.log(`[Socket] User ${userId} connected`);
+    console.info(`[Socket] User ${userId} connected`);
 
     // Unirse a room personal
     socket.join(`user:${userId}`);
@@ -141,7 +149,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
         io?.to(`party:${partyId}`).emit('party:message-received', systemMessage);
       }
 
-      console.log(`[Socket] User ${userId} joined party ${partyId}`);
+      console.info(`[Socket] User ${userId} joined party ${partyId}`);
     });
 
     // Salir del party
@@ -182,7 +190,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
         }
       }
 
-      console.log(`[Socket] User ${userId} left party ${partyId}`);
+      console.info(`[Socket] User ${userId} left party ${partyId}`);
     });
 
     // Cambiar pagina (solo host)
@@ -330,13 +338,13 @@ export const initIO = (httpServer: NetServer): IOServer => {
     // Unirse a rooms de mangas seguidos
     socket.on('user:join-room', (room) => {
       socket.join(room);
-      console.log(`[Socket] User ${userId} joined room ${room}`);
+      console.info(`[Socket] User ${userId} joined room ${room}`);
     });
 
     // Salir de rooms
     socket.on('user:leave-room', (room) => {
       socket.leave(room);
-      console.log(`[Socket] User ${userId} left room ${room}`);
+      console.info(`[Socket] User ${userId} left room ${room}`);
     });
 
     // Marcar notificacion como leida
@@ -356,7 +364,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
 
     // Desconexion
     socket.on('disconnect', () => {
-      console.log(`[Socket] User ${userId} disconnected`);
+      console.info(`[Socket] User ${userId} disconnected`);
 
       // Desconectar de todos los parties
       const userParty = partyService.getUserParty(userId);
@@ -379,8 +387,8 @@ export const initIO = (httpServer: NetServer): IOServer => {
 
 // Helper para emitir notificaciones
 export const emitNotification = (
-  userId: string,
-  notification: Notification
+userId: string,
+notification: any
 ) => {
   const io = getIO();
   if (io) {

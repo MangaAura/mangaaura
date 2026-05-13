@@ -73,13 +73,13 @@ export async function GET(request: NextRequest) {
       });
 
       const allTags = [...new Set(
-        tags.flatMap(t => {
+        tags.flatMap((t: any) => {
           try { return JSON.parse(t.tags); } catch { return []; }
         })
       )].sort() as string[];
 
       return {
-        mangas: mangas.map(m => ({
+        mangas: mangas.map((m: any) => ({
           id: m.id,
           title: m.title,
           slug: m.slug,

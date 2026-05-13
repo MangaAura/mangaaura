@@ -131,18 +131,18 @@ export function DateRangePicker({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'flex items-center gap-2 px-4 py-2.5 rounded-xl border',
-          'bg-white border-slate-200 text-slate-700',
-          'hover:border-slate-300 hover:bg-slate-50',
-          'focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+'bg-[var(--surface-elevated)] border-[var(--border)] text-[var(--text-secondary)]',
+        'hover:border-[var(--border-strong)] hover:bg-[var(--surface-sunken)]',
+          'focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]',
           'transition-all duration-200',
-          isOpen && 'border-indigo-500 ring-2 ring-indigo-500/20'
+          isOpen && 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20'
         )}
       >
-        <CalendarIcon className="w-4 h-4 text-slate-400" />
+        <CalendarIcon className="w-4 h-4 text-[var(--text-tertiary)]" />
         <span className="text-sm font-medium">{displayLabel}</span>
         <ChevronDownIcon
           className={cn(
-            'w-4 h-4 text-slate-400 transition-transform duration-200',
+            'w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200',
             isOpen && 'rotate-180'
           )}
         />
@@ -158,7 +158,7 @@ export function DateRangePicker({
           />
 
           {/* Dropdown Content */}
-          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl border border-slate-200 shadow-lg z-50 p-2">
+          <div className="absolute right-0 top-full mt-2 w-72 bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] shadow-lg z-50 p-2">
             {/* Presets */}
             <div className="space-y-1">
               {PRESETS.filter((p) => !disabledPresets.includes(p.value)).map(
@@ -170,13 +170,13 @@ export function DateRangePicker({
                       'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm',
                       'transition-colors duration-150',
                       preset === presetOption.value
-                        ? 'bg-indigo-50 text-indigo-700 font-medium'
-                        : 'text-slate-700 hover:bg-slate-100'
+? 'bg-[var(--primary)]/10 text-[var(--primary)] font-medium'
+        : 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
                     )}
                   >
                     <span>{presetOption.label}</span>
                     {preset === presetOption.value && (
-                      <div className="w-2 h-2 rounded-full bg-indigo-500" />
+                      <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
                     )}
                   </button>
                 )
@@ -186,41 +186,41 @@ export function DateRangePicker({
             {/* Custom Date Inputs */}
             <div
               className={cn(
-                'mt-3 pt-3 border-t border-slate-100',
+                'mt-3 pt-3 border-t border-[var(--border)]',
                 preset !== 'custom' && 'opacity-50 pointer-events-none'
               )}
             >
-              <p className="text-xs font-medium text-slate-500 mb-2 px-1">
+              <p className="text-xs font-medium text-[var(--text-secondary)] mb-2 px-1">
                 Rango personalizado
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-slate-500 w-12">Desde</label>
+                  <label className="text-xs text-[var(--text-secondary)] w-12">Desde</label>
                   <input
                     type="date"
                     value={customFrom}
                     onChange={(e) => handleCustomDateChange('from', e.target.value)}
-                    max={customTo}
-                    className={cn(
-                      'flex-1 px-2 py-1.5 text-sm rounded-lg border',
-                      'border-slate-200 text-slate-700',
-                      'focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20'
-                    )}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-slate-500 w-12">Hasta</label>
-                  <input
-                    type="date"
-                    value={customTo}
-                    onChange={(e) => handleCustomDateChange('to', e.target.value)}
-                    min={customFrom}
-                    max={formatDateInput(new Date())}
-                    className={cn(
-                      'flex-1 px-2 py-1.5 text-sm rounded-lg border',
-                      'border-slate-200 text-slate-700',
-                      'focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20'
-                    )}
+max={customTo}
+        className={cn(
+        'flex-1 px-2 py-1.5 text-sm rounded-lg border',
+        'border-[var(--border)] text-[var(--text-secondary)]',
+'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
+)}
+/>
+</div>
+<div className="flex items-center gap-2">
+<label className="text-xs text-[var(--text-secondary)] w-12">Hasta</label>
+<input
+type="date"
+value={customTo}
+onChange={(e) => handleCustomDateChange('to', e.target.value)}
+min={customFrom}
+max={formatDateInput(new Date())}
+className={cn(
+'flex-1 px-2 py-1.5 text-sm rounded-lg border',
+'border-[var(--border)] text-[var(--text-secondary)]',
+'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
+        )}
                   />
                 </div>
               </div>
@@ -228,8 +228,8 @@ export function DateRangePicker({
                 onClick={applyCustomRange}
                 className={cn(
                   'w-full mt-3 py-2 rounded-lg text-sm font-medium',
-                  'bg-indigo-600 text-white',
-                  'hover:bg-indigo-700 active:bg-indigo-800',
+'bg-[var(--primary)] text-[var(--text-inverse)]',
+'hover:bg-[var(--primary-hover)] active:bg-[var(--primary-hover)]',
                   'transition-colors duration-150'
                 )}
               >

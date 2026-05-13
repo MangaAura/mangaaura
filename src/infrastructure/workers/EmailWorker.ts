@@ -5,7 +5,9 @@
  */
 
 import { Worker, Job } from 'bullmq';
+import type { Redis } from 'ioredis';
 import { emailService } from '@/core/services/EmailService';
+import { baseEmailTemplate } from '@/lib/email-templates';
 import { redis, isMockRedis } from '@/lib/redis';
 import type {
   EmailJobData,
@@ -43,7 +45,7 @@ export class EmailWorker {
   private useMock: boolean;
 
   constructor() {
-    this.useMock = process.env.NODE_ENV !== 'production' && isMockRedis();
+    this.useMock = isMockRedis();
 
     if (this.useMock) {
       this.initializeMockWorker();
@@ -69,6 +71,11 @@ export class EmailWorker {
    * Inicializa el worker de emails real con BullMQ
    */
   private initializeRealWorker(): void {
+    if (isMockRedis()) {
+      this.useMock = true;
+      this.initializeMockWorker();
+      return;
+    }
     try {
       this.worker = new Worker(
         'emails',
@@ -76,7 +83,7 @@ export class EmailWorker {
           await this.processJob(job);
         },
         {
-          connection: redis,
+          connection: redis as Redis,
           concurrency: 5,
           limiter: {
             max: 10,
@@ -104,15 +111,15 @@ export class EmailWorker {
 
     const bullWorker = this.worker as Worker;
 
-    bullWorker.on('completed', (job) => {
-      console.log(`[EmailWorker] Job ${job.id} completed: ${job.data.type}`);
+    bullWorker.on('completed', (job: any) => {
+      console.info(`[EmailWorker] Job ${job.id} completed: ${job.data.type}`);
     });
 
-    bullWorker.on('failed', (job, err) => {
+    bullWorker.on('failed', (job: any, err: any) => {
       console.error(`[EmailWorker] Job ${job?.id} failed:`, err.message);
     });
 
-    bullWorker.on('error', (error) => {
+    bullWorker.on('error', (error: any) => {
       // Only log errors in production or with DEBUG_EMAIL flag
       if (process.env.NODE_ENV === 'production' || process.env.DEBUG_EMAIL) {
         console.error('[EmailWorker] Worker error:', error);
@@ -125,7 +132,7 @@ export class EmailWorker {
    */
   private async processJob(job: Job<EmailJobData>): Promise<void> {
     const { data } = job;
-    console.log(`[EmailWorker] Processing job ${job.id}: ${data.type}`);
+    console.info(`[EmailWorker] Processing job ${job.id}: ${data.type}`);
 
     try {
       // In mock mode, just log the email instead of sending
@@ -155,6 +162,12 @@ export class EmailWorker {
           break;
         case 'comment-reply':
           await this.processCommentReplyEmail(job as Job<CommentReplyData>);
+          break;
+        case 'custom':
+          await this.processCustomEmail(job);
+          break;
+        case 'marketing':
+          await this.processMarketingEmail(job);
           break;
         default:
           throw new Error(`Unknown job type: ${(data as EmailJobData).type}`);
@@ -221,7 +234,9 @@ export class EmailWorker {
       description: job.data.achievementDescription,
       xpReward,
       iconUrl: achievementIconUrl || null,
-      condition: '',
+condition: '',
+category: 'general',
+      difficulty: 'EASY',
       createdAt: new Date(),
       badgeId: `badge-${achievementName}`,
     };
@@ -259,8 +274,69 @@ export class EmailWorker {
     );
   }
 
+  private async processCustomEmail(job: Job<EmailJobData>): Promise<void> {
+    const { to, userId, username } = job.data;
+    const subject = job.data.subject as string | undefined;
+    const htmlContent = job.data.htmlContent as string | undefined;
+    const textContent = job.data.textContent as string | undefined;
+
+    if (!subject || !htmlContent) {
+      throw new Error('Custom email missing required fields: subject, htmlContent');
+    }
+
+    await emailService.sendEmail(to, {
+      subject,
+      html: htmlContent,
+      text: textContent || htmlContent.replace(/<[^>]*>/g, ''),
+    });
+
+    console.info(`[EmailWorker] Custom email sent to ${to} (user: ${username})`);
+  }
+
+  private async processMarketingEmail(job: Job<EmailJobData>): Promise<void> {
+    const { to, userId, username } = job.data;
+    const subject = job.data.subject as string | undefined;
+    const htmlContent = job.data.htmlContent as string | undefined;
+
+    if (!subject || !htmlContent) {
+      throw new Error('Marketing email missing required fields: subject, htmlContent');
+    }
+
+    await emailService.sendEmail(to, {
+      subject,
+      html: htmlContent,
+      text: htmlContent.replace(/<[^>]*>/g, ''),
+    });
+
+    console.info(`[EmailWorker] Marketing email sent to ${to} (user: ${username})`);
+  }
+
   private async processCommentReplyEmail(job: Job<CommentReplyData>): Promise<void> {
-    console.log('[EmailWorker] Comment reply emails not yet implemented');
+    const { to, userId, username, commentId, replyContent, replierUsername, chapterId, chapterNumber, mangaTitle } = job.data;
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const chapterLink = `${baseUrl}/chapter/${chapterId}#comment-${commentId}`;
+
+    const { html, text } = baseEmailTemplate({
+      title: `${replierUsername} respondió a tu comentario`,
+      preview: `${replierUsername} respondió a tu comentario en ${mangaTitle}`,
+      content: `
+        <p><strong>${replierUsername}</strong> respondió a tu comentario en <strong>"${mangaTitle}"</strong> (Capítulo ${chapterNumber}).</p>
+        <div style="margin: 15px 0; padding: 15px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #6366f1; color: #475569; font-style: italic;">
+          "${replyContent}"
+        </div>
+        <p>Haz clic en el botón para ver la respuesta completa.</p>
+      `,
+      ctaText: 'Ver respuesta',
+      ctaUrl: chapterLink,
+    });
+
+    await emailService.sendEmail(to, {
+      html,
+      text,
+      subject: `${replierUsername} respondió a tu comentario en ${mangaTitle}`,
+    });
+
+    console.info(`[EmailWorker] Comment reply email sent to ${to} from ${replierUsername}`);
   }
 
   /**

@@ -129,7 +129,7 @@ export function NotificationList({
                 className={cn(
                   'px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
                   filterType === option.value
-                    ? 'bg-[var(--primary)] text-white'
+                    ? 'bg-[var(--primary)] text-[var(--text-inverse)]'
                     : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
                 )}
               >
@@ -164,12 +164,13 @@ export function NotificationList({
               </h3>
 
               <div className="space-y-2">
-                {groupNotifications.map((notification) => (
+                {groupNotifications.map((notification, i) => (
                   <NotificationCard
                     key={notification.id}
                     notification={notification}
                     onMarkAsRead={onMarkAsRead}
                     onDelete={onDelete}
+                    index={i}
                   />
                 ))}
               </div>

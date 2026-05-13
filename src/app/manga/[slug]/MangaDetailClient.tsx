@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Layout/Navbar';
+import { motion } from 'framer-motion';
 import {
   BookOpen,
   Eye,
@@ -24,7 +24,7 @@ interface Chapter {
   title: string | null;
   totalPages: number;
   viewCount: number;
-  createdAt: string;
+  createdAt: string | Date;
 }
 
 interface MangaData {
@@ -39,8 +39,8 @@ interface MangaData {
   tags: string[];
   rating: number | null;
   totalViews: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   chapters: Chapter[];
   libraryCount: number;
 }
@@ -52,10 +52,10 @@ interface Props {
 }
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-  ONGOING: { label: 'En curso', color: 'bg-green-500' },
-  COMPLETED: { label: 'Completado', color: 'bg-blue-500' },
-  HIATUS: { label: 'En pausa', color: 'bg-yellow-500' },
-  CANCELLED: { label: 'Cancelado', color: 'bg-red-500' },
+  ONGOING: { label: 'En curso', color: 'bg-[var(--success)]' },
+  COMPLETED: { label: 'Completado', color: 'bg-[var(--info)]' },
+  HIATUS: { label: 'En pausa', color: 'bg-[var(--warning)]' },
+  CANCELLED: { label: 'Cancelado', color: 'bg-[var(--error)]' },
 };
 
 export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary, userId }: Props) {
@@ -68,7 +68,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
     ? manga.chapters
     : manga.chapters.slice(0, 20);
 
-  const statusInfo = statusLabels[manga.status] || { label: manga.status, color: 'bg-gray-500' };
+  const statusInfo = statusLabels[manga.status] || { label: manga.status, color: 'bg-[var(--text-muted)]' };
 
   const toggleLibrary = async () => {
     if (!userId) {
@@ -95,8 +95,12 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <Navbar />
+    <motion.div
+      className="min-h-screen bg-[var(--background)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
 
       {/* Hero Banner */}
       <div className="relative h-64 md:h-80 overflow-hidden">
@@ -105,37 +109,54 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
           className="absolute inset-0 bg-cover bg-center opacity-30 blur-sm"
           style={{ backgroundImage: manga.coverUrl ? `url(${manga.coverUrl})` : undefined }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/20 to-[#8b5cf6]/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent-purple)]/20" />
       </div>
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-40 relative z-20 pb-16">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Cover */}
-          <div className="flex-shrink-0">
-            <div className="w-48 md:w-56 aspect-[2/3] rounded-xl overflow-hidden shadow-2xl border border-[var(--border)] bg-[var(--surface)]">
+          <motion.div
+            className="flex-shrink-0"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+          >
+            <motion.div
+              className="relative w-48 md:w-56 aspect-[2/3] rounded-xl overflow-hidden shadow-2xl border border-[var(--border)] bg-[var(--surface)]"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            >
               {manga.coverUrl ? (
-                <img
-                  src={manga.coverUrl}
-                  alt={manga.title}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img
+                    src={manga.coverUrl}
+                    alt={manga.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <BookOpen className="w-16 h-16 text-[var(--text-tertiary)]" />
                 </div>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Info */}
-          <div className="flex-1 min-w-0">
+          <motion.div
+            className="flex-1 min-w-0"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold text-white', statusInfo.color)}>
+              <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold text-[var(--text-inverse)]', statusInfo.color)}>
                 {statusInfo.label}
               </span>
               {manga.rating && (
-                <span className="flex items-center gap-1 text-sm text-yellow-500 font-medium">
+                <span className="flex items-center gap-1 text-sm text-[var(--warning)] font-medium">
                   <Star className="w-4 h-4 fill-current" /> {manga.rating.toFixed(1)}
                 </span>
               )}
@@ -153,7 +174,12 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
             </Link>
 
             {/* Stats */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-secondary)] mb-6">
+            <motion.div
+              className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-secondary)] mb-6 p-4 rounded-xl bg-[var(--surface)]/60 backdrop-blur-sm border border-[var(--border)]/50 shadow-sm"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
               <span className="flex items-center gap-1">
                 <Eye className="w-4 h-4" /> {formatNumber(manga.totalViews)} vistas
               </span>
@@ -166,14 +192,14 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" /> {formatDate(manga.createdAt)}
               </span>
-            </div>
+            </motion.div>
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 mb-6">
               {manga.chapters.length > 0 && (
                 <Link
                   href={`/manga/${manga.slug}/chapter/${manga.chapters[manga.chapters.length - 1]?.chapterNumber || 1}`}
-                  className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
                 >
                   <BookOpen className="w-5 h-5" />
                   Empezar a leer
@@ -199,7 +225,12 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
 
             {/* Tags */}
             {manga.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <motion.div
+                className="flex flex-wrap gap-2 mb-6"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+              >
                 {manga.tags.map((tag) => (
                   <span
                     key={tag}
@@ -208,23 +239,33 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                     <Tag className="w-3 h-3" /> {tag}
                   </span>
                 ))}
-              </div>
+              </motion.div>
             )}
 
             {/* Description */}
             {manga.description && (
-              <div className="mb-8">
+              <motion.div
+                className="mb-8"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
                 <h2 className="text-lg font-bold mb-2">Sinopsis</h2>
                 <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
                   {manga.description}
                 </p>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         </div>
 
         {/* Chapters List */}
-        <div className="mt-8">
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-[var(--primary)]" />
             Capítulos
@@ -240,32 +281,38 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
             </div>
           ) : (
             <div className="space-y-2">
-              {displayedChapters.map((chapter) => (
-                <Link
+              {displayedChapters.map((chapter, i) => (
+                <motion.div
                   key={chapter.id}
-                  href={`/manga/${manga.slug}/chapter/${chapter.chapterNumber}`}
-                  className="flex items-center justify-between p-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl hover:bg-[var(--surface-elevated)] hover:border-[var(--primary)]/30 transition-all group"
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.03, duration: 0.3 }}
                 >
-                  <div className="flex items-center gap-4">
-                    <span className="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] font-bold text-sm">
-                      {chapter.chapterNumber}
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm group-hover:text-[var(--primary)] transition-colors">
-                        Capítulo {chapter.chapterNumber}
-                        {chapter.title && `: ${chapter.title}`}
-                      </p>
-                      <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)] mt-1">
-                        <span className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" /> {formatNumber(chapter.viewCount)}
-                        </span>
-                        <span>{formatDate(chapter.createdAt)}</span>
-                        <span>{chapter.totalPages} págs.</span>
+                  <Link
+                    href={`/manga/${manga.slug}/chapter/${chapter.chapterNumber}`}
+                    className="flex items-center justify-between p-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl hover:bg-[var(--surface-elevated)] hover:border-[var(--primary)]/30 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] font-bold text-sm">
+                        {chapter.chapterNumber}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-sm group-hover:text-[var(--primary)] transition-colors">
+                          Capítulo {chapter.chapterNumber}
+                          {chapter.title && `: ${chapter.title}`}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)] mt-1">
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" /> {formatNumber(chapter.viewCount)}
+                          </span>
+                          <span>{formatDate(chapter.createdAt)}</span>
+                          <span>{chapter.totalPages} págs.</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <BookOpen className="w-5 h-5 text-[var(--text-tertiary)] group-hover:text-[var(--primary)] transition-colors" />
-                </Link>
+                    <BookOpen className="w-5 h-5 text-[var(--text-tertiary)] group-hover:text-[var(--primary)] transition-colors" />
+                  </Link>
+                </motion.div>
               ))}
             </div>
           )}
@@ -279,8 +326,8 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               Ver los {manga.chapters.length} capítulos
             </button>
           )}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

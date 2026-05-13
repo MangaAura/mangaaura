@@ -159,12 +159,12 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get reported content count from AnalyticsEvent (content reports)
-    const reportedContent = await prisma.analyticsEvent.count({
-      where: {
-        type: 'REPORT',
-        timestamp: { gte: last30d },
-      },
-    });
+  const reportedContent = await prisma.analyticsEvent.count({
+    where: {
+      eventType: 'REPORT',
+      createdAt: { gte: last30d },
+    },
+  });
 
     const stats: DashboardStats = {
       counts: {
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
         flaggedComments,
         reportedContent,
       },
-      popularMangas: popularMangas.map((manga) => ({
+      popularMangas: popularMangas.map((manga: any) => ({
         id: manga.id,
         title: manga.title,
         slug: manga.slug,

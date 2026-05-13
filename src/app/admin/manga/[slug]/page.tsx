@@ -175,7 +175,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-slate-900">Failed to load manga</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Failed to load manga</h2>
         <p className="text-[var(--text-tertiary)] mt-2">Please try again later</p>
       </div>
     );
@@ -187,12 +187,12 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/admin/manga">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+<Button variant="ghost" size="icon" aria-label="Volver">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-[var(--primary)]" />
               Edit Manga
             </h1>
@@ -233,7 +233,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-700">Title</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Title</label>
                 <Input
                   value={formData.title}
                   onChange={(e) =>
@@ -243,7 +243,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Description</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Description</label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) =>
@@ -254,7 +254,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Cover URL</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Cover URL</label>
                 <div className="flex gap-2">
                   <Input
                     value={formData.coverUrl}
@@ -266,7 +266,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Status</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Status</label>
                 <Select
                   value={formData.status}
                   onValueChange={(value) =>
@@ -285,7 +285,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Tags</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Tags</label>
                 <div className="flex gap-2 mb-2">
                   <Input
                     value={tagInput}
@@ -303,7 +303,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
                       {tag}
                       <button
                         onClick={() => removeTag(tag)}
-                        className="ml-1 text-[var(--text-tertiary)] hover:text-slate-700"
+                        className="ml-1 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                       >
                         ×
                       </button>
@@ -363,7 +363,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
               <CardTitle>Cover Preview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[3/4] bg-slate-100 rounded-lg overflow-hidden">
+              <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
                 {formData.coverUrl ? (
                   <img
                     src={formData.coverUrl}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { paymentService } from '@/core/services/PaymentService';
+import { ContributeCrowdfundingUseCase } from '@/application/use-cases/economy/ContributeCrowdfundingUseCase';
 import { z } from 'zod';
 
 const contributeSchema = z.object({
@@ -9,6 +10,8 @@ const contributeSchema = z.object({
   isAnonymous: z.boolean().optional().default(false),
   message: z.string().max(500).optional(),
 });
+
+const contributeUseCase = new ContributeCrowdfundingUseCase(paymentService);
 
 // POST /api/crowdfunding/contribute - Contribuir a crowdfunding
 export async function POST(request: NextRequest) {
@@ -34,9 +37,9 @@ export async function POST(request: NextRequest) {
 
     const { chapterId, amount, isAnonymous, message } = result.data;
 
-    const contributionResult = await paymentService.contributeToCrowdfunding({
-      chapterId,
+    const contributionResult = await contributeUseCase.execute({
       userId: session.user.id,
+      chapterId,
       amount,
       isAnonymous,
       message,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Bell, BellOff, Loader2, AlertCircle } from 'lucide-react';
@@ -50,14 +50,14 @@ export function PushNotificationToggle({
           disabled
           className={cn(
             sizeClasses[size],
-            'rounded-full bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
+            'rounded-full bg-[var(--surface-sunken)] text-[var(--text-tertiary)] cursor-not-allowed opacity-50'
           )}
         >
           <BellOff size={iconSizes[size]} />
         </button>
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[var(--surface)] text-[var(--text-primary)] text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
           Notificaciones no soportadas en este navegador
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[var(--surface)]" />
         </div>
       </div>
     );
@@ -84,7 +84,7 @@ export function PushNotificationToggle({
             'rounded-full',
             isSubscribed 
               ? 'bg-accent-blue/20 border-accent-blue text-accent-blue hover:bg-accent-blue/30' 
-              : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700'
+              : 'bg-[var(--surface-sunken)] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]'
           )}
           title={isSubscribed ? 'Desactivar notificaciones' : 'Activar notificaciones'}
         >
@@ -99,13 +99,13 @@ export function PushNotificationToggle({
 
         {/* Indicador de estado */}
         {isSubscribed && (
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-900" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-[var(--success)] rounded-full border-2 border-[var(--surface)]" />
         )}
       </div>
 
       {/* Error message */}
       {error && (
-        <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-red-500/90 text-white text-xs rounded-lg flex items-center gap-2 whitespace-nowrap z-50">
+        <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-[var(--error)]/90 text-[var(--text-inverse)] text-xs rounded-lg flex items-center gap-2 whitespace-nowrap z-50">
           <AlertCircle size={12} />
           {error}
         </div>

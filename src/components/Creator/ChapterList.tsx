@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -40,55 +40,55 @@ export function ChapterList({ chapters, mangaId, onDelete, className }: ChapterL
   };
 
   return (
-    <div className={cn('bg-white rounded-xl border border-slate-200 overflow-hidden', className)}>
+    <div className={cn('bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] overflow-hidden', className)}>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="bg-[var(--surface-elevated)] border-b border-[var(--border)]">
             <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Capítulo
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Título
               </th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-center text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Vistas
               </th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-center text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Estado
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Publicado
               </th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-center text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-[var(--border)]">
             {chapters.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center">
-                  <div className="flex flex-col items-center text-slate-400">
-                    <FileTextIcon className="w-12 h-12 mb-3" />
-                    <p className="text-lg font-medium text-slate-600">No hay capítulos</p>
+<div className="flex flex-col items-center text-[var(--text-secondary)]">
+              <FileTextIcon className="w-12 h-12 mb-3" />
+              <p className="text-lg font-medium text-[var(--text-muted)]">No hay capítulos</p>
                     <p className="text-sm">Sube tu primer capítulo para empezar</p>
                   </div>
                 </td>
               </tr>
             ) : (
               chapters.map((chapter) => (
-                <tr key={chapter.id} className="hover:bg-slate-50">
+                <tr key={chapter.id} className="hover:bg-[var(--surface-elevated)]">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-[var(--text-primary)]">
                       Cap. {chapter.number}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-slate-700">{chapter.title}</span>
+                    <span className="text-[var(--text-secondary)]">{chapter.title}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-1 text-slate-600">
+                    <div className="flex items-center justify-center gap-1 text-[var(--text-muted)]">
                       <EyeIcon className="w-4 h-4" />
                       <span>{chapter.views.toLocaleString()}</span>
                     </div>
@@ -98,21 +98,21 @@ export function ChapterList({ chapters, mangaId, onDelete, className }: ChapterL
                       className={cn(
                         'px-2 py-1 text-xs font-medium rounded-full',
                         chapter.status === 'PUBLISHED'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-amber-100 text-amber-700'
+          ? 'bg-[var(--success)]/10 text-[var(--success)]'
+          : 'bg-[var(--warning)]/10 text-[var(--warning)]'
                       )}
                     >
                       {chapter.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-tertiary)]">
                     {formatTimeAgo(chapter.publishedAt)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="relative inline-block">
                       <button
                         onClick={() => setOpenMenuId(openMenuId === chapter.id ? null : chapter.id)}
-                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--surface-elevated)] rounded-lg transition-colors"
                       >
                         <MoreVerticalIcon className="w-4 h-4" />
                       </button>
@@ -123,16 +123,16 @@ export function ChapterList({ chapters, mangaId, onDelete, className }: ChapterL
                             className="fixed inset-0 z-10"
                             onClick={() => setOpenMenuId(null)}
                           />
-                          <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
+                          <div className="absolute right-0 top-full mt-1 w-40 bg-[var(--surface-elevated)] rounded-lg shadow-lg border border-[var(--border)] z-20 py-1">
                             <Link
                               href={`/reader/${mangaId}/chapter/${chapter.id}`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]"
                             >
                               <EyeIcon className="w-4 h-4" />
                               Ver
                             </Link>
                             <button
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left"
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] w-full text-left"
                             >
                               <EditIcon className="w-4 h-4" />
                               Editar
@@ -140,7 +140,7 @@ export function ChapterList({ chapters, mangaId, onDelete, className }: ChapterL
                             <hr className="my-1" />
                             <button
                               onClick={() => handleDelete(chapter.id)}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--error)]/10 w-full text-left"
                             >
                               <Trash2Icon className="w-4 h-4" />
                               Eliminar

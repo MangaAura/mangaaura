@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -72,8 +72,8 @@ export function EmptyState({
             transition={{ delay: 0.3, duration: 0.5 }}
             className="absolute -left-4 -top-2"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 backdrop-blur-sm">
-              <Sparkles className="h-4 w-4 text-blue-500" />
+<div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--info)]/20 backdrop-blur-sm">
+        <Sparkles className="h-4 w-4 text-[var(--info)]" />
             </div>
           </motion.div>
 
@@ -83,8 +83,8 @@ export function EmptyState({
             transition={{ delay: 0.4, duration: 0.5 }}
             className="absolute -right-2 bottom-0"
           >
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500/20 backdrop-blur-sm">
-              <div className="h-2 w-2 rounded-full bg-green-500" />
+<div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--success)]/20 backdrop-blur-sm">
+        <div className="h-2 w-2 rounded-full bg-[var(--success)]" />
             </div>
           </motion.div>
         </motion.div>

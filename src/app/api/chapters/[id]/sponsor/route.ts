@@ -157,7 +157,7 @@ export async function GET(
       take: 10,
     });
 
-    const currentWinner = bids.find((b) => b.status === 'ACTIVE');
+    const currentWinner = bids.find((b: any) => b.status === 'ACTIVE');
 
     return NextResponse.json({
       chapterId,
@@ -172,7 +172,7 @@ export async function GET(
             createdAt: currentWinner.createdAt,
           }
         : null,
-      bids: bids.map((b) => ({
+      bids: bids.map((b: any) => ({
         id: b.id,
         userId: b.userId,
         username: b.user.username,

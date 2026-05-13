@@ -1,14 +1,19 @@
 import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  interactive?: boolean;
+}
+
 const Card = forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  CardProps
+>(({ className, interactive, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      'rounded-xl border border-slate-200 bg-white shadow-sm',
+      'rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] shadow-sm',
+      interactive && 'transition-all duration-200 hover:shadow-[var(--shadow-md)] hover:border-[var(--border-strong)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-[var(--shadow-sm)] cursor-pointer',
       className
     )}
     {...props}
@@ -49,7 +54,7 @@ const CardDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-slate-500', className)}
+    className={cn(      'text-sm text-[var(--text-tertiary)]', className)}
     {...props}
   />
 ));

@@ -7,8 +7,11 @@ import OptimizedImage from '@/components/Image/OptimizedImage';
 
 export interface PageViewerProps {
   pages: string[];
+  currentPage?: number;
   viewMode: 'scroll' | 'paged';
   onPageChange?: (page: number) => void;
+  onNext?: () => void;
+  onPrev?: () => void;
   onChapterEnd?: () => void;
   onOpenMeme?: (imageUrl: string) => void;
   onOpenEditor?: (imageUrl: string) => void;
@@ -46,8 +49,8 @@ const ScrollPageItem = memo(function ScrollPageItem({
     <div className="relative group">
       {/* Loading State */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-800/50 rounded-lg z-10">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-sunken)]/50 rounded-lg z-10">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--text-tertiary)]" />
         </div>
       )}
 
@@ -61,7 +64,7 @@ const ScrollPageItem = memo(function ScrollPageItem({
           loading={index < 3 ? 'eager' : 'lazy'}
           priority={index === 0}
           objectFit="contain"
-          className="w-full h-auto rounded-lg shadow-lg bg-slate-900"
+          className="w-full h-auto rounded-lg shadow-lg bg-[var(--surface)]"
           onLoad={onLoad}
           fallbackOnError={true}
           sizes="(max-width: 768px) 100vw, 800px"
@@ -70,27 +73,29 @@ const ScrollPageItem = memo(function ScrollPageItem({
         {/* Page Actions Overlay */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {onOpenMeme && (
-            <button
-              onClick={() => onOpenMeme(page)}
-              className="p-2 bg-black/70 hover:bg-blue-600 text-white rounded-full shadow-lg transition-colors"
-              title="Crear Meme"
-            >
+        <button
+          onClick={() => onOpenMeme(page)}
+          className="p-2 bg-black/70 hover:bg-[var(--accent-blue-hover)] text-[var(--text-inverse)] rounded-full shadow-lg transition-colors cursor-pointer"
+          title="Crear Meme"
+          aria-label="Crear meme"
+        >
               <ImageIcon size={18} />
             </button>
           )}
           {onOpenEditor && (
-            <button
-              onClick={() => onOpenEditor(page)}
-              className="p-2 bg-black/70 hover:bg-purple-600 text-white rounded-full shadow-lg transition-colors"
-              title="Modo Editor"
-            >
+        <button
+          onClick={() => onOpenEditor(page)}
+          className="p-2 bg-black/70 hover:bg-[var(--accent-purple-hover)] text-[var(--text-inverse)] rounded-full shadow-lg transition-colors cursor-pointer"
+          title="Modo Editor"
+          aria-label="Modo editor"
+        >
               <ZoomIn size={18} />
             </button>
           )}
         </div>
 
         {/* Page Number */}
-        <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-2 right-2 bg-black/70 text-[var(--text-inverse)] px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
           {index + 1} / {totalPages}
         </div>
       </div>
@@ -119,7 +124,7 @@ const PagedViewer = memo(function PagedViewer({
       {/* Loading State */}
       {loadingPages.has(currentPage) && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <Loader2 className="w-12 h-12 animate-spin text-slate-400" />
+          <Loader2 className="w-12 h-12 animate-spin text-[var(--text-tertiary)]" />
         </div>
       )}
 
@@ -145,7 +150,7 @@ const PagedViewer = memo(function PagedViewer({
           className="w-1/4 h-full flex items-center justify-start px-4 opacity-0 hover:opacity-100 transition-opacity disabled:opacity-0"
           aria-label="Página anterior"
         >
-          <div className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors">
+          <div className="bg-black/50 hover:bg-black/70 text-[var(--text-inverse)] p-2 rounded-full transition-colors">
             <ChevronLeft size={24} />
           </div>
         </button>
@@ -159,14 +164,14 @@ const PagedViewer = memo(function PagedViewer({
           className="w-1/4 h-full flex items-center justify-end px-4 opacity-0 hover:opacity-100 transition-opacity"
           aria-label="Página siguiente"
         >
-          <div className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors">
+          <div className="bg-black/50 hover:bg-black/70 text-[var(--text-inverse)] p-2 rounded-full transition-colors">
             <ChevronRight size={24} />
           </div>
         </button>
       </div>
 
       {/* Page Indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 text-[var(--text-inverse)] px-4 py-2 rounded-full text-sm">
         {currentPage + 1} / {pages.length}
       </div>
     </div>
@@ -175,14 +180,17 @@ const PagedViewer = memo(function PagedViewer({
 
 export const PageViewer = memo(function PageViewer({
   pages,
+  currentPage: _currentPage,
   viewMode,
   onPageChange,
+  onNext: _onNext,
+  onPrev: _onPrev,
   onChapterEnd,
   onOpenMeme,
   onOpenEditor,
   className,
 }: PageViewerProps) {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(_currentPage ?? 0);
   const [zoom, setZoom] = useState(100);
   const [loadingPages, setLoadingPages] = useState<Set<number>>(new Set());
   const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set());
@@ -336,7 +344,7 @@ export const PageViewer = memo(function PageViewer({
         <div className="flex flex-col gap-4 pb-20">
           {pages.map((page, index) => (
             <div
-              key={index}
+              key={`page-${index}`}
               ref={el => { pageRefs.current[index] = el; }}
             >
               <ScrollPageItem
@@ -367,27 +375,30 @@ export const PageViewer = memo(function PageViewer({
       </div>
 
       {/* Zoom Controls */}
-      <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-slate-900/90 backdrop-blur-sm rounded-full p-1 shadow-lg">
+      <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-[var(--surface)]/90 backdrop-blur-sm rounded-full p-1 shadow-lg">
         <button
           onClick={handleZoomOut}
           disabled={zoom <= 50}
-          className="p-2 text-white hover:bg-white/10 rounded-full transition-colors disabled:opacity-30"
+          className="p-2 text-[var(--text-inverse)] hover:bg-[var(--text-inverse)]/10 rounded-full transition-colors disabled:opacity-30 cursor-pointer"
           title="Alejar"
+          aria-label="Alejar"
         >
           <ZoomOut size={18} />
         </button>
         <button
           onClick={handleZoomReset}
-          className="px-2 text-xs font-medium text-white hover:text-blue-400 transition-colors"
+          className="px-2 text-xs font-medium text-[var(--text-inverse)] hover:text-[var(--accent-blue)] transition-colors cursor-pointer"
           title="Restablecer zoom"
+          aria-label="Restablecer zoom"
         >
           {zoom}%
         </button>
         <button
           onClick={handleZoomIn}
           disabled={zoom >= 200}
-          className="p-2 text-white hover:bg-white/10 rounded-full transition-colors disabled:opacity-30"
+          className="p-2 text-[var(--text-inverse)] hover:bg-[var(--text-inverse)]/10 rounded-full transition-colors disabled:opacity-30 cursor-pointer"
           title="Acercar"
+          aria-label="Acercar"
         >
           <ZoomIn size={18} />
         </button>

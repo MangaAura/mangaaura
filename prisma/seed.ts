@@ -311,31 +311,42 @@ async function main() {
 
   console.log('✅ Bibliotecas de usuarios creadas');
 
-  // Crear achievement definitions
-  const achievements = [
-    { badgeId: 'first_read', name: 'Primeros Pasos', description: 'Lee tu primer capítulo', iconUrl: '📖', xpReward: 50, condition: '{"type":"chapters_read","count":1}' },
-    { badgeId: 'bibliophile', name: 'Bibliófilo', description: 'Lee 100 capítulos', iconUrl: '📚', xpReward: 500, condition: '{"type":"chapters_read","count":100}' },
-    { badgeId: 'commentator', name: 'Comentarista', description: 'Publica 50 comentarios', iconUrl: '💬', xpReward: 250, condition: '{"type":"comments_posted","count":50}' },
-    { badgeId: 'corrector', name: 'Perfeccionista', description: '100 correcciones aprobadas', iconUrl: '✏️', xpReward: 500, condition: '{"type":"corrections_approved","count":100}' },
-    { badgeId: 'fanatic', name: 'Fanático', description: 'Marca 20 series como favoritas', iconUrl: '⭐', xpReward: 300, condition: '{"type":"favorites","count":20}' },
-    { badgeId: 'streak_7', name: 'Racha de Fuego', description: '7 días consecutivos leyendo', iconUrl: '🔥', xpReward: 100, condition: '{"type":"streak","count":7}' },
-    { badgeId: 'creator_first', name: 'Creador', description: 'Sube tu primera serie', iconUrl: '🎨', xpReward: 200, condition: '{"type":"mangas_created","count":1}' },
-  ];
+  // Crear achievement definitions (imported from seed-achievements)
+  const { achievements: achievementDefs } = await import('./seed-achievements');
 
   await Promise.all(
-    achievements.map((ach) =>
+    achievementDefs.map((ach) =>
       prisma.achievementDefinition.upsert({
         where: { badgeId: ach.badgeId },
-        update: {},
-        create: ach,
+        update: {
+          name: ach.name,
+          description: ach.description,
+          xpReward: ach.xpReward,
+          iconUrl: ach.iconUrl,
+          condition: JSON.stringify(ach.condition),
+          category: ach.category,
+          difficulty: ach.difficulty,
+        },
+        create: {
+          badgeId: ach.badgeId,
+          name: ach.name,
+          description: ach.description,
+          xpReward: ach.xpReward,
+          iconUrl: ach.iconUrl,
+          condition: JSON.stringify(ach.condition),
+          category: ach.category,
+          difficulty: ach.difficulty,
+        },
       })
     )
   );
 
+  console.log('✅ Logros creados');
+
   // Get the created achievements with their IDs
   const createdAchievements = await prisma.achievementDefinition.findMany({
     where: {
-      badgeId: { in: achievements.map((a) => a.badgeId) },
+      badgeId: { in: achievementDefs.map((a) => a.badgeId) },
     },
   });
 
@@ -366,6 +377,190 @@ async function main() {
   });
 
   console.log('✅ Transacciones creadas');
+
+  // Crear categorías del foro
+  const forumCategories = await Promise.all([
+    prisma.forumCategory.upsert({
+      where: { slug: 'general' },
+      update: {},
+      create: { name: 'General', slug: 'general', description: 'Conversaciones generales sobre creación de manga', icon: 'MessageSquare', order: 0 },
+    }),
+    prisma.forumCategory.upsert({
+      where: { slug: 'techniques' },
+      update: {},
+      create: { name: 'Técnicas', slug: 'techniques', description: 'Técnicas de dibujo, composición y narrativa visual', icon: 'Palette', order: 1 },
+    }),
+    prisma.forumCategory.upsert({
+      where: { slug: 'prompts' },
+      update: {},
+      create: { name: 'Prompts IA', slug: 'prompts', description: 'Comparte y discute prompts para generación de imágenes', icon: 'Lightbulb', order: 2 },
+    }),
+    prisma.forumCategory.upsert({
+      where: { slug: 'publishing' },
+      update: {},
+      create: { name: 'Publicación', slug: 'publishing', description: 'Dudas y consejos sobre publicación de capítulos', icon: 'BookOpen', order: 3 },
+    }),
+    prisma.forumCategory.upsert({
+      where: { slug: 'growth' },
+      update: {},
+      create: { name: 'Crecimiento', slug: 'growth', description: 'Estrategias para conseguir lectores y crecer en la plataforma', icon: 'TrendingUp', order: 4 },
+    }),
+    prisma.forumCategory.upsert({
+      where: { slug: 'announcements' },
+      update: {},
+      create: { name: 'Anuncios', slug: 'announcements', description: 'Novedades y anuncios oficiales de InkVerse', icon: 'Megaphone', order: 5 },
+    }),
+  ]);
+
+  console.log(`✅ ${forumCategories.length} categorías del foro creadas`);
+
+  // Crear hilos de ejemplo
+  const forumThreads = [
+    {
+      title: 'Guía de mejores prácticas para subida de capítulos',
+      slug: 'guia-mejores-practicas-subida',
+      content: 'Recomendaciones para optimizar la calidad y tamaño de tus imágenes al subir capítulos. Asegúrate de usar resolución 1200x1800 para páginas estándar y comprimir a webp para mejor rendimiento.',
+      isPinned: true,
+      categoryId: forumCategories[5].id,
+      authorId: users[0].id,
+      tags: JSON.stringify(['guía', 'publicación']),
+    },
+    {
+      title: 'Compartiendo mis prompts para estilo shōnen',
+      slug: 'prompts-estilo-shonen',
+      content: 'Después de experimentar mucho, encontré una combinación de prompts que da un estilo shōnen clásico. El truco está en especificar "dynamic action poses, bold ink lines, dramatic shading" seguido del estilo del artista de referencia.',
+      isPinned: true,
+      categoryId: forumCategories[2].id,
+      authorId: users[1].id,
+      tags: JSON.stringify(['prompts', 'shonen', 'tips']),
+    },
+    {
+      title: '¿Cómo mejoráis la consistencia de personajes entre capítulos?',
+      slug: 'consistencia-personajes-entre-capitulos',
+      content: 'Tengo problemas para que mis personajes se vean consistentes entre páginas. ¿Qué técnicas usáis? He probado con character sheets pero sigo teniendo variaciones.',
+      isPinned: false,
+      categoryId: forumCategories[1].id,
+      authorId: users[1].id,
+      tags: JSON.stringify(['consistencia', 'personajes']),
+    },
+    {
+      title: 'Estrategias para conseguir más lectores',
+      slug: 'estrategias-conseguir-lectores',
+      content: 'He notado que ciertos horarios de publicación funcionan mejor. Publicar entre las 18:00-21:00 CET me da un 40% más de visitas. Comparto mi experiencia y quiero saber la vuestra.',
+      isPinned: false,
+      categoryId: forumCategories[4].id,
+      authorId: users[1].id,
+      tags: JSON.stringify(['crecimiento', 'horarios', 'tips']),
+    },
+    {
+      title: 'Nuevo sistema de crowdfunding: preguntas y respuestas',
+      slug: 'crowdfunding-preguntas-respuestas',
+      content: 'Respondemos las preguntas más frecuentes sobre el nuevo sistema de financiamiento colectivo. Ahora los lectores pueden contribuir InkCoins para apoyar la creación de nuevos capítulos.',
+      isPinned: false,
+      categoryId: forumCategories[5].id,
+      authorId: users[0].id,
+      tags: JSON.stringify(['crowdfunding', 'faq', 'inkcoins']),
+    },
+  ];
+
+  for (const thread of forumThreads) {
+    await prisma.forumThread.upsert({
+      where: { slug: thread.slug },
+      update: {},
+      create: thread,
+    });
+  }
+
+  console.log(`✅ ${forumThreads.length} hilos del foro creados`);
+
+  // ── Events ──
+  console.log('\n📅 Creando eventos...');
+
+  const now = new Date();
+  const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const twoMonthsAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+  const events = [
+    {
+      title: 'Desafío de Fan-Art: "Perdido en el Cosmos"',
+      description: 'La plataforma lanza el prompt base del mes. Tu misión: generar una obra que muestre a un protagonista de anime perdido en el espacio exterior, con una estética visual retro-futurista.',
+      type: 'ART_CHALLENGE',
+      basePrompt: 'An anime protagonist floating alone in deep space, retro-futuristic aesthetic, starfield background, melancholic expression, Makoto Shinkai style, cinematic, award winning digital art --ar 16:9 --niji 6',
+      prize: '5,000 InkCoins + Banner Exclusivo',
+      startDate: oneWeekAgo,
+      endDate: in7Days,
+      status: 'ACTIVE',
+      participants: 43,
+      color: 'from-[var(--accent-blue)]/40 to-[var(--accent-purple)]/40',
+      borderColor: 'border-accent-blue/30',
+      createdBy: users[0].id,
+    },
+    {
+      title: 'Torneo de Speedreading: Semana Shounen',
+      description: 'Lee la mayor cantidad de capítulos de mangas de género Shounen en 7 días. Los 3 usuarios con más capítulos completados ganan el podio de esta semana.',
+      type: 'SPEEDREADING',
+      basePrompt: null,
+      prize: '3,000 / 1,500 / 750 InkCoins',
+      startDate: oneWeekAgo,
+      endDate: in3Days,
+      status: 'ACTIVE',
+      participants: 218,
+      color: 'from-[var(--accent-red)]/40 to-[var(--accent-orange)]/40',
+      borderColor: 'border-accent-red/30',
+      createdBy: users[0].id,
+    },
+    {
+      title: 'Votación: "Ciudad Neon del Futuro"',
+      description: 'Vota por tu obra favorita del desafío anterior. La obra más votada gana 3,000 InkCoins y un banner exclusivo.',
+      type: 'ART_CHALLENGE',
+      basePrompt: 'A futuristic neon city at night, cyberpunk aesthetic, anime style, rain-soaked streets, holographic advertisements, towering skyscrapers --ar 16:9 --niji 6',
+      prize: '3,000 InkCoins + Banner Exclusivo',
+      startDate: twoWeeksAgo,
+      endDate: oneWeekAgo,
+      status: 'VOTING',
+      participants: 56,
+      color: 'from-[var(--accent-purple)]/40 to-[var(--accent-red)]/40',
+      borderColor: 'border-accent-purple/30',
+      createdBy: users[0].id,
+    },
+    {
+      title: 'Desafío: "El Último Héroe"',
+      description: 'Un héroe caído en el campo de batalla, su última mirada al cielo. La comunidad generó arte épico inspirado en este prompt.',
+      type: 'ART_CHALLENGE',
+      basePrompt: 'A fallen hero on the battlefield, last look at the sky, epic anime style, dramatic lighting, golden hour --ar 16:9 --niji 6',
+      prize: '4,000 InkCoins',
+      startDate: twoMonthsAgo,
+      endDate: oneMonthAgo,
+      status: 'COMPLETED',
+      participants: 67,
+      createdBy: users[0].id,
+    },
+  ];
+
+  const createdEvents: any[] = [];
+  for (const event of events) {
+    const created = await prisma.event.create({ data: event });
+    createdEvents.push(created);
+  }
+
+  if (createdEvents.length >= 3) {
+    const votingEvent = createdEvents[2];
+    const votingSubmissions = [
+      { eventId: votingEvent.id, userId: users[1].id, imageUrl: '/placeholder-manga.svg', prompt: 'An anime hero in deep space retro-futuristic --niji 6', votes: 142 },
+      { eventId: votingEvent.id, userId: users[2].id, imageUrl: '/placeholder-manga.svg', prompt: 'Floating astronaut anime girl retro style --v 6', votes: 98 },
+      { eventId: votingEvent.id, userId: users[3].id, imageUrl: '/placeholder-manga.svg', prompt: 'Lonely protagonist cosmos cinematic --ar 16:9 --niji 6', votes: 87 },
+      { eventId: votingEvent.id, userId: users[0].id, imageUrl: '/placeholder-manga.svg', prompt: 'Space opera anime protagonist --midjourney', votes: 54 },
+    ];
+    for (const sub of votingSubmissions) {
+      await prisma.eventSubmission.create({ data: sub });
+    }
+  }
+
+  console.log(`✅ ${createdEvents.length} eventos creados`);
 
   console.log('\n🎉 Seed completado exitosamente!');
   console.log('\nCredenciales de prueba:');

@@ -8,17 +8,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          'border-transparent bg-indigo-600 text-white hover:bg-indigo-700',
+          'border-transparent bg-[var(--primary)] text-[var(--text-inverse)] hover:bg-[var(--primary-hover)]',
         secondary:
-          'border-transparent bg-slate-100 text-slate-900 hover:bg-slate-200',
-        destructive:
-          'border-transparent bg-red-100 text-red-700 hover:bg-red-200',
-        outline: 'text-slate-700 border-slate-300',
-        success:
-          'border-transparent bg-green-100 text-green-700 hover:bg-green-200',
-        warning:
-          'border-transparent bg-amber-100 text-amber-700 hover:bg-amber-200',
-        ink: 'border-transparent bg-gradient-to-r from-purple-500 to-indigo-500 text-white',
+          'border-transparent bg-[var(--surface-sunken)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]',
+      destructive:
+        'border-transparent bg-[var(--error)]/10 text-[var(--error)] hover:bg-[var(--error)]/20',
+        outline: 'text-[var(--text-secondary)] border-[var(--border)]',
+      success:
+        'border-transparent bg-[var(--success)]/10 text-[var(--success)] hover:bg-[var(--success)]/20',
+      warning:
+        'border-transparent bg-[var(--warning)]/10 text-[var(--warning)] hover:bg-[var(--warning)]/20',
+        ink: 'border-transparent bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-[var(--text-inverse)]',
       },
     },
     defaultVariants: {

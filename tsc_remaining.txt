@@ -1,0 +1,133 @@
+﻿
+next.config.ts(171,7): error TS2561: Object literal may only specify known properties, but 'hideSourceMaps' does not 
+exist in type 'SentryBuildOptions'. Did you mean to write 'sourcemaps'?
+src/app/api/analytics/creator/route.ts(55,32): error TS2353: Object literal may only specify known properties, and 
+'type' does not exist in type 'AnalyticsEventWhereInput'.
+src/app/api/analytics/creator/route.ts(58,32): error TS2353: Object literal may only specify known properties, and 
+'type' does not exist in type 'AnalyticsEventWhereInput'.
+src/app/api/analytics/creator/route.ts(61,32): error TS2353: Object literal may only specify known properties, and 
+'type' does not exist in type 'AnalyticsEventWhereInput'.
+src/app/api/analytics/creator/route.ts(85,9): error TS2353: Object literal may only specify known properties, and 
+'type' does not exist in type 'AnalyticsEventWhereInput'.
+src/app/api/analytics/creator/route.ts(95,9): error TS2353: Object literal may only specify known properties, and 
+'type' does not exist in type 'AnalyticsEventWhereInput'.
+src/app/api/analytics/track/route.ts(73,11): error TS2503: Cannot find namespace 'z'.
+src/app/api/analytics/track/route.ts(114,10): error TS2503: Cannot find namespace 'z'.
+src/app/api/analytics/track/route.ts(172,10): error TS2503: Cannot find namespace 'z'.
+src/app/api/analytics/track/route.ts(262,17): error TS2503: Cannot find namespace 'z'.
+src/app/api/library/route.ts(16,41): error TS2693: 'ZodError' only refers to a type, but is being used as a value here.
+src/app/api/library/route.ts(207,26): error TS2693: 'ZodError' only refers to a type, but is being used as a value 
+here.
+src/app/api/library/route.ts(208,83): error TS2339: Property 'issues' does not exist on type 'ZodError<unknown>'.
+src/app/api/sync/route.ts(43,22): error TS2339: Property 'libraryEntry' does not exist on type 
+'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/app/api/sync/route.ts(58,22): error TS2339: Property 'libraryEntry' does not exist on type 
+'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/app/api/sync/route.ts(74,13): error TS2353: Object literal may only specify known properties, and 'userId_mangaId' 
+does not exist in type 'ReadingProgressWhereUniqueInput'.
+src/app/api/sync/route.ts(79,13): error TS2353: Object literal may only specify known properties, and 'chapterNumber' 
+does not exist in type 'Without<ReadingProgressCreateInput, ReadingProgressUncheckedCreateInput> & 
+ReadingProgressUncheckedCreateInput'.
+src/app/api/sync/route.ts(84,13): error TS2353: Object literal may only specify known properties, and 'chapterNumber' 
+does not exist in type '(Without<ReadingProgressUpdateInput, ReadingProgressUncheckedUpdateInput> & 
+ReadingProgressUncheckedUpdateInput) | (Without<...> & ReadingProgressUpdateInput)'.
+src/app/api/sync/route.ts(102,13): error TS2353: Object literal may only specify known properties, and 'type' does not 
+exist in type '(Without<AnalyticsEventCreateInput, AnalyticsEventUncheckedCreateInput> & 
+AnalyticsEventUncheckedCreateInput) | (Without<...> & AnalyticsEventCreateInput)'.
+src/app/api/sync/route.ts(167,15): error TS2353: Object literal may only specify known properties, and 
+'userId_commentId' does not exist in type 'CommentLikeWhereUniqueInput'.
+src/app/api/sync/route.ts(184,22): error TS2339: Property 'bookmark' does not exist on type 
+'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/app/auth/forgot-password/page.tsx(37,27): error TS2339: Property 'errors' does not exist on type 
+'ZodError<unknown>'.
+src/app/auth/register/page.tsx(58,17): error TS2503: Cannot find namespace 'z'.
+src/app/auth/register/page.tsx(65,73): error TS2554: Expected 0 arguments, but got 1.
+src/app/auth/register/page.tsx(182,25): error TS7053: Element implicitly has an 'any' type because expression of type 
+'string | number | symbol' can't be used to index type '{ username: ZodString; email: ZodString; password: ZodString; 
+confirmPassword: ZodString; }'.
+src/app/checkout/page.tsx(13,56): error TS2339: Property 'loadStripe' does not exist on type '{ default: typeof 
+import("@stripe/stripe-js"); }'.
+src/components/__tests__/Button.test.tsx(73,20): error TS2322: Type '{ children: string; ref: Ref<HTMLButtonElement>; 
+}' is not assignable to type 'IntrinsicAttributes & ButtonProps'.
+src/components/Collections/CollectionGrid.tsx(109,62): error TS2552: Cannot find name 'createCollection'. Did you mean 
+'setCollections'?
+src/components/Reader/MangaReader.tsx(138,19): error TS2554: Expected 1 arguments, but got 0.
+src/components/Reader/MangaReader.tsx(138,19): error TS7009: 'new' expression, whose target lacks a construct 
+signature, implicitly has an 'any' type.
+src/components/ui/__tests__/EmptyState.test.tsx(2,32): error TS2305: Module '"vitest"' has no exported member 'jest'.
+src/core/services/CollectionService.ts(514,39): error TS2551: Property 'collectionLike' does not exist on type 
+'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'collection'?
+src/core/services/CollectionService.ts(525,20): error TS2551: Property 'collectionLike' does not exist on type 
+'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'collection'?
+src/core/services/CollectionService.ts(537,20): error TS2551: Property 'collectionLike' does not exist on type 
+'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'collection'?
+src/infrastructure/ai/AlertManager.ts(245,15): error TS2345: Argument of type '"alert:updated"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/AlertManager.ts(258,15): error TS2345: Argument of type '"alert:updated"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/AlertManager.ts(270,15): error TS2345: Argument of type '"alert:cleared"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/AlertManager.ts(293,19): error TS2345: Argument of type '"alert:cleared"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/AlertManager.ts(316,19): error TS2345: Argument of type '"alert:cleared"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/AlertManager.ts(329,44): error TS2345: Argument of type '"alert:cleared"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/AlertManager.ts(396,15): error TS2345: Argument of type '"config:updated"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/ModelRegistry.ts(475,17): error TS2345: Argument of type '"model:health-changed"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(254,17): error TS2345: Argument of type '"job:queued"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(278,17): error TS2345: Argument of type '"pool:event"' is not assignable to 
+parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(375,10): error TS2554: Expected 2 arguments, but got 1.
+src/infrastructure/ai/UnifiedAIService.ts(394,10): error TS2554: Expected 2 arguments, but got 1.
+src/infrastructure/ai/UnifiedAIService.ts(698,15): error TS2345: Argument of type '"model:registered"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(703,15): error TS2345: Argument of type '"model:unregistered"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(716,15): error TS2345: Argument of type '"strategy:changed"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(958,10): error TS2554: Expected 2 arguments, but got 1.
+src/infrastructure/ai/UnifiedAIService.ts(967,22): error TS2345: Argument of type '"model:health-changed"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(987,17): error TS2345: Argument of type '"alert:model-degraded"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(997,17): error TS2345: Argument of type '"alert:model-unhealthy"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(1002,17): error TS2345: Argument of type '"alert:model-recovered"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(1019,19): error TS2345: Argument of type '"alert:high-error-rate"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/ai/UnifiedAIService.ts(1036,19): error TS2345: Argument of type '"alert:queue-backlog"' is not 
+assignable to parameter of type 'keyof QueueEvents'.
+src/infrastructure/persistence/mongodb/models/PromptLibrary.ts(3,18): error TS2430: Interface 'IPromptLibrary' 
+incorrectly extends interface 'Document<ObjectId, any, any, Record<string, any>, {}>'.
+src/infrastructure/queue/EmailQueue.ts(281,16): error TS2693: 'Queue' only refers to a type, but is being used as a 
+value here.
+src/infrastructure/queue/EmailQueue.ts(292,11): error TS2739: Type '{ type: EmailJobType; }' is missing the following 
+properties from type 'EmailJobData': to, userId, username
+src/infrastructure/queue/EmailQueue.ts(311,80): error TS18046: 'job' is of type 'unknown'.
+src/infrastructure/workers/EmailWorker.ts(231,7): error TS2345: Argument of type '{ id: string; name: string; 
+description: string; xpReward: number; iconUrl: string | null; condition: string; createdAt: Date; badgeId: string; }' 
+is not assignable to parameter of type '{ id: string; badgeId: string; xpReward: number; name: string; description: 
+string; iconUrl: string | null; condition: string; category: string; createdAt: Date; }'.
+src/lib/apiCache.ts(53,24): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 
+'string'.
+src/lib/auth.ts(196,61): error TS2345: Argument of type '{ adapter: any; session: { strategy: "jwt"; maxAge: number; 
+}; pages: { signIn: string; error: string; newUser: string; }; providers: (OIDCConfig<GoogleProfile> | 
+OAuth2Config<...> | OIDCConfig<...> | OAuth2Config<...> | { ...; })[]; callbacks: { ...; }; events: { ...; }; debug: 
+boolean; }' is not assignable to parameter of type 'NextAuthConfig | ((request: NextRequest | undefined) => 
+Awaitable<NextAuthConfig>)'.
+src/lib/redis.ts(21,44): error TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
+src/lib/socket.ts(387,54): error TS2345: Argument of type 'Notification' is not assignable to parameter of type 
+'import("C:/Users/migue/OneDrive/Documentos/codigo/Manga Web IA/inkverse/src/types/socket").Notification'.
+tests/integration/ai/UnifiedAIService.test.ts(162,29): error TS2345: Argument of type '{ id: string; name: string; 
+provider: string; capabilities: readonly ["chat", "classification"]; config: { maxRequestsPerMinute: number; }; 
+status: { health: "healthy"; consecutiveFailures: number; totalSuccessfulRequests: number; totalFailedRequests: 
+number; }; registeredAt: Date; }' is not assignable to parameter of type 'RegisteredModel'.
+tests/unit/core/entities/User.test.ts(196,19): error TS2556: A spread argument must either have a tuple type or be 
+passed to a rest parameter.
+
+

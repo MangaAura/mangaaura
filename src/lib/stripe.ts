@@ -19,10 +19,10 @@ export function getStripe(): Stripe {
       console.warn('[Stripe] Missing STRIPE_SECRET_KEY environment variable');
       throw new Error('Stripe not configured');
     }
-    stripeInstance = new Stripe(STRIPE_SECRET_KEY, {
-      apiVersion: '2024-06-20',
-      typescript: true,
-    });
+stripeInstance = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: '2026-04-22.dahlia' as any,
+    typescript: true,
+  });
   }
   return stripeInstance;
 }
@@ -33,6 +33,42 @@ export const stripe = new Proxy({} as Stripe, {
     return getStripe()[prop as keyof Stripe];
   },
 });
+
+// Subscription plans
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  priceId: string;
+  amount: number;
+  interval: 'month' | 'year';
+  features: string[];
+}
+
+export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: 'premium-monthly',
+    name: 'Premium Mensual',
+    description: 'Acceso a capítulos exclusivos, sin anuncios, y más',
+    priceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || 'price_premium_monthly',
+    amount: 499,
+    interval: 'month',
+    features: ['Capítulos exclusivos', 'Sin anuncios', 'Modo offline', 'Insignias premium'],
+  },
+  {
+    id: 'premium-yearly',
+    name: 'Premium Anual',
+    description: 'Todo lo de Premium con 2 meses gratis',
+    priceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID || 'price_premium_yearly',
+    amount: 4999,
+    interval: 'year',
+    features: ['Todo lo de Premium Mensual', '2 meses gratis', 'Soporte prioritario'],
+  },
+];
+
+export function getSubscriptionPlanById(planId: string): SubscriptionPlan | null {
+  return SUBSCRIPTION_PLANS.find(p => p.id === planId) || null;
+}
 
 // InkCoins packages/prices
 export const INKCOIN_PACKAGES = [

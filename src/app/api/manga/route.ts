@@ -55,17 +55,17 @@ export async function GET(request: NextRequest) {
         ]);
 
         // Obtener conteo de capítulos para cada manga
-        const mangaIds = mangas.map(m => m.id);
+        const mangaIds = mangas.map((m: any) => m.id);
         const chapterCounts = await prisma.chapter.groupBy({
           by: ['mangaId'],
           where: { mangaId: { in: mangaIds } },
           _count: { mangaId: true },
         });
 
-        const chapterCountMap = new Map(chapterCounts.map(c => [c.mangaId, c._count.mangaId]));
+        const chapterCountMap = new Map(chapterCounts.map((c: any) => [c.mangaId, c._count.mangaId]));
 
         return {
-          mangas: mangas.map((manga) => ({
+          mangas: mangas.map((manga: any) => ({
             id: manga.id,
             title: manga.title,
             slug: manga.slug,

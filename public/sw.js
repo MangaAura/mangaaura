@@ -17,9 +17,6 @@ const API_CACHE = `inkverse-api-${CACHE_VERSION}`;
 const APP_SHELL = [
   '/',
   '/offline',
-  '/_next/static/css/app.css',
-  '/_next/static/chunks/main.js',
-  '/_next/static/chunks/pages/_app.js',
 ];
 
 // Instalación: Cachear App Shell
@@ -88,12 +85,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Estrategia para App Shell (JS/CSS/HTML)
-  if (
-    request.destination === 'document' ||
-    request.destination === 'script' ||
-    request.destination === 'style'
-  ) {
+  // Estrategia para App Shell (HTML)
+  if (request.destination === 'document') {
     event.respondWith(handleAppShellRequest(request));
     return;
   }
@@ -237,8 +230,8 @@ self.addEventListener('push', (event) => {
   const data = event.data.json();
   const options = {
     body: data.body,
-    icon: '/icon-192x192.png',
-    badge: '/badge-72x72.png',
+    icon: '/icons/icon-192x192.svg',
+    badge: '/icons/icon-72x72.svg',
     tag: data.tag || 'default',
     requireInteraction: data.requireInteraction || false,
     actions: data.actions || [],

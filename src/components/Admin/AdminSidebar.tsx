@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -46,7 +46,8 @@ export function AdminSidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 p-2 bg-indigo-600 text-white rounded-lg lg:hidden"
+        className="fixed top-4 left-4 z-50 p-2 bg-[var(--primary)] text-[var(--text-primary)] rounded-lg lg:hidden cursor-pointer"
+        aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
@@ -61,19 +62,19 @@ export function AdminSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-full w-64 bg-slate-900 text-white transition-transform duration-300 ease-in-out
+        className={`fixed top-0 left-0 z-40 h-full w-64 bg-[var(--surface)] text-[var(--text-primary)] transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 border-b border-slate-700">
+          <div className="p-6 border-b border-[var(--border)]">
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 text-[var(--text-primary)]" />
               </div>
               <div>
                 <h1 className="text-lg font-bold">Admin</h1>
-                <p className="text-xs text-slate-400">InkVerse</p>
+                <p className="text-xs text-[var(--text-secondary)]">InkVerse</p>
               </div>
             </Link>
           </div>
@@ -90,8 +91,8 @@ export function AdminSidebar() {
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
                     ${active
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? 'bg-[var(--primary)] text-[var(--text-primary)]'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
                     }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -103,9 +104,9 @@ export function AdminSidebar() {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-slate-700 space-y-2">
+          <div className="p-4 border-t border-[var(--border)] space-y-2">
             <Link href="/">
-              <Button variant="ghost" className="w-full justify-start text-slate-300">
+              <Button variant="ghost" className="w-full justify-start text-[var(--text-secondary)]">
                 <LogOut className="w-4 h-4 mr-2" />
                 Back to Site
               </Button>

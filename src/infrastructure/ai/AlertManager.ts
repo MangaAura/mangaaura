@@ -101,9 +101,9 @@ export class AlertManager extends EventEmitter {
    * @returns Función para desuscribirse
    */
   subscribe(listener: AlertListener): () => void {
-    this.on('alert:new', listener);
+    (this as any).on('alert:new', listener);
     return () => {
-      this.off('alert:new', listener);
+      (this as any).off('alert:new', listener);
     };
   }
 
@@ -117,14 +117,13 @@ export class AlertManager extends EventEmitter {
     const updatedHandler = (alert: Alert) => listener('updated', alert);
     const clearedHandler = (alert: Alert) => listener('cleared', alert);
 
-    this.on('alert:new', newHandler);
-    this.on('alert:updated', updatedHandler);
-    this.on('alert:cleared', clearedHandler);
-
+    (this as any).on('alert:new', newHandler);
+    (this as any).on('alert:updated', updatedHandler);
+    (this as any).on('alert:cleared', clearedHandler);
     return () => {
-      this.off('alert:new', newHandler);
-      this.off('alert:updated', updatedHandler);
-      this.off('alert:cleared', clearedHandler);
+      (this as any).off('alert:new', newHandler);
+      (this as any).off('alert:updated', updatedHandler);
+      (this as any).off('alert:cleared', clearedHandler);
     };
   }
 
@@ -246,7 +245,7 @@ export class AlertManager extends EventEmitter {
     return true;
   }
 
-  /**
+  /** 
    * Descarta/dismiss una alerta
    */
   dismissAlert(alertId: string): boolean {
@@ -289,13 +288,13 @@ export class AlertManager extends EventEmitter {
     toDelete.forEach((id) => {
       const alert = this.alerts.get(id);
       if (alert) {
-        this.alerts.delete(id);
-        this.emit('alert:cleared', alert);
-      }
-    });
+      this.alerts.delete(id);
+      this.emit('alert:cleared', alert);
+    }
+  });
 
-    return toDelete.length;
-  }
+  return toDelete.length;
+}
 
   /**
    * Limpia alertas por tipo

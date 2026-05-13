@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -179,21 +179,21 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-[var(--surface)] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+        <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <ImageIcon className="w-5 h-5" />
             Generador de Memes
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
-            <X className="w-5 h-5 text-white" />
+          <button onClick={onClose} className="p-2 hover:bg-[var(--border)] rounded-full cursor-pointer" aria-label="Cerrar">
+            <X className="w-5 h-5 text-[var(--text-inverse)]" />
           </button>
         </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Canvas */}
-          <div className="flex-1 p-4 flex items-center justify-center bg-slate-950 overflow-auto">
+          <div className="flex-1 p-4 flex items-center justify-center bg-[var(--surface)] overflow-auto">
             <div 
               ref={containerRef}
               className="relative cursor-crosshair select-none"
@@ -244,11 +244,11 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
           </div>
 
           {/* Controls */}
-          <div className="w-full md:w-80 bg-slate-800 border-l border-white/10 p-4 overflow-y-auto">
+          <div className="w-full md:w-80 bg-[var(--surface-sunken)] border-l border-[var(--border)] p-4 overflow-y-auto">
             {/* Text Controls */}
             <div className="space-y-4 mb-6">
-              <h3 className="font-semibold text-white flex items-center gap-2">
-                <Type className="w-4 h-4" />
+<h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
+        <Type className="w-4 h-4" />
                 Textos
               </h3>
               
@@ -258,7 +258,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                   className={`p-3 rounded-lg border ${
                     selectedTextId === text.id 
                       ? 'border-accent-blue bg-accent-blue/10' 
-                      : 'border-white/10 bg-slate-700'
+                      : 'border-[var(--border)] bg-[var(--surface-sunken)]'
                   }`}
                   onClick={() => setSelectedTextId(text.id)}
                 >
@@ -266,14 +266,14 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                     type="text"
                     value={text.text}
                     onChange={(e) => updateText(text.id, { text: e.target.value })}
-                    className="w-full bg-transparent text-white mb-2 focus:outline-none"
+                    className="w-full bg-transparent text-[var(--text-primary)] mb-2 focus:outline-none"
                     placeholder="Texto del meme..."
                   />
                   
                   {selectedTextId === text.id && (
-                    <div className="space-y-2 mt-2 pt-2 border-t border-white/10">
+                    <div className="space-y-2 mt-2 pt-2 border-t border-[var(--border)]">
                       <div className="flex items-center gap-2">
-                        <label className="text-xs text-slate-400">Tamaño:</label>
+                        <label className="text-xs text-[var(--text-secondary)]">Tamaño:</label>
                         <input
                           type="range"
                           min="16"
@@ -282,11 +282,11 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                           onChange={(e) => updateText(text.id, { fontSize: parseInt(e.target.value) })}
                           className="flex-1"
                         />
-                        <span className="text-xs text-white w-8">{text.fontSize}px</span>
+                        <span className="text-xs text-[var(--text-primary)] w-8">{text.fontSize}px</span>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <label className="text-xs text-slate-400">Color:</label>
+                        <label className="text-xs text-[var(--text-secondary)]">Color:</label>
                         <input
                           type="color"
                           value={text.color}
@@ -297,7 +297,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                       
                       <button
                         onClick={() => removeText(text.id)}
-                        className="text-xs text-red-400 hover:text-red-300 mt-2"
+                        className="text-xs text-[var(--error)] hover:text-[var(--error)] mt-2"
                       >
                         Eliminar texto
                       </button>
@@ -314,7 +314,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
 
             {/* Quick Templates */}
             <div className="mb-6">
-              <h3 className="font-semibold text-white mb-2">Plantillas rápidas</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Plantillas rápidas</h3>
               <div className="grid grid-cols-2 gap-2">
                 {MEME_TEMPLATES.map((template) => (
                   <button
@@ -325,7 +325,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                         { ...texts[1], text: template.bottom || 'Texto inferior' },
                       ]);
                     }}
-                    className="p-2 bg-slate-700 rounded hover:bg-slate-600 text-xs text-white text-left"
+                    className="p-2 bg-[var(--surface-sunken)] rounded hover:bg-[var(--border)] text-xs text-[var(--text-inverse)] text-left"
                   >
                     {template.name}
                   </button>
@@ -355,8 +355,8 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
             </div>
 
             {/* Tips */}
-            <div className="mt-6 p-3 bg-slate-700/50 rounded-lg text-xs text-slate-400">
-              <p className="font-semibold text-white mb-1">💡 Tips:</p>
+            <div className="mt-6 p-3 bg-[var(--surface-sunken)]/50 rounded-lg text-xs text-[var(--text-secondary)]">
+              <p className="font-semibold text-[var(--text-primary)] mb-1">💡 Tips:</p>
               <ul className="space-y-1 list-disc list-inside">
                 <li>Arrastra los textos para posicionarlos</li>
                 <li>Usa texto en MAYÚSCULAS para impacto</li>

@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import { Queue, Job, QueueOptions } from 'bullmq';
+import { Queue, Job, type QueueOptions } from 'bullmq';
 import { Redis } from 'ioredis';
 import { redis, isMockRedis } from '@/lib/redis';
 
@@ -134,37 +134,37 @@ class InMemoryEmailQueue {
 
     // Log in development only
     if (process.env.DEBUG_EMAIL) {
-      console.log(`[EmailQueue] Job queued (in-memory): ${type} for ${data.to}`);
-    }
+    console.log(`[EmailQueue] Job queued (in-memory): ${name} for ${data.to}`);
+  }
 
-    // Return a mock Job object
-    return {
+  // Return a mock Job object
+  return {
+    id,
+    name,
+    data,
+    opts: opts || {},
+    returnvalue: null,
+    failedReason: null,
+    stacktrace: null,
+    attemptsMade: 0,
+    delay: opts?.delay || 0,
+    progress: 0,
+    timestamp: Date.now(),
+    finishedOn: undefined,
+    processedOn: undefined,
+    getState: async () => 'completed',
+    retry: async () => this.retry(id),
+    discard: async () => { this.jobs.delete(id); },
+    moveToCompleted: async () => { },
+    moveToFailed: async () => { },
+    changeDelay: async () => { },
+    changePriority: async () => { },
+    toJSON: () => ({
       id,
-      name: type,
+      name,
       data,
-      opts: options || {},
-      returnvalue: null,
-      failedReason: null,
-      stacktrace: null,
-      attemptsMade: 0,
-      delay: options?.delay || 0,
-      progress: 0,
-      timestamp: Date.now(),
-      finishedOn: undefined,
-      processedOn: undefined,
-      getState: async () => 'completed',
-      retry: async () => this.retry(id),
-      discard: async () => { this.jobs.delete(id); },
-      moveToCompleted: async () => { },
-      moveToFailed: async () => { },
-      changeDelay: async () => { },
-      changePriority: async () => { },
-      toJSON: () => ({
-        id,
-        name: type,
-        data,
-        opts: options || {},
-      }),
+      opts: opts || {},
+    }),
       remove: async () => { this.jobs.delete(id); },
       log: async () => { },
     } as unknown as Job;
@@ -226,9 +226,8 @@ class InMemoryEmailQueue {
     this.jobs.clear();
   }
 
-  private async retry(id: string): Promise<void> {
+  private async retry(_id: string): Promise<void> {
     // No-op retry for in-memory
-    console.log(`[EmailQueue] Retry requested for job ${id}`);
   }
 }
 
@@ -289,10 +288,10 @@ export class EmailQueue {
     data: Omit<EmailJobData, 'type'>,
     options?: EmailJobOptions
   ): Promise<Job> {
-    const jobData: EmailJobData = {
-      ...data,
-      type,
-    };
+const jobData: EmailJobData = {
+...data,
+type,
+} as EmailJobData;
 
     const jobOptions = {
       delay: options?.delay,
@@ -308,10 +307,10 @@ export class EmailQueue {
       const job = await this.queue.add(type, jobData, jobOptions);
 
       if (!this.useInMemory) {
-        console.log(`[EmailQueue] Job added: ${type} for ${data.to} (Job ID: ${job.id})`);
+        console.info(`[EmailQueue] Job added: ${type} for ${data.to} (Job ID: ${job.id})`);
       }
 
-      return job;
+return job as Job;
     } catch (error) {
       // If queue fails and we're in production, this is an error
       if (process.env.NODE_ENV === 'production') {
@@ -410,21 +409,15 @@ export class EmailQueue {
         };
       }
 
-      const bullQueue = this.queue as Queue;
-      const [waiting, active, completed, failed, delayed] = await Promise.all([
-        bullQueue.getWaitingCount(),
-        bullQueue.getActiveCount(),
-        bullQueue.getCompletedCount(),
-        bullQueue.getFailedCount(),
-        bullQueue.getDelayedCount(),
-      ]);
+  const bullQueue = this.queue as Queue;
+  const counts = await bullQueue.getJobCounts();
 
       return {
-        waiting,
-        active,
-        completed,
-        failed,
-        delayed,
+        waiting: counts.waiting ?? 0,
+        active: counts.active ?? 0,
+        completed: counts.completed ?? 0,
+        failed: counts.failed ?? 0,
+        delayed: counts.delayed ?? 0,
       };
     } catch (error) {
       console.error('[EmailQueue] Failed to get stats:', error);
@@ -449,21 +442,21 @@ export class EmailQueue {
         }
       }
 
-      const bullQueue = this.queue as Queue;
-      switch (state) {
-        case 'waiting':
-          return bullQueue.getWaiting();
-        case 'active':
-          return bullQueue.getActive();
-        case 'completed':
-          return bullQueue.getCompleted();
-        case 'failed':
-          return bullQueue.getFailed();
-        case 'delayed':
-          return bullQueue.getDelayed();
-        default:
-          return [];
-      }
+  const bullQueue = this.queue as Queue;
+  switch (state) {
+  case 'waiting':
+  return bullQueue.getWaiting();
+  case 'active':
+  return bullQueue.getActive();
+  case 'completed':
+  return bullQueue.getCompleted();
+  case 'failed':
+  return bullQueue.getFailed();
+  case 'delayed':
+  return bullQueue.getDelayed();
+  default:
+  return [];
+  }
     } catch (error) {
       console.error('[EmailQueue] Failed to get jobs:', error);
       return [];
@@ -480,16 +473,16 @@ export class EmailQueue {
         await inMemory.clean(olderThanHours * 60 * 60 * 1000, 'completed');
         await inMemory.clean(olderThanHours * 60 * 60 * 1000, 'failed');
       } else {
-        const bullQueue = this.queue as Queue;
-        const olderThanMs = olderThanHours * 60 * 60 * 1000;
+  const bullQueue = this.queue as Queue;
+  const olderThanMs = olderThanHours * 60 * 60 * 1000;
 
-        await Promise.all([
-          bullQueue.clean(olderThanMs, 'completed'),
-          bullQueue.clean(olderThanMs, 'failed'),
-        ]);
+  await Promise.all([
+  bullQueue.clean(olderThanMs, 1000, 'completed'),
+  bullQueue.clean(olderThanMs, 1000, 'failed'),
+  ]);
       }
 
-      console.log(`[EmailQueue] Cleaned jobs older than ${olderThanHours} hours`);
+      console.info(`[EmailQueue] Cleaned jobs older than ${olderThanHours} hours`);
     } catch (error) {
       console.error('[EmailQueue] Failed to clean old jobs:', error);
     }
@@ -500,11 +493,11 @@ export class EmailQueue {
    */
   async pause(): Promise<void> {
     try {
-      if (!this.useInMemory) {
-        const bullQueue = this.queue as Queue;
-        await bullQueue.pause();
-      }
-      console.log('[EmailQueue] Queue paused');
+  if (!this.useInMemory) {
+  const bullQueue = this.queue as Queue;
+  await bullQueue.pause();
+  }
+      console.info('[EmailQueue] Queue paused');
     } catch (error) {
       console.error('[EmailQueue] Failed to pause:', error);
     }
@@ -515,11 +508,11 @@ export class EmailQueue {
    */
   async resume(): Promise<void> {
     try {
-      if (!this.useInMemory) {
-        const bullQueue = this.queue as Queue;
-        await bullQueue.resume();
-      }
-      console.log('[EmailQueue] Queue resumed');
+  if (!this.useInMemory) {
+  const bullQueue = this.queue as Queue;
+  await bullQueue.resume();
+  }
+      console.info('[EmailQueue] Queue resumed');
     } catch (error) {
       console.error('[EmailQueue] Failed to resume:', error);
     }
@@ -537,10 +530,10 @@ export class EmailQueue {
    */
   async close(): Promise<void> {
     try {
-      if (!this.useInMemory) {
-        const bullQueue = this.queue as Queue;
-        await bullQueue.close();
-      }
+  if (!this.useInMemory) {
+  const bullQueue = this.queue as Queue;
+  await bullQueue.close();
+  }
     } catch (error) {
       console.error('[EmailQueue] Failed to close:', error);
     }

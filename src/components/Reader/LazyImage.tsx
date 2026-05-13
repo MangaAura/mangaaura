@@ -95,16 +95,16 @@ export function LazyImage({
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className={cn(
         'relative overflow-hidden',
-        'bg-slate-800/50',
+        'bg-[var(--surface-sunken)]',
         className
       )}
     >
       {/* Blur placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-pulse flex flex-col items-center gap-2">
-            <div className="w-16 h-20 bg-slate-700/50 rounded" />
-            <span className="text-xs text-slate-500">Loading...</span>
+        <div className="animate-pulse flex flex-col items-center gap-2">
+          <div className="w-16 h-20 bg-[var(--bg-tertiary)] rounded" />
+          <span className="text-xs text-[var(--text-tertiary)]">Loading...</span>
           </div>
         </div>
       )}
@@ -113,13 +113,13 @@ export function LazyImage({
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <span className="text-slate-500 text-sm">Failed to load</span>
-            <button
-              onClick={() => {
-                setHasError(false);
-                setIsLoaded(false);
-              }}
-              className="block mt-2 text-xs text-blue-400 hover:text-blue-300"
+          <span className="text-[var(--text-tertiary)] text-sm">Failed to load</span>
+          <button
+            onClick={() => {
+              setHasError(false);
+              setIsLoaded(false);
+            }}
+            className="block mt-2 text-xs text-[var(--accent-blue)] hover:opacity-80 cursor-pointer"
             >
               Retry
             </button>
@@ -148,7 +148,7 @@ export function LazyImage({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: isLoaded ? 1 : 0 }}
-        className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity"
+        className="absolute bottom-2 right-2 bg-black/50 text-[var(--text-inverse)] text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity"
       >
         {index + 1}
       </motion.div>

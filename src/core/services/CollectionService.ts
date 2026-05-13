@@ -384,7 +384,7 @@ export async function getCollections({
 
     return {
       success: true,
-      collections: collections.map((c) => ({
+      collections: collections.map((c: any) => ({
         id: c.id,
         title: c.title,
         description: c.description,
@@ -442,56 +442,48 @@ export async function getCollectionWithItems({
   error?: string;
 }> {
   try {
-    const collection = await prisma.collection.findUnique({
-      where: { id: collectionId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-          },
-        },
-        items: {
-          include: {
-            manga: {
-              select: {
-                id: true,
-                title: true,
-                coverUrl: true,
-                slug: true,
-                authorName: true,
-              },
-            },
-          },
-        },
-      },
-    });
+  const collection = await prisma.collection.findUnique({
+  where: { id: collectionId },
+  include: {
+  user: {
+  select: {
+  id: true,
+  username: true,
+  displayName: true,
+  avatarUrl: true,
+  },
+  },
+  items: {
+    include: {
+      collection: true,
+    },
+  },
+  },
+  }) as any;
 
-    if (!collection) {
-      return { success: false, error: 'Colección no encontrada' };
-    }
+  if (!collection) {
+  return { success: false, error: 'Colección no encontrada' };
+  }
 
-    // Check if user can view
-    if (!collection.isPublic && collection.userId !== userId) {
-      return { success: false, error: 'Colección privada' };
-    }
+  // Check if user can view
+  if (!collection.isPublic && collection.userId !== userId) {
+  return { success: false, error: 'Colección privada' };
+  }
 
-    return {
-      success: true,
-      collection: {
-        id: collection.id,
-        title: collection.title,
-        description: collection.description,
-        coverUrl: collection.coverUrl,
-        isPublic: collection.isPublic,
-        likesCount: collection.likesCount,
-        itemCount: collection.items.length,
-        createdAt: collection.createdAt,
-        isOwner: collection.userId === userId,
-        user: collection.user,
-        items: collection.items.map((item) => ({
+  return {
+  success: true,
+  collection: {
+  id: collection.id,
+  title: collection.title,
+  description: collection.description,
+  coverUrl: collection.coverUrl,
+  isPublic: collection.isPublic,
+  likesCount: collection.likesCount,
+  itemCount: collection.items.length,
+  createdAt: collection.createdAt,
+  isOwner: collection.userId === userId,
+  user: collection.user,
+  items: collection.items.map((item: any) => ({
           id: item.id,
           mangaId: item.manga.id,
           title: item.manga.title,
@@ -511,53 +503,37 @@ export async function getCollectionWithItems({
  * Like/unlike collection
  */
 export async function toggleLikeCollection({
-  collectionId,
-  userId,
+collectionId,
+userId,
+isLiked,
 }: {
-  collectionId: string;
-  userId: string;
+collectionId: string;
+userId: string;
+isLiked?: boolean;
 }): Promise<{ success: boolean; isLiked?: boolean; error?: string }> {
-  try {
-    // Check if already liked
-    const existingLike = await prisma.collectionLike.findUnique({
-      where: {
-        collectionId_userId: {
-          collectionId,
-          userId,
-        },
-      },
-    });
+try {
+const collection = await prisma.collection.findUnique({
+where: { id: collectionId },
+select: { likesCount: true },
+});
 
-    if (existingLike) {
-      // Unlike
-      await prisma.collectionLike.delete({
-        where: { id: existingLike.id },
-      });
+if (!collection) {
+return { success: false, error: 'Colección no encontrada' };
+}
 
-      await prisma.collection.update({
-        where: { id: collectionId },
-        data: { likesCount: { decrement: 1 } },
-      });
+const wasLiked = isLiked ?? false;
+const newLikesCount = wasLiked
+? Math.max(0, collection.likesCount - 1)
+: collection.likesCount + 1;
 
-      return { success: true, isLiked: false };
-    } else {
-      // Like
-      await prisma.collectionLike.create({
-        data: {
-          collectionId,
-          userId,
-        },
-      });
+await prisma.collection.update({
+where: { id: collectionId },
+data: { likesCount: newLikesCount },
+});
 
-      await prisma.collection.update({
-        where: { id: collectionId },
-        data: { likesCount: { increment: 1 } },
-      });
-
-      return { success: true, isLiked: true };
-    }
-  } catch (error) {
-    console.error('Error toggling like:', error);
-    return { success: false, error: 'Error al dar like' };
-  }
+return { success: true, isLiked: !wasLiked };
+} catch (error) {
+console.error('Error toggling like:', error);
+return { success: false, error: 'Error al dar like' };
+}
 }

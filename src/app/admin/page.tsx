@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import useSWR from 'swr';
 import { StatCard } from '@/components/Admin/StatCard';
@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-slate-900">Failed to load dashboard</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Failed to load dashboard</h2>
         <p className="text-[var(--text-tertiary)] mt-2">Please try refreshing the page</p>
         <Button onClick={() => window.location.reload()} className="mt-4">
           Refresh
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
           <p className="text-[var(--text-muted)]">Overview of your platform</p>
         </div>
         <div className="text-sm text-[var(--text-tertiary)]">
@@ -235,12 +235,12 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">New Users Today</p>
-                <p className="text-3xl font-bold text-slate-900 mt-1">
+                <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {stats?.newUsersToday || 0}
                 </p>
               </div>
               <div className="p-3 bg-[var(--success)]/10 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-emerald-600" />
+                <TrendingUp className="w-6 h-6 text-[var(--success)]" />
               </div>
             </div>
           </CardContent>
@@ -250,7 +250,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">New Mangas Today</p>
-                <p className="text-3xl font-bold text-slate-900 mt-1">
+                <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {stats?.newMangasToday || 0}
                 </p>
               </div>
@@ -265,7 +265,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">New Comments Today</p>
-                <p className="text-3xl font-bold text-slate-900 mt-1">
+                <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {stats?.newCommentsToday || 0}
                 </p>
               </div>
@@ -331,7 +331,7 @@ export default function AdminDashboardPage() {
                       <CheckCircle className="w-5 h-5 text-[var(--primary)]" />
                     )}
                     <div>
-                      <p className="font-medium text-slate-900">{alert.message}</p>
+                      <p className="font-medium text-[var(--text-primary)]">{alert.message}</p>
                       <p className="text-sm text-[var(--text-tertiary)] capitalize">{alert.type}</p>
                     </div>
                   </div>
@@ -361,7 +361,7 @@ export default function AdminDashboardPage() {
                 <Users className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-slate-900">Manage Users</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">Manage Users</h3>
                 <p className="text-sm text-[var(--text-tertiary)]">View and edit user accounts</p>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
@@ -375,7 +375,7 @@ export default function AdminDashboardPage() {
                 <Shield className="w-6 h-6 text-[var(--warning)]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-slate-900">Moderation</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">Moderation</h3>
                 <p className="text-sm text-[var(--text-tertiary)]">Review reported content</p>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
@@ -386,10 +386,10 @@ export default function AdminDashboardPage() {
           <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
             <CardContent className="p-6 flex items-center gap-4">
               <div className="p-3 bg-[var(--success)]/10 rounded-lg">
-                <BookOpen className="w-6 h-6 text-emerald-600" />
+                <BookOpen className="w-6 h-6 text-[var(--success)]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-slate-900">Manage Manga</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">Manage Manga</h3>
                 <p className="text-sm text-[var(--text-tertiary)]">Edit manga metadata</p>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />

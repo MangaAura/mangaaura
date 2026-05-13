@@ -1,63 +1,55 @@
-import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { DomainError } from '../../../core/errors/DomainError';
 
-interface LeaveClanInput {
+export interface LeaveClanInput {
   clanId: string;
   userId: string;
 }
 
-interface LeaveClanOutput {
+export interface LeaveClanOutput {
   success: boolean;
   clanDeleted?: boolean;
 }
 
+export interface IClanLeaveRepository {
+  findMembership(clanId: string, userId: string): Promise<{ id: string; role: string } | null>;
+  countMembers(clanId: string): Promise<number>;
+  deleteClan(clanId: string): Promise<void>;
+  deleteMembership(membershipId: string): Promise<void>;
+}
+
 export class LeaveClanUseCase {
+  constructor(private readonly clanRepo: IClanLeaveRepository) {}
+
   async execute(input: LeaveClanInput): Promise<LeaveClanOutput> {
     const { clanId, userId } = input;
 
-    // Check if user is a member of this clan
-    const membership = await prisma.clanMembership.findFirst({
-      where: {
-        clanId,
-        userId,
-      },
-    });
-
+    const membership = await this.clanRepo.findMembership(clanId, userId);
     if (!membership) {
-      throw new Error('User is not a member of this clan');
+      throw new NotMemberError();
     }
 
-    // If user is the leader
     if (membership.role === 'LEADER') {
-      const memberCount = await prisma.clanMembership.count({
-        where: { clanId },
-      });
-
-      // If leader is the only member, delete the clan
+      const memberCount = await this.clanRepo.countMembers(clanId);
       if (memberCount === 1) {
-        await prisma.clan.delete({
-          where: { id: clanId },
-        });
-
-        // Revalidate cache
-        revalidatePath('/community/clans');
-        revalidatePath(`/community/clan/${clanId}`);
-
+        await this.clanRepo.deleteClan(clanId);
         return { success: true, clanDeleted: true };
       }
-
-      throw new Error('Leader must transfer leadership before leaving');
+      throw new LeaderCannotLeaveError();
     }
 
-    // Remove membership for regular members
-    await prisma.clanMembership.delete({
-      where: { id: membership.id },
-    });
-
-    // Revalidate cache
-    revalidatePath(`/community/clan/${clanId}`);
-    revalidatePath('/community/clans');
-
+    await this.clanRepo.deleteMembership(membership.id);
     return { success: true };
   }
+}
+
+class NotMemberError extends DomainError {
+  readonly code = 'NOT_CLAN_MEMBER';
+  readonly isOperational = true;
+  constructor() { super('El usuario no es miembro de este clan'); }
+}
+
+class LeaderCannotLeaveError extends DomainError {
+  readonly code = 'LEADER_CANNOT_LEAVE';
+  readonly isOperational = true;
+  constructor() { super('El l\u00edder debe transferir el liderazgo antes de salir'); }
 }

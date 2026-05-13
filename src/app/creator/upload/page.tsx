@@ -40,7 +40,7 @@ interface UploadedFile {
 function LoadingSpinner() {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[var(--border-strong)] border-t-blue-500 rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[var(--border-strong)] border-t-[var(--accent-blue)] rounded-full animate-spin" />
     </div>
   );
 }
@@ -273,7 +273,12 @@ function CreatorUploadPageContent() {
     setUploadProgress(0);
   };
 
-  // Verificar autenticación
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login?callbackUrl=/creator/upload');
+    }
+  }, [status, router]);
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
@@ -283,7 +288,6 @@ function CreatorUploadPageContent() {
   }
 
   if (status === 'unauthenticated') {
-    router.push('/auth/login?callbackUrl=/creator/upload');
     return null;
   }
 
@@ -315,16 +319,16 @@ function CreatorUploadPageContent() {
 
         {/* Error */}
         {error && (
-          <div className="bg-[var(--error)]/10 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
+          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-[var(--error)] flex-shrink-0 mt-0.5" />
-            <p className="text-red-200 text-sm">{error}</p>
+            <p className="text-[var(--error)] text-sm">{error}</p>
           </div>
         )}
 
         {/* Success State */}
         {isSuccess ? (
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-12 text-center animate-fade-in">
-            <div className="inline-flex justify-center items-center w-20 h-20 bg-[var(--success)]/10 text-green-400 rounded-full mb-6">
+            <div className="inline-flex justify-center items-center w-20 h-20 bg-[var(--success)]/10 text-[var(--success)] rounded-full mb-6">
               <CheckCircle size={40} />
             </div>
             <h2 className="text-2xl font-bold mb-2 text-[var(--text-primary)]">¡Capítulo Publicado!</h2>
@@ -338,7 +342,7 @@ function CreatorUploadPageContent() {
                   setChapterNumber('');
                   setError(null);
                 }}
-                className="bg-[var(--primary-hover)] hover:bg-blue-700 text-[var(--text-primary)] font-bold py-2.5 px-6 rounded-xl transition-all"
+                className="bg-[var(--primary-hover)] hover:bg-[var(--primary-hover)] text-[var(--text-primary)] font-bold py-2.5 px-6 rounded-xl transition-all"
               >
                 Subir Otro Capítulo
               </button>
@@ -385,7 +389,7 @@ function CreatorUploadPageContent() {
                       <select
                         value={selectedMangaId}
                         onChange={(e) => setSelectedMangaId(e.target.value)}
-                        className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-blue-500 rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
+                        className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
                         required
                       >
                         <option value="">Selecciona un manga</option>
@@ -409,7 +413,7 @@ function CreatorUploadPageContent() {
                       onChange={(e) => setChapterNumber(e.target.value)}
                       placeholder="Ej: 15"
                       min="1"
-                      className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-blue-500 rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
+                      className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
                       required
                     />
                   </div>
@@ -424,16 +428,16 @@ function CreatorUploadPageContent() {
                       value={chapterTitle}
                       onChange={(e) => setChapterTitle(e.target.value)}
                       placeholder="Ej: El regreso del Rey"
-                      className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-blue-500 rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
+                      className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Info de formatos */}
-              <div className="bg-[var(--primary)]/10 border border-blue-500/20 rounded-xl p-4">
-                <h3 className="text-sm font-semibold text-blue-300 mb-2">Formatos soportados</h3>
-                <ul className="text-xs text-blue-200 space-y-1">
+              <div className="bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-xl p-4">
+                <h3 className="text-sm font-semibold text-[var(--info)] mb-2">Formatos soportados</h3>
+                <ul className="text-xs text-[var(--info)] space-y-1">
                   <li>• JPEG, PNG, WebP</li>
                   <li>• Máx: {(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB por imagen</li>
                   <li>• Arrastra para reordenar páginas</li>
@@ -451,8 +455,8 @@ function CreatorUploadPageContent() {
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                   isDragging
-                    ? 'border-blue-500 bg-[var(--primary)]/5'
-                    : 'border-[var(--border-strong)] bg-[var(--surface)] hover:bg-slate-750'
+                    ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                    : 'border-[var(--border-strong)] bg-[var(--surface)] hover:bg-[var(--surface-sunken)]'
                 }`}
               >
                 <input
@@ -472,7 +476,7 @@ function CreatorUploadPageContent() {
                 </p>
                 <button
                   type="button"
-                  className="bg-[var(--primary-hover)] hover:bg-blue-700 text-[var(--text-primary)] text-sm font-bold py-2 px-6 rounded-full transition-all"
+                  className="bg-[var(--primary-hover)] hover:bg-[var(--primary-hover)] text-[var(--text-primary)] text-sm font-bold py-2 px-6 rounded-full transition-all"
                   onClick={(e) => {
                     e.stopPropagation();
                     fileInputRef.current?.click();
@@ -505,9 +509,9 @@ function CreatorUploadPageContent() {
                         onDragEnd={handleDragEnd}
                         className={`flex items-center gap-3 bg-[var(--background)] border rounded-lg p-3 group cursor-move transition-all ${
                           fileData.error
-                            ? 'border-red-500/50 bg-[var(--error)]/5'
+                            ? 'border-[var(--error)]/50 bg-[var(--error)]/5'
                             : draggedItem === index
-                            ? 'border-blue-500 opacity-50'
+                            ? 'border-[var(--primary)] opacity-50'
                             : 'border-[var(--border)] hover:border-[var(--border-strong)]'
                         }`}
                       >
@@ -555,28 +559,31 @@ function CreatorUploadPageContent() {
                             </div>
                           ) : (
                             <>
-                              <button
-                                onClick={() => moveFile(index, index - 1)}
-                                disabled={index === 0}
-                                className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30 transition-colors"
-                                title="Mover arriba"
-                              >
-                                <ArrowUp size={14} />
-                              </button>
-                              <button
-                                onClick={() => moveFile(index, index + 1)}
-                                disabled={index === files.length - 1}
-                                className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30 transition-colors"
-                                title="Mover abajo"
-                              >
-                                <ArrowDown size={14} />
-                              </button>
-                              <button
-                                onClick={() => removeFile(index)}
-                                disabled={isUploading}
-                                className="p-1 text-[var(--text-tertiary)] hover:text-[var(--error)] disabled:opacity-30 transition-colors"
-                                title="Eliminar"
-                              >
+          <button
+            onClick={() => moveFile(index, index - 1)}
+            disabled={index === 0}
+            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30 transition-colors cursor-pointer"
+            title="Mover arriba"
+            aria-label="Mover arriba"
+          >
+            <ArrowUp size={14} />
+          </button>
+          <button
+            onClick={() => moveFile(index, index + 1)}
+            disabled={index === files.length - 1}
+            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30 transition-colors cursor-pointer"
+            title="Mover abajo"
+            aria-label="Mover abajo"
+          >
+            <ArrowDown size={14} />
+          </button>
+          <button
+            onClick={() => removeFile(index)}
+            disabled={isUploading}
+            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--error)] disabled:opacity-30 transition-colors cursor-pointer"
+            title="Eliminar"
+            aria-label="Eliminar archivo"
+          >
                                 <Trash2 size={14} />
                               </button>
                             </>
@@ -613,7 +620,7 @@ function CreatorUploadPageContent() {
                     <button
                       onClick={handleUpload}
                       disabled={files.length === 0 || !chapterNumber || !selectedMangaId}
-                      className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-[var(--text-primary)] font-bold py-3 rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full mt-6 bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] hover:opacity-90 text-[var(--text-inverse)] font-bold py-3 rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <UploadCloud size={20} />
                       Publicar Capítulo

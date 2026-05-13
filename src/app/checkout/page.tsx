@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Checkout Page
  * 
  * Página para comprar InkCoins con Stripe.
@@ -9,7 +9,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { loadStripe } from '@stripe/stripe-js';
+import type { Stripe } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js/pure';
 import { 
   Coins, 
   CreditCard, 
@@ -21,7 +22,7 @@ import {
 } from 'lucide-react';
 import { INKCOIN_PACKAGES, formatAmount } from '@/lib/stripe';
 import { Button } from '@/components/ui/Button';
-import Navbar from '@/components/Layout/Navbar';
+
 import { cn } from '@/lib/utils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -59,7 +60,7 @@ export default function CheckoutPage() {
       // Redirect to Stripe Checkout
       const stripe = await stripePromise;
       if (stripe) {
-        const { error: stripeError } = await stripe.redirectToCheckout({
+        const { error: stripeError } = await (stripe as any).redirectToCheckout({
           sessionId: data.sessionId,
         });
         if (stripeError) {
@@ -74,41 +75,32 @@ export default function CheckoutPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
-        <Navbar />
-        <div className="pt-20 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
-        </div>
+      <div className="min-h-screen bg-[var(--background)] pt-20 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     );
   }
 
   if (status === 'unauthenticated') {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
-        <Navbar />
-        <div className="pt-20 text-center px-4">
+      <div className="min-h-screen bg-[var(--background)] pt-20 text-center px-4">
           <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Inicia sesión</h1>
           <p className="text-[var(--text-secondary)] mb-6">Debes iniciar sesión para comprar InkCoins</p>
           <Button onClick={() => router.push('/auth/login?callbackUrl=/checkout')}>
             Iniciar sesión
           </Button>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <Navbar />
-
-      <div className="pt-20 pb-16 px-4">
+    <div className="pt-20 pb-16 px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--warning)]/20 to-[var(--warning)]/10 rounded-full border border-[var(--warning)]/30 mb-6">
               <Coins className="w-5 h-5 text-[var(--warning)]" />
-              <span className="text-amber-300 font-medium">Compra InkCoins</span>
+              <span className="text-[var(--warning)] font-medium">Compra InkCoins</span>
             </div>
             <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-4">
               Obtén InkCoins
@@ -121,7 +113,7 @@ export default function CheckoutPage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-8 bg-[var(--error)]/10 border border-red-500/30 rounded-xl p-4 text-center">
+            <div className="mb-8 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 text-center">
               <p className="text-[var(--error)]">{error}</p>
             </div>
           )}
@@ -134,7 +126,7 @@ export default function CheckoutPage() {
                 className={cn(
                   'relative bg-[var(--surface)]/50 rounded-2xl p-6 border transition-all duration-300',
                   selectedPackage === pkg.id
-                    ? 'border-blue-500 bg-[var(--primary)]/10'
+                    ? 'border-[var(--primary)] bg-[var(--primary)]/10'
                     : 'border-[var(--border)] hover:border-[var(--border-strong)]'
                 )}
               >
@@ -150,7 +142,7 @@ export default function CheckoutPage() {
                   'w-12 h-12 rounded-xl flex items-center justify-center mb-4',
                   index === 0 && 'bg-[var(--surface-sunken)]',
                   index === 1 && 'bg-[var(--primary)]/20',
-                  index === 2 && 'bg-purple-500/20',
+                  index === 2 && 'bg-[var(--accent-purple)]/20',
                   index === 3 && 'bg-[var(--warning)]/20'
                 )}>
                   {index === 0 && <Coins className="w-6 h-6 text-[var(--text-secondary)]" />}
@@ -173,7 +165,7 @@ export default function CheckoutPage() {
 
                 {/* Savings */}
                 {index > 0 && (
-                  <div className="text-xs text-green-400 mb-4">
+                  <div className="text-xs text-[var(--success)] mb-4">
                     Ahorra {Math.round((1 - pkg.priceUSD / (pkg.amount * 1)) * 100)}%
                   </div>
                 )}
@@ -201,7 +193,7 @@ export default function CheckoutPage() {
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
-              <CheckCircle className="w-8 h-8 text-green-400 mb-4" />
+              <CheckCircle className="w-8 h-8 text-[var(--success)] mb-4" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">Pago seguro</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 Procesado por Stripe con encriptación SSL de 256 bits
@@ -256,7 +248,6 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

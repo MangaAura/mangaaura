@@ -77,7 +77,7 @@ export async function POST(
 
     // If promoting to LEADER, demote current leader first
     if (role === 'LEADER') {
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         // Demote current leader to OFFICER
         await tx.clanMembership.update({
           where: { id: leaderMembership.id },

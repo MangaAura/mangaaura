@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
     
     const savedLogs = await Promise.all(
-      events.map((evt) =>
+        events.map((evt: any) =>
         readingAnalyticsService.trackReadingEvent(
           userId,
           chapterId,
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         eventsProcessed: savedLogs.length,
-        logs: savedLogs.map((log) => ({
+        logs: savedLogs.map((log: any) => ({
           id: log._id?.toString(),
           totalTimeSeconds: log.totalTimeSeconds,
           pagesViewed: log.pagesViewed.length,

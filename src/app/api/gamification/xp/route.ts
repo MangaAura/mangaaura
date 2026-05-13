@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { XP } from '@/core/value-objects/XP';
 import { z } from 'zod';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const addXPSchema = z.object({
   amount: z.number().int().min(1).max(1000),
@@ -20,6 +21,16 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const identifier = session?.user?.id || ip;
+    const rlResult = await rateLimit(getRateLimitKey('gamification-xp', identifier), 30, 60);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
     }
 
     const body = await request.json();
@@ -104,6 +115,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const identifier = session?.user?.id || ip;
+    const rlResult = await rateLimit(getRateLimitKey('gamification-xp', identifier), 30, 60);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -156,7 +177,7 @@ export async function GET(request: NextRequest) {
         readingStreak: user.readingStreak,
         globalRank: userRank + 1,
       },
-      leaderboard: topUsers.map((u, index) => ({
+      leaderboard: topUsers.map((u: any, index: any) => ({
         position: index + 1,
         id: u.id,
         username: u.username,

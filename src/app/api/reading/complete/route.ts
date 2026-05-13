@@ -175,6 +175,13 @@ export async function POST(request: NextRequest) {
       occurredAt: now,
     });
 
+    // Auto-check de logros tras completar capítulo (asíncrono, no bloquea respuesta)
+    import('@/core/services/AchievementService').then(({ achievementService }) => {
+      achievementService.checkAchievements(session.user.id).catch(err =>
+        console.error('[ChapterComplete] Error checking achievements:', err)
+      );
+    }).catch(() => {});
+
     return NextResponse.json({
       success: true,
       chapterCompleted: true,

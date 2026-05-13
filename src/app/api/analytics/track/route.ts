@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { redis } from '@/lib/redis';
 import { z } from 'zod';
 
+type _Output<T> = T extends { _zod: { output: infer O } } ? O : never;
+
 // Analytics event types
 const EventType = z.enum([
   'pageView',
@@ -70,7 +72,7 @@ function anonymizeIp(ip?: string): string | undefined {
 
 // Process and save events
 async function processEvents(
-  events: z.infer<typeof eventSchema>[],
+  events: _Output<typeof eventSchema>[],
   userId: string | undefined,
   userAgent: string | null,
   ipAddress: string | undefined,
@@ -79,11 +81,11 @@ async function processEvents(
   const sessionId = generateSessionId();
   const timestamp = new Date();
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
     // Save events
     await tx.analyticsEvent.createMany({
       data: events.map((event) => ({
-        type: event.type,
+        eventType: event.type,
         mangaId: event.mangaId,
         chapterId: event.chapterId,
         userId,
@@ -111,7 +113,7 @@ async function processEvents(
 // Update manga daily stats
 async function updateMangaStats(
   tx: any,
-  event: z.infer<typeof eventSchema>,
+  event: _Output<typeof eventSchema>,
   timestamp: Date
 ): Promise<void> {
   if (!event.mangaId) return;
@@ -169,7 +171,7 @@ async function updateMangaStats(
 // Update chapter stats
 async function updateChapterStats(
   tx: any,
-  event: z.infer<typeof eventSchema>,
+  event: _Output<typeof eventSchema>,
   timestamp: Date
 ): Promise<void> {
   if (!event.chapterId || !event.mangaId) return;
@@ -259,7 +261,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Collect events
-    let events: z.infer<typeof eventSchema>[] = [];
+    let events: _Output<typeof eventSchema>[] = [];
     if (result.data.events && result.data.events.length > 0) {
       events = result.data.events;
     } else if (result.data.event) {

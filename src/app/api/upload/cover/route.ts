@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { uploadCover, deleteFile, extractPathname } from '@/lib/storage';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // Tamaño máximo para portadas: 5MB
 const MAX_COVER_SIZE = 5 * 1024 * 1024;
@@ -39,6 +40,16 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado. Inicia sesión para subir archivos.' },
         { status: 401 }
       );
+    }
+
+    const identifier = session.user.id;
+    const { allowed } = await rateLimit(
+      getRateLimitKey('upload-cover', identifier),
+      20,
+      3600
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
     }
 
     const userId = session.user.id;

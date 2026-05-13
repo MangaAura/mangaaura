@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         where: { followerId: userId, followingType: 'USER' },
         select: { followingId: true },
       });
-      const followingIds = following.map((f) => f.followingId);
+      const followingIds = following.map((f: any) => f.followingId);
       where = {
         userId: { in: [...followingIds, userId] },
         isPublic: true,
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 
     // Enrich with target data
     const enriched = await Promise.all(
-      activities.map(async (activity) => {
+      activities.map(async (activity: any) => {
         let target = null;
 
         if (activity.targetId) {
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
         let message = '';
         switch (activity.activityType) {
           case 'READ_CHAPTER':
-            message = `leyó el capítulo ${metadata.chapterNumber || ''} de`;
+            message = `leyó el capítulo ${(metadata as any).chapterNumber || ''} de`;
             break;
           case 'FOLLOW_USER':
             message = 'comenzó a seguir a';

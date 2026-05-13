@@ -1,251 +1,234 @@
-/**
- * NotificationBell Component
- * 
- * Componente de campana de notificaciones con dropdown.
- * Muestra el contador de no leídas y permite acceder rápidamente a las notificaciones.
- */
+﻿'use client';
 
-'use client';
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { cn } from '@/lib/utils';
+import { Bell, Check, MessageSquare, Heart, Trophy, AlertCircle, X } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
-import { useState, useRef, useEffect } from 'react';
-import { Bell, Check, Trash2, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useNotifications } from '@/hooks/useNotifications';
-import { cn, formatTimeAgo } from '@/lib/utils';
-
-interface NotificationBellProps {
-  className?: string;
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  link: string | null;
+  isRead: boolean;
+  createdAt: string;
+  sender?: {
+    id: string;
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+  } | null;
 }
 
-export function NotificationBell({ className }: NotificationBellProps) {
-  const router = useRouter();
+interface NotificationBellProps {
+  userId: string;
+}
+
+export function NotificationBell({ userId }: NotificationBellProps) {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const { 
-    notifications, 
-    unreadCount, 
-    isLoading, 
-    markAsRead, 
-    markAllAsRead,
-    deleteNotification,
-  } = useNotifications({ limit: 10 });
 
-  // Cerrar al hacer click fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const response = await fetch('/api/notifications?limit=5');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const handleNotificationClick = async (notification: any) => {
-    if (!notification.isRead) {
-      await markAsRead(notification.id);
-    }
+  useEffect(() => {
+    fetchNotifications();
+    // Poll every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
-    // Navegar según el tipo
-    if (notification.linkUrl) {
-      router.push(notification.linkUrl);
-    } else if (notification.data) {
-      const data = typeof notification.data === 'string' 
-        ? JSON.parse(notification.data) 
-        : notification.data;
-      
-      if (data.chapterId) {
-        router.push(`/chapter/${data.chapterId}`);
-      } else if (data.mangaId) {
-        router.push(`/manga/${data.mangaId}`);
-      }
-    }
-
-    setIsOpen(false);
-  };
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'NEW_CHAPTER':
-        return '📖';
-      case 'COMMENT_REPLY':
-        return '💬';
-      case 'MENTION':
-        return '@️';
-      case 'ACHIEVEMENT_UNLOCKED':
-        return '🏆';
-      case 'LEVEL_UP':
-        return '⭐';
-      case 'INK_COINS_RECEIVED':
-        return '💰';
-      case 'SPONSORSHIP_WON':
-        return '🎉';
-      case 'SYSTEM':
-        return '📢';
-      default:
-        return '🔔';
+  const markAsRead = async (id: string) => {
+    try {
+      await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
     }
   };
 
-  const getNotificationColor = (type: string) => {
+  const markAllAsRead = async () => {
+    try {
+      await fetch('/api/notifications/read-all', { method: 'POST' });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
+  const getIcon = (type: string) => {
     switch (type) {
-      case 'NEW_CHAPTER':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'COMMENT_REPLY':
-      case 'MENTION':
-        return 'bg-green-500/20 text-green-400';
-      case 'ACHIEVEMENT_UNLOCKED':
-      case 'LEVEL_UP':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'INK_COINS_RECEIVED':
-      case 'SPONSORSHIP_WON':
-        return 'bg-purple-500/20 text-purple-400';
+      case 'FOLLOW':
+        return <Heart className="w-4 h-4 text-[var(--accent-purple)]" />;
+      case 'COMMENT':
+      case 'REPLY':
+        return <MessageSquare className="w-4 h-4 text-[var(--info)]" />;
+      case 'ACHIEVEMENT':
+        return <Trophy className="w-4 h-4 text-[var(--warning)]" />;
+      case 'REPORT_CREATED':
+      case 'REPORT_RESOLVED':
+        return <AlertCircle className="w-4 h-4 text-[var(--warning)]" />;
       default:
-        return 'bg-slate-500/20 text-slate-400';
+        return <Bell className="w-4 h-4 text-[var(--text-secondary)]" />;
     }
   };
 
   return (
-    <div className={cn('relative', className)} ref={dropdownRef}>
-      {/* Botón de campana */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          'relative p-2 rounded-lg transition-colors',
-          isOpen ? 'bg-[var(--surface)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]'
-        )}
-        aria-label="Notificaciones"
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative" aria-label="Notificaciones">
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--error)] rounded-full text-xs font-bold text-[var(--text-primary)] flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-80 max-h-96 overflow-y-auto"
       >
-        <Bell className="w-5 h-5" />
-        
-        {/* Badge de conteo */}
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
-        )}
-      </button>
-
-      {/* Dropdown */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-[var(--background)] border border-[var(--border)] rounded-xl shadow-2xl z-50 overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
-            <h3 className="font-semibold text-[var(--text-primary)]">Notificaciones</h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-xs text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1"
-              >
-                <Check className="w-3 h-3" />
-                Marcar todo
-              </button>
-            )}
-          </div>
-
-          {/* Lista de notificaciones */}
-          <div className="max-h-[400px] overflow-y-auto">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-[var(--text-secondary)]" />
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="text-center py-8 px-4">
-                <div className="w-12 h-12 bg-[var(--surface)] rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Bell className="w-6 h-6 text-[var(--text-tertiary)]" />
-                </div>
-                <p className="text-[var(--text-secondary)] text-sm">No tienes notificaciones</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-[var(--border)]">
-                {notifications.slice(0, 20).map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={cn(
-                      'px-4 py-3 cursor-pointer hover:bg-[var(--surface)]/50 transition-colors group',
-                      !notification.isRead && 'bg-[var(--primary-subtle)]/30'
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Icono */}
-                      <div className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-lg flex-shrink-0',
-                        getNotificationColor(notification.type)
-                      )}>
-                        {getNotificationIcon(notification.type)}
-                      </div>
-
-                      {/* Contenido */}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          'text-sm',
-                          !notification.isRead ? 'font-semibold text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
-                        )}>
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-[var(--text-tertiary)] mt-0.5 line-clamp-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-[10px] text-[var(--text-tertiary)]/70 mt-1">
-                          {formatTimeAgo(notification.createdAt)}
-                        </p>
-                      </div>
-
-                      {/* Acciones */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {!notification.isRead && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsRead(notification.id);
-                            }}
-                            className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--primary)] rounded"
-                            title="Marcar como leída"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteNotification(notification.id);
-                          }}
-                          className="p-1.5 text-[var(--text-tertiary)] hover:text-red-400 rounded"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      {/* Indicador de no leída */}
-                      {!notification.isRead && (
-                        <div className="w-2 h-2 bg-[var(--primary)] rounded-full flex-shrink-0 mt-1.5" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="px-4 py-2 border-t border-[var(--border)] bg-[var(--surface)]/50">
-            <button
-              onClick={() => {
-                router.push('/notifications');
-                setIsOpen(false);
-              }}
-              className="w-full text-center text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] py-1"
-            >
-              Ver todas las notificaciones
-            </button>
-          </div>
+        <div className="flex items-center justify-between p-3 border-b border-[var(--border)]">
+          <h3 className="font-semibold text-[var(--text-primary)]">Notificaciones</h3>
+          {unreadCount > 0 && (
+            <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+              <Check className="w-4 h-4 mr-1" />
+              Marcar todas
+            </Button>
+          )}
         </div>
-      )}
-    </div>
+
+        {isLoading ? (
+          <div className="p-3 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={`notif-skeleton-${i}`} className="flex items-center gap-3">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-3 w-full mb-1" />
+                  <Skeleton className="h-3 w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="p-8 text-center">
+            <Bell className="w-8 h-8 mx-auto mb-3 text-[var(--text-muted)]" />
+            <p className="text-[var(--text-secondary)] text-sm">Sin notificaciones</p>
+          </div>
+        ) : (
+          <>
+            {notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onMarkAsRead={markAsRead}
+                getIcon={getIcon}
+              />
+            ))}
+            <Link
+              href="/notifications"
+              className="block p-3 text-center text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] border-t border-[var(--border)]"
+              onClick={() => setIsOpen(false)}
+            >
+              Ver todas
+            </Link>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
-export default NotificationBell;
+function NotificationItem({
+  notification,
+  onMarkAsRead,
+  getIcon,
+}: {
+  notification: Notification;
+  onMarkAsRead: (id: string) => void;
+  getIcon: (type: string) => React.ReactNode;
+}) {
+  const content = (
+    <div
+      className={cn(
+'flex items-start gap-3 p-3 hover:bg-[var(--surface-sunken)]/50 transition-colors',
+    !notification.isRead && 'bg-[var(--surface-sunken)]/30'
+      )}
+    >
+      {notification.sender ? (
+        <Avatar className="w-10 h-10">
+          <AvatarImage src={notification.sender.avatarUrl || undefined} />
+          <AvatarFallback className="bg-[var(--surface-sunken)] text-xs">
+            {notification.sender.displayName?.[0] ||
+              notification.sender.username[0]}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
+        <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center">
+          {getIcon(notification.type)}
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className={cn('text-sm', !notification.isRead && 'font-medium')}>
+          {notification.title}
+        </p>
+        <p className="text-xs text-[var(--text-tertiary)] line-clamp-1">
+          {notification.message}
+        </p>
+        <p className="text-xs text-[var(--text-muted)] mt-1">
+          {formatDistanceToNow(new Date(notification.createdAt), {
+            addSuffix: true,
+            locale: es,
+          })}
+        </p>
+      </div>
+      {!notification.isRead && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMarkAsRead(notification.id); }}
+              className="p-1 hover:bg-[var(--surface-sunken)] rounded cursor-pointer"
+              aria-label="Marcar como leída"
+            >
+          <X className="w-4 h-4 text-[var(--text-tertiary)]" />
+        </button>
+      )}
+    </div>
+  );
+
+  if (notification.link) {
+    return (
+      <Link
+        href={notification.link}
+        onClick={() => !notification.isRead && onMarkAsRead(notification.id)}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
+}

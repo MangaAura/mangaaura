@@ -7,14 +7,14 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Bell, Check, Loader2, Filter } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { NotificationList } from '@/components/Notifications/NotificationList';
 import { cn } from '@/lib/utils';
-import Navbar from '@/components/Layout/Navbar';
+
 import type { NotificationType } from '@/core/services/NotificationService';
 
 type FilterType = NotificationType | 'all';
@@ -24,6 +24,12 @@ export default function NotificationsPage() {
   const { data: session, status } = useSession();
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    if (status !== 'loading' && !session) {
+      router.push('/auth/login?callbackUrl=/notifications');
+    }
+  }, [session, status, router]);
 
   const {
     notifications,
@@ -46,7 +52,7 @@ export default function NotificationsPage() {
     ? notifications 
     : notifications.filter(n => n.type === filterType);
 
-  if (status === 'loading') {
+  if (status === 'loading' || !session) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
@@ -54,17 +60,9 @@ export default function NotificationsPage() {
     );
   }
 
-  if (!session) {
-    router.push('/auth/login?callbackUrl=/notifications');
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <Navbar />
-
-      <div className="pt-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="pt-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
@@ -123,6 +121,5 @@ export default function NotificationsPage() {
           />
         </div>
       </div>
-    </div>
   );
 }

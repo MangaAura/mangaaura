@@ -81,12 +81,12 @@ export function MangaSelector({
         disabled={disabled || isLoading}
         className={cn(
           'flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border',
-          'bg-white border-slate-200 text-slate-700',
-          'hover:border-slate-300 hover:bg-slate-50',
-          'focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+'bg-[var(--surface-elevated)] border-[var(--border)] text-[var(--text-secondary)]',
+        'hover:border-[var(--border-strong)] hover:bg-[var(--surface-sunken)]',
+          'focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]',
           'transition-all duration-200',
-          'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200',
-          isOpen && 'border-indigo-500 ring-2 ring-indigo-500/20'
+          'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-[var(--border)]',
+          isOpen && 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20'
         )}
       >
         {selectedManga?.coverUrl ? (
@@ -96,7 +96,7 @@ export function MangaSelector({
             className="w-6 h-8 object-cover rounded"
           />
         ) : (
-          <BookOpenIcon className="w-5 h-5 text-slate-400" />
+          <BookOpenIcon className="w-5 h-5 text-[var(--text-tertiary)]" />
         )}
 
         <span className="flex-1 text-left text-sm font-medium truncate">
@@ -105,7 +105,7 @@ export function MangaSelector({
 
         <ChevronDownIcon
           className={cn(
-            'w-4 h-4 text-slate-400 transition-transform duration-200',
+            'w-4 h-4 text-[var(--text-tertiary)] transition-transform duration-200',
             isOpen && 'rotate-180'
           )}
         />
@@ -121,12 +121,12 @@ export function MangaSelector({
           />
 
           {/* Dropdown Content */}
-          <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl border border-slate-200 shadow-lg z-50 overflow-hidden">
+          <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] shadow-lg z-50 overflow-hidden">
             {/* Search Input */}
             {mangas.length > 5 && (
-              <div className="p-2 border-b border-slate-100">
+              <div className="p-2 border-b border-[var(--border)]">
                 <div className="relative">
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -134,8 +134,8 @@ export function MangaSelector({
                     placeholder="Buscar manga..."
                     className={cn(
                       'w-full pl-9 pr-3 py-2 text-sm rounded-lg border',
-                      'border-slate-200 text-slate-700 placeholder:text-slate-400',
-                      'focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20'
+                      'border-[var(--border)] text-[var(--text-secondary)] placeholder:text-[var(--text-tertiary)]',
+                      'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
                     )}
                   />
                 </div>
@@ -150,17 +150,17 @@ export function MangaSelector({
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2.5 text-left',
                   'transition-colors duration-150',
-                  selectedId === null
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-slate-700 hover:bg-slate-50'
+selectedId === null
+          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+        : 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
                 )}
               >
                 <div className="w-6 h-8 flex items-center justify-center">
-                  <BookOpenIcon className="w-5 h-5 text-slate-400" />
+<BookOpenIcon className="w-5 h-5 text-[var(--text-tertiary)]" />
                 </div>
                 <span className="flex-1 text-sm font-medium">{allText}</span>
                 {selectedId === null && (
-                  <CheckIcon className="w-4 h-4 text-indigo-600" />
+                  <CheckIcon className="w-4 h-4 text-[var(--primary)]" />
                 )}
               </button>
 
@@ -172,9 +172,9 @@ export function MangaSelector({
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 text-left',
                     'transition-colors duration-150',
-                    selectedId === manga.id
-                      ? 'bg-indigo-50 text-indigo-700'
-                      : 'text-slate-700 hover:bg-slate-50'
+selectedId === manga.id
+              ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+        : 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
                   )}
                 >
                   {manga.coverUrl ? (
@@ -184,8 +184,8 @@ export function MangaSelector({
                       className="w-6 h-8 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-6 h-8 bg-slate-100 rounded flex items-center justify-center">
-                      <BookOpenIcon className="w-4 h-4 text-slate-400" />
+<div className="w-6 h-8 bg-[var(--surface-sunken)] rounded flex items-center justify-center">
+        <BookOpenIcon className="w-4 h-4 text-[var(--text-tertiary)]" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -193,26 +193,26 @@ export function MangaSelector({
                       {manga.title}
                     </span>
                     {manga.totalChapters !== undefined && (
-                      <span className="block text-xs text-slate-400">
+                      <span className="block text-xs text-[var(--text-tertiary)]">
                         {manga.totalChapters} capítulos
                       </span>
                     )}
                   </div>
                   {selectedId === manga.id && (
-                    <CheckIcon className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-[var(--primary)] flex-shrink-0" />
                   )}
                 </button>
               ))}
 
               {filteredMangas.length === 0 && (
-                <div className="px-3 py-4 text-center text-sm text-slate-400">
+                <div className="px-3 py-4 text-center text-sm text-[var(--text-tertiary)]">
                   No se encontraron mangas
                 </div>
               )}
             </div>
 
             {/* Footer with count */}
-            <div className="px-3 py-2 bg-slate-50 border-t border-slate-100 text-xs text-slate-500">
+            <div className="px-3 py-2 bg-[var(--surface-sunken)] border-t border-[var(--border)] text-xs text-[var(--text-secondary)]">
               {mangas.length} manga{mangas.length !== 1 ? 's' : ''} en total
             </div>
           </div>

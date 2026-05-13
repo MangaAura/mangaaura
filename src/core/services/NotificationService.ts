@@ -9,6 +9,7 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { emitNotification } from '@/lib/socket';
+import { sendPushNotification } from '@/lib/push-notifications';
 import type { AchievementDefinition, Chapter, MangaSeries, Comment, User } from '@prisma/client';
 
 // Tipos de notificación
@@ -42,7 +43,11 @@ export type Notification = import('@prisma/client').Notification;
  * Servicio de notificaciones
  */
 export class NotificationService {
-  constructor(private readonly prismaClient: PrismaClient = prisma) {}
+  private readonly pushEnabled: boolean;
+
+  constructor(private readonly prismaClient: PrismaClient = prisma) {
+    this.pushEnabled = process.env.ENABLE_PUSH_NOTIFICATIONS !== 'false';
+  }
 
   /**
    * Crear una notificación
@@ -55,7 +60,6 @@ export class NotificationService {
         title: data.title,
         message: data.message,
         data: data.data ? JSON.stringify(data.data) : null,
-        imageUrl: data.imageUrl,
         linkUrl: data.linkUrl,
       },
     });
@@ -63,7 +67,7 @@ export class NotificationService {
     // Emitir notificación en tiempo real si está disponible
     try {
       const notificationPayload = {
-        id: (notification as any).id,
+        id: notification.id,
         type: notification.type as NotificationType,
         title: notification.title,
         message: notification.message,
@@ -72,10 +76,22 @@ export class NotificationService {
         isRead: notification.isRead,
         createdAt: notification.createdAt,
       };
-      emitNotification(data.userId, notificationPayload as any);
+      emitNotification(data.userId, notificationPayload);
     } catch (error) {
       // Silenciar errores de socket
-      console.log('[NotificationService] Socket emit failed (may be server-side)');
+      console.info('[NotificationService] Socket emit failed (may be server-side)');
+    }
+
+    // Enviar notificación push si está habilitado
+    if (this.pushEnabled && data.type !== 'SYSTEM') {
+      sendPushNotification(data.userId, {
+        title: data.title,
+        body: data.message,
+        url: data.linkUrl || '/',
+        tag: data.type.toLowerCase(),
+      }).catch(() => {
+        // Errores de push no deben afectar la creación de la notificación
+      });
     }
 
     return notification;
@@ -325,6 +341,20 @@ export class NotificationService {
   }
 
   /**
+   * Buscar una notificación por ID
+   */
+  async findById(notificationId: string): Promise<Notification | null> {
+    try {
+      const notification = await this.prismaClient.notification.findUnique({
+        where: { id: notificationId },
+      });
+      return notification as Notification | null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Obtener notificaciones de un usuario
    */
   async getUserNotifications(
@@ -398,8 +428,14 @@ async getUnreadNotifications(
   /**
    * Eliminar notificación
    */
-  async deleteNotification(notificationId: string): Promise<boolean> {
+  async deleteNotification(notificationId: string, userId?: string): Promise<boolean> {
     try {
+      if (userId) {
+        const notification = await this.prismaClient.notification.findFirst({
+          where: { id: notificationId, userId },
+        });
+        if (!notification) return false;
+      }
       await this.prismaClient.notification.delete({
         where: { id: notificationId },
       });
@@ -426,7 +462,7 @@ async getUnreadNotifications(
       },
     });
 
-    console.log(`[NotificationService] Cleaned up ${result.count} old notifications`);
+    console.info(`[NotificationService] Cleaned up ${result.count} old notifications`);
     return result.count;
   }
 

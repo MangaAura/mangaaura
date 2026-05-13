@@ -133,13 +133,13 @@ export function CommentDrawer({
       >
         {/* Drag Handle (Mobile Only) */}
         <div className="md:hidden flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1.5 bg-slate-600 rounded-full" />
+          <div className="w-12 h-1.5 bg-[var(--surface-sunken)] rounded-full" />
         </div>
 
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-blue-500" />
+            <MessageSquare className="w-5 h-5 text-[var(--info)]" />
             <h2 className="text-lg font-semibold">
               Comentarios
               {commentCount > 0 && (
@@ -152,10 +152,10 @@ export function CommentDrawer({
 
           <div className="flex items-center gap-2">
             {/* Mobile back button */}
-            <button
-              onClick={onClose}
-              className="md:hidden flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+        <button
+          onClick={onClose}
+          className="md:hidden flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        >
               <ChevronLeft size={16} />
               Volver
             </button>
@@ -163,7 +163,7 @@ export function CommentDrawer({
             {/* Close button */}
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-[var(--surface-sunken)] rounded-lg transition-colors cursor-pointer"
               aria-label="Cerrar comentarios"
             >
               <X size={20} />

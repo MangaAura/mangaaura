@@ -16,36 +16,36 @@ interface MetricCardProps {
 
 const colorClasses = {
   blue: {
-    bg: "bg-blue-500/20",
-    text: "text-blue-400",
-    border: "border-blue-500/30",
+    bg: "bg-[var(--info)]/20",
+    text: "text-[var(--info)]",
+    border: "border-[var(--info)]/30",
   },
   green: {
-    bg: "bg-green-500/20",
-    text: "text-green-400",
-    border: "border-green-500/30",
+    bg: "bg-[var(--success)]/20",
+    text: "text-[var(--success)]",
+    border: "border-[var(--success)]/30",
   },
   red: {
-    bg: "bg-red-500/20",
-    text: "text-red-400",
-    border: "border-red-500/30",
+    bg: "bg-[var(--error)]/20",
+    text: "text-[var(--error)]",
+    border: "border-[var(--error)]/30",
   },
   yellow: {
-    bg: "bg-yellow-500/20",
-    text: "text-yellow-400",
-    border: "border-yellow-500/30",
+    bg: "bg-[var(--warning)]/20",
+    text: "text-[var(--warning)]",
+    border: "border-[var(--warning)]/30",
   },
   purple: {
-    bg: "bg-purple-500/20",
-    text: "text-purple-400",
-    border: "border-purple-500/30",
+    bg: "bg-[var(--accent-purple)]/20",
+    text: "text-[var(--accent-purple)]",
+    border: "border-[var(--accent-purple)]/30",
   },
 };
 
 const trendColors = {
-  up: "text-green-400",
-  down: "text-red-400",
-  neutral: "text-slate-400",
+  up: "text-[var(--success)]",
+  down: "text-[var(--error)]",
+  neutral: "text-[var(--text-tertiary)]",
 };
 
 const trendIcons = {
@@ -68,7 +68,7 @@ export function MetricCard({
   const TrendIcon = trend ? trendIcons[trend] : null;
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-5 transition-all duration-300 hover:border-slate-600">
+    <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg p-5 transition-all duration-300 hover:border-[var(--border-strong)]">
       <div className="flex items-start justify-between">
         {/* Icon */}
         {icon && (
@@ -94,12 +94,12 @@ export function MetricCard({
       <div className="mt-4">
         {loading ? (
           <div className="flex items-center gap-2">
-            <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
-            <span className="text-slate-400 text-sm">Loading...</span>
+            <Loader2 className="w-6 h-6 text-[var(--text-tertiary)] animate-spin" />
+            <span className="text-[var(--text-tertiary)] text-sm">Loading...</span>
           </div>
         ) : (
           <h3
-            className="text-3xl font-bold text-white transition-all duration-300 animate-in fade-in"
+            className="text-3xl font-bold text-[var(--text-primary)] transition-all duration-300 animate-in fade-in"
             key={value}
           >
             {value}
@@ -108,11 +108,11 @@ export function MetricCard({
       </div>
 
       {/* Title */}
-      <p className="text-slate-400 text-sm mt-1">{title}</p>
+      <p className="text-[var(--text-tertiary)] text-sm mt-1">{title}</p>
 
       {/* Subtitle */}
       {subtitle && (
-        <p className="text-slate-500 text-xs mt-2">{subtitle}</p>
+        <p className="text-[var(--text-muted)] text-xs mt-2">{subtitle}</p>
       )}
     </div>
   );

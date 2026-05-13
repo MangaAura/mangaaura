@@ -35,9 +35,9 @@ export function StatCard({
   };
 
   const trendColors = {
-    up: 'text-emerald-400',
-    down: 'text-red-400',
-    neutral: 'text-slate-400',
+    up: 'text-[var(--success)]',
+    down: 'text-[var(--error)]',
+    neutral: 'text-[var(--text-secondary)]',
   };
 
   const TrendIcon = trend ? trendIcons[trend] : null;
@@ -47,25 +47,25 @@ export function StatCard({
       className={cn(
         'relative rounded-xl p-6 border transition-all duration-300',
         variant === 'highlight'
-          ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-blue-500/30'
-          : 'bg-slate-800/50 border-slate-700',
+          ? 'bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 border-[var(--primary)]/30'
+          : 'bg-[var(--surface-sunken)]/50 border-[var(--border)]',
         className
       )}
     >
       {/* Icon */}
       {icon && (
-        <div className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center">
+        <div className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-[var(--surface-sunken)]/50 flex items-center justify-center">
           {icon}
         </div>
       )}
 
       {/* Content */}
       <div>
-        <p className="text-sm text-slate-400 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-white">{value}</p>
+        <p className="text-sm text-[var(--text-secondary)] mb-1">{title}</p>
+        <p className="text-3xl font-bold text-[var(--text-primary)]">{value}</p>
         
         {subtitle && (
-          <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+          <p className="text-xs text-[var(--text-tertiary)] mt-1">{subtitle}</p>
         )}
 
         {/* Trend */}

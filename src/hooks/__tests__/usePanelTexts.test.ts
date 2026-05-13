@@ -8,12 +8,13 @@ const createMockPanelText = (overrides: Partial<PanelText> = {}): PanelText => (
   id: `text-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
   x: 100,
   y: 100,
-  width: 200,
-  height: 50,
   text: 'Test text',
   type: 'speech',
   fontSize: 16,
   color: '#000000',
+  backgroundColor: 'transparent',
+  borderRadius: 0,
+  padding: 4,
   rotation: 0,
   ...overrides,
 });
@@ -47,17 +48,18 @@ describe('usePanelTexts', () => {
     const { result } = renderHook(() => usePanelTexts());
 
     act(() => {
-      result.current.addText({
-        x: 50,
-        y: 50,
-        width: 100,
-        height: 30,
-        text: 'New text',
-        type: 'thought',
-        fontSize: 14,
-        color: '#ffffff',
-        rotation: 45,
-      });
+    result.current.addText({
+      x: 50,
+      y: 50,
+      text: 'New text',
+      type: 'thought',
+      fontSize: 14,
+      color: '#ffffff',
+      backgroundColor: 'transparent',
+      borderRadius: 0,
+      padding: 4,
+      rotation: 45,
+    });
     });
 
     expect(result.current.texts).toHaveLength(1);
@@ -135,10 +137,11 @@ describe('usePanelTexts', () => {
 
     act(() => {
       result.current.addText({
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 30,
+      x: 0,
+      y: 0,
+      backgroundColor: 'transparent',
+      borderRadius: 0,
+      padding: 4,
         text: 'Added',
         type: 'speech',
         fontSize: 14,
@@ -251,10 +254,11 @@ describe('usePanelTexts', () => {
     // Make dirty first
     act(() => {
       result.current.addText({
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 30,
+      x: 0,
+      y: 0,
+      backgroundColor: 'transparent',
+      borderRadius: 0,
+      padding: 4,
         text: 'New',
         type: 'speech',
         fontSize: 14,
@@ -284,10 +288,11 @@ describe('usePanelTexts', () => {
     // Make dirty first
     act(() => {
       result.current.addText({
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 30,
+      x: 0,
+      y: 0,
+      backgroundColor: 'transparent',
+      borderRadius: 0,
+      padding: 4,
         text: 'New',
         type: 'speech',
         fontSize: 14,
@@ -322,10 +327,11 @@ describe('usePanelTexts', () => {
 
     act(() => {
       result.current.addText({
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 30,
+      x: 0,
+      y: 0,
+      backgroundColor: 'transparent',
+      borderRadius: 0,
+      padding: 4,
         text: 'Auto save test',
         type: 'speech',
         fontSize: 14,
@@ -360,10 +366,11 @@ describe('usePanelTexts', () => {
     // Make dirty
     act(() => {
       result.current.addText({
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 30,
+      x: 0,
+      y: 0,
+      backgroundColor: 'transparent',
+      borderRadius: 0,
+      padding: 4,
         text: 'New',
         type: 'speech',
         fontSize: 14,

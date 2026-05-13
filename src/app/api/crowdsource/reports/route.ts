@@ -17,8 +17,8 @@ const querySchema = z.object({
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
   issueType: z.enum(['QUALITY', 'ERROR', 'SPOILER', 'OTHER']).optional(),
   chapterId: z.string().optional(),
-  limit: z.string().transform((v) => parseInt(v) || 20).optional(),
-  offset: z.string().transform((v) => parseInt(v) || 0).optional(),
+  limit: z.string().transform((v: any) => parseInt(v) || 20).optional(),
+  offset: z.string().transform((v: any) => parseInt(v) || 0).optional(),
   sortBy: z.enum(['createdAt', 'severity', 'status']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      reports: reports.map((r) => ({
+      reports: reports.map((r: any) => ({
         id: r._id.toString(),
         chapterId: r.chapterId,
         reportedBy: r.reportedBy,

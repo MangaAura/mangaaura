@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { AdminSidebar } from '@/components/Admin/AdminSidebar';
+import { PageTransition } from '@/components/ui/PageTransition';
 
 export default async function AdminLayout({
   children,
@@ -24,7 +25,7 @@ export default async function AdminLayout({
       <AdminSidebar />
       <main className="lg:ml-64 min-h-screen">
         <div className="p-4 lg:p-8">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </div>
       </main>
     </div>

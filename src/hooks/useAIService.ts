@@ -125,8 +125,8 @@ export function useAIService(options: UseAIServiceOptions = {}) {
       }
     };
 
-service.on('job:completed' as any, handleJobCompleted);
-service.on('health:check-completed' as any, handleHealthCheck);
+service.on('job:completed', handleJobCompleted);
+service.on('health:check-completed', handleHealthCheck);
 
     // Polling for queue depth
     const interval = setInterval(() => {
@@ -140,13 +140,13 @@ service.on('health:check-completed' as any, handleHealthCheck);
 
     return () => {
       mounted = false;
-      service.off('job:completed' as any, handleJobCompleted);
-      service.off('health:check-completed' as any, handleHealthCheck);
+      service.off('job:completed', handleJobCompleted);
+      service.off('health:check-completed', handleHealthCheck);
       clearInterval(interval);
       
       // Cancel all pending abort controllers
       abortControllersRef.current.forEach((controller) => {
-        try { controller.abort(); } catch {}
+        try { controller.abort(); } catch { console.info('[useAIService] AbortController already aborted'); }
       });
       abortControllersRef.current.clear();
     };

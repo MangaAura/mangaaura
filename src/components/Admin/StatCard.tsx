@@ -27,9 +27,9 @@ export function StatCard({
   className = '',
 }: StatCardProps) {
   const getTrendColor = () => {
-    if (trend === 'up') return 'text-emerald-600';
-    if (trend === 'down') return 'text-red-600';
-    return 'text-slate-500';
+    if (trend === 'up') return 'text-[var(--success)]';
+    if (trend === 'down') return 'text-[var(--error)]';
+    return 'text-[var(--text-tertiary)]';
   };
 
   const getTrendIcon = () => {
@@ -44,13 +44,13 @@ export function StatCard({
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-slate-600">{title}</CardTitle>
-        <div className="p-2 bg-indigo-100 rounded-lg">
-          <Icon className="w-4 h-4 text-indigo-600" />
+        <CardTitle className="text-sm font-medium text-[var(--text-muted)]">{title}</CardTitle>
+<div className="p-2 bg-[var(--primary)]/20 rounded-lg">
+      <Icon className="w-4 h-4 text-[var(--primary)]" />
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-slate-900">{value}</div>
+        <div className="text-2xl font-bold text-[var(--text-primary)]">{value}</div>
         {(description || change !== undefined) && (
           <div className="flex items-center gap-2 mt-1">
             {change !== undefined && (
@@ -60,10 +60,10 @@ export function StatCard({
               </span>
             )}
             {changeLabel && (
-              <span className="text-sm text-slate-500">{changeLabel}</span>
+              <span className="text-sm text-[var(--text-tertiary)]">{changeLabel}</span>
             )}
             {description && !change && (
-              <p className="text-sm text-slate-500">{description}</p>
+              <p className="text-sm text-[var(--text-tertiary)]">{description}</p>
             )}
           </div>
         )}

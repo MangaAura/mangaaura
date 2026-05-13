@@ -157,7 +157,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-slate-900">Failed to load user</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Failed to load user</h2>
         <p className="text-[var(--text-tertiary)] mt-2">Please try again later</p>
       </div>
     );
@@ -169,12 +169,12 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/admin/users">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+<Button variant="ghost" size="icon" aria-label="Volver">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Users className="w-6 h-6 text-[var(--primary)]" />
               Edit User
             </h1>
@@ -217,7 +217,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Username</label>
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Username</label>
                   <Input
                     value={formData.username}
                     onChange={(e) =>
@@ -227,7 +227,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Display Name</label>
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Display Name</label>
                   <Input
                     value={formData.displayName}
                     onChange={(e) =>
@@ -238,7 +238,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Email</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Email</label>
                 <Input
                   type="email"
                   value={formData.email}
@@ -249,7 +249,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700">Role</label>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Role</label>
                 <Select
                   value={formData.role}
                   onValueChange={(value) =>
@@ -276,7 +276,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Level</label>
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Level</label>
                   <Input
                     type="number"
                     min={1}
@@ -287,7 +287,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">XP Points</label>
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">XP Points</label>
                   <Input
                     type="number"
                     min={0}
@@ -298,7 +298,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">InkCoins</label>
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">InkCoins</label>
                   <Input
                     type="number"
                     min={0}
@@ -327,7 +327,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                 <div className="space-y-2">
                   {user.mangas.map((manga) => (
                     <Link key={manga.id} href={`/admin/manga/${manga.id}`}>
-                      <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg hover:bg-[var(--surface-sunken)] transition-colors cursor-pointer">
                         <div>
                           <p className="font-medium">{manga.title}</p>
                           <p className="text-sm text-[var(--text-tertiary)]">

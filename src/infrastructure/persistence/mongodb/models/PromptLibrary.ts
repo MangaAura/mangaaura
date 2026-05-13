@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IPromptLibrary extends Document {
+export interface IPromptLibrary {
   authorId: string;
   name: string;
   prompt: string;
@@ -9,20 +9,18 @@ export interface IPromptLibrary extends Document {
   isPublic: boolean;
   likes: number;
   likedBy: string[];
-  // Referencia opcional
   chapterId?: string;
   mangaId?: string;
-  // Configuración del modelo
-  model?: string;
+  aiModel?: string;
   negativePrompt?: string;
   seed?: number;
   cfgScale?: number;
-  // Stats
   views: number;
   forks: number;
   forkedBy: string[];
   createdAt: Date;
   updatedAt: Date;
+  [key: string]: unknown;
 }
 
 const PromptLibrarySchema = new Schema<IPromptLibrary>(
@@ -39,7 +37,7 @@ const PromptLibrarySchema = new Schema<IPromptLibrary>(
     chapterId: { type: String, index: true },
     mangaId: { type: String, index: true },
     // Configuración
-    model: String,
+    aiModel: String,
     negativePrompt: String,
     seed: Number,
     cfgScale: Number,

@@ -23,25 +23,7 @@ if (vapidPublicKey && vapidPrivateKey) {
   );
 }
 
-// Types
-interface WebPushSubscription {
-  endpoint: string;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-}
-
-interface PushNotificationPayload {
-  title: string;
-  body: string;
-  icon?: string;
-  badge?: string;
-  tag?: string;
-  url?: string;
-  requireInteraction?: boolean;
-  actions?: Array<{ action: string; title: string }>;
-}
+import type { WebPushSubscription, PushNotificationPayload } from '@/types/push';
 
 /**
  * Guardar o actualizar suscripción de push
@@ -105,7 +87,7 @@ export async function sendPushNotification(
 
   // Enviar a todas las suscripciones del usuario
   const results = await Promise.allSettled(
-    subscriptions.map(async (sub) => {
+    subscriptions.map(async (sub: any) => {
       const subscription = {
         endpoint: sub.endpoint,
         keys: {
@@ -126,8 +108,8 @@ export async function sendPushNotification(
     })
   );
 
-  const failed = results.filter(r => r.status === 'rejected');
-  const success = results.filter(r => r.status === 'fulfilled');
+  const failed = results.filter((r: any) => r.status === 'rejected');
+  const success = results.filter((r: any) => r.status === 'fulfilled');
 
   return {
     success: failed.length === 0,
@@ -162,7 +144,7 @@ export async function getUserPushSubscriptions(userId: string): Promise<WebPushS
     where: { userId },
   });
 
-  return subscriptions.map(sub => ({
+  return subscriptions.map((sub: any) => ({
     endpoint: sub.endpoint,
     keys: {
       p256dh: sub.p256dh,

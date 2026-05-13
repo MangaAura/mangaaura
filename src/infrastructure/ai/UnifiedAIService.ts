@@ -373,7 +373,7 @@ export class UnifiedAIService extends EventEmitter {
     }, 30000);
 
     this.emit('service:started');
-    console.log('[UnifiedAIService] Service started');
+    console.info('[UnifiedAIService] Service started');
   }
 
   async stop(): Promise<void> {
@@ -392,7 +392,7 @@ export class UnifiedAIService extends EventEmitter {
     this.queue.dispose();
     
     this.emit('service:stopped');
-    console.log('[UnifiedAIService] Service stopped');
+    console.info('[UnifiedAIService] Service stopped');
   }
 
   // ==========================================================================
@@ -964,7 +964,7 @@ export class UnifiedAIService extends EventEmitter {
 
   private setupAlertListeners(): void {
     // Escuchar cambios de salud desde el registro
-    this.registry.on('model:health-changed', (data: { modelId: string; previousHealth: string; newHealth: string }) => {
+    (this.registry as any).on('model:health-changed', (data: { modelId: string; previousHealth: string; newHealth: string }) => {
       const model = this.registry.getModel(data.modelId);
       if (model) {
         this.checkAndEmitModelAlert(model, data.previousHealth as 'healthy' | 'degraded' | 'unhealthy', data.newHealth as 'healthy' | 'degraded' | 'unhealthy');

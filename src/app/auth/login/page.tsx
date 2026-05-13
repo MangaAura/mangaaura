@@ -9,7 +9,7 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex items-center justify-center">
+    <div className="flex items-center justify-center">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
         <span>Cargando...</span>
@@ -155,7 +155,7 @@ function Content() {
   };
 
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex flex-col">
+    <div className="flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
           <ArrowLeft size={20} /> Volver al Inicio
@@ -221,7 +221,7 @@ function Content() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>

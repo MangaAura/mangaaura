@@ -10,9 +10,13 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await auth();
+    const { searchParams } = new URL(req.url);
+    const byName = searchParams.get('byName') === '1';
 
-    const clan = await prisma.clan.findUnique({
-      where: { id },
+    const whereClause: any = byName ? { name: id } : { id };
+
+    const clan = await prisma.clan.findFirst({
+      where: whereClause,
       include: {
         members: {
           include: {
@@ -42,11 +46,10 @@ export async function GET(
       );
     }
 
-    // Check if current user is a member
     let userMembership = null;
     if (session?.user?.id) {
       const userId = session.user.id;
-      userMembership = clan.members.find(m => m.userId === userId) || null;
+      userMembership = clan.members.find((m: any) => m.userId === userId) || null;
     }
 
     return NextResponse.json({

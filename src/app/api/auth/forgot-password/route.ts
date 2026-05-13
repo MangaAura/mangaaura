@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { redis } from '@/lib/redis';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import crypto from 'crypto';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -26,6 +27,15 @@ export async function POST(request: NextRequest) {
 
     const { email } = result.data;
     const normalizedEmail = email.toLowerCase().trim();
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rlResult = await rateLimit(getRateLimitKey('forgot-password', ip), 5, 3600);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
+    }
 
     // Buscar usuario por email
     const user = await prisma.user.findUnique({
@@ -63,7 +73,7 @@ export async function POST(request: NextRequest) {
         resetLink,
       });
 
-      console.log(`[ForgotPassword] Email de recuperacion agregado a la cola para: ${user.email}`);
+      console.info('[ForgotPassword] Reset email queued for user ID:', user.id);
     }
 
     // Por seguridad, siempre retornamos exito

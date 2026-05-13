@@ -55,50 +55,27 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/home.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Página principal de InkVerse"
-    },
-    {
-      "src": "/screenshots/reader.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Lector de manga"
-    },
-    {
-      "src": "/screenshots/mobile-home.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "InkVerse en móvil"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Mi Biblioteca",
       "short_name": "Biblioteca",
       "description": "Ver tu biblioteca de mangas",
       "url": "/library",
-      "icons": [{ "src": "/icons/library-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96" }]
     },
     {
       "name": "Rankings",
       "short_name": "Rankings",
       "description": "Ver mangas populares",
       "url": "/rankings",
-      "icons": [{ "src": "/icons/rankings-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96" }]
     },
     {
       "name": "Subir Capítulo",
       "short_name": "Subir",
       "description": "Subir un nuevo capítulo",
       "url": "/creator/upload",
-      "icons": [{ "src": "/icons/upload-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96" }]
     }
   ],
   "related_applications": [],

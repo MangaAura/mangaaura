@@ -379,7 +379,7 @@ export async function getConversations({
       }),
     ]);
 
-    const formatted = conversations.map((conv) => {
+    const formatted = conversations.map((conv: any) => {
       const otherParticipant =
         conv.participant1Id === userId ? conv.participant2 : conv.participant1;
 

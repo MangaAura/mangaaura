@@ -1,12 +1,11 @@
-import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { DomainError } from '../../../core/errors/DomainError';
 
-interface JoinClanInput {
+export interface JoinClanInput {
   clanId: string;
   userId: string;
 }
 
-interface JoinClanOutput {
+export interface JoinClanOutput {
   membership: {
     id: string;
     clanId: string;
@@ -17,41 +16,46 @@ interface JoinClanOutput {
   };
 }
 
+export interface IClanJoinRepository {
+  findUserMembership(userId: string): Promise<{ clanId: string } | null>;
+  findClanById(id: string): Promise<{ id: string } | null>;
+  createMembership(data: { clanId: string; userId: string; role: string }): Promise<JoinClanOutput['membership']>;
+}
+
 export class JoinClanUseCase {
+  constructor(private readonly clanRepo: IClanJoinRepository) {}
+
   async execute(input: JoinClanInput): Promise<JoinClanOutput> {
     const { clanId, userId } = input;
 
-    // Check if user is already in a clan
-    const existingMembership = await prisma.clanMembership.findFirst({
-      where: { userId },
-    });
-
+    const existingMembership = await this.clanRepo.findUserMembership(userId);
     if (existingMembership) {
-      throw new Error('User is already a member of a clan');
+      throw new AlreadyInClanError();
     }
 
-    // Check if clan exists
-    const clan = await prisma.clan.findUnique({
-      where: { id: clanId },
-    });
-
+    const clan = await this.clanRepo.findClanById(clanId);
     if (!clan) {
-      throw new Error('Clan not found');
+      throw new ClanNotFoundError(clanId);
     }
 
-    // Create membership
-    const membership = await prisma.clanMembership.create({
-      data: {
-        clanId,
-        userId,
-        role: 'MEMBER',
-      },
+    const membership = await this.clanRepo.createMembership({
+      clanId,
+      userId,
+      role: 'MEMBER',
     });
-
-    // Revalidate cache
-    revalidatePath(`/community/clan/${clanId}`);
-    revalidatePath('/community/clans');
 
     return { membership };
   }
+}
+
+class AlreadyInClanError extends DomainError {
+  readonly code = 'ALREADY_IN_CLAN';
+  readonly isOperational = true;
+  constructor() { super('El usuario ya pertenece a un clan'); }
+}
+
+class ClanNotFoundError extends DomainError {
+  readonly code = 'CLAN_NOT_FOUND';
+  readonly isOperational = true;
+  constructor(id: string) { super(`Clan no encontrado: ${id}`); }
 }

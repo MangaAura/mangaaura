@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { uploadChapterImages, UploadResult, UploadError } from '@/lib/storage';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // Tamaño máximo por archivo: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -47,6 +48,16 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado. Inicia sesión para subir archivos.' },
         { status: 401 }
       );
+    }
+
+    const identifier = session.user.id;
+    const { allowed } = await rateLimit(
+      getRateLimitKey('upload-chapter', identifier),
+      10,
+      3600
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
     }
 
     const userId = session.user.id;

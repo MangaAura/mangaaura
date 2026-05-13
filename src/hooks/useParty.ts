@@ -71,7 +71,7 @@ export function useParty(options: UsePartyOptions) {
 
         // Event listeners de conexion
         socket.on('connect', () => {
-          console.log('[Party] Connected');
+          console.info('[Party] Connected');
           setIsConnected(true);
           setError(null);
           onConnect?.();
@@ -90,7 +90,7 @@ export function useParty(options: UsePartyOptions) {
         });
 
         socket.on('disconnect', (reason) => {
-          console.log('[Party] Disconnected:', reason);
+          console.info('[Party] Disconnected:', reason);
           setIsConnected(false);
           setIsJoined(false);
           onDisconnect?.(reason);
@@ -104,7 +104,7 @@ export function useParty(options: UsePartyOptions) {
 
         // Event listeners de party
         socket.on('party:joined', ({ party: partyData, member }) => {
-          console.log('[Party] Joined:', partyData.partyId);
+          console.info('[Party] Joined:', partyData.partyId);
           setIsJoined(true);
           setParty(partyData);
           setMembers(partyData.members);

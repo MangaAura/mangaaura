@@ -52,7 +52,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Validar que la URL sea de Vercel Blob
-    if (!url.includes('.public.blob.vercel-storage.com') && !url.includes('.blob.vercel-storage.com')) {
+    if (!new URL(url).hostname.endsWith('.public.blob.vercel-storage.com') && !new URL(url).hostname.endsWith('.blob.vercel-storage.com')) {
       return NextResponse.json(
         { error: 'URL no válida. Solo se pueden eliminar archivos del sistema.' },
         { status: 400 }
@@ -125,30 +125,34 @@ export async function DELETE(request: NextRequest) {
       }
     }
 
-    // Verificar si la URL está en algún capítulo del usuario
-    if (!isOwner) {
-      const chapters = await prisma.chapter.findMany({
-        where: {
-          pageUrls: { contains: url },
-        },
-        select: {
-          mangaId: true,
-        },
+  if (!isOwner) {
+    const chapters = await prisma.chapter.findMany({
+      where: {
+        pageUrls: { contains: url },
+      },
+      select: {
+        mangaId: true,
+      },
+    });
+
+    if (chapters.length > 0) {
+      const uniqueMangaIds = [...new Set(chapters.map((c: any) => c.mangaId))];
+      const mangas = await prisma.mangaSeries.findMany({
+        where: { id: { in: uniqueMangaIds } },
+        select: { id: true, authorId: true },
       });
+      const mangaMap = new Map(mangas.map((m: any) => [m.id, m.authorId]));
 
       for (const chapter of chapters) {
-        const manga = await prisma.mangaSeries.findUnique({
-          where: { id: chapter.mangaId },
-          select: { authorId: true },
-        });
-        
-        if (manga?.authorId === userId) {
+        const authorId = mangaMap.get(chapter.mangaId);
+        if (authorId === userId) {
           isOwner = true;
           resourceType = 'chapter';
           break;
         }
       }
     }
+  }
 
     if (!isOwner) {
       return NextResponse.json(

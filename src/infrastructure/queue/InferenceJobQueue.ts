@@ -677,7 +677,7 @@ export class InferenceJobQueue extends EventEmitter {
         }
       }
 
-      console.log(`[InferenceJobQueue] Restored ${this.queue.size} jobs from persistence`);
+      console.info(`[InferenceJobQueue] Restored ${this.queue.size} jobs from persistence`);
     } catch (error) {
       console.error('[InferenceJobQueue] Failed to restore jobs:', error);
     }
@@ -762,12 +762,16 @@ export interface QueueEvents {
 
 // Type augmentation for EventEmitter
 declare module 'events' {
-  interface EventEmitter {
-    emit<K extends keyof QueueEvents>(event: K, payload: QueueEvents[K]): boolean;
-    on<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
-    once<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
-    off<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
-  }
+interface EventEmitter {
+emit<K extends keyof QueueEvents>(event: K, payload: QueueEvents[K]): boolean;
+emit(event: string, ...args: unknown[]): boolean;
+on<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
+on(event: string, listener: (...args: unknown[]) => void): this;
+once<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
+once(event: string, listener: (...args: unknown[]) => void): this;
+off<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
+off(event: string, listener: (...args: unknown[]) => void): this;
+}
 }
 
 // ============================================================================

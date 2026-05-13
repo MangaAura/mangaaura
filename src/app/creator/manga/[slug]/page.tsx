@@ -34,11 +34,11 @@ export default function MangaDetailPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-[var(--surface)]">
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="h-8 w-48 bg-slate-200 rounded mb-4 animate-pulse" />
-            <div className="h-96 bg-slate-200 rounded animate-pulse" />
+            <div className="h-8 w-48 bg-[var(--surface-sunken)] rounded mb-4 animate-pulse" />
+            <div className="h-96 bg-[var(--surface-sunken)] rounded animate-pulse" />
           </div>
         </main>
       </div>
@@ -47,11 +47,11 @@ export default function MangaDetailPage({ params }: PageProps) {
 
   if (error || !manga) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-[var(--surface)]">
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-              <p className="text-red-600">{error instanceof Error ? error.message : error || 'Manga no encontrado'}</p>
+      <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-8 text-center">
+        <p className="text-[var(--error)]">{error instanceof Error ? error.message : error || 'Manga no encontrado'}</p>
               <Link href="/creator/dashboard">
                 <Button variant="outline" className="mt-4">
                   <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -66,30 +66,30 @@ export default function MangaDetailPage({ params }: PageProps) {
   }
 
   const statusLabels: Record<string, { label: string; color: string }> = {
-    ONGOING: { label: 'Publicando', color: 'bg-green-100 text-green-700' },
-    COMPLETED: { label: 'Completado', color: 'bg-blue-100 text-blue-700' },
-    HIATUS: { label: 'Pausado', color: 'bg-amber-100 text-amber-700' },
-    DROPPED: { label: 'Abandonado', color: 'bg-red-100 text-red-700' },
+  ONGOING: { label: 'Publicando', color: 'bg-[var(--success)]/20 text-[var(--success)]' },
+  COMPLETED: { label: 'Completado', color: 'bg-[var(--info)]/20 text-[var(--info)]' },
+  HIATUS: { label: 'Pausado', color: 'bg-[var(--warning)]/20 text-[var(--warning)]' },
+  DROPPED: { label: 'Abandonado', color: 'bg-[var(--error)]/20 text-[var(--error)]' },
   };
   const status = statusLabels[manga.status];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--surface)]">
       <main className="p-4 sm:p-6 lg:p-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <Link href="/creator/dashboard">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeftIcon className="w-5 h-5" />
-                </Button>
+<Button variant="ghost" size="icon" aria-label="Volver">
+          <ArrowLeftIcon className="w-5 h-5" />
+        </Button>
               </Link>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
                   {manga.title}
                 </h1>
-                <p className="text-slate-500 mt-1">
+                <p className="text-[var(--text-tertiary)] mt-1">
                   Gestiona tu manga y capítulos
                 </p>
               </div>
@@ -116,7 +116,7 @@ export default function MangaDetailPage({ params }: PageProps) {
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Cover */}
                 <div className="w-full md:w-48 flex-shrink-0">
-                  <div className="aspect-[3/4] bg-slate-200 rounded-lg overflow-hidden">
+                  <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
                     {manga.coverUrl ? (
                       <img
                         src={manga.coverUrl}
@@ -124,8 +124,8 @@ export default function MangaDetailPage({ params }: PageProps) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-400 to-purple-500">
-                        <span className="text-white text-5xl font-bold">
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[var(--accent)]">
+          <span className="text-[var(--text-inverse)] text-5xl font-bold">
                           {manga.title.charAt(0)}
                         </span>
                       </div>
@@ -139,12 +139,12 @@ export default function MangaDetailPage({ params }: PageProps) {
                     <span className={cn('px-3 py-1 text-sm font-medium rounded-full', status.color)}>
                       {status.label}
                     </span>
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm text-[var(--text-tertiary)]">
                       Creado el {new Date(manga.createdAt).toLocaleDateString('es-ES')}
                     </span>
                   </div>
 
-                  <p className="text-slate-600 mb-4 line-clamp-3">
+                  <p className="text-[var(--text-tertiary)] mb-4 line-clamp-3">
                     {manga.description}
                   </p>
 
@@ -152,7 +152,7 @@ export default function MangaDetailPage({ params }: PageProps) {
                     {manga.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-sm"
+                        className="px-3 py-1 bg-[var(--surface-sunken)] text-[var(--text-tertiary)] rounded-full text-sm"
                       >
                         {tag}
                       </span>
@@ -161,39 +161,39 @@ export default function MangaDetailPage({ params }: PageProps) {
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <BookOpenIcon className="w-4 h-4" />
                         <span className="text-sm">Capítulos</span>
                       </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {chapters.length}
             </p>
                     </div>
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <EyeIcon className="w-4 h-4" />
                         <span className="text-sm">Vistas</span>
                       </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {formatNumber(manga.totalViews)}
             </p>
                     </div>
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <UsersIcon className="w-4 h-4" />
                         <span className="text-sm">Lectores</span>
                       </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-[var(--text-primary)]">
               {formatNumber(manga.stats?.totalReaders ?? 0)}
             </p>
                     </div>
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <TrendingUpIcon className="w-4 h-4" />
                         <span className="text-sm">Crecimiento</span>
                       </div>
-            <p className="text-2xl font-bold text-green-600">
+            <p className="text-2xl font-bold text-[var(--success)]">
               +{manga.stats?.monthlyGrowth ?? 0}%
             </p>
                     </div>
@@ -205,14 +205,14 @@ export default function MangaDetailPage({ params }: PageProps) {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="flex gap-2 border-b border-slate-200 mb-6">
+            <TabsList className="flex gap-2 border-b border-[var(--border)] mb-6">
               <TabsTrigger
                 value="chapters"
                 className={cn(
                   'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
                   activeTab === 'chapters'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                 )}
               >
             <BookOpenIcon className="w-4 h-4 mr-2" />
@@ -223,8 +223,8 @@ export default function MangaDetailPage({ params }: PageProps) {
                 className={cn(
                   'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
                   activeTab === 'stats'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                 )}
               >
                 <BarChart3Icon className="w-4 h-4 mr-2" />
@@ -234,7 +234,7 @@ export default function MangaDetailPage({ params }: PageProps) {
 
             <TabsContent value="chapters" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   Lista de Capítulos
                 </h2>
     <Link href={`/creator/upload?mangaId=${manga.id}`}>
@@ -266,32 +266,32 @@ export default function MangaDetailPage({ params }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[var(--surface)] rounded-lg">
                         <div>
-                          <p className="text-sm text-slate-500">Promedio de vistas por capítulo</p>
-                          <p className="text-xl font-bold text-slate-900">
+                          <p className="text-sm text-[var(--text-tertiary)]">Promedio de vistas por capítulo</p>
+                          <p className="text-xl font-bold text-[var(--text-primary)]">
                             {formatNumber(manga.stats?.avgViewsPerChapter ?? 0)}
                           </p>
                         </div>
-                        <EyeIcon className="w-8 h-8 text-indigo-500" />
+                        <EyeIcon className="w-8 h-8 text-[var(--primary)]" />
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[var(--surface)] rounded-lg">
                         <div>
-                          <p className="text-sm text-slate-500">Crecimiento mensual</p>
-                          <p className="text-xl font-bold text-green-600">
+                          <p className="text-sm text-[var(--text-tertiary)]">Crecimiento mensual</p>
+                          <p className="text-xl font-bold text-[var(--success)]">
                             +{manga.stats?.monthlyGrowth ?? 0}%
                           </p>
                         </div>
-                        <TrendingUpIcon className="w-8 h-8 text-green-500" />
+                        <TrendingUpIcon className="w-8 h-8 text-[var(--success)]" />
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[var(--surface)] rounded-lg">
                         <div>
-                          <p className="text-sm text-slate-500">Total de lectores</p>
-                          <p className="text-xl font-bold text-slate-900">
+                          <p className="text-sm text-[var(--text-tertiary)]">Total de lectores</p>
+                          <p className="text-xl font-bold text-[var(--text-primary)]">
                             {formatNumber(manga.stats?.totalReaders ?? 0)}
                           </p>
                         </div>
-                        <UsersIcon className="w-8 h-8 text-amber-500" />
+                        <UsersIcon className="w-8 h-8 text-[var(--warning)]" />
                       </div>
                     </div>
                   </CardContent>
@@ -305,18 +305,18 @@ export default function MangaDetailPage({ params }: PageProps) {
                     <div className="space-y-3">
                 {(chapters ?? []).slice(0, 5).map((chapter) => (
                   <div key={chapter.id} className="flex items-center gap-4">
-                    <span className="text-sm text-slate-500 w-16">
+                    <span className="text-sm text-[var(--text-tertiary)] w-16">
                       Cap. {chapter.chapterNumber}
                     </span>
-                    <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div className="flex-1 bg-[var(--surface-sunken)] rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-indigo-500 h-full rounded-full transition-all"
+                        className="bg-[var(--primary)] h-full rounded-full transition-all"
                         style={{
                           width: `${Math.min(100, (chapter.viewCount / ((manga.stats?.avgViewsPerChapter ?? 1) * 1.5)) * 100)}%`,
                         }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-slate-700 w-20 text-right">
+                    <span className="text-sm font-medium text-[var(--text-secondary)] w-20 text-right">
                       {formatNumber(chapter.viewCount)}
                     </span>
                   </div>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const sponsorSchema = z.object({
   chapterId: z.string().min(1),
@@ -13,6 +14,16 @@ export async function POST(request: Request) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const identifier = session?.user?.id || ip;
+    const rlResult = await rateLimit(getRateLimitKey('gamification-sponsor', identifier), 10, 60);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
     }
 
     const body = await request.json();
@@ -27,7 +38,7 @@ export async function POST(request: Request) {
     const { chapterId, bidAmount } = parsed.data;
     const userId = session.user.id;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const user = await tx.user.findUnique({ where: { id: userId } });
       if (!user) throw new Error('User not found');
       if (user.inkcoinsBalance < bidAmount) throw new Error('Insufficient InkCoins balance');

@@ -8,5 +8,6 @@ export { StatCard } from './StatCard';
 export { AnalyticsDashboard } from './AnalyticsDashboard';
 export { DateRangePicker } from './DateRangePicker';
 export { MangaSelector } from './MangaSelector';
+export { ExportAnalyticsButton } from './ExportAnalyticsButton';
 export type { DateRange, DateRangePreset } from './DateRangePicker';
 export type { MangaOption } from './MangaSelector';

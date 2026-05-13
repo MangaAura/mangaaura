@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import useSWR from 'swr';
@@ -121,7 +121,7 @@ export default function UsersPage() {
               )}
             </div>
             <div>
-              <p className="font-medium text-slate-900">
+              <p className="font-medium text-[var(--text-primary)]">
                 {row.original.displayName || row.original.username}
               </p>
               <p className="text-xs text-[var(--text-tertiary)]">@{row.original.username}</p>
@@ -188,13 +188,14 @@ export default function UsersPage() {
                 setShowUserDialog(true);
               }}
               title="View Profile"
+        aria-label="Ver perfil"
             >
               <Eye className="w-4 h-4 text-[var(--primary)]" />
             </Button>
             <Link href={`/admin/users/${row.original.id}`}>
-              <Button variant="ghost" size="icon" title="Edit">
-                <Edit className="w-4 h-4 text-indigo-500" />
-              </Button>
+<Button variant="ghost" size="icon" title="Edit" aria-label="Editar usuario">
+            <Edit className="w-4 h-4 text-[var(--primary)]" />
+          </Button>
             </Link>
             <Button
               variant="ghost"
@@ -205,6 +206,7 @@ export default function UsersPage() {
                 setShowActionDialog(true);
               }}
               title="Ban User"
+        aria-label="Banear usuario"
             >
               <Ban className="w-4 h-4 text-[var(--warning)]" />
             </Button>
@@ -217,6 +219,7 @@ export default function UsersPage() {
                 setShowActionDialog(true);
               }}
               title="Delete"
+        aria-label="Eliminar usuario"
             >
               <Trash2 className="w-4 h-4 text-[var(--error)]" />
             </Button>
@@ -253,7 +256,7 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Users className="w-6 h-6 text-[var(--primary)]" />
             Users
           </h1>
@@ -302,7 +305,7 @@ export default function UsersPage() {
                         {headerGroup.headers.map((header) => (
                           <th
                             key={header.id}
-                            className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)] cursor-pointer hover:text-slate-700"
+                            className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)] cursor-pointer hover:text-[var(--text-secondary)]"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(
@@ -386,7 +389,7 @@ export default function UsersPage() {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">
+                  <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                     {selectedUser.displayName || selectedUser.username}
                   </h3>
                   <p className="text-sm text-[var(--text-tertiary)]">@{selectedUser.username}</p>
@@ -404,19 +407,19 @@ export default function UsersPage() {
               {/* Stats Grid */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-slate-900">
+                  <p className="text-2xl font-bold text-[var(--text-primary)]">
                     {selectedUser.xpPoints.toLocaleString()}
                   </p>
                   <p className="text-sm text-[var(--text-tertiary)]">XP Points</p>
                 </div>
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-slate-900">
+                  <p className="text-2xl font-bold text-[var(--text-primary)]">
                     {selectedUser.inkcoinsBalance.toLocaleString()}
                   </p>
                   <p className="text-sm text-[var(--text-tertiary)]">InkCoins</p>
                 </div>
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-slate-900">
+                  <p className="text-2xl font-bold text-[var(--text-primary)]">
                     {selectedUser.readingStreak}
                   </p>
                   <p className="text-sm text-[var(--text-tertiary)]">Reading Streak</p>
@@ -427,25 +430,25 @@ export default function UsersPage() {
               <div className="space-y-3">
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-[var(--text-tertiary)]">Email</span>
-                  <span className="text-slate-900">{selectedUser.email}</span>
+                  <span className="text-[var(--text-primary)]">{selectedUser.email}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-[var(--text-tertiary)]">Joined</span>
-                  <span className="text-slate-900">
+                  <span className="text-[var(--text-primary)]">
                     {new Date(selectedUser.createdAt).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-[var(--text-tertiary)]">Mangas Created</span>
-                  <span className="text-slate-900">{selectedUser.mangaCount}</span>
+                  <span className="text-[var(--text-primary)]">{selectedUser.mangaCount}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-[var(--text-tertiary)]">Chapters Uploaded</span>
-                  <span className="text-slate-900">{selectedUser.chapterCount}</span>
+                  <span className="text-[var(--text-primary)]">{selectedUser.chapterCount}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-[var(--text-tertiary)]">Comments Posted</span>
-                  <span className="text-slate-900">{selectedUser.commentCount}</span>
+                  <span className="text-[var(--text-primary)]">{selectedUser.commentCount}</span>
                 </div>
               </div>
 
@@ -479,8 +482,8 @@ export default function UsersPage() {
           </DialogHeader>
           {selectedUser && (
             <div className="bg-[var(--surface)] p-4 rounded-lg my-4">
-              <p className="text-sm font-medium text-slate-700">User:</p>
-              <p className="text-sm text-slate-900 mt-1">
+              <p className="text-sm font-medium text-[var(--text-secondary)]">User:</p>
+              <p className="text-sm text-[var(--text-primary)] mt-1">
                 {selectedUser.displayName || selectedUser.username} (@{selectedUser.username})
               </p>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">{selectedUser.email}</p>

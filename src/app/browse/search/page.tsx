@@ -1,56 +1,118 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/Layout/Navbar';
-import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown } from 'lucide-react';
+
+import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, Loader2, AlertTriangle } from 'lucide-react';
 
 const GENRES = ['Action', 'Adventure', 'Comedy', 'Dark Fantasy', 'Drama', 'Fantasy', 'Horror', 'Isekai', 'Mecha', 'Romance', 'School Life', 'Sci-Fi', 'Shounen', 'Slice of Life', 'Supernatural', 'System'];
 const STATUSES = ['Ongoing', 'Completed', 'Hiatus'];
 
+const SORT_MAP: Record<string, string> = {
+  popularity: 'popularity',
+  rating: 'rating',
+  newest: 'date',
+  chapters: 'popularity',
+};
+
+interface MangaResult {
+  id: string;
+  slug: string;
+  title: string;
+  authorName: string | null;
+  coverUrl: string | null;
+  rating: number;
+  status: string;
+  tags: string[];
+  chapterCount: number;
+  totalViews: number;
+  description?: string | null;
+}
+
 export default function AdvancedSearchPage() {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('');
   const [sortBy, setSortBy] = useState('popularity');
   const [showFilters, setShowFilters] = useState(true);
+  const [results, setResults] = useState<MangaResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const allManga = [
-    { id: 'solo-leveling', title: 'Solo Leveling', author: 'DUBU_AI', rating: 4.9, chapters: 179, status: 'Completed', genres: ['Action', 'Dark Fantasy', 'System'] },
-    { id: 'jujutsu-kaisen', title: 'Jujutsu Kaisen', author: 'Gege_AI', rating: 4.8, chapters: 245, status: 'Ongoing', genres: ['Action', 'Shounen', 'Supernatural'] },
-    { id: 'chainsaw-man', title: 'Chainsaw Man', author: 'Fujimoto_AI', rating: 4.7, chapters: 150, status: 'Ongoing', genres: ['Action', 'Horror', 'Dark Fantasy'] },
-    { id: 'omniscient-reader', title: 'Omniscient Reader', author: 'Singshong_AI', rating: 4.9, chapters: 180, status: 'Completed', genres: ['Action', 'Fantasy', 'System'] },
-    { id: 'spy-x-family', title: 'Spy x Family', author: 'Endo_AI', rating: 4.7, chapters: 90, status: 'Ongoing', genres: ['Action', 'Comedy', 'School Life'] },
-    { id: 'tower-of-god', title: 'Tower of God', author: 'SIU_Bot', rating: 4.6, chapters: 550, status: 'Ongoing', genres: ['Action', 'Fantasy', 'Adventure'] },
-    { id: 'beginning-after-end', title: 'The Beginning After the End', author: 'TurtleMe_AI', rating: 4.8, chapters: 180, status: 'Ongoing', genres: ['Action', 'Fantasy', 'Isekai'] },
-    { id: 'demon-slayer', title: 'Demon Slayer', author: 'Gotouge_AI', rating: 4.8, chapters: 205, status: 'Completed', genres: ['Action', 'Shounen', 'Supernatural'] },
-  ];
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [query]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedQuery, selectedGenres, selectedStatus, sortBy]);
+
+  const doSearch = useCallback(async () => {
+    setLoading(true);
+    setSearchError(null);
+    try {
+      const params = new URLSearchParams();
+      if (debouncedQuery) params.set('q', debouncedQuery);
+      if (selectedGenres.length > 0) selectedGenres.forEach(g => params.append('genres[]', g.toLowerCase()));
+      if (selectedStatus) params.set('status', selectedStatus.toUpperCase());
+      params.set('sort', SORT_MAP[sortBy] || 'popularity');
+      params.set('page', String(page));
+      params.set('limit', '24');
+
+      const res = await fetch(`/api/search?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setResults(data.mangas || []);
+        setTotal(data.pagination?.total || 0);
+      } else {
+        setResults([]);
+        setTotal(0);
+        setSearchError('Error al buscar. Inténtalo de nuevo.');
+      }
+    } catch {
+      setResults([]);
+      setTotal(0);
+      setSearchError('Error de conexión al buscar.');
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedQuery, selectedGenres, selectedStatus, sortBy, page]);
+
+  useEffect(() => {
+    doSearch();
+  }, [doSearch]);
 
   const toggleGenre = (genre: string) => {
     setSelectedGenres(prev => prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]);
   };
 
-  const filteredManga = allManga.filter(manga => {
-    const matchesQuery = !query || manga.title.toLowerCase().includes(query.toLowerCase()) || manga.author.toLowerCase().includes(query.toLowerCase());
-    const matchesGenres = selectedGenres.length === 0 || selectedGenres.every(g => manga.genres.includes(g));
-    const matchesStatus = !selectedStatus || manga.status === selectedStatus;
-    return matchesQuery && matchesGenres && matchesStatus;
-  });
+  const mangaStatusLabel = (status: string) => {
+    switch (status) {
+      case 'ONGOING': return 'Ongoing';
+      case 'COMPLETED': return 'Completed';
+      case 'HIATUS': return 'Hiatus';
+      default: return status;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary pb-12">
-      <Navbar />
-
-      {/* Search Header */}
-      <div className="bg-secondary border-b border-custom">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <h1 className="text-3xl font-extrabold tracking-tight mb-6 flex items-center gap-3">
-            <Search className="text-accent-blue" size={30} /> Búsqueda Avanzada
-          </h1>
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={20} />
-              <input
+    <>
+    {/* Search Header */}
+    <div className="bg-secondary border-b border-custom">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <h1 className="text-3xl font-extrabold tracking-tight mb-6 flex items-center gap-3">
+          <Search className="text-accent-blue" size={30} /> Búsqueda Avanzada
+        </h1>
+        <div className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={20} />
+            <input
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
@@ -59,16 +121,16 @@ export default function AdvancedSearchPage() {
                 autoFocus
               />
               {query && (
-                <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-fg-primary transition-colors">
+                <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-[var(--text-primary)] transition-colors cursor-pointer">
                   <X size={18} />
                 </button>
               )}
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-5 py-4 rounded-2xl border font-bold transition-all shadow-sm ${showFilters ? 'bg-accent-blue text-white border-accent-blue' : 'bg-secondary border-custom hover:bg-tertiary'}`}
+              className={`flex items-center gap-2 px-5 py-4 rounded-2xl border font-bold transition-all shadow-sm cursor-pointer ${showFilters ? 'bg-accent-blue text-[var(--text-inverse)] border-accent-blue' : 'bg-secondary border-custom hover:bg-tertiary'}`}
             >
-              <SlidersHorizontal size={20} /> Filtros {selectedGenres.length > 0 && <span className="bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">{selectedGenres.length}</span>}
+              <SlidersHorizontal size={20} /> Filtros {selectedGenres.length > 0 && <span className="bg-[var(--text-inverse)]/20 text-[var(--text-inverse)] text-xs px-1.5 py-0.5 rounded-full">{selectedGenres.length}</span>}
             </button>
           </div>
         </div>
@@ -83,7 +145,7 @@ export default function AdvancedSearchPage() {
               <div className="flex justify-between items-center mb-6 border-b border-custom pb-4">
                 <h2 className="font-bold text-lg flex items-center gap-2"><Filter size={18} /> Filtros</h2>
                 {(selectedGenres.length > 0 || selectedStatus) && (
-                  <button onClick={() => { setSelectedGenres([]); setSelectedStatus(''); }} className="text-xs text-accent-red font-semibold hover:underline">Limpiar todo</button>
+                  <button onClick={() => { setSelectedGenres([]); setSelectedStatus(''); }} className="text-xs text-accent-red font-semibold hover:underline cursor-pointer">Limpiar todo</button>
                 )}
               </div>
 
@@ -95,7 +157,7 @@ export default function AdvancedSearchPage() {
                     <button
                       key={status}
                       onClick={() => setSelectedStatus(selectedStatus === status ? '' : status)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedStatus === status ? 'bg-accent-blue text-white border-accent-blue' : 'bg-tertiary border-custom text-muted hover:text-fg-primary'}`}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${selectedStatus === status ? 'bg-accent-blue text-[var(--text-inverse)] border-accent-blue' : 'bg-tertiary border-custom text-muted hover:text-[var(--text-primary)]'}`}
                     >
                       {status}
                     </button>
@@ -129,7 +191,7 @@ export default function AdvancedSearchPage() {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedGenres.includes(genre) ? 'bg-accent-purple text-white border-accent-purple' : 'bg-tertiary border-custom text-muted hover:text-fg-primary hover:border-accent-purple/50'}`}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${selectedGenres.includes(genre) ? 'bg-accent-purple text-[var(--text-inverse)] border-accent-purple' : 'bg-tertiary border-custom text-muted hover:text-[var(--text-primary)] hover:border-accent-purple/50'}`}
                     >
                       {genre}
                     </button>
@@ -144,11 +206,21 @@ export default function AdvancedSearchPage() {
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
             <p className="text-muted font-semibold text-sm">
-              <span className="text-fg-primary font-black text-xl mr-1">{filteredManga.length}</span> resultados encontrados
+              {loading ? (
+                <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Buscando...</span>
+              ) : (
+                <><span className="text-[var(--text-primary)] font-black text-xl mr-1">{total}</span> resultados encontrados</>
+              )}
             </p>
           </div>
 
-          {filteredManga.length === 0 ? (
+          {!loading && searchError ? (
+      <div className="bg-secondary border border-custom rounded-2xl p-16 text-center">
+        <AlertTriangle className="w-12 h-12 text-[var(--warning)] mx-auto mb-4" />
+        <h3 className="text-xl font-bold mb-2">{searchError}</h3>
+        <button onClick={doSearch} className="text-accent-blue hover:underline font-semibold cursor-pointer">Reintentar</button>
+      </div>
+    ) : !loading && results.length === 0 ? (
             <div className="bg-secondary border border-custom rounded-2xl p-16 text-center">
               <div className="text-5xl mb-4">🔍</div>
               <h3 className="text-xl font-bold mb-2">Sin resultados</h3>
@@ -156,27 +228,27 @@ export default function AdvancedSearchPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredManga.map((manga, i) => (
-                <Link href={`/manga/${manga.id}`} key={i} className="group">
+              {results.map((manga) => (
+                <Link href={`/manga/${manga.slug}`} key={manga.id} className="group">
                   <div className="bg-secondary border border-custom rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent-blue transition-all duration-200 hover:-translate-y-0.5 h-full flex flex-col">
                     <div className="relative aspect-[16/9] overflow-hidden">
                       <img
-                        src={`https://via.placeholder.com/400x225/10121a/5a6072?text=${manga.title.split(' ')[0]}`}
+                        src={manga.coverUrl || '/placeholder-manga.svg'}
                         alt={manga.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-yellow-400 text-xs font-black px-2 py-1 rounded-lg flex items-center gap-1">
-                        <Star size={12} fill="currentColor" /> {manga.rating}
+                      <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-[var(--warning)] text-xs font-black px-2 py-1 rounded-lg flex items-center gap-1">
+                        <Star size={12} fill="currentColor" /> {manga.rating?.toFixed(1) ?? '—'}
                       </div>
-                      <div className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${manga.status === 'Completed' ? 'bg-accent-green/80 text-white' : manga.status === 'Ongoing' ? 'bg-accent-blue/80 text-white' : 'bg-yellow-500/80 text-black'}`}>
-                        {manga.status}
+                      <div className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${manga.status === 'COMPLETED' ? 'bg-accent-green/80 text-[var(--text-inverse)]' : manga.status === 'ONGOING' ? 'bg-accent-blue/80 text-[var(--text-inverse)]' : 'bg-[var(--warning)]/80 text-[var(--text-inverse)]'}`}>
+                        {mangaStatusLabel(manga.status)}
                       </div>
                     </div>
                     <div className="p-4 flex flex-col flex-1">
                       <h3 className="font-bold text-base mb-1 group-hover:text-accent-blue transition-colors line-clamp-1">{manga.title}</h3>
-                      <p className="text-xs text-muted mb-3">Por <span className="font-semibold text-accent-purple">{manga.author}</span></p>
+                      <p className="text-xs text-muted mb-3">Por <span className="font-semibold text-accent-purple">{manga.authorName || 'Desconocido'}</span></p>
                       <div className="flex flex-wrap gap-1.5 mb-auto">
-                        {manga.genres.slice(0, 3).map(genre => (
+                        {manga.tags?.slice(0, 3).map((genre: string) => (
                           <span key={genre} onClick={(e) => { e.preventDefault(); toggleGenre(genre); }} className="text-[10px] font-bold bg-tertiary border border-custom hover:border-accent-purple text-muted px-2 py-0.5 rounded-full cursor-pointer transition-colors">
                             {genre}
                           </span>
@@ -184,7 +256,7 @@ export default function AdvancedSearchPage() {
                       </div>
                       <div className="flex items-center justify-between mt-4 pt-3 border-t border-custom">
                         <div className="flex items-center gap-1 text-xs font-semibold text-muted">
-                          <BookOpen size={14} /> {manga.chapters} caps.
+                          <BookOpen size={14} /> {manga.chapterCount} caps.
                         </div>
                         <span className="text-xs font-bold text-accent-blue group-hover:underline">Ver detalles →</span>
                       </div>
@@ -194,8 +266,29 @@ export default function AdvancedSearchPage() {
               ))}
             </div>
           )}
-        </div>
+
+          {/* Pagination */}
+          {!loading && total > 24 && (
+            <div className="flex justify-center gap-2 mt-8">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 rounded-lg bg-secondary border border-custom text-sm font-bold disabled:opacity-30 cursor-pointer hover:bg-tertiary transition-colors"
+              >
+                Anterior
+              </button>
+              <span className="px-4 py-2 text-sm text-muted">Página {page}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={results.length < 24}
+                className="px-4 py-2 rounded-lg bg-secondary border border-custom text-sm font-bold disabled:opacity-30 cursor-pointer hover:bg-tertiary transition-colors"
+              >
+                Siguiente
+              </button>
+      </div>
+    )}
       </div>
     </div>
+    </>
   );
 }

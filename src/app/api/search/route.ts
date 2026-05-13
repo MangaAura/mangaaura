@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
 import { Prisma } from '@prisma/client';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // Status types for manga
 const VALID_STATUSES = ['ONGOING', 'COMPLETED', 'HIATUS', 'DROPPED'] as const;
@@ -59,7 +60,7 @@ function extractHighlights(manga: {
   // Check description match
   if (manga.description?.toLowerCase().includes(queryLower)) {
     const words = manga.description.split(/\s+/);
-    const queryIndex = words.findIndex((w: string) =>
+    const queryIndex = words.findIndex((w: any) =>
       w.toLowerCase().includes(queryLower)
     );
     const start = Math.max(0, queryIndex - 5);
@@ -83,13 +84,13 @@ function extractHighlights(manga: {
   if (manga.tags) {
     try {
       const tags = JSON.parse(manga.tags) as string[];
-      const matchingTags = tags.filter((tag: string) =>
+      const matchingTags = tags.filter((tag: any) =>
         tag.toLowerCase().includes(queryLower)
       );
       if (matchingTags.length > 0) {
         highlights.push({
           field: 'tags',
-          snippet: matchingTags.map((t: string) => highlightText(t, query)).join(', '),
+          snippet: matchingTags.map((t: any) => highlightText(t, query)).join(', '),
         });
       }
     } catch {
@@ -103,6 +104,15 @@ function extractHighlights(manga: {
 // GET /api/search - Advanced search endpoint
 export async function GET(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rlResult = await rateLimit(getRateLimitKey('search', ip), 30, 60);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
+    }
+
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters with validation
@@ -147,16 +157,16 @@ export async function GET(request: NextRequest) {
 
         // Text search with full-text capabilities - use case-insensitive search
         if (query) {
-          where.OR = [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-            { authorName: { contains: query, mode: 'insensitive' } },
-          ];
+    where.OR = [
+      { title: { contains: query } },
+      { description: { contains: query } },
+      { authorName: { contains: query } },
+    ];
         }
 
         // Genre filter (using tags as genres)
         if (genres.length > 0) {
-          where.AND = genres.map((genre) => ({
+          where.AND = genres.map((genre: any) => ({
             tags: { contains: `"${genre.toLowerCase()}"` },
           }));
         }
@@ -168,7 +178,7 @@ export async function GET(request: NextRequest) {
 
         // Author filter - case insensitive
         if (author) {
-          where.authorName = { contains: author, mode: 'insensitive' };
+          where.authorName = { contains: author };
         }
 
         // Rating range filter
@@ -260,7 +270,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Transform results with highlights
-        const transformedResults = results.map((manga) => ({
+        const transformedResults = results.map((manga: any) => ({
           id: manga.id,
           title: manga.title,
           slug: manga.slug,

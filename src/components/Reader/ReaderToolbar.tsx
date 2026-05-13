@@ -78,7 +78,7 @@ export function ReaderToolbar({
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         'fixed top-0 left-0 right-0 z-50',
-        'bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50',
+        'bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)]/50',
         className
       )}
     >
@@ -86,128 +86,135 @@ export function ReaderToolbar({
       <div className="flex items-center justify-between px-4 py-2">
         {/* Left: Navigation */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 0}
-            className={cn(
-              'p-2 rounded-lg transition-all',
-              'hover:bg-slate-700/50 text-slate-300',
-              'disabled:opacity-30 disabled:cursor-not-allowed'
-            )}
-            title="Previous page (←)"
-          >
+        <button
+          onClick={handlePrevPage}
+          disabled={currentPage === 0}
+          className={cn(
+            'p-2 rounded-lg transition-all cursor-pointer',
+            'hover:bg-[var(--border)]/50 text-[var(--text-secondary)]',
+            'disabled:opacity-30 disabled:cursor-not-allowed'
+          )}
+          title="Previous page (←)"
+          aria-label="Página anterior"
+        >
             <ChevronLeft className="w-5 h-5" />
           </button>
           
           {/* Page Counter */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 rounded-lg">
-            <span className="text-sm font-medium text-white min-w-[3ch] text-center">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface-elevated)]/80 rounded-lg">
+            <span className="text-sm font-medium text-[var(--text-inverse)] min-w-[3ch] text-center">
               {currentPage + 1}
             </span>
-            <span className="text-slate-500">/</span>
-            <span className="text-sm text-slate-400">{totalPages}</span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className="text-sm text-[var(--text-tertiary)]">{totalPages}</span>
           </div>
           
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage >= totalPages - (isDoublePage ? 2 : 1)}
-            className={cn(
-              'p-2 rounded-lg transition-all',
-              'hover:bg-slate-700/50 text-slate-300',
-              'disabled:opacity-30 disabled:cursor-not-allowed'
-            )}
-            title="Next page (→)"
-          >
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage >= totalPages - (isDoublePage ? 2 : 1)}
+          className={cn(
+            'p-2 rounded-lg transition-all cursor-pointer',
+            'hover:bg-[var(--border)]/50 text-[var(--text-secondary)]',
+            'disabled:opacity-30 disabled:cursor-not-allowed'
+          )}
+          title="Next page (→)"
+          aria-label="Página siguiente"
+        >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
 
         {/* Center: Progress Slider */}
         <div className="hidden sm:flex flex-1 max-w-md mx-4 items-center gap-3">
-          <span className="text-xs text-slate-500">1</span>
+          <span className="text-xs text-[var(--text-muted)]">1</span>
           <div className="relative flex-1 h-8 flex items-center group">
-            <input
-              type="range"
-              min={1}
-              max={totalPages}
-              value={currentPage + 1}
-              onChange={handleSliderChange}
-              className="w-full h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer
+          <input
+            type="range"
+            min={1}
+            max={totalPages}
+            value={currentPage + 1}
+            onChange={handleSliderChange}
+            aria-label="Seleccionar página"
+            className="w-full h-1.5 bg-[var(--border)] rounded-full appearance-none cursor-pointer
                 [&::-webkit-slider-thumb]:appearance-none
                 [&::-webkit-slider-thumb]:w-4
                 [&::-webkit-slider-thumb]:h-4
                 [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-blue-500
+                [&::-webkit-slider-thumb]:bg-[var(--primary)]
                 [&::-webkit-slider-thumb]:cursor-pointer
                 [&::-webkit-slider-thumb]:transition-all
                 [&::-webkit-slider-thumb]:hover:scale-110
                 [&::-moz-range-thumb]:w-4
                 [&::-moz-range-thumb]:h-4
                 [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-blue-500
+                [&::-moz-range-thumb]:bg-[var(--primary)]
                 [&::-moz-range-thumb]:border-0
                 [&::-moz-range-thumb]:cursor-pointer"
               style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progress}%, #334155 ${progress}%, #334155 100%)`
+                background: `linear-gradient(to right, var(--primary) 0%, var(--primary) ${progress}%, var(--border) ${progress}%, var(--border) 100%)`
               }}
             />
             {/* Tooltip */}
             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs bg-slate-800 text-white px-2 py-1 rounded">
+              <span className="text-xs bg-[var(--surface-elevated)] text-[var(--text-inverse)] px-2 py-1 rounded">
                 Page {currentPage + 1}
               </span>
             </div>
           </div>
-          <span className="text-xs text-slate-500">{totalPages}</span>
+          <span className="text-xs text-[var(--text-muted)]">{totalPages}</span>
         </div>
 
         {/* Right: Controls */}
         <div className="flex items-center gap-1">
           {/* Theme Toggle */}
-          <div className="flex items-center bg-slate-800/80 rounded-lg p-1 mr-2">
-            <button
-              onClick={() => onThemeChange('light')}
-              className={cn(
-                'p-1.5 rounded transition-all',
-                theme === 'light' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'
-              )}
-              title="Light theme"
-            >
+          <div className="flex items-center bg-[var(--surface-elevated)]/80 rounded-lg p-1 mr-2">
+          <button
+            onClick={() => onThemeChange('light')}
+            className={cn(
+              'p-1.5 rounded transition-all cursor-pointer',
+              theme === 'light' ? 'bg-[var(--primary)] text-[var(--text-inverse)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-inverse)]'
+            )}
+            title="Light theme"
+            aria-label="Tema claro"
+          >
               <Sun className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => onThemeChange('dark')}
-              className={cn(
-                'p-1.5 rounded transition-all',
-                theme === 'dark' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'
-              )}
-              title="Dark theme"
-            >
+          <button
+            onClick={() => onThemeChange('dark')}
+            className={cn(
+              'p-1.5 rounded transition-all cursor-pointer',
+              theme === 'dark' ? 'bg-[var(--primary)] text-[var(--text-inverse)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-inverse)]'
+            )}
+            title="Dark theme"
+            aria-label="Tema oscuro"
+          >
               <Moon className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => onThemeChange('sepia')}
-              className={cn(
-                'p-1.5 rounded transition-all text-xs font-medium',
-                theme === 'sepia' ? 'bg-amber-700 text-white' : 'text-amber-600 hover:text-amber-500'
-              )}
-              title="Sepia theme"
-            >
+          <button
+            onClick={() => onThemeChange('sepia')}
+            className={cn(
+              'p-1.5 rounded transition-all cursor-pointer text-xs font-medium',
+              theme === 'sepia' ? 'bg-[var(--warning)] text-[var(--text-inverse)]' : 'text-[var(--warning)] hover:text-[var(--warning)]'
+            )}
+            title="Sepia theme"
+            aria-label="Tema sepia"
+          >
               <Type className="w-4 h-4" />
             </button>
           </div>
 
           {/* Double Page Toggle */}
-          <button
-            onClick={onToggleDoublePage}
-            className={cn(
-              'p-2 rounded-lg transition-all',
-              isDoublePage 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'hover:bg-slate-700/50 text-slate-400'
-            )}
-            title="Toggle double page (D)"
-          >
+        <button
+          onClick={onToggleDoublePage}
+          className={cn(
+            'p-2 rounded-lg transition-all cursor-pointer',
+            isDoublePage
+            ? 'bg-[var(--primary)]/20 text-[var(--info)]'
+            : 'hover:bg-[var(--border)]/50 text-[var(--text-tertiary)]'
+          )}
+          title="Toggle double page (D)"
+          aria-label="Doble página"
+        >
             {isDoublePage ? (
               <LayoutGrid className="w-5 h-5" />
             ) : (
@@ -216,39 +223,42 @@ export function ReaderToolbar({
           </button>
 
           {/* RTL Toggle */}
-          <button
-            onClick={onToggleRTL}
-            className={cn(
-              'p-2 rounded-lg transition-all',
-              isRTL 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'hover:bg-slate-700/50 text-slate-400'
-            )}
-            title="Toggle reading direction (R)"
-          >
+        <button
+          onClick={onToggleRTL}
+          className={cn(
+            'p-2 rounded-lg transition-all cursor-pointer',
+            isRTL
+            ? 'bg-[var(--primary)]/20 text-[var(--info)]'
+            : 'hover:bg-[var(--border)]/50 text-[var(--text-tertiary)]'
+          )}
+          title="Toggle reading direction (R)"
+          aria-label="Dirección de lectura"
+        >
             <ArrowRightLeft className={cn('w-5 h-5', isRTL && 'rotate-180')} />
           </button>
 
           {/* Comments Toggle */}
-          <button
-            onClick={onToggleComments}
-            className={cn(
-              'p-2 rounded-lg transition-all',
-              showComments 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'hover:bg-slate-700/50 text-slate-400'
-            )}
-            title="Toggle comments (C)"
-          >
+        <button
+          onClick={onToggleComments}
+          className={cn(
+            'p-2 rounded-lg transition-all cursor-pointer',
+            showComments
+            ? 'bg-[var(--primary)]/20 text-[var(--info)]'
+            : 'hover:bg-[var(--border)]/50 text-[var(--text-tertiary)]'
+          )}
+          title="Toggle comments (C)"
+          aria-label="Comentarios"
+        >
             <MessageSquare className="w-5 h-5" />
           </button>
 
           {/* Fullscreen Toggle */}
-          <button
-            onClick={onToggleFullscreen}
-            className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 transition-all"
-            title="Toggle fullscreen (F)"
-          >
+        <button
+          onClick={onToggleFullscreen}
+          className="p-2 rounded-lg hover:bg-[var(--border)]/50 text-[var(--text-tertiary)] transition-all cursor-pointer"
+          title="Toggle fullscreen (F)"
+          aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+        >
             {isFullscreen ? (
               <Minimize className="w-5 h-5" />
             ) : (
@@ -257,25 +267,26 @@ export function ReaderToolbar({
           </button>
 
           {/* Settings */}
-          <button
-            onClick={onToggleSettings}
-            className={cn(
-              'p-2 rounded-lg transition-all',
-              settingsOpen 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'hover:bg-slate-700/50 text-slate-400'
-            )}
-            title="Settings (S)"
-          >
+        <button
+          onClick={onToggleSettings}
+          className={cn(
+            'p-2 rounded-lg transition-all cursor-pointer',
+            settingsOpen
+            ? 'bg-[var(--primary)]/20 text-[var(--info)]'
+            : 'hover:bg-[var(--border)]/50 text-[var(--text-tertiary)]'
+          )}
+          title="Settings (S)"
+          aria-label="Configuración"
+        >
             <Settings className="w-5 h-5" />
           </button>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="h-0.5 bg-slate-800">
+      <div className="h-0.5 bg-[var(--surface-elevated)]">
         <motion.div
-          className="h-full bg-gradient-to-r from-blue-500 to-cyan-400"
+          className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-blue)]"
           initial={false}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.3, ease: 'easeOut' }}

@@ -4,14 +4,16 @@
  * POST: Create Stripe checkout session for InkCoins purchase
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getStripe, INKCOIN_PACKAGES, getPackageById } from '@/lib/stripe';
+import { getStripe, INKCOIN_PACKAGES, getPackageById, getSubscriptionPlanById } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const checkoutSchema = z.object({
-  packageId: z.string(),
+  packageId: z.string().optional(),
+  planId: z.string().optional(),
 });
 
 /**
@@ -24,14 +26,22 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const identifier = session.user.id;
+  const { allowed } = await rateLimit(
+    getRateLimitKey('checkout', identifier),
+    10,
+    3600
+  );
+  if (!allowed) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
-    const { packageId } = checkoutSchema.parse(body);
+    const { packageId, planId } = checkoutSchema.parse(body);
 
-    // Get package
-    const package_ = getPackageById(packageId);
-    if (!package_) {
-      return Response.json({ error: 'Invalid package' }, { status: 400 });
+    if (!packageId && !planId) {
+      return Response.json({ error: 'Se requiere packageId o planId' }, { status: 400 });
     }
 
     // Get or create Stripe customer
@@ -46,27 +56,59 @@ export async function POST(request: NextRequest) {
 
     let customerId = user.stripeCustomerId;
 
-  if (!customerId) {
-    // Create new Stripe customer
-    const stripe = getStripe();
-    const customer = await stripe.customers.create({
+    if (!customerId) {
+      const stripe = getStripe();
+      const customer = await stripe.customers.create({
         email: user.email,
-        metadata: {
-          userId: user.id,
-        },
+        metadata: { userId: user.id },
       });
       customerId = customer.id;
-
-      // Save customer ID to user
       await prisma.user.update({
         where: { id: user.id },
         data: { stripeCustomerId: customerId },
       });
     }
 
-  // Create checkout session
-  const stripe = getStripe();
-  const checkoutSession = await stripe.checkout.sessions.create({
+    const stripe = getStripe();
+
+    // Handle subscription checkout
+    if (planId) {
+      const plan = getSubscriptionPlanById(planId);
+      if (!plan) {
+        return Response.json({ error: 'Plan no válido' }, { status: 400 });
+      }
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        customer: customerId,
+        line_items: [
+          {
+            price: plan.priceId,
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        success_url: `${process.env.NEXTAUTH_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXTAUTH_URL}/pricing`,
+        metadata: {
+          userId: user.id,
+          planId: plan.id,
+          type: 'subscription',
+        },
+      });
+
+      return Response.json({
+        sessionId: checkoutSession.id,
+        url: checkoutSession.url,
+      });
+    }
+
+    // Handle InkCoins purchase (existing)
+    const package_ = getPackageById(packageId!);
+    if (!package_) {
+      return Response.json({ error: 'Invalid package' }, { status: 400 });
+    }
+
+    const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
         {

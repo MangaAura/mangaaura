@@ -15,19 +15,19 @@ interface StatsCardProps {
 }
 
 const variantStyles = {
-  default: 'bg-white border-slate-200',
-  indigo: 'bg-indigo-50 border-indigo-200',
-  purple: 'bg-purple-50 border-purple-200',
-  green: 'bg-green-50 border-green-200',
-  amber: 'bg-amber-50 border-amber-200',
+  default: 'bg-[var(--surface-elevated)] border-[var(--border)]',
+  indigo: 'bg-[var(--primary)]/10 border-[var(--primary)]/30',
+  purple: 'bg-[var(--accent-purple)]/10 border-[var(--accent-purple)]/30',
+  green: 'bg-[var(--success)]/10 border-[var(--success)]/30',
+  amber: 'bg-[var(--warning)]/10 border-[var(--warning)]/30',
 };
 
 const iconStyles = {
-  default: 'bg-slate-100 text-slate-600',
-  indigo: 'bg-indigo-100 text-indigo-600',
-  purple: 'bg-purple-100 text-purple-600',
-  green: 'bg-green-100 text-green-600',
-  amber: 'bg-amber-100 text-amber-600',
+  default: 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]',
+  indigo: 'bg-[var(--primary)]/20 text-[var(--primary)]',
+  purple: 'bg-[var(--accent-purple)]/10 text-[var(--accent-purple)]',
+  green: 'bg-[var(--success)]/10 text-[var(--success)]',
+  amber: 'bg-[var(--warning)]/10 text-[var(--warning)]',
 };
 
 export function StatsCard({
@@ -49,8 +49,8 @@ export function StatsCard({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-3xl font-bold text-slate-900 mt-2">
+<p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
+        <p className="text-3xl font-bold text-[var(--text-primary)] mt-2">
             {formatNumber(value)}
           </p>
           {trend !== undefined && (
@@ -58,13 +58,13 @@ export function StatsCard({
               <span
                 className={cn(
                   'text-sm font-medium',
-                  trend >= 0 ? 'text-green-600' : 'text-red-600'
+                  trend >= 0 ? 'text-[var(--success)]' : 'text-[var(--error)]'
                 )}
               >
                 {trend >= 0 ? '+' : ''}{trend}%
               </span>
               {trendLabel && (
-                <span className="text-xs text-slate-400">{trendLabel}</span>
+                <span className="text-xs text-[var(--text-tertiary)]">{trendLabel}</span>
               )}
             </div>
           )}

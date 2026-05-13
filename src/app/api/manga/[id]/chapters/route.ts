@@ -62,7 +62,7 @@ export async function GET(
         ]);
 
         return {
-          chapters: chapters.map((ch) => ({
+          chapters: chapters.map((ch: any) => ({
             id: ch.id,
             chapterNumber: ch.chapterNumber,
             title: ch.title,
@@ -229,7 +229,7 @@ export async function POST(
 
         if (mangaData) {
           // Notificacion push
-          const followerIds = followers.map(f => f.userId);
+          const followerIds = followers.map((f: any) => f.userId);
           notificationService.notifyMultiple(
             followerIds,
             {
@@ -258,7 +258,7 @@ export async function POST(
           for (let i = 0; i < followers.length; i += batchSize) {
             const batch = followers.slice(i, i + batchSize);
             await Promise.all(
-              batch.map(follower =>
+              batch.map((follower: any) =>
                 emailQueue.addNewChapterEmail({
                   to: follower.user.email,
                   userId: follower.user.id,

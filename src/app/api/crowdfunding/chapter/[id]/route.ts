@@ -26,7 +26,7 @@ export async function GET(
 
     return NextResponse.json({
       status,
-      contributors: contributors.map(c => ({
+      contributors: contributors.map((c: any) => ({
         ...c,
         user: c.isAnonymous ? null : c.user,
       })),

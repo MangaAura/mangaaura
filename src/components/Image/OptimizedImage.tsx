@@ -105,6 +105,7 @@ function generateBlurDataURL(
     
     return `data:image/svg+xml;base64,${btoa(svg)}`;
   } catch {
+    console.error('Error generating SVG placeholder');
     return '';
   }
 }
@@ -249,15 +250,15 @@ export function OptimizedImage({
       {/* Loading state */}
       {!isLoaded && !hasError && (
         <div
-          className="absolute inset-0 animate-pulse bg-slate-200 dark:bg-slate-800"
+          className="absolute inset-0 animate-pulse bg-[var(--bg-tertiary)]"
           aria-hidden="true"
         />
       )}
       
       {/* Error state indicator */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-900">
-          <span className="text-slate-400 text-sm">Error al cargar</span>
+      <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-sunken)]">
+        <span className="text-[var(--text-tertiary)] text-sm">Error al cargar</span>
         </div>
       )}
     </div>

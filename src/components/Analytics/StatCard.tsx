@@ -30,14 +30,14 @@ interface StatCardProps {
 
 const variantStyles = {
   default: {
-    card: 'bg-white border-slate-200',
-    iconBg: 'bg-slate-100 text-slate-600',
-    value: 'text-slate-900',
+    card: 'bg-[var(--surface-elevated)] border-[var(--border)]',
+    iconBg: 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]',
+    value: 'text-[var(--text-primary)]',
   },
   highlight: {
-    card: 'bg-gradient-to-br from-indigo-500 to-purple-600 border-transparent',
-    iconBg: 'bg-white/20 text-white',
-    value: 'text-white',
+    card: 'bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] border-transparent',
+    iconBg: 'bg-[var(--text-inverse)]/20 text-[var(--text-inverse)]',
+    value: 'text-[var(--text-inverse)]',
   },
 };
 
@@ -78,8 +78,8 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'rounded-xl border p-6 shadow-sm transition-all duration-200',
-        'hover:shadow-md hover:-translate-y-0.5',
+      'rounded-xl border p-6 shadow-sm transition-all duration-200',
+      'hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm',
         styles.card,
         className
       )}
@@ -89,7 +89,7 @@ export function StatCard({
           <p
             className={cn(
               'text-sm font-medium truncate',
-              variant === 'highlight' ? 'text-indigo-100' : 'text-slate-500'
+              variant === 'highlight' ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'
             )}
           >
             {title}
@@ -110,11 +110,11 @@ export function StatCard({
                   'inline-flex items-center gap-0.5 text-sm font-semibold px-2 py-0.5 rounded-full',
                   variant === 'highlight'
                     ? isPositive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-red-400/20 text-red-100'
+                      ? 'bg-[var(--text-inverse)]/20 text-[var(--text-inverse)]'
+                      : 'bg-[var(--error)]/20 text-[var(--error)]'
                     : isPositive
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
+? 'bg-[var(--success)]/10 text-[var(--success)]'
+            : 'bg-[var(--error)]/10 text-[var(--error)]'
                 )}
               >
                 {isPositive ? (
@@ -127,7 +127,7 @@ export function StatCard({
               <span
                 className={cn(
                   'text-xs',
-                  variant === 'highlight' ? 'text-indigo-200' : 'text-slate-400'
+                  variant === 'highlight' ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]'
                 )}
               >
                 {trendLabel}

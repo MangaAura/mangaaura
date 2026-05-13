@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { put } from '@vercel/blob';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import {
   optimizeImage,
   generateBlurHash,
@@ -57,6 +58,16 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado. Inicia sesión para subir archivos.' },
         { status: 401 }
       );
+    }
+
+    const identifier = session.user.id;
+    const { allowed } = await rateLimit(
+      getRateLimitKey('upload-image', identifier),
+      20,
+      3600
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
     }
 
     // Obtener query params

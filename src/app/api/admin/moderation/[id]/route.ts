@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import dbConnect from '@/lib/mongoose';
+import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 
-// POST /api/admin/moderation/[id] - Moderate a comment
-export async function POST(
+export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -11,68 +12,34 @@ export async function POST(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user?.id || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    if (!session?.user || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { action } = await request.json();
 
-    switch (action) {
-      case 'approve':
-      // Approve comment - remove hidden status
-      await prisma.comment.update({
-        where: { id },
-        data: {
-          isDeleted: false,
-        },
-      });
-      break;
-
-      case 'reject':
-      // Reject/hide comment
-      await prisma.comment.update({
-        where: { id },
-        data: {
-          isDeleted: true,
-        },
-      });
-      break;
-
-      case 'delete':
-      // Soft delete comment
-      await prisma.comment.update({
-        where: { id },
-        data: {
-          isDeleted: true,
-          content: '[Deleted by moderator]',
-        },
-      });
-      break;
-
-      case 'ban': {
-        // Ban user who made the comment
-        const comment = await prisma.comment.findUnique({
+    if (action === 'approve') {
+      await Promise.all([
+        CommentModel.findByIdAndUpdate(id, {
+          $set: { isHidden: false, moderatedBy: 'human', requiresReview: false },
+        }),
+        prisma.comment.update({
           where: { id },
-          select: { userId: true },
-        });
-
-        if (comment) {
-          await prisma.user.update({
-            where: { id: comment.userId },
-            data: { role: 'BANNED' },
-          });
-        }
-        break;
-      }
-
-      default:
-        return NextResponse.json(
-          { error: 'Invalid action' },
-          { status: 400 }
-        );
+          data: { isHidden: false },
+        }).catch(() => {}),
+      ]);
+    } else if (action === 'keep_hidden') {
+      await Promise.all([
+        CommentModel.findByIdAndUpdate(id, {
+          $set: { moderatedBy: 'human', requiresReview: false },
+        }),
+        prisma.comment.update({
+          where: { id },
+          data: { isHidden: true },
+        }).catch(() => {}),
+      ]);
+    } else {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
     return NextResponse.json({ success: true });

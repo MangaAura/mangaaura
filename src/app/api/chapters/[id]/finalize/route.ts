@@ -118,7 +118,7 @@ export async function PATCH(
       });
 
       if (followers.length > 0) {
-        const followerIds = followers.map((f) => f.userId);
+        const followerIds = followers.map((f: any) => f.userId);
 
         // Send push notifications
         notificationService
@@ -147,7 +147,7 @@ export async function PATCH(
         for (let i = 0; i < followers.length; i += batchSize) {
           const batch = followers.slice(i, i + batchSize);
           await Promise.all(
-            batch.map((follower) =>
+            batch.map((follower: any) =>
               emailQueue
                 .addNewChapterEmail({
                   to: follower.user.email,

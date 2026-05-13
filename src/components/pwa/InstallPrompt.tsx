@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -15,7 +15,6 @@ export function InstallPrompt() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
       return;
@@ -24,7 +23,6 @@ export function InstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Show prompt after 5 seconds
       setTimeout(() => setShowPrompt(true), 5000);
     };
 
@@ -49,9 +47,9 @@ export function InstallPrompt() {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
-      console.log('PWA instalada');
-    }
+      if (outcome === 'accepted') {
+        console.info('[PWA] App installed');
+      }
 
     setDeferredPrompt(null);
     setShowPrompt(false);
@@ -59,7 +57,6 @@ export function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Don't show again for this session
     sessionStorage.setItem('pwa-install-dismissed', 'true');
   };
 
@@ -69,17 +66,17 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-in slide-in-from-bottom-5 duration-300">
-      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl shadow-2xl p-4 text-white">
+      <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] rounded-xl shadow-2xl p-4 text-[var(--text-inverse)]">
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <h3 className="font-semibold text-sm">Instalar InkVerse</h3>
-            <p className="text-xs text-indigo-100 mt-1">
+            <p className="text-xs opacity-80 mt-1">
               Accede rápido desde tu pantalla de inicio. Sin descargas adicionales.
             </p>
           </div>
           <button
             onClick={handleDismiss}
-            className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-1 hover:opacity-90 rounded-lg transition-colors cursor-pointer"
             aria-label="Cerrar"
           >
             <X className="w-4 h-4" />
@@ -89,7 +86,7 @@ export function InstallPrompt() {
           <Button
             size="sm"
             onClick={handleInstall}
-            className="flex-1 bg-white text-indigo-600 hover:bg-indigo-50"
+            className="flex-1 bg-[var(--surface)] text-[var(--primary)] hover:bg-[var(--surface-elevated)]"
           >
             <Download className="w-4 h-4 mr-2" />
             Instalar
@@ -98,7 +95,7 @@ export function InstallPrompt() {
             size="sm"
             variant="ghost"
             onClick={handleDismiss}
-            className="text-white hover:bg-white/10"
+            className="text-[var(--text-inverse)] hover:opacity-90"
           >
             Ahora no
           </Button>

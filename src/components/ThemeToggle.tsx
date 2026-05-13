@@ -22,7 +22,7 @@ export function ThemeToggle() {
             key={option.value}
             onClick={() => setTheme(option.value)}
             className={`
-              flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200
+              flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 cursor-pointer
               ${isActive 
                 ? 'bg-[var(--surface-elevated)] text-[var(--primary)] shadow-sm' 
                 : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'

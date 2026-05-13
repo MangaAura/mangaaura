@@ -18,6 +18,7 @@ export interface IComment extends Document {
   isHidden: boolean;
   hiddenReason?: string;
   moderatedBy?: 'ai' | 'human';
+  requiresReview: boolean;
   replies: number;
   likedBy: string[];
   createdAt: Date;
@@ -45,6 +46,7 @@ const CommentSchema = new Schema<IComment>(
     isHidden: { type: Boolean, default: false },
     hiddenReason: String,
     moderatedBy: { type: String, enum: ['ai', 'human'] },
+    requiresReview: { type: Boolean, default: false, index: true },
     replies: { type: Number, default: 0 },
     likedBy: [{ type: String }],
   },

@@ -115,44 +115,44 @@ describe('formatTimeAgo', () => {
 
 describe('getRankColor', () => {
   it('returns correct color for novato rank', () => {
-    expect(getRankColor('novato')).toBe('text-slate-500');
-    expect(getRankColor('Novato')).toBe('text-slate-500');
-    expect(getRankColor('NOVATO')).toBe('text-slate-500');
+    expect(getRankColor('novato')).toBe('text-[var(--text-tertiary)]');
+    expect(getRankColor('Novato')).toBe('text-[var(--text-tertiary)]');
+    expect(getRankColor('NOVATO')).toBe('text-[var(--text-tertiary)]');
   });
 
   it('returns correct color for lector shonen rank', () => {
-    expect(getRankColor('lector shonen')).toBe('text-green-500');
-    expect(getRankColor('Lector Shonen')).toBe('text-green-500');
+    expect(getRankColor('lector shonen')).toBe('text-[var(--accent-green)]');
+    expect(getRankColor('Lector Shonen')).toBe('text-[var(--accent-green)]');
   });
 
   it('returns correct color for otaku experto rank', () => {
-    expect(getRankColor('otaku experto')).toBe('text-blue-500');
+    expect(getRankColor('otaku experto')).toBe('text-[var(--accent-blue)]');
   });
 
   it('returns correct color for maestro otaku rank', () => {
-    expect(getRankColor('maestro otaku')).toBe('text-purple-500');
+    expect(getRankColor('maestro otaku')).toBe('text-[var(--accent-purple)]');
   });
 
   it('returns correct color for leyenda manga rank', () => {
-    expect(getRankColor('leyenda manga')).toBe('text-amber-500');
+    expect(getRankColor('leyenda manga')).toBe('text-[var(--warning)]');
   });
 
   it('returns default color for unknown rank', () => {
-    expect(getRankColor('unknown')).toBe('text-slate-500');
-    expect(getRankColor('')).toBe('text-slate-500');
+    expect(getRankColor('unknown')).toBe('text-[var(--text-tertiary)]');
+    expect(getRankColor('')).toBe('text-[var(--text-tertiary)]');
   });
 });
 
 describe('getRankBgColor', () => {
   it('returns correct background color for all ranks', () => {
-    expect(getRankBgColor('novato')).toBe('bg-slate-100');
-    expect(getRankBgColor('lector shonen')).toBe('bg-green-100');
-    expect(getRankBgColor('otaku experto')).toBe('bg-blue-100');
-    expect(getRankBgColor('maestro otaku')).toBe('bg-purple-100');
-    expect(getRankBgColor('leyenda manga')).toBe('bg-amber-100');
+    expect(getRankBgColor('novato')).toBe('bg-[var(--surface-sunken)]');
+    expect(getRankBgColor('lector shonen')).toBe('bg-[var(--accent-green)]/10');
+    expect(getRankBgColor('otaku experto')).toBe('bg-[var(--accent-blue)]/10');
+    expect(getRankBgColor('maestro otaku')).toBe('bg-[var(--accent-purple)]/10');
+    expect(getRankBgColor('leyenda manga')).toBe('bg-[var(--warning)]/10');
   });
 
   it('returns default background for unknown rank', () => {
-    expect(getRankBgColor('unknown')).toBe('bg-slate-100');
+    expect(getRankBgColor('unknown')).toBe('bg-[var(--surface-sunken)]');
   });
 });

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import useSWR from 'swr';
@@ -126,7 +126,7 @@ export default function MangaManagementPage() {
               )}
             </div>
             <div className="min-w-0">
-              <p className="font-medium text-slate-900 truncate max-w-[200px]">
+              <p className="font-medium text-[var(--text-primary)] truncate max-w-[200px]">
                 {row.original.title}
               </p>
               <p className="text-xs text-[var(--text-tertiary)]">
@@ -204,14 +204,14 @@ export default function MangaManagementPage() {
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
             <Link href={`/manga/${row.original.slug}`} target="_blank">
-              <Button variant="ghost" size="icon" title="View">
-                <Eye className="w-4 h-4 text-[var(--primary)]" />
-              </Button>
+<Button variant="ghost" size="icon" title="View" aria-label="Ver manga">
+            <Eye className="w-4 h-4 text-[var(--primary)]" />
+          </Button>
             </Link>
             <Link href={`/admin/manga/${row.original.id}`}>
-              <Button variant="ghost" size="icon" title="Edit">
-                <Edit className="w-4 h-4 text-indigo-500" />
-              </Button>
+<Button variant="ghost" size="icon" title="Edit" aria-label="Editar manga">
+            <Edit className="w-4 h-4 text-[var(--primary)]" />
+          </Button>
             </Link>
             <Button
               variant="ghost"
@@ -221,6 +221,7 @@ export default function MangaManagementPage() {
                 setShowDeleteDialog(true);
               }}
               title="Delete"
+        aria-label="Eliminar manga"
             >
               <Trash2 className="w-4 h-4 text-[var(--error)]" />
             </Button>
@@ -247,7 +248,7 @@ export default function MangaManagementPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-[var(--primary)]" />
             Manga Management
           </h1>
@@ -323,7 +324,7 @@ export default function MangaManagementPage() {
           ) : mangas.length === 0 ? (
             <div className="text-center py-12">
               <BookOpen className="w-12 h-12 mx-auto mb-4 text-[var(--text-secondary)]" />
-              <h3 className="text-lg font-medium text-slate-900">No manga found</h3>
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">No manga found</h3>
               <p className="text-[var(--text-tertiary)]">
                 {searchQuery
                   ? 'Try adjusting your search filters'
@@ -340,7 +341,7 @@ export default function MangaManagementPage() {
                         {headerGroup.headers.map((header) => (
                           <th
                             key={header.id}
-                            className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)] cursor-pointer hover:text-slate-700"
+                            className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)] cursor-pointer hover:text-[var(--text-secondary)]"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(
@@ -411,8 +412,8 @@ export default function MangaManagementPage() {
           </DialogHeader>
           {selectedManga && (
             <div className="bg-[var(--surface)] p-4 rounded-lg my-4">
-              <p className="text-sm font-medium text-slate-700">Manga:</p>
-              <p className="text-sm text-slate-900 mt-1">
+              <p className="text-sm font-medium text-[var(--text-secondary)]">Manga:</p>
+              <p className="text-sm text-[var(--text-primary)] mt-1">
                 {selectedManga.title}
               </p>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">

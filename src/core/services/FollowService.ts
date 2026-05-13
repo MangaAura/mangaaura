@@ -224,7 +224,7 @@ export async function getFollowers({
   ]);
 
   return {
-    followers: followers.map((f) => ({
+    followers: followers.map((f: any) => ({
       id: f.follower.id,
       username: f.follower.username,
       displayName: f.follower.displayName,
@@ -275,7 +275,7 @@ export async function getFollowing({
 
   // Enrich with user/manga data
   const enriched = await Promise.all(
-    follows.map(async (f) => {
+    follows.map(async (f: any) => {
       if (f.followingType === 'USER') {
         const user = await prisma.user.findUnique({
           where: { id: f.followingId },
@@ -286,13 +286,13 @@ export async function getFollowing({
             avatarUrl: true,
           },
         });
-        return {
-          id: f.followingId,
-          type: 'USER' as FollowingType,
-          name: user?.displayName || user?.username || 'Unknown',
-          avatarUrl: user?.avatarUrl,
-          followedAt: f.createdAt,
-        };
+return {
+        id: f.followingId,
+        type: 'USER' as FollowingType,
+        name: user?.displayName || user?.username || 'Unknown',
+        avatarUrl: user?.avatarUrl ?? null,
+        followedAt: f.createdAt,
+      };
       } else {
         const manga = await prisma.mangaSeries.findUnique({
           where: { id: f.followingId },
@@ -302,13 +302,13 @@ export async function getFollowing({
             coverUrl: true,
           },
         });
-        return {
-          id: f.followingId,
-          type: 'MANGA' as FollowingType,
-          name: manga?.title || 'Unknown',
-          avatarUrl: manga?.coverUrl,
-          followedAt: f.createdAt,
-        };
+return {
+      id: f.followingId,
+      type: 'MANGA' as FollowingType,
+      name: manga?.title || 'Unknown',
+      avatarUrl: manga?.coverUrl ?? null,
+      followedAt: f.createdAt,
+    };
       }
     })
   );
@@ -387,7 +387,7 @@ export async function getRecommendedUsers(
     select: { followingId: true },
   });
 
-  const followingIds = following.map((f) => f.followingId);
+  const followingIds = following.map((f: any) => f.followingId);
 
   if (followingIds.length === 0) {
     // Return popular users
@@ -406,7 +406,7 @@ export async function getRecommendedUsers(
       },
     });
 
-    return popular.map((u) => ({
+    return popular.map((u: any) => ({
       ...u,
       reason: 'Popular en la comunidad',
     }));
@@ -424,7 +424,7 @@ export async function getRecommendedUsers(
 
   // Count frequency
   const frequency: Record<string, number> = {};
-  recommendations.forEach((r) => {
+  recommendations.forEach((r: any) => {
     frequency[r.followingId] = (frequency[r.followingId] || 0) + 1;
   });
 
@@ -444,7 +444,7 @@ export async function getRecommendedUsers(
     },
   });
 
-  return users.map((u) => ({
+  return users.map((u: any) => ({
     ...u,
     reason: 'Seguido por personas que sigues',
   }));

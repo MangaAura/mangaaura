@@ -11,15 +11,14 @@ const isRedisEnabled = process.env.ENABLE_REDIS !== 'false'; // Opt-out via env 
 // Suppress ioredis unhandled error warnings globally in development
 if (isDevelopment) {
   const originalEmit = process.emit;
-  process.emit = function(event: string | symbol, ...args: unknown[]): boolean {
-    // Suppress ioredis unhandled error event warnings
+  process.emit = function(this: NodeJS.Process, event: string | symbol, ...args: unknown[]): boolean {
     if (event === 'warning' && args[0] instanceof Error) {
       const warning = args[0] as Error;
       if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event')) {
         return false;
       }
     }
-    return originalEmit.apply(this, [event, ...args]);
+    return (originalEmit as Function).call(this, event, ...args);
   } as typeof process.emit;
 }
 
@@ -103,6 +102,19 @@ class MockRedis {
     return this.sortedSets.get(key)?.length ?? 0;
   }
 
+  async scard(key: string): Promise<number> {
+    const set = this.sortedSets.get(key);
+    if (set) return set.length;
+    const item = this.store.get(key);
+    if (!item) return 0;
+    try {
+      const arr = JSON.parse(item.value);
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch {
+      return 0;
+    }
+  }
+
   async zrange(key: string, start: number, stop: number, withScores?: string): Promise<string[]> {
     const set = this.sortedSets.get(key);
     if (!set) return [];
@@ -131,6 +143,27 @@ class MockRedis {
       return 1;
     }
     return 0;
+  }
+
+  async incr(key: string): Promise<number> {
+    const item = this.store.get(key);
+    if (!item || (item.expiry && item.expiry < Date.now())) {
+      this.store.delete(key);
+      this.store.set(key, { value: '1' });
+      return 1;
+    }
+    const current = parseInt(item.value, 10) || 0;
+    const next = current + 1;
+    item.value = String(next);
+    return next;
+  }
+
+  async ttl(key: string): Promise<number> {
+    const item = this.store.get(key);
+    if (!item) return -2;
+    if (!item.expiry) return -1;
+    const remaining = Math.max(0, Math.floor((item.expiry - Date.now()) / 1000));
+    return remaining;
   }
 
   async quit(): Promise<void> {
@@ -306,57 +339,6 @@ export async function getRedisStatus(): Promise<{
     isMock: isMockRedis(),
     mode: isMockRedis() ? 'mock' : redisAvailable ? 'connected' : 'disconnected',
   };
-}
-
-// ============================================================================
-// Cache Helper Functions
-// ============================================================================
-
-export async function getCache<T>(key: string): Promise<T | null> {
-  try {
-    const data = await redis.get(key);
-    return data ? JSON.parse(data) : null;
-  } catch {
-    return null;
-  }
-}
-
-export async function setCache<T>(
-  key: string,
-  data: T,
-  ttlSeconds: number = 3600
-): Promise<void> {
-  try {
-    await redis.setex(key, ttlSeconds, JSON.stringify(data));
-  } catch (error) {
-    // Silently fail in development, log in production
-    if (!isDevelopment) {
-      console.error('Redis cache error:', error);
-    }
-  }
-}
-
-export async function deleteCache(key: string): Promise<void> {
-  try {
-    await redis.del(key);
-  } catch (error) {
-    if (!isDevelopment) {
-      console.error('Redis delete error:', error);
-    }
-  }
-}
-
-export async function deleteCachePattern(pattern: string): Promise<void> {
-  try {
-    const keys = await redis.keys(pattern);
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-  } catch (error) {
-    if (!isDevelopment) {
-      console.error('Redis pattern delete error:', error);
-    }
-  }
 }
 
 // ============================================================================

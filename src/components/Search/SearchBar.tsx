@@ -205,6 +205,7 @@ export function SearchBar({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
+          aria-label="Buscar manga"
           className={cn(
             'w-full pl-10 pr-10 py-2.5',
             'bg-[var(--surface)]/50 border border-[var(--border)]',
@@ -218,7 +219,8 @@ export function SearchBar({
         {query && (
           <button
             onClick={clearSearch}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+            aria-label="Limpiar búsqueda"
           >
             <X className="h-4 w-4" />
           </button>
@@ -247,7 +249,7 @@ export function SearchBar({
                   {suggestion.coverUrl ? (
                     <img
                       src={suggestion.coverUrl}
-                      alt=""
+                      alt={suggestion.title}
                       className="w-8 h-10 object-cover rounded"
                     />
                   ) : (

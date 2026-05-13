@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { sendMessage, getMessages } from '@/core/services/MessageService';
 import { z } from 'zod';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
-const sendMessageSchema = z.object({
+const messageSchema = z.object({
   content: z.string().min(1).max(2000),
 });
 
@@ -13,47 +13,77 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { id: conversationId } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    const result = await getMessages({
-      conversationId,
-      userId: session.user.id,
-      page,
-      limit,
+    // Verify user is part of conversation
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id,
+        OR: [
+          { participant1Id: session.user.id },
+          { participant2Id: session.user.id },
+        ],
+      },
     });
 
-    if (!result.success) {
+    if (!conversation) {
       return NextResponse.json(
-        { error: result.error },
-        { status: result.error?.includes('no encontrada') ? 404 : 500 }
+        { error: 'Conversación no encontrada' },
+        { status: 404 }
       );
     }
 
+    // Check if blocked
+    if (conversation.isBlocked) {
+      return NextResponse.json(
+        { error: 'Conversación bloqueada' },
+        { status: 403 }
+      );
+    }
+
+    const messages = await prisma.directMessage.findMany({
+      where: { conversationId: id },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const total = await prisma.directMessage.count({
+      where: { conversationId: id },
+    });
+
     return NextResponse.json({
-      messages: result.messages,
+      messages: messages.reverse(), // Oldest first for display
       pagination: {
         page,
         limit,
-        total: result.total,
-        totalPages: Math.ceil((result.total || 0) / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (error) {
     console.error('Error fetching messages:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error al cargar mensajes' },
       { status: 500 }
     );
   }
@@ -65,49 +95,79 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session?.user?.id) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id,
+        OR: [
+          { participant1Id: session.user.id },
+          { participant2Id: session.user.id },
+        ],
+      },
+    });
+
+    if (!conversation) {
       return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
+        { error: 'Conversación no encontrada' },
+        { status: 404 }
       );
     }
 
-    const { id: conversationId } = await params;
-    const body = await request.json();
-    const result = sendMessageSchema.safeParse(body);
-
-    if (!result.success) {
+    if (conversation.isBlocked) {
       return NextResponse.json(
-        { error: 'Datos inválidos', details: result.error.flatten() },
+        { error: 'No puedes enviar mensajes en esta conversación' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const parsed = messageSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Mensaje inválido', details: parsed.error.issues },
         { status: 400 }
       );
     }
 
-    const { content } = result.data;
+    const { content } = parsed.data;
 
-    const messageResult = await sendMessage({
-      conversationId,
-      senderId: session.user.id,
-      content,
-    });
+    // Create message and update conversation in transaction
+    const [message] = await prisma.$transaction([
+      prisma.directMessage.create({
+        data: {
+          conversationId: id,
+          senderId: session.user.id,
+          content: content.trim(),
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      }),
+      prisma.conversation.update({
+        where: { id },
+        data: { lastMessageAt: new Date() },
+      }),
+    ]);
 
-    if (!messageResult.success) {
-      return NextResponse.json(
-        { error: messageResult.error },
-        { status: messageResult.error?.includes('no encontrada') ? 404 : 500 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: messageResult.message,
-    });
+    return NextResponse.json({ message });
   } catch (error) {
     console.error('Error sending message:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error al enviar mensaje' },
       { status: 500 }
     );
   }

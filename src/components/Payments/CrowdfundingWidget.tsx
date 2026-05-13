@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Target, Users, TrendingUp, Crown, Loader2 } from 'lucide-react';
@@ -88,9 +88,9 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
   if (isLoading) {
     return (
-      <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 size={24} className="animate-spin text-indigo-500" />
+<div className="bg-[var(--surface)]/50 rounded-xl p-6 border border-[var(--border)]">
+      <div className="flex items-center justify-center py-8">
+          <Loader2 size={24} className="animate-spin text-[var(--primary)]" />
         </div>
       </div>
     );
@@ -98,8 +98,8 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
   if (error) {
     return (
-      <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-        <p className="text-sm text-slate-500 text-center">{error}</p>
+<div className="bg-[var(--surface)]/50 rounded-xl p-6 border border-[var(--border)]">
+      <p className="text-sm text-[var(--text-tertiary)] text-center">{error}</p>
       </div>
     );
   }
@@ -111,22 +111,22 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
   return (
     <>
-      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-indigo-200 dark:border-indigo-800">
+      <div className="bg-[var(--primary)]/5 rounded-xl p-6 border border-[var(--primary)]/30">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-500/10 rounded-lg">
-              <Target size={20} className="text-indigo-600 dark:text-indigo-400" />
+<div className="p-2 bg-[var(--primary)]/10 rounded-lg">
+      <Target size={20} className="text-[var(--primary)]" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white">Crowdfunding</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <h3 className="font-bold text-[var(--text-primary)]">Crowdfunding</h3>
+              <p className="text-xs text-[var(--text-secondary)]">
                 Apoya la creación de este capítulo
               </p>
             </div>
           </div>
           {status.isGoalReached && (
-            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold rounded-full">
+            <span className="px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] text-xs font-bold rounded-full">
               Meta Alcanzada
             </span>
           )}
@@ -135,16 +135,16 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
         {/* Progress Bar */}
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
-            <span className="font-bold text-slate-900 dark:text-white">
+            <span className="font-bold text-[var(--text-primary)]">
               {status.current.toLocaleString()} / {status.goal.toLocaleString()} IC
             </span>
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">
+            <span className="font-bold text-[var(--primary)]">
               {status.percentage}%
             </span>
           </div>
-          <div className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all duration-500"
               style={{ width: `${Math.min(status.percentage, 100)}%` }}
             />
           </div>
@@ -152,12 +152,12 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
         {/* Stats */}
         <div className="flex items-center gap-4 mb-4 text-sm">
-          <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-            <Users size={14} />
+<div className="flex items-center gap-1 text-[var(--text-muted)]">
+        <Users size={14} />
             <span>{status.contributors} contribuyentes</span>
           </div>
-          <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-            <TrendingUp size={14} />
+<div className="flex items-center gap-1 text-[var(--text-muted)]">
+        <TrendingUp size={14} />
             <span>{status.current > 0 ? '+' : ''}{status.current.toLocaleString()} IC</span>
           </div>
         </div>
@@ -174,14 +174,14 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
         {/* User's Contribution */}
         {data.userContribution && (
-          <div className="mb-4 p-3 bg-indigo-100/50 dark:bg-indigo-900/30 rounded-lg">
-            <p className="text-sm text-slate-700 dark:text-slate-300">
+          <div className="mb-4 p-3 bg-[var(--primary)]/10 rounded-lg">
+            <p className="text-sm text-[var(--text-secondary)]">
               Tu contribución:{' '}
-              <span className="font-bold text-indigo-600 dark:text-indigo-400">
+<span className="font-bold text-[var(--primary)]">
                 {data.userContribution.amount.toLocaleString()} IC
               </span>
               {data.userContribution.isAnonymous && (
-                <span className="text-xs text-slate-500 ml-2">(Anónimo)</span>
+                <span className="text-xs text-[var(--text-tertiary)] ml-2">(Anónimo)</span>
               )}
             </p>
           </div>
@@ -190,7 +190,7 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
         {/* Top Contributors */}
         {topContributors.length > 0 && (
           <div>
-            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-3">
+            <h4 className="text-xs font-bold text-[var(--text-tertiary)] uppercase mb-3">
               Top Contribuyentes
             </h4>
             <div className="space-y-2">
@@ -202,15 +202,15 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
                   <div className="flex items-center gap-2">
                     <span className={`
                       w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold
-                      ${index === 0 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400' :
-                        index === 1 ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400' :
-                        index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400' :
-                        'text-slate-500'}
+${index === 0 ? 'bg-[var(--warning)]/10 text-[var(--warning)]' :
+                          index === 1 ? 'bg-[var(--surface-sunken)] text-[var(--text-primary)]' :
+                        index === 2 ? 'bg-[var(--accent-orange)]/10 text-[var(--accent-orange)]' :
+                        'text-[var(--text-tertiary)]'}
                     `}>
                       {index + 1}
                     </span>
                     {contributor.isAnonymous || !contributor.user ? (
-                      <span className="text-slate-500 italic">Anónimo</span>
+                      <span className="text-[var(--text-tertiary)] italic">Anónimo</span>
                     ) : (
                       <div className="flex items-center gap-2">
                         {contributor.user.avatarUrl ? (
@@ -220,24 +220,24 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
                             className="w-5 h-5 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-5 h-5 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-xs text-white">
+                          <div className="w-5 h-5 rounded-full bg-[var(--border)] flex items-center justify-center text-xs text-[var(--text-primary)]">
                             {contributor.user.username.charAt(0).toUpperCase()}
                           </div>
                         )}
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                        <span className="font-medium text-[var(--text-secondary)]">
                           {contributor.user.username}
                         </span>
                       </div>
                     )}
                   </div>
-                  <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+                  <span className="font-mono text-xs text-[var(--text-muted)]">
                     {contributor.amount.toLocaleString()} IC
                   </span>
                 </div>
               ))}
             </div>
             {contributors.length > 5 && (
-              <p className="text-xs text-slate-500 text-center mt-3">
+              <p className="text-xs text-[var(--text-tertiary)] text-center mt-3">
                 Y {contributors.length - 5} contribuyentes más
               </p>
             )}

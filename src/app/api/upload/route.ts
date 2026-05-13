@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     });
 
     const optimizedFile = new File(
-      [optimized.buffer],
+      [new Uint8Array(optimized.buffer)],
       `${fileId}.webp`,
       { type: 'image/webp' }
     );

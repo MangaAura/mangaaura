@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
       },
-      stats: stats.reduce((acc, s) => {
+      stats: stats.reduce((acc: any, s: any) => {
         acc[s.status] = s._count.status;
         return acc;
       }, {} as Record<string, number>),

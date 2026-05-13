@@ -77,7 +77,7 @@ export function CommentItem({
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 font-bold">
+            <div className="w-10 h-10 rounded-full bg-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] font-bold">
               {comment.user.username.charAt(0).toUpperCase()}
             </div>
           )}
@@ -85,31 +85,33 @@ export function CommentItem({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="bg-slate-800/50 rounded-lg p-3">
+          <div className="bg-[var(--surface-elevated)]/50 rounded-lg p-3">
             {/* Header */}
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-white text-sm">
+                <span className="font-semibold text-[var(--text-primary)] text-sm">
                   {comment.user.username}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-[var(--text-muted)]">
                   {new Date(comment.createdAt).toLocaleDateString()}
                 </span>
               </div>
 
               {isOwner && !isEditing && (
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="p-1.5 text-slate-500 hover:text-blue-400 rounded"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="p-1.5 text-slate-500 hover:text-red-400 rounded"
-                  >
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--info)] rounded cursor-pointer"
+            aria-label="Editar comentario"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--error)] rounded cursor-pointer"
+            aria-label="Eliminar comentario"
+          >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -126,7 +128,7 @@ export function CommentItem({
                 isCompact
               />
             ) : (
-              <p className="text-slate-300 text-sm whitespace-pre-wrap">
+              <p className="text-[var(--text-secondary)] text-sm whitespace-pre-wrap">
                 {comment.content}
               </p>
             )}
@@ -140,8 +142,8 @@ export function CommentItem({
                 className={cn(
                   'flex items-center gap-1 text-sm transition-colors',
                   comment.isLiked
-                    ? 'text-red-400'
-                    : 'text-slate-500 hover:text-red-400'
+? 'text-[var(--error)]'
+            : 'text-[var(--text-muted)] hover:text-[var(--error)]'
                 )}
               >
                 <Heart className={cn('w-4 h-4', comment.isLiked && 'fill-current')} />
@@ -150,7 +152,7 @@ export function CommentItem({
 
               <button
                 onClick={() => onReply(comment.id)}
-                className="flex items-center gap-1 text-sm text-slate-500 hover:text-white transition-colors"
+                className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Reply</span>
@@ -177,7 +179,7 @@ export function CommentItem({
             <div className="mt-3">
               <button
                 onClick={() => setShowReplies(!showReplies)}
-                className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
+                className="flex items-center gap-1 text-sm text-[var(--info)] hover:text-[var(--primary)]"
               >
                 {showReplies ? (
                   <ChevronUp className="w-4 h-4" />

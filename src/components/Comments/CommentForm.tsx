@@ -77,11 +77,11 @@ export function CommentForm({
           maxLength={MAX_CHARS + 100} // Allow some overflow for UX
           rows={isCompact ? 2 : 3}
           className={cn(
-            'w-full px-3 py-2 bg-slate-800 border rounded-lg resize-none outline-none transition-all',
-            'text-slate-200 placeholder:text-slate-500',
-            isOverLimit
-              ? 'border-red-500 focus:border-red-500'
-              : 'border-slate-700 focus:border-blue-500',
+'w-full px-3 py-2 bg-[var(--surface-sunken)] border rounded-lg resize-none outline-none transition-all',
+          'text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]',
+          isOverLimit
+            ? 'border-[var(--error)] focus:border-[var(--error)]'
+            : 'border-[var(--border)] focus:border-[var(--primary)]',
             isCompact && 'text-sm'
           )}
         />
@@ -90,7 +90,7 @@ export function CommentForm({
         <div
           className={cn(
             'absolute bottom-2 right-2 text-xs',
-            isOverLimit ? 'text-red-400' : 'text-slate-500'
+            isOverLimit ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'
           )}
         >
           {charCount}/{MAX_CHARS}
@@ -99,7 +99,7 @@ export function CommentForm({
 
       {/* Actions */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-slate-500">
+        <div className="text-xs text-[var(--text-tertiary)]">
           {isSubmitting ? 'Posting...' : 'Ctrl+Enter to post'}
         </div>
 
@@ -109,7 +109,7 @@ export function CommentForm({
               type="button"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X className="w-4 h-4" />
               Cancel
@@ -122,8 +122,8 @@ export function CommentForm({
             className={cn(
               'flex items-center gap-1 px-4 py-1.5 rounded-lg text-sm font-medium transition-all',
               !content.trim() || isOverLimit || isSubmitting
-                ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                ? 'bg-[var(--surface-sunken)] text-[var(--text-secondary)] cursor-not-allowed'
+                : 'bg-[var(--info)] hover:opacity-90 text-[var(--text-inverse)]'
             )}
           >
             <Send className="w-4 h-4" />

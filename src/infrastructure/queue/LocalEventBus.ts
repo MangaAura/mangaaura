@@ -38,11 +38,8 @@ export class LocalEventBus implements EventBus {
     const handlers = this.handlers.get(event.type);
 
     if (!handlers || handlers.size === 0) {
-      console.log(`[EventBus] No handlers for event: ${event.type}`);
       return;
     }
-
-    console.log(`[EventBus] Publishing ${event.type} to ${handlers.size} handlers`);
 
     // Ejecutar handlers en paralelo
     const promises = Array.from(handlers).map(async (handler) => {
@@ -65,7 +62,6 @@ export class LocalEventBus implements EventBus {
     }
 
     this.handlers.get(eventType)!.add(handler as (event: DomainEvent) => Promise<void>);
-    console.log(`[EventBus] Subscribed handler to ${eventType}`);
   }
 
   unsubscribe(eventType: string, handler: (event: DomainEvent) => Promise<void>): void {

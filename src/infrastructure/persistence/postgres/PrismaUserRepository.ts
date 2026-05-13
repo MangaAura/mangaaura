@@ -1,8 +1,9 @@
 import { prisma as defaultPrisma } from '@/lib/prisma';
-import { PrismaClient } from '@/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import { UserRepository } from '@/core/repositories/UserRepository';
 import { User, UserProps } from '@/core/entities/User';
 import { Email } from '@/core/value-objects/Email';
+import { Password } from '@/core/value-objects/Password';
 import bcrypt from 'bcryptjs';
 
 export class PrismaUserRepository implements UserRepository {
@@ -86,11 +87,11 @@ export class PrismaUserRepository implements UserRepository {
     username: string,
     password: string
   ): Promise<User> {
+    const passwordObj = Password.createFromPlain(password);
     const { user } = User.registerWithEmail(
       email,
       username,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { plainText: password } as any
+      passwordObj
     );
 
     // Hashear contraseña
@@ -158,7 +159,7 @@ export class PrismaUserRepository implements UserRepository {
       take: limit,
     });
 
-    return dbUsers.map((u) => this.mapToDomain(u));
+    return dbUsers.map((u: any) => this.mapToDomain(u));
   }
 
   async findByIds(ids: string[]): Promise<User[]> {
@@ -166,7 +167,7 @@ export class PrismaUserRepository implements UserRepository {
       where: { id: { in: ids } },
     });
 
-    return dbUsers.map((u) => this.mapToDomain(u));
+    return dbUsers.map((u: any) => this.mapToDomain(u));
   }
 
   async count(): Promise<number> {

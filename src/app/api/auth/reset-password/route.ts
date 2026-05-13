@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { redis } from '@/lib/redis';
 import bcrypt from 'bcryptjs';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token requerido'),
@@ -31,6 +32,16 @@ export async function POST(request: NextRequest) {
     }
 
     const { token, newPassword } = result.data;
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rlResult = await rateLimit(getRateLimitKey('reset-password', ip), 5, 3600);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
+    }
+
     const tokenKey = `password-reset:${token}`;
 
     // Buscar el token en Redis
@@ -117,13 +128,7 @@ export async function POST(request: NextRequest) {
     // Esto obliga al usuario a iniciar sesión nuevamente con la nueva contraseña
     await redis.del(`user-sessions:${user.id}`);
 
-    console.log('=================================');
-    console.log('🔐 CONTRASEÑA RESTABLECIDA');
-    console.log('=================================');
-    console.log(`Usuario: ${user.email}`);
-    console.log(`ID: ${user.id}`);
-    console.log(`Fecha: ${new Date().toISOString()}`);
-    console.log('=================================');
+ console.info('[ResetPassword] Password reset successful for user ID:', user.id);
 
     return NextResponse.json(
       {

@@ -17,6 +17,19 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+function getChartColors() {
+  if (typeof document === 'undefined') return { grid: '#e5e5e5', axis: '#a3a3a3', text: '#6b6b6b', bg: '#ffffff', border: '#e5e5e5', label: '#0f0f0f' };
+  const style = getComputedStyle(document.documentElement);
+  return {
+    grid: style.getPropertyValue('--border').trim() || '#e5e5e5',
+    axis: style.getPropertyValue('--text-tertiary').trim() || '#a3a3a3',
+    text: style.getPropertyValue('--text-secondary').trim() || '#6b6b6b',
+    bg: style.getPropertyValue('--surface-elevated').trim() || '#ffffff',
+    border: style.getPropertyValue('--border').trim() || '#e5e5e5',
+    label: style.getPropertyValue('--text-primary').trim() || '#0f0f0f',
+  };
+}
+
 interface ViewsChartProps {
   data: Array<{
     date: string;
@@ -26,6 +39,7 @@ interface ViewsChartProps {
 }
 
 export function ViewsChart({ data }: ViewsChartProps) {
+  const colors = getChartColors();
   const chartData = useMemo(() => {
     return data.map((item) => ({
       date: new Date(item.date).toLocaleDateString('es', { month: 'short', day: 'numeric' }),
@@ -38,16 +52,16 @@ export function ViewsChart({ data }: ViewsChartProps) {
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+          <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
           <XAxis
             dataKey="date"
-            stroke="#64748b"
+            stroke={colors.axis}
             fontSize={12}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            stroke="#64748b"
+            stroke={colors.axis}
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -55,12 +69,12 @@ export function ViewsChart({ data }: ViewsChartProps) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1e293b',
-              border: '1px solid #334155',
+              backgroundColor: colors.bg,
+              border: `1px solid ${colors.border}`,
               borderRadius: '8px',
             }}
-            labelStyle={{ color: '#94a3b8' }}
-            itemStyle={{ color: '#e2e8f0' }}
+            labelStyle={{ color: colors.label }}
+            itemStyle={{ color: colors.text }}
           />
           <Line
             type="monotone"

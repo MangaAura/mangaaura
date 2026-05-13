@@ -6,6 +6,7 @@ import { WeakPasswordError } from '@/core/value-objects/Password';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -15,6 +16,16 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const identifier = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed } = await rateLimit(
+      getRateLimitKey('register', identifier),
+      5,
+      3600
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
+    }
+
     const body = await request.json();
     const result = registerSchema.safeParse(body);
 

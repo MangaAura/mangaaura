@@ -1,8 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/Providers";
-import { InstallPrompt, OfflineIndicator, ServiceWorkerRegistration, PushNotificationManager } from "@/components/pwa";
+import { SkipLink } from "@/components/A11y/SkipLink";
+import { PwaComponents } from '@/components/pwa/PwaComponents';
+import { ScrollProgress } from '@/components/ui/ScrollProgress';
+import { AppFooter } from "@/components/Layout/AppFooter";
+import { detectLocale } from "@/i18n/server";
+import { validateEnv } from "@/lib/env";
 import "./globals.css";
+
+validateEnv();
 
 // Optimize font loading with display: swap and preload
 const inter = Inter({
@@ -21,11 +28,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/icons/icon-512x512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
     ],
   },
   openGraph: {
@@ -79,34 +86,38 @@ export function reportWebVitals(metric: {
 }) {
   // Send to analytics in production
   if (process.env.NODE_ENV === "production") {
-    // Example: send to analytics
-    // analytics.track(metric.name, metric);
-    console.log("[Web Vitals]", metric);
+    console.info("[Web Vitals]", metric.name, metric.value);
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await detectLocale();
   return (
-    <html lang="es" suppressHydrationWarning className={inter.variable}>
+    <html lang={locale} suppressHydrationWarning className={inter.variable}>
       <head>
+        {/* Prevent theme flash - inline before React hydrates */}
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){try{var e=localStorage.getItem('inkverse-theme');if(e==='dark'||(e!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`
+        }} />
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://**.vercel-storage.com" />
       </head>
-      <body className="font-sans antialiased">
-        <Providers>
-          {children}
-          {/* PWA Components - inside Providers to access SessionContext */}
-          <InstallPrompt />
-          <OfflineIndicator />
-          <ServiceWorkerRegistration />
-          <PushNotificationManager />
-        </Providers>
+<body className="font-sans antialiased flex flex-col min-h-screen">
+      <ScrollProgress />
+      <SkipLink />
+      <div className="flex flex-col flex-1 noise">
+      <Providers locale={locale}>
+        {children}
+        <PwaComponents />
+        <AppFooter />
+      </Providers>
+    </div>
       </body>
     </html>
   );

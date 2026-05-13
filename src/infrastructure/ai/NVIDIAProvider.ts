@@ -443,16 +443,16 @@ Responde en JSON:
     this.cache.clear();
   }
 
-  getRateLimitStats(): {
+  async getRateLimitStats(): Promise<{
     reservoir: number;
     queued: number;
     running: number;
-  } {
+  }> {
     const counts = this.limiter.counts() as { RECEIVED: number; QUEUED: number; RUNNING: number; EXECUTING: number; DONE: number };
     return {
       reservoir: counts.RECEIVED || 0,
-      queued: this.limiter.queued(),
-      running: this.limiter.running(),
+      queued: await this.limiter.queued(),
+      running: await this.limiter.running(),
     };
   }
 }

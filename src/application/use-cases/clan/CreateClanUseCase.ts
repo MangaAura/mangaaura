@@ -1,14 +1,14 @@
-import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { DomainError } from '../../../core/errors/DomainError';
+import { IEventBus } from '../../services/IEventBus';
 
-interface CreateClanInput {
+export interface CreateClanInput {
   name: string;
   description?: string;
   emblemUrl?: string;
   leaderId: string;
 }
 
-interface CreateClanOutput {
+export interface CreateClanOutput {
   clan: {
     id: string;
     name: string;
@@ -22,53 +22,71 @@ interface CreateClanOutput {
   };
 }
 
+export interface IClanRepository {
+  findByName(name: string): Promise<{ id: string } | null>;
+  findUserMembership(userId: string): Promise<{ clanId: string } | null>;
+  create(data: {
+    name: string;
+    description?: string | null;
+    emblemUrl?: string | null;
+    leaderId: string;
+  }): Promise<CreateClanOutput['clan']>;
+  createMembership(data: { clanId: string; userId: string; role: string }): Promise<void>;
+}
+
 export class CreateClanUseCase {
+  constructor(
+    private readonly clanRepo: IClanRepository,
+    private readonly eventBus?: IEventBus
+  ) {}
+
   async execute(input: CreateClanInput): Promise<CreateClanOutput> {
     const { name, description, emblemUrl, leaderId } = input;
 
-    // Check if user is already in a clan
-    const existingMembership = await prisma.clanMembership.findFirst({
-      where: { userId: leaderId },
-    });
-
+    const existingMembership = await this.clanRepo.findUserMembership(leaderId);
     if (existingMembership) {
-      throw new Error('User is already a member of a clan');
+      throw new AlreadyInClanError();
     }
 
-    // Check if clan name is unique
-    const existingClan = await prisma.clan.findUnique({
-      where: { name: name.trim() },
-    });
-
+    const existingClan = await this.clanRepo.findByName(name.trim());
     if (existingClan) {
-      throw new Error('Clan name already exists');
+      throw new ClanNameExistsError(name);
     }
 
-    // Create clan with leader
-    const clan = await prisma.$transaction(async (tx) => {
-      const newClan = await tx.clan.create({
-        data: {
-          name: name.trim(),
-          description: description?.trim(),
-          emblemUrl: emblemUrl?.trim(),
-          leaderId,
-        },
-      });
-
-      await tx.clanMembership.create({
-        data: {
-          clanId: newClan.id,
-          userId: leaderId,
-          role: 'LEADER',
-        },
-      });
-
-      return newClan;
+    const clan = await this.clanRepo.create({
+      name: name.trim(),
+      description: description?.trim() ?? null,
+      emblemUrl: emblemUrl?.trim() ?? null,
+      leaderId,
     });
 
-    // Revalidate cache
-    revalidatePath('/community/clans');
+    await this.clanRepo.createMembership({
+      clanId: clan.id,
+      userId: leaderId,
+      role: 'LEADER',
+    });
+
+    if (this.eventBus) {
+      await this.eventBus.publish({
+        id: crypto.randomUUID(),
+        type: 'CLAN_CREATED',
+        payload: { clanId: clan.id, name, leaderId },
+        occurredAt: new Date(),
+      } as never);
+    }
 
     return { clan };
   }
+}
+
+class AlreadyInClanError extends DomainError {
+  readonly code = 'ALREADY_IN_CLAN';
+  readonly isOperational = true;
+  constructor() { super('El usuario ya pertenece a un clan'); }
+}
+
+class ClanNameExistsError extends DomainError {
+  readonly code = 'CLAN_NAME_EXISTS';
+  readonly isOperational = true;
+  constructor(name: string) { super(`El nombre de clan "${name}" ya existe`); }
 }

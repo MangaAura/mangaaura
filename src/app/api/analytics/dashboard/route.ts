@@ -15,92 +15,110 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const mangaId = searchParams.get('mangaId');
-    const dateFrom = searchParams.get('from');
-    const dateTo = searchParams.get('to');
+  const { searchParams } = new URL(request.url);
+  const mangaIdParam = searchParams.get('mangaId');
+  const mangaIdsParam = searchParams.get('mangaIds');
+  const dateFrom = searchParams.get('from');
+  const dateTo = searchParams.get('to');
 
-    const fromDate = dateFrom ? new Date(dateFrom) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const toDate = dateTo ? new Date(dateTo) : new Date();
+  const fromDate = dateFrom ? new Date(dateFrom) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const toDate = dateTo ? new Date(dateTo) : new Date();
 
-    // Construir where clause
-    const where: any = {
-      timestamp: {
-        gte: fromDate,
-        lte: toDate,
-      },
-    };
+  const where: any = {
+    createdAt: {
+      gte: fromDate,
+      lte: toDate,
+    },
+  };
 
-    if (mangaId) {
-      where.mangaId = mangaId;
+  if (mangaIdParam) {
+    where.mangaId = mangaIdParam;
+  } else if (mangaIdsParam) {
+    const mangaIds = mangaIdsParam.split(',').map((s: string) => s.trim()).filter(Boolean);
+    if (mangaIds.length > 0) {
+      const userMangas = await prisma.mangaSeries.findMany({
+        where: { id: { in: mangaIds }, authorId: session.user.id },
+        select: { id: true },
+      });
+      where.mangaId = { in: userMangas.map((m: any) => m.id) };
     } else {
-      // Si no hay mangaId, filtrar por mangas del usuario
       const userMangas = await prisma.mangaSeries.findMany({
         where: { authorId: session.user.id },
         select: { id: true },
       });
-      where.mangaId = { in: userMangas.map(m => m.id) };
+      where.mangaId = { in: userMangas.map((m: any) => m.id) };
     }
+  } else {
+    const userMangas = await prisma.mangaSeries.findMany({
+      where: { authorId: session.user.id },
+      select: { id: true },
+    });
+    where.mangaId = { in: userMangas.map((m: any) => m.id) };
+  }
+
+  const authorizedMangaIds = where.mangaId === Object(where.mangaId) && 'in' in where.mangaId
+    ? where.mangaId.in
+    : where.mangaId
+      ? [where.mangaId]
+      : [];
+
+  const popularChapterWhere = authorizedMangaIds.length > 0
+    ? { mangaId: { in: authorizedMangaIds } }
+    : { manga: { authorId: session.user.id } };
 
     // Obtener estadísticas
-    const [
-      views,
-      reads,
-      completions,
-      timeSpent,
-      dailyStats,
-      popularChapters,
-    ] = await Promise.all([
+  const [
+    views,
+    reads,
+    completions,
+    timeSpent,
+    dailyViews,
+    dailyReads,
+    popularChapters,
+  ] = await Promise.all([
       // Total views
       prisma.analyticsEvent.count({
-        where: { ...where, type: 'page_view' },
+        where: { ...where, eventType: 'page_view' },
       }),
 
       // Total reads
       prisma.analyticsEvent.count({
-        where: { ...where, type: 'chapter_read' },
+        where: { ...where, eventType: 'chapter_read' },
       }),
 
       // Total completions
       prisma.analyticsEvent.count({
-        where: { ...where, type: 'chapter_complete' },
+        where: { ...where, eventType: 'chapter_complete' },
       }),
 
-    // Average time spent (usando ReadingSession)
-    mangaId
-      ? prisma.readingSession.aggregate({
-          where: {
-            chapter: { mangaId },
-            endedAt: { not: null },
-          },
-          _avg: {
-            durationSeconds: true,
-          },
-        })
-      : prisma.readingSession.aggregate({
-          where: {
-            userId: session.user.id,
-            endedAt: { not: null },
-          },
-          _avg: {
-            durationSeconds: true,
-          },
-        }),
-
-      // Daily stats (simplificado)
-      prisma.analyticsEvent.groupBy({
-        by: ['timestamp'],
-        where,
-        _count: {
-          id: true,
+      // Average time spent (usando ReadingSession)
+      prisma.readingSession.aggregate({
+        where: {
+          chapter: { mangaId: { in: authorizedMangaIds.length > 0 ? authorizedMangaIds : undefined } },
+          endedAt: { not: null },
         },
+        _avg: {
+          durationSeconds: true,
+        },
+      }),
+
+      // Daily stats - views
+      prisma.analyticsEvent.groupBy({
+        by: ['createdAt'],
+        where: { ...where, eventType: 'page_view' },
+        _count: { id: true },
+      }),
+
+      // Daily stats - reads
+      prisma.analyticsEvent.groupBy({
+        by: ['createdAt'],
+        where: { ...where, eventType: 'chapter_read' },
+        _count: { id: true },
       }),
 
       // Popular chapters
       prisma.chapter.findMany({
-        where: mangaId ? { mangaId } : {
-          manga: { authorId: session.user.id }
-        },
+        where: popularChapterWhere,
         orderBy: { viewCount: 'desc' },
         take: 10,
         include: {
@@ -111,12 +129,23 @@ export async function GET(request: Request) {
       }),
     ]);
 
-    // Formatear daily stats
-    const formattedDaily = dailyStats.slice(0, 30).map((stat: any) => ({
-      date: stat.timestamp.toISOString().split('T')[0],
-      views: stat._count.id,
-      reads: Math.floor(stat._count.id * 0.6), // Estimado
-    }));
+  type DailyStat = { createdAt: Date; _count: { id: number } | null };
+
+  const readsByDate = new Map(
+    (dailyReads as DailyStat[]).map((stat) => [
+      new Date(stat.createdAt).toISOString().split('T')[0],
+      stat._count!.id,
+    ])
+  );
+
+  const formattedDaily = (dailyViews as DailyStat[]).slice(0, 30).map((stat) => {
+    const date = new Date(stat.createdAt).toISOString().split('T')[0];
+    return {
+      date,
+      views: stat._count!.id,
+      reads: readsByDate.get(date) || 0,
+    };
+  });
 
     // Calcular completion rate
     const completionRate = reads > 0 ? (completions / reads) * 100 : 0;
@@ -126,7 +155,7 @@ export async function GET(request: Request) {
       reads,
       completions,
       completionRate: Math.round(completionRate * 10) / 10,
-      avgTimeSpent: 240, // Segundos - mock
+      avgTimeSpent: timeSpent._avg.durationSeconds ? Math.round(timeSpent._avg.durationSeconds) : 0,
       dailyStats: formattedDaily,
       popularChapters: popularChapters.map((ch: any) => ({
         chapterId: ch.id,

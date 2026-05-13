@@ -9,9 +9,9 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateCacheKey, getCache, setCache, invalidateUserCache } from '@/lib/cache';
-import { ZodError, z } from 'zod';
+import { z } from 'zod';
 
-const CACHE_TTL = 60; // 1 minute for library
+const CACHE_TTL = 60;
 
 // Validation schema
 const addToLibrarySchema = z.object({
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Enrich with latest chapter info
-    const enrichedEntries = entries.map(entry => ({
+    const enrichedEntries = entries.map((entry: any) => ({
       id: entry.id,
       mangaId: entry.mangaId,
       status: entry.status,
@@ -202,8 +202,8 @@ export async function POST(request: NextRequest) {
 
     return Response.json(entry, { status: 201 });
   } catch (error) {
-    if (error instanceof ZodError) {
-      return Response.json({ error: 'Invalid input', details: error.issues }, { status: 400 });
+if (error instanceof z.ZodError) {
+return Response.json({ error: 'Invalid input', details: error.issues }, { status: 400 });
     }
     console.error('Error adding to library:', error);
     return Response.json({ error: 'Failed to add to library' }, { status: 500 });

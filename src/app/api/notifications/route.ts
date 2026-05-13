@@ -1,14 +1,10 @@
-/**
- * Notifications API
- * 
- * GET: Listar notificaciones del usuario
- * POST: Crear notificación (admin only)
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { notificationService } from '@/core/services/NotificationService';
+import { GetNotificationsUseCase } from '@/application/use-cases/notifications/GetNotificationsUseCase';
 import { z } from 'zod';
+
+const getNotificationsUseCase = new GetNotificationsUseCase(notificationService);
 
 const createNotificationSchema = z.object({
   userId: z.string().uuid(),
@@ -29,7 +25,6 @@ const createNotificationSchema = z.object({
   linkUrl: z.string().optional(),
 });
 
-// GET /api/notifications - Listar notificaciones del usuario
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -38,42 +33,20 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const type = searchParams.get('type') as any;
-    const isRead = searchParams.get('isRead');
+    const type = searchParams.get('type') || undefined;
+    const isReadParam = searchParams.get('isRead');
     const includeRead = searchParams.get('includeRead') !== 'false';
 
-    // Obtener notificaciones
-    const notifications = await notificationService.getUserNotifications(
-      session.user.id,
-      limit,
-      offset
-    );
-
-    // Filtrar por tipo si se especifica
-    let filteredNotifications = notifications;
-    if (type) {
-      filteredNotifications = notifications.filter(n => n.type === type);
-    }
-
-    // Filtrar por estado de lectura
-    if (isRead !== null) {
-      const isReadBool = isRead === 'true';
-      filteredNotifications = notifications.filter(n => n.isRead === isReadBool);
-    } else if (!includeRead) {
-      filteredNotifications = notifications.filter(n => !n.isRead);
-    }
-
-    // Obtener conteo de no leídas
-    const unreadCount = await notificationService.getUnreadCount(session.user.id);
-
-    return NextResponse.json({
-      notifications: filteredNotifications,
-      total: filteredNotifications.length,
-      unreadCount,
-      hasMore: filteredNotifications.length === limit,
+    const result = await getNotificationsUseCase.execute({
+      userId: session.user.id,
+      limit: Math.min(parseInt(searchParams.get('limit') || '20'), 100),
+      offset: parseInt(searchParams.get('offset') || '0'),
+      type,
+      isRead: isReadParam !== null ? isReadParam === 'true' : undefined,
+      includeRead,
     });
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('[Notifications API] Error:', error);
     return NextResponse.json(
@@ -83,7 +56,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/notifications - Crear notificación (admin only)
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -91,7 +63,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verificar si es admin
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Forbidden - Admin only' },

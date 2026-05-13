@@ -27,11 +27,12 @@ import { cn } from '@/lib/utils';
 interface ChapterStats {
   chapterId: string;
   mangaId: string;
+  chapterNumber: number;
+  title: string | null;
   reads: number;
   completions: number;
   completionRate: number;
   avgTimeSeconds: number;
-  mostViewedPages: Array<{ page: number; views: number }>;
 }
 
 interface CreatorStats {
@@ -40,6 +41,7 @@ interface CreatorStats {
   totalCompletions: number;
   completionRate: number;
   avgTimeSeconds: number;
+  avgScrollDepth?: number;
   chapterStats: ChapterStats[];
   dailyStats: Array<{
     date: string;
@@ -123,14 +125,11 @@ const fetchMongoAnalytics = useCallback(async () => {
       const data = await response.json();
 
       // Formatear datos para el dashboard
-      const formattedData: CreatorStats = {
-        ...data,
-        chapterStats: data.chapterStats.map((stat: any) => ({
-          ...stat,
-          mostViewedPages: [], // Esto se podría obtener con una query adicional
-        })),
-        dailyStats: [], // Esto requeriría agregación por día
-      };
+        const formattedData: CreatorStats = {
+          ...data,
+          chapterStats: data.chapterStats ?? data.popularChapters ?? [],
+          dailyStats: data.dailyStats ?? [],
+        };
 
       setStats(formattedData);
     } catch (err) {
@@ -157,15 +156,15 @@ const fetchMongoAnalytics = useCallback(async () => {
       reads: stats.totalReads,
       completions: stats.totalCompletions,
       avgTimeSpent: stats.avgTimeSeconds,
-      avgScrollDepth: 75, // Placeholder
+      avgScrollDepth: stats.avgScrollDepth ?? 0,
       popularChapters: stats.chapterStats
         .sort((a, b) => b.reads - a.reads)
         .slice(0, 10)
-        .map((stat, index) => ({
+        .map((stat) => ({
           chapterId: stat.chapterId,
-          chapterNumber: index + 1, // Placeholder - debería venir del backend
+          chapterNumber: stat.chapterNumber ?? 0,
           views: stat.reads,
-          title: `Capítulo ${index + 1}`,
+          title: stat.title ?? `Cap. ${stat.chapterNumber ?? stat.chapterId.slice(0, 8)}`,
           reads: stat.reads,
           completionRate: stat.completionRate,
         })),
@@ -178,29 +177,29 @@ const fetchMongoAnalytics = useCallback(async () => {
   }, [stats]);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--surface)]">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <div className="bg-[var(--surface-elevated)] border-b border-[var(--border)] sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Title */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <BarChart3Icon className="w-5 h-5 text-indigo-600" />
+              <div className="w-10 h-10 bg-[var(--primary)]/20 rounded-xl flex items-center justify-center">
+                <BarChart3Icon className="w-5 h-5 text-[var(--primary)]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Estadísticas</h1>
-                <p className="text-sm text-slate-500">
+                <h1 className="text-xl font-bold text-[var(--text-primary)]">Estadísticas</h1>
+                <p className="text-sm text-[var(--text-tertiary)]">
                   Analiza el rendimiento de tus obras
                 </p>
               </div>
             </div>
 
             {/* Breadcrumb */}
-            <nav className="flex items-center text-sm text-slate-500">
-              <span className="hover:text-slate-700 cursor-pointer">Dashboard</span>
+            <nav className="flex items-center text-sm text-[var(--text-tertiary)]">
+              <span className="hover:text-[var(--text-secondary)] cursor-pointer">Dashboard</span>
               <ChevronRightIcon className="w-4 h-4 mx-2" />
-              <span className="font-medium text-slate-900">Analytics</span>
+              <span className="font-medium text-[var(--text-primary)]">Analytics</span>
             </nav>
           </div>
 
@@ -232,7 +231,7 @@ const fetchMongoAnalytics = useCallback(async () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Selected Manga Info */}
         {selectedManga && (
-          <div className="mb-6 bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-4">
+          <div className="mb-6 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-xl p-4 flex items-center gap-4">
             {selectedManga.coverUrl ? (
               <img
                 src={selectedManga.coverUrl}
@@ -240,22 +239,22 @@ const fetchMongoAnalytics = useCallback(async () => {
                 className="w-12 h-16 object-cover rounded-lg shadow-sm"
               />
             ) : (
-              <div className="w-12 h-16 bg-slate-200 rounded-lg flex items-center justify-center">
-                <BarChart3Icon className="w-6 h-6 text-slate-400" />
+              <div className="w-12 h-16 bg-[var(--surface-sunken)] rounded-lg flex items-center justify-center">
+                <BarChart3Icon className="w-6 h-6 text-[var(--text-tertiary)]" />
               </div>
             )}
             <div className="flex-1">
-              <h2 className="font-semibold text-slate-900">
+              <h2 className="font-semibold text-[var(--text-primary)]">
                 {selectedManga.title}
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[var(--text-tertiary)]">
                 {selectedManga.chapterCount} capítulos ·{' '}
                 {selectedManga.totalViews.toLocaleString('es')} vistas totales
               </p>
             </div>
             <button
               onClick={() => setSelectedMangaId(null)}
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium"
             >
               Ver todos
             </button>
@@ -265,18 +264,18 @@ const fetchMongoAnalytics = useCallback(async () => {
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <Loader2Icon className="w-8 h-8 animate-spin text-indigo-600" />
-            <span className="ml-3 text-slate-600">Cargando estadísticas...</span>
+            <Loader2Icon className="w-8 h-8 animate-spin text-[var(--primary)]" />
+            <span className="ml-3 text-[var(--text-secondary)]">Cargando estadísticas...</span>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <p className="text-red-600">{error}</p>
+          <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl p-6 text-center">
+            <p className="text-[var(--error)]">{error}</p>
             <button
               onClick={fetchMongoAnalytics}
-              className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="mt-3 px-4 py-2 bg-[var(--error)] text-[var(--text-inverse)] rounded-lg hover:bg-[var(--error)] transition-colors"
             >
               Reintentar
             </button>
@@ -296,62 +295,62 @@ const fetchMongoAnalytics = useCallback(async () => {
         {stats && (
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Tiempo de lectura promedio */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500 mb-2">
+            <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
+              <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
                 Tiempo de lectura promedio
               </h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-slate-900">
+                <span className="text-3xl font-bold text-[var(--text-primary)]">
                   {Math.floor(stats.avgTimeSeconds / 60)}m{' '}
                   {stats.avgTimeSeconds % 60}s
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-[var(--text-tertiary)] mt-2">
                 Por capítulo completado
               </p>
             </div>
 
             {/* Tasa de finalización */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500 mb-2">
+            <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
+              <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
                 Tasa de finalización
               </h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-slate-900">
+                <span className="text-3xl font-bold text-[var(--text-primary)]">
                   {stats.completionRate}%
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-[var(--text-tertiary)] mt-2">
                 Lectores que completan el capítulo
               </p>
             </div>
 
             {/* Total de lecturas */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500 mb-2">
+            <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
+              <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
                 Total de lecturas
               </h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-slate-900">
+                <span className="text-3xl font-bold text-[var(--text-primary)]">
                   {stats.totalReads.toLocaleString('es')}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-[var(--text-tertiary)] mt-2">
                 En el período seleccionado
               </p>
             </div>
 
             {/* Completados */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500 mb-2">
+            <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
+              <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
                 Capítulos completados
               </h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-slate-900">
+                <span className="text-3xl font-bold text-[var(--text-primary)]">
                   {stats.totalCompletions.toLocaleString('es')}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-[var(--text-tertiary)] mt-2">
                 Lecturas hasta el final
               </p>
             </div>
@@ -360,39 +359,39 @@ const fetchMongoAnalytics = useCallback(async () => {
 
         {/* Páginas más vistas por capítulo */}
         {stats?.chapterStats && stats.chapterStats.length > 0 && (
-          <div className="mt-8 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+          <div className="mt-8 bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
               Páginas más vistas por capítulo
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50">
+                <thead className="bg-[var(--surface)]">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                       Capítulo
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                       Lecturas
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                       Completados
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                       Tasa
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">
+                <tbody className="divide-y divide-[var(--border)]">
                   {stats.chapterStats
                     .sort((a, b) => b.reads - a.reads)
                     .slice(0, 10)
-                    .map((stat, index) => (
-                      <tr key={stat.chapterId} className="hover:bg-slate-50">
-                        <td className="px-4 py-3">
-                          <span className="font-medium text-slate-900">
-                            Capítulo {index + 1}
-                          </span>
-                        </td>
+        .map((stat) => (
+                  <tr key={stat.chapterId} className="hover:bg-[var(--surface)]">
+                    <td className="px-4 py-3">
+                      <span className="font-medium text-[var(--text-primary)]">
+                        {stat.title ?? `Cap. ${stat.chapterNumber}`}
+                      </span>
+                    </td>
                         <td className="px-4 py-3 text-right">
                           {stat.reads.toLocaleString('es')}
                         </td>
@@ -404,10 +403,10 @@ const fetchMongoAnalytics = useCallback(async () => {
                             className={cn(
                               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                               stat.completionRate >= 80
-                                ? 'bg-green-100 text-green-700'
+                                ? 'bg-[var(--success)]/20 text-[var(--success)]'
                                 : stat.completionRate >= 50
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'bg-red-100 text-red-700'
+                                ? 'bg-[var(--warning)]/20 text-[var(--warning)]'
+                                : 'bg-[var(--error)]/20 text-[var(--error)]'
                             )}
                           >
                             {stat.completionRate}%

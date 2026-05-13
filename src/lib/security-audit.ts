@@ -21,7 +21,11 @@ export type SecurityAction =
   | 'REPORT_RESOLVED'
   | 'DMCA_REVIEWED'
   | 'ADMIN_ACTION'
-  | 'SUSPICIOUS_ACTIVITY';
+  | 'SUSPICIOUS_ACTIVITY'
+  | 'CREATED_COLLECTION'
+  | 'USER_FOLLOWED_USER'
+  | 'BLOCKED_USER'
+  | 'UNBLOCKED_USER';
 
 export type Severity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
@@ -172,7 +176,15 @@ export async function getSecurityLogs(
     prisma.securityAuditLog.count({ where }),
   ]);
 
-  return { logs, total };
+  return { logs: logs.map(log => ({
+    id: log.id,
+    userId: log.userId,
+    action: log.action as SecurityAction,
+    targetId: log.targetId,
+    targetType: log.targetType,
+    severity: log.severity as Severity,
+    createdAt: log.createdAt,
+  })), total };
 }
 
 /**

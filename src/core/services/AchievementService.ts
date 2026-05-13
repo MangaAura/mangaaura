@@ -217,6 +217,7 @@ export class AchievementService {
         iconUrl: achievement.iconUrl,
         condition: JSON.stringify(achievement.condition),
         category: achievement.category,
+        difficulty: achievement.difficulty || 'EASY',
         createdAt: achievement.createdAt,
       };
       await notificationService.notifyAchievementUnlocked(userId, achievementData);
@@ -295,9 +296,9 @@ export class AchievementService {
       this.getUserStats(userId),
     ]);
 
-    const unlockedIds = new Set(userAchievements.map(ua => ua.achievementId));
+    const unlockedIds = new Set(userAchievements.map((ua: any) => ua.achievementId));
 
-    return allAchievements.map(achievement => {
+    return allAchievements.map((achievement: any) => {
       const isUnlocked = unlockedIds.has(achievement.id);
       const progress = this.calculateProgress(achievement.condition, stats);
       const target = this.getTarget(achievement.condition);
@@ -312,7 +313,7 @@ export class AchievementService {
         condition: achievement.condition,
         category: achievement.category,
         difficulty: achievement.difficulty,
-        unlockedAt: isUnlocked ? userAchievements.find(ua => ua.achievementId === achievement.id)?.unlockedAt ?? null : null,
+        unlockedAt: isUnlocked ? userAchievements.find((ua: any) => ua.achievementId === achievement.id)?.unlockedAt ?? null : null,
         progress: Math.min(progress, target),
         target,
         isUnlocked,
@@ -337,7 +338,7 @@ export class AchievementService {
       include: { achievement: true },
     });
 
-    return userAchievements.reduce((total, ua) => total + ua.achievement.xpReward, 0);
+    return userAchievements.reduce((total: any, ua: any) => total + ua.achievement.xpReward, 0);
   }
 
   /**

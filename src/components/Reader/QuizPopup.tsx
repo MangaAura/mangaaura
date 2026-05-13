@@ -1,56 +1,101 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { HelpCircle, CheckCircle2, XCircle, Coins, Loader2 } from 'lucide-react';
+
+interface QuizQuestion {
+  question: string;
+  answers: string[];
+  correctAnswer: number;
+  chapterTitle: string;
+  chapterId: string;
+}
 
 interface QuizPopupProps {
   isOpen: boolean;
   onClose: () => void;
   chapterTitle: string;
+  chapterId: string;
 }
 
-export default function QuizPopup({ isOpen, onClose, chapterTitle }: QuizPopupProps) {
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  if (!isOpen) return null;
-
-  // Dummy quiz data
-  const question = "¿Cuál fue la técnica que utilizó el protagonista en la batalla final del capítulo?";
-  const answers = [
+const FALLBACK_QUESTION: QuizQuestion = {
+  question: "¿Cuál fue la técnica que utilizó el protagonista en la batalla final del capítulo?",
+  answers: [
     "Corte del Dragón Oscuro",
     "Estallido de Sombras",
     "Relámpago Carmesí",
     "Escudo de Maná Absoluto"
-  ];
-  const correctAnswer = 1; // "Estallido de Sombras"
+  ],
+  correctAnswer: 1,
+  chapterTitle: '',
+  chapterId: '',
+};
+
+export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: QuizPopupProps) {
+  const { data: session } = useSession();
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [quizData, setQuizData] = useState<QuizQuestion>(FALLBACK_QUESTION);
+  const [isFetching, setIsFetching] = useState(true);
+
+  useEffect(() => {
+    if (isOpen && chapterId) {
+      setIsFetching(true);
+      fetch(`/api/quiz?chapterId=${encodeURIComponent(chapterId)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.question && data.answers) {
+            setQuizData(data);
+          }
+        })
+        .catch(() => {
+          // Usar fallback
+        })
+        .finally(() => setIsFetching(false));
+    }
+  }, [isOpen, chapterId]);
+
+  if (!isOpen) return null;
+
+  const { question, answers, correctAnswer } = quizData;
 
   const handleSubmit = async () => {
     if (selectedAnswer !== null) {
       setIsLoading(true);
-      
-      // If correct, call the gamification API to reward XP
-      if (selectedAnswer === correctAnswer) {
+
+      if (selectedAnswer === correctAnswer && session?.user?.id) {
         try {
           await fetch('/api/gamification/xp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              userId: 'user_mock_id_123', // Demo ID
               amount: 50,
-              source: 'quiz_completion'
+              source: 'quiz_completion',
+              referenceId: chapterId,
             })
           });
         } catch (error) {
           console.error("Failed to reward XP", error);
         }
       }
-      
+
       setIsLoading(false);
       setIsSubmitted(true);
     }
   };
+
+  if (isFetching) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="bg-secondary w-full max-w-md rounded-2xl shadow-2xl p-6 border border-custom text-center">
+          <Loader2 size={32} className="animate-spin mx-auto text-accent-blue mb-4" />
+          <p className="text-muted">Generando pregunta...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in-up">
@@ -69,10 +114,10 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle }: QuizPopupPr
             {answers.map((answer, index) => {
               const isSelected = selectedAnswer === index;
               let btnClass = "w-full text-left p-4 rounded-xl border transition-all ";
-              
+
               if (!isSubmitted) {
-                btnClass += isSelected 
-                  ? "border-accent-blue bg-accent-blue/5 shadow-md" 
+                btnClass += isSelected
+                  ? "border-accent-blue bg-accent-blue/5 shadow-md"
                   : "border-custom hover:bg-tertiary";
               } else {
                 if (index === correctAnswer) {
@@ -85,11 +130,11 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle }: QuizPopupPr
               }
 
               return (
-                <button 
-                  key={index} 
+                <button
+                  key={`answer-${index}`}
                   disabled={isSubmitted || isLoading}
                   onClick={() => setSelectedAnswer(index)}
-                  className={btnClass}
+                  className={btnClass + ' cursor-pointer'}
                 >
                   <div className="flex justify-between items-center">
                     <span>{answer}</span>
@@ -114,15 +159,15 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle }: QuizPopupPr
                 Respuesta incorrecta. ¡Suerte a la próxima!
               </div>
             )}
-            <button onClick={onClose} className="w-full bg-accent-blue hover:bg-accent-blue-hover text-white font-semibold py-3 rounded-xl transition-colors">
+            <button onClick={onClose} className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold py-3 rounded-xl transition-colors cursor-pointer">
               Continuar Lectura
             </button>
           </div>
         ) : (
-          <button 
-            onClick={handleSubmit} 
+          <button
+            onClick={handleSubmit}
             disabled={selectedAnswer === null || isLoading}
-            className={`w-full font-semibold py-3 rounded-xl transition-all flex justify-center items-center ${selectedAnswer !== null ? 'bg-accent-blue hover:bg-accent-blue-hover text-white shadow-md' : 'bg-tertiary text-muted cursor-not-allowed'}`}
+            className={`w-full font-semibold py-3 rounded-xl transition-all flex justify-center items-center cursor-pointer ${selectedAnswer !== null ? 'bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] shadow-md' : 'bg-tertiary text-muted cursor-not-allowed'}`}
           >
             {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Comprobar Respuesta'}
           </button>

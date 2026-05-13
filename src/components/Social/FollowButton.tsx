@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/Toast';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
 
 interface FollowButtonProps {
@@ -67,7 +67,7 @@ export function FollowButton({
       disabled={isLoading}
       size={size}
       variant={isFollowing ? 'outline' : 'default'}
-      className={isFollowing ? 'border-slate-600' : ''}
+      className={isFollowing ? 'border-[var(--border)]' : ''}
     >
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin" />

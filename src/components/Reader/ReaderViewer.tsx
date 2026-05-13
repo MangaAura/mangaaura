@@ -149,25 +149,28 @@ export default function ReaderViewer({
 
   const ActionButtons = ({ pageUrl }: { pageUrl: string }) => (
     <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button
-        onClick={(e) => { e.stopPropagation(); onOpenMeme?.(pageUrl); }}
-        className="bg-black/70 hover:bg-accent-blue text-white p-2 rounded-full shadow-lg transition-colors"
-        title="Crear Meme"
-      >
+    <button
+      onClick={(e) => { e.stopPropagation(); onOpenMeme?.(pageUrl); }}
+      className="bg-black/70 hover:bg-accent-blue text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+      title="Crear Meme"
+      aria-label="Crear meme"
+    >
         <ImageIcon size={18} />
       </button>
-      <button
-        onClick={(e) => { e.stopPropagation(); onOpenEditor?.(pageUrl); }}
-        className="bg-black/70 hover:bg-accent-red text-white p-2 rounded-full shadow-lg transition-colors"
-        title="Reportar Error (Crowdsourcing)"
-      >
+    <button
+      onClick={(e) => { e.stopPropagation(); onOpenEditor?.(pageUrl); }}
+      className="bg-black/70 hover:bg-accent-red text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+      title="Reportar Error (Crowdsourcing)"
+      aria-label="Reportar error"
+    >
         <MousePointerClick size={18} />
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); onOpenSponsor?.(); }}
-        className="bg-black/70 hover:bg-yellow-500 text-white p-2 rounded-full shadow-lg transition-colors"
-        title="Patrocinar Próximo Capítulo"
-      >
+      className="bg-black/70 hover:bg-[var(--warning)] text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+      title="Patrocinar Próximo Capítulo"
+      aria-label="Patrocinar capítulo"
+    >
         <Crown size={18} />
       </button>
     </div>
@@ -182,7 +185,7 @@ export default function ReaderViewer({
         {viewMode === 'scroll' ? (
           <div className="flex flex-col space-y-2 pb-20">
             {pages.map((page, index) => (
-              <div key={index} className="w-full relative group">
+              <div key={`reader-page-${index}`} className="w-full relative group">
             <OptimizedImage
               src={page}
               alt={`Página ${index + 1}`}
@@ -195,7 +198,7 @@ export default function ReaderViewer({
               fallbackOnError={true}
             />
                 <ActionButtons pageUrl={page} />
-                <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-2 right-2 bg-black/70 text-[var(--text-inverse)] px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                   {index + 1} / {pages.length}
                 </div>
               </div>
@@ -216,17 +219,19 @@ export default function ReaderViewer({
 
             {/* Navigation Controls for Paged Mode */}
             <div className="absolute inset-0 flex justify-between items-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
-              <button
-                className="h-full w-1/4 flex items-center justify-start px-4 bg-gradient-to-r from-black/20 to-transparent pointer-events-auto"
-                onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
-              >
-                <span className="bg-black/50 text-white px-3 py-1 rounded">Anterior</span>
+        <button
+          className="h-full w-1/4 flex items-center justify-start px-4 bg-gradient-to-r from-black/20 to-transparent pointer-events-auto cursor-pointer"
+          onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
+          aria-label="Página anterior"
+        >
+                <span className="bg-black/50 text-[var(--text-inverse)] px-3 py-1 rounded">Anterior</span>
               </button>
-              <button
-                className="h-full w-1/4 flex items-center justify-end px-4 bg-gradient-to-l from-black/20 to-transparent pointer-events-auto"
-                onClick={handleNextPage}
-              >
-                <span className="bg-black/50 text-white px-3 py-1 rounded">
+        <button
+          className="h-full w-1/4 flex items-center justify-end px-4 bg-gradient-to-l from-black/20 to-transparent pointer-events-auto cursor-pointer"
+          onClick={handleNextPage}
+          aria-label="Página siguiente"
+        >
+                <span className="bg-black/50 text-[var(--text-inverse)] px-3 py-1 rounded">
                   {currentPage === pages.length - 1 ? 'Finalizar' : 'Siguiente'}
                 </span>
               </button>

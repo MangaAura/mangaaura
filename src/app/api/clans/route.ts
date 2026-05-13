@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     ]);
 
     // Transform to include member count
-    const clansWithMemberCount = clans.map(clan => ({
+    const clansWithMemberCount = clans.map((clan: any) => ({
       ...clan,
       memberCount: clan._count.members,
       _count: undefined,
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create clan with leader as first member
-    const clan = await prisma.$transaction(async (tx) => {
+    const clan = await prisma.$transaction(async (tx: any) => {
       const newClan = await tx.clan.create({
         data: {
           name: name.trim(),

@@ -21,11 +21,11 @@ export function QueueVisualizer({
 }: QueueVisualizerProps) {
   // Mapeo de prioridades a colores y etiquetas
   const priorityConfig = {
-    1: { color: 'bg-red-500', label: 'Critical', textColor: 'text-red-400' },
-    2: { color: 'bg-orange-500', label: 'High', textColor: 'text-orange-400' },
-    3: { color: 'bg-blue-500', label: 'Normal', textColor: 'text-blue-400' },
-    4: { color: 'bg-slate-400', label: 'Low', textColor: 'text-slate-400' },
-    5: { color: 'bg-slate-300', label: 'Background', textColor: 'text-slate-300' },
+    1: { color: 'bg-[var(--error)]', label: 'Critical', textColor: 'text-[var(--error)]' },
+    2: { color: 'bg-[var(--warning)]', label: 'High', textColor: 'text-[var(--warning)]' },
+    3: { color: 'bg-[var(--accent-blue)]', label: 'Normal', textColor: 'text-[var(--accent-blue)]' },
+    4: { color: 'bg-[var(--text-tertiary)]', label: 'Low', textColor: 'text-[var(--text-tertiary)]' },
+    5: { color: 'bg-[var(--text-muted)]', label: 'Background', textColor: 'text-[var(--text-muted)]' },
   };
 
   // Calcular distribución de barras por prioridad
@@ -67,14 +67,13 @@ export function QueueVisualizer({
           <div
             className={cn(
               'h-2 w-2 rounded-full',
-              stats.processing > 0 ? 'animate-pulse bg-green-500' : 'bg-slate-400'
-            )}
-          />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-            Queue Status
-          </span>
-        </div>
-        <span className="text-xs text-slate-500">
+          stats.processing > 0 ? 'animate-pulse bg-[var(--success)]' : 'bg-[var(--text-tertiary)]'
+        )} />
+        <span className="text-sm font-medium text-[var(--text-primary)]">
+          Queue Status
+        </span>
+      </div>
+      <span className="text-xs text-[var(--text-tertiary)]">
           {stats.processing} processing / {stats.length} total
         </span>
       </div>
@@ -82,10 +81,10 @@ export function QueueVisualizer({
       {/* Visualización de barras */}
       <div className="space-y-1.5">
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="mb-3 rounded-full bg-green-100 p-3 dark:bg-green-900/30">
-              <svg
-                className="h-6 w-6 text-green-600 dark:text-green-400"
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="mb-3 rounded-full bg-[var(--success)]/10 p-3">
+          <svg
+            className="h-6 w-6 text-[var(--success)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -98,10 +97,10 @@ export function QueueVisualizer({
                 />
               </svg>
             </div>
-            <p className="text-sm font-medium text-green-600 dark:text-green-400">
-              Queue empty - All caught up!
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
+        <p className="text-sm font-medium text-[var(--success)]">
+          Queue empty - All caught up!
+        </p>
+        <p className="text-xs text-[var(--text-tertiary)] mt-1">
               No pending jobs in queue
             </p>
           </div>
@@ -134,7 +133,7 @@ export function QueueVisualizer({
 
       {/* Leyenda por prioridad */}
       {!isEmpty && (
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border)]">
           {Object.entries(stats.byPriority || {})
             .filter(([, count]) => count > 0)
             .sort(([a], [b]) => Number(a) - Number(b))
@@ -148,7 +147,7 @@ export function QueueVisualizer({
                   <span className={cn('text-xs font-medium', config.textColor)}>
                     {config.label}
                   </span>
-                  <span className="text-xs text-slate-500">({count})</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">({count})</span>
                 </div>
               );
             })}
@@ -156,7 +155,7 @@ export function QueueVisualizer({
       )}
 
       {/* Estadísticas adicionales */}
-      <div className="flex justify-between pt-2 text-xs text-slate-500 border-t border-slate-200 dark:border-slate-700">
+      <div className="flex justify-between pt-2 text-xs text-[var(--text-tertiary)] border-t border-[var(--border)]">
         <span>Completed: {stats.completed}</span>
         <span>Failed: {stats.failed}</span>
       </div>

@@ -15,12 +15,12 @@ if (isRedisConfigured) {
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
-    console.log('[Cache] Redis configured successfully');
+    console.info('[Cache] Redis configured successfully');
   } catch (error) {
     console.error('[Cache] Failed to initialize Redis:', error);
   }
 } else {
-  console.log('[Cache] Redis not configured - using memory fallback');
+  console.info('[Cache] Redis not configured - using memory fallback');
 }
 
 // Default TTL values (in seconds)
@@ -149,7 +149,7 @@ export async function invalidatePattern(pattern: string): Promise<void> {
 
       do {
         const result = await redis.scan(cursor, { match: pattern, count: 100 });
-        cursor = result[0];
+        cursor = Number(result[0]);
         keysToDelete.push(...result[1]);
       } while (cursor !== 0);
 

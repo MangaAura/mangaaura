@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { XP } from '@/core/value-objects/XP';
 
 const memeSchema = z.object({
   panelId: z.string().min(1).max(200),
@@ -10,6 +11,7 @@ const memeSchema = z.object({
   texts: z.array(z.string().max(500)).max(10).optional(),
 });
 
+// POST /api/memes - Save meme
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -21,23 +23,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const parsed = memeSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: parsed.error.issues },
-        { status: 400 }
-      );
+    const contentType = request.headers.get('content-type') || '';
+    let panelId: string;
+    let mangaTitle: string;
+    let chapterNumber: number | undefined;
+    let texts: string[] | undefined;
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      panelId = (formData.get('panelId') as string) || crypto.randomUUID();
+      mangaTitle = (formData.get('mangaTitle') as string) || '';
+      chapterNumber = formData.get('chapterNumber') ? parseInt(formData.get('chapterNumber') as string) : undefined;
+      texts = formData.get('texts') ? [formData.get('texts') as string] : undefined;
+    } else {
+      const body = await request.json();
+      const parsed = memeSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: 'Datos inválidos', details: parsed.error.issues },
+          { status: 400 }
+        );
+      }
+      panelId = parsed.data.panelId;
+      mangaTitle = parsed.data.mangaTitle;
+      chapterNumber = parsed.data.chapterNumber;
+      texts = parsed.data.texts;
     }
 
-    const { panelId, mangaTitle, chapterNumber } = parsed.data;
-
-    await prisma.user.update({
+    const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      data: {
-        xpPoints: { increment: 5 },
-      },
+      select: { xpPoints: true, level: true },
     });
+
+    if (user) {
+      const currentXP = XP.create(user.xpPoints);
+      const newXP = currentXP.add(XP.create(5));
+
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          xpPoints: newXP.amount,
+          level: newXP.level,
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -58,38 +87,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-    const body = await request.json();
-    const { panelId, mangaTitle, chapterNumber, texts } = body;
-
-    // Agregar XP al usuario por crear meme (el meme real se guarda en el cliente)
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        xpPoints: {
-          increment: 5,
-        },
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      meme: {
-        userId: session.user.id,
-        mangaTitle,
-        chapterNumber,
-        createdAt: new Date().toISOString(),
-      },
-    });
-  } catch (error) {
-    console.error('Error saving meme:', error);
-    return NextResponse.json(
-      { error: 'Error al guardar meme' },
-      { status: 500 }
-    );
-  }
-}
-
-// GET /api/memes - Obtener memes del usuario
+// GET /api/memes - Get user memes
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -105,14 +103,39 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
 
-    // Por ahora devolvemos un array vacío (la funcionalidad de memes se implementará con MongoDB)
+    const activities = await prisma.userActivity.findMany({
+      where: {
+        userId: session.user.id,
+        activityType: 'MEME_CREATED',
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const total = await prisma.userActivity.count({
+      where: {
+        userId: session.user.id,
+        activityType: 'MEME_CREATED',
+      },
+    });
+
     return NextResponse.json({
-      memes: [],
+      memes: activities.map(a => {
+        const meta = a.metadata ? JSON.parse(a.metadata) : {};
+        return {
+          id: a.referenceId || a.id,
+          userId: a.userId,
+          mangaTitle: meta.mangaTitle || '',
+          chapterNumber: meta.chapterNumber,
+          createdAt: a.createdAt.toISOString(),
+        };
+      }),
       pagination: {
         page,
         limit,
-        total: 0,
-        totalPages: 0,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (error) {

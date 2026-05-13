@@ -49,37 +49,37 @@ export function ModelHealthCard({
     healthy: {
       icon: CheckCircle,
       badgeVariant: 'success' as const,
-      gradient: 'from-emerald-50/50 via-white to-white',
-      borderColor: 'border-emerald-200',
-      progressColor: 'bg-emerald-500',
-      textColor: 'text-emerald-700',
+      gradient: 'from-[var(--success)]/5 via-[var(--surface)] to-[var(--surface)]',
+      borderColor: 'border-[var(--success)]/30',
+      progressColor: 'bg-[var(--success)]',
+      textColor: 'text-[var(--success)]',
       label: 'Saludable',
     },
     degraded: {
       icon: AlertTriangle,
       badgeVariant: 'warning' as const,
-      gradient: 'from-amber-50/50 via-white to-white',
-      borderColor: 'border-amber-200',
-      progressColor: 'bg-amber-500',
-      textColor: 'text-amber-700',
+      gradient: 'from-[var(--warning)]/5 via-[var(--surface)] to-[var(--surface)]',
+      borderColor: 'border-[var(--warning)]/30',
+      progressColor: 'bg-[var(--warning)]',
+      textColor: 'text-[var(--warning)]',
       label: 'Degradado',
     },
     unhealthy: {
       icon: XCircle,
       badgeVariant: 'destructive' as const,
-      gradient: 'from-red-50/50 via-white to-white',
-      borderColor: 'border-red-200',
-      progressColor: 'bg-red-500',
-      textColor: 'text-red-700',
+      gradient: 'from-[var(--error)]/5 via-[var(--surface)] to-[var(--surface)]',
+      borderColor: 'border-[var(--error)]/30',
+      progressColor: 'bg-[var(--error)]',
+      textColor: 'text-[var(--error)]',
       label: 'No saludable',
     },
     unknown: {
       icon: AlertTriangle,
       badgeVariant: 'secondary' as const,
-      gradient: 'from-slate-50/50 via-white to-white',
-      borderColor: 'border-slate-200',
-      progressColor: 'bg-slate-500',
-      textColor: 'text-slate-700',
+      gradient: 'from-[var(--surface-sunken)]/50 via-[var(--surface)] to-[var(--surface)]',
+      borderColor: 'border-[var(--border)]',
+      progressColor: 'bg-[var(--text-tertiary)]',
+      textColor: 'text-[var(--text-tertiary)]',
       label: 'Desconocido',
     },
   };
@@ -112,14 +112,14 @@ export function ModelHealthCard({
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-slate-900 truncate">
-                {model.name}
-              </h3>
-              <Badge variant="secondary" className="text-xs">
-                {model.provider}
-              </Badge>
-            </div>
-            <p className="text-xs text-slate-500 mt-1 truncate">{model.id}</p>
+          <h3 className="font-semibold text-[var(--text-primary)] truncate">
+            {model.name}
+          </h3>
+          <Badge variant="secondary" className="text-xs">
+            {model.provider}
+          </Badge>
+        </div>
+        <p className="text-xs text-[var(--text-tertiary)] mt-1 truncate">{model.id}</p>
           </div>
           <div className="flex items-center gap-2 ml-2">
             <StatusIcon className={cn('w-5 h-5', config.textColor)} />
@@ -134,12 +134,12 @@ export function ModelHealthCard({
         {/* Barra de tasa de éxito */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">Tasa de éxito</span>
+            <span className="text-[var(--text-secondary)]">Tasa de éxito</span>
             <span className={cn('font-medium', config.textColor)}>
               {successRatePercentage}%
             </span>
           </div>
-          <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-[var(--surface-sunken)] overflow-hidden">
             <div
               className={cn('h-full rounded-full transition-all duration-500', config.progressColor)}
               style={{ width: `${successRatePercentage}%` }}
@@ -150,16 +150,16 @@ export function ModelHealthCard({
         {/* Métricas de requests */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-xs text-slate-500">Requests</p>
-            <p className="text-sm font-medium text-slate-900">
-              <span className="text-emerald-600">{metrics.successfulRequests}</span>
-              <span className="text-slate-400 mx-1">/</span>
+        <p className="text-xs text-[var(--text-tertiary)]">Requests</p>
+        <p className="text-sm font-medium text-[var(--text-primary)]">
+          <span className="text-[var(--success)]">{metrics.successfulRequests}</span>
+          <span className="text-[var(--text-muted)] mx-1">/</span>
               <span>{metrics.totalRequests}</span>
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs text-slate-500">Latencia promedio</p>
-            <p className="text-sm font-medium text-slate-900">
+        <p className="text-xs text-[var(--text-tertiary)]">Latencia promedio</p>
+        <p className="text-sm font-medium text-[var(--text-primary)]">
               {Math.round(metrics.averageLatencyMs)}ms
             </p>
           </div>
@@ -167,7 +167,7 @@ export function ModelHealthCard({
 
         {/* Capacidades */}
         <div className="space-y-2">
-          <p className="text-xs text-slate-500">Capacidades</p>
+          <p className="text-xs text-[var(--text-tertiary)]">Capacidades</p>
           <div className="flex flex-wrap gap-1.5">
             {model.capabilities.map((capability) => (
               <Badge
@@ -182,9 +182,9 @@ export function ModelHealthCard({
         </div>
 
         {/* Último health check */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-          <p className="text-xs text-slate-500">Último check</p>
-          <p className="text-xs font-medium text-slate-700">
+      <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
+        <p className="text-xs text-[var(--text-tertiary)]">Último check</p>
+        <p className="text-xs font-medium text-[var(--text-secondary)]">
             {formatRelativeTime(model.status.lastHealthCheck)}
           </p>
         </div>

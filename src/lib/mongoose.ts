@@ -31,7 +31,6 @@ if (!cached) {
  */
 async function dbConnect(): Promise<Connection> {
   if (cached.conn) {
-    console.log('Using cached MongoDB connection');
     return cached.conn;
   }
 
@@ -44,7 +43,7 @@ async function dbConnect(): Promise<Connection> {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
-      console.log('MongoDB connected successfully');
+      console.info('MongoDB connected successfully');
       return mongooseInstance.connection;
     });
   }
@@ -70,6 +69,6 @@ export async function disconnectFromMongoDB(): Promise<void> {
     await mongoose.disconnect();
     cached.conn = null;
     cached.promise = null;
-    console.log('MongoDB disconnected');
+    console.info('MongoDB disconnected');
   }
 }

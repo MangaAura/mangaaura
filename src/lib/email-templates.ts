@@ -109,11 +109,11 @@ export function baseEmailTemplate({
                   © ${new Date().getFullYear()} InkVerse. Todos los derechos reservados.
                 </p>
                 <p style="margin: 10px 0 0 0; font-size: 12px;">
-                  <a href="https://inkverse.app/privacy" style="color: #64748b; text-decoration: underline;">Privacidad</a>
-                  <span style="color: #cbd5e1; margin: 0 10px;">|</span>
-                  <a href="https://inkverse.app/terms" style="color: #64748b; text-decoration: underline;">Términos</a>
-                  <span style="color: #cbd5e1; margin: 0 10px;">|</span>
-                  <a href="https://inkverse.app/support" style="color: #64748b; text-decoration: underline;">Soporte</a>
+      <a href="https://inkverse.app/legal/privacy" style="color: #64748b; text-decoration: underline;">Privacidad</a>
+      <span style="color: #cbd5e1; margin: 0 10px;">|</span>
+      <a href="https://inkverse.app/legal/terms" style="color: #64748b; text-decoration: underline;">Términos</a>
+      <span style="color: #cbd5e1; margin: 0 10px;">|</span>
+      <a href="https://inkverse.app/contact" style="color: #64748b; text-decoration: underline;">Soporte</a>
                 </p>
               </td>
             </tr>
@@ -360,7 +360,7 @@ export function securityAlertEmail(
       <p style="margin-top: 15px;">Si fuiste tú, no necesitas hacer nada. Si no reconoces esta actividad, por favor cambia tu contraseña inmediatamente.</p>
     `,
     ctaText: 'Ver actividad de la cuenta',
-    ctaUrl: 'https://inkverse.app/profile/security',
+    ctaUrl: 'https://inkverse.app/settings',
     footerText: 'Alerta de seguridad automática de InkVerse.',
   });
 

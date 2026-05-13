@@ -40,37 +40,40 @@ export async function GET() {
       },
     });
 
-    // Get chapter counts separately since it's through MangaSeries relation
-    const userIds = users.map((u) => u.id);
-    const chapterCounts = await prisma.chapter.groupBy({
-      by: ['mangaId'],
-      where: {
-        mangaId: {
-          in: await prisma.mangaSeries
-            .findMany({
-              where: { authorId: { in: userIds } },
-              select: { id: true },
-            })
-            .then((m) => m.map((manga) => manga.id)),
-        },
-      },
-      _count: {
-        id: true,
-      },
-    });
+    const userIds = users.map((u: any) => u.id);
 
-    const mangaAuthorMap = await prisma.mangaSeries.findMany({
-      where: { authorId: { in: userIds } },
-      select: { id: true, authorId: true },
-    });
+    const [userMangaCounts, chapterCounts, mangaAuthorMap] = await Promise.all([
+      prisma.mangaSeries.groupBy({
+        by: ['authorId'],
+        where: { authorId: { in: userIds } },
+        _count: { id: true },
+      }),
+      prisma.chapter.groupBy({
+        by: ['mangaId'],
+        _count: { id: true },
+      }),
+      prisma.mangaSeries.findMany({
+        where: { authorId: { in: userIds } },
+        select: { id: true, authorId: true },
+      }),
+    ]);
+
+    const mangaAuthorLookup = Object.fromEntries(
+      mangaAuthorMap.map((m: any) => [m.id, m.authorId])
+    );
+
+    const chapterCountByManga = Object.fromEntries(
+      chapterCounts.map((c: any) => [c.mangaId, c._count.id])
+    );
 
     const userChapterCounts = new Map<string, number>();
     for (const manga of mangaAuthorMap) {
-      const count = chapterCounts.find((c) => c.mangaId === manga.id)?._count.id || 0;
-      userChapterCounts.set(manga.authorId, (userChapterCounts.get(manga.authorId) || 0) + count);
+      const authorId = manga.authorId;
+      const count = chapterCountByManga[manga.id] || 0;
+      userChapterCounts.set(authorId, (userChapterCounts.get(authorId) || 0) + count);
     }
 
-    const formattedUsers = users.map((user) => ({
+    const formattedUsers = users.map((user: any) => ({
       id: user.id,
       email: user.email,
       username: user.username,

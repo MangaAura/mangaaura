@@ -44,33 +44,33 @@ export function formatTimeAgo(date: Date | string): string {
 export function getRankColor(rank: string): string {
   switch (rank.toLowerCase()) {
     case 'novato':
-      return 'text-slate-500';
+      return 'text-[var(--text-tertiary)]';
     case 'lector shonen':
-      return 'text-green-500';
+      return 'text-[var(--accent-green)]';
     case 'otaku experto':
-      return 'text-blue-500';
+      return 'text-[var(--accent-blue)]';
     case 'maestro otaku':
-      return 'text-purple-500';
+      return 'text-[var(--accent-purple)]';
     case 'leyenda manga':
-      return 'text-amber-500';
+      return 'text-[var(--warning)]';
     default:
-      return 'text-slate-500';
+      return 'text-[var(--text-tertiary)]';
   }
 }
 
 export function getRankBgColor(rank: string): string {
   switch (rank.toLowerCase()) {
     case 'novato':
-      return 'bg-slate-100';
+      return 'bg-[var(--surface-sunken)]';
     case 'lector shonen':
-      return 'bg-green-100';
+      return 'bg-[var(--accent-green)]/10';
     case 'otaku experto':
-      return 'bg-blue-100';
+      return 'bg-[var(--accent-blue)]/10';
     case 'maestro otaku':
-      return 'bg-purple-100';
+      return 'bg-[var(--accent-purple)]/10';
     case 'leyenda manga':
-      return 'bg-amber-100';
+      return 'bg-[var(--warning)]/10';
     default:
-      return 'bg-slate-100';
+      return 'bg-[var(--surface-sunken)]';
   }
 }

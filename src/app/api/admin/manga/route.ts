@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get comment counts separately for each manga
-    const mangaIds = mangas.map(m => m.id);
+    const mangaIds = mangas.map((m: any) => m.id);
     const commentCounts = await prisma.comment.groupBy({
       by: ['chapterId'],
       _count: {
@@ -74,17 +74,17 @@ export async function GET(request: NextRequest) {
       select: { id: true, mangaId: true },
     });
 
-    const chapterToMangaMap = new Map(chapters.map(c => [c.id, c.mangaId]));
+    const chapterToMangaMap = new Map(chapters.map((c: any) => [c.id, c.mangaId]));
     const mangaCommentCounts = new Map<string, number>();
 
-    commentCounts.forEach(cc => {
-      const mangaId = chapterToMangaMap.get(cc.chapterId);
-      if (mangaId) {
-        mangaCommentCounts.set(mangaId, (mangaCommentCounts.get(mangaId) || 0) + cc._count.id);
-      }
-    });
+commentCounts.forEach((cc: any) => {
+  const mangaId = chapterToMangaMap.get(cc.chapterId);
+  if (mangaId) {
+    mangaCommentCounts.set(mangaId, (mangaCommentCounts.get(mangaId) || 0) + cc._count.id);
+  }
+});
 
-    const formattedMangas = mangas.map((manga) => ({
+    const formattedMangas = mangas.map((manga: any) => ({
       id: manga.id,
       title: manga.title,
       slug: manga.slug,

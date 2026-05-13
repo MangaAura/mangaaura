@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { redis } from '@/lib/cache';
 
-export const runtime = 'edge';
-
 export async function GET() {
   const checks = {
     database: false,
@@ -23,7 +21,7 @@ export async function GET() {
 
   // Check Redis
   try {
-    await redis.ping();
+    await redis!.ping();
     checks.redis = true;
   } catch {
     checks.redis = false;

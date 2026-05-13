@@ -122,7 +122,7 @@ export function ReadingProgress({
       {/* Progress Bar */}
       <div className="relative h-1 bg-surface-sunken">
         <div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -131,20 +131,22 @@ export function ReadingProgress({
       <div className="flex items-center justify-between px-4 py-3">
         {/* Chapter Navigation */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={goToPrevChapter}
-            disabled={currentChapter <= 1}
-            className="p-2 hover:bg-surface-sunken rounded-lg transition-colors disabled:opacity-30"
-            title="Capítulo anterior"
-          >
+        <button
+          onClick={goToPrevChapter}
+          disabled={currentChapter <= 1}
+          className="p-2 hover:bg-surface-sunken rounded-lg transition-colors disabled:opacity-30 cursor-pointer"
+          title="Capítulo anterior"
+          aria-label="Capítulo anterior"
+        >
             <ChevronLeft size={20} />
           </button>
 
-          <button
-            onClick={() => setShowChapterList(!showChapterList)}
-            className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-sunken rounded-lg transition-colors"
-          >
-            <BookOpen size={18} className="text-blue-500" />
+        <button
+          onClick={() => setShowChapterList(!showChapterList)}
+          className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-sunken rounded-lg transition-colors cursor-pointer"
+          aria-label="Lista de capítulos"
+        >
+            <BookOpen size={18} className="text-[var(--info)]" />
             <span className="font-medium">
               Cap. {currentChapter}
             </span>
@@ -153,12 +155,13 @@ export function ReadingProgress({
             </span>
           </button>
 
-          <button
-            onClick={goToNextChapter}
-            disabled={currentChapter >= totalChapters}
-            className="p-2 hover:bg-surface-sunken rounded-lg transition-colors disabled:opacity-30"
-            title="Siguiente capítulo"
-          >
+        <button
+          onClick={goToNextChapter}
+          disabled={currentChapter >= totalChapters}
+          className="p-2 hover:bg-surface-sunken rounded-lg transition-colors disabled:opacity-30 cursor-pointer"
+          title="Siguiente capítulo"
+          aria-label="Siguiente capítulo"
+        >
             <ChevronRight size={20} />
           </button>
         </div>
@@ -186,15 +189,15 @@ export function ReadingProgress({
                   }}
                   className={cn(
                     'w-full text-left px-4 py-2.5 text-sm transition-colors',
-                    chapter.number === currentChapter
-                      ? 'bg-blue-500/10 text-blue-500'
+chapter.number === currentChapter
+                    ? 'bg-[var(--info)]/10 text-[var(--info)]'
                       : 'hover:bg-surface-sunken'
                   )}
                 >
                   <div className="flex items-center justify-between">
                     <span>Capítulo {chapter.number}</span>
                     {chapter.number === currentChapter && (
-                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                      <span className="w-2 h-2 rounded-full bg-[var(--info)]" />
                     )}
                   </div>
                   {chapter.title && (
@@ -215,7 +218,7 @@ export function ReadingProgress({
 
       {/* Last Read Indicator */}
       {savedProgress && savedProgress.chapterNumber !== currentChapter && (
-        <div className="absolute -top-8 right-4 bg-blue-500 text-white text-xs px-3 py-1.5 rounded-full shadow-lg">
+        <div className="absolute -top-8 right-4 bg-[var(--info)] text-[var(--text-inverse)] text-xs px-3 py-1.5 rounded-full shadow-lg">
           Última vez: Cap. {savedProgress.chapterNumber}, Pág. {savedProgress.pageNumber + 1}
         </div>
       )}

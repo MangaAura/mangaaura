@@ -60,7 +60,7 @@ class PartyService {
     this.parties.set(partyId, party);
     this.messages.set(partyId, []);
 
-    console.log(`[PartyService] Party ${partyId} created for manga ${data.mangaId}`);
+    console.info(`[PartyService] Party ${partyId} created for manga ${data.mangaId}`);
 
     return party;
   }
@@ -101,7 +101,7 @@ class PartyService {
     this.parties.delete(partyId);
     this.messages.delete(partyId);
 
-    console.log(`[PartyService] Party ${partyId} closed`);
+    console.info(`[PartyService] Party ${partyId} closed`);
     return true;
   }
 
@@ -167,7 +167,7 @@ class PartyService {
       party.hostId = user.userId;
     }
 
-    console.log(`[PartyService] User ${user.userId} joined party ${partyId}`);
+    console.info(`[PartyService] User ${user.userId} joined party ${partyId}`);
 
     return { success: true, member };
   }
@@ -200,7 +200,7 @@ class PartyService {
       this.closeParty(partyId);
     }
 
-    console.log(`[PartyService] User ${userId} left party ${partyId}`);
+    console.info(`[PartyService] User ${userId} left party ${partyId}`);
 
     return { success: true, wasHost };
   }
@@ -394,7 +394,7 @@ class PartyService {
     });
 
     partiesToClose.forEach((partyId) => {
-      console.log(`[PartyService] Closing inactive party ${partyId}`);
+      console.info(`[PartyService] Closing inactive party ${partyId}`);
       this.closeParty(partyId);
     });
   }
@@ -418,7 +418,7 @@ class PartyService {
       });
 
       membersToRemove.forEach((userId) => {
-        console.log(`[PartyService] Removing inactive member ${userId} from party ${party.partyId}`);
+        console.info(`[PartyService] Removing inactive member ${userId} from party ${party.partyId}`);
         this.leaveParty(party.partyId, userId);
       });
     });

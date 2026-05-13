@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { z } from 'zod';
-import { 
-  ArrowLeft, 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Loader2, 
+import {
+  ArrowLeft,
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
   UserPlus,
   AlertCircle,
   CheckCircle2,
@@ -25,7 +25,7 @@ import { useAuthError, registerErrorMap } from '@/hooks/useAuthError';
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex items-center justify-center">
+    <div className="flex items-center justify-center">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
         <span>Cargando...</span>
@@ -40,136 +40,95 @@ const baseSchema = z.object({
     .min(3, 'El nombre de usuario debe tener al menos 3 caracteres')
     .max(30, 'El nombre de usuario no puede exceder 30 caracteres')
     .regex(/^[a-zA-Z0-9_]+$/, 'Solo se permiten letras, números y guiones bajos'),
-  email: z
-    .string()
-    .min(1, 'El correo electrónico es obligatorio')
-    .email('Por favor ingresa un correo electrónico válido'),
+  email: z.string().email('Ingresa un correo electrónico válido'),
   password: z
     .string()
     .min(8, 'La contraseña debe tener al menos 8 caracteres')
-    .regex(/[A-Z]/, 'Debe contener al menos una letra mayúscula')
-    .regex(/[a-z]/, 'Debe contener al menos una letra minúscula')
+    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+    .regex(/[a-z]/, 'Debe contener al menos una minúscula')
     .regex(/[0-9]/, 'Debe contener al menos un número'),
   confirmPassword: z.string(),
 });
 
-const registerSchema = baseSchema.refine((data) => data.password === data.confirmPassword, {
+const registerSchema = baseSchema.refine((data: any) => data.password === data.confirmPassword, {
   message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],
 });
 
-type FormData = z.infer<typeof registerSchema>;
-type FormErrors = Partial<Record<keyof FormData, string>>;
+type _Output<T> = T extends { _zod: { output: infer O } } ? O : never;
+type FormData = _Output<typeof baseSchema>;
 
 function Content() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
   const { toast } = useToast();
-  const { error, clearError, handleNetworkError, handleValidationError } = useAuthError();
-  
+const { error, setError, clearError, handleAuthError: handleRegisterAuthError } = useAuthError();
+
   const [formData, setFormData] = useState<FormData>({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-  
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
-
-  // Validación en tiempo real
-  const fieldLabels: Record<keyof FormData, string> = {
-    username: 'Nombre de usuario',
-    email: 'Correo electrónico',
-    password: 'Contraseña',
-    confirmPassword: 'Confirmar contraseña',
-  };
-
-  const validateField = (field: keyof FormData, value: string) => {
-    if (field === 'confirmPassword') {
-      if (!value) {
-        setErrors((prev) => ({ ...prev, [field]: `${fieldLabels[field]}: Debes confirmar la contraseña` }));
-        return false;
-      }
-      if (value !== formData.password) {
-        setErrors((prev) => ({ ...prev, [field]: `${fieldLabels[field]}: Las contraseñas no coinciden` }));
-        return false;
-      }
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-      return true;
-    }
-
-    if (!value.trim()) {
-      setErrors((prev) => ({ ...prev, [field]: `${fieldLabels[field]}: Este campo es obligatorio` }));
-      return false;
-    }
-
-    try {
-      baseSchema.shape[field].parse(value);
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-      return true;
-    } catch (err) {
-      if (err instanceof z.ZodError && err.issues?.[0]?.message) {
-        setErrors((prev) => ({ ...prev, [field]: `${fieldLabels[field]}: ${err.issues[0].message}` }));
-        return false;
-      }
-      setErrors((prev) => ({ ...prev, [field]: `${fieldLabels[field]}: Campo inválido` }));
-      return false;
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleOAuthSignIn = (provider: 'google' | 'github') => {
+    setIsLoading(true);
     clearError();
-    
-    // Validar en tiempo real si ya fue tocado
-    if (touched[name as keyof FormData]) {
-      validateField(name as keyof FormData, value);
-    }
+    signIn(provider, { callbackUrl });
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    validateField(name as keyof FormData, value);
+  const getPasswordStrength = (password: string) => {
+    if (!password) return { label: '', color: '', score: 0 };
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    const levels = [
+      { label: '', color: 'bg-[var(--border)]' },
+{ label: 'Débil', color: 'bg-[var(--error)]' },
+    { label: 'Regular', color: 'bg-[var(--accent-orange)]' },
+  { label: 'Buena', color: 'bg-[var(--warning)]' },
+  { label: 'Fuerte', color: 'bg-[var(--success)]' },
+  { label: 'Muy fuerte', color: 'bg-[var(--success)]' },
+    ];
+
+    return { ...levels[score], score };
   };
 
-  const validateForm = (): boolean => {
-    const result = registerSchema.safeParse(formData);
-    if (result.success) {
-      setErrors({});
-      return true;
-    }
-    const newErrors: FormErrors = {};
-    result.error.issues.forEach((issue) => {
-      const field = issue.path[0] as keyof FormData;
-      if (!newErrors[field]) {
-        newErrors[field] = `${fieldLabels[field]}: ${issue.message}`;
-      }
-    });
-    setErrors(newErrors);
-    setTouched({ username: true, email: true, password: true, confirmPassword: true });
-    return false;
-  };
+  const passwordStrength = getPasswordStrength(formData.password);
+
+  const hasErrors = Object.values(errors).some(Boolean);
+  const errorFields = Object.entries(errors).filter(([, v]) => v) as [keyof FormData, string][];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      handleValidationError('form', 'Por favor corrige los errores en el formulario');
-      return;
-    }
-
     setIsLoading(true);
     clearError();
 
     try {
+      const validated = registerSchema.safeParse(formData);
+
+      if (!validated.success) {
+        const fieldErrors: Partial<Record<keyof FormData, string>> = {};
+        (validated.error as any).errors.forEach((err: any) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as keyof FormData] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -183,35 +142,11 @@ function Content() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Manejar errores específicos del servidor
-        if (data.error?.includes('email') && data.error?.includes('already exists')) {
-          const errorInfo = registerErrorMap.EMAIL_EXISTS;
-          errorInfo.action = {
-            label: 'Iniciar sesión',
-            onClick: () => router.push('/auth/login'),
-          };
-          handleValidationError('email', errorInfo.message);
-          setIsLoading(false);
-          return;
-        }
-        
-        if (data.error?.includes('username') && data.error?.includes('already exists')) {
-          handleValidationError('username', registerErrorMap.USERNAME_EXISTS.message);
-          setIsLoading(false);
-          return;
-        }
-
-        throw new Error(data.error || 'Error al registrar');
+        throw new Error(data.error || 'Error al crear cuenta');
       }
 
-      // Registro exitoso - intentar login automático
-      toast({
-        title: '¡Cuenta creada!',
-        description: 'Tu cuenta ha sido creada exitosamente. Iniciando sesión...',
-        variant: 'default',
-      });
+      toast({ title: 'Cuenta creada exitosamente', variant: 'default' });
 
-      // Auto-login
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -220,51 +155,48 @@ function Content() {
       });
 
       if (result?.ok) {
-        toast({
-          title: '¡Bienvenido a InkVerse!',
-          description: 'Has iniciado sesión correctamente.',
-          variant: 'default',
-        });
         router.push(callbackUrl);
         router.refresh();
       } else {
-        // Si auto-login falla, redirigir a login
         router.push('/auth/login?registered=true');
       }
-    } catch (err) {
-      const networkError = handleNetworkError(() => handleSubmit(e));
+    } catch (err: any) {
+      handleRegisterAuthError(err);
       setIsLoading(false);
     }
   };
 
-  // Indicadores de fortaleza de contraseña
-  const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
-    if (!password) return { strength: 0, label: '', color: '' };
-    
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
+  const validateField = (field: keyof FormData, value: string) => {
+    if (field === 'confirmPassword') {
+      if (!value) {
+        setErrors((prev) => ({ ...prev, confirmPassword: 'Confirma tu contraseña' }));
+      } else if (value !== formData.password) {
+        setErrors((prev) => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden' }));
+      } else {
+        setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+      }
+      return;
+    }
 
-    const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte', 'Muy fuerte'];
-    const colors = ['bg-red-500', 'bg-red-400', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500', 'bg-emerald-500'];
-    
-    return {
-      strength,
-      label: labels[strength],
-      color: colors[strength],
-    };
+    const fieldSchema = baseSchema.shape[field as keyof typeof baseSchema.shape];
+    const result = fieldSchema.safeParse(value);
+
+    if (!result.success) {
+      setErrors((prev) => ({ ...prev, [field]: (result.error as any).issues[0].message }));
+    } else {
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
   };
 
-  const passwordStrength = getPasswordStrength(formData.password);
-
-  const hasErrors = Object.values(errors).some(Boolean);
-  const errorFields = Object.entries(errors).filter(([, v]) => v) as [keyof FormData, string][];
+  const fieldLabels: Record<keyof FormData, string> = {
+    username: 'Usuario',
+    email: 'Correo',
+    password: 'Contraseña',
+    confirmPassword: 'Confirmar',
+  };
 
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex flex-col">
+    <div className="flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
           <ArrowLeft size={20} /> Volver al Inicio
@@ -272,14 +204,13 @@ function Content() {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md animate-fade-in-up">
+        <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-extrabold tracking-tight mb-2">Crear cuenta</h1>
             <p className="text-muted">Únete a InkVerse y descubre un mundo de mangas.</p>
           </div>
 
           <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-xl">
-            {/* Error general del formulario */}
             {error && (
               <div className="mb-6">
                 <ErrorMessage
@@ -287,122 +218,96 @@ function Content() {
                   message={error.message}
                   severity={error.severity}
                   onDismiss={clearError}
-                  action={error.action}
                 />
               </div>
             )}
 
-            {/* Resumen de errores de validación */}
-            {hasErrors && errorFields.length > 1 && (
-              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-                <p className="text-sm font-semibold text-red-500 mb-2 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  Corrige los siguientes errores ({errorFields.length}):
-                </p>
-                <ul className="space-y-1">
-                  {errorFields.map(([field, msg]) => (
-                    <li key={field} className="text-sm text-red-400 flex items-start gap-2">
-                      <span className="text-red-500 font-bold mt-0.5">&bull;</span>
-                      <span><strong className="text-red-500">{fieldLabels[field]}:</strong> {msg.replace(`${fieldLabels[field]}: `, '')}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Username */}
               <div>
                 <label className="block text-sm font-semibold mb-2">Nombre de usuario</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
                     type="text"
-                    name="username"
                     value={formData.username}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={isLoading}
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({ ...prev, username: e.target.value }));
+                      validateField('username', e.target.value);
+                    }}
                     className={cn(
                       'w-full pl-10 pr-4 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
-                      touched.username && errors.username
-                        ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                        : touched.username && !errors.username && formData.username
-                        ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                        : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+errors.username
+? 'border-[var(--error)] focus:border-[var(--error)]'
+: formData.username && !errors.username
+? 'border-[var(--success)] focus:border-[var(--success)]'
+                        : 'border-custom focus:border-accent-blue'
                     )}
                     placeholder="usuario123"
+                    disabled={isLoading}
                   />
-                  {touched.username && !errors.username && formData.username && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                  )}
-                </div>
-        {touched.username && errors.username && (
-          <div className="mt-2 flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium text-red-500">{errors.username}</p>
-          </div>
-        )}
-                <p className="mt-1 text-xs text-muted">
-                  Solo letras, números y guiones bajos. Entre 3 y 30 caracteres.
-                </p>
+                  {formData.username && !errors.username && (
+<CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
+)}
+</div>
+{errors.username && (
+<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
+<p className="text-sm font-medium text-[var(--error)]">{errors.username}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-sm font-semibold mb-2">Correo electrónico</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
                     type="email"
-                    name="email"
                     value={formData.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={isLoading}
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({ ...prev, email: e.target.value }));
+                      validateField('email', e.target.value);
+                    }}
                     className={cn(
                       'w-full pl-10 pr-4 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
-                      touched.email && errors.email
-                        ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                        : touched.email && !errors.email && formData.email
-                        ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                        : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+errors.email
+? 'border-[var(--error)] focus:border-[var(--error)]'
+: formData.email && !errors.email
+? 'border-[var(--success)] focus:border-[var(--success)]'
+                        : 'border-custom focus:border-accent-blue'
                     )}
                     placeholder="tu@email.com"
+                    disabled={isLoading}
                   />
-                  {touched.email && !errors.email && formData.email && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                  )}
-                </div>
-        {touched.email && errors.email && (
-          <div className="mt-2 flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium text-red-500">{errors.email}</p>
-          </div>
-        )}
+                  {formData.email && !errors.email && (
+<CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
+)}
+</div>
+{errors.email && (
+<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
+<p className="text-sm font-medium text-[var(--error)]">{errors.email}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-sm font-semibold mb-2">Contraseña</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    name="password"
                     value={formData.password}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={isLoading}
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({ ...prev, password: e.target.value }));
+                      validateField('password', e.target.value);
+                    }}
                     className={cn(
                       'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
-                      touched.password && errors.password
-                        ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                        : touched.password && !errors.password && formData.password
-                        ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                        : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+                      errors.password ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                     )}
                     placeholder="••••••••"
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
@@ -412,19 +317,15 @@ function Content() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                
-                {/* Indicador de fortaleza */}
                 {formData.password && (
                   <div className="mt-2">
                     <div className="flex gap-1 h-1">
-                      {[1, 2, 3, 4, 5].map((level) => (
+                      {[1, 2, 3, 4, 5].map((i) => (
                         <div
-                          key={level}
+                          key={i}
                           className={cn(
                             'flex-1 rounded-full transition-colors',
-                            passwordStrength.strength >= level
-                              ? passwordStrength.color
-                              : 'bg-gray-200 dark:bg-gray-700'
+                            i <= passwordStrength.score ? passwordStrength.color : 'bg-[var(--border)]'
                           )}
                         />
                       ))}
@@ -436,71 +337,31 @@ function Content() {
                     </p>
                   </div>
                 )}
-                
-        {touched.password && errors.password && (
-          <div className="mt-2 flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium text-red-500">{errors.password}</p>
-          </div>
-        )}
-                
-                <div className="mt-2 space-y-1">
-                  <p className="text-xs text-muted flex items-center gap-1">
-                    {formData.password.length >= 8 ? (
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <Info className="w-3 h-3 text-muted" />
-                    )}
-                    Mínimo 8 caracteres
-                  </p>
-                  <p className="text-xs text-muted flex items-center gap-1">
-                    {/[A-Z]/.test(formData.password) ? (
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <Info className="w-3 h-3 text-muted" />
-                    )}
-                    Al menos una mayúscula
-                  </p>
-                  <p className="text-xs text-muted flex items-center gap-1">
-                    {/[a-z]/.test(formData.password) ? (
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <Info className="w-3 h-3 text-muted" />
-                    )}
-                    Al menos una minúscula
-                  </p>
-                  <p className="text-xs text-muted flex items-center gap-1">
-                    {/[0-9]/.test(formData.password) ? (
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <Info className="w-3 h-3 text-muted" />
-                    )}
-                    Al menos un número
-                  </p>
-                </div>
+                {errors.password && (
+<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
+<p className="text-sm font-medium text-[var(--error)]">{errors.password}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="block text-sm font-semibold mb-2">Confirmar contraseña</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
-                    name="confirmPassword"
                     value={formData.confirmPassword}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    disabled={isLoading}
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({ ...prev, confirmPassword: e.target.value }));
+                      validateField('confirmPassword', e.target.value);
+                    }}
                     className={cn(
                       'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
-                      touched.confirmPassword && errors.confirmPassword
-                        ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                        : touched.confirmPassword && !errors.confirmPassword && formData.confirmPassword
-                        ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                        : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+                      errors.confirmPassword ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                     )}
                     placeholder="••••••••"
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
@@ -510,18 +371,18 @@ function Content() {
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-        {touched.confirmPassword && errors.confirmPassword && (
-          <div className="mt-2 flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium text-red-500">{errors.confirmPassword}</p>
-          </div>
-        )}
+                {errors.confirmPassword && (
+<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
+<p className="text-sm font-medium text-[var(--error)]">{errors.confirmPassword}</p>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || !acceptedTerms}
+                className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -530,26 +391,52 @@ function Content() {
                   </>
                 ) : (
                   <>
-                    <UserPlus size={18} /> Crear cuenta
+                    <UserPlus size={18} />
+                    Crear cuenta
                   </>
                 )}
               </button>
-            </form>
+      </form>
 
-            <p className="text-center text-sm text-muted mt-6">
+      <div className="mt-6 flex items-center gap-4 before:h-px before:flex-1 before:bg-custom after:h-px after:flex-1 after:bg-custom text-xs text-muted font-medium">
+        O REGÍSTRATE CON
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-4">
+        <button
+          onClick={() => handleOAuthSignIn('google')}
+          disabled={isLoading}
+          type="button"
+          className="flex items-center justify-center gap-2 bg-tertiary hover:bg-custom border border-custom py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button
+          onClick={() => handleOAuthSignIn('github')}
+          disabled={isLoading}
+          type="button"
+          className="flex items-center justify-center gap-2 bg-tertiary hover:bg-custom border border-custom py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </button>
+      </div>
+
+      <p className="text-center text-sm text-muted mt-6">
               ¿Ya tienes una cuenta?{' '}
               <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
                 Inicia sesión
               </Link>
             </p>
-          </div>
 
-          <p className="text-center text-xs text-muted mt-6">
-            Al crear una cuenta, aceptas nuestros{' '}
-            <Link href="/terms" className="text-accent-blue hover:underline">Términos de servicio</Link>
-            {' '}y{' '}
-            <Link href="/privacy" className="text-accent-blue hover:underline">Política de privacidad</Link>.
-          </p>
+            <p className="text-center text-xs text-muted mt-6">
+              Al crear una cuenta, aceptas nuestros{' '}
+              <Link href="/legal/terms" className="text-accent-blue hover:underline">Términos de servicio</Link>
+              {' '}y{' '}
+              <Link href="/legal/privacy" className="text-accent-blue hover:underline">Política de privacidad</Link>.
+            </p>
+          </div>
         </div>
       </div>
     </div>

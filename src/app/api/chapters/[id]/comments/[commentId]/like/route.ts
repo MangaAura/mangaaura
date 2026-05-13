@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { notificationService } from '@/core/services/NotificationService';
 
 // POST /api/chapters/[id]/comments/[commentId]/like - Like a comment
 export async function POST(
@@ -72,8 +73,8 @@ export async function POST(
       );
     }
 
-    // Create like and increment likesCount in transaction
-    const result = await prisma.$transaction(async (tx) => {
+// Create like and increment likesCount in transaction
+  const result = await prisma.$transaction(async (tx: any) => {
       // Create the like
       const like = await tx.commentLike.create({
         data: {
@@ -97,19 +98,23 @@ export async function POST(
       return { like, updatedComment };
     });
 
-    // Notify comment owner (async, don't wait)
-    if (comment.userId !== userId) {
-      try {
-        const { notificationEmitter } = await import('@/lib/notifications');
-        await notificationEmitter.notifyNewLike(
-          comment.userId,
-          userId,
-          session.user.name || session.user.email || 'Usuario',
-          comment.chapter?.mangaId,
+  // Notify comment owner (async, don't wait)
+  if (comment.userId !== userId) {
+    try {
+      await notificationService.createNotification({
+        userId: comment.userId,
+        type: 'COMMENT_LIKE',
+        title: '👍 Nuevo like',
+        message: `${session.user.name || session.user.email || 'Usuario'} le dio like a tu comentario`,
+        data: {
+          likerId: userId,
+          likerName: session.user.name || session.user.email || 'Usuario',
+          likerImage: session.user.image || undefined,
           chapterId,
           commentId,
-          session.user.image || undefined
-        );
+        },
+        linkUrl: `/manga/${comment.chapter?.mangaId || ''}/chapter/${chapterId}`,
+      } as any);
       } catch (error) {
         console.error('[Like] Error sending notification:', error);
       }
@@ -180,8 +185,8 @@ export async function DELETE(
       );
     }
 
-    // Delete like and decrement likesCount in transaction
-    const result = await prisma.$transaction(async (tx) => {
+// Delete like and decrement likesCount in transaction
+  const result = await prisma.$transaction(async (tx: any) => {
       // Delete the like
       await tx.commentLike.delete({
         where: {

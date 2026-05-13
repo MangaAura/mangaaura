@@ -37,7 +37,7 @@ export default async function AIServiceDashboardPage() {
           </p>
           <a
             href="/"
-            className="inline-flex items-center justify-center px-4 py-2 bg-[var(--primary-hover)] hover:bg-blue-700 text-[var(--text-primary)] rounded-lg transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 bg-[var(--primary-hover)] hover:opacity-90 text-[var(--text-primary)] rounded-lg transition-colors cursor-pointer"
           >
             Go Home
           </a>

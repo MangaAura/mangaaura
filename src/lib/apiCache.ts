@@ -1,4 +1,4 @@
-import { getCache, setCache, deleteCachePattern } from './redis';
+import { getCache, setCache, invalidatePattern } from './cache';
 
 // Cache TTL configuration (in seconds)
 const CACHE_TTL = {
@@ -49,8 +49,8 @@ function setInMemoryCache<T>(key: string, data: T): void {
   
   // Limit memory cache size
   if (memoryCache.size > 1000) {
-    const firstKey = memoryCache.keys().next().value;
-    memoryCache.delete(firstKey);
+const firstKey = memoryCache.keys().next().value as string;
+memoryCache.delete(firstKey!);
   }
 }
 
@@ -100,7 +100,7 @@ export async function invalidateCacheBatch(prefixes: string[]): Promise<void> {
 
 // Invalidate cache by pattern
 export async function invalidateCache(prefix: string): Promise<void> {
-  await deleteCachePattern(`inkverse:${prefix}:*`);
+  await invalidatePattern(`inkverse:${prefix}:*`);
 }
 
 // Cache configuration for different endpoints

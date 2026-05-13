@@ -161,7 +161,7 @@ function Lightbox({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-50 p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+        className="absolute top-4 right-4 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
         aria-label="Cerrar"
       >
         <X size={24} />
@@ -169,7 +169,7 @@ function Lightbox({
 
       {/* Top controls */}
       <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
-        <span className="text-white/70 text-sm bg-black/50 px-3 py-1 rounded-full">
+        <span className="text-[var(--text-inverse)]/70 text-sm bg-black/50 px-3 py-1 rounded-full">
           {currentIndex + 1} / {images.length}
         </span>
         {showInfo && (
@@ -178,7 +178,7 @@ function Lightbox({
               e.stopPropagation();
               setShowMetadata(!showMetadata);
             }}
-            className="p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+            className="p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
             aria-label="Información"
           >
             <Info size={20} />
@@ -193,7 +193,7 @@ function Lightbox({
             e.stopPropagation();
             handleZoomOut();
           }}
-          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+          className="p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] hover:opacity-90 rounded-full transition-colors"
           aria-label="Alejar"
         >
           <ZoomOut size={20} />
@@ -203,7 +203,7 @@ function Lightbox({
             e.stopPropagation();
             handleZoomReset();
           }}
-          className="px-3 text-white/70 hover:text-white text-sm font-medium"
+          className="px-3 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] text-sm font-medium"
         >
           {Math.round(zoom * 100)}%
         </button>
@@ -212,7 +212,7 @@ function Lightbox({
             e.stopPropagation();
             handleZoomIn();
           }}
-          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+          className="p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] hover:opacity-90 rounded-full transition-colors"
           aria-label="Acercar"
         >
           <ZoomIn size={20} />
@@ -225,7 +225,7 @@ function Lightbox({
           e.stopPropagation();
           handleDownload();
         }}
-        className="absolute bottom-4 right-4 z-50 p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+        className="absolute bottom-4 right-4 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
         aria-label="Descargar"
       >
         <Download size={20} />
@@ -238,7 +238,7 @@ function Lightbox({
             e.stopPropagation();
             onNavigate(currentIndex - 1);
           }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
           aria-label="Anterior"
         >
           <ChevronLeft size={32} />
@@ -250,7 +250,7 @@ function Lightbox({
             e.stopPropagation();
             onNavigate(currentIndex + 1);
           }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
           aria-label="Siguiente"
         >
           <ChevronRight size={32} />
@@ -274,7 +274,7 @@ function Lightbox({
       {/* Caption */}
       {currentImage.caption && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 max-w-2xl text-center">
-          <p className="text-white/80 text-sm bg-black/50 px-4 py-2 rounded-lg">
+          <p className="text-[var(--text-inverse)]/80 text-sm bg-black/50 px-4 py-2 rounded-lg">
             {currentImage.caption}
           </p>
         </div>
@@ -283,7 +283,7 @@ function Lightbox({
       {/* Metadata panel */}
       {showMetadata && showInfo && currentImage.metadata && (
         <div
-          className="absolute top-16 right-4 z-50 bg-black/80 backdrop-blur-sm rounded-lg p-4 text-white/80 text-sm min-w-[200px]"
+          className="absolute top-16 right-4 z-50 bg-black/80 backdrop-blur-sm rounded-lg p-4 text-[var(--text-inverse)]/80 text-sm min-w-[200px]"
           onClick={(e) => e.stopPropagation()}
         >
           <h4 className="font-semibold mb-2">Información</h4>
@@ -396,7 +396,7 @@ export function ImageGallery({
               />
               {image.caption && (
                 <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="text-white text-sm truncate">{image.caption}</p>
+                  <p className="text-[var(--text-inverse)] text-sm truncate">{image.caption}</p>
                 </div>
               )}
             </div>
@@ -458,7 +458,7 @@ export function ImageGallery({
                   />
                   {image.caption && (
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-white text-sm">{image.caption}</p>
+                      <p className="text-[var(--text-inverse)] text-sm">{image.caption}</p>
                     </div>
                   )}
                 </div>

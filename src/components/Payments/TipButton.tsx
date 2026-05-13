@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Heart, Coins, Loader2, Check, X, MessageSquare } from 'lucide-react';
@@ -29,7 +29,6 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
-  // Load user balance when modal opens
   useEffect(() => {
     if (isOpen && userBalance === null) {
       fetchBalance();
@@ -117,7 +116,6 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
   };
 
   const handleCustomAmountChange = (value: string) => {
-    // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, '');
     setCustomAmount(numericValue);
     setSelectedAmount(null);
@@ -140,35 +138,33 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 relative">
-        {/* Close Button */}
+      <div className="bg-[var(--surface)] w-full max-w-md rounded-2xl shadow-2xl p-6 border border-[var(--border)] relative">
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+          className="absolute top-4 right-4 p-1 rounded-full hover:bg-[var(--surface-sunken)] text-[var(--text-tertiary)] transition-colors cursor-pointer"
+          aria-label="Cerrar"
         >
           <X size={20} />
         </button>
 
         {!isSuccess ? (
           <>
-            {/* Header */}
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-pink-500/10 text-pink-500 mb-4">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] mb-4">
                 <Heart size={28} className="fill-current" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
                 Enviar Propina
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Apoya a <span className="font-semibold text-slate-700 dark:text-slate-300">{authorName}</span> con InkCoins
+              <p className="text-sm text-[var(--text-secondary)]">
+                Apoya a <span className="font-semibold text-[var(--text-primary)]">{authorName}</span> con InkCoins
               </p>
             </div>
 
-            {/* Balance Display */}
-            <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 mb-6 flex items-center justify-between">
-              <span className="text-sm text-slate-600 dark:text-slate-400">Tu saldo:</span>
-              <div className="flex items-center gap-1 font-bold text-slate-900 dark:text-white">
-                <Coins size={16} className="text-yellow-500" />
+            <div className="bg-[var(--surface-sunken)] rounded-xl p-3 mb-6 flex items-center justify-between">
+              <span className="text-sm text-[var(--text-secondary)]">Tu saldo:</span>
+              <div className="flex items-center gap-1 font-bold text-[var(--text-primary)]">
+                <Coins size={16} className="text-[var(--warning)]" />
                 {isLoadingBalance ? (
                   <Loader2 size={14} className="animate-spin" />
                 ) : (
@@ -177,9 +173,8 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
               </div>
             </div>
 
-            {/* Preset Amounts */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
                 Selecciona un monto
               </label>
               <div className="grid grid-cols-5 gap-2">
@@ -188,10 +183,10 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
                     key={amount}
                     onClick={() => handlePresetClick(amount)}
                     className={`
-                      py-2 px-1 rounded-lg text-sm font-medium transition-all
+                      py-2 px-1 rounded-lg text-sm font-medium transition-all cursor-pointer
                       ${selectedAmount === amount
-                        ? 'bg-pink-500 text-white shadow-md'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        ? 'bg-[var(--accent-purple)] text-[var(--text-inverse)] shadow-md'
+                        : 'bg-[var(--surface-sunken)] text-[var(--text-primary)] hover:bg-[var(--border)]'
                       }
                     `}
                   >
@@ -201,15 +196,14 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
               </div>
             </div>
 
-            {/* Custom Amount */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                 O ingresa un monto personalizado
               </label>
               <div className="relative">
                 <Coins
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--warning)]"
                 />
                 <Input
                   type="text"
@@ -222,9 +216,8 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
               </div>
             </div>
 
-            {/* Message */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                 <MessageSquare size={14} className="inline mr-1" />
                 Mensaje opcional
               </label>
@@ -233,21 +226,19 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Escribe un mensaje de apoyo..."
                 maxLength={200}
-                className="w-full h-20 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent placeholder:text-slate-400"
+                className="w-full h-20 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-primary)] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-purple)] focus:border-transparent placeholder:text-[var(--text-tertiary)]"
               />
-              <p className="text-xs text-slate-500 text-right mt-1">
+              <p className="text-xs text-[var(--text-tertiary)] text-right mt-1">
                 {message.length}/200
               </p>
             </div>
 
-            {/* Error */}
             {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+              <div className="mb-4 p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg">
+                <p className="text-sm text-[var(--error)] text-center">{error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
             <Button
               onClick={handleSendTip}
               disabled={isLoading || getAmount() < 1}
@@ -266,27 +257,26 @@ export default function TipButton({ chapterId, authorName, authorId, onTipSent }
             </Button>
           </>
         ) : (
-          /* Success State */
           <div className="text-center py-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 mb-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[var(--success)]/20 text-[var(--success)] mb-6">
               <Check size={40} />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
               ¡Propina Enviada!
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-2">
+            <p className="text-[var(--text-secondary)] mb-2">
               Has enviado{' '}
-              <span className="font-bold text-pink-500">
+              <span className="font-bold text-[var(--accent-purple)]">
                 {getAmount().toLocaleString()} InkCoins
               </span>{' '}
               a {authorName}
             </p>
             {message && (
-              <p className="text-sm text-slate-500 dark:text-slate-500 italic mb-4">
+              <p className="text-sm text-[var(--text-tertiary)] italic mb-4">
                 &ldquo;{message}&rdquo;
               </p>
             )}
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--text-secondary)]">
               Nuevo saldo: <span className="font-bold">{userBalance?.toLocaleString()} IC</span>
             </p>
             <Button

@@ -1,101 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import dbConnect from '@/lib/mongoose';
+import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 
-// GET /api/admin/moderation - Get reported content
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-
-    if (!session?.user?.id || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    if (!session?.user || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'pending';
+    await dbConnect();
+    const url = new URL(request.url);
+    const filter: Record<string, unknown> = {};
 
-    const where: any = {};
-    if (status !== 'all') {
-      if (status === 'hidden') {
-        where.isHidden = true;
-      } else if (status === 'pending') {
-        where.isHidden = true;
-        where.hiddenReason = 'reported';
-      } else {
-        where.status = status.toUpperCase();
-      }
+    const status = url.searchParams.get('status');
+    if (status === 'pending_review') {
+      filter.requiresReview = true;
+    } else if (status === 'hidden') {
+      filter.isHidden = true;
     }
 
-    const comments = await prisma.comment.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            email: true,
-          },
-        },
-        chapter: {
-          select: {
-            id: true,
-            chapterNumber: true,
-            manga: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
-          },
-        },
-        likes: {
-          select: {
-            id: true,
-            userId: true,
-            user: {
-              select: {
-                username: true,
-              },
-            },
-          },
-          take: 5,
-        },
-        _count: {
-          select: {
-            likes: true,
-            replies: true,
-          },
-        },
-      },
-    });
+    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 100);
 
-    // Format reports data
-    const reports = comments.map((comment) => ({
-      id: comment.id,
-      content: comment.content,
-      userId: comment.userId,
-      userName: comment.user.displayName || comment.user.username,
-      userEmail: comment.user.email,
-      chapterId: comment.chapterId,
-      mangaTitle: comment.chapter.manga.title,
-      chapterNumber: comment.chapter.chapterNumber,
-      reportCount: Math.max(1, comment._count.likes - comment._count.replies), // Simulated report count
-      status: comment.isHidden ? 'pending' : 'approved',
-      isDeleted: comment.isDeleted,
-      createdAt: comment.createdAt.toISOString(),
-      likesCount: comment._count.likes,
-      repliesCount: comment._count.replies,
-      reports: [], // Would be populated from a real reports table
-    }));
+    const [comments, total] = await Promise.all([
+      CommentModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      CommentModel.countDocuments(filter),
+    ]);
 
-    return NextResponse.json({ reports });
+    return NextResponse.json({ comments, total, page, totalPages: Math.ceil(total / limit) });
   } catch (error) {
-    console.error('Error fetching moderation reports:', error);
+    console.error('Error fetching moderation comments:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

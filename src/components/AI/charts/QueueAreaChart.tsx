@@ -12,6 +12,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+function getChartColors() {
+  if (typeof document === 'undefined') return { grid: '#e5e5e5', axis: '#a3a3a3', text: '#6b6b6b' };
+  const style = getComputedStyle(document.documentElement);
+  return {
+    grid: style.getPropertyValue('--border').trim() || '#e5e5e5',
+    axis: style.getPropertyValue('--text-tertiary').trim() || '#a3a3a3',
+    text: style.getPropertyValue('--text-secondary').trim() || '#6b6b6b',
+  };
+}
+
 export interface QueueAreaChartDataPoint {
   time: string;
   high?: number;
@@ -50,26 +60,26 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     const total = payload.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
     
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg">
-        <p className="text-slate-300 text-xs mb-2">{label}</p>
+      <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg p-3 shadow-lg">
+        <p className="text-[var(--text-secondary)] text-xs mb-2">{label}</p>
         <div className="space-y-1">
           {payload.map((item: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4">
+            <div key={item.name || `tooltip-${index}`} className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-slate-300 text-xs">{item.name}</span>
+                <span className="text-[var(--text-secondary)] text-xs">{item.name}</span>
               </div>
-              <span className="text-white font-medium text-xs">{item.value}</span>
+              <span className="text-[var(--text-primary)] font-medium text-xs">{item.value}</span>
             </div>
           ))}
         </div>
-        <div className="border-t border-slate-700 mt-2 pt-2">
+        <div className="border-t border-[var(--border)] mt-2 pt-2">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs">Total</span>
-            <span className="text-white font-medium text-xs">{total}</span>
+            <span className="text-[var(--text-tertiary)] text-xs">Total</span>
+            <span className="text-[var(--text-primary)] font-medium text-xs">{total}</span>
           </div>
         </div>
       </div>
@@ -84,12 +94,12 @@ const CustomLegend = ({ payload }: any) => {
   return (
     <div className="flex flex-wrap justify-center gap-4 mt-2">
       {payload.map((entry: any, index: number) => (
-        <div key={`legend-${index}`} className="flex items-center gap-2">
+        <div key={entry.value || `legend-${index}`} className="flex items-center gap-2">
           <div
             className="w-3 h-3 rounded"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-slate-300 text-xs">{entry.value}</span>
+          <span className="text-[var(--text-secondary)] text-xs">{entry.value}</span>
         </div>
       ))}
     </div>
@@ -102,6 +112,8 @@ export function QueueAreaChart({
   showMedium = true,
   showLow = true,
 }: QueueAreaChartProps) {
+  const colors = getChartColors();
+
   return (
     <ResponsiveContainer width="100%" height={250}>
       <AreaChart
@@ -122,19 +134,19 @@ export function QueueAreaChart({
             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.2} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-        <XAxis
-          dataKey="time"
-          tick={{ fill: "#94a3b8", fontSize: 11 }}
-          axisLine={{ stroke: "#475569" }}
-          tickLine={{ stroke: "#475569" }}
-        />
-        <YAxis
-          tick={{ fill: "#94a3b8", fontSize: 11 }}
-          axisLine={{ stroke: "#475569" }}
-          tickLine={{ stroke: "#475569" }}
-          allowDecimals={false}
-        />
+      <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+      <XAxis
+        dataKey="time"
+        tick={{ fill: colors.text, fontSize: 11 }}
+        axisLine={{ stroke: colors.axis }}
+        tickLine={{ stroke: colors.axis }}
+      />
+      <YAxis
+        tick={{ fill: colors.text, fontSize: 11 }}
+        axisLine={{ stroke: colors.axis }}
+        tickLine={{ stroke: colors.axis }}
+        allowDecimals={false}
+      />
         <Tooltip content={<CustomTooltip />} />
         <Legend content={<CustomLegend />} />
         {showHigh && (

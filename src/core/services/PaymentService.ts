@@ -85,7 +85,7 @@ export class PaymentService {
     }
 
     // Execute atomic transaction
-    const [tip, newSenderBalance] = await prisma.$transaction(async (tx) => {
+    const [tip, newSenderBalance] = await prisma.$transaction(async (tx: any) => {
       // Deduct from sender
       const senderUpdated = await tx.user.update({
         where: { id: fromUserId },
@@ -291,7 +291,7 @@ export class PaymentService {
     const authorId = chapter.manga.authorId;
 
     // Execute atomic transaction
-    const [contribution, newChapter] = await prisma.$transaction(async (tx) => {
+    const [contribution, newChapter] = await prisma.$transaction(async (tx: any) => {
       // Check if user already contributed
       const existingContribution = await tx.crowdfundingContribution.findUnique({
         where: {
@@ -430,7 +430,7 @@ export class PaymentService {
       },
     });
 
-    return contributions.map(c => ({
+    return contributions.map((c: any) => ({
       ...c,
       user: c.isAnonymous ? null : c.user,
     })) as ContributionWithRelations[];

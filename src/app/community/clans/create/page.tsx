@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Navbar from '@/components/Layout/Navbar';
 import { ArrowLeft, Users, ImageIcon, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function CreateClanPage() {
@@ -18,10 +17,18 @@ export default function CreateClanPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Redirect if not authenticated
-  if (status === 'unauthenticated') {
-    router.push('/auth/login?callbackUrl=/community/clans/create');
-    return null;
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login?callbackUrl=/community/clans/create');
+    }
+  }, [status, router]);
+
+  if (status === 'loading' || status === 'unauthenticated') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent-purple" />
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,10 +79,9 @@ export default function CreateClanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary pb-12">
-      <Navbar />
+    <div className="bg-background font-sans text-fg-primary pb-12">
 
-      {/* Header */}
+    {/* Header */}
       <div className="bg-secondary border-b border-custom">
         <div className="max-w-3xl mx-auto px-6 py-8">
           <Link
@@ -201,7 +207,7 @@ export default function CreateClanPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-accent-purple hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-[var(--text-primary)] px-6 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent-purple/20"
+              className="flex-1 bg-accent-purple hover:bg-[var(--accent-purple-hover)] disabled:opacity-50 disabled:cursor-not-allowed text-[var(--text-primary)] px-6 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent-purple/20"
             >
               {loading ? (
                 <>

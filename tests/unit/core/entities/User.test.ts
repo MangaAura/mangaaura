@@ -193,7 +193,7 @@ describe('User Entity', () => {
           if (args.length === 0) {
             super(today);
           } else {
-            super(...args);
+            super(...(args as [string | number | Date]));
           }
         }
         static now() {

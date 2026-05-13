@@ -23,47 +23,44 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; retry
   const windowStart = new Date(now.getTime() - 60000); // 1 minuto atrás
 
   // Buscar o crear registro de rate limit
+  const identifier = `comment:${userId}`;
   let rateLimit = await prisma.rateLimit.findUnique({
-    where: { userId },
+    where: { identifier },
   });
 
   if (!rateLimit) {
     rateLimit = await prisma.rateLimit.create({
       data: {
-        userId,
-        action: 'COMMENT',
-        windowStart: now,
-        lastActionAt: now,
-        count: 0,
+        identifier,
+        count: 1,
+        resetAt: new Date(now.getTime() + 60000),
       },
     });
+    return { allowed: true };
   }
 
   // Reiniciar ventana si ha pasado más de 1 minuto
-  if (rateLimit.windowStart < windowStart) {
+  if (rateLimit.resetAt < now) {
     await prisma.rateLimit.update({
-      where: { userId },
+      where: { identifier },
       data: {
-        windowStart: now,
-        lastActionAt: now,
         count: 1,
+        resetAt: new Date(now.getTime() + 60000),
       },
     });
     return { allowed: true };
   }
 
   // Verificar si ya comentó en los últimos 60 segundos
-  const timeSinceLastComment = now.getTime() - rateLimit.lastActionAt.getTime();
-  if (timeSinceLastComment < 60000) {
-    const retryAfter = Math.ceil((60000 - timeSinceLastComment) / 1000);
-    return { allowed: false, retryAfter };
+  if (rateLimit.count >= 1) {
+    const retryAfter = Math.ceil((rateLimit.resetAt.getTime() - now.getTime()) / 1000);
+    return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
   }
 
   // Actualizar última acción
   await prisma.rateLimit.update({
-    where: { userId },
+    where: { identifier },
     data: {
-      lastActionAt: now,
       count: { increment: 1 },
     },
   });
@@ -88,7 +85,7 @@ function checkModeration(content: string): { isClean: boolean; flaggedWords: str
 function extractMentions(content: string): string[] {
   const mentionRegex = /@([a-zA-Z0-9_]+)/g;
   const mentions = content.match(mentionRegex) || [];
-  return mentions.map(m => m.substring(1)); // Remover el @
+  return mentions.map((m: any) => m.substring(1)); // Remover el @
 }
 
 // GET /api/chapters/[id]/comments - Listar comentarios
@@ -99,9 +96,9 @@ export async function GET(
   try {
     const { id: chapterId } = await params;
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const sortBy = searchParams.get('sortBy') || 'newest'; // 'newest', 'oldest', 'popular'
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')));
+    const sortBy = searchParams.get('sortBy') || 'newest';
 
     // Verificar que el capítulo existe
     const chapter = await prisma.chapter.findUnique({
@@ -117,9 +114,11 @@ export async function GET(
     }
 
     // Configurar ordenamiento
-    let orderBy: any = { createdAt: 'desc' };
-    if (sortBy === 'oldest') orderBy = { createdAt: 'asc' };
-    if (sortBy === 'popular') orderBy = [{ likesCount: 'desc' }, { createdAt: 'desc' }];
+    const orderBy: Record<string, 'asc' | 'desc'> | Record<string, 'asc' | 'desc'>[] = sortBy === 'oldest'
+      ? { createdAt: 'asc' }
+      : sortBy === 'popular'
+        ? [{ likesCount: 'desc' }, { createdAt: 'desc' }]
+        : { createdAt: 'desc' };
 
     // Obtener comentarios raíz (sin parentId)
     const comments = await prisma.comment.findMany({
@@ -186,15 +185,15 @@ export async function GET(
       const likes = await prisma.commentLike.findMany({
         where: {
           userId: session.user.id,
-          commentId: { in: comments.flatMap(c => [c.id, ...c.replies.map(r => r.id)]) },
+          commentId: { in: comments.flatMap((c: any) => [c.id, ...c.replies.map((r: any) => r.id)]) },
         },
         select: { commentId: true },
       });
-      userLikes = likes.map(l => l.commentId);
+      userLikes = likes.map((l: any) => l.commentId);
     }
 
     // Transformar respuesta
-    const transformedComments = comments.map(comment => ({
+    const transformedComments = comments.map((comment: any) => ({
       id: comment.id,
       content: comment.isHidden ? '[Contenido oculto por moderación]' : comment.content,
       isHidden: comment.isHidden,
@@ -210,7 +209,7 @@ export async function GET(
         avatarUrl: comment.user.avatarUrl,
         level: comment.user.level,
       },
-      replies: comment.replies.map(reply => ({
+      replies: comment.replies.map((reply: any) => ({
         id: reply.id,
         content: reply.isHidden ? '[Contenido oculto por moderación]' : reply.content,
         isHidden: reply.isHidden,
@@ -400,27 +399,26 @@ export async function POST(
 
       // Crear registros de mención
       await prisma.commentMention.createMany({
-        data: mentionedUsers.map(user => ({
+        data: mentionedUsers.map((user: any) => ({
           commentId: comment.id,
           mentionedUserId: user.id,
         })),
       });
 
-      // Notificar a usuarios mencionados
-      for (const mentionedUser of mentionedUsers) {
-        if (mentionedUser.id !== session.user.id) {
-          try {
-            await notificationService.notifyMention(
-              mentionedUser.id,
-              comment,
-              comment.user,
-              mangaTitle
-            );
-          } catch (notifyError) {
-            console.error('Error sending mention notification:', notifyError);
-          }
-        }
-      }
+      // Notificar a usuarios mencionados en paralelo
+      const mentionNotifications = mentionedUsers
+        .filter((u: { id: string }) => u.id !== session.user.id)
+        .map((mentionedUser: { id: string; username: string }) =>
+          notificationService.notifyMention(
+            mentionedUser.id,
+            comment,
+            comment.user,
+            mangaTitle
+          ).catch((notifyError: unknown) => {
+            console.error(`Error notifying ${mentionedUser.username}:`, notifyError);
+          })
+        );
+      await Promise.allSettled(mentionNotifications);
     }
 
     return NextResponse.json({

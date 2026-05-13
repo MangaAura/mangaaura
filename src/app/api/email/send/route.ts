@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import { emailService } from '@/core/services/EmailService';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { z } from 'zod';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // ============================================================================
 // Schema de validación
@@ -70,6 +71,16 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const identifier = session?.user?.id || ip;
+    const rlResult = await rateLimit(getRateLimitKey('email-send', identifier), 10, 3600);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
     }
 
     // Verificar que sea admin
@@ -245,7 +256,7 @@ async function handleBatchEmail(body: unknown, adminId: string) {
 
   // Agregar emails a la cola con delay entre ellos
   const results = await Promise.all(
-    emails.map(async (email, index) => {
+    emails.map(async (email: any, index: any) => {
       try {
         await queue.addEmailJob(
           'custom',
@@ -273,8 +284,8 @@ async function handleBatchEmail(body: unknown, adminId: string) {
     })
   );
 
-  const queued = results.filter((r) => r.status === 'queued').length;
-  const failed = results.filter((r) => r.status === 'failed').length;
+  const queued = results.filter((r: any) => r.status === 'queued').length;
+  const failed = results.filter((r: any) => r.status === 'failed').length;
 
   return NextResponse.json({
     success: true,
@@ -292,7 +303,7 @@ async function handleBatchEmail(body: unknown, adminId: string) {
  * GET /api/email/send
  * Obtiene estadísticas de la cola de emails
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     // Verificar autenticación
     const session = await auth();
@@ -301,6 +312,16 @@ export async function GET() {
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const identifier = session?.user?.id || ip;
+    const rlResult = await rateLimit(getRateLimitKey('email-send', identifier), 10, 3600);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
     }
 
     // Verificar que sea admin

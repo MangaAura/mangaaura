@@ -1,12 +1,12 @@
-import { prisma } from '@/lib/prisma';
+import { DomainError } from '../../../core/errors/DomainError';
 
-interface UpdateClanScoreInput {
+export interface UpdateClanScoreInput {
   clanId: string;
   userId: string;
   scoreToAdd: number;
 }
 
-interface UpdateClanScoreOutput {
+export interface UpdateClanScoreOutput {
   clan: {
     id: string;
     totalScore: number;
@@ -18,49 +18,38 @@ interface UpdateClanScoreOutput {
   };
 }
 
+export interface IClanScoreRepository {
+  findMembership(clanId: string, userId: string): Promise<{ id: string; contributedScore: number } | null>;
+  addScore(clanId: string, membershipId: string, scoreToAdd: number): Promise<UpdateClanScoreOutput>;
+}
+
 export class UpdateClanScoreUseCase {
+  constructor(private readonly clanRepo: IClanScoreRepository) {}
+
   async execute(input: UpdateClanScoreInput): Promise<UpdateClanScoreOutput> {
     const { clanId, userId, scoreToAdd } = input;
 
-    // Check if user is a member of this clan
-    const membership = await prisma.clanMembership.findFirst({
-      where: {
-        clanId,
-        userId,
-      },
-    });
-
-    if (!membership) {
-      throw new Error('User is not a member of this clan');
+    if (scoreToAdd <= 0) {
+      throw new InvalidScoreError();
     }
 
-    // Update clan and membership scores in a transaction
-    const [updatedClan, updatedMembership] = await prisma.$transaction([
-      prisma.clan.update({
-        where: { id: clanId },
-        data: {
-          totalScore: { increment: scoreToAdd },
-          monthlyScore: { increment: scoreToAdd },
-        },
-      }),
-      prisma.clanMembership.update({
-        where: { id: membership.id },
-        data: {
-          contributedScore: { increment: scoreToAdd },
-        },
-      }),
-    ]);
+    const membership = await this.clanRepo.findMembership(clanId, userId);
+    if (!membership) {
+      throw new NotMemberError();
+    }
 
-    return {
-      clan: {
-        id: updatedClan.id,
-        totalScore: updatedClan.totalScore,
-        monthlyScore: updatedClan.monthlyScore,
-      },
-      membership: {
-        id: updatedMembership.id,
-        contributedScore: updatedMembership.contributedScore,
-      },
-    };
+    return this.clanRepo.addScore(clanId, membership.id, scoreToAdd);
   }
+}
+
+class NotMemberError extends DomainError {
+  readonly code = 'NOT_CLAN_MEMBER';
+  readonly isOperational = true;
+  constructor() { super('El usuario no es miembro de este clan'); }
+}
+
+class InvalidScoreError extends DomainError {
+  readonly code = 'INVALID_SCORE';
+  readonly isOperational = true;
+  constructor() { super('El score debe ser mayor a 0'); }
 }

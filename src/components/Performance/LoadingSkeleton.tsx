@@ -11,7 +11,7 @@ function cn(...inputs: ClassValue[]) {
 // Base loading skeleton component
 export function LoadingSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("animate-pulse bg-slate-200 dark:bg-slate-800 rounded", className)} />
+    <div className={cn("animate-pulse bg-[var(--surface-elevated)] rounded", className)} />
   );
 }
 
@@ -43,10 +43,10 @@ export function MangaCardSkeleton({ variant = 'default', className }: MangaCardS
 
   return (
     <Shimmer className={cn("w-full rounded-lg", className)}>
-      <div className={cn("bg-slate-200 dark:bg-slate-800 rounded-lg", variants[variant])} />
+      <div className={cn("bg-[var(--surface-elevated)] rounded-lg", variants[variant])} />
       <div className="mt-3 space-y-2">
-        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
-        <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+        <div className="h-4 bg-[var(--surface-elevated)] rounded w-3/4" />
+        <div className="h-3 bg-[var(--surface-elevated)] rounded w-1/2" />
       </div>
     </Shimmer>
   );
@@ -75,7 +75,7 @@ export function MangaCardGridSkeleton({
   return (
     <div className={cn("grid gap-4", gridCols[columns as keyof typeof gridCols] || gridCols[6], className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <MangaCardSkeleton key={i} />
+        <MangaCardSkeleton key={`skeleton-${i}`} />
       ))}
     </div>
   );
@@ -89,22 +89,22 @@ export function ReaderSkeleton({ className }: { className?: string }) {
   return (
     <Shimmer className={cn("w-full h-full flex flex-col", className)}>
       {/* Reader header */}
-      <div className="h-14 bg-slate-200 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 flex items-center px-4 gap-4">
-        <div className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded" />
-        <div className="flex-1 h-4 bg-slate-300 dark:bg-slate-700 rounded w-1/3" />
-        <div className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded" />
+      <div className="h-14 bg-[var(--surface-elevated)] border-b border-[var(--border)] flex items-center px-4 gap-4">
+        <div className="w-8 h-8 bg-[var(--surface-sunken)] rounded" />
+        <div className="flex-1 h-4 bg-[var(--surface-sunken)] rounded w-1/3" />
+        <div className="w-8 h-8 bg-[var(--surface-sunken)] rounded" />
       </div>
       
       {/* Page content */}
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl aspect-[2/3] bg-slate-200 dark:bg-slate-800 rounded-lg" />
+        <div className="w-full max-w-4xl aspect-[2/3] bg-[var(--surface-elevated)] rounded-lg" />
       </div>
       
       {/* Reader footer */}
-      <div className="h-12 bg-slate-200 dark:bg-slate-800 border-t border-slate-300 dark:border-slate-700 flex items-center justify-center px-4 gap-4">
-        <div className="w-24 h-8 bg-slate-300 dark:bg-slate-700 rounded" />
-        <div className="flex-1 max-w-md h-2 bg-slate-300 dark:bg-slate-700 rounded-full" />
-        <div className="w-24 h-8 bg-slate-300 dark:bg-slate-700 rounded" />
+      <div className="h-12 bg-[var(--surface-elevated)] border-t border-[var(--border)] flex items-center justify-center px-4 gap-4">
+        <div className="w-24 h-8 bg-[var(--surface-sunken)] rounded" />
+        <div className="flex-1 max-w-md h-2 bg-[var(--surface-sunken)] rounded-full" />
+        <div className="w-24 h-8 bg-[var(--surface-sunken)] rounded" />
       </div>
     </Shimmer>
   );
@@ -114,13 +114,13 @@ export function ReaderSkeleton({ className }: { className?: string }) {
 export function ReaderSidebarSkeleton({ className }: { className?: string }) {
   return (
     <Shimmer className={cn("w-80 h-full flex flex-col", className)}>
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-3/4 mb-2" />
-        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+      <div className="p-4 border-b border-[var(--border)]">
+        <div className="h-6 bg-[var(--surface-elevated)] rounded w-3/4 mb-2" />
+        <div className="h-4 bg-[var(--surface-elevated)] rounded w-1/2" />
       </div>
       <div className="flex-1 p-4 space-y-3">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-10 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div key={`skeleton-${i}`} className="h-10 bg-[var(--surface-elevated)] rounded" />
         ))}
       </div>
     </Shimmer>
@@ -140,14 +140,14 @@ export function ChapterListSkeleton({ count = 10, className }: ChapterListSkelet
   return (
     <div className={cn("space-y-2", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <Shimmer key={i} className="w-full">
-          <div className="h-12 bg-slate-200 dark:bg-slate-800 rounded-lg flex items-center px-4 gap-4">
-            <div className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded" />
+        <Shimmer key={`skeleton-${i}`} className="w-full">
+          <div className="h-12 bg-[var(--surface-elevated)] rounded-lg flex items-center px-4 gap-4">
+            <div className="w-8 h-8 bg-[var(--surface-sunken)] rounded" />
             <div className="flex-1">
-              <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-1/3 mb-1" />
-              <div className="h-3 bg-slate-300 dark:bg-slate-700 rounded w-1/4" />
+              <div className="h-4 bg-[var(--surface-sunken)] rounded w-1/3 mb-1" />
+              <div className="h-3 bg-[var(--surface-sunken)] rounded w-1/4" />
             </div>
-            <div className="w-16 h-6 bg-slate-300 dark:bg-slate-700 rounded" />
+            <div className="w-16 h-6 bg-[var(--surface-sunken)] rounded" />
           </div>
         </Shimmer>
       ))}
@@ -162,18 +162,18 @@ export function ChapterListSkeleton({ count = 10, className }: ChapterListSkelet
 export function CommentSkeleton({ className }: { className?: string }) {
   return (
     <Shimmer className={cn("flex gap-3 p-3", className)}>
-      <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex-shrink-0" />
+      <div className="w-10 h-10 rounded-full bg-[var(--surface-elevated)] flex-shrink-0" />
       <div className="flex-1 space-y-2">
         <div className="flex items-center gap-2">
-          <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-4 w-32 bg-[var(--surface-elevated)] rounded" />
+          <div className="h-3 w-16 bg-[var(--surface-elevated)] rounded" />
         </div>
-        <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded" />
-        <div className="h-3 w-2/3 bg-slate-200 dark:bg-slate-800 rounded" />
+        <div className="h-3 w-full bg-[var(--surface-elevated)] rounded" />
+        <div className="h-3 w-2/3 bg-[var(--surface-elevated)] rounded" />
         <div className="flex gap-4 pt-1">
-          <div className="h-6 w-12 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-6 w-12 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-6 w-12 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-6 w-12 bg-[var(--surface-elevated)] rounded" />
+          <div className="h-6 w-12 bg-[var(--surface-elevated)] rounded" />
+          <div className="h-6 w-12 bg-[var(--surface-elevated)] rounded" />
         </div>
       </div>
     </Shimmer>
@@ -184,7 +184,7 @@ export function CommentListSkeleton({ count = 5, className }: { count?: number; 
   return (
     <div className={cn("space-y-4", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <CommentSkeleton key={i} />
+        <CommentSkeleton key={`skeleton-${i}`} />
       ))}
     </div>
   );
@@ -198,29 +198,29 @@ export function UserProfileSkeleton({ className }: { className?: string }) {
   return (
     <Shimmer className={cn("space-y-6", className)}>
       {/* Cover */}
-      <div className="h-32 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+      <div className="h-32 bg-[var(--surface-elevated)] rounded-lg" />
       
       {/* Avatar and info */}
       <div className="flex items-center gap-4 px-4">
-        <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 -mt-10 border-4 border-white dark:border-slate-900" />
+        <div className="w-20 h-20 rounded-full bg-[var(--surface-elevated)] -mt-10 border-4 border-[var(--surface)]" />
         <div className="flex-1 space-y-2">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-6 w-48 bg-[var(--surface-elevated)] rounded" />
+          <div className="h-4 w-32 bg-[var(--surface-elevated)] rounded" />
         </div>
       </div>
       
       {/* Stats grid */}
       <div className="grid grid-cols-3 gap-4 px-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-24 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          <div key={`skeleton-${i}`} className="h-24 bg-[var(--surface-elevated)] rounded-lg" />
         ))}
       </div>
       
       {/* Content */}
       <div className="px-4 space-y-3">
-        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-full" />
-        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-5/6" />
-        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-4/6" />
+        <div className="h-4 bg-[var(--surface-elevated)] rounded w-full" />
+        <div className="h-4 bg-[var(--surface-elevated)] rounded w-5/6" />
+        <div className="h-4 bg-[var(--surface-elevated)] rounded w-4/6" />
       </div>
     </Shimmer>
   );
@@ -236,21 +236,21 @@ export function DashboardSkeleton({ className }: { className?: string }) {
       {/* Header stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          <div key={`skeleton-${i}`} className="h-24 bg-[var(--surface-elevated)] rounded-lg" />
         ))}
       </div>
       
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-lg" />
-        <div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+        <div className="h-64 bg-[var(--surface-elevated)] rounded-lg" />
+        <div className="h-64 bg-[var(--surface-elevated)] rounded-lg" />
       </div>
       
       {/* Table */}
       <div className="space-y-3">
-        <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded" />
+        <div className="h-10 bg-[var(--surface-elevated)] rounded" />
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-12 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div key={`skeleton-${i}`} className="h-12 bg-[var(--surface-elevated)] rounded" />
         ))}
       </div>
     </Shimmer>
@@ -265,15 +265,15 @@ export function LeaderboardSkeleton({ count = 10, className }: { count?: number;
   return (
     <div className={cn("space-y-2", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <Shimmer key={i} className="w-full">
-          <div className="flex items-center gap-4 p-3 rounded-lg bg-slate-200 dark:bg-slate-800 h-16">
-            <div className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded-full" />
-            <div className="w-10 h-10 rounded-full bg-slate-300 dark:bg-slate-700" />
+        <Shimmer key={`skeleton-${i}`} className="w-full">
+          <div className="flex items-center gap-4 p-3 rounded-lg bg-[var(--surface-elevated)] h-16">
+            <div className="w-8 h-8 bg-[var(--surface-sunken)] rounded-full" />
+            <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)]" />
             <div className="flex-1">
-              <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-1/3 mb-1" />
-              <div className="h-3 bg-slate-300 dark:bg-slate-700 rounded w-1/4" />
+              <div className="h-4 bg-[var(--surface-sunken)] rounded w-1/3 mb-1" />
+              <div className="h-3 bg-[var(--surface-sunken)] rounded w-1/4" />
             </div>
-            <div className="w-16 h-6 bg-slate-300 dark:bg-slate-700 rounded" />
+            <div className="w-16 h-6 bg-[var(--surface-sunken)] rounded" />
           </div>
         </Shimmer>
       ))}
@@ -289,12 +289,12 @@ export function SearchResultsSkeleton({ count = 8, className }: { count?: number
   return (
     <div className={cn("space-y-4", className)}>
       {/* Search bar */}
-      <div className="h-12 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+      <div className="h-12 bg-[var(--surface-elevated)] rounded-lg" />
       
       {/* Filter tags */}
       <div className="flex gap-2">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-8 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
+          <div key={`skeleton-${i}`} className="h-8 w-20 bg-[var(--surface-elevated)] rounded-full" />
         ))}
       </div>
       
@@ -312,14 +312,14 @@ export function NotificationSkeleton({ count = 5, className }: { count?: number;
   return (
     <div className={cn("space-y-2", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <Shimmer key={i} className="w-full">
-          <div className="flex gap-3 p-3 rounded-lg bg-slate-200 dark:bg-slate-800">
-            <div className="w-10 h-10 rounded-full bg-slate-300 dark:bg-slate-700 flex-shrink-0" />
+        <Shimmer key={`skeleton-${i}`} className="w-full">
+          <div className="flex gap-3 p-3 rounded-lg bg-[var(--surface-elevated)]">
+            <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex-shrink-0" />
             <div className="flex-1 space-y-2">
-              <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-3/4" />
-              <div className="h-3 bg-slate-300 dark:bg-slate-700 rounded w-1/2" />
+              <div className="h-4 bg-[var(--surface-sunken)] rounded w-3/4" />
+              <div className="h-3 bg-[var(--surface-sunken)] rounded w-1/2" />
             </div>
-            <div className="w-16 h-6 bg-slate-300 dark:bg-slate-700 rounded" />
+            <div className="w-16 h-6 bg-[var(--surface-sunken)] rounded" />
           </div>
         </Shimmer>
       ))}
@@ -334,12 +334,12 @@ export function NotificationSkeleton({ count = 5, className }: { count?: number;
 export function PageSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("space-y-6 p-4", className)}>
-      <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/4" />
-      <div className="h-96 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+      <div className="h-8 bg-[var(--surface-elevated)] rounded w-1/4" />
+      <div className="h-96 bg-[var(--surface-elevated)] rounded-lg" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="h-48 bg-slate-200 dark:bg-slate-800 rounded-lg" />
-        <div className="h-48 bg-slate-200 dark:bg-slate-800 rounded-lg" />
-        <div className="h-48 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+        <div className="h-48 bg-[var(--surface-elevated)] rounded-lg" />
+        <div className="h-48 bg-[var(--surface-elevated)] rounded-lg" />
+        <div className="h-48 bg-[var(--surface-elevated)] rounded-lg" />
       </div>
     </div>
   );

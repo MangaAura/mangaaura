@@ -1,14 +1,10 @@
-/**
- * Notification Read API
- * 
- * POST /api/notifications/[id]/read - Marcar notificación como leída
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { notificationService } from '@/core/services/NotificationService';
+import { MarkNotificationReadUseCase } from '@/application/use-cases/notifications/MarkNotificationReadUseCase';
 
-// POST /api/notifications/[id]/read - Mark a notification as read
+const markNotificationReadUseCase = new MarkNotificationReadUseCase(notificationService);
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,10 +12,7 @@ export async function POST(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const { id: notificationId } = await params;
@@ -30,43 +23,29 @@ export async function POST(
       );
     }
 
-    // Marcar como leída
-    const notification = await notificationService.markAsRead(notificationId);
-
-    if (!notification) {
-      return NextResponse.json(
-        { error: 'Notificación no encontrada' },
-        { status: 404 }
-      );
-    }
-
-    // Verificar que la notificación pertenece al usuario
-    if (notification.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 403 }
-      );
-    }
-
-    // Obtener conteo actualizado
-    const unreadCount = await notificationService.getUnreadCount(session.user.id);
+    const result = await markNotificationReadUseCase.execute({
+      userId: session.user.id,
+      notificationId,
+    });
 
     return NextResponse.json({
-      success: true,
+      success: result.success,
       message: 'Notificación marcada como leída',
-      notificationId,
-      unreadCount,
+      notificationId: result.notificationId,
+      unreadCount: result.unreadCount,
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 'NOTIFICATION_NOT_FOUND') {
+      return NextResponse.json({ error: 'Notificación no encontrada' }, { status: 404 });
+    }
+    if (error?.code === 'UNAUTHORIZED') {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     console.error('Error marking notification as read:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
 
-// PUT /api/notifications/[id]/read - Alternative method (for compatibility)
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

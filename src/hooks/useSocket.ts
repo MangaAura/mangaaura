@@ -59,7 +59,7 @@ export function useSocket(options: UseSocketOptions = {}) {
 
         // Event listeners
         socket.on('connect', () => {
-          console.log('[Socket] Connected');
+          console.info('[Socket] Connected');
           setIsConnected(true);
           setTransport(socket.io.engine?.transport?.name || 'N/A');
           setError(null);
@@ -67,7 +67,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         });
 
         socket.on('disconnect', (reason) => {
-          console.log('[Socket] Disconnected:', reason);
+          console.info('[Socket] Disconnected:', reason);
           setIsConnected(false);
           onDisconnect?.(reason);
         });
@@ -80,7 +80,7 @@ export function useSocket(options: UseSocketOptions = {}) {
 
     socket.io.engine.on('upgrade', (transport) => {
       const name = typeof transport === 'string' ? transport : transport.name;
-      console.log('[Socket] Transport upgraded to:', name);
+      console.info('[Socket] Transport upgraded to:', name);
       setTransport(name);
     });
 
@@ -125,9 +125,9 @@ export function useSocket(options: UseSocketOptions = {}) {
     event: T,
     callback: ServerToClientEvents[T]
   ) => {
-    socketRef.current?.on(event, callback as any);
+    (socketRef.current?.on as any)(event, callback);
     return () => {
-      socketRef.current?.off(event, callback as any);
+      (socketRef.current?.off as any)(event, callback);
     };
   }, []);
 

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { ToggleFollowUseCase } from '@/application/use-cases/follows/ToggleFollowUseCase';
 
 const followSchema = z.object({
   followingId: z.string().uuid(),
   followingType: z.enum(['USER', 'MANGA']),
 });
+
+const toggleFollowUseCase = new ToggleFollowUseCase();
 
 // POST /api/follow - Toggle follow
 export async function POST(request: NextRequest) {
@@ -31,95 +33,18 @@ export async function POST(request: NextRequest) {
     }
 
     const { followingId, followingType } = result.data;
-    const followerId = session.user.id;
 
-    // Can't follow yourself
-    if (followingType === 'USER' && followingId === followerId) {
-      return NextResponse.json(
-        { error: 'No puedes seguirte a ti mismo' },
-        { status: 400 }
-      );
-    }
-
-    // Check if already following
-    const existingFollow = await prisma.follow.findUnique({
-      where: {
-        followerId_followingId_followingType: {
-          followerId,
-          followingId,
-          followingType,
-        },
-      },
+    const output = await toggleFollowUseCase.execute({
+      followerId: session.user.id,
+      targetId: followingId,
+      targetType: followingType,
     });
 
-    if (existingFollow) {
-      // Unfollow
-      await prisma.follow.delete({
-        where: {
-          followerId_followingId_followingType: {
-            followerId,
-            followingId,
-            followingType,
-          },
-        },
-      });
-
-      // Create activity
-      await prisma.activity.create({
-        data: {
-          userId: followerId,
-          activityType: followingType === 'USER' ? 'UNFOLLOW_USER' : 'UNFOLLOW_MANGA',
-          targetId: followingId,
-          targetType: followingType,
-          isPublic: true,
-        },
-      });
-
-      return NextResponse.json({
-        success: true,
-        isFollowing: false,
-        message: followingType === 'USER' ? 'Dejaste de seguir al usuario' : 'Dejaste de seguir el manga',
-      });
-    } else {
-      // Follow
-      await prisma.follow.create({
-        data: {
-          followerId,
-          followingId,
-          followingType,
-        },
-      });
-
-      // Create activity
-      await prisma.activity.create({
-        data: {
-          userId: followerId,
-          activityType: followingType === 'USER' ? 'FOLLOW_USER' : 'FOLLOW_MANGA',
-          targetId: followingId,
-          targetType: followingType,
-          isPublic: true,
-        },
-      });
-
-      // Notify the followed user/manga author
-      if (followingType === 'USER') {
-        await prisma.notification.create({
-          data: {
-            userId: followingId,
-            type: 'NEW_FOLLOWER',
-            title: 'Nuevo seguidor',
-            message: `${session.user.name || session.user.username} ha comenzado a seguirte`,
-            data: JSON.stringify({ followerId: session.user.id }),
-          },
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        isFollowing: true,
-        message: followingType === 'USER' ? 'Ahora sigues al usuario' : 'Ahora sigues el manga',
-      });
-    }
+    return NextResponse.json({
+      success: output.success,
+      isFollowing: output.isFollowing,
+      message: output.message,
+    });
   } catch (error) {
     console.error('Error toggling follow:', error);
     return NextResponse.json(
@@ -148,17 +73,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const follow = await prisma.follow.findUnique({
-      where: {
-        followerId_followingId_followingType: {
-          followerId: session.user.id,
-          followingId,
-          followingType,
-        },
-      },
-    });
+    const isFollowing = await import('@/core/services/FollowService').then(m => m.isFollowing({ followerId: session.user.id, followingId, followingType }));
 
-    return NextResponse.json({ isFollowing: !!follow });
+    return NextResponse.json({ isFollowing });
   } catch (error) {
     console.error('Error checking follow:', error);
     return NextResponse.json(

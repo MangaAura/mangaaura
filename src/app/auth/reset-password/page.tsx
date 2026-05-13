@@ -28,7 +28,7 @@ const resetPasswordSchema = z.object({
     .regex(/[a-z]/, 'Debe contener al menos una minúscula')
     .regex(/[0-9]/, 'Debe contener al menos un número'),
   confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
+}).refine((data: any) => data.password === data.confirmPassword, {
   message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],
 });
@@ -61,16 +61,16 @@ function Content() {
       } else {
         // Validar que coincidan
         if (value !== password) {
-          setValidationErrors((prev) => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden' }));
+          setValidationErrors((prev: any) => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden' }));
           return false;
         }
       }
-      setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
+      setValidationErrors((prev: any) => ({ ...prev, [field]: undefined }));
       return true;
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const message = err.errors[0]?.message || 'Campo inválido';
-        setValidationErrors((prev) => ({ ...prev, [field]: message }));
+    } catch (err: any) {
+  if (err instanceof z.ZodError) {
+  const message = (err as any).errors[0]?.message || 'Campo inválido';
+        setValidationErrors((prev: any) => ({ ...prev, [field]: message }));
         return false;
       }
       return false;
@@ -139,10 +139,10 @@ function Content() {
     // Validar campos
     try {
       resetPasswordSchema.parse({ password, confirmPassword });
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errors: { password?: string; confirmPassword?: string } = {};
-        err.errors.forEach((error) => {
+  } catch (err: any) {
+  if (err instanceof z.ZodError) {
+  const errors: { password?: string; confirmPassword?: string } = {};
+  (err as any).errors.forEach((error: any) => {
           const field = error.path[0] as 'password' | 'confirmPassword';
           errors[field] = error.message;
         });
@@ -206,7 +206,7 @@ function Content() {
   // Vista de token inválido
   if (formState === 'invalid_token') {
     return (
-      <div className="min-h-screen bg-primary font-sans text-fg-primary flex flex-col">
+      <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
         <div className="p-6">
           <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
             <ArrowLeft size={20} /> Volver al Inicio
@@ -228,9 +228,9 @@ function Content() {
               <div className="space-y-3">
                 <Link
                   href="/auth/forgot-password"
-                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-white font-semibold rounded-xl transition-colors"
-                >
-                  <KeyRound size={18} />
+className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
+          >
+            <KeyRound size={18} />
                   Solicitar nuevo enlace
                 </Link>
                 <Link
@@ -251,7 +251,7 @@ function Content() {
   const passwordStrength = getPasswordStrength(password);
 
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex flex-col">
+    <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
           <ArrowLeft size={20} /> Volver al Inicio
@@ -285,9 +285,9 @@ function Content() {
                 </p>
                 <Link
                   href="/auth/login"
-                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-white font-semibold rounded-xl transition-colors"
-                >
-                  <ArrowLeft size={18} />
+className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
+          >
+            <ArrowLeft size={18} />
                   Ir al inicio de sesión ahora
                 </Link>
               </div>
@@ -321,9 +321,9 @@ function Content() {
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           touched.password && validationErrors.password
-                            ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                            : touched.password && !validationErrors.password && password
-                            ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
+: touched.password && !validationErrors.password && password
+? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
                             : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
                         placeholder="Mínimo 8 caracteres"
@@ -349,7 +349,7 @@ function Content() {
                                 'flex-1 rounded-full transition-colors',
                                 passwordStrength.strength >= level
                                   ? passwordStrength.color
-                                  : 'bg-gray-200 dark:bg-gray-700'
+                                  : 'bg-[var(--border)]'
                               )}
                             />
                           ))}
@@ -363,9 +363,9 @@ function Content() {
                     )}
 
                     {touched.password && validationErrors.password && (
-                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {validationErrors.password}
+<p className="mt-1 text-xs text-[var(--error)] flex items-center gap-1">
+<AlertCircle className="w-3 h-3" />
+{validationErrors.password}
                       </p>
                     )}
                   </div>
@@ -384,9 +384,9 @@ function Content() {
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           touched.confirmPassword && validationErrors.confirmPassword
-                            ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                            : touched.confirmPassword && !validationErrors.confirmPassword && confirmPassword
-                            ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
+: touched.confirmPassword && !validationErrors.confirmPassword && confirmPassword
+? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
                             : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
                         placeholder="Repite tu contraseña"
@@ -401,7 +401,7 @@ function Content() {
                       </button>
                     </div>
                     {touched.confirmPassword && validationErrors.confirmPassword && (
-                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-[var(--error)] flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         {validationErrors.confirmPassword}
                       </p>
@@ -412,7 +412,7 @@ function Content() {
                   <button
                     type="submit"
                     disabled={formState === 'loading'}
-                    className="w-full bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {formState === 'loading' ? (
                       <>
@@ -465,7 +465,7 @@ function getPasswordStrength(password: string): { strength: number; label: strin
   if (/[^A-Za-z0-9]/.test(password)) strength++;
 
   const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte', 'Muy fuerte'];
-  const colors = ['bg-red-500', 'bg-red-400', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500', 'bg-emerald-500'];
+  const colors = ['bg-[var(--error)]', 'bg-[var(--error)]', 'bg-[var(--warning)]', 'bg-[var(--info)]', 'bg-[var(--success)]', 'bg-[var(--success)]'];
   
   return {
     strength,
@@ -476,7 +476,7 @@ function getPasswordStrength(password: string): { strength: number; label: strin
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex items-center justify-center">
+    <div className="min-h-screen bg-background font-sans text-fg-primary flex items-center justify-center">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
         <span>Cargando...</span>

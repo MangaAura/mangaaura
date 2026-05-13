@@ -45,13 +45,13 @@ export function CommentSection({ chapterId, mangaId, className }: CommentSection
   const totalComments = comments.length;
 
   return (
-    <div className={cn('bg-slate-900 rounded-xl', className)}>
+    <div className={cn('bg-[var(--surface)] rounded-xl', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-blue-500" />
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+<h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+        <MessageSquare className="w-5 h-5 text-[var(--info)]" />
           Comentarios
-          <span className="text-sm font-normal text-slate-500">
+          <span className="text-sm font-normal text-[var(--text-muted)]">
             ({totalComments})
           </span>
         </h2>
@@ -59,7 +59,7 @@ export function CommentSection({ chapterId, mangaId, className }: CommentSection
 
       {/* Formulario principal */}
       {session?.user && (
-        <div className="px-6 py-4 border-b border-slate-800">
+        <div className="px-6 py-4 border-b border-[var(--border)]">
           <CommentForm
             onSubmit={handleSubmit}
             placeholder="Comparte tus pensamientos sobre este capítulo..."
@@ -72,15 +72,15 @@ export function CommentSection({ chapterId, mangaId, className }: CommentSection
       <div className="px-6 py-4">
         {isLoading && comments.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
           </div>
         ) : error ? (
           <div className="text-center py-8">
-            <p className="text-red-400">{error}</p>
+            <p className="text-[var(--error)]">{error}</p>
           </div>
         ) : comments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-slate-500">Sé el primero en comentar</p>
+            <p className="text-[var(--text-muted)]">Sé el primero en comentar</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -103,7 +103,7 @@ export function CommentSection({ chapterId, mangaId, className }: CommentSection
               <button
                 onClick={loadMore}
                 disabled={isLoading}
-                className="w-full py-3 text-slate-400 hover:text-white text-sm transition-colors"
+                className="w-full py-3 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] text-sm transition-colors"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mx-auto" />

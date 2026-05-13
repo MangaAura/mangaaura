@@ -17,20 +17,20 @@ import {
   XCircle,
   Clock,
   Star,
-  TrendingUp,
   Filter,
   Grid3X3,
   List,
   ChevronRight,
-  Library
+  Library,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import Navbar from '@/components/Layout/Navbar';
+
 import { cn } from '@/lib/utils';
 
 const STATUS_FILTERS: { value: LibraryStatus | ''; label: string; icon: React.ElementType; color: string }[] = [
-  { value: '', label: 'Todos', icon: Library, color: 'text-[var(--text-secondary)]' },
-  { value: 'READING', label: 'Leyendo', icon: BookOpen, color: 'text-[var(--primary)]' },
+  { value: '', label: 'Todos', icon: Library, color: 'text-[var(--text-tertiary)]' },
+  { value: 'READING', label: 'Leyendo', icon: BookOpen, color: 'text-[var(--info)]' },
   { value: 'COMPLETED', label: 'Completado', icon: CheckCircle2, color: 'text-[var(--success)]' },
   { value: 'ON_HOLD', label: 'En pausa', icon: PauseCircle, color: 'text-[var(--warning)]' },
   { value: 'DROPPED', label: 'Abandonado', icon: XCircle, color: 'text-[var(--error)]' },
@@ -44,6 +44,37 @@ const SORT_OPTIONS = [
   { value: 'progress', label: 'Progreso' },
 ];
 
+function SkeletonGrid() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="flex flex-col gap-2">
+          <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-xl animate-pulse" />
+          <div className="h-4 bg-[var(--surface-sunken)] rounded animate-pulse w-3/4" />
+          <div className="h-3 bg-[var(--surface-sunken)] rounded animate-pulse w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SkeletonList() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 p-4 bg-[var(--surface)] rounded-xl">
+          <div className="w-16 h-20 bg-[var(--surface-sunken)] rounded-lg animate-pulse flex-shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-[var(--surface-sunken)] rounded animate-pulse w-1/3" />
+            <div className="h-3 bg-[var(--surface-sunken)] rounded animate-pulse w-1/4" />
+            <div className="h-2 bg-[var(--surface-sunken)] rounded animate-pulse w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function LibraryPage() {
   const { data: session, status } = useSession();
   const [statusFilter, setStatusFilter] = useState<LibraryStatus | ''>('');
@@ -52,64 +83,48 @@ export default function LibraryPage() {
 
   const { entries, isLoading, pagination } = useLibrary({
     status: statusFilter || undefined,
-    sort: sortBy as any,
+    sort: (sortBy ?? "popular") as "updatedAt" | "title" | "rating" | "progress" | undefined,
     page: 1,
     limit: 24,
   });
 
-  // Loading state
-  if (status === 'loading' || isLoading) {
-    return (
-      <div className="min-h-screen bg-[var(--background)]">
-        <Navbar />
-        <div className="pt-20 pb-10">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="mb-8">
-              <div className="h-8 w-48 bg-[var(--surface)] rounded animate-pulse" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="aspect-[3/4] bg-[var(--surface)] rounded-lg animate-pulse" />
-              ))}
-            </div>
-          </div>
+if (status === 'loading') {
+  return (
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--info)]" />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  // Not logged in
-  if (status === 'unauthenticated') {
-    return (
-      <div className="min-h-screen bg-[var(--background)]">
-        <Navbar />
-        <div className="pt-20 pb-10 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <Library className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Tu Biblioteca</h1>
-            <p className="text-[var(--text-secondary)] mb-6">Inicia sesión para ver tu biblioteca</p>
-            <Link href="/login">
-              <Button>Iniciar sesión</Button>
-            </Link>
-          </div>
-        </div>
+if (status === 'unauthenticated') {
+  return (
+    <div className="min-h-[60vh] bg-[var(--background)] text-[var(--text-primary)] pt-20 pb-10 flex items-center justify-center">
+      <div className="text-center">
+        <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" />
+        <h1 className="text-2xl font-bold mb-2">Tu Biblioteca</h1>
+        <p className="text-[var(--text-tertiary)] mb-6">Inicia sesión para ver tu biblioteca</p>
+        <Link href="/auth/login">
+          <Button className="px-8 py-2.5">Iniciar sesión</Button>
+        </Link>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <Navbar />
-
-      <div className="pt-20 pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <Library className="w-8 h-8 text-[var(--primary)]" />
-              <h1 className="text-3xl font-bold text-[var(--text-primary)]">Mi Biblioteca</h1>
+              <Library className="w-8 h-8 text-[var(--info)]" />
+              <h1 className="text-3xl font-extrabold">Mi Biblioteca</h1>
             </div>
-            <p className="text-[var(--text-secondary)]">
+            <p className="text-[var(--text-tertiary)]">
               {pagination?.total || 0} {pagination?.total === 1 ? 'manga' : 'mangas'} en tu biblioteca
             </p>
           </div>
@@ -117,59 +132,54 @@ export default function LibraryPage() {
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
-              {
-                label: 'Leyendo',
-                count: entries.filter(e => e.status === 'READING').length,
-                icon: BookOpen,
-                color: 'text-[var(--primary)]'
-              },
-              {
-                label: 'Completados',
-                count: entries.filter(e => e.status === 'COMPLETED').length,
-                icon: CheckCircle2,
-                color: 'text-[var(--success)]'
-              },
-              {
-                label: 'En pausa',
-                count: entries.filter(e => e.status === 'ON_HOLD').length,
-                icon: PauseCircle,
-                color: 'text-[var(--warning)]'
-              },
-              {
-                label: 'Por leer',
-                count: entries.filter(e => e.status === 'PLAN_TO_READ').length,
-                icon: Clock,
-                color: 'text-[var(--accent-purple)]'
-              },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-[var(--surface)]/50 rounded-xl p-4 border border-[var(--border)]">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                  <div>
-                    <p className="text-2xl font-bold text-[var(--text-primary)]">{stat.count}</p>
-                    <p className="text-sm text-[var(--text-secondary)]">{stat.label}</p>
+              { label: 'Leyendo', filter: 'READING' as LibraryStatus, icon: BookOpen, color: 'text-[var(--info)]' },
+              { label: 'Completados', filter: 'COMPLETED' as LibraryStatus, icon: CheckCircle2, color: 'text-[var(--success)]' },
+              { label: 'En pausa', filter: 'ON_HOLD' as LibraryStatus, icon: PauseCircle, color: 'text-[var(--warning)]' },
+              { label: 'Por leer', filter: 'PLAN_TO_READ' as LibraryStatus, icon: Clock, color: 'text-[var(--accent-purple)]' },
+            ].map((stat) => {
+              const count = pagination?.total
+                ? (statusFilter ? entries.filter(e => e.status === stat.filter).length : 0)
+                : 0;
+              const actualCount = !statusFilter || statusFilter === stat.filter
+                ? entries.filter(e => e.status === stat.filter).length
+                : entries.filter(e => e.status === stat.filter).length;
+              return (
+          <button
+            key={stat.label}
+            onClick={() => setStatusFilter(statusFilter === stat.filter ? '' : stat.filter)}
+            className={cn(
+              'card p-4 rounded-xl border border-[var(--border)] text-left transition-all hover:shadow-md cursor-pointer',
+              statusFilter === stat.filter && 'border-[var(--info)] bg-[var(--info)]/5'
+            )}
+          >
+                  <div className="flex items-center gap-3">
+                    <stat.icon className={cn('w-5 h-5', stat.color)} />
+                    <div>
+                      <p className="text-2xl font-bold">{actualCount}</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">{stat.label}</p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-[var(--border-strong)]">
-            {/* Status Filter */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mb-2 scrollbar-hide">
+          <div className="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mb-2 no-scrollbar">
               {STATUS_FILTERS.map((filter) => {
                 const Icon = filter.icon;
                 const isActive = statusFilter === filter.value;
+                if (!filter.value) return null;
                 return (
                   <button
                     key={filter.value}
-                    onClick={() => setStatusFilter(filter.value)}
+                    onClick={() => setStatusFilter(filter.value as LibraryStatus)}
                     className={cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+                      'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
                       isActive
-                        ? 'bg-blue-500 text-[var(--text-primary)]'
-                        : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
+                        ? 'bg-[var(--info)] text-[var(--text-inverse)] shadow-sm'
+                        : 'bg-[var(--surface)] text-[var(--text-tertiary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -177,14 +187,22 @@ export default function LibraryPage() {
                   </button>
                 );
               })}
+              {statusFilter && (
+                <button
+                  onClick={() => setStatusFilter('')}
+                  className="flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium bg-[var(--surface)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-all"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Limpiar
+                </button>
+              )}
             </div>
 
-            {/* Sort & View */}
             <div className="flex items-center gap-2 ml-auto">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm"
+                className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--info)]/30 focus:border-[var(--info)]"
               >
                 {SORT_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -192,30 +210,39 @@ export default function LibraryPage() {
               </select>
 
               <div className="flex items-center bg-[var(--surface)] rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={cn(
-                    'p-2 rounded transition-colors',
-                    viewMode === 'grid' ? 'bg-[var(--surface-sunken)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
-                  )}
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={cn(
-                    'p-2 rounded transition-colors',
-                    viewMode === 'list' ? 'bg-[var(--surface-sunken)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
-                  )}
-                >
+        <button
+          onClick={() => setViewMode('grid')}
+          className={cn(
+            'p-2 rounded transition-colors cursor-pointer',
+            viewMode === 'grid' ? 'bg-[var(--surface-sunken)] text-[var(--info)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+          )}
+          title="Vista de cuadrícula"
+          aria-label="Vista de cuadrícula"
+        >
+          <Grid3X3 className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setViewMode('list')}
+          className={cn(
+            'p-2 rounded transition-colors cursor-pointer',
+            viewMode === 'list' ? 'bg-[var(--surface-sunken)] text-[var(--info)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+          )}
+          title="Vista de lista"
+          aria-label="Vista de lista"
+        >
                   <List className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            viewMode === 'grid' ? <SkeletonGrid /> : <SkeletonList />
+          )}
+
           {/* Content */}
-          {entries.length > 0 ? (
+          {!isLoading && entries.length > 0 && (
             <>
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -231,25 +258,27 @@ export default function LibraryPage() {
                 </div>
               )}
             </>
-          ) : (
-            <div className="text-center py-16">
-              <Library className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          )}
+
+          {/* Empty State */}
+          {!isLoading && entries.length === 0 && (
+            <div className="text-center py-20">
+              <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" />
+              <h3 className="text-xl font-bold mb-2">
                 Tu biblioteca está vacía
               </h3>
-              <p className="text-[var(--text-secondary)] mb-6">
+              <p className="text-[var(--text-tertiary)] mb-6">
                 {statusFilter
                   ? `No tienes mangas con estado "${STATUS_FILTERS.find(f => f.value === statusFilter)?.label}"`
                   : 'Agrega mangas a tu biblioteca para empezar a leer'
                 }
               </p>
               <Link href="/browse">
-                <Button>Explorar mangas</Button>
+                <Button className="px-8 py-2.5">Explorar mangas</Button>
               </Link>
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }
@@ -261,44 +290,46 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
   return (
     <Link
       href={`/manga/${entry.manga.slug}`}
-      className="group block bg-[var(--surface)]/50 rounded-xl overflow-hidden border border-[var(--border)] hover:border-blue-500/50 transition-all"
+      className="group block card rounded-xl overflow-hidden border border-[var(--border)] hover:border-[var(--info)]/50 transition-all hover:shadow-lg"
     >
-      {/* Cover */}
       <div className="relative aspect-[3/4] overflow-hidden">
         <img
-          src={entry.manga.coverUrl || '/placeholder-manga.jpg'}
+          src={entry.manga.coverUrl || '/placeholder-manga.svg'}
           alt={entry.manga.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
         />
-        {/* Status Badge */}
-        <div className={`absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--background)]/80 backdrop-blur-sm text-xs font-medium ${statusConfig?.color || 'text-[var(--text-secondary)]'}`}>
+        <div className={cn(
+          'absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--surface)]/80 backdrop-blur-sm text-xs font-medium',
+          statusConfig?.color || 'text-[var(--text-tertiary)]'
+        )}>
           <StatusIcon className="w-3 h-3" />
         </div>
-        {/* Progress Bar */}
         {entry.progress > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--surface-sunken)]">
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--surface)]">
             <div
-              className="h-full bg-blue-500"
+              className="h-full bg-gradient-to-r from-[var(--info)] to-[var(--accent-purple)]"
               style={{ width: `${Math.min(100, entry.progress)}%` }}
             />
           </div>
         )}
       </div>
 
-      {/* Info */}
       <div className="p-3">
-        <h3 className="font-semibold text-[var(--text-primary)] text-sm line-clamp-1 group-hover:text-[var(--primary)] transition-colors">
+        <h3 className="font-bold text-sm line-clamp-1 group-hover:text-[var(--info)] transition-colors">
           {entry.manga.title}
         </h3>
-        <p className="text-xs text-[var(--text-secondary)] mt-1">
-          Cap. {entry.currentChapter} / {entry.totalChapters || '?'}
-        </p>
-        {entry.rating && (
-          <div className="flex items-center gap-1 mt-2">
-            <Star className="w-3 h-3 text-[var(--warning)] fill-amber-400" />
-            <span className="text-xs text-[var(--text-primary)]">{entry.rating}/10</span>
-          </div>
-        )}
+        <div className="flex justify-between items-center mt-1">
+          <p className="text-xs text-[var(--text-tertiary)]">
+            Cap. {entry.currentChapter} / {entry.totalChapters || '?'}
+          </p>
+          {entry.rating && (
+            <div className="flex items-center gap-1">
+              <Star className="w-3 h-3 text-[var(--warning)] fill-[var(--warning)]" />
+              <span className="text-xs font-bold">{entry.rating}/10</span>
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );
@@ -311,56 +342,56 @@ function LibraryListItem({ entry }: { entry: import('@/hooks/useLibrary').Librar
   return (
     <Link
       href={`/manga/${entry.manga.slug}`}
-      className="flex items-center gap-4 p-4 bg-[var(--surface)]/50 rounded-xl border border-[var(--border)] hover:border-blue-500/50 transition-all group"
+      className="flex items-center gap-4 p-4 card rounded-xl border border-[var(--border)] hover:border-[var(--info)]/50 transition-all group"
     >
-      {/* Cover */}
       <img
-        src={entry.manga.coverUrl || '/placeholder-manga.jpg'}
+        src={entry.manga.coverUrl || '/placeholder-manga.svg'}
         alt={entry.manga.title}
-        className="w-16 h-20 object-cover rounded-lg"
+        className="w-16 h-20 object-cover rounded-lg flex-shrink-0 bg-[var(--surface-sunken)]"
+        loading="lazy"
       />
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
+          <h3 className="font-bold group-hover:text-[var(--info)] transition-colors truncate">
             {entry.manga.title}
           </h3>
-          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${statusConfig?.color || 'text-[var(--text-secondary)]'} bg-[var(--background)]`}>
+          <span className={cn(
+            'flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-[var(--surface-sunken)]',
+            statusConfig?.color || 'text-[var(--text-tertiary)]'
+          )}>
             <StatusIcon className="w-3 h-3" />
             {statusConfig?.label}
           </span>
         </div>
-        <p className="text-sm text-[var(--text-secondary)]">{entry.manga.authorName}</p>
+        <p className="text-sm text-[var(--text-tertiary)]">{entry.manga.authorName}</p>
 
-        {/* Progress */}
         <div className="flex items-center gap-4 mt-2">
           <div className="flex-1 max-w-xs">
-            <div className="flex justify-between text-xs text-[var(--text-secondary)] mb-1">
+            <div className="flex justify-between text-xs text-[var(--text-tertiary)] mb-1">
               <span>Progreso</span>
               <span>{entry.progress}%</span>
             </div>
             <div className="h-1.5 bg-[var(--surface-sunken)] rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-500 rounded-full"
+                className="h-full bg-gradient-to-r from-[var(--info)] to-[var(--accent-purple)] rounded-full"
                 style={{ width: `${Math.min(100, entry.progress)}%` }}
               />
             </div>
           </div>
-          <span className="text-sm text-[var(--text-secondary)]">
+          <span className="text-sm text-[var(--text-tertiary)]">
             Cap. {entry.currentChapter} / {entry.totalChapters || '?'}
           </span>
           {entry.rating && (
             <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-[var(--warning)] fill-amber-400" />
-              <span className="text-sm text-[var(--text-primary)]">{entry.rating}</span>
+              <Star className="w-4 h-4 text-[var(--warning)] fill-[var(--warning)]" />
+              <span className="text-sm font-bold">{entry.rating}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Arrow */}
-      <ChevronRight className="w-5 h-5 text-[var(--text-tertiary)] group-hover:text-[var(--primary)] transition-colors" />
+      <ChevronRight className="w-5 h-5 text-[var(--text-tertiary)] group-hover:text-[var(--info)] transition-colors flex-shrink-0" />
     </Link>
   );
 }

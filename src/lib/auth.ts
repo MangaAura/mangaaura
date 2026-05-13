@@ -1,13 +1,15 @@
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 import { prisma } from './prisma';
 
 // Configuración compatible con NextAuth 5 beta
 export const authConfig = {
-  adapter: PrismaAdapter(prisma) as any,
+  trustHost: true,
+  adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 60, // 30 días
@@ -23,8 +25,8 @@ export const authConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     GitHub({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
     {
       id: 'credentials',
@@ -74,7 +76,7 @@ export const authConfig = {
     },
   ],
   callbacks: {
-    async signIn({ user, account, profile }: { user: any; account: any; profile?: any }) {
+    async signIn({ user, account, profile }: { user: any; account?: any; profile?: any }) {
       // Manejar usuarios OAuth
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
@@ -100,7 +102,7 @@ export const authConfig = {
             // Obtener avatar del proveedor OAuth
             let avatarUrl = user.image;
             if (!avatarUrl && account.provider === 'github' && profile) {
-              avatarUrl = (profile as any).avatar_url;
+              avatarUrl = profile.avatar_url;
             }
 
             const newUser = await prisma.user.create({
@@ -144,7 +146,7 @@ export const authConfig = {
       }
       return true;
     },
-    async jwt({ token, user, account }: { token: any; user: any; account: any }) {
+    async jwt({ token, user, account }: { token: any; user?: any; account?: any }) {
       if (user) {
         token.id = user.id;
         token.xpPoints = user.xpPoints || 0;
@@ -174,7 +176,7 @@ export const authConfig = {
 
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: any; token?: any }) {
       if (token && session.user) {
         session.user.id = token.id;
         session.user.xpPoints = token.xpPoints;
@@ -185,7 +187,7 @@ export const authConfig = {
     },
   },
   events: {
-    async signIn({ user, account }: { user: any; account: any }) {
+    async signIn({ user, account }: { user: any; account?: any }) {
       console.log(`[Auth] User ${user.email} signed in via ${account?.provider || 'credentials'}`);
     },
   },
@@ -193,5 +195,5 @@ export const authConfig = {
 };
 
 // Export for NextAuth 5 beta
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig as any);
 export default authConfig;

@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         const dateFilter = getDateForRange(timeRange);
 
         // Build where clause with type safety
-        const where: Parameters<typeof prisma.mangaSeries.findMany>[0]['where'] = {};
+        const where: any = {};
 
         if (genre) {
           where.tags = { contains: genre };
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
         ]);
 
         // Calculate ranks and transform data
-        const rankedMangas = mangas.map((manga, index) => ({
+        const rankedMangas = mangas.map((manga: any, index: any) => ({
           rank: (page - 1) * limit + index + 1,
           id: manga.id,
           title: manga.title,

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Settings, MessageSquare, AlertTriangle, Share2, Menu, X, ArrowLeft, MoreVertical, Coins, Moon, Sun, Monitor, Coffee } from 'lucide-react';
 import Link from 'next/link';
 import { TipButton, CrowdfundingWidget } from '@/components/Payments';
@@ -47,9 +48,11 @@ export default function ReaderLayout({
   allChapters,
   isAuthenticated
 }: ReaderLayoutProps) {
+  const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [theme, setTheme] = useState('night');
+  const [showComments, setShowComments] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen);
@@ -58,6 +61,27 @@ export default function ReaderLayout({
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
     setIsSettingsOpen(false);
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/manga/${manga.slug}/chapter/${chapter.chapterNumber}`;
+    const title = `${manga.title} - Cap. ${chapter.chapterNumber}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {
+      // Silently ignore share cancellation
+    }
+  };
+
+  const handleReport = () => {
+    const errorUrl = `${window.location.origin}/manga/${manga.slug}/chapter/${chapter.chapterNumber}`;
+    const subject = `Reporte: ${manga.title} Cap. ${chapter.chapterNumber}`;
+    const body = `Reporte de error en ${errorUrl}`;
+    window.location.href = `mailto:soporte@inkverse.app?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -76,7 +100,7 @@ export default function ReaderLayout({
           <Link href="/" className="font-bold text-lg text-accent-blue hover:text-accent-blue-hover flex items-center gap-2">
             <ArrowLeft size={16} /> Volver
           </Link>
-          <button onClick={toggleSidebar} className="p-1 rounded hover:bg-tertiary transition-colors">
+          <button onClick={toggleSidebar} className="p-1 rounded hover:bg-tertiary transition-colors cursor-pointer" aria-label="Cerrar menú">
             <X size={20} />
           </button>
         </div>
@@ -93,7 +117,7 @@ export default function ReaderLayout({
                 href={`/manga/${manga.slug}/chapter/${ch.chapterNumber}`}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-all block ${
                   ch.chapterNumber === chapter.chapterNumber 
-                    ? 'bg-accent-blue text-white shadow-md' 
+                    ? 'bg-accent-blue text-[var(--text-inverse)] shadow-md' 
                     : 'hover:bg-tertiary'
                 }`}
               >
@@ -118,7 +142,7 @@ export default function ReaderLayout({
         {/* Header */}
         <header className="h-16 border-b border-custom bg-secondary flex items-center justify-between px-4 z-30 shadow-sm">
           <div className="flex items-center space-x-4">
-            <button onClick={toggleSidebar} className="p-2 rounded hover:bg-tertiary transition-colors">
+            <button onClick={toggleSidebar} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer" aria-label="Abrir menú">
               <Menu size={20} />
             </button>
         <div className="hidden sm:block">
@@ -130,11 +154,11 @@ export default function ReaderLayout({
           <div className="flex items-center space-x-1 sm:space-x-2">
             <div className="hidden sm:flex items-center px-3 py-1 bg-tertiary rounded-full mr-2">
               <Coins size={16} className="text-accent-orange mr-1" />
-              <span className="text-sm font-bold">120</span>
+              <span className="text-sm font-bold">{(session?.user as { inkcoinsBalance?: number } | undefined)?.inkcoinsBalance ?? 0}</span>
             </div>
             
             <div className="relative">
-              <button onClick={toggleSettings} className={`p-2 rounded transition-colors ${isSettingsOpen ? 'bg-tertiary' : 'hover:bg-tertiary'}`} title="Configuración">
+              <button onClick={toggleSettings} className={`p-2 rounded transition-colors cursor-pointer ${isSettingsOpen ? 'bg-tertiary' : 'hover:bg-tertiary'}`} title="Configuración" aria-label="Configuración">
                 <Settings size={20} />
               </button>
               
@@ -144,37 +168,37 @@ export default function ReaderLayout({
                   <div className="px-4 py-2 border-b border-custom mb-2">
                     <h3 className="font-semibold text-sm">Tema de Lectura</h3>
                   </div>
-                  <button onClick={() => changeTheme('light')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary ${theme === 'light' ? 'text-accent-blue font-medium' : ''}`}>
+                  <button onClick={() => changeTheme('light')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary cursor-pointer ${theme === 'light' ? 'text-accent-blue font-medium' : ''}`}>
                     <Sun size={16} className="mr-3" /> Claro
                   </button>
-                  <button onClick={() => changeTheme('sepia')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary ${theme === 'sepia' ? 'text-accent-orange font-medium' : ''}`}>
+                  <button onClick={() => changeTheme('sepia')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary cursor-pointer ${theme === 'sepia' ? 'text-accent-orange font-medium' : ''}`}>
                     <Coffee size={16} className="mr-3" /> Sepia
                   </button>
-                  <button onClick={() => changeTheme('night')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary ${theme === 'night' ? 'text-accent-blue font-medium' : ''}`}>
+                  <button onClick={() => changeTheme('night')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary cursor-pointer ${theme === 'night' ? 'text-accent-blue font-medium' : ''}`}>
                     <Moon size={16} className="mr-3" /> Oscuro
                   </button>
-                  <button onClick={() => changeTheme('oled')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary ${theme === 'oled' ? 'text-accent-purple font-medium' : ''}`}>
+                  <button onClick={() => changeTheme('oled')} className={`w-full flex items-center px-4 py-2 text-sm hover:bg-tertiary cursor-pointer ${theme === 'oled' ? 'text-accent-purple font-medium' : ''}`}>
                     <Monitor size={16} className="mr-3" /> OLED (Ahorro Batería)
                   </button>
                 </div>
               )}
             </div>
             
-            <button className="p-2 rounded hover:bg-tertiary transition-colors hidden sm:block" title="Comentarios">
+            <button onClick={() => setShowComments(!showComments)} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer hidden sm:block" title="Comentarios" aria-label="Comentarios">
               <MessageSquare size={20} />
             </button>
 
-            <button className="p-2 rounded hover:bg-tertiary transition-colors" title="Reportar Error">
+            <button onClick={handleReport} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer" title="Reportar Error" aria-label="Reportar error">
               <AlertTriangle size={20} />
             </button>
-            <button className="p-2 rounded hover:bg-tertiary transition-colors" title="Compartir">
+            <button onClick={handleShare} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer" title="Compartir" aria-label="Compartir">
               <Share2 size={20} />
             </button>
           </div>
         </header>
 
         {/* Reader Container */}
-        <main className="flex-1 overflow-hidden bg-primary relative">
+        <main className="flex-1 overflow-hidden bg-background relative">
           {children}
         </main>
       </div>

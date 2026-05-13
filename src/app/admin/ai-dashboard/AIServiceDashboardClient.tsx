@@ -72,7 +72,7 @@ function HealthIndicator({ status }: { status: 'up' | 'down' | string }) {
 function ModelHealthBadge({ status }: { status: string }) {
   const colors = {
     healthy: 'bg-[var(--success)]',
-    degraded: 'bg-yellow-500',
+    degraded: 'bg-[var(--warning)]',
     unhealthy: 'bg-[var(--error)]',
     unknown: 'bg-[var(--surface)]0',
   };
@@ -102,8 +102,8 @@ function ProgressBar({
     blue: 'bg-[var(--primary)]',
     green: 'bg-[var(--success)]',
     red: 'bg-[var(--error)]',
-    yellow: 'bg-yellow-500',
-    purple: 'bg-purple-500',
+    yellow: 'bg-[var(--warning)]',
+    purple: 'bg-[var(--accent-purple)]',
   };
 
   return (
@@ -134,7 +134,7 @@ function ComponentStatus({
   return (
     <div className="flex items-center justify-between p-3 bg-[var(--surface)]/50 rounded-lg border border-[var(--border)]/50">
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${status === 'up' ? 'bg-[var(--surface)]' : 'bg-red-900/20'}`}>
+        <div className={`p-2 rounded-lg ${status === 'up' ? 'bg-[var(--surface)]' : 'bg-[var(--error)]/10'}`}>
           <Icon className={`w-4 h-4 ${status === 'up' ? 'text-[var(--text-secondary)]' : 'text-[var(--error)]'}`} />
         </div>
         <span className="text-sm text-[var(--text-primary)]">{name}</span>
@@ -258,12 +258,12 @@ export function AIServiceDashboardClient() {
           <div className="mb-8">
             <button
               onClick={() => setShowAlerts(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--warning)]/10 border border-amber-500/30 rounded-lg text-amber-300 hover:bg-[var(--warning)]/20 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-lg text-[var(--warning)] hover:bg-[var(--warning)]/20 transition-colors"
             >
               <Bell className="w-4 h-4" />
               <span>Mostrar {alerts.length} alerta{alerts.length !== 1 ? 's' : ''}</span>
               {alerts.some(a => a.severity === 'critical') && (
-                <span className="ml-2 text-xs px-2 py-0.5 bg-[var(--error)]/20 text-red-300 rounded-full">
+                <span className="ml-2 text-xs px-2 py-0.5 bg-[var(--error)]/20 text-[var(--error)] rounded-full">
                   {alerts.filter(a => a.severity === 'critical').length} crítica{alerts.filter(a => a.severity === 'critical').length !== 1 ? 's' : ''}
                 </span>
               )}
@@ -414,7 +414,7 @@ export function AIServiceDashboardClient() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-700/50">
+                <tbody className="divide-y divide-[var(--border)]/50">
                   {modelMetrics.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-8 text-center text-[var(--text-tertiary)]">
@@ -439,7 +439,7 @@ export function AIServiceDashboardClient() {
                         </td>
                         <td className="py-4 text-right">
                           <div className="text-sm">
-                            <span className="text-green-400">{model.successfulRequests}</span>
+                            <span className="text-[var(--success)]">{model.successfulRequests}</span>
                             <span className="text-[var(--text-tertiary)] mx-1">/</span>
                             <span className="text-[var(--error)]">{model.failedRequests}</span>
                           </div>
@@ -471,7 +471,7 @@ export function AIServiceDashboardClient() {
           {/* Queue Stats */}
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <BarChart3 className="w-5 h-5 text-yellow-400" />
+              <BarChart3 className="w-5 h-5 text-[var(--warning)]" />
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">Queue Statistics</h2>
             </div>
 
@@ -490,7 +490,7 @@ export function AIServiceDashboardClient() {
                   <div className="text-xs text-[var(--text-secondary)] mt-1">Processing</div>
                 </div>
                 <div className="bg-[var(--surface-sunken)]/50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-400">
+                  <div className="text-2xl font-bold text-[var(--success)]">
                     {queueStats?.completed || 0}
                   </div>
                   <div className="text-xs text-[var(--text-secondary)] mt-1">Completed</div>
@@ -515,7 +515,7 @@ export function AIServiceDashboardClient() {
           {/* Jobs by Priority */}
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <TrendingUp className="w-5 h-5 text-green-400" />
+              <TrendingUp className="w-5 h-5 text-[var(--success)]" />
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">Jobs by Priority</h2>
             </div>
 

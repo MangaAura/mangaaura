@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const transactionSchema = z.object({
   amount: z.number().int(),
@@ -16,6 +17,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
 
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const identifier = session?.user?.id || ip;
+    const rlResult = await rateLimit(getRateLimitKey('gamification-transaction', identifier), 30, 60);
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
+      });
+    }
+
     const body = await request.json();
     const parsed = transactionSchema.safeParse(body);
     if (!parsed.success) {
@@ -28,7 +39,7 @@ export async function POST(request: Request) {
     const { amount, type, referenceId } = parsed.data;
     const userId = session.user.id;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const user = await tx.user.findUnique({ where: { id: userId } });
       if (!user) throw new Error('User not found');
 

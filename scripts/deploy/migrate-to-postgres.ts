@@ -92,9 +92,8 @@ async function migrateReadingProgress() {
   for (const p of progress) {
     await postgresPrisma.readingProgress.create({
       data: {
-        ...p,
+        ...(p as any),
         completedAt: p.completedAt,
-        lastReadAt: p.lastReadAt,
       },
     });
   }
@@ -168,8 +167,8 @@ async function migrateTransactions() {
   for (const transaction of transactions) {
     await postgresPrisma.transaction.create({
       data: {
-        ...transaction,
-        createdAt: transaction.createdAt,
+        ...(transaction as any),
+        timestamp: transaction.timestamp,
       },
     });
   }

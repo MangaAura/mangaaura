@@ -1,57 +1,108 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import {
-  getConversations,
-  getOrCreateConversation,
-} from '@/core/services/MessageService';
-import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
 
-const createConversationSchema = z.object({
-  participantId: z.string().uuid(),
-});
-
-// GET /api/conversations - List user's conversations
+// GET /api/conversations - Get user's conversations
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const result = await getConversations({
-      userId: session.user.id,
-      page,
-      limit,
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        OR: [
+          { participant1Id: session.user.id },
+          { participant2Id: session.user.id },
+        ],
+      },
+      include: {
+        participant1: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        participant2: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            senderId: true,
+            isRead: true,
+          },
+        },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                senderId: { not: session.user.id },
+                isRead: false,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { lastMessageAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      );
-    }
+    // Format for frontend
+    const formattedConversations = conversations.map((conv: any) => {
+      const isParticipant1 = conv.participant1Id === session.user.id;
+      const participant = isParticipant1 ? conv.participant2 : conv.participant1;
+
+      return {
+        id: conv.id,
+        participant,
+        lastMessageAt: conv.lastMessageAt,
+        unreadCount: conv._count.messages,
+        isBlocked: conv.isBlocked,
+        blockedBy: conv.blockedBy,
+        lastMessage: conv.messages[0] || null,
+      };
+    });
+
+    const total = await prisma.conversation.count({
+      where: {
+        OR: [
+          { participant1Id: session.user.id },
+          { participant2Id: session.user.id },
+        ],
+      },
+    });
 
     return NextResponse.json({
-      conversations: result.conversations,
+      conversations: formattedConversations,
       pagination: {
         page,
         limit,
-        total: result.total,
-        totalPages: Math.ceil((result.total || 0) / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (error) {
     console.error('Error fetching conversations:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error al cargar conversaciones' },
       { status: 500 }
     );
   }
@@ -61,54 +112,71 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const body = await request.json();
-    const result = createConversationSchema.safeParse(body);
+    const { userId } = body;
 
-    if (!result.success) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Datos inválidos', details: result.error.flatten() },
+        { error: 'userId requerido' },
         { status: 400 }
       );
     }
 
-    const { participantId } = result.data;
-
-    // Can't message yourself
-    if (participantId === session.user.id) {
+    if (userId === session.user.id) {
       return NextResponse.json(
-        { error: 'No puedes iniciar una conversación contigo mismo' },
+        { error: 'No puedes crear conversación contigo mismo' },
         { status: 400 }
       );
     }
 
-    const conversation = await getOrCreateConversation({
-      participant1Id: session.user.id,
-      participant2Id: participantId,
+    // Check if user exists
+    const otherUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
     });
 
-    if (!conversation.success) {
+    if (!otherUser) {
       return NextResponse.json(
-        { error: conversation.error },
-        { status: 400 }
+        { error: 'Usuario no encontrado' },
+        { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      conversation: conversation.conversation,
+    // Check if conversation already exists
+    let conversation = await prisma.conversation.findFirst({
+      where: {
+        OR: [
+          {
+            participant1Id: session.user.id,
+            participant2Id: userId,
+          },
+          {
+            participant1Id: userId,
+            participant2Id: session.user.id,
+          },
+        ],
+      },
     });
+
+    // Create if doesn't exist
+    if (!conversation) {
+      conversation = await prisma.conversation.create({
+        data: {
+          participant1Id: session.user.id,
+          participant2Id: userId,
+        },
+      });
+    }
+
+    return NextResponse.json({ conversation });
   } catch (error) {
     console.error('Error creating conversation:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error al crear conversación' },
       { status: 500 }
     );
   }

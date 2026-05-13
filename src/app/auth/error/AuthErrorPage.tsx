@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -26,39 +26,39 @@ const errorVisualConfig: Record<string, {
 }> = {
   Configuration: {
     icon: Settings,
-    bgColor: 'bg-red-500/10',
+    bgColor: 'bg-[var(--error)]/10',
   },
   AccessDenied: {
     icon: ShieldX,
-    bgColor: 'bg-orange-500/10',
+    bgColor: 'bg-[var(--accent-orange)]/10',
   },
   Verification: {
     icon: MailX,
-    bgColor: 'bg-yellow-500/10',
+    bgColor: 'bg-[var(--warning)]/10',
   },
   OAuthSignin: {
     icon: KeyRound,
-    bgColor: 'bg-blue-500/10',
+    bgColor: 'bg-[var(--info)]/10',
   },
   OAuthCallback: {
     icon: KeyRound,
-    bgColor: 'bg-blue-500/10',
+    bgColor: 'bg-[var(--info)]/10',
   },
   OAuthCreateAccount: {
     icon: UserX,
-    bgColor: 'bg-purple-500/10',
+    bgColor: 'bg-[var(--accent-purple)]/10',
   },
   EmailCreateAccount: {
     icon: UserX,
-    bgColor: 'bg-purple-500/10',
+    bgColor: 'bg-[var(--accent-purple)]/10',
   },
   Callback: {
     icon: AlertTriangle,
-    bgColor: 'bg-yellow-500/10',
+    bgColor: 'bg-[var(--warning)]/10',
   },
   Default: {
     icon: AlertTriangle,
-    bgColor: 'bg-slate-500/10',
+    bgColor: 'bg-[var(--text-tertiary)]/10',
   },
 };
 
@@ -108,34 +108,34 @@ export default function AuthErrorPage() {
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-xl">
+        <div className="bg-[var(--surface-sunken)] border border-[var(--border)] rounded-2xl p-8 shadow-xl">
           {/* Header con icono */}
           <div className="text-center mb-8">
             <div className={cn(
               'inline-flex items-center justify-center w-24 h-24 rounded-full mb-6',
               visualConfig.bgColor
             )}>
-              <Icon className={cn('w-12 h-12', errorConfig.severity === 'error' ? 'text-red-500' : 'text-yellow-500')} />
-            </div>
-            <h1 className="text-2xl font-bold text-white mb-2">
-              {errorConfig.title}
-            </h1>
-            <p className="text-slate-400">
+      <Icon className={cn('w-12 h-12', errorConfig.severity === 'error' ? 'text-[var(--error)]' : 'text-[var(--warning)]')} />
+    </div>
+    <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+      {errorConfig.title}
+    </h1>
+    <p className="text-[var(--text-secondary)]">
               {errorConfig.message}
             </p>
           </div>
 
           {/* Consejos */}
-          <div className="bg-slate-700/50 rounded-xl p-4 mb-6">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+  <div className="bg-[var(--surface-sunken)] rounded-xl p-4 mb-6">
+    <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-accent-blue" />
               Que puedes hacer?
             </h3>
             <ul className="space-y-2">
               {tips.map((tip, index) => (
-                <li key={index} className="text-sm text-slate-400 flex items-start gap-2">
+                <li key={`tip-${index}`} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                   <ArrowRight className="w-4 h-4 text-accent-blue flex-shrink-0 mt-0.5" />
                   {tip}
                 </li>
@@ -145,15 +145,15 @@ export default function AuthErrorPage() {
 
           {/* Detalles del error (solo en desarrollo) */}
           {isDevelopment && errorType !== 'Default' && (
-            <div className="mb-6 p-4 bg-slate-700/50 rounded-xl border border-slate-700">
-              <p className="text-xs font-mono text-slate-500 mb-1">
+    <div className="mb-6 p-4 bg-[var(--surface-sunken)] rounded-xl border border-[var(--border)]">
+      <p className="text-xs font-mono text-[var(--text-tertiary)] mb-1">
                 Codigo de error:
               </p>
-              <code className="text-sm text-white font-mono">
+              <code className="text-sm text-[var(--text-primary)] font-mono">
                 {errorType}
               </code>
               {errorConfig.code && (
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-[var(--text-tertiary)] mt-2">
                   Codigo interno: {errorConfig.code}
                 </p>
               )}
@@ -196,7 +196,7 @@ export default function AuthErrorPage() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-sm text-slate-500 mt-6">
+          <p className="text-center text-sm text-[var(--text-tertiary)] mt-6">
             Sigues teniendo problemas?{' '}
             <a
               href="mailto:support@inkverse.app"
@@ -209,7 +209,7 @@ export default function AuthErrorPage() {
 
         {/* Logo */}
         <div className="text-center mt-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             <span className="text-xl font-bold text-accent-blue">
               InkVerse
             </span>

@@ -297,11 +297,11 @@ export class ParallelInferenceEngine {
       this.updateStats(latencyMs, true);
       this.activeJobs--;
 
-      return {
-        jobId: job.id,
-        output: result,
-        latencyMs,
-      };
+return {
+      jobId: job.id,
+      output: result as string | Record<string, unknown> | unknown[] | undefined,
+      latencyMs,
+    };
     } catch (error) {
       const latencyMs = Math.round(performance.now() - startTime);
       this.updateStats(latencyMs, false);

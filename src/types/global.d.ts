@@ -113,18 +113,6 @@ declare module '@prisma/client' {
   }
 }
 
-// Fix for AI infrastructure
-declare module 'bullmq' {
-  interface QueueEvents {
-    on(event: string, listener: (...args: unknown[]) => void): void;
-    emit(event: string, ...args: unknown[]): void;
-  }
-
-  interface Queue {
-    add(name: string, data: unknown, opts?: unknown): Promise<unknown>;
-  }
-}
-
 // Fix for vitest
 declare global {
   const vi: {

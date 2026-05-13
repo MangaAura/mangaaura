@@ -35,21 +35,21 @@ export async function GET() {
         where: { userId },
         orderBy: { createdAt: 'desc' },
         take: 10,
-        select: {
-          id: true,
-          type: true,
-          description: true,
-          metadata: true,
-          createdAt: true,
-        },
+    select: {
+        id: true,
+        activityType: true,
+        referenceId: true,
+        metadata: true,
+        createdAt: true,
+      },
       }),
       prisma.userAchievement.findMany({
         where: { userId },
-        include: {
-          achievement: {
-            select: { name: true, description: true, icon: true },
-          },
+    include: {
+        achievement: {
+          select: { name: true, description: true, badgeId: true },
         },
+      },
         orderBy: { unlockedAt: 'desc' },
       }),
     ]);
@@ -79,7 +79,7 @@ export async function GET() {
         nextLevelXp,
       },
       recentActivities,
-      achievements: achievements.map(a => ({
+      achievements: achievements.map((a: any) => ({
         id: a.id,
         unlockedAt: a.unlockedAt,
         name: a.achievement.name,

@@ -18,9 +18,15 @@ exclude: [
 'dist/',
 ],
 coverage: {
-provider: 'v8',
-reporter: ['text', 'json', 'html'],
-exclude: [
+    provider: 'v8',
+    reporter: ['text', 'json', 'html'],
+    thresholds: {
+      lines: 60,
+      functions: 50,
+      branches: 40,
+      statements: 60,
+    },
+    exclude: [
 'node_modules/',
 'tests/setup.ts',
 'src/**/*.d.ts',
@@ -36,8 +42,7 @@ reporters: process.env.CI
 : ['default'],
 outputFile: process.env.CI ? './test-results/junit.xml' : undefined,
 // Optimize for speed
-minWorkers: 1,
-maxWorkers: process.env.CI ? 1 : undefined,
+    maxWorkers: process.env.CI ? 1 : undefined,
 },
 resolve: {
 alias: {

@@ -77,11 +77,11 @@ function ToastItem({
   onDismiss: (id: string) => void;
 }) {
   const variants = {
-    default: 'bg-slate-800 text-white border-slate-700',
-    success: 'bg-green-600 text-white border-green-500',
-    error: 'bg-red-600 text-white border-red-500',
-    destructive: 'bg-red-600 text-white border-red-500',
-    info: 'bg-blue-600 text-white border-blue-500',
+    default: 'bg-[var(--surface-sunken)] text-[var(--text-primary)] border-[var(--border)]',
+    success: 'bg-[var(--success)] text-[var(--text-inverse)] border-[var(--success)]',
+    error: 'bg-[var(--error)] text-[var(--text-inverse)] border-[var(--error)]',
+    destructive: 'bg-[var(--error)] text-[var(--text-inverse)] border-[var(--error)]',
+    info: 'bg-[var(--info)] text-[var(--text-inverse)] border-[var(--info)]',
   };
 
   const icons = {

@@ -38,20 +38,20 @@ export function NotificationFilters({
   onStatusChange,
 }: NotificationFiltersProps) {
   return (
-    <div className="bg-slate-800/50 rounded-xl p-4 mb-6">
+    <div className="bg-[var(--surface-sunken)] rounded-xl p-4 mb-6">
       <div className="flex flex-wrap gap-4">
         {/* Type filter */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-slate-400 self-center mr-2">Tipo:</span>
+          <span className="text-sm text-[var(--text-tertiary)] self-center mr-2">Tipo:</span>
           {typeOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => onTypeChange(option.value as FilterType)}
               className={cn(
-                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer',
                 filterType === option.value
-                  ? 'bg-blue-500/20 text-blue-400'
-                  : 'text-slate-400 hover:bg-slate-700'
+                ? 'bg-[var(--accent-blue)]/20 text-[var(--accent-blue)]'
+                : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-elevated)]'
               )}
             >
               {option.label}
@@ -61,16 +61,16 @@ export function NotificationFilters({
 
         {/* Status filter */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-slate-400 self-center mr-2">Estado:</span>
+          <span className="text-sm text-[var(--text-tertiary)] self-center mr-2">Estado:</span>
           {statusOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => onStatusChange(option.value as FilterStatus)}
               className={cn(
-                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer',
                 filterStatus === option.value
-                  ? 'bg-blue-500/20 text-blue-400'
-                  : 'text-slate-400 hover:bg-slate-700'
+                ? 'bg-[var(--accent-blue)]/20 text-[var(--accent-blue)]'
+                : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-elevated)]'
               )}
             >
               {option.label}

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useState } from 'react';
 import { AlertTriangle, XCircle, AlertCircle, X, Info } from 'lucide-react';
@@ -39,33 +39,33 @@ const alertConfig: Record<
   critical: {
     icon: XCircle,
     colors: {
-      bg: 'bg-red-500/10',
-      border: 'border-red-500/50',
-      text: 'text-red-200',
-      icon: 'text-red-400',
-      button: 'hover:bg-red-500/20 text-red-300',
+      bg: 'bg-[var(--error)]/10',
+      border: 'border-[var(--error)]/50',
+      text: 'text-[var(--error)]',
+      icon: 'text-[var(--error)]',
+      button: 'hover:bg-[var(--error)]/20 text-[var(--error)]',
     },
     label: 'Crítico',
   },
   warning: {
     icon: AlertTriangle,
     colors: {
-      bg: 'bg-amber-500/10',
-      border: 'border-amber-500/50',
-      text: 'text-amber-200',
-      icon: 'text-amber-400',
-      button: 'hover:bg-amber-500/20 text-amber-300',
+      bg: 'bg-[var(--warning)]/10',
+      border: 'border-[var(--warning)]/50',
+      text: 'text-[var(--warning)]',
+      icon: 'text-[var(--warning)]',
+      button: 'hover:bg-[var(--warning)]/20 text-[var(--warning)]',
     },
     label: 'Advertencia',
   },
   info: {
     icon: Info,
     colors: {
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/50',
-      text: 'text-blue-200',
-      icon: 'text-blue-400',
-      button: 'hover:bg-blue-500/20 text-blue-300',
+      bg: 'bg-[var(--info)]/10',
+      border: 'border-[var(--info)]/50',
+      text: 'text-[var(--info)]',
+      icon: 'text-[var(--info)]',
+      button: 'hover:bg-[var(--info)]/20 text-[var(--info)]',
     },
     label: 'Info',
   },
@@ -138,7 +138,7 @@ function AlertItem({ alert, onDismiss, onAcknowledge }: AlertItemProps) {
           >
             {config.label}
           </span>
-          <span className="text-xs text-slate-400">{formattedTime}</span>
+          <span className="text-xs text-[var(--text-secondary)]">{formattedTime}</span>
         </div>
 
         <p className={cn('text-sm mt-1', config.colors.text)}>
@@ -149,22 +149,22 @@ function AlertItem({ alert, onDismiss, onAcknowledge }: AlertItemProps) {
       {alert.metadata && Object.keys(alert.metadata).length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
           {(alert.metadata as Record<string, string | number>).modelId && (
-            <span className="text-xs px-2 py-1 rounded bg-slate-800/50 text-slate-300 border border-slate-700">
+            <span className="text-xs px-2 py-1 rounded bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] border border-[var(--border)]">
               Modelo: {String((alert.metadata as Record<string, string | number>).modelId)}
             </span>
           )}
           {(alert.metadata as Record<string, string | number>).errorRate !== undefined && (
-            <span className="text-xs px-2 py-1 rounded bg-slate-800/50 text-slate-300 border border-slate-700">
+            <span className="text-xs px-2 py-1 rounded bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] border border-[var(--border)]">
               Error: {(Number((alert.metadata as Record<string, string | number>).errorRate) * 100).toFixed(1)}%
             </span>
           )}
           {(alert.metadata as Record<string, string | number>).queueDepth !== undefined && (
-            <span className="text-xs px-2 py-1 rounded bg-slate-800/50 text-slate-300 border border-slate-700">
+            <span className="text-xs px-2 py-1 rounded bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] border border-[var(--border)]">
               Cola: {String((alert.metadata as Record<string, string | number>).queueDepth)} jobs
             </span>
           )}
           {(alert.metadata as Record<string, string | number>).occurrenceCount !== undefined && (
-            <span className="text-xs px-2 py-1 rounded bg-slate-800/50 text-slate-300 border border-slate-700">
+            <span className="text-xs px-2 py-1 rounded bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] border border-[var(--border)]">
               Ocurrencias: {String((alert.metadata as Record<string, string | number>).occurrenceCount)}
             </span>
           )}
@@ -228,27 +228,27 @@ function CollapsedAlerts({
       onClick={onExpand}
       className={cn(
         'w-full flex items-center justify-between px-4 py-3 rounded-lg border backdrop-blur-sm',
-        'bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors',
+        'bg-[var(--surface-sunken)]/50 border-[var(--border)] hover:bg-[var(--surface-sunken)]/70 transition-colors',
         className
       )}
     >
       <div className="flex items-center gap-3">
         <div className="relative">
-          <AlertCircle className="w-5 h-5 text-amber-400" />
+          <AlertCircle className="w-5 h-5 text-[var(--warning)]" />
           {criticalCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[var(--error)] rounded-full animate-pulse" />
           )}
         </div>
-        <span className="text-sm font-medium text-slate-200">
+        <span className="text-sm font-medium text-[var(--text-primary)]">
           {count} alerta{count !== 1 ? 's' : ''} activa{count !== 1 ? 's' : ''}
         </span>
         {criticalCount > 0 && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--error)]/20 text-[var(--error)] border border-[var(--error)]/30">
             {criticalCount} crítica{criticalCount !== 1 ? 's' : ''}
           </span>
         )}
       </div>
-      <span className="text-xs text-slate-400">Click para expandir</span>
+      <span className="text-xs text-[var(--text-secondary)]">Click para expandir</span>
     </button>
   );
 }
@@ -290,14 +290,14 @@ export function AlertBanner({
       {/* Header with collapse option */}
       {alerts.length > maxVisible && (
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-[var(--text-secondary)]">
             Mostrando {visibleAlerts.length} de {alerts.length} alertas
           </span>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setExpanded(false)}
-            className="h-6 text-xs text-slate-400 hover:text-slate-200"
+            className="h-6 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             Colapsar
           </Button>
@@ -319,7 +319,7 @@ export function AlertBanner({
       {/* Show more indicator */}
       {hasMoreAlerts && expanded && (
         <div className="text-center py-1">
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-[var(--text-tertiary)]">
             Y {alerts.length - maxVisible} alerta{alerts.length - maxVisible !== 1 ? 's' : ''} m{alerts.length - maxVisible !== 1 ? 'á' : 'á'}s
           </span>
         </div>
@@ -353,15 +353,15 @@ export function AlertBadge({
       className={cn(
         'relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
         criticalCount > 0
-          ? 'bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30'
-          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30',
+? 'bg-[var(--error)]/20 text-[var(--error)] border border-[var(--error)]/30 hover:bg-[var(--error)]/30'
+        : 'bg-[var(--warning)]/20 text-[var(--warning)] border border-[var(--warning)]/30 hover:bg-[var(--warning)]/30',
         className
       )}
     >
       <AlertTriangle className="w-3.5 h-3.5" />
       <span>{count}</span>
       {criticalCount > 0 && (
-        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+        <span className="absolute -top-1 -right-1 w-2 h-2 bg-[var(--error)] rounded-full animate-pulse" />
       )}
     </button>
   );
@@ -388,24 +388,24 @@ export function AlertsPanel({
   return (
     <div
       className={cn(
-        'bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden',
+        'bg-[var(--surface)]/50 border border-[var(--border)] rounded-xl overflow-hidden',
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-slate-400" />
-          <h3 className="font-semibold text-slate-200">{title}</h3>
+          <AlertCircle className="w-5 h-5 text-[var(--text-secondary)]" />
+          <h3 className="font-semibold text-[var(--text-primary)]">{title}</h3>
           {alerts.length > 0 && (
             <div className="flex items-center gap-1.5">
               {criticalCount > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--error)]/20 text-[var(--error)]">
                   {criticalCount} crítica{criticalCount !== 1 ? 's' : ''}
                 </span>
               )}
               {warningCount > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--warning)]/20 text-[var(--warning)]">
                   {warningCount} advertencia{warningCount !== 1 ? 's' : ''}
                 </span>
               )}
@@ -417,7 +417,7 @@ export function AlertsPanel({
             variant="ghost"
             size="sm"
             onClick={() => alerts.forEach((a) => onDismiss?.(a.id))}
-            className="h-7 text-xs text-slate-400 hover:text-slate-200"
+            className="h-7 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             Descartar todo
           </Button>
@@ -428,11 +428,11 @@ export function AlertsPanel({
       <div className="p-4">
         {alerts.length === 0 ? (
           <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-800 mb-3">
-              <CheckIcon className="w-6 h-6 text-slate-500" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--surface-sunken)] mb-3">
+              <CheckIcon className="w-6 h-6 text-[var(--text-tertiary)]" />
             </div>
-            <p className="text-slate-400 text-sm">No hay alertas activas</p>
-            <p className="text-slate-500 text-xs mt-1">
+            <p className="text-[var(--text-secondary)] text-sm">No hay alertas activas</p>
+            <p className="text-[var(--text-tertiary)] text-xs mt-1">
               El sistema está funcionando correctamente
             </p>
           </div>

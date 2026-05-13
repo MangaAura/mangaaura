@@ -1,0 +1,210 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import ClanCard from '@/components/Clan/ClanCard';
+import { EventCard, eventTypeIcon, eventTypeLabel, eventStatusBadge } from '@/components/Event/EventCard';
+import type { EventData } from '@/components/Event/EventCard';
+import {
+  Trophy,
+  Calendar,
+  Users,
+  Flame,
+  ArrowRight,
+  ChevronRight,
+  Plus,
+} from 'lucide-react';
+
+interface ClanData {
+  id: string;
+  name: string;
+  description: string | null;
+  emblemUrl: string | null;
+  totalScore: number;
+  monthlyScore: number;
+  memberCount: number;
+}
+
+interface CommunityTabsProps {
+  topClans: ClanData[];
+  activeEvents: EventData[];
+  totalClans: number;
+  userClanId: string | null;
+}
+
+type Tab = 'clans' | 'events';
+
+export default function CommunityTabs({
+  topClans,
+  activeEvents,
+  totalClans,
+  userClanId,
+}: CommunityTabsProps) {
+  const [activeTab, setActiveTab] = useState<Tab>('clans');
+
+  const tabCls = (tab: Tab, activeColor: string) =>
+    `px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+      activeTab === tab
+        ? `bg-[var(--surface)] shadow-sm ${activeColor}`
+        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]'
+    }`;
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8 px-6 pb-12">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-primary)] flex items-center gap-3">
+            <Users className="text-[var(--primary)]" size={32} />
+            Comunidad
+          </h1>
+          <p className="text-[var(--text-secondary)] mt-1">
+            Conecta con otros lectores, compite en clanes y participa en eventos
+          </p>
+        </div>
+
+        <div className="flex bg-[var(--surface-elevated)] rounded-xl p-1 border border-[var(--border)] shadow-sm">
+          <button onClick={() => setActiveTab('clans')} className={tabCls('clans', 'text-[var(--accent-purple)]')}>
+            <Trophy size={16} /> Clanes
+          </button>
+          <button onClick={() => setActiveTab('events')} className={tabCls('events', 'text-[var(--warning)]')}>
+            <Calendar size={16} /> Eventos
+          </button>
+                  </div>
+      </header>
+
+      {/* CLANS TAB */}
+      {activeTab === 'clans' && (
+        <div className="space-y-6 animate-fade-up">
+          {/* Banner */}
+          <div className="bg-gradient-to-r from-[var(--accent-purple)]/10 to-[var(--primary)]/10 rounded-2xl border border-[var(--accent-purple)]/20 p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-[var(--accent-purple)] flex items-center gap-2 mb-1">
+                  <Flame size={22} className="text-[var(--warning)]" />
+                  Guerra de Clanes
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  ¡Lee mangas en grupo para ganar XP y subir en el ranking!
+                </p>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                {userClanId && (
+                  <Link
+                    href={`/community/clan/${userClanId}`}
+                    className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent-purple)]/50 text-[var(--text-primary)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
+                  >
+                    <Trophy size={16} className="text-[var(--warning)]" />
+                    Mi Clan
+                  </Link>
+                )}
+                {!userClanId && (
+                  <Link
+                    href="/community/clans/create"
+                    className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent-purple)]/50 text-[var(--primary)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
+                  >
+                    <Plus size={16} />
+                    Crear Clan
+                  </Link>
+                )}
+                <Link
+                  href="/community/clans"
+                  className="bg-[var(--accent-purple)] hover:bg-[var(--accent-purple-hover)] text-[var(--text-inverse)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
+                >
+                  Ver todos ({totalClans})
+                  <ChevronRight size={16} />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Clans Grid */}
+          {topClans.length === 0 ? (
+            <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-2xl">
+              <Trophy className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+              <p className="text-[var(--text-secondary)] font-medium">Aún no hay clanes. ¡Crea el primero!</p>
+              <Link
+                href="/community/clans/create"
+                className="mt-4 inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] px-5 py-2.5 rounded-xl font-semibold transition-all text-sm"
+              >
+                Crear Clan
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {topClans.map((clan, idx) => (
+                <ClanCard
+                  key={clan.id}
+                  clan={clan}
+                  index={idx}
+                  rank={idx + 1}
+                  isUserClan={clan.id === userClanId}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="text-center">
+            <Link
+              href="/community/clans"
+              className="text-[var(--primary)] hover:underline font-semibold text-sm inline-flex items-center gap-1"
+            >
+              Ver todos los clanes <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* EVENTS TAB */}
+      {activeTab === 'events' && (
+        <div className="space-y-6 animate-fade-up">
+          {activeEvents.length === 0 ? (
+            <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-2xl">
+              <Calendar className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+              <p className="text-[var(--text-secondary)] font-medium">
+                No hay eventos activos ahora. ¡Vuelve pronto!
+              </p>
+              <Link
+                href="/events"
+                className="text-[var(--warning)] hover:underline text-sm font-semibold mt-2 inline-block"
+              >
+                Ver todos los eventos
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="bg-gradient-to-r from-[var(--warning)]/10 to-transparent p-6 rounded-2xl border border-[var(--warning)]/20">
+                <h2 className="text-xl font-bold text-[var(--warning)] mb-1 flex items-center gap-2">
+                  <Flame size={20} />
+                  Eventos de la Comunidad
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Participa y gana premios exclusivos
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {activeEvents.map((event, idx) => {
+                  const badge = eventStatusBadge(event.status);
+                  return (
+                    <EventCard key={event.id} event={event} badge={badge} index={idx} />
+                  );
+                })}
+              </div>
+              <div className="text-center">
+                <Link
+                  href="/events"
+                  className="text-[var(--warning)] hover:underline font-semibold text-sm inline-flex items-center gap-1"
+                >
+                  Ver todos los eventos <ArrowRight size={14} />
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+          </div>
+  );
+}
+
+

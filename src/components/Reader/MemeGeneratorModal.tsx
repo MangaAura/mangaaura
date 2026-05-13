@@ -1,87 +1,192 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { X, Download, Type } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+import { X, Download, Type, Loader2, Share2 } from 'lucide-react';
 
 interface MemeGeneratorModalProps {
   isOpen: boolean;
   onClose: () => void;
   imageUrl: string;
+  chapterId?: string;
+  mangaTitle?: string;
+  chapterNumber?: number;
 }
 
-export default function MemeGeneratorModal({ isOpen, onClose, imageUrl }: MemeGeneratorModalProps) {
+export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, chapterId, mangaTitle, chapterNumber }: MemeGeneratorModalProps) {
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   if (!isOpen) return null;
 
+  const renderCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const fontSize = Math.max(img.width / 12, 24);
+      ctx.font = `bold ${fontSize}px Impact, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.lineWidth = fontSize / 10;
+      ctx.strokeStyle = 'black';
+      ctx.fillStyle = 'white';
+
+      if (topText) {
+        const y = fontSize + 10;
+        ctx.strokeText(topText.toUpperCase(), canvas.width / 2, y);
+        ctx.fillText(topText.toUpperCase(), canvas.width / 2, y);
+      }
+
+      if (bottomText) {
+        const y = canvas.height - 20;
+        ctx.strokeText(bottomText.toUpperCase(), canvas.width / 2, y);
+        ctx.fillText(bottomText.toUpperCase(), canvas.width / 2, y);
+      }
+
+      ctx.font = `bold ${Math.max(fontSize / 3, 12)}px monospace`;
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.textAlign = 'right';
+      ctx.fillText('INKVERSE', canvas.width - 10, canvas.height - 10);
+    };
+    img.src = imageUrl;
+  }, [imageUrl, topText, bottomText]);
+
   const handleDownload = () => {
-    // Basic download simulation for the prototype
-    alert("¡Meme descargado con éxito! (Simulación)");
+    renderCanvas();
+    requestAnimationFrame(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const link = document.createElement('a');
+      link.download = `meme-inkverse-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  };
+
+  const handleSaveToGallery = async () => {
+    renderCanvas();
+    setIsUploading(true);
+
+    try {
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const canvas = canvasRef.current;
+      if (!canvas) throw new Error('Canvas not available');
+
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('Failed to create image');
+
+      const formData = new FormData();
+      formData.append('image', blob, `meme-${Date.now()}.png`);
+      formData.append('panelId', `meme-${Date.now()}`);
+      if (mangaTitle) formData.append('mangaTitle', mangaTitle);
+      if (chapterNumber) formData.append('chapterNumber', String(chapterNumber));
+      formData.append('texts', JSON.stringify({ top: topText, bottom: bottomText }));
+
+      const res = await fetch('/api/memes', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error('Failed to save meme');
+      setIsSaved(true);
+    } catch (err) {
+      console.error('Error saving meme:', err);
+      alert('Error al guardar el meme');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setTopText('');
+    setBottomText('');
+    setIsSaved(false);
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in-up">
+      <canvas ref={canvasRef} className="hidden" />
       <div className="bg-secondary w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-custom">
         <div className="flex justify-between items-center p-4 border-b border-custom">
           <h2 className="text-lg font-bold flex items-center gap-2"><Type size={20} /> Generador de Memes</h2>
-          <button onClick={onClose} className="p-1 rounded hover:bg-tertiary transition-colors">
+          <button onClick={handleClose} className="p-1 rounded hover:bg-tertiary transition-colors cursor-pointer" aria-label="Cerrar">
             <X size={20} />
           </button>
         </div>
-        
+
         <div className="p-6 flex flex-col gap-6">
-          {/* Canvas Simulation */}
-          <div className="relative w-full aspect-square bg-black rounded-lg overflow-hidden flex items-center justify-center">
+          <div className="relative w-full aspect-square bg-[var(--surface-sunken)] rounded-lg overflow-hidden flex items-center justify-center">
             <img src={imageUrl} alt="Meme template" className="absolute inset-0 w-full h-full object-cover opacity-60" />
-            
+
             <div className="absolute inset-0 flex flex-col justify-between py-4 px-2 text-center">
-              <h3 className="text-white text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
-                {topText || "TEXTO SUPERIOR"}
+<h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
+              {topText || "TEXTO SUPERIOR"}
               </h3>
-              <h3 className="text-white text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
-                {bottomText || "TEXTO INFERIOR"}
+<h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
+              {bottomText || "TEXTO INFERIOR"}
               </h3>
             </div>
-            
-            <div className="absolute bottom-2 right-2 text-white/50 text-xs font-bold font-mono">
+
+            <div className="absolute bottom-2 right-2 text-[var(--text-inverse)]/50 text-xs font-bold font-mono">
               INKVERSE
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold mb-1">Texto Superior</label>
-              <input 
-                type="text" 
-                value={topText}
-                onChange={(e) => setTopText(e.target.value)}
-                placeholder="Escribe algo gracioso..." 
-                className="w-full bg-tertiary border border-custom rounded-lg px-4 py-2 focus:outline-none focus:border-accent-blue"
-              />
+          {isSaved ? (
+            <div className="text-center p-4 bg-accent-green/10 rounded-xl border border-accent-green/20">
+              <p className="text-accent-green font-bold">¡Meme guardado en la galería!</p>
             </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Texto Inferior</label>
-              <input 
-                type="text" 
-                value={bottomText}
-                onChange={(e) => setBottomText(e.target.value)}
-                placeholder="Remate del chiste..." 
-                className="w-full bg-tertiary border border-custom rounded-lg px-4 py-2 focus:outline-none focus:border-accent-blue"
-              />
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1">Texto Superior</label>
+                <input
+                  type="text"
+                  value={topText}
+                  onChange={(e) => setTopText(e.target.value)}
+                  placeholder="Escribe algo gracioso..."
+                  className="w-full bg-tertiary border border-custom rounded-lg px-4 py-2 focus:outline-none focus:border-accent-blue"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Texto Inferior</label>
+                <input
+                  type="text"
+                  value={bottomText}
+                  onChange={(e) => setBottomText(e.target.value)}
+                  placeholder="Remate del chiste..."
+                  className="w-full bg-tertiary border border-custom rounded-lg px-4 py-2 focus:outline-none focus:border-accent-blue"
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="p-4 border-t border-custom bg-tertiary flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-semibold hover:bg-secondary rounded-lg transition-colors border border-custom">
+          <button onClick={handleClose} className="px-4 py-2 text-sm font-semibold hover:bg-secondary rounded-lg transition-colors border border-custom cursor-pointer">
             Cancelar
           </button>
-          <button onClick={handleDownload} className="px-4 py-2 text-sm font-semibold bg-accent-blue hover:bg-accent-blue-hover text-white rounded-lg flex items-center gap-2 transition-colors">
-            <Download size={16} /> Descargar Meme
+          <button onClick={handleDownload} className="px-4 py-2 text-sm font-semibold bg-tertiary border border-custom hover:bg-secondary rounded-lg flex items-center gap-2 transition-colors cursor-pointer">
+            <Download size={16} /> Descargar
+          </button>
+          <button
+            onClick={handleSaveToGallery}
+            disabled={isUploading || isSaved}
+            className="px-4 py-2 text-sm font-semibold bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
+            {isUploading ? 'Guardando...' : isSaved ? 'Guardado' : 'Compartir'}
           </button>
         </div>
       </div>

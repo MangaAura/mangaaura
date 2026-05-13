@@ -183,8 +183,15 @@ async function seedAchievements() {
   console.log('✨ Seed de logros completado');
 }
 
-// Ejecutar si es llamado directamente
-if (require.main === module) {
+export { seedAchievements };
+
+// Ejecutar si es llamado directamente (ESM)
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+
+if (process.argv[1] === __filename) {
   seedAchievements()
     .catch((e) => {
       console.error('❌ Error sembrando logros:', e);
@@ -194,5 +201,3 @@ if (require.main === module) {
       await prisma.$disconnect();
     });
 }
-
-export { seedAchievements };

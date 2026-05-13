@@ -159,7 +159,7 @@ describe('UnifiedAIService Integration', () => {
       };
 
       // Act
-      service.registerModel(model);
+      service.registerModel(model as any);
       const retrieved = service.getModel('test-custom-model');
 
       // Assert

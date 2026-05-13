@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+﻿import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { Button } from '@/components/ui/Button';
 
 describe('Button', () => {
@@ -11,21 +12,21 @@ describe('Button', () => {
   it('applies default variant styles', () => {
     const { container } = render(<Button>Default</Button>);
     const button = container.querySelector('button');
-    expect(button).toHaveClass('bg-indigo-600');
-    expect(button).toHaveClass('text-white');
+    expect(button).toHaveClass('bg-[var(--primary)]');
+    expect(button).toHaveClass('text-[var(--text-inverse)]');
   });
 
   it('applies destructive variant styles', () => {
     const { container } = render(<Button variant="destructive">Delete</Button>);
     const button = container.querySelector('button');
-    expect(button).toHaveClass('bg-red-600');
+    expect(button).toHaveClass('bg-[var(--error)]');
   });
 
   it('applies outline variant styles', () => {
     const { container } = render(<Button variant="outline">Outline</Button>);
     const button = container.querySelector('button');
     expect(button).toHaveClass('border');
-    expect(button).toHaveClass('border-slate-300');
+    expect(button).toHaveClass('border-[var(--border)]');
   });
 
   it('applies different size variants', () => {
@@ -63,15 +64,15 @@ describe('Button', () => {
     const { container } = render(<Button variant="ink">Ink</Button>);
     const button = container.querySelector('button');
     expect(button).toHaveClass('bg-gradient-to-r');
-    expect(button).toHaveClass('from-purple-600');
-    expect(button).toHaveClass('to-indigo-600');
+    expect(button).toHaveClass('from-[var(--accent-purple)]');
+    expect(button).toHaveClass('to-[var(--primary)]');
   });
 
-  it('forwards ref correctly', () => {
-    const ref = { current: null as HTMLButtonElement | null };
-    render(<Button ref={ref}>Ref Test</Button>);
-    expect(ref.current).toBeInstanceOf(HTMLButtonElement);
-  });
+it('forwards ref correctly', () => {
+const ref = React.createRef<HTMLButtonElement>();
+render(<Button {...({ref} as any)}>Ref Test</Button>);
+expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+});
 
   it('renders with icon size', () => {
     const { container } = render(
@@ -93,7 +94,7 @@ describe('Button', () => {
   it('renders as link variant', () => {
     const { container } = render(<Button variant="link">Link</Button>);
     const button = container.querySelector('button');
-    expect(button).toHaveClass('text-indigo-600');
+    expect(button).toHaveClass('text-[var(--primary)]');
     expect(button).toHaveClass('underline-offset-4');
   });
 });

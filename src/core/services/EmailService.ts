@@ -115,7 +115,7 @@ export class EmailService {
     }
     // Use console as fallback in development only
     if (process.env.NODE_ENV === 'development') {
-      console.log('[EmailService] Email not configured - using console fallback');
+      console.info('[EmailService] Email not configured - using console fallback');
       return 'console';
     }
     return 'console';
@@ -128,7 +128,7 @@ export class EmailService {
     switch (this.provider) {
       case 'resend':
         this.resendClient = new Resend(process.env.RESEND_API_KEY!);
-        console.log('[EmailService] Using Resend provider');
+        console.info('[EmailService] Using Resend provider');
         break;
       case 'smtp':
         this.smtpTransporter = nodemailer.createTransport({
@@ -140,10 +140,10 @@ export class EmailService {
             pass: process.env.SMTP_PASSWORD,
           },
         });
-        console.log('[EmailService] Using SMTP provider');
+        console.info('[EmailService] Using SMTP provider');
         break;
       default:
-        console.log('[EmailService] Using console provider (emails will be logged)');
+        console.info('[EmailService] Using console provider (emails will be logged)');
     }
   }
 
@@ -270,7 +270,7 @@ export class EmailService {
     const { html, text, subject } = welcomeEmail(user.username);
     await this.sendEmail(user.email, { html, text, subject });
 
-    console.log(`[EmailService] Welcome email sent to ${user.email}`);
+    console.info(`[EmailService] Welcome email sent to ${user.email}`);
   }
 
   /**
@@ -283,7 +283,7 @@ export class EmailService {
     const { html, text, subject } = passwordResetEmail(resetLink);
     await this.sendEmail(user.email, { html, text, subject });
 
-    console.log(`[EmailService] Password reset email sent to ${user.email}`);
+    console.info(`[EmailService] Password reset email sent to ${user.email}`);
   }
 
   /**
@@ -308,7 +308,7 @@ export class EmailService {
     );
     await this.sendEmail(user.email, { html, text, subject });
 
-    console.log(`[EmailService] New chapter notification sent to ${user.email}`);
+    console.info(`[EmailService] New chapter notification sent to ${user.email}`);
   }
 
   /**
@@ -327,7 +327,7 @@ export class EmailService {
     );
     await this.sendEmail(user.email, { html, text, subject });
 
-    console.log(`[EmailService] Achievement email sent to ${user.email}`);
+    console.info(`[EmailService] Achievement email sent to ${user.email}`);
   }
 
   /**
@@ -347,7 +347,7 @@ export class EmailService {
     );
     await this.sendEmail(user.email, { html, text, subject });
 
-    console.log(`[EmailService] Tip received email sent to ${user.email}`);
+    console.info(`[EmailService] Tip received email sent to ${user.email}`);
   }
 
   /**
@@ -377,7 +377,7 @@ export class EmailService {
     });
     await this.sendEmail(user.email, { html, text, subject: '🎯 ¡Meta de crowdfunding alcanzada!' });
 
-    console.log(`[EmailService] Crowdfunding goal email sent to ${user.email}`);
+    console.info(`[EmailService] Crowdfunding goal email sent to ${user.email}`);
   }
 
   // ============================================================================

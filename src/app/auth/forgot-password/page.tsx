@@ -33,8 +33,8 @@ export default function ForgotPasswordPage() {
       setValidationError('');
       return true;
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        const message = err.errors[0]?.message || 'Email inválido';
+    if (err instanceof z.ZodError) {
+      const message = (err as any).issues?.[0]?.message || (err as any).errors?.[0]?.message || 'Email inválido';
         setValidationError(message);
         return false;
       }
@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
   const hasError = (touched && validationError) || (formState === 'error' && error);
 
   return (
-    <div className="min-h-screen bg-primary font-sans text-fg-primary flex flex-col">
+    <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
           <ArrowLeft size={20} /> Volver al Inicio
@@ -159,7 +159,7 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-3">
                   <Link
                     href="/auth/login"
-                    className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-white font-semibold rounded-xl transition-colors"
+                    className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
                   >
                     <ArrowLeft size={18} />
                     Volver al inicio de sesión
@@ -206,15 +206,15 @@ export default function ForgotPasswordPage() {
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           hasError
-                            ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                            : isValidEmail
-                            ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
+: isValidEmail
+? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
                             : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
                         placeholder="tu@email.com"
                       />
                       {isValidEmail && (
-                        <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                        <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
                       )}
                     </div>
                     {touched && validationError && (
@@ -234,7 +234,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="submit"
                     disabled={formState === 'loading' || !!validationError}
-                    className="w-full bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {formState === 'loading' ? (
                       <>

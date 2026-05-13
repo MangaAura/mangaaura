@@ -142,20 +142,20 @@ export default function NewMangaPage() {
                       tagList.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--surface-sunken)]">
       <main className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/creator/dashboard">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Volver">
               <ArrowLeftIcon className="w-5 h-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
               Nuevo Manga
             </h1>
-            <p className="text-slate-500 mt-1">
+            <p className="text-[var(--text-secondary)] mt-1">
               Crea tu nueva historia
             </p>
           </div>
@@ -172,9 +172,9 @@ export default function NewMangaPage() {
                 <CardContent className="space-y-6">
                   {/* Title */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Título <span className="text-red-500">*</span>
-                    </label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              Título <span className="text-red-500">*</span>
+              </label>
                     <Input
                       value={formData.title}
                       onChange={(e) => handleChange('title', e.target.value)}
@@ -195,9 +195,9 @@ export default function NewMangaPage() {
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Descripción <span className="text-red-500">*</span>
-                    </label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              Descripción <span className="text-red-500">*</span>
+              </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
@@ -205,8 +205,8 @@ export default function NewMangaPage() {
                       placeholder="Describe la trama de tu manga..."
                       rows={5}
                       className={cn(
-                        'w-full rounded-lg border bg-white px-3 py-2 text-sm',
-                        'placeholder:text-slate-400',
+          'w-full rounded-lg border bg-[var(--surface-elevated)] px-3 py-2 text-sm',
+          'placeholder:text-[var(--text-tertiary)]',
                         'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
                         touched.description && errors.description && 'border-red-500 focus:ring-red-500',
                         touched.description && !errors.description && formData.description.length >= 10 && 'border-green-500'
@@ -219,13 +219,13 @@ export default function NewMangaPage() {
                       </p>
                     )}
                     <div className="flex justify-between mt-1">
-                      <span className="text-xs text-slate-400">
-                        Mínimo 10 caracteres
-                      </span>
-                      <span className={cn(
-                        'text-xs',
-                        formData.description.length > 1000 ? 'text-red-500' : 'text-slate-400'
-                      )}>
+                  <span className="text-xs text-[var(--text-tertiary)]">
+                  Mínimo 10 caracteres
+                  </span>
+                  <span className={cn(
+                    'text-xs',
+                    formData.description.length > 1000 ? 'text-red-500' : 'text-[var(--text-tertiary)]'
+                  )}>
                         {formData.description.length}/1000
                       </span>
                     </div>
@@ -233,9 +233,9 @@ export default function NewMangaPage() {
 
                   {/* Tags */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Tags <span className="text-red-500">*</span>
-                    </label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              Tags <span className="text-red-500">*</span>
+              </label>
                     <div className="flex gap-2">
                       <Input
                         value={formData.tags}
@@ -253,9 +253,9 @@ export default function NewMangaPage() {
                         <PlusIcon className="w-4 h-4" />
                       </Button>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Presiona Enter o coma para añadir un tag (máx. 10)
-                    </p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-1">
+              Presiona Enter o coma para añadir un tag (máx. 10)
+            </p>
                     
                     {tagList.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-3">
@@ -294,7 +294,7 @@ export default function NewMangaPage() {
                       'relative aspect-[3/4] rounded-lg border-2 border-dashed cursor-pointer overflow-hidden transition-colors',
                       coverPreview
                         ? 'border-transparent'
-                        : 'border-slate-300 hover:border-indigo-400 bg-slate-50'
+                        : 'border-[var(--border)] hover:border-indigo-400 bg-[var(--surface-sunken)]'
                     )}
                   >
                     {coverPreview ? (
@@ -311,18 +311,18 @@ export default function NewMangaPage() {
                             e.stopPropagation();
                             removeCover();
                           }}
-                          className="absolute top-2 right-2 p-1 bg-white/90 rounded-full hover:bg-white shadow-sm"
-                        >
-                          <XIcon className="w-4 h-4 text-slate-600" />
+          className="absolute top-2 right-2 p-1 bg-[var(--surface-elevated)]/90 rounded-full hover:bg-[var(--surface-elevated)] shadow-sm"
+        >
+          <XIcon className="w-4 h-4 text-[var(--text-secondary)]" />
                         </button>
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                        <UploadIcon className="w-10 h-10 text-slate-400 mb-3" />
-                        <p className="text-sm font-medium text-slate-700">
-                          Click para subir
-                        </p>
-                        <p className="text-xs text-slate-400 mt-1">
+              <UploadIcon className="w-10 h-10 text-[var(--text-tertiary)] mb-3" />
+              <p className="text-sm font-medium text-[var(--text-primary)]">
+                Click para subir
+              </p>
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">
                           PNG, JPG hasta 5MB
                         </p>
                       </div>
@@ -350,8 +350,8 @@ export default function NewMangaPage() {
                   <CardTitle>Vista Previa</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="aspect-[3/4] bg-slate-200 rounded-lg mb-3 overflow-hidden">
+        <div className="bg-[var(--surface-sunken)] rounded-lg p-4">
+          <div className="aspect-[3/4] bg-[var(--border-subtle)] rounded-lg mb-3 overflow-hidden">
                       {coverPreview ? (
                         <Image
                           src={coverPreview}
@@ -361,21 +361,21 @@ export default function NewMangaPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                        <div className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)]">
                           <span className="text-4xl font-bold">
                             {formData.title.charAt(0) || '?'}
                           </span>
                         </div>
                       )}
                     </div>
-                    <h3 className="font-semibold text-slate-900 line-clamp-1">
+                    <h3 className="font-semibold text-[var(--text-primary)] line-clamp-1">
                       {formData.title || 'Título del Manga'}
                     </h3>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {tagList.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded"
+                          className="text-xs px-2 py-0.5 bg-[var(--surface)] text-[var(--text-secondary)] rounded"
                         >
                           {tag}
                         </span>
@@ -388,7 +388,7 @@ export default function NewMangaPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-[var(--border-subtle)]">
             <Link href="/creator/dashboard">
               <Button variant="outline" type="button">
                 Cancelar

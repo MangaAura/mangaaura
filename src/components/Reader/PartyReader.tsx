@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PartyReader Component
  *
  * Componente de lectura en grupo con chat en tiempo real,
@@ -206,14 +206,14 @@ export default function PartyReader({
   // Renderizar reaccion flotante
   const FloatingReaction = ({ reaction, username }: { reaction: string; username: string }) => (
     <div className="absolute pointer-events-none animate-float-up z-50">
-      <div className="bg-accent-purple/90 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+      <div className="bg-accent-purple/90 text-[var(--text-inverse)] px-3 py-1 rounded-full text-sm font-bold shadow-lg">
         {reaction} {username}
       </div>
     </div>
   );
 
   return (
-    <div className="h-screen bg-[#0a0a0c] text-white flex overflow-hidden">
+    <div className="h-screen bg-[var(--background)] text-[var(--text-inverse)] flex overflow-hidden">
       {/* Reacciones flotantes */}
       {reactions.map((r) => (
         <FloatingReaction key={r.id} reaction={r.reaction} username={r.username} />
@@ -224,70 +224,74 @@ export default function PartyReader({
         {/* Barra Superior */}
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent z-40">
           <Link href={`/manga/${mangaId}`}>
-            <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md p-2 rounded-lg transition-colors">
+            <button className="bg-[var(--text-inverse)]/10 hover:bg-[var(--text-inverse)]/20 backdrop-blur-md p-2 rounded-lg transition-colors cursor-pointer" aria-label="Volver al manga">
               <ArrowLeft size={20} />
             </button>
           </Link>
 
-          <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-4 text-sm font-semibold shadow-lg">
-            <span className={`flex items-center gap-1 ${isConnected ? 'text-green-400' : 'text-red-400'}`}>
+          <div className="bg-black/60 backdrop-blur-md border border-[var(--text-inverse)]/10 px-4 py-2 rounded-full flex items-center gap-4 text-sm font-semibold shadow-lg">
+            <span className={`flex items-center gap-1 ${isConnected ? 'text-[var(--success)]' : 'text-[var(--error)]'}`}>
               {isConnected ? <Wifi size={14} /> : <WifiOff size={14} />}
               {isConnected ? 'Connected' : 'Disconnected'}
             </span>
-            <span className="w-px h-4 bg-white/20"></span>
+            <span className="w-px h-4 bg-[var(--text-inverse)]/20"></span>
             <span>Page {localPage} / {pages.length}</span>
             {isHost && (
               <>
-                <span className="w-px h-4 bg-white/20"></span>
-                <span className="text-yellow-400 flex items-center gap-1">
+                <span className="w-px h-4 bg-[var(--text-inverse)]/20"></span>
+                <span className="text-[var(--warning)] flex items-center gap-1">
                   <Crown size={14} fill="currentColor" />
                   Host
                 </span>
               </>
             )}
-            <span className="w-px h-4 bg-white/20"></span>
-            <button
-              onClick={() => setShowMembers(true)}
-              className="text-accent-blue flex items-center gap-1 hover:text-accent-blue-hover"
-            >
+            <span className="w-px h-4 bg-[var(--text-inverse)]/20"></span>
+          <button
+            onClick={() => setShowMembers(true)}
+            className="text-accent-blue flex items-center gap-1 hover:text-accent-blue-hover cursor-pointer"
+          >
               <Users size={14} />
               {members.filter((m) => m.isOnline).length} / {members.length}
             </button>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowInviteModal(true)}
-              className="bg-accent-blue hover:bg-accent-blue-hover text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            >
+        <button
+          onClick={() => setShowInviteModal(true)}
+          className="bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] px-3 py-2 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+          aria-label="Invitar amigos"
+        >
               <UserPlus size={16} />
               Invite
             </button>
-            <button
-              onClick={() => setShowSidebar(!showSidebar)}
-              className={`p-2 rounded-lg transition-colors ${showSidebar ? 'bg-accent-blue' : 'bg-white/10 hover:bg-white/20'}`}
-            >
+        <button
+          onClick={() => setShowSidebar(!showSidebar)}
+          className={`p-2 rounded-lg transition-colors cursor-pointer ${showSidebar ? 'bg-accent-blue' : 'bg-[var(--text-inverse)]/10 hover:bg-[var(--text-inverse)]/20'}`}
+          aria-label={showSidebar ? 'Ocultar chat' : 'Mostrar chat'}
+        >
               <MessageSquare size={20} />
             </button>
           </div>
         </div>
 
         {/* Area de lectura */}
-        <div className="flex-1 flex items-center justify-center bg-[#050505] overflow-hidden relative">
+        <div className="flex-1 flex items-center justify-center bg-[var(--surface-sunken)] overflow-hidden relative">
           <div className="relative max-w-3xl w-full mx-4">
             {/* Controles de navegacion */}
-            <button
-              onClick={() => handlePageChange(localPage - 1)}
-              disabled={localPage <= 1}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-colors disabled:opacity-30 z-10"
-            >
+        <button
+          onClick={() => handlePageChange(localPage - 1)}
+          disabled={localPage <= 1}
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-colors disabled:opacity-30 z-10 cursor-pointer"
+          aria-label="Página anterior"
+        >
               <ChevronLeft size={24} />
             </button>
-            <button
-              onClick={() => handlePageChange(localPage + 1)}
-              disabled={localPage >= pages.length}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-colors disabled:opacity-30 z-10"
-            >
+        <button
+          onClick={() => handlePageChange(localPage + 1)}
+          disabled={localPage >= pages.length}
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-colors disabled:opacity-30 z-10 cursor-pointer"
+          aria-label="Página siguiente"
+        >
               <ChevronRight size={24} />
             </button>
 
@@ -303,11 +307,12 @@ export default function PartyReader({
                 {/* Reacciones overlay */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   {QUICK_REACTIONS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      onClick={() => handleReaction(emoji)}
-                      className="w-10 h-10 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-xl hover:scale-110 transition-transform"
-                    >
+          <button
+            key={emoji}
+            onClick={() => handleReaction(emoji)}
+            className="w-10 h-10 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-xl hover:scale-110 transition-transform cursor-pointer"
+            aria-label={`Reacción ${emoji}`}
+          >
                       {emoji}
                     </button>
                   ))}
@@ -318,15 +323,12 @@ export default function PartyReader({
 
           {/* Indicador de pagina sincronizada */}
           {!isHost && localPage !== hostPage && (
-            <div className="absolute bottom-4 left-4 bg-accent-blue/90 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+            <div className="absolute bottom-4 left-4 bg-accent-blue/90 text-[var(--text-inverse)] px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
               Host on page {hostPage}
-              <button
-                onClick={() => {
-                  setLocalPage(hostPage);
-                  setFollowHost(true);
-                }}
-                className="ml-2 underline hover:no-underline"
-              >
+            <button
+              onClick={() => { setLocalPage(hostPage); setFollowHost(true); }}
+              className="ml-2 underline hover:no-underline cursor-pointer"
+            >
                 Sync
               </button>
             </div>
@@ -335,11 +337,11 @@ export default function PartyReader({
           {/* Boton de Follow/Unfollow */}
           {!isHost && (
             <button
-              onClick={() => setFollowHost(!followHost)}
-              className={`absolute bottom-4 right-4 px-4 py-2 rounded-lg text-sm font-semibold shadow-lg transition-colors ${
+          onClick={() => setFollowHost(!followHost)}
+          className={`absolute bottom-4 right-4 px-4 py-2 rounded-lg text-sm font-semibold shadow-lg transition-colors cursor-pointer ${
                 followHost
-                  ? 'bg-green-500/90 hover:bg-green-600/90 text-white'
-                  : 'bg-white/10 hover:bg-white/20 text-white'
+? 'bg-[var(--success)]/90 hover:bg-[var(--success)]/90 text-[var(--text-inverse)]'
+            : 'bg-[var(--text-inverse)]/10 hover:bg-[var(--text-inverse)]/20 text-[var(--text-inverse)]'
               }`}
             >
               {followHost ? 'Following Host' : 'Free Read'}
@@ -348,10 +350,11 @@ export default function PartyReader({
 
           {/* Boton de ser anfitrion */}
           {!isHost && members.find((m) => m.isHost)?.isOnline === false && (
-            <button
-              onClick={handleBecomeHost}
-              className="absolute top-20 left-1/2 -translate-x-1/2 bg-yellow-500/90 hover:bg-yellow-600/90 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg flex items-center gap-2"
-            >
+        <button
+          onClick={handleBecomeHost}
+          className="absolute top-20 left-1/2 -translate-x-1/2 bg-[var(--warning)]/90 hover:bg-[var(--warning)]/90 text-[var(--text-inverse)] px-4 py-2 rounded-lg text-sm font-semibold shadow-lg flex items-center gap-2 cursor-pointer"
+          aria-label="Convertirse en anfitrión"
+        >
               <Crown size={16} />
               Become Host
             </button>
@@ -369,27 +372,28 @@ export default function PartyReader({
 
       {/* Sidebar: Chat */}
       {showSidebar && (
-        <div className="w-[350px] lg:w-[400px] bg-[#111216] border-l border-white/10 flex flex-col z-20">
+        <div className="w-[350px] lg:w-[400px] bg-[var(--surface)] border-l border-[var(--text-inverse)]/10 flex flex-col z-20">
           {/* Chat Header */}
-          <div className="h-16 px-4 flex items-center justify-between border-b border-white/10 bg-[#16171c]">
+          <div className="h-16 px-4 flex items-center justify-between border-b border-[var(--text-inverse)]/10 bg-[var(--surface-elevated)]">
             <div>
               <h2 className="font-bold flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'} animate-pulse`}></div>
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[var(--success)]' : 'bg-[var(--error)]'} animate-pulse`}></div>
                 Party Chat
               </h2>
-              <p className="text-xs text-gray-500">{mangaTitle} - Ch. {chapterNumber}</p>
+              <p className="text-xs text-[var(--text-muted)]">{mangaTitle} - Ch. {chapterNumber}</p>
             </div>
-            <button
-              onClick={() => setShowSidebar(false)}
-              className="p-1 hover:bg-white/10 rounded transition-colors"
-            >
+        <button
+          onClick={() => setShowSidebar(false)}
+          className="p-1 hover:bg-[var(--text-inverse)]/10 rounded transition-colors cursor-pointer"
+          aria-label="Cerrar chat"
+        >
               <X size={20} />
             </button>
           </div>
 
           {/* Typing Indicator */}
           {typingUsers.length > 0 && (
-            <div className="px-4 py-2 bg-[#1a1b21] text-xs text-gray-400">
+            <div className="px-4 py-2 bg-[var(--surface-elevated)] text-xs text-[var(--text-tertiary)]">
               {typingUsers.map((u) => u.username).join(', ')} {typingUsers.length === 1 ? 'is typing...' : 'are typing...'}
             </div>
           )}
@@ -397,7 +401,7 @@ export default function PartyReader({
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-[var(--text-muted)] py-8">
                 <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
                 <p>No messages yet</p>
                 <p className="text-sm">Start the conversation!</p>
@@ -406,7 +410,7 @@ export default function PartyReader({
             {messages.map((msg) => (
               <div key={msg.id} className={`text-sm ${msg.type === 'system' ? 'text-center' : ''}`}>
                 {msg.type === 'system' ? (
-                  <span className="bg-white/10 text-gray-400 px-3 py-1 rounded-full text-xs font-medium">
+                  <span className="bg-[var(--text-inverse)]/10 text-[var(--text-tertiary)] px-3 py-1 rounded-full text-xs font-medium">
                     {msg.content}
                   </span>
                 ) : (
@@ -420,11 +424,11 @@ export default function PartyReader({
                         </div>
                       )}
                       <span className="font-bold text-accent-blue">{msg.username}</span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-[var(--text-muted)]">
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <span className="text-gray-200 leading-relaxed bg-white/5 px-3 py-2 rounded-lg rounded-tl-none w-fit border border-white/5">
+                    <span className="text-[var(--text-secondary)] leading-relaxed bg-[var(--text-inverse)]/5 px-3 py-2 rounded-lg rounded-tl-none w-fit border border-[var(--text-inverse)]/5">
                       {msg.content}
                     </span>
                   </div>
@@ -435,13 +439,14 @@ export default function PartyReader({
           </div>
 
           {/* Input Area */}
-          <div className="p-4 bg-[#16171c] border-t border-white/10">
+          <div className="p-4 bg-[var(--surface-elevated)] border-t border-[var(--text-inverse)]/10">
             <form onSubmit={handleSendMessage} className="flex items-center gap-2 relative">
-              <button
-                type="button"
-                onClick={() => setShowReactions(!showReactions)}
-                className="absolute left-3 text-gray-400 hover:text-white transition-colors"
-              >
+        <button
+          type="button"
+          onClick={() => setShowReactions(!showReactions)}
+          className="absolute left-3 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          aria-label="Reacciones"
+        >
                 <Smile size={20} />
               </button>
               <input
@@ -452,34 +457,36 @@ export default function PartyReader({
                   handleTyping();
                 }}
                 placeholder="Type a message..."
-                className="w-full bg-[#0a0a0c] border border-white/10 focus:border-accent-blue rounded-full py-2.5 pl-10 pr-12 text-sm outline-none transition-colors"
+                className="w-full bg-[var(--background)] border border-[var(--text-inverse)]/10 focus:border-accent-blue rounded-full py-2.5 pl-10 pr-12 text-sm outline-none transition-colors"
                 disabled={!isConnected}
               />
-              <button
-                type="submit"
-                disabled={!chatMessage.trim() || !isConnected}
-                className="absolute right-2 bg-accent-blue text-white p-1.5 rounded-full disabled:opacity-50 hover:bg-accent-blue-hover transition-colors"
-              >
+        <button
+          type="submit"
+          disabled={!chatMessage.trim() || !isConnected}
+          className="absolute right-2 bg-accent-blue text-[var(--text-inverse)] p-1.5 rounded-full disabled:opacity-50 hover:bg-accent-blue-hover transition-colors cursor-pointer"
+          aria-label="Enviar mensaje"
+        >
                 <Send size={16} />
               </button>
             </form>
 
             {/* Quick reactions picker */}
             {showReactions && (
-              <div className="absolute bottom-16 left-4 right-4 bg-[#1a1b21] border border-white/10 rounded-lg p-2 flex gap-2 flex-wrap">
+              <div className="absolute bottom-16 left-4 right-4 bg-[var(--surface-elevated)] border border-[var(--text-inverse)]/10 rounded-lg p-2 flex gap-2 flex-wrap">
                 {QUICK_REACTIONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    onClick={() => handleReaction(emoji)}
-                    className="w-8 h-8 hover:bg-white/10 rounded flex items-center justify-center text-lg transition-colors"
-                  >
+            <button
+              key={emoji}
+              onClick={() => handleReaction(emoji)}
+              className="w-8 h-8 hover:bg-[var(--text-inverse)]/10 rounded flex items-center justify-center text-lg transition-colors cursor-pointer"
+              aria-label={`Reacción ${emoji}`}
+            >
                     {emoji}
                   </button>
                 ))}
               </div>
             )}
 
-            <div className="mt-2 flex items-center justify-between text-[10px] text-gray-500">
+            <div className="mt-2 flex items-center justify-between text-[10px] text-[var(--text-muted)]">
               <span className="flex items-center gap-1">
                 {isConnected ? <Eye size={12} /> : <Zap size={12} />}
                 {isConnected ? `${members.filter((m) => m.isOnline).length} online` : 'Reconnecting...'}
@@ -493,19 +500,20 @@ export default function PartyReader({
       {/* Modal de Miembros */}
       {showMembers && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-[#16171c] rounded-lg w-80 max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <div className="bg-[var(--surface-elevated)] rounded-lg w-80 max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-[var(--text-inverse)]/10 flex items-center justify-between">
               <h3 className="font-bold">Party Members</h3>
-              <button
-                onClick={() => setShowMembers(false)}
-                className="p-1 hover:bg-white/10 rounded"
-              >
+          <button
+            onClick={() => setShowMembers(false)}
+            className="p-1 hover:bg-[var(--text-inverse)]/10 rounded cursor-pointer"
+            aria-label="Cerrar miembros"
+          >
                 <X size={20} />
               </button>
             </div>
             <div className="p-2 overflow-y-auto max-h-64">
               {members.map((member) => (
-                <div key={member.userId} className="flex items-center gap-3 p-2 hover:bg-white/5 rounded">
+                <div key={member.userId} className="flex items-center gap-3 p-2 hover:bg-[var(--text-inverse)]/5 rounded">
                   <div className="relative">
                     {member.avatarUrl ? (
                       <img src={member.avatarUrl} alt={member.username} className="w-8 h-8 rounded-full" />
@@ -515,8 +523,8 @@ export default function PartyReader({
                       </div>
                     )}
                     <div
-                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-[#16171c] ${
-                        member.isOnline ? 'bg-green-400' : 'bg-gray-500'
+                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-[var(--surface-elevated)] ${
+                        member.isOnline ? 'bg-[var(--success)]' : 'bg-[var(--text-muted)]'
                       }`}
                     />
                   </div>
@@ -524,11 +532,11 @@ export default function PartyReader({
                     <div className="flex items-center gap-1">
                       <span className="font-medium text-sm truncate">{member.username}</span>
                       {member.isHost && (
-                        <Crown size={12} className="text-yellow-400" fill="currentColor" />
+                        <Crown size={12} className="text-[var(--warning)]" fill="currentColor" />
                       )}
                     </div>
-                    <span className="text-xs text-gray-500">
-                      Page {member.currentPage} • {member.isOnline ? 'Online' : 'Offline'}
+<span className="text-xs text-[var(--text-muted)]">
+                            Page {member.currentPage} • {member.isOnline ? 'Online' : 'Offline'}
                     </span>
                   </div>
                 </div>
@@ -541,17 +549,18 @@ export default function PartyReader({
       {/* Modal de Invitacion */}
       {showInviteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-[#16171c] rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-[var(--surface-elevated)] rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-lg">Invite Friends</h3>
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="p-1 hover:bg-white/10 rounded"
-              >
+          <button
+            onClick={() => setShowInviteModal(false)}
+            className="p-1 hover:bg-[var(--text-inverse)]/10 rounded cursor-pointer"
+            aria-label="Cerrar invitación"
+          >
                 <X size={20} />
               </button>
             </div>
-            <p className="text-gray-400 mb-4">
+            <p className="text-[var(--text-tertiary)] mb-4">
               Share this link with your friends to read together:
             </p>
             <div className="flex gap-2">
@@ -559,21 +568,22 @@ export default function PartyReader({
                 type="text"
                 value={`${typeof window !== 'undefined' ? window.location.origin : ''}/reader/party/${partyId}`}
                 readOnly
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm"
+                className="flex-1 bg-[var(--text-inverse)]/5 border border-[var(--text-inverse)]/10 rounded-lg px-3 py-2 text-sm"
               />
-              <button
-                onClick={copyInviteLink}
-                className="bg-accent-blue hover:bg-accent-blue-hover text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-              >
+        <button
+          onClick={copyInviteLink}
+          className="bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] px-4 py-2 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+          aria-label="Copiar enlace"
+        >
                 {copiedLink ? <Check size={18} /> : <Copy size={18} />}
                 {copiedLink ? 'Copied!' : 'Copy'}
               </button>
             </div>
             <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
+        <button
+          onClick={() => setShowInviteModal(false)}
+          className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+        >
                 Close
               </button>
             </div>

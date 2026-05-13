@@ -111,7 +111,7 @@ export function ErrorMessage({
             onClick={onDismiss}
             className={cn(
               'flex-shrink-0 -mr-1 -mt-1 p-1 rounded-lg transition-colors',
-              'hover:bg-black/5 dark:hover:bg-white/5',
+              'hover:bg-[var(--surface)]',
               config.textColor
             )}
             aria-label="Cerrar"
@@ -164,7 +164,7 @@ export function ErrorBoundary({ error, reset, className }: ErrorBoundaryProps) {
         {reset && (
           <button
             onClick={reset}
-            className="px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-medium hover:bg-[var(--primary-hover)] transition-colors"
+            className="px-6 py-3 bg-[var(--primary)] text-[var(--text-inverse)] rounded-xl font-medium hover:bg-[var(--primary-hover)] transition-colors"
           >
             Intentar de nuevo
           </button>
@@ -222,7 +222,7 @@ export function EmptyState({
       {action && (
         <button
           onClick={action.onClick}
-          className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+          className="px-4 py-2 bg-[var(--primary)] text-[var(--text-inverse)] rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
         >
           {action.label}
         </button>

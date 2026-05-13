@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
@@ -12,9 +12,9 @@ export function ServiceWorkerRegistration() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .then((reg) => {
-          console.log('SW registrado:', reg);
-          setRegistration(reg);
+      .then((reg) => {
+        console.info('[SW] Registered');
+        setRegistration(reg);
 
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
@@ -27,14 +27,13 @@ export function ServiceWorkerRegistration() {
             }
           });
         })
-        .catch((err) => {
-          console.log('Error registrando SW:', err);
-        });
+      .catch((err) => {
+        console.error('[SW] Registration failed:', err);
+      });
 
-      // Check for updates periodically
       const interval = setInterval(() => {
         registration?.update();
-      }, 60000); // Check every minute
+      }, 60000);
 
       return () => clearInterval(interval);
     }
@@ -49,15 +48,14 @@ export function ServiceWorkerRegistration() {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 duration-300">
-      <div className="bg-slate-900 text-white rounded-xl shadow-2xl p-4 flex items-center gap-4">
+      <div className="bg-[var(--surface)] text-[var(--text-primary)] rounded-xl shadow-2xl p-4 flex items-center gap-4 border border-[var(--border)]">
         <div className="flex-1">
           <p className="font-medium text-sm">Nueva versión disponible</p>
-          <p className="text-xs text-slate-400">Actualiza para obtener las últimas mejoras</p>
+          <p className="text-xs text-[var(--text-secondary)]">Actualiza para obtener las últimas mejoras</p>
         </div>
         <Button
           size="sm"
           onClick={handleUpdate}
-          className="bg-indigo-500 hover:bg-indigo-600"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
           Actualizar

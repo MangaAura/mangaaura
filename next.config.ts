@@ -2,10 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  // Build settings - allow production deploy despite TS errors
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  
 
   // Turbopack configuration
   turbopack: {
@@ -32,10 +29,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '**.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.placeholder.com',
       },
       {
         protocol: 'https',
@@ -133,7 +126,7 @@ const nextConfig: NextConfig = {
   },
 
   // Webpack config for performance optimizations
-  webpack: (config, { isServer, nextRuntime }) => {
+  webpack: (config: any, { isServer, nextRuntime }: any) => {
     // Optimize chunk loading
     if (!isServer) {
       config.optimization = {
@@ -168,7 +161,7 @@ const sentryConfig = process.env.SENTRY_DSN
       project: process.env.SENTRY_PROJECT || "inkverse-web",
       silent: !process.env.CI,
       widenClientFileUpload: true,
-      hideSourceMaps: true,
+      sourcemaps: { disable: false, deleteSourcemapsAfterUpload: true },
       disableLogger: true,
       automaticVercelMonitors: true,
     })

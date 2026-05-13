@@ -47,7 +47,7 @@ export class ClanService {
       },
     });
 
-    return clans.map((clan, index) => ({
+    return clans.map((clan: any, index: any) => ({
       clanId: clan.id,
       clanName: clan.name,
       emblemUrl: clan.emblemUrl,
@@ -75,7 +75,7 @@ export class ClanService {
     const rankings = await this.calculateSeasonalRanking(seasonNumber, 10);
     
     const endDate = new Date();
-    const rewardsDistributed = await prisma.$transaction(async (tx) => {
+    const rewardsDistributed = await prisma.$transaction(async (tx: any) => {
       // Process rewards for top clans
       for (const clan of rankings) {
         const reward = this.getRewardForRank(clan.rank);
@@ -94,7 +94,7 @@ export class ClanService {
 
         // Distribute InkCoins to members based on contribution
         const totalContributed = members.reduce(
-          (sum, m) => sum + m.contributedScore,
+          (sum: any, m: any) => sum + m.contributedScore,
           0
         ) || 1;
 
@@ -219,10 +219,10 @@ export class ClanService {
     });
 
     const totalMembers = members.length;
-    const totalContributed = members.reduce(
-      (sum, m) => sum + m.contributedScore,
-      0
-    );
+const totalContributed = members.reduce(
+        (sum: any, m: any) => sum + m.contributedScore,
+        0
+      );
     const averageContribution = totalMembers > 0 ? totalContributed / totalMembers : 0;
 
     const topContributor = members.length > 0

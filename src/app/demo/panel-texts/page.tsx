@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { PanelTextOverlay, type PanelText } from '@/components/Reader/PanelTextOverlay';
@@ -102,20 +102,20 @@ export default function PanelTextsDemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 py-8">
+    <div className="min-h-screen bg-[var(--surface)] py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
             🎨 Editor de Viñetas
           </h1>
-          <p className="text-slate-400">
+          <p className="text-[var(--text-secondary)]">
             Demostración del componente PanelTextOverlay. Añade, edita y posiciona viñetas de texto sobre paneles de manga.
           </p>
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-800 rounded-xl">
+        <div className="flex flex-wrap gap-3 mb-6 p-4 bg-[var(--surface-sunken)] rounded-xl">
           <Button
             onClick={() => setIsEditing(!isEditing)}
             variant={isEditing ? 'default' : 'outline'}
@@ -150,14 +150,14 @@ export default function PanelTextsDemoPage() {
               onChange={handleImportJSON}
               className="hidden"
             />
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface-sunken)] hover:bg-[var(--surface-sunken)] text-[var(--text-primary)] rounded-lg transition-colors">
               <Upload className="w-4 h-4" />
               Importar JSON
             </span>
           </label>
 
           {isDirty && (
-            <span className="flex items-center text-amber-400 text-sm">
+            <span className="flex items-center text-[var(--warning)] text-sm">
               • Cambios sin guardar
             </span>
           )}
@@ -166,7 +166,7 @@ export default function PanelTextsDemoPage() {
             <Button
               onClick={clearTexts}
               variant="outline"
-              className="flex items-center gap-2 text-red-400 hover:text-red-300 ml-auto"
+              className="flex items-center gap-2 text-[var(--error)] hover:text-[var(--error)] ml-auto"
             >
               <Trash2 className="w-4 h-4" />
               Limpiar todo
@@ -178,7 +178,7 @@ export default function PanelTextsDemoPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Canvas */}
           <div className="lg:col-span-2">
-            <div className="bg-slate-800 rounded-xl p-4">
+            <div className="bg-[var(--surface-sunken)] rounded-xl p-4">
               <div ref={overlayRef} className="inline-block">
                 <PanelTextOverlay
                   imageUrl={DEMO_IMAGE}
@@ -194,9 +194,9 @@ export default function PanelTextsDemoPage() {
           {/* Sidebar info */}
           <div className="space-y-4">
             {/* Instructions */}
-            <div className="bg-slate-800 rounded-xl p-4">
-              <h3 className="font-semibold text-white mb-3">📖 Instrucciones</h3>
-              <ul className="space-y-2 text-sm text-slate-400">
+            <div className="bg-[var(--surface-sunken)] rounded-xl p-4">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">📖 Instrucciones</h3>
+              <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
                 <li className="flex items-start gap-2">
                   <span className="text-accent-blue">1.</span>
                   <span>Haz clic en "Editar" para activar el modo edición</span>
@@ -221,34 +221,34 @@ export default function PanelTextsDemoPage() {
             </div>
 
             {/* Stats */}
-            <div className="bg-slate-800 rounded-xl p-4">
-              <h3 className="font-semibold text-white mb-3">📊 Estadísticas</h3>
+            <div className="bg-[var(--surface-sunken)] rounded-xl p-4">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">📊 Estadísticas</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Total viñetas:</span>
-                  <span className="text-white font-medium">{texts.length}</span>
+                  <span className="text-[var(--text-secondary)]">Total viñetas:</span>
+                  <span className="text-[var(--text-primary)] font-medium">{texts.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Diálogos:</span>
-                  <span className="text-white font-medium">
+                  <span className="text-[var(--text-secondary)]">Diálogos:</span>
+                  <span className="text-[var(--text-primary)] font-medium">
                     {texts.filter(t => t.type === 'speech').length}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Pensamientos:</span>
-                  <span className="text-white font-medium">
+                  <span className="text-[var(--text-secondary)]">Pensamientos:</span>
+                  <span className="text-[var(--text-primary)] font-medium">
                     {texts.filter(t => t.type === 'thought').length}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Narración:</span>
-                  <span className="text-white font-medium">
+                  <span className="text-[var(--text-secondary)]">Narración:</span>
+                  <span className="text-[var(--text-primary)] font-medium">
                     {texts.filter(t => t.type === 'narration').length}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Sonidos:</span>
-                  <span className="text-white font-medium">
+                  <span className="text-[var(--text-secondary)]">Sonidos:</span>
+                  <span className="text-[var(--text-primary)] font-medium">
                     {texts.filter(t => t.type === 'sound').length}
                   </span>
                 </div>
@@ -256,35 +256,35 @@ export default function PanelTextsDemoPage() {
             </div>
 
             {/* Types info */}
-            <div className="bg-slate-800 rounded-xl p-4">
-              <h3 className="font-semibold text-white mb-3">🎭 Tipos de viñetas</h3>
+            <div className="bg-[var(--surface-sunken)] rounded-xl p-4">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">🎭 Tipos de viñetas</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white flex-shrink-0"></div>
+                  <div className="w-8 h-8 rounded-full bg-[var(--surface-elevated)] flex-shrink-0"></div>
                   <div>
-                    <p className="text-white font-medium">Diálogo</p>
-                    <p className="text-slate-500 text-xs">Burbuja redonda con cola</p>
+                    <p className="text-[var(--text-primary)] font-medium">Diálogo</p>
+                    <p className="text-[var(--text-tertiary)] text-xs">Burbuja redonda con cola</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-slate-400 border-dashed flex-shrink-0"></div>
+                  <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-dashed flex-shrink-0"></div>
                   <div>
-                    <p className="text-white font-medium">Pensamiento</p>
-                    <p className="text-slate-500 text-xs">Nube con bordes suaves</p>
+                    <p className="text-[var(--text-primary)] font-medium">Pensamiento</p>
+                    <p className="text-[var(--text-tertiary)] text-xs">Nube con bordes suaves</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-black border border-slate-600 flex-shrink-0"></div>
+                  <div className="w-8 h-8 bg-[var(--text-primary)] border border-[var(--border)] flex-shrink-0"></div>
                   <div>
-                    <p className="text-white font-medium">Narración</p>
-                    <p className="text-slate-500 text-xs">Caja con fondo oscuro</p>
+                    <p className="text-[var(--text-primary)] font-medium">Narración</p>
+                    <p className="text-[var(--text-tertiary)] text-xs">Caja con fondo oscuro</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-red-400 font-black text-lg">!</div>
+                  <div className="text-[var(--error)] font-black text-lg">!</div>
                   <div>
-                    <p className="text-white font-medium">Efecto de sonido</p>
-                    <p className="text-slate-500 text-xs">Texto rotado, sin fondo</p>
+                    <p className="text-[var(--text-primary)] font-medium">Efecto de sonido</p>
+                    <p className="text-[var(--text-tertiary)] text-xs">Texto rotado, sin fondo</p>
                   </div>
                 </div>
               </div>
@@ -292,8 +292,8 @@ export default function PanelTextsDemoPage() {
 
             {/* Export preview */}
             {exportUrl && (
-              <div className="bg-slate-800 rounded-xl p-4">
-                <h3 className="font-semibold text-white mb-3">👁️ Vista previa</h3>
+              <div className="bg-[var(--surface-sunken)] rounded-xl p-4">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3">👁️ Vista previa</h3>
                 <img 
                   src={exportUrl} 
                   alt="Export preview" 

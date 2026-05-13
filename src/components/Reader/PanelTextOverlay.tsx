@@ -15,6 +15,7 @@ export interface PanelText {
   borderRadius: number;
   padding: number;
   rotation: number;
+  border?: string;
   type: 'speech' | 'thought' | 'narration' | 'sound';
 }
 
@@ -33,6 +34,7 @@ const TEMPLATES: Record<string, Partial<PanelText>> = {
     borderRadius: 50,
     padding: 16,
     fontSize: 16,
+    border: '2px solid rgba(0,0,0,0.3)',
   },
   thought: {
     backgroundColor: 'rgba(240,240,240,0.95)',
@@ -40,6 +42,7 @@ const TEMPLATES: Record<string, Partial<PanelText>> = {
     borderRadius: 30,
     padding: 14,
     fontSize: 15,
+    border: '2px solid rgba(0,0,0,0.2)',
   },
   narration: {
     backgroundColor: 'rgba(0,0,0,0.85)',
@@ -50,7 +53,7 @@ const TEMPLATES: Record<string, Partial<PanelText>> = {
   },
   sound: {
     backgroundColor: 'transparent',
-    color: '#ff6b6b',
+    color: '#ef4444',
     borderRadius: 0,
     padding: 8,
     fontSize: 24,
@@ -82,8 +85,9 @@ export function PanelTextOverlay({
       backgroundColor: TEMPLATES[type].backgroundColor || 'rgba(255,255,255,0.95)',
       borderRadius: TEMPLATES[type].borderRadius ?? 50,
       padding: TEMPLATES[type].padding ?? 16,
-      rotation: TEMPLATES[type].rotation ?? 0,
-      type,
+  rotation: TEMPLATES[type].rotation ?? 0,
+    border: TEMPLATES[type].border || 'none',
+    type,
     };
     onTextsChange([...texts, newText]);
     setActiveId(newText.id);
@@ -181,8 +185,9 @@ export function PanelTextOverlay({
               borderRadius: `${text.borderRadius}px`,
               padding: `${text.padding}px`,
               fontSize: `${text.fontSize}px`,
-              transform: `rotate(${text.rotation}deg)`,
-            }}
+          transform: `rotate(${text.rotation}deg)`,
+          ...(text.border && text.border !== 'none' ? { border: text.border } : {}),
+        }}
           >
             {/* Speech/Thought bubble tail */}
             {(text.type === 'speech' || text.type === 'thought') && (
@@ -215,7 +220,7 @@ export function PanelTextOverlay({
             {/* Edit indicator */}
             {isEditing && activeId === text.id && !isDragging && (
               <div className="absolute -top-2 -right-2 flex gap-1">
-                <div className="bg-accent-blue text-white p-1 rounded-full">
+                <div className="bg-accent-blue text-[var(--text-inverse)] p-1 rounded-full">
                   <Edit2 size={12} />
                 </div>
               </div>
@@ -228,46 +233,46 @@ export function PanelTextOverlay({
       {isEditing && !readOnly && (
         <>
           {/* Add bubbles menu */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2 bg-slate-800/95 backdrop-blur rounded-xl p-3 shadow-xl">
-            <span className="text-xs text-white/70 font-medium">Añadir viñeta</span>
+          <div className="absolute top-4 left-4 flex flex-col gap-2 bg-[var(--surface-sunken)]/95 backdrop-blur rounded-xl p-3 shadow-xl">
+            <span className="text-xs text-[var(--text-inverse)]/70 font-medium">Añadir viñeta</span>
             <button 
               onClick={() => handleAdd('speech')} 
-              className="text-white text-sm px-3 py-2 hover:bg-white/10 rounded flex items-center gap-2 transition-colors"
+              className="text-[var(--text-inverse)] text-sm px-3 py-2 hover:bg-[var(--text-inverse)]/10 rounded flex items-center gap-2 transition-colors"
             >
-              <span className="w-3 h-3 rounded-full bg-white"></span>
+              <span className="w-3 h-3 rounded-full bg-[var(--text-inverse)]"></span>
               Diálogo
             </button>
             <button 
               onClick={() => handleAdd('thought')} 
-              className="text-white text-sm px-3 py-2 hover:bg-white/10 rounded flex items-center gap-2 transition-colors"
+              className="text-[var(--text-inverse)] text-sm px-3 py-2 hover:bg-[var(--text-inverse)]/10 rounded flex items-center gap-2 transition-colors"
             >
-              <span className="w-3 h-3 rounded-full border-2 border-white/70 border-dashed"></span>
+              <span className="w-3 h-3 rounded-full border-2 border-[var(--text-inverse)]/70 border-dashed"></span>
               Pensamiento
             </button>
             <button 
               onClick={() => handleAdd('narration')} 
-              className="text-white text-sm px-3 py-2 hover:bg-white/10 rounded flex items-center gap-2 transition-colors"
+              className="text-[var(--text-inverse)] text-sm px-3 py-2 hover:bg-[var(--text-inverse)]/10 rounded flex items-center gap-2 transition-colors"
             >
               <span className="w-3 h-3 bg-black border border-white/50"></span>
               Narración
             </button>
             <button 
               onClick={() => handleAdd('sound')} 
-              className="text-white text-sm px-3 py-2 hover:bg-white/10 rounded flex items-center gap-2 transition-colors"
+              className="text-[var(--text-inverse)] text-sm px-3 py-2 hover:bg-[var(--text-inverse)]/10 rounded flex items-center gap-2 transition-colors"
             >
-              <span className="text-red-400 font-bold">!</span>
+              <span className="text-[var(--error)] font-bold">!</span>
               Sonido
             </button>
           </div>
 
           {/* Active text controls */}
           {activeText && (
-            <div className="absolute top-4 right-4 flex flex-col gap-2 bg-slate-800/95 backdrop-blur rounded-xl p-3 shadow-xl min-w-[200px]">
+            <div className="absolute top-4 right-4 flex flex-col gap-2 bg-[var(--surface-sunken)]/95 backdrop-blur rounded-xl p-3 shadow-xl min-w-[200px]">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-white/70 font-medium">Editar viñeta</span>
+                <span className="text-xs text-[var(--text-inverse)]/70 font-medium">Editar viñeta</span>
                 <button 
                   onClick={() => handleDelete(activeText.id)}
-                  className="p-1 hover:bg-red-600 rounded text-white transition-colors"
+                  className="p-1 hover:bg-[var(--error)] rounded text-[var(--text-inverse)] transition-colors"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -275,7 +280,7 @@ export function PanelTextOverlay({
               
               {/* Font size */}
               <div className="space-y-1">
-                <label className="text-xs text-white/50">Tamaño</label>
+                <label className="text-xs text-[var(--text-inverse)]/50">Tamaño</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="range"
@@ -285,13 +290,13 @@ export function PanelTextOverlay({
                     onChange={(e) => handleUpdate(activeText.id, { fontSize: parseInt(e.target.value) })}
                     className="flex-1"
                   />
-                  <span className="text-xs text-white w-8">{activeText.fontSize}px</span>
+                  <span className="text-xs text-[var(--text-inverse)] w-8">{activeText.fontSize}px</span>
                 </div>
               </div>
 
               {/* Rotation */}
               <div className="space-y-1">
-                <label className="text-xs text-white/50">Rotación</label>
+                <label className="text-xs text-[var(--text-inverse)]/50">Rotación</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="range"
@@ -301,16 +306,16 @@ export function PanelTextOverlay({
                     onChange={(e) => handleUpdate(activeText.id, { rotation: parseInt(e.target.value) })}
                     className="flex-1"
                   />
-                  <span className="text-xs text-white w-8">{activeText.rotation}°</span>
+                  <span className="text-xs text-[var(--text-inverse)] w-8">{activeText.rotation}°</span>
                 </div>
               </div>
 
               {/* Colors */}
               <div className="space-y-1">
-                <label className="text-xs text-white/50">Colores</label>
+                <label className="text-xs text-[var(--text-inverse)]/50">Colores</label>
                 <div className="flex gap-2">
                   <div className="flex items-center gap-1 flex-1">
-                    <span className="text-xs text-white/50">T</span>
+                    <span className="text-xs text-[var(--text-inverse)]/50">T</span>
                     <input
                       type="color"
                       value={activeText.color}
@@ -319,7 +324,7 @@ export function PanelTextOverlay({
                     />
                   </div>
                   <div className="flex items-center gap-1 flex-1">
-                    <span className="text-xs text-white/50">F</span>
+                    <span className="text-xs text-[var(--text-inverse)]/50">F</span>
                     <input
                       type="color"
                       value={activeText.backgroundColor.startsWith('rgba') ? '#ffffff' : activeText.backgroundColor}
@@ -343,7 +348,7 @@ export function PanelTextOverlay({
               {/* Border radius for speech/thought */}
               {(activeText.type === 'speech' || activeText.type === 'thought') && (
                 <div className="space-y-1">
-                  <label className="text-xs text-white/50">Redondez</label>
+                  <label className="text-xs text-[var(--text-inverse)]/50">Redondez</label>
                   <input
                     type="range"
                     min="0"

@@ -28,18 +28,18 @@ const CustomTooltip = ({ active, payload }: any) => {
     const percentage = ((data.value / total) * 100).toFixed(1);
     
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg">
+      <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg p-3 shadow-lg">
         <div className="flex items-center gap-2 mb-1">
           <div
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: data.color }}
           />
-          <span className="text-white font-medium">{data.name}</span>
+          <span className="text-[var(--text-primary)] font-medium">{data.name}</span>
         </div>
-        <p className="text-slate-300 text-sm">
+        <p className="text-[var(--text-secondary)] text-sm">
           {data.value.toLocaleString()} requests
         </p>
-        <p className="text-slate-400 text-xs">{percentage}% of total</p>
+        <p className="text-[var(--text-tertiary)] text-xs">{percentage}% of total</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ const CustomLegend = ({ payload }: any) => {
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-slate-300 text-xs">
+            <span className="text-[var(--text-secondary)] text-xs">
               {entry.value} ({percentage}%)
             </span>
           </div>

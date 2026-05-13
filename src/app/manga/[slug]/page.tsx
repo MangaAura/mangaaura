@@ -32,7 +32,7 @@ async function getMangaData(slug: string) {
 
   if (!manga) return null;
 
-  const totalViews = manga.chapters.reduce((sum, ch) => sum + ch.viewCount, 0);
+  const totalViews = manga.chapters.reduce((sum: number, ch: any) => sum + ch.viewCount, 0);
   const tags = JSON.parse(manga.tags || '[]') as string[];
 
   return {

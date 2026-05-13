@@ -1,508 +1,210 @@
-# InkVerse UX/UI Design System
+---
+name: InkVerse
+version: 1.0.0
 
-## 📋 Overview
+colors:
+  background: "#ffffff"
+  foreground: "#0f0f0f"
+  surface: "#fafafa"
+  surface-elevated: "#ffffff"
+  surface-sunken: "#f5f5f5"
+  text-primary: "#0f0f0f"
+  text-secondary: "#6b6b6b"
+  text-tertiary: "#a3a3a3"
+  text-muted: "#737373"
+  text-inverse: "#ffffff"
+  border: "#e5e5e5"
+  border-subtle: "#f0f0f0"
+  border-strong: "#d4d4d4"
+  primary: "#6366f1"
+  primary-hover: "#4f46e5"
+  primary-subtle: "#eef2ff"
+  accent-purple: "#8b5cf6"
+  accent-purple-hover: "#7c3aed"
+  success: "#22c55e"
+  warning: "#f59e0b"
+  error: "#ef4444"
+  info: "#3b82f6"
 
-InkVerse es una plataforma de lectura de manga moderna e inmersiva con soporte para IA. El diseño prioriza:
-- **Dark Mode First**: Interfaz optimizada para lectura prolongada
-- **Inmersión**: Mínimas distracciones durante la lectura
-- **Accesibilidad**: WCAG 2.1 AA compliance
-- **Performance**: Carga rápida y navegación fluida
+  dark-background: "#0a0a0a"
+  dark-foreground: "#fafafa"
+  dark-surface: "#141414"
+  dark-surface-elevated: "#1a1a1a"
+  dark-surface-sunken: "#0f0f0f"
+  dark-text-primary: "#fafafa"
+  dark-text-secondary: "#a3a3a3"
+  dark-text-tertiary: "#737373"
+  dark-text-muted: "#525252"
+  dark-text-inverse: "#0a0a0a"
+  dark-border: "#262626"
+  dark-primary: "#818cf8"
+  dark-accent-purple: "#a78bfa"
 
+typography:
+  font-family: "Inter Variable"
+  font-family-fallback: "system-ui, sans-serif"
+  h1:
+    fontSize: 2.5rem
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: -0.025em
+  h2:
+    fontSize: 1.5rem
+    fontWeight: 700
+    lineHeight: 1.2
+    letterSpacing: -0.025em
+  h3:
+    fontSize: 1.25rem
+    fontWeight: 600
+    lineHeight: 1.3
+    letterSpacing: -0.025em
+  body:
+    fontSize: 1rem
+    fontWeight: 400
+    lineHeight: 1.6
+  body-sm:
+    fontSize: 0.875rem
+    fontWeight: 400
+    lineHeight: 1.5
+  caption:
+    fontSize: 0.75rem
+    fontWeight: 500
+    lineHeight: 1.4
+    textTransform: uppercase
+    letterSpacing: 0.05em
+
+rounded:
+  sm: 6px
+  md: 8px
+  lg: 12px
+  xl: 16px
+  xxl: 24px
+  full: 9999px
+
+spacing:
+  xs: 4px
+  sm: 8px
+  md: 16px
+  lg: 24px
+  xl: 32px
+  xxl: 48px
+
+shadows:
+  xs: "0 1px 2px rgba(0,0,0,0.04)"
+  sm: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)"
+  md: "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03)"
+  lg: "0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.02)"
+  glow: "0 0 20px rgba(99,102,241,0.15)"
+
+  dark-xs: "0 1px 2px rgba(0,0,0,0.3)"
+  dark-sm: "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2)"
+  dark-md: "0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.2)"
+  dark-glow: "0 0 30px rgba(99,102,241,0.25)"
+
+transitions:
+  fast: "150ms cubic-bezier(0.4, 0, 0.2, 1)"
+  base: "200ms cubic-bezier(0.4, 0, 0.2, 1)"
+  slow: "300ms cubic-bezier(0.4, 0, 0.2, 1)"
+
+breakpoints:
+  sm: 640px
+  md: 768px
+  lg: 1024px
+  xl: 1280px
 ---
 
-## 🎨 Color System
+## Overview
 
-### Primary Colors
+InkVerse is a manga reading and creation platform with a modern, clean aesthetic centered on readability and immersion. The design prioritizes content — manga pages — above all else, using neutral surfaces, subtle shadows, and a distinctive indigo primary palette with violet accents.
 
-```css
-/* Modo Oscuro (Default) */
---primary: #6366f1;        /* Indigo 500 - Accent principal */
---primary-hover: #4f46e5;  /* Indigo 600 */
---primary-subtle: rgba(99, 102, 241, 0.1);
+The visual identity combines **editorial clarity** (clean typography, generous whitespace, structured grids) with **gaming dynamism** (gradient accents, XP/level badges, glowing interactions). It aims to feel premium but approachable, like a high-end manga anthology app.
 
-/* Backgrounds */
---bg-primary: #0f172a;     /* Slate 900 - Fondo principal */
---bg-secondary: #1e293b;   /* Slate 800 - Cards/Surfaces */
---bg-tertiary: #334155;    /* Slate 700 - Inputs/Hover states */
---bg-surface: #0b0f19;     /* Más oscuro para profundidad */
+## Colors
 
-/* Text */
---text-primary: #f8fafc;   /* Slate 50 */
---text-secondary: #94a3b8; /* Slate 400 */
---text-muted: #64748b;     /* Slate 500 */
---text-disabled: #475569;  /* Slate 600 */
+### Light Mode
 
-/* Accent Colors */
---accent-blue: #3b82f6;
---accent-purple: #8b5cf6;
---accent-pink: #ec4899;
---accent-orange: #f97316;
---accent-green: #10b981;
---accent-red: #ef4444;
---accent-yellow: #f59e0b;
-```
+The light palette is built on warm-leaning neutrals with a crisp, clean feel:
 
-### Semantic Colors
+- **Primary (#6366f1):** Indigo — the core interactive color for buttons, links, active states.
+- **Accent Purple (#8b5cf6):** Used for gradients, premium features, creator branding.
+- **Background (#ffffff):** Pure white base.
+- **Surface (#fafafa):** Off-white for card backgrounds, sidebars.
+- **Surface Elevated (#ffffff):** Pure white for elevated cards, modals.
+- **Surface Sunken (#f5f5f5):** Light gray for input backgrounds, skeleton loading.
+- **Text Primary (#0f0f0f):** Near-black for body text and headings.
+- **Text Secondary (#6b6b6b):** Dimmed text for metadata, descriptions.
+- **Text Tertiary (#a3a3a3):** Very dimmed for placeholders.
+- **Border (#e5e5e5):** Light gray for container borders.
+- **Success (#22c55e):** Green for positive states (XP gained, InkCoins).
+- **Warning (#f59e0b):** Amber for alerts, level-up thresholds.
+- **Error (#ef4444):** Red for destructive actions, errors.
 
-| Token | Uso | Hex |
-|-------|-----|-----|
-| `--success` | Éxito, completado | `#10b981` |
-| `--warning` | Advertencia, pausa | `#f59e0b` |
-| `--error` | Error, abandonado | `#ef4444` |
-| `--info` | Información | `#3b82f6` |
-| `--premium` | Contenido premium | `#8b5cf6` |
+### Dark Mode
 
-### Status Colors (Manga)
+The dark palette uses deep near-blacks with maintainable contrast:
 
-```css
---status-ongoing: #10b981;    /* Verde - Publicando */
---status-completed: #3b82f6;  /* Azul - Completado */
---status-hiatus: #f59e0b;     /* Ámbar - Pausado */
---status-dropped: #ef4444;    /* Rojo - Abandonado */
-```
+- **Background (#0a0a0a):** Almost-black base — OLED-friendly.
+- **Surface (#141414):** Slightly lighter for cards.
+- **Surface Elevated (#1a1a1a):** Distinguishable from surface for modals.
+- **Primary (#818cf8):** Brighter indigo to maintain contrast in dark mode.
+- **Text Primary (#fafafa):** Near-white for readability.
+- **Border (#262626):** Dark gray borders that don't overpower.
 
----
+## Typography
 
-## 📝 Typography
+**Inter Variable** is the sole typeface, loaded via `next/font/google` with `display: swap` and preload enabled. It provides excellent legibility at both small and large sizes.
 
-### Font Families
+Headings use tight letter-spacing (`-0.025em`) and high font weights (600-800) for impact. Body text uses standard weight with comfortable line-height (1.6) for extended reading sessions.
 
-```css
-/* Headings */
---font-heading: 'Inter', system-ui, sans-serif;
+## Spacing
 
-/* Body */
---font-body: 'Inter', system-ui, sans-serif;
+The spacing scale follows a 4px base unit, expanding through standard increments: 4, 8, 16, 24, 32, 48px. Cards and sections use `var(--surface-elevated)` backgrounds with `var(--radius-lg)` (12px) rounded corners and subtle shadows.
 
-/* Monospace (código, datos) */
---font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-```
+## Rounded Corners
 
-### Type Scale
+- **sm (6px):** Badges, pills, small elements
+- **md (8px):** Buttons, inputs, cards
+- **lg (12px):** Main cards, dialogs
+- **xl (16px):** Hero sections, large containers
+- **2xl (24px):** Full-width banners
+- **full (9999px):** Circular avatars, infinite pills
 
-| Level | Size | Weight | Line Height | Usage |
-|-------|------|--------|-------------|-------|
-| **Display** | 48px / 3rem | 800 | 1.1 | Hero titles |
-| **H1** | 36px / 2.25rem | 700 | 1.2 | Page titles |
-| **H2** | 30px / 1.875rem | 700 | 1.3 | Section headers |
-| **H3** | 24px / 1.5rem | 600 | 1.4 | Card titles |
-| **H4** | 20px / 1.25rem | 600 | 1.4 | Subsection |
-| **H5** | 18px / 1.125rem | 600 | 1.5 | Labels |
-| **H6** | 16px / 1rem | 600 | 1.5 | Small labels |
-| **Body Large** | 18px / 1.125rem | 400 | 1.6 | Featured text |
-| **Body** | 16px / 1rem | 400 | 1.6 | Standard text |
-| **Body Small** | 14px / 0.875rem | 400 | 1.5 | Descriptions |
-| **Caption** | 12px / 0.75rem | 400 | 1.5 | Metadata |
-| **Tiny** | 10px / 0.625rem | 500 | 1.4 | Tags, badges |
+## Shadows
 
----
+Shadows are intentionally subtle in light mode (low opacity, tight blur) and more pronounced in dark mode (higher opacity for depth perception on dark backgrounds). A `glow` shadow is used sparingly for primary interactive elements.
 
-## 📐 Spacing System
+## Motion & Animation
 
-### Base Unit
+Transitions use the standard cubic-bezier `(0.4, 0, 0.2, 1)` easing curve at three durations:
+- **fast (150ms):** Micro-interactions, hover states, button presses
+- **base (200ms):** Card hover, panel open/close
+- **slow (300ms):** Page transitions, theme toggling
 
-```css
---space-unit: 0.25rem; /* 4px */
-```
+Animations include: fade-in, fade-up, loading-bar, shimmer for skeletons, and pulse for loading states. All animations respect `prefers-reduced-motion` via a global media query.
 
-### Spacing Scale
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-0` | 0 | Reset |
-| `--space-1` | 4px | Tight gaps |
-| `--space-2` | 8px | Element padding |
-| `--space-3` | 12px | Component gaps |
-| `--space-4` | 16px | Standard padding |
-| `--space-5` | 20px | Card padding |
-| `--space-6` | 24px | Section gaps |
-| `--space-8` | 32px | Large gaps |
-| `--space-10` | 40px | Section padding |
-| `--space-12` | 48px | Page padding |
-| `--space-16` | 64px | Hero spacing |
-| `--space-20` | 80px | Major sections |
-
-### Border Radius
-
-```css
---radius-none: 0;
---radius-sm: 4px;   /* Badges, tags */
---radius-md: 8px;   /* Buttons, inputs */
---radius-lg: 12px;  /* Cards, modals */
---radius-xl: 16px;  /* Large cards */
---radius-2xl: 24px; /* Feature cards */
---radius-full: 9999px; /* Pills, avatars */
-```
-
----
-
-## 🧩 Components
+## Components
 
 ### Buttons
-
-#### Primary Button
-```
-- Background: var(--primary)
-- Text: white
-- Padding: 12px 24px
-- Border-radius: var(--radius-md)
-- Font-weight: 600
-- Hover: var(--primary-hover) + subtle glow
-- Active: scale(0.98)
-- Disabled: opacity 0.5, cursor not-allowed
-```
-
-#### Secondary Button
-```
-- Background: transparent
-- Border: 1px solid var(--bg-tertiary)
-- Text: var(--text-primary)
-- Hover: background var(--bg-secondary)
-```
-
-#### Ghost Button
-```
-- Background: transparent
-- Text: var(--text-secondary)
-- Hover: background var(--bg-tertiary)
-```
-
-#### Action Buttons (Icon)
-```
-- Size: 40px x 40px
-- Border-radius: var(--radius-md)
-- Background: var(--bg-secondary)
-- Icon size: 20px
-- Hover: background var(--bg-tertiary)
-```
+- **Primary:** Solid indigo background, white text, glow shadow on hover.
+- **Secondary:** Outlined with border, transparent background, hover fills.
+- **Ghost:** Fully transparent, dim text, hover reveals background.
 
 ### Cards
-
-#### Manga Card
-```
-- Aspect ratio: 2/3
-- Border-radius: var(--radius-lg)
-- Background: var(--bg-secondary)
-- Shadow: subtle on hover
-- Hover: scale(1.02) + enhanced shadow
-- Transition: 300ms ease
-```
-
-#### Info Card
-```
-- Padding: var(--space-5)
-- Border-radius: var(--radius-lg)
-- Background: var(--bg-secondary)
-- Border: 1px solid var(--bg-tertiary)
-```
-
-### Inputs
-
-#### Text Input
-```
-- Background: var(--bg-secondary)
-- Border: 1px solid var(--bg-tertiary)
-- Border-radius: var(--radius-md)
-- Padding: 12px 16px
-- Focus: border-color var(--primary) + glow
-- Placeholder: var(--text-muted)
-```
-
-#### Search Input
-```
-- Background: var(--bg-tertiary)
-- Border-radius: var(--radius-full)
-- Padding-left: 44px (for icon)
-- Icon: Search, 20px, var(--text-muted)
-```
-
-### Badges
-
-```
-- Padding: 4px 12px
-- Border-radius: var(--radius-full)
-- Font-size: var(--text-xs)
-- Font-weight: 600
-- Variants:
-  - default: bg-slate-700
-  - primary: bg-indigo-500
-  - success: bg-emerald-500
-  - warning: bg-amber-500
-  - danger: bg-red-500
-```
-
----
-
-## 📱 Layout
-
-### Container
-
-```css
-.container {
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-/* Responsive */
-@media (min-width: 640px) { padding: 1.5rem; }
-@media (min-width: 1024px) { padding: 2rem; }
-```
-
-### Grid System
-
-```css
-/* Manga Grid */
-.manga-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .manga-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (min-width: 768px) {
-  .manga-grid { grid-template-columns: repeat(4, 1fr); }
-}
-
-@media (min-width: 1024px) {
-  .manga-grid { grid-template-columns: repeat(5, 1fr); }
-}
-
-@media (min-width: 1280px) {
-  .manga-grid { grid-template-columns: repeat(6, 1fr); }
-}
-```
-
-### Reader Layout
-
-```
-- Full viewport height
-- Minimal UI chrome
-- Focus mode: hide all controls after 3s inactivity
-- Navigation: arrow keys, tap zones, scroll
-```
-
----
-
-## 🎭 Animations
-
-### Transitions
-
-```css
-/* Standard */
---transition-fast: 150ms ease;
---transition-base: 200ms ease;
---transition-slow: 300ms ease;
---transition-slower: 500ms ease;
-
-/* Easing */
---ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
---ease-out: cubic-bezier(0, 0, 0.2, 1);
---ease-in: cubic-bezier(0.4, 0, 1, 1);
---ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-```
-
-### Micro-interactions
-
-```css
-/* Button press */
-.button:active {
-  transform: scale(0.98);
-}
-
-/* Card hover */
-.card {
-  transition: transform 300ms var(--ease-out),
-              box-shadow 300ms var(--ease-out);
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-}
-
-/* Page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateY(20px);
-}
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
-}
-```
-
----
-
-## 🖼️ Imagery
-
-### Manga Covers
-
-```
-- Aspect ratio: 2:3
-- Border-radius: var(--radius-lg)
-- Object-fit: cover
-- Loading: blur placeholder
-- Error: fallback gradient
-```
-
-### User Avatars
-
-```
-- Shape: circular
-- Sizes: 32px (sm), 40px (md), 48px (lg), 64px (xl)
-- Border: 2px solid var(--bg-secondary)
-- Fallback: initials with gradient
-```
-
-### Placeholder States
-
-```css
-.placeholder-gradient {
-  background: linear-gradient(
-    135deg,
-    var(--bg-secondary) 0%,
-    var(--bg-tertiary) 50%,
-    var(--bg-secondary) 100%
-  );
-  background-size: 200% 200%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-```
-
----
-
-## 📊 Reader Experience
-
-### Page Viewer
-
-```
-- Background: var(--bg-surface) #0b0f19
-- Page display: fit-to-width or fit-to-height
-- Zoom: 100% - 200%
-- Transition: slide between pages
-- Progress: bottom bar with chapter info
-```
-
-### Reading Modes
-
-```
-Mode: Vertical Scroll
-- Continuous scrolling
-- Smooth momentum
-- Chapter transitions with divider
-
-Mode: Paged
-- Single page view
-- Tap zones for navigation
-- Swipe gesture support
-```
-
-### Accessibility Features
-
-```
-- Keyboard navigation: Arrow keys, Space
-- Screen reader: ARIA labels on all controls
-- Focus indicators: Visible focus rings
-- Reduced motion: Respect prefers-reduced-motion
-- Color contrast: WCAG 2.1 AA minimum
-```
-
----
-
-## 🌐 Responsive Breakpoints
-
-| Breakpoint | Min Width | Max Container | Notes |
-|------------|-----------|---------------|-------|
-| Mobile | 0px | 100% | Single column |
-| sm | 640px | 100% | 2 columns |
-| md | 768px | 100% | 3-4 columns |
-| lg | 1024px | 1024px | Full layout |
-| xl | 1280px | 1280px | Max content |
-| 2xl | 1536px | 1280px | Centered |
-
----
-
-## 🎯 Design Principles
-
-1. **Dark Mode First**: Diseñado para lectura nocturna
-2. **Content First**: El manga es el protagonista
-3. **Progressive Disclosure**: Opciones avanzadas ocultas por defecto
-4. **Immediate Feedback**: Toda acción tiene respuesta visual
-5. **Consistency**: Patrones coherentes en toda la app
-6. **Performance**: Animaciones de 60fps, carga progresiva
-
----
-
-## 🛠️ Implementation Notes
-
-### Tailwind Config
-
-```javascript
-// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: '#6366f1',
-          hover: '#4f46e5',
-        },
-        surface: {
-          DEFAULT: '#0f172a',
-          secondary: '#1e293b',
-          tertiary: '#334155',
-        },
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      },
-      animation: {
-        'fade-in': 'fadeIn 300ms ease-out',
-        'slide-up': 'slideUp 300ms ease-out',
-        'shimmer': 'shimmer 1.5s ease-in-out infinite',
-      },
-    },
-  },
-}
-```
-
-### Common Utilities
-
-```css
-/* Glassmorphism */
-.glass {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Truncate */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-```
-
----
-
-## 📝 Changelog
-
-### v2.0 - 2026-04-27
-- ✅ Estandarizado `[slug]` en todas las rutas dinámicas
-- ✅ Actualizado color system para mejor contraste
-- ✅ Agregado glassmorphism para elementos flotantes
-- ✅ Definido grid system responsivo
-- ✅ Especificado animaciones y transiciones
-- ✅ Documentado Reader Experience
-
----
-
-*Para dudas o sugerencias, consultar el equipo de desarrollo.*
+- `.card`: Elevated surface with border, shadow, hover lift effect.
+- `.card-ghost`: Transparent until hovered, used for interactive grids.
+
+### Navigation
+- Links use muted text with rounded hover backgrounds.
+- Active links use primary color with primary-subtle background.
+
+### Reader
+The manga reader uses separate theme variables (`data-theme` attribute) for light, sepia, dark, and OLED modes, independent of the site's dark/light toggle. Reader settings include brightness, contrast, sepia, and page gap sliders.
+
+## Animations
+
+All animations are defined as CSS `@keyframes` and exposed as utility classes:
+- `.animate-in`: Quick fade + slide up (0.3s)
+- `.animate-fade-up`: Longer fade + slide up (0.5s)
+- `.animate-loading-bar`: Infinite horizontal sweep for progress
+- `.animate-shimmer`: Gradient sweep for skeleton loading
+- `animate-pulse`: Opacity oscillation (Tailwind)

@@ -39,8 +39,8 @@ export function OfflineIndicator() {
       className={cn(
         'fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full shadow-lg transition-all duration-300',
         isOnline
-          ? 'bg-green-500 text-white'
-          : 'bg-amber-500 text-white'
+? 'bg-[var(--success)] text-[var(--text-inverse)]'
+        : 'bg-[var(--warning)] text-[var(--text-inverse)]'
       )}
     >
       <div className="flex items-center gap-2">

@@ -30,7 +30,7 @@ function checkModeration(content: string): { isClean: boolean; flaggedWords: str
 function extractMentions(content: string): string[] {
   const mentionRegex = /@([a-zA-Z0-9_]+)/g;
   const mentions = content.match(mentionRegex) || [];
-  return mentions.map(m => m.substring(1));
+  return mentions.map((m: any) => m.substring(1));
 }
 
 // GET /api/chapters/[id]/comments/[commentId] - Obtener un comentario específico
@@ -124,7 +124,7 @@ export async function GET(
         avatarUrl: comment.user.avatarUrl,
         level: comment.user.level,
       },
-      replies: comment.replies.map(reply => ({
+      replies: comment.replies.map((reply: any) => ({
         id: reply.id,
         content: reply.isHidden ? '[Contenido oculto por moderación]' : reply.content,
         isHidden: reply.isHidden,
@@ -242,13 +242,13 @@ export async function PUT(
         where: { commentId },
         select: { mentionedUserId: true },
       });
-      const existingMentionIds = new Set(existingMentions.map(m => m.mentionedUserId));
+      const existingMentionIds = new Set(existingMentions.map((m: any) => m.mentionedUserId));
 
-      const newMentions = mentionedUsers.filter(u => !existingMentionIds.has(u.id));
+      const newMentions = mentionedUsers.filter((u: any) => !existingMentionIds.has(u.id));
       
       if (newMentions.length > 0) {
         await prisma.commentMention.createMany({
-          data: newMentions.map(user => ({
+          data: newMentions.map((user: any) => ({
             commentId: commentId,
             mentionedUserId: user.id,
           })),
