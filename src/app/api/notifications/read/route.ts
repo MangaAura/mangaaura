@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -11,6 +12,9 @@ export async function DELETE() {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'notifications');
+    if (rlResponse) return rlResponse;
 
     const result = await prisma.notification.deleteMany({
       where: {

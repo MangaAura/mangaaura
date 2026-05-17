@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { paymentService } from '@/core/services/PaymentService';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
 import { SendTipUseCase } from '@/application/use-cases/economy/SendTipUseCase';
 import { z } from 'zod';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       newBalance: tipResult.newBalance,
     });
   } catch (error) {
-    console.error('Error enviando propina:', error);
+    // console.error('Error enviando propina:', error);
     const message = error instanceof Error ? error.message : 'Error interno del servidor';
     return NextResponse.json(
       { error: message },

@@ -24,7 +24,7 @@ async function ensureService(): Promise<void> {
 // Rate limiting with different limits for batch
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
-function checkRateLimit(userId: string, batchSize: number): { allowed: boolean; retryAfter?: number } {
+function checkRateLimit(userId: string, _batchSize: number): { allowed: boolean; retryAfter?: number } {
   const now = Date.now();
   const record = rateLimitMap.get(userId);
   const limit = 10; // 10 batch requests per minute

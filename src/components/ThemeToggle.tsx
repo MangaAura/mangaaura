@@ -2,14 +2,16 @@
 
 import { useTheme } from './ThemeProvider';
 import { Sun, Moon, Monitor } from 'lucide-react';
+import { useT } from '@/i18n';
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const t = useT();
 
-  const options: { value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }[] = [
-    { value: 'light', icon: Sun, label: 'Claro' },
-    { value: 'dark', icon: Moon, label: 'Oscuro' },
-    { value: 'system', icon: Monitor, label: 'Sistema' },
+  const options: { value: 'light' | 'dark' | 'system'; icon: typeof Sun; labelKey: string }[] = [
+    { value: 'light', icon: Sun, labelKey: 'theme.light' },
+    { value: 'dark', icon: Moon, labelKey: 'theme.dark' },
+    { value: 'system', icon: Monitor, labelKey: 'theme.system' },
   ];
 
   return (
@@ -23,15 +25,15 @@ export function ThemeToggle() {
             onClick={() => setTheme(option.value)}
             className={`
               flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 cursor-pointer
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1
               ${isActive 
                 ? 'bg-[var(--surface-elevated)] text-[var(--primary)] shadow-sm' 
                 : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
               }
             `}
-            title={option.label}
-            aria-label={option.label}
+            aria-label={t(option.labelKey)}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-4 h-4" aria-hidden="true" />
           </button>
         );
       })}

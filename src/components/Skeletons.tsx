@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-
 // Namespace object for all skeletons
 export const Skeletons = {
   MangaCard: MangaCardSkeleton,

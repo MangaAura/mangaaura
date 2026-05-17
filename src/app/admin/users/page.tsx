@@ -30,12 +30,13 @@ import {
   Ban,
   Trash2,
   Eye,
-  Shield,
   User,
   Check,
   Loader2,
 } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import Link from 'next/link';
+import { useT } from '@/i18n';
 
 interface UserData {
   id: string;
@@ -58,6 +59,7 @@ interface UserData {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function UsersPage() {
+  const t = useT();
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -66,7 +68,7 @@ export default function UsersPage() {
   const [actionType, setActionType] = useState<'ban' | 'unban' | 'delete'>('ban');
   const [isActioning, setIsActioning] = useState(false);
 
-  const { data, error, isLoading, mutate } = useSWR<{ users: UserData[] }>(
+  const { data: _data, error, isLoading, mutate } = useSWR<{ users: UserData[] }>(
     '/api/admin/users',
     fetcher,
     {
@@ -111,10 +113,13 @@ export default function UsersPage() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center overflow-hidden">
               {row.original.avatarUrl ? (
-                <img
+                <OptimizedImage
                   src={row.original.avatarUrl}
                   alt={row.original.username}
-                  className="w-full h-full object-cover"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                  objectFit="cover"
                 />
               ) : (
                 <User className="w-5 h-5 text-[var(--text-tertiary)]" />
@@ -258,9 +263,9 @@ export default function UsersPage() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Users className="w-6 h-6 text-[var(--primary)]" />
-            Users
+            {t('admin.users')}
           </h1>
-          <p className="text-[var(--text-muted)]">Manage platform users</p>
+          <p className="text-[var(--text-muted)]">{t('admin.managePlatformUsers')}</p>
         </div>
       </div>
 
@@ -270,7 +275,7 @@ export default function UsersPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
-              placeholder="Search users by name, email..."
+              placeholder={t('admin.searchUsers')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -283,7 +288,7 @@ export default function UsersPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            All Users <span className="text-[var(--text-tertiary)] font-normal">({users.length})</span>
+            {t('admin.allUsers')} <span className="text-[var(--text-tertiary)] font-normal">({users.length})</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -293,7 +298,7 @@ export default function UsersPage() {
             </div>
           ) : error ? (
             <div className="text-center py-8 text-[var(--error)]">
-              Failed to load users
+              {t('admin.failedToLoad')}
             </div>
           ) : (
             <>
@@ -337,7 +342,7 @@ export default function UsersPage() {
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <div className="text-sm text-[var(--text-tertiary)]">
-                  Page {table.getState().pagination.pageIndex + 1} of{' '}
+                  {t('admin.page')} {table.getState().pagination.pageIndex + 1} {t('admin.of')}{' '}
                   {table.getPageCount()}
                 </div>
                 <div className="flex items-center gap-2">
@@ -347,7 +352,7 @@ export default function UsersPage() {
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                   >
-                    Previous
+                    {t('common.previous')}
                   </Button>
                   <Button
                     variant="outline"
@@ -355,7 +360,7 @@ export default function UsersPage() {
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                   >
-                    Next
+                    {t('common.next')}
                   </Button>
                 </div>
               </div>
@@ -370,7 +375,7 @@ export default function UsersPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
-              User Profile
+              {t('admin.userProfile')}
             </DialogTitle>
           </DialogHeader>
           {selectedUser && (
@@ -379,10 +384,13 @@ export default function UsersPage() {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center overflow-hidden">
                   {selectedUser.avatarUrl ? (
-                    <img
+                    <OptimizedImage
                       src={selectedUser.avatarUrl}
                       alt={selectedUser.username}
-                      className="w-full h-full object-cover"
+                      width={64}
+                      height={64}
+                      className="rounded-full"
+                      objectFit="cover"
                     />
                   ) : (
                     <User className="w-8 h-8 text-[var(--text-tertiary)]" />
@@ -410,19 +418,19 @@ export default function UsersPage() {
                   <p className="text-2xl font-bold text-[var(--text-primary)]">
                     {selectedUser.xpPoints.toLocaleString()}
                   </p>
-                  <p className="text-sm text-[var(--text-tertiary)]">XP Points</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{t('admin.xpPoints')}</p>
                 </div>
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">
                     {selectedUser.inkcoinsBalance.toLocaleString()}
                   </p>
-                  <p className="text-sm text-[var(--text-tertiary)]">InkCoins</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{t('admin.inkCoins')}</p>
                 </div>
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">
                     {selectedUser.readingStreak}
                   </p>
-                  <p className="text-sm text-[var(--text-tertiary)]">Reading Streak</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{t('admin.readingStreak')}</p>
                 </div>
               </div>
 
@@ -433,31 +441,31 @@ export default function UsersPage() {
                   <span className="text-[var(--text-primary)]">{selectedUser.email}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-[var(--text-tertiary)]">Joined</span>
+                  <span className="text-[var(--text-tertiary)]">{t('admin.joined')}</span>
                   <span className="text-[var(--text-primary)]">
                     {new Date(selectedUser.createdAt).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-[var(--text-tertiary)]">Mangas Created</span>
+                  <span className="text-[var(--text-tertiary)]">{t('admin.mangasCreated')}</span>
                   <span className="text-[var(--text-primary)]">{selectedUser.mangaCount}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-[var(--text-tertiary)]">Chapters Uploaded</span>
+                  <span className="text-[var(--text-tertiary)]">{t('admin.chaptersUploaded')}</span>
                   <span className="text-[var(--text-primary)]">{selectedUser.chapterCount}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-[var(--text-tertiary)]">Comments Posted</span>
+                  <span className="text-[var(--text-tertiary)]">{t('admin.commentsPosted')}</span>
                   <span className="text-[var(--text-primary)]">{selectedUser.commentCount}</span>
                 </div>
               </div>
 
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowUserDialog(false)}>
-                  Close
+                  {t('admin.close')}
                 </Button>
                 <Link href={`/admin/users/${selectedUser.id}`}>
-                  <Button>Edit User</Button>
+                  <Button>{t('admin.editUser')}</Button>
                 </Link>
               </DialogFooter>
             </div>
@@ -470,14 +478,14 @@ export default function UsersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionType === 'ban' && 'Ban User'}
-              {actionType === 'unban' && 'Unban User'}
-              {actionType === 'delete' && 'Delete User'}
+              {actionType === 'ban' && t('admin.banUser')}
+              {actionType === 'unban' && t('admin.unbanUser')}
+              {actionType === 'delete' && t('admin.deleteUser')}
             </DialogTitle>
             <DialogDescription>
-              {actionType === 'ban' && 'This will prevent the user from accessing the platform.'}
-              {actionType === 'unban' && 'This will restore the user access to the platform.'}
-              {actionType === 'delete' && 'This will permanently delete the user and all their data.'}
+              {actionType === 'ban' && t('admin.banUserDesc')}
+              {actionType === 'unban' && t('admin.unbanUserDesc')}
+              {actionType === 'delete' && t('admin.deleteUserDesc')}
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
@@ -491,7 +499,7 @@ export default function UsersPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowActionDialog(false)} disabled={isActioning}>
-              Cancel
+              {t('admin.cancel')}
             </Button>
             <Button
               variant={actionType === 'delete' ? 'destructive' : 'default'}
@@ -502,19 +510,19 @@ export default function UsersPage() {
               {actionType === 'ban' && (
                 <>
                   <Ban className="w-4 h-4 mr-2" />
-                  Ban User
+                  {t('admin.banUser')}
                 </>
               )}
               {actionType === 'unban' && (
                 <>
                   <Check className="w-4 h-4 mr-2" />
-                  Unban User
+                  {t('admin.unbanUser')}
                 </>
               )}
               {actionType === 'delete' && (
                 <>
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete User
+                  {t('admin.deleteUser')}
                 </>
               )}
             </Button>

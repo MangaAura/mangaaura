@@ -9,10 +9,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { PromptLibraryModel } from '@/infrastructure/persistence/mongodb/models/PromptLibrary';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/prompts/[id] - Obtener un prompt
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -83,7 +84,7 @@ export async function GET(
 
 // DELETE /api/prompts/[id] - Eliminar un prompt
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -104,6 +105,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(_request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     await dbConnect();
 
@@ -161,6 +165,9 @@ export async function PATCH(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     await dbConnect();
 

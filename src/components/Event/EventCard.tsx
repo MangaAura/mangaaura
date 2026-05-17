@@ -48,7 +48,7 @@ export function eventTypeIcon(type: string): string {
 
 export function eventStatusBadge(status: string): { label: string; cls: string } {
   switch (status) {
-    case 'ACTIVE': return { label: 'Activo', cls: 'bg-[var(--success)]/20 text-[var(--success)]' };
+    case 'ACTIVE': return { label: 'Activo', cls: 'bg-[var(--success)]/20 text-[#166534] dark:text-[#86efac]' };
     case 'VOTING': return { label: 'Votando', cls: 'bg-[var(--warning)]/20 text-[var(--warning)]' };
     case 'COMPLETED': return { label: 'Terminado', cls: 'bg-[var(--surface-sunken)] text-[var(--text-muted)]' };
     default: return { label: status, cls: 'bg-[var(--surface-sunken)] text-[var(--text-muted)]' };
@@ -82,7 +82,7 @@ export function EventCard({
       ? 'bg-[var(--error)]/20 text-[var(--error)]'
       : countdown.isEndingSoon
         ? 'bg-[var(--warning)]/20 text-[var(--warning)]'
-        : 'bg-[var(--success)]/20 text-[var(--success)]';
+        : 'bg-[var(--success)]/20 text-[#166534] dark:text-[#86efac]';
 
   return (
     <motion.div
@@ -151,9 +151,9 @@ export function EventCard({
         </div>
 
         {/* Title */}
-        <h3 className="font-bold text-base group-hover:text-[var(--warning)] transition-colors leading-tight">
+        <h2 className="font-bold text-base group-hover:text-[var(--warning)] transition-colors leading-tight">
           {event.title}
-        </h3>
+        </h2>
 
         {/* Description */}
         <p className="text-sm text-[var(--text-secondary)] line-clamp-2">

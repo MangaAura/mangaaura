@@ -40,7 +40,6 @@ export default function NotificationsPage() {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    refetch,
   } = useNotifications({
     limit: 20,
     enablePolling: true,

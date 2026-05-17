@@ -5,21 +5,11 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import type { AchievementCondition } from '@/core/services/IAchievementRepository';
 
 const prisma = new PrismaClient();
 
-/**
- * Tipos de condiciones de logros
- */
-export type AchievementCondition =
-  | { type: 'CHAPTERS_READ'; count: number }
-  | { type: 'COMMENTS_POSTED'; count: number }
-  | { type: 'CORRECTIONS_APPROVED'; count: number }
-  | { type: 'MANGAS_COMPLETED'; count: number }
-  | { type: 'COMMENT_LIKES_RECEIVED'; count: number }
-  | { type: 'MANGAS_CREATED'; count: number }
-  | { type: 'SPONSORSHIPS_WON'; count: number }
-  | { type: 'LEVEL_REACHED'; level: number };
+export type { AchievementCondition };
 
 /**
  * Definición de un logro
@@ -150,6 +140,130 @@ export const achievements: AchievementDefinition[] = [
     category: 'MILESTONE',
     difficulty: 'LEGENDARY',
   },
+
+  // Logros de misiones
+  {
+    badgeId: 'MISIONERO_PRINCIPIANTE',
+    name: 'Misionero Principiante',
+    description: 'Completa 5 misiones',
+    xpReward: 100,
+    iconUrl: '/badges/misionero-principiante.svg',
+    condition: { type: 'QUESTS_COMPLETED', count: 5 },
+    category: 'READING',
+    difficulty: 'EASY',
+  },
+  {
+    badgeId: 'MISIONERO_DEDICADO',
+    name: 'Misionero Dedicado',
+    description: 'Completa 25 misiones',
+    xpReward: 300,
+    iconUrl: '/badges/misionero-dedicado.svg',
+    condition: { type: 'QUESTS_COMPLETED', count: 25 },
+    category: 'READING',
+    difficulty: 'MEDIUM',
+  },
+  {
+    badgeId: 'MISIONERO_MAESTRO',
+    name: 'Misionero Maestro',
+    description: 'Completa 100 misiones',
+    xpReward: 1000,
+    iconUrl: '/badges/misionero-maestro.svg',
+    condition: { type: 'QUESTS_COMPLETED', count: 100 },
+    category: 'READING',
+    difficulty: 'HARD',
+  },
+  {
+    badgeId: 'MISIONERO_LEYENDA',
+    name: 'Misionero Leyenda',
+    description: 'Completa 500 misiones',
+    xpReward: 3000,
+    iconUrl: '/badges/misionero-leyenda.svg',
+    condition: { type: 'QUESTS_COMPLETED', count: 500 },
+    category: 'READING',
+    difficulty: 'LEGENDARY',
+  },
+
+  // Logros de racha (streak)
+  {
+    badgeId: 'RACHA_3',
+    name: 'Racha de 3 Días',
+    description: 'Lee manga durante 3 días seguidos',
+    xpReward: 20,
+    iconUrl: '/badges/racha-3.svg',
+    condition: { type: 'STREAK_REACHED', days: 3 },
+    category: 'READING',
+    difficulty: 'EASY',
+  },
+  {
+    badgeId: 'RACHA_7',
+    name: 'Racha de Fuego',
+    description: 'Lee manga durante 7 días seguidos',
+    xpReward: 50,
+    iconUrl: '/badges/racha-7.svg',
+    condition: { type: 'STREAK_REACHED', days: 7 },
+    category: 'READING',
+    difficulty: 'EASY',
+  },
+  {
+    badgeId: 'RACHA_14',
+    name: 'Dos Semanas Seguidas',
+    description: 'Lee manga durante 14 días seguidos',
+    xpReward: 100,
+    iconUrl: '/badges/racha-14.svg',
+    condition: { type: 'STREAK_REACHED', days: 14 },
+    category: 'READING',
+    difficulty: 'MEDIUM',
+  },
+  {
+    badgeId: 'RACHA_30',
+    name: 'Lector Dedicado',
+    description: 'Mantén una racha de lectura por 30 días',
+    xpReward: 200,
+    iconUrl: '/badges/racha-30.svg',
+    condition: { type: 'STREAK_REACHED', days: 30 },
+    category: 'READING',
+    difficulty: 'MEDIUM',
+  },
+  {
+    badgeId: 'RACHA_60',
+    name: 'Compromiso de Hierro',
+    description: 'Mantén una racha de lectura por 60 días',
+    xpReward: 300,
+    iconUrl: '/badges/racha-60.svg',
+    condition: { type: 'STREAK_REACHED', days: 60 },
+    category: 'READING',
+    difficulty: 'HARD',
+  },
+  {
+    badgeId: 'RACHA_100',
+    name: 'Centenario',
+    description: 'Mantén una racha de lectura por 100 días',
+    xpReward: 500,
+    iconUrl: '/badges/racha-100.svg',
+    condition: { type: 'STREAK_REACHED', days: 100 },
+    category: 'READING',
+    difficulty: 'HARD',
+  },
+  {
+    badgeId: 'RACHA_180',
+    name: 'Medio Año de Manga',
+    description: 'Mantén una racha de lectura por 180 días',
+    xpReward: 750,
+    iconUrl: '/badges/racha-180.svg',
+    condition: { type: 'STREAK_REACHED', days: 180 },
+    category: 'READING',
+    difficulty: 'HARD',
+  },
+  {
+    badgeId: 'RACHA_365',
+    name: 'Año Manga',
+    description: 'Mantén una racha de lectura por 365 días',
+    xpReward: 2000,
+    iconUrl: '/badges/racha-365.svg',
+    condition: { type: 'STREAK_REACHED', days: 365 },
+    category: 'READING',
+    difficulty: 'LEGENDARY',
+  },
 ];
 
 /**
@@ -187,8 +301,6 @@ export { seedAchievements };
 
 // Ejecutar si es llamado directamente (ESM)
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
 const __filename = fileURLToPath(import.meta.url);
 
 if (process.argv[1] === __filename) {

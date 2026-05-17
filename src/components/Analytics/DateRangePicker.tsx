@@ -195,33 +195,35 @@ export function DateRangePicker({
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-[var(--text-secondary)] w-12">Desde</label>
+                  <label htmlFor="date-from" className="text-xs text-[var(--text-secondary)] w-12">Desde</label>
                   <input
+                    id="date-from"
                     type="date"
                     value={customFrom}
                     onChange={(e) => handleCustomDateChange('from', e.target.value)}
-max={customTo}
-        className={cn(
-        'flex-1 px-2 py-1.5 text-sm rounded-lg border',
-        'border-[var(--border)] text-[var(--text-secondary)]',
-'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
-)}
-/>
+                    max={customTo}
+                    className={cn(
+                      'flex-1 px-2 py-1.5 text-sm rounded-lg border',
+                      'border-[var(--border)] text-[var(--text-secondary)]',
+                      'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
+                    )}
+                  />
 </div>
 <div className="flex items-center gap-2">
-<label className="text-xs text-[var(--text-secondary)] w-12">Hasta</label>
+<label htmlFor="date-to" className="text-xs text-[var(--text-secondary)] w-12">Hasta</label>
 <input
-type="date"
-value={customTo}
-onChange={(e) => handleCustomDateChange('to', e.target.value)}
-min={customFrom}
-max={formatDateInput(new Date())}
-className={cn(
-'flex-1 px-2 py-1.5 text-sm rounded-lg border',
-'border-[var(--border)] text-[var(--text-secondary)]',
-'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
-        )}
-                  />
+  id="date-to"
+  type="date"
+  value={customTo}
+  onChange={(e) => handleCustomDateChange('to', e.target.value)}
+  min={customFrom}
+  max={formatDateInput(new Date())}
+  className={cn(
+    'flex-1 px-2 py-1.5 text-sm rounded-lg border',
+    'border-[var(--border)] text-[var(--text-secondary)]',
+    'focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20'
+  )}
+/>
                 </div>
               </div>
               <button

@@ -5,9 +5,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { initIO, getIO } from '@/lib/socket';
-
-export const dynamic = 'force-dynamic';
+import { getIO } from '@/lib/socket';
 
 export async function GET() {
   try {

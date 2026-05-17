@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 
 import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, Loader2, AlertTriangle } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 const GENRES = ['Action', 'Adventure', 'Comedy', 'Dark Fantasy', 'Drama', 'Fantasy', 'Horror', 'Isekai', 'Mecha', 'Romance', 'School Life', 'Sci-Fi', 'Shounen', 'Slice of Life', 'Supernatural', 'System'];
 const STATUSES = ['Ongoing', 'Completed', 'Hiatus'];
@@ -117,6 +118,7 @@ export default function AdvancedSearchPage() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder='Busca por título, autor o descripción... (ej: "solo leveling", "DUBU_AI")'
+                aria-label="Buscar manga por título o autor"
                 className="w-full pl-12 pr-4 py-4 bg-tertiary border border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue rounded-2xl outline-none transition-all text-base shadow-inner"
                 autoFocus
               />
@@ -173,6 +175,7 @@ export default function AdvancedSearchPage() {
                     value={sortBy}
                     onChange={e => setSortBy(e.target.value)}
                     className="w-full appearance-none bg-tertiary border border-custom text-sm font-semibold py-2.5 pl-3 pr-8 rounded-xl outline-none focus:border-accent-blue transition-colors"
+                    aria-label="Ordenar por"
                   >
                     <option value="popularity">Más Populares</option>
                     <option value="rating">Mejor Valorados</option>
@@ -232,9 +235,10 @@ export default function AdvancedSearchPage() {
                 <Link href={`/manga/${manga.slug}`} key={manga.id} className="group">
                   <div className="bg-secondary border border-custom rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent-blue transition-all duration-200 hover:-translate-y-0.5 h-full flex flex-col">
                     <div className="relative aspect-[16/9] overflow-hidden">
-                      <img
+                      <OptimizedImage
                         src={manga.coverUrl || '/placeholder-manga.svg'}
                         alt={manga.title}
+                        fill
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-[var(--warning)] text-xs font-black px-2 py-1 rounded-lg flex items-center gap-1">

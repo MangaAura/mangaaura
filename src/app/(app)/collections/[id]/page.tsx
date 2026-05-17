@@ -14,7 +14,6 @@ import {
   Globe,
   BookOpen,
   ArrowLeft,
-  User as UserIcon,
   Clock,
   Share2,
 } from 'lucide-react';

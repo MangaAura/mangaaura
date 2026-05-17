@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -61,6 +62,9 @@ export async function PATCH(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const role = session.user.role;
     if (role !== 'ADMIN') {

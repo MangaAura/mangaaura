@@ -6,6 +6,7 @@
  */
 
 import { createAdapter } from '@socket.io/redis-adapter';
+import { Redis } from 'ioredis';
 import { redis, isMockRedis } from '@/lib/redis';
 import type { Server as SocketIOServer } from 'socket.io';
 
@@ -15,20 +16,37 @@ export async function createRedisAdapter(io: SocketIOServer): Promise<boolean> {
     return false;
   }
 
+  const realRedis = redis as Redis;
+
+  // Ensure the main Redis client is connected before duplicating
   try {
-    const pubClient = (redis as any).duplicate?.() || redis;
-    const subClient = (redis as any).duplicate?.() || redis;
-
-    if (pubClient !== redis && subClient !== redis) {
-      io.adapter(createAdapter(pubClient, subClient));
-      console.info('[Socket] Redis adapter enabled for multi-server scaling');
-      return true;
+    if (realRedis.status === 'wait') {
+      await realRedis.connect();
     }
-
-    console.info('[Socket] Using fallback in-memory adapter');
+  } catch (connErr) {
+    console.warn('[Socket] Redis not reachable, using in-memory adapter');
     return false;
+  }
+
+  try {
+    const pubClient = realRedis.duplicate();
+    const subClient = realRedis.duplicate();
+
+    // Suppress errors on duplicated clients to prevent crashes
+    const onError = (role: string) => (err: Error) => {
+      console.warn(`[Socket] Redis ${role} error:`, err.message);
+    };
+    pubClient.on('error', onError('pubClient'));
+    subClient.on('error', onError('subClient'));
+
+    // Connect duplicated clients before passing to adapter
+    await Promise.all([pubClient.connect(), subClient.connect()]);
+
+    io.adapter(createAdapter(pubClient, subClient));
+    console.info('[Socket] Redis adapter enabled for multi-server scaling');
+    return true;
   } catch (error) {
-    console.warn('[Socket] Failed to create Redis adapter:', error);
+    console.warn('[Socket] Failed to create Redis adapter, using in-memory fallback:', error instanceof Error ? error.message : error);
     return false;
   }
 }

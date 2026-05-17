@@ -68,7 +68,7 @@ async function getAIProvider(): Promise<IAProvider> {
 
 export async function moderateComment(
   content: string,
-  options: { userId?: string; isReply?: boolean } = {}
+  _options: { userId?: string; isReply?: boolean } = {}
 ): Promise<ModerationResult> {
   const flaggedWords: string[] = [];
   let totalToxicity = 0;

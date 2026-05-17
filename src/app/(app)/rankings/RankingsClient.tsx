@@ -5,6 +5,7 @@ import { LeaderboardTable } from '@/components/Rankings/LeaderboardTable';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { Card } from '@/components/ui/Card';
 import { Trophy, Users, Crown, Flame, BookOpen } from 'lucide-react';
+import { useT } from '@/i18n';
 
 interface RankingsClientProps {
   leaderboards: {
@@ -19,28 +20,28 @@ interface RankingsClientProps {
 const statCards = [
   {
     key: 'readers',
-    label: 'Top Lectores',
+    labelKey: 'rankings.topReaders',
     count: (lb: RankingsClientProps['leaderboards']) => lb.readers.length,
     icon: Users,
     colorVar: '--info',
   },
   {
     key: 'creators',
-    label: 'Top Creadores',
+    labelKey: 'rankings.topCreators',
     count: (lb: RankingsClientProps['leaderboards']) => lb.creators.length,
     icon: Crown,
     colorVar: '--accent-purple',
   },
   {
     key: 'clans',
-    label: 'Top Clanes',
+    labelKey: 'rankings.topClans',
     count: (lb: RankingsClientProps['leaderboards']) => lb.clans.length,
     icon: Flame,
     colorVar: '--warning',
   },
   {
     key: 'manga',
-    label: 'Manga Trending',
+    labelKey: 'rankings.mangaTrending',
     count: (lb: RankingsClientProps['leaderboards']) => lb.manga.length,
     icon: BookOpen,
     colorVar: '--success',
@@ -49,6 +50,7 @@ const statCards = [
 
 export default function RankingsClient({ leaderboards, currentUserId }: RankingsClientProps) {
   const shouldReduceMotion = useReducedMotion();
+  const t = useT();
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 p-6">
@@ -60,10 +62,10 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 mt-4 text-[var(--text-primary)]">
-          Rankings <Trophy className="text-[var(--accent-purple)]" size={24} />
+          {t('rankings.title')} <Trophy className="text-[var(--accent-purple)]" size={24} />
         </h1>
         <p className="text-[var(--text-secondary)] mt-2">
-          Los mejores lectores, creadores y clanes de la comunidad
+          {t('rankings.description')}
         </p>
       </motion.div>
 
@@ -84,7 +86,7 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl font-bold text-[var(--text-primary)]">{count}</p>
-                    <p className="text-sm text-[var(--text-secondary)]">{stat.label}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">{t(stat.labelKey)}</p>
                   </div>
                   <div
                     className="w-14 h-14 rounded-full flex items-center justify-center"
@@ -104,19 +106,19 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
         <TabsList className="mb-6">
           <TabsTrigger value="readers" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
-            Lectores
+            {t('rankings.readers')}
           </TabsTrigger>
           <TabsTrigger value="creators" className="flex items-center gap-2">
             <Crown className="w-4 h-4" />
-            Creadores
+            {t('rankings.creators')}
           </TabsTrigger>
           <TabsTrigger value="clans" className="flex items-center gap-2">
             <Flame className="w-4 h-4" />
-            Clanes
+            {t('rankings.clans')}
           </TabsTrigger>
           <TabsTrigger value="manga" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
-            Manga
+            {t('rankings.manga')}
           </TabsTrigger>
         </TabsList>
 

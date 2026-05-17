@@ -8,7 +8,7 @@ export default function SearchLayout({
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col">
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {children}
       </main>
     </div>

@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma';
 import { Manga, type MangaStatus } from '@/core/entities/Manga';
 import { Slug } from '@/core/value-objects/Slug';
 import type { MangaRepository, MangaFilters } from '@/core/repositories/MangaRepository';
-import type { IMangaRepository, MangaSeries, MangaFilters as AppMangaFilters } from '@/application/ports/IMangaRepository';
+
 
 type PrismaMangaRow = {
   id: string;

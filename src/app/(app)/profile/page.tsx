@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Progress } from '@/components/ui/Progress';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import {
   BookOpen,
   Trophy,
@@ -203,9 +204,10 @@ export default async function ProfilePage() {
                     >
                       <div className="w-16 h-20 bg-[var(--surface-sunken)] rounded overflow-hidden">
                         {progress.manga.coverUrl ? (
-                          <img
+                          <OptimizedImage
                             src={progress.manga.coverUrl}
                             alt={progress.manga.title}
+                            fill
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -231,8 +233,13 @@ export default async function ProfilePage() {
                       <Button size="sm">Continuar</Button>
                     </Link>
                   ))}
-                </div>
+              </div>
               )}
+              <div className="mt-4 text-center">
+                <Link href="/reading-history" className="text-sm text-accent-blue hover:underline font-semibold">
+                  Ver historial completo →
+                </Link>
+              </div>
             </Card>
           </TabsContent>
 

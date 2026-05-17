@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PrismaUserRepository } from '@/infrastructure/persistence/postgres/PrismaUserRepository';
 import { User } from '@/core/entities/User';
 import { Email } from '@/core/value-objects/Email';

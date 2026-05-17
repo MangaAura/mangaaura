@@ -184,7 +184,7 @@ export function useParty(options: UsePartyOptions) {
           }, 3000);
         });
 
-        socket.on('party:host-changed', ({ newHostId, newHostName }) => {
+        socket.on('party:host-changed', ({ newHostId, newHostName: _newHostName }) => {
           setIsHost(newHostId === session.user.id);
           setMembers((prev) =>
             prev.map((m) => ({

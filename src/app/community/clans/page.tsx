@@ -203,7 +203,6 @@ export default async function ClansPage({ searchParams }: ClansPageProps) {
                   clan={clan}
                   index={idx}
                   rank={idx + 1 + (page - 1) * LIMIT}
-                  isUserClan={clan.id === userClanId}
                 />
               ))}
             </div>

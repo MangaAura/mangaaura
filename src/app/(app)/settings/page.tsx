@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import type { Metadata } from 'next';
 import { SettingsTabs } from '@/components/Settings/SettingsTabs';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export const metadata: Metadata = {
   title: 'Configuración | Inkverse',
@@ -11,6 +13,8 @@ export const metadata: Metadata = {
 
 export default async function SettingsPage() {
   const session = await auth();
+  const locale = await detectLocale();
+  const t = getT(locale);
 
   if (!session?.user?.id) {
     redirect('/auth/login?callbackUrl=/settings');
@@ -55,9 +59,9 @@ export default async function SettingsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">Configuración</h1>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">{t('settings.title')}</h1>
       <p className="text-[var(--text-secondary)]">
-            Gestiona tu cuenta y preferencias
+            {t('settings.description')}
           </p>
         </div>
 

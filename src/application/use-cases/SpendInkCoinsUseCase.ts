@@ -5,7 +5,6 @@
  */
 
 import { DomainError } from '../../core/errors/DomainError';
-import { Money } from '../../core/value-objects/Money';
 import { IEventBus } from '../services/IEventBus';
 import { InkCoinsSpentEvent } from '../events/InkCoinsSpentEvent';
 
@@ -122,11 +121,6 @@ export class SpendInkCoinsUseCase {
     if (currentBalance < input.amount) {
       throw new InsufficientBalanceError(currentBalance, input.amount);
     }
-
-    // Crear value objects para validación
-    const amountToSpend = Money.create(input.amount, 'INK');
-    const currentMoney = Money.create(currentBalance, 'INK');
-    const newBalance = currentMoney.subtract(amountToSpend);
 
     // Crear la transacción
     const transaction = await this.transactionRepo.create({

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
 import { ShieldAlert, ThumbsUp, MessageSquare } from 'lucide-react';
 
 interface SpoilerCommentProps {
@@ -29,7 +30,7 @@ export default function SpoilerComment({ user, avatar, content, isSpoiler, likes
 
   return (
     <div className="flex gap-4 p-4 border-b border-custom bg-secondary hover:bg-tertiary transition-colors">
-      <img src={avatar} alt={user} className="w-10 h-10 rounded-full shadow-sm" />
+      <Image src={avatar} alt={user} width={40} height={40} className="w-10 h-10 rounded-full shadow-sm" />
       
       <div className="flex-1 space-y-2">
         <div className="flex justify-between items-center">

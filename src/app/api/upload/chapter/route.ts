@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { uploadChapterImages, UploadResult, UploadError } from '@/lib/storage';
+import { uploadChapterImages } from '@/lib/storage';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // Tamaño máximo por archivo: 10MB
@@ -15,11 +15,6 @@ const ALLOWED_TYPES = [
   'image/webp',
   'image/gif',
 ];
-
-interface ChapterUploadRequest {
-  mangaId: string;
-  chapterNumber: number;
-}
 
 interface ChapterUploadResponse {
   success: boolean;

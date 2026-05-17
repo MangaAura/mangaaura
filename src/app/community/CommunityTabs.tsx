@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import ClanCard from '@/components/Clan/ClanCard';
-import { EventCard, eventTypeIcon, eventTypeLabel, eventStatusBadge } from '@/components/Event/EventCard';
+import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
 import type { EventData } from '@/components/Event/EventCard';
 import {
   Trophy,
@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Plus,
 } from 'lucide-react';
+import { useT } from '@/i18n';
 
 interface ClanData {
   id: string;
@@ -41,6 +42,7 @@ export default function CommunityTabs({
   userClanId,
 }: CommunityTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>('clans');
+  const t = useT();
 
   const tabCls = (tab: Tab, activeColor: string) =>
     `px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
@@ -56,19 +58,19 @@ export default function CommunityTabs({
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-primary)] flex items-center gap-3">
             <Users className="text-[var(--primary)]" size={32} />
-            Comunidad
+            {t('community.title')}
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">
-            Conecta con otros lectores, compite en clanes y participa en eventos
+            {t('community.subtitle')}
           </p>
         </div>
 
         <div className="flex bg-[var(--surface-elevated)] rounded-xl p-1 border border-[var(--border)] shadow-sm">
           <button onClick={() => setActiveTab('clans')} className={tabCls('clans', 'text-[var(--accent-purple)]')}>
-            <Trophy size={16} /> Clanes
+            <Trophy size={16} /> {t('community.clansTab')}
           </button>
           <button onClick={() => setActiveTab('events')} className={tabCls('events', 'text-[var(--warning)]')}>
-            <Calendar size={16} /> Eventos
+            <Calendar size={16} /> {t('community.eventsTab')}
           </button>
                   </div>
       </header>
@@ -82,10 +84,10 @@ export default function CommunityTabs({
               <div>
                 <h2 className="text-xl font-bold text-[var(--accent-purple)] flex items-center gap-2 mb-1">
                   <Flame size={22} className="text-[var(--warning)]" />
-                  Guerra de Clanes
+                  {t('community.clanWars')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  ¡Lee mangas en grupo para ganar XP y subir en el ranking!
+                  {t('community.clanWarsDesc')}
                 </p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
@@ -95,7 +97,7 @@ export default function CommunityTabs({
                     className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent-purple)]/50 text-[var(--text-primary)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
                   >
                     <Trophy size={16} className="text-[var(--warning)]" />
-                    Mi Clan
+                    {t('community.myClan')}
                   </Link>
                 )}
                 {!userClanId && (
@@ -104,14 +106,14 @@ export default function CommunityTabs({
                     className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent-purple)]/50 text-[var(--primary)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
                   >
                     <Plus size={16} />
-                    Crear Clan
+                    {t('community.createClan')}
                   </Link>
                 )}
                 <Link
                   href="/community/clans"
                   className="bg-[var(--accent-purple)] hover:bg-[var(--accent-purple-hover)] text-[var(--text-inverse)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
                 >
-                  Ver todos ({totalClans})
+                  {t('community.viewAllClans', { count: totalClans })}
                   <ChevronRight size={16} />
                 </Link>
               </div>
@@ -122,12 +124,12 @@ export default function CommunityTabs({
           {topClans.length === 0 ? (
             <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-2xl">
               <Trophy className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
-              <p className="text-[var(--text-secondary)] font-medium">Aún no hay clanes. ¡Crea el primero!</p>
+              <p className="text-[var(--text-secondary)] font-medium">{t('community.noClansYet')}</p>
               <Link
                 href="/community/clans/create"
                 className="mt-4 inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] px-5 py-2.5 rounded-xl font-semibold transition-all text-sm"
               >
-                Crear Clan
+                {t('community.createClan')}
               </Link>
             </div>
           ) : (
@@ -138,7 +140,6 @@ export default function CommunityTabs({
                   clan={clan}
                   index={idx}
                   rank={idx + 1}
-                  isUserClan={clan.id === userClanId}
                 />
               ))}
             </div>
@@ -149,7 +150,7 @@ export default function CommunityTabs({
               href="/community/clans"
               className="text-[var(--primary)] hover:underline font-semibold text-sm inline-flex items-center gap-1"
             >
-              Ver todos los clanes <ArrowRight size={14} />
+              {t('community.viewAllClansLink')} <ArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -162,13 +163,13 @@ export default function CommunityTabs({
             <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-2xl">
               <Calendar className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
               <p className="text-[var(--text-secondary)] font-medium">
-                No hay eventos activos ahora. ¡Vuelve pronto!
+                {t('community.noActiveEvents')}
               </p>
               <Link
                 href="/events"
                 className="text-[var(--warning)] hover:underline text-sm font-semibold mt-2 inline-block"
               >
-                Ver todos los eventos
+                {t('community.viewAllEventsLink')}
               </Link>
             </div>
           ) : (
@@ -176,10 +177,10 @@ export default function CommunityTabs({
               <div className="bg-gradient-to-r from-[var(--warning)]/10 to-transparent p-6 rounded-2xl border border-[var(--warning)]/20">
                 <h2 className="text-xl font-bold text-[var(--warning)] mb-1 flex items-center gap-2">
                   <Flame size={20} />
-                  Eventos de la Comunidad
+                  {t('community.communityEvents')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Participa y gana premios exclusivos
+                  {t('community.eventPrizes')}
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -195,7 +196,7 @@ export default function CommunityTabs({
                   href="/events"
                   className="text-[var(--warning)] hover:underline font-semibold text-sm inline-flex items-center gap-1"
                 >
-                  Ver todos los eventos <ArrowRight size={14} />
+                  {t('community.viewAllEventsLink')} <ArrowRight size={14} />
                 </Link>
               </div>
             </>

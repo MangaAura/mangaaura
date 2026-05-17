@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { paymentService } from '@/core/services/PaymentService';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { ContributeCrowdfundingUseCase } from '@/application/use-cases/economy/ContributeCrowdfundingUseCase';
 import { z } from 'zod';
 
@@ -23,6 +24,12 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('contribute', userId), 10, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -53,7 +60,7 @@ export async function POST(request: NextRequest) {
       goalReached: contributionResult.goalReached,
     });
   } catch (error) {
-    console.error('Error realizando contribución:', error);
+    // console.error('Error realizando contribución:', error);
     const message = error instanceof Error ? error.message : 'Error interno del servidor';
     return NextResponse.json(
       { error: message },

@@ -15,6 +15,7 @@ import { redis, isMockRedis } from '@/lib/redis';
 export type EmailJobType =
   | 'welcome'
   | 'password-reset'
+  | 'verification'
   | 'new-chapter'
   | 'achievement'
   | 'tip-received'
@@ -79,6 +80,11 @@ export interface CrowdfundingGoalData extends EmailJobData {
   chapterId: string;
   chapterNumber: number;
   chapterTitle?: string;
+}
+
+export interface VerificationEmailData extends EmailJobData {
+  type: 'verification';
+  verificationUrl: string;
 }
 
 export interface CommentReplyData extends EmailJobData {
@@ -343,7 +349,13 @@ return job as Job;
    */
   async addPasswordResetEmail(data: Omit<PasswordResetData, 'type'>): Promise<Job> {
     return this.addEmailJob('password-reset', data, {
-      priority: 1, // Máxima prioridad
+      priority: 1,
+    });
+  }
+
+  async addVerificationEmail(data: Omit<VerificationEmailData, 'type'>): Promise<Job> {
+    return this.addEmailJob('verification', data, {
+      priority: 1,
     });
   }
 

@@ -23,11 +23,10 @@ interface Conversation {
 }
 
 interface ConversationListProps {
-  userId: string;
   activeConversationId?: string;
 }
 
-export function ConversationList({ userId, activeConversationId }: ConversationListProps) {
+export function ConversationList({ activeConversationId }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

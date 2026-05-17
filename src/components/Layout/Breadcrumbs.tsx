@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Script from 'next/script';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,35 +9,35 @@ import { cn } from '@/lib/utils';
 // Route name mappings
 const routeNames: Record<string, string> = {
   '': 'Inicio',
-  browse: 'Explorar',
+  browse: 'explorar',
   library: 'Mi Biblioteca',
-  rankings: 'Rankings',
-  community: 'Comunidad',
-  clans: 'Clanes',
-  collections: 'Colecciones',
-  messages: 'Mensajes',
-  notifications: 'Notificaciones',
-  profile: 'Perfil',
-  settings: 'Configuración',
-  admin: 'Administración',
-  moderation: 'Moderación',
-  manga: 'Manga',
-  chapter: 'Capítulo',
-  user: 'Usuario',
-  creator: 'Creador',
-  upload: 'Subir',
-  edit: 'Editar',
-  new: 'Nuevo',
-  search: 'Buscar',
-  help: 'Ayuda',
-  terms: 'Términos',
-  privacy: 'Privacidad',
+  rankings: 'rankings',
+  community: 'comunidad',
+  clans: 'clanes',
+  collections: 'colecciones',
+  messages: 'mensajes',
+  notifications: 'notificaciones',
+  profile: 'perfil',
+  settings: 'configuración',
+  admin: 'administración',
+  moderation: 'moderación',
+  manga: 'manga',
+  chapter: 'capítulo',
+  user: 'usuario',
+  creator: 'creador',
+  upload: 'subir',
+  edit: 'editar',
+  new: 'nuevo',
+  search: 'buscar',
+  help: 'ayuda',
+  terms: 'términos',
+  privacy: 'privacidad',
   dmca: 'DMCA',
-  contact: 'Contacto',
-  report: 'Reportar',
-  achievements: 'Logros',
-  analytics: 'Analíticas',
-  dashboard: 'Panel',
+  contact: 'contacto',
+  report: 'reportar',
+  achievements: 'logros',
+  analytics: 'analíticas',
+  dashboard: 'panel',
 };
 
 interface BreadcrumbItem {
@@ -70,11 +71,11 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
       if (isDynamicSegment) {
         // Try to get context from previous segment
         const prevSegment = segments[index - 1];
-        if (prevSegment === 'manga') name = 'Detalle';
+        if (prevSegment === 'manga') name = 'detalle';
         else if (prevSegment === 'chapter') name = `Cap. ${segment}`;
-        else if (prevSegment === 'user') name = 'Perfil';
-        else if (prevSegment === 'admin' || prevSegment === 'moderation') name = 'Gestión';
-        else name = 'Detalle';
+        else if (prevSegment === 'user') name = 'perfil';
+        else if (prevSegment === 'admin' || prevSegment === 'moderation') name = 'gestión';
+        else name = 'detalle';
       } else {
         // Capitalize and clean
         name = segment
@@ -129,8 +130,7 @@ export function Breadcrumbs({ className, customItems }: BreadcrumbsProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
+      <Script id="breadcrumb-schema" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <nav
@@ -206,11 +206,11 @@ export function useBreadcrumbs(dynamicNames?: Record<string, string>) {
 
         if (isDynamicSegment) {
           const prevSegment = segments[index - 1];
-          if (prevSegment === 'manga') name = 'Detalle';
+          if (prevSegment === 'manga') name = 'detalle';
           else if (prevSegment === 'chapter') name = `Cap. ${segment}`;
-          else if (prevSegment === 'user') name = 'Perfil';
-          else if (prevSegment === 'admin' || prevSegment === 'moderation') name = 'Gestión';
-          else name = 'Detalle';
+          else if (prevSegment === 'user') name = 'perfil';
+          else if (prevSegment === 'admin' || prevSegment === 'moderation') name = 'gestión';
+          else name = 'detalle';
         } else {
           name = segment
             .replace(/-/g, ' ')

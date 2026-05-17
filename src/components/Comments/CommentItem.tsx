@@ -8,6 +8,8 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Heart, MessageCircle, Edit2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CommentForm } from './CommentForm';
@@ -42,15 +44,22 @@ export function CommentItem({
   const [isEditing, setIsEditing] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
 
   const isOwner = session?.user?.id === comment.userId;
   const hasReplies = comment.replies && comment.replies.length > 0;
 
   const handleLike = async () => {
-    if (comment.isLiked) {
-      await onUnlike(comment.id);
-    } else {
-      await onLike(comment.id);
+    if (isLiking) return;
+    setIsLiking(true);
+    try {
+      if (comment.isLiked) {
+        await onUnlike(comment.id);
+      } else {
+        await onLike(comment.id);
+      }
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -71,9 +80,11 @@ export function CommentItem({
         {/* Avatar */}
         <div className="flex-shrink-0">
           {comment.user.avatarUrl ? (
-            <img
+            <Image
               src={comment.user.avatarUrl}
               alt={comment.user.username}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
@@ -137,8 +148,9 @@ export function CommentItem({
           {/* Actions */}
           {!isEditing && (
             <div className="flex items-center gap-4 mt-2">
-              <button
+              <motion.button
                 onClick={handleLike}
+                whileTap={{ scale: 0.85 }}
                 className={cn(
                   'flex items-center gap-1 text-sm transition-colors',
                   comment.isLiked
@@ -146,9 +158,19 @@ export function CommentItem({
             : 'text-[var(--text-muted)] hover:text-[var(--error)]'
                 )}
               >
-                <Heart className={cn('w-4 h-4', comment.isLiked && 'fill-current')} />
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={comment.isLiked ? 'liked' : 'unliked'}
+                    initial={{ scale: 1 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 1.3 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                  >
+                    <Heart className={cn('w-4 h-4', comment.isLiked && 'fill-current')} />
+                  </motion.div>
+                </AnimatePresence>
                 <span>{comment.likesCount}</span>
-              </button>
+              </motion.button>
 
               <button
                 onClick={() => onReply(comment.id)}

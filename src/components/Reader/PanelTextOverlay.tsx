@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Edit2, Trash2, Move, Type, RotateCw } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 export interface PanelText {
   id: string;
@@ -112,7 +113,6 @@ export function PanelTextOverlay({
     
     const text = texts.find(t => t.id === textId);
     if (text && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       dragStartOffset.current = { x: text.x, y: text.y };
     }
@@ -149,13 +149,16 @@ export function PanelTextOverlay({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <img 
-        src={imageUrl} 
-        alt="Panel" 
-        className="w-full h-auto rounded-lg" 
-        crossOrigin="anonymous"
-        draggable={false}
-      />
+      <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: '2/3' }}>
+        <OptimizedImage 
+          src={imageUrl} 
+          alt="Panel" 
+          fill
+          objectFit="contain"
+          className="rounded-lg"
+          crossOrigin="anonymous"
+        />
+      </div>
       
       {texts.map((text) => (
         <div
@@ -288,6 +291,7 @@ export function PanelTextOverlay({
                     max="48"
                     value={activeText.fontSize}
                     onChange={(e) => handleUpdate(activeText.id, { fontSize: parseInt(e.target.value) })}
+                    aria-label="Tamaño de fuente"
                     className="flex-1"
                   />
                   <span className="text-xs text-[var(--text-inverse)] w-8">{activeText.fontSize}px</span>
@@ -304,6 +308,7 @@ export function PanelTextOverlay({
                     max="45"
                     value={activeText.rotation}
                     onChange={(e) => handleUpdate(activeText.id, { rotation: parseInt(e.target.value) })}
+                    aria-label="Rotación"
                     className="flex-1"
                   />
                   <span className="text-xs text-[var(--text-inverse)] w-8">{activeText.rotation}°</span>
@@ -320,6 +325,7 @@ export function PanelTextOverlay({
                       type="color"
                       value={activeText.color}
                       onChange={(e) => handleUpdate(activeText.id, { color: e.target.value })}
+                      aria-label="Color de texto"
                       className="w-8 h-8 rounded cursor-pointer"
                     />
                   </div>
@@ -339,6 +345,7 @@ export function PanelTextOverlay({
                             : `rgba(${r},${g},${b},0.95)` 
                         });
                       }}
+                      aria-label="Color de fondo"
                       className="w-8 h-8 rounded cursor-pointer"
                     />
                   </div>
@@ -355,6 +362,7 @@ export function PanelTextOverlay({
                     max="50"
                     value={activeText.borderRadius}
                     onChange={(e) => handleUpdate(activeText.id, { borderRadius: parseInt(e.target.value) })}
+                    aria-label="Redondez de borde"
                     className="w-full"
                   />
                 </div>

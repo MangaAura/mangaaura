@@ -9,7 +9,7 @@ export default function CheckoutLayout({
   return (
     <div className="min-h-screen bg-[var(--background)] font-sans text-[var(--text-primary)] flex flex-col">
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <PageTransition>{children}</PageTransition>
       </main>
     </div>

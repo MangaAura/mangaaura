@@ -8,6 +8,7 @@
 
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import { useT } from '@/i18n';
 import { XCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -22,6 +23,7 @@ function LoadingSpinner() {
 
 function CheckoutCancelContent() {
   const router = useRouter();
+  const t = useT();
 
   return (
     <div className="pt-20 pb-16 px-4">
@@ -32,24 +34,23 @@ function CheckoutCancelContent() {
             </div>
             
             <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              Compra cancelada
+              {t('checkout.cancel.title')}
             </h1>
             
             <p className="text-[var(--text-secondary)] mb-8">
-              No te preocupes, no se ha realizado ningún cargo. 
-              Puedes intentarlo de nuevo cuando quieras.
+              {t('checkout.cancel.desc')}
             </p>
 
             <div className="flex flex-col gap-3">
               <Button onClick={() => router.push('/checkout')}>
-                Intentar de nuevo
+                {t('checkout.cancel.tryAgain')}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => router.push('/browse')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver a explorar
+                {t('checkout.cancel.backToBrowse')}
               </Button>
             </div>
     </div>

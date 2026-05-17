@@ -283,8 +283,6 @@ describe('InferenceJobQueue', () => {
 
       const pending = queue.getJobsByStatus('pending');
       const processing = queue.getJobsByStatus('processing');
-      const completed = queue.getJobsByStatus('completed');
-
       expect(pending).toHaveLength(0);
       expect(processing).toHaveLength(1);
 

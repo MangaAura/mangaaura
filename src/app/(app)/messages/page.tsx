@@ -2,8 +2,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ConversationList } from '@/components/Messages/ConversationList';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { MessageSquare } from 'lucide-react';
+
 
 export const metadata: Metadata = {
   title: 'Mensajes | Inkverse',
@@ -23,7 +22,7 @@ export default async function MessagesPage() {
     <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-6">Mensajes</h1>
 
     <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] min-h-[500px]">
-          <ConversationList userId={session.user.id} />
+          <ConversationList />
         </div>
       </div>
     </div>

@@ -17,7 +17,6 @@ import {
   XCircle,
   Clock,
   Star,
-  Filter,
   Grid3X3,
   List,
   ChevronRight,
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { cn } from '@/lib/utils';
 
 const STATUS_FILTERS: { value: LibraryStatus | ''; label: string; icon: React.ElementType; color: string }[] = [
@@ -76,7 +76,7 @@ function SkeletonList() {
 }
 
 export default function LibraryPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [statusFilter, setStatusFilter] = useState<LibraryStatus | ''>('');
   const [sortBy, setSortBy] = useState('updatedAt');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -137,9 +137,6 @@ if (status === 'unauthenticated') {
               { label: 'En pausa', filter: 'ON_HOLD' as LibraryStatus, icon: PauseCircle, color: 'text-[var(--warning)]' },
               { label: 'Por leer', filter: 'PLAN_TO_READ' as LibraryStatus, icon: Clock, color: 'text-[var(--accent-purple)]' },
             ].map((stat) => {
-              const count = pagination?.total
-                ? (statusFilter ? entries.filter(e => e.status === stat.filter).length : 0)
-                : 0;
               const actualCount = !statusFilter || statusFilter === stat.filter
                 ? entries.filter(e => e.status === stat.filter).length
                 : entries.filter(e => e.status === stat.filter).length;
@@ -293,10 +290,11 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
       className="group block card rounded-xl overflow-hidden border border-[var(--border)] hover:border-[var(--info)]/50 transition-all hover:shadow-lg"
     >
       <div className="relative aspect-[3/4] overflow-hidden">
-        <img
+        <OptimizedImage
           src={entry.manga.coverUrl || '/placeholder-manga.svg'}
           alt={entry.manga.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
         <div className={cn(
@@ -344,10 +342,13 @@ function LibraryListItem({ entry }: { entry: import('@/hooks/useLibrary').Librar
       href={`/manga/${entry.manga.slug}`}
       className="flex items-center gap-4 p-4 card rounded-xl border border-[var(--border)] hover:border-[var(--info)]/50 transition-all group"
     >
-      <img
+      <OptimizedImage
         src={entry.manga.coverUrl || '/placeholder-manga.svg'}
         alt={entry.manga.title}
-        className="w-16 h-20 object-cover rounded-lg flex-shrink-0 bg-[var(--surface-sunken)]"
+        width={64}
+        height={80}
+        className="rounded-lg flex-shrink-0 bg-[var(--surface-sunken)]"
+        objectFit="cover"
         loading="lazy"
       />
 

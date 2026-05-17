@@ -45,7 +45,7 @@ export interface OptimizedImageProps {
   /** Callback when image fails to load */
   onError?: () => void;
   /** Callback when image is clicked */
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   /** Enable fallback to original URL on error */
   fallbackOnError?: boolean;
   /** Whether to use optimized variants */
@@ -54,25 +54,12 @@ export interface OptimizedImageProps {
   [key: string]: unknown;
 }
 
-interface SrcSetItem {
-  url: string;
-  width: number;
-}
-
 // ============================================================================
 // Constants
 // ============================================================================
 
 const DEFAULT_BLURHASH_WIDTH = 32;
 const DEFAULT_BLURHASH_HEIGHT = 32;
-
-const SIZES: Record<ImageSize, number> = {
-  thumbnail: 200,
-  small: 400,
-  medium: 800,
-  large: 1200,
-  full: 1920,
-};
 
 // ============================================================================
 // Utility Functions
@@ -108,35 +95,6 @@ function generateBlurDataURL(
     console.error('Error generating SVG placeholder');
     return '';
   }
-}
-
-/**
- * Parse URL to generate optimized variants
- */
-function generateOptimizedVariants(baseUrl: string): SrcSetItem[] {
-  if (!baseUrl || baseUrl.startsWith('data:')) return [];
-  
-  const variants: SrcSetItem[] = [];
-  const url = new URL(baseUrl, typeof window !== 'undefined' ? window.location.href : 'http://localhost');
-  
-  Object.entries(SIZES).forEach(([name, width]) => {
-    url.searchParams.set('w', width.toString());
-    variants.push({
-      url: url.toString(),
-      width,
-    });
-  });
-  
-  return variants;
-}
-
-/**
- * Generate srcSet string
- */
-function generateSrcSet(variants: SrcSetItem[]): string {
-  return variants
-    .map(({ url, width }) => `${url} ${width}w`)
-    .join(', ');
 }
 
 // ============================================================================
@@ -177,13 +135,6 @@ export function OptimizedImage({
     }
     return undefined;
   }, [blurHash, blurHashWidth, blurHashHeight, customBlurDataURL]);
-
-  // Generate srcSet for responsive images
-  const srcSet = useMemo(() => {
-    if (!optimized || hasError) return undefined;
-    const variants = generateOptimizedVariants(src);
-    return variants.length > 0 ? generateSrcSet(variants) : undefined;
-  }, [src, optimized, hasError]);
 
   // Default sizes attribute if not provided
   const sizes = customSizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw';

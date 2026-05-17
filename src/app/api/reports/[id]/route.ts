@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const updateSchema = z.object({
   status: z.enum(['PENDING', 'UNDER_REVIEW', 'RESOLVED', 'DISMISSED', 'ESCALATED']).optional(),
@@ -11,7 +12,7 @@ const updateSchema = z.object({
 
 // GET /api/reports/[id] - Get report details
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -136,6 +137,9 @@ export async function PATCH(
     if (!session?.user?.id || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'report');
+    if (rlResponse) return rlResponse;
 
     const report = await prisma.userReport.findUnique({
       where: { id },

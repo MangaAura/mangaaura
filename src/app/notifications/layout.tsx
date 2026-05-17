@@ -8,7 +8,7 @@ export default function NotificationsLayout({
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {children}
       </main>
     </div>

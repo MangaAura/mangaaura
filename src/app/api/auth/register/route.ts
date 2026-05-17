@@ -7,6 +7,8 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import crypto from 'crypto';
+import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -135,8 +137,30 @@ export async function POST(request: NextRequest) {
         displayName: user.displayName,
       });
     } catch (emailError) {
-      // No bloquear el registro si falla el email
       console.error('[Register] Error sending welcome email:', emailError);
+    }
+
+    try {
+      const verifyToken = crypto.randomBytes(32).toString('hex');
+      await prisma.verificationToken.create({
+        data: {
+          identifier: user.email,
+          token: verifyToken,
+          expires: new Date(Date.now() + 24 * 3600 * 1000),
+        },
+      });
+
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const verificationUrl = `${baseUrl}/auth/verify?token=${verifyToken}`;
+      const emailQueue = getEmailQueue();
+      await emailQueue.addVerificationEmail({
+        to: user.email,
+        userId: user.id,
+        username: user.username,
+        verificationUrl,
+      });
+    } catch (verifyError) {
+      console.error('[Register] Error sending verification email:', verifyError);
     }
 
     return NextResponse.json(

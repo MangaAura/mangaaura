@@ -2,6 +2,7 @@
 
 import { use } from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useT } from '@/i18n';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,7 +10,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card';
 import { useManga } from '@/hooks/useManga';
-import { Skeletons } from '@/components/Skeletons';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeftIcon,
@@ -25,15 +25,16 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const statusOptions = [
-  { value: 'ONGOING', label: 'Publicando', color: 'bg-green-100 text-green-700 border-green-200' },
-  { value: 'COMPLETED', label: 'Completado', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { value: 'HIATUS', label: 'Pausado', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  { value: 'DROPPED', label: 'Abandonado', color: 'bg-red-100 text-red-700 border-red-200' },
+const statusOptionKeys = [
+  { value: 'ONGOING' as const, labelKey: 'creatorMangaEdit.statusPublishing' as const, color: 'bg-green-100 text-green-700 border-green-200' },
+  { value: 'COMPLETED' as const, labelKey: 'creatorMangaEdit.statusCompleted' as const, color: 'bg-blue-100 text-blue-700 border-blue-200' },
+  { value: 'HIATUS' as const, labelKey: 'creatorMangaEdit.statusPaused' as const, color: 'bg-amber-100 text-amber-700 border-amber-200' },
+  { value: 'DROPPED' as const, labelKey: 'creatorMangaEdit.statusAbandoned' as const, color: 'bg-red-100 text-red-700 border-red-200' },
 ];
 
 export default function EditMangaPage({ params }: PageProps) {
   const { slug } = use(params);
+  const t = useT();
   const router = useRouter();
   const { manga, isLoading, error, updateManga } = useManga({ mangaId: slug });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,7 +47,7 @@ export default function EditMangaPage({ params }: PageProps) {
   const [currentTag, setCurrentTag] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ONGOING');
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [_coverFile, setCoverFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -68,23 +69,23 @@ export default function EditMangaPage({ params }: PageProps) {
     const newErrors: Record<string, string> = {};
     
     if (!formData.title.trim()) {
-      newErrors.title = 'El título es obligatorio';
+      newErrors.title = t('creatorMangaEdit.errorTitleRequired');
     } else if (formData.title.length < 3) {
-      newErrors.title = 'El título debe tener al menos 3 caracteres';
+      newErrors.title = t('creatorMangaEdit.errorTitleMin');
     } else if (formData.title.length > 100) {
-      newErrors.title = 'El título debe tener menos de 100 caracteres';
+      newErrors.title = t('creatorMangaEdit.errorTitleMax');
     }
     
     if (!formData.description.trim()) {
-      newErrors.description = 'La descripción es obligatoria';
+      newErrors.description = t('creatorMangaEdit.errorDescriptionRequired');
     } else if (formData.description.length < 10) {
-      newErrors.description = 'La descripción debe tener al menos 10 caracteres';
+      newErrors.description = t('creatorMangaEdit.errorDescriptionMin');
     } else if (formData.description.length > 1000) {
-      newErrors.description = 'La descripción debe tener menos de 1000 caracteres';
+      newErrors.description = t('creatorMangaEdit.errorDescriptionMax');
     }
 
     if (tagList.length === 0) {
-      newErrors.tags = 'Al menos un tag es obligatorio';
+      newErrors.tags = t('creatorMangaEdit.errorTagsRequired');
     }
 
     setErrors(newErrors);
@@ -105,11 +106,11 @@ export default function EditMangaPage({ params }: PageProps) {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        setErrors((prev) => ({ ...prev, cover: 'El archivo debe ser una imagen' }));
+        setErrors((prev) => ({ ...prev, cover: t('creatorMangaEdit.errorImageType') }));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, cover: 'La imagen no debe superar 5MB' }));
+        setErrors((prev) => ({ ...prev, cover: t('creatorMangaEdit.errorImageSize') }));
         return;
       }
       
@@ -187,7 +188,7 @@ export default function EditMangaPage({ params }: PageProps) {
 
   const handleCancel = () => {
     if (hasChanges) {
-      if (!confirm('¿Estás seguro de que deseas cancelar? Se perderán los cambios no guardados.')) {
+      if (!confirm(t('creatorMangaEdit.cancelConfirm'))) {
         return;
       }
     }
@@ -217,11 +218,11 @@ export default function EditMangaPage({ params }: PageProps) {
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-              <p className="text-red-600">{error instanceof Error ? error.message : error || 'Manga no encontrado'}</p>
+              <p className="text-red-600">{error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}</p>
               <Link href="/creator/dashboard">
                 <Button variant="outline" className="mt-4">
                   <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                  Volver al Dashboard
+                  {t('creatorMangaEdit.backToDashboard')}
                 </Button>
               </Link>
             </div>
@@ -242,16 +243,16 @@ export default function EditMangaPage({ params }: PageProps) {
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <button onClick={handleCancel}>
-<Button variant="ghost" size="icon" type="button" aria-label="Volver">
+<Button variant="ghost" size="icon" type="button" aria-label={t('creatorMangaEdit.backToDashboard')}>
         <ArrowLeftIcon className="w-5 h-5" />
       </Button>
             </button>
             <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
-            Editar Manga
+            {t('creatorMangaEdit.title')}
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">
-                Actualiza la información de tu manga
+                {t('creatorMangaEdit.subtitle')}
               </p>
             </div>
           </div>
@@ -262,18 +263,18 @@ export default function EditMangaPage({ params }: PageProps) {
               <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Información General</CardTitle>
+                    <CardTitle>{t('creatorMangaEdit.generalInfo')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Title */}
                     <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Título <span className="text-red-500">*</span>
+              {t('creatorMangaEdit.titleLabel')} <span className="text-red-500">*</span>
               </label>
                       <Input
                         value={formData.title}
                         onChange={(e) => handleChange('title', e.target.value)}
-                        placeholder="Título del manga"
+                        placeholder={t('creatorMangaEdit.titlePlaceholder')}
                         error={errors.title}
                         className={cn(
                           !errors.title && formData.title.length >= 3 && 'border-green-500'
@@ -282,7 +283,7 @@ export default function EditMangaPage({ params }: PageProps) {
                       {!errors.title && formData.title.length >= 3 && (
                         <div className="flex items-center gap-1 mt-1 text-green-600 text-xs">
                           <CheckIcon className="w-3 h-3" />
-                          <span>Título válido</span>
+                          <span>{t('creatorMangaEdit.titleValid')}</span>
                         </div>
                       )}
                     </div>
@@ -290,12 +291,12 @@ export default function EditMangaPage({ params }: PageProps) {
                     {/* Description */}
                     <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Descripción <span className="text-red-500">*</span>
+              {t('creatorMangaEdit.description')} <span className="text-red-500">*</span>
               </label>
                       <textarea
                         value={formData.description}
                         onChange={(e) => handleChange('description', e.target.value)}
-                        placeholder="Describe tu manga..."
+                        placeholder={t('creatorMangaEdit.descriptionPlaceholder')}
                         rows={5}
                         className={cn(
           'w-full rounded-lg border bg-[var(--surface-elevated)] px-3 py-2 text-sm',
@@ -313,7 +314,7 @@ export default function EditMangaPage({ params }: PageProps) {
                       )}
                       <div className="flex justify-between mt-1">
                   <span className="text-xs text-[var(--text-tertiary)]">
-                  Mínimo 10 caracteres
+                  {t('creatorMangaEdit.descriptionMin')}
                   </span>
                   <span className={cn(
                     'text-xs',
@@ -327,10 +328,10 @@ export default function EditMangaPage({ params }: PageProps) {
                     {/* Status */}
                     <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Estado
+              {t('creatorMangaEdit.status')}
               </label>
                       <div className="flex flex-wrap gap-2">
-                        {statusOptions.map((option) => (
+                        {statusOptionKeys.map((option) => (
                           <button
                             key={option.value}
                             type="button"
@@ -343,7 +344,7 @@ export default function EditMangaPage({ params }: PageProps) {
                                 : 'opacity-70 hover:opacity-100'
                             )}
                           >
-                            {option.label}
+                            {t(option.labelKey)}
                           </button>
                         ))}
                       </div>
@@ -352,14 +353,14 @@ export default function EditMangaPage({ params }: PageProps) {
                     {/* Tags */}
                     <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Tags <span className="text-red-500">*</span>
+              {t('creatorMangaEdit.tags')} <span className="text-red-500">*</span>
               </label>
                       <div className="flex gap-2">
                         <Input
                           value={currentTag}
                           onChange={(e) => setCurrentTag(e.target.value)}
                           onKeyDown={handleKeyDown}
-                          placeholder="Añade tags (presiona Enter)"
+                          placeholder={t('creatorMangaEdit.tagsPlaceholder')}
                           error={errors.tags}
                         />
                         <Button
@@ -372,7 +373,7 @@ export default function EditMangaPage({ params }: PageProps) {
                         </Button>
                       </div>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              Presiona Enter o coma para añadir un tag (máx. 10)
+              {t('creatorMangaEdit.tagsHint')}
             </p>
                       
                       {tagList.length > 0 && (
@@ -403,7 +404,7 @@ export default function EditMangaPage({ params }: PageProps) {
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Portada</CardTitle>
+                    <CardTitle>{t('creatorMangaEdit.cover')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div
@@ -438,10 +439,10 @@ export default function EditMangaPage({ params }: PageProps) {
                         <div className="flex flex-col items-center justify-center h-full p-6 text-center">
               <UploadIcon className="w-10 h-10 text-[var(--text-tertiary)] mb-3" />
               <p className="text-sm font-medium text-[var(--text-primary)]">
-                Click para cambiar
+                {t('creatorMangaEdit.coverClick')}
               </p>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                            PNG, JPG hasta 5MB
+                            {t('creatorMangaEdit.coverHint')}
                           </p>
                         </div>
                       )}
@@ -465,7 +466,7 @@ export default function EditMangaPage({ params }: PageProps) {
                 {/* Preview */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Vista Previa</CardTitle>
+                    <CardTitle>{t('creatorMangaEdit.preview')}</CardTitle>
                   </CardHeader>
                   <CardContent>
         <div className="bg-[var(--surface-sunken)] rounded-lg p-4">
@@ -487,7 +488,7 @@ export default function EditMangaPage({ params }: PageProps) {
                         )}
                       </div>
                       <h3 className="font-semibold text-[var(--text-primary)] line-clamp-1">
-                        {formData.title || 'Título del Manga'}
+                        {formData.title || t('creatorMangaEdit.previewTitle')}
                       </h3>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {tagList.slice(0, 3).map((tag) => (
@@ -513,7 +514,7 @@ export default function EditMangaPage({ params }: PageProps) {
                   variant="outline"
                   onClick={handleCancel}
                 >
-                  Cancelar
+                  {t('creatorMangaEdit.cancel')}
                 </Button>
                 <div className="flex gap-3">
                   <Button
@@ -522,7 +523,7 @@ export default function EditMangaPage({ params }: PageProps) {
                     disabled={!isFormValid || !hasChanges}
                   >
                     <SaveIcon className="w-4 h-4 mr-2" />
-                    {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                    {isSaving ? t('creatorMangaEdit.saving') : t('creatorMangaEdit.save')}
                   </Button>
                 </div>
               </CardFooter>

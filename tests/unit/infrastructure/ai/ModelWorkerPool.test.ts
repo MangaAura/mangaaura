@@ -87,8 +87,8 @@ describe('ModelWorkerPool', () => {
         maxJobsPerWorker: 10,
       });
 
-      const w1 = await pool2.acquire();
-      const w2 = await pool2.acquire();
+      await pool2.acquire();
+      await pool2.acquire();
 
       expect(pool2.getWorkerCount()).toBe(2);
       expect(pool2.getMetrics().busyWorkers).toBe(2);
@@ -105,7 +105,7 @@ describe('ModelWorkerPool', () => {
       });
 
       const w1 = await pool2.acquire();
-      const w2 = await pool2.acquire();
+      await pool2.acquire();
 
       let resolved = false;
       const acquirePromise = pool2.acquire().then((w) => {
@@ -375,7 +375,7 @@ describe('ModelWorkerPool', () => {
       }
 
       // This acquire will be queued (maxWorkers=4 reached)
-      const queuedPromise = pool.acquire();
+      pool.acquire();
 
       // Give it a tick to register
       await new Promise((r) => setTimeout(r, 50));

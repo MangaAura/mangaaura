@@ -42,7 +42,7 @@ const cardVariants = {
       duration: 0.3,
     },
   }),
-} as any;
+} as const;
 
 export function NotificationCard({ 
   notification, 

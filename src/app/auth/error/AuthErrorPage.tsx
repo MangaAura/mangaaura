@@ -129,10 +129,10 @@ export default function AuthErrorPage() {
 
           {/* Consejos */}
   <div className="bg-[var(--surface-sunken)] rounded-xl p-4 mb-6">
-    <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+    <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-accent-blue" />
-              Que puedes hacer?
-            </h3>
+  Que puedes hacer?
+</h2>
             <ul className="space-y-2">
               {tips.map((tip, index) => (
                 <li key={`tip-${index}`} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">

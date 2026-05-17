@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { partyService } from '@/core/services/PartyService';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const createPartySchema = z.object({
   mangaId: z.string().min(1, 'Manga ID is required'),
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const result = createPartySchema.safeParse(body);

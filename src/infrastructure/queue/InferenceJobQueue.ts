@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import Redis from 'ioredis';
-import { isMockRedis } from '@/lib/redis';
 
 // ============================================================================
 // Types & Interfaces
@@ -198,7 +197,6 @@ export class InferenceJobQueue extends EventEmitter {
 
   // Configuration
   private maxRetries: number;
-  private retryDelayMs: number;
   private enablePersistence: boolean;
   private redis?: Redis;
 
@@ -229,7 +227,6 @@ export class InferenceJobQueue extends EventEmitter {
     this.rateLimitConfig = config.rateLimits || {};
 
     this.maxRetries = config.maxRetries ?? 3;
-    this.retryDelayMs = config.retryDelayMs ?? 5000;
     this.enablePersistence = config.enablePersistence ?? false;
     this.redis = config.redis;
 

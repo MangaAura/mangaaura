@@ -6,8 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Progress } from '@/components/ui/Progress';
 import { cn } from '@/lib/utils';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import {
   Trophy,
   Medal,
@@ -212,9 +212,10 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
         >
           <div className="w-10 h-14 bg-[var(--surface-sunken)] rounded overflow-hidden flex-shrink-0">
             {item.coverUrl ? (
-              <img
+              <OptimizedImage
                 src={item.coverUrl}
                 alt={item.title}
+                fill
                 className="w-full h-full object-cover"
               />
             ) : (

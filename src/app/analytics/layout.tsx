@@ -1,4 +1,5 @@
 import Navbar from '@/components/Layout/Navbar';
+import { SkipToContent } from '@/components/Layout/SkipToContent';
 
 export default function AnalyticsLayout({
   children,
@@ -7,8 +8,9 @@ export default function AnalyticsLayout({
 }) {
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
+      <SkipToContent />
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {children}
       </main>
     </div>

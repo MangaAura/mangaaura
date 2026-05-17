@@ -3,21 +3,53 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { cn, getRankColor, getRankBgColor } from '@/lib/utils';
+import { Flame, Snowflake } from 'lucide-react';
+import useSWR from 'swr';
+
+interface StreakData {
+  streak: number;
+  alreadyReadToday: boolean;
+  freezesAvailable: number;
+  bonusMultiplier: number;
+  nextMilestone: number;
+  daysToNextMilestone: number;
+}
 
 interface UserXPBarProps {
   compact?: boolean;
+  /** Optional pre-fetched streak data (to avoid extra fetch) */
+  streakData?: StreakData | null;
 }
 
-export function UserXPBar({ compact = false }: UserXPBarProps) {
+async function fetchStreak(): Promise<StreakData | null> {
+  try {
+    const res = await fetch('/api/gamification/streak');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export function UserXPBar({ compact = false, streakData }: UserXPBarProps) {
   const { data: session } = useSession();
+  const { data: remoteStreak } = useSWR(
+    session?.user?.id && !streakData ? '/api/gamification/streak' : null,
+    fetchStreak,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
+      fallbackData: streakData,
+    },
+  );
 
   if (!session?.user) return null;
 
   const { xpPoints = 0, level = 1 } = session.user;
+  const streak = streakData ?? remoteStreak;
 
   // Calcular progreso al siguiente nivel
   const currentLevelXP = (level - 1) * 1000;
-  const nextLevelXP = level * 1000;
   const xpInLevel = xpPoints - currentLevelXP;
   const progress = Math.round((xpInLevel / 1000) * 100);
 
@@ -39,12 +71,25 @@ export function UserXPBar({ compact = false }: UserXPBarProps) {
           {level}
         </div>
         <div className="hidden md:block">
-<div className="text-xs text-[var(--text-secondary)]">{rank}</div>
-        <div className="w-24 h-1.5 bg-[var(--surface-sunken)] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="text-xs text-[var(--text-secondary)]">{rank}</div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-24 h-1.5 bg-[var(--surface-sunken)] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            {streak && (
+              <span className={cn(
+                'text-[10px] flex items-center gap-0.5 font-medium',
+                streak.alreadyReadToday
+                  ? 'text-[var(--accent-green)]'
+                  : 'text-[var(--text-tertiary)]',
+              )}>
+                <Flame className="w-3 h-3" />
+                {streak.streak}
+              </span>
+            )}
           </div>
         </div>
       </Link>
@@ -59,8 +104,8 @@ export function UserXPBar({ compact = false }: UserXPBarProps) {
           <p className={cn('text-sm', getRankColor(rank))}>{rank}</p>
         </div>
         <div className="text-right">
-<span className="text-2xl font-bold text-[var(--text-primary)]">{xpPoints}</span>
-      <span className="text-sm text-[var(--text-secondary)]"> XP</span>
+          <span className="text-2xl font-bold text-[var(--text-primary)]">{xpPoints}</span>
+          <span className="text-sm text-[var(--text-secondary)]"> XP</span>
         </div>
       </div>
 
@@ -76,6 +121,61 @@ export function UserXPBar({ compact = false }: UserXPBarProps) {
         <span>{xpInLevel} / 1000 XP</span>
         <span>{1000 - xpInLevel} para nivel {level + 1}</span>
       </div>
+
+      {/* Streak section */}
+      {streak && (
+        <div className="mt-3 pt-3 border-t border-[var(--border)]">
+          <div className="flex items-center justify-between">
+            {/* Streak count */}
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-lg flex items-center justify-center',
+                  streak.alreadyReadToday
+                    ? 'bg-[var(--accent-green)]/20'
+                    : 'bg-[var(--surface-sunken)]',
+                )}
+              >
+                <Flame
+                  className={cn(
+                    'w-4 h-4',
+                    streak.alreadyReadToday
+                      ? 'text-[var(--accent-green)]'
+                      : 'text-[var(--text-tertiary)]',
+                  )}
+                />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  {streak.streak} {streak.streak === 1 ? 'día' : 'días'}
+                </p>
+                <p className="text-[10px] text-[var(--text-tertiary)]">
+                  {streak.alreadyReadToday
+                    ? '✓ Racha activa hoy'
+                    : streak.nextMilestone > 0
+                      ? `${streak.daysToNextMilestone} días para el hito de ${streak.nextMilestone}d`
+                      : '— ¡Lee para mantenerla!'}
+                </p>
+              </div>
+            </div>
+
+            {/* Bonus multiplier & freezes */}
+            <div className="flex items-center gap-3">
+              {streak.bonusMultiplier > 0 && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] font-medium">
+                  +{streak.bonusMultiplier} XP bonus
+                </span>
+              )}
+              {streak.freezesAvailable > 0 && (
+                <span className="flex items-center gap-1 text-xs text-[var(--info)]">
+                  <Snowflake className="w-3 h-3" />
+                  {streak.freezesAvailable}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

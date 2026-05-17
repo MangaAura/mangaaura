@@ -1,12 +1,12 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createCollection } from '@/app/(app)/collections/actions';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { Switch } from '@/components/ui/Switch';
 import { Card } from '@/components/ui/Card';
 import { ArrowLeft, Lock, Globe, Plus } from 'lucide-react';
 
@@ -15,39 +15,23 @@ export default function CreateCollectionPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
-    setIsLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch('/api/collections', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          description: description.trim() || undefined,
-          isPublic,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al crear colección');
+    startTransition(async () => {
+      try {
+        await createCollection(name.trim(), description.trim() || undefined, isPublic);
+        router.push('/collections');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
       }
-
-      const { collection } = await response.json();
-      router.push('/collections');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
@@ -169,8 +153,8 @@ export default function CreateCollectionPage() {
               </Link>
               <Button
                 type="submit"
-                disabled={!name.trim() || isLoading}
-                isLoading={isLoading}
+                disabled={!name.trim() || isPending}
+                isLoading={isPending}
                 className="flex-1"
               >
                 <Plus className="w-4 h-4 mr-2" />

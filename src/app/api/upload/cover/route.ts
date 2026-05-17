@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { uploadCover, deleteFile, extractPathname } from '@/lib/storage';
+import { uploadCover, deleteFile } from '@/lib/storage';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // Tamaño máximo para portadas: 5MB

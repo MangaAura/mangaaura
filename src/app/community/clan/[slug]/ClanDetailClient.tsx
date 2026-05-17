@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
+import { useT } from '@/i18n';
 import {
   Users, Crown, Shield, Trophy, BookOpen, Flame,
   Plus, Calendar, Swords, Loader2, AlertTriangle,
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 // ── Types ──────────────────────────────────────────────
 interface ClanMember {
@@ -55,7 +57,7 @@ function getRoleConfig(role: string) {
   switch (role) {
     case 'LEADER':
       return {
-        label: 'Líder',
+        labelKey: 'clanDetail.leader',
         icon: Crown,
         bg: 'bg-amber-500/15 dark:bg-yellow-500/15',
         text: 'text-amber-700 dark:text-yellow-500',
@@ -63,7 +65,7 @@ function getRoleConfig(role: string) {
       };
     case 'OFFICER':
       return {
-        label: 'Oficial',
+        labelKey: 'clanDetail.officer',
         icon: Shield,
         bg: 'bg-[var(--accent-purple)]/15',
         text: 'text-[var(--accent-purple)]',
@@ -71,7 +73,7 @@ function getRoleConfig(role: string) {
       };
     default:
       return {
-        label: 'Miembro',
+        labelKey: 'clanDetail.member',
         icon: Users,
         bg: 'bg-[var(--text-muted)]/10',
         text: 'text-[var(--text-secondary)]',
@@ -134,6 +136,7 @@ const statCardVariants = {
 
 function HeroEmblem({ clan }: { clan: ClanData }) {
   const shouldReduceMotion = useReducedMotion();
+  const t = useT();
   return (
     <motion.div
       initial={shouldReduceMotion ? {} : { scale: 0.8, opacity: 0 }}
@@ -153,9 +156,10 @@ function HeroEmblem({ clan }: { clan: ClanData }) {
         className="relative w-28 h-28 rounded-2xl bg-gradient-to-br from-[var(--accent-purple)] to-[var(--primary)] flex items-center justify-center text-6xl shadow-2xl ring-4 ring-[var(--surface)] overflow-hidden"
       >
         {clan.emblemUrl ? (
-          <img
+          <OptimizedImage
             src={clan.emblemUrl}
-            alt={`Emblema de ${clan.name}`}
+            alt={`${t('clanDetail.emblemOf')} ${clan.name}`}
+            fill
             className="w-full h-full object-cover"
           />
         ) : (
@@ -207,6 +211,7 @@ function StatCard({
 }
 
 function SeasonProgress({ clan }: { clan: ClanData }) {
+  const t = useT();
   const seasonGoal = 100000;
   const progress = Math.min((clan.monthlyScore / seasonGoal) * 100, 100);
   const shouldReduceMotion = useReducedMotion();
@@ -218,17 +223,17 @@ function SeasonProgress({ clan }: { clan: ClanData }) {
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-bold text-lg flex items-center gap-2 text-[var(--text-primary)]">
             <Flame className="text-red-500" size={22} />
-            Temporada {clan.currentSeason}
+            {t('clanDetail.season')} {clan.currentSeason}
           </h2>
           <span className="text-xs font-semibold text-[var(--text-muted)] bg-[var(--surface-sunken)] px-3 py-1 rounded-full">
-            Objetivo: {seasonGoal.toLocaleString()} pts
+            {t('clanDetail.goal')}: {seasonGoal.toLocaleString()} {t('clanDetail.pts')}
           </span>
         </div>
 
         {/* Progress bar */}
         <div className="space-y-3">
           <div className="flex justify-between items-baseline">
-            <span className="text-sm text-[var(--text-secondary)]">Progreso mensual</span>
+            <span className="text-sm text-[var(--text-secondary)]">{t('clanDetail.monthlyProgress')}</span>
             <span className="text-lg font-extrabold text-[var(--primary)]">
               {clan.monthlyScore.toLocaleString()}
             </span>
@@ -251,8 +256,8 @@ function SeasonProgress({ clan }: { clan: ClanData }) {
             )}
           </div>
           <div className="flex justify-between text-xs text-[var(--text-muted)]">
-            <span>{Math.round(progress)}% completado</span>
-            <span>Faltan {(seasonGoal - clan.monthlyScore).toLocaleString()} pts</span>
+            <span>{Math.round(progress)}% {t('clanDetail.completed')}</span>
+            <span>{t('clanDetail.remaining')} {(seasonGoal - clan.monthlyScore).toLocaleString()} {t('clanDetail.pts')}</span>
           </div>
         </div>
       </div>
@@ -261,6 +266,7 @@ function SeasonProgress({ clan }: { clan: ClanData }) {
 }
 
 function TotalScoreCard({ clan }: { clan: ClanData }) {
+  const t = useT();
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -274,7 +280,7 @@ function TotalScoreCard({ clan }: { clan: ClanData }) {
             <div className="w-9 h-9 rounded-lg bg-[var(--warning)]/15 flex items-center justify-center">
               <Trophy className="w-5 h-5 text-[var(--warning)]" />
             </div>
-            <h2 className="font-bold text-lg text-[var(--text-primary)]">Puntuación Total</h2>
+            <h2 className="font-bold text-lg text-[var(--text-primary)]">{t('clanDetail.totalScore')}</h2>
           </div>
 
           <motion.p
@@ -289,11 +295,11 @@ function TotalScoreCard({ clan }: { clan: ClanData }) {
           <div className="flex items-center gap-3 mt-3 text-sm text-[var(--text-secondary)]">
             <span className="flex items-center gap-1">
               <TrendingUp size={14} className="text-emerald-500" />
-              Ranking global
+              {t('clanDetail.globalRanking')}
             </span>
             <span className="flex items-center gap-1">
               <Swords size={14} className="text-[var(--accent-purple)]" />
-              {clan.memberCount} guerreros
+              {clan.memberCount} {t('clanDetail.warriors')}
             </span>
           </div>
         </div>
@@ -309,6 +315,7 @@ function MemberRow({
   member: ClanMember;
   position: number;
 }) {
+  const t = useT();
   const roleConfig = getRoleConfig(member.role);
   const RoleIcon = roleConfig.icon;
   const displayName = getDisplayName(member);
@@ -341,9 +348,10 @@ function MemberRow({
           className={`w-11 h-11 rounded-full bg-gradient-to-br ${getMemberGradient(position - 1)} flex items-center justify-center text-[var(--text-inverse)] text-xs font-black shadow-md overflow-hidden ring-2 ring-[var(--surface)]`}
         >
           {member.user.avatarUrl ? (
-            <img
+            <OptimizedImage
               src={member.user.avatarUrl}
               alt={displayName}
+              fill
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
@@ -352,7 +360,7 @@ function MemberRow({
         </div>
         {/* Leader crown */}
         {member.role === 'LEADER' && (
-          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center ring-2 ring-[var(--surface)] shadow-md" aria-label="Líder">
+          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center ring-2 ring-[var(--surface)] shadow-md" aria-label={t('clanDetail.leader')}>
             <Crown size={10} />
           </div>
         )}
@@ -368,12 +376,12 @@ function MemberRow({
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleConfig.bg} ${roleConfig.text} ${roleConfig.border} flex items-center gap-1 flex-shrink-0`}
           >
             <RoleIcon size={10} />
-            {roleConfig.label}
+            {t(roleConfig.labelKey)}
           </span>
         </div>
         <p className="text-xs text-[var(--text-muted)] mt-1 flex items-center gap-1.5">
           <BookOpen size={11} className="inline" />
-          {member.contributedScore.toLocaleString()} pts esta temporada
+          {member.contributedScore.toLocaleString()} {t('clanDetail.ptsThisSeason')}
         </p>
       </div>
 
@@ -385,7 +393,7 @@ function MemberRow({
             {member.user.xpPoints.toLocaleString()}
           </span>
         </div>
-        <div className="text-xs text-[var(--text-muted)]">Nv. {member.user.level}</div>
+        <div className="text-xs text-[var(--text-muted)]">{t('clanDetail.level')} {member.user.level}</div>
       </div>
     </motion.div>
     </Link>
@@ -393,6 +401,7 @@ function MemberRow({
 }
 
 function MembersSection({ clan }: { clan: ClanData }) {
+  const t = useT();
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -402,7 +411,7 @@ function MembersSection({ clan }: { clan: ClanData }) {
         <div className="px-6 py-4 border-b border-[var(--border)] flex justify-between items-center bg-[var(--surface-sunken)]/50">
           <h2 className="font-bold text-lg flex items-center gap-2 text-[var(--text-primary)]">
             <Crown className="text-amber-500 dark:text-yellow-500" size={20} />
-            Miembros del Clan
+            {t('clanDetail.clanMembers')}
             <span className="text-sm font-normal text-[var(--text-muted)] ml-1">
               ({clan.memberCount})
             </span>
@@ -413,8 +422,8 @@ function MembersSection({ clan }: { clan: ClanData }) {
         {clan.members.length === 0 ? (
           <div className="px-6 py-12 text-center text-[var(--text-muted)]">
             <Users size={32} className="mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No hay miembros aún.</p>
-            <p className="text-xs mt-1">¡Sé el primero en unirte!</p>
+            <p className="text-sm">{t('clanDetail.noMembers')}</p>
+            <p className="text-xs mt-1">{t('clanDetail.beFirst')}</p>
           </div>
         ) : (
           <motion.div
@@ -446,6 +455,7 @@ export default function ClanDetailClient({
   userMembership: initialMembership,
   userId,
 }: ClanDetailClientProps) {
+  const t = useT();
   const [userMembership, setUserMembership] = useState(initialMembership);
   const [joining, setJoining] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -459,14 +469,14 @@ export default function ClanDetailClient({
         const res = await fetch(`/api/clans/${clan.id}/leave`, { method: 'POST' });
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || 'Error al salir del clan');
+          throw new Error(data.error || t('clanDetail.errorLeave'));
         }
         setUserMembership(null);
       } else {
         const res = await fetch(`/api/clans/${clan.id}/join`, { method: 'POST' });
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || 'Error al unirse al clan');
+          throw new Error(data.error || t('clanDetail.errorJoin'));
         }
         setUserMembership({ role: 'MEMBER' });
       }
@@ -479,10 +489,10 @@ export default function ClanDetailClient({
 
   const joinedLabel = userMembership
     ? userMembership.role === 'LEADER'
-      ? 'Eres el Líder'
+      ? t('clanDetail.youAreLeader')
       : userMembership.role === 'OFFICER'
-        ? 'Eres Oficial'
-        : 'Eres Miembro'
+        ? t('clanDetail.youAreOfficer')
+        : t('clanDetail.youAreMember')
     : null;
 
   return (
@@ -518,7 +528,7 @@ export default function ClanDetailClient({
               {/* Badge: season */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-purple)]/15 text-[var(--accent-purple)] text-xs font-bold mb-3">
                 <Flame size={13} />
-                Temporada {clan.currentSeason}
+                {t('clanDetail.season')} {clan.currentSeason}
               </div>
 
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--text-primary)] mb-3">
@@ -526,22 +536,22 @@ export default function ClanDetailClient({
               </h1>
 
               <p className="text-[var(--text-secondary)] text-lg max-w-xl leading-relaxed">
-                {clan.description || 'Un clan legendario en busca de la cima.'}
+                {clan.description || t('clanDetail.defaultDescription')}
               </p>
 
               {/* Meta pills */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-5">
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-full px-3 py-1.5">
                   <Users size={15} className="text-[var(--primary)]" />
-                  {clan.memberCount} miembros
+                  {clan.memberCount} {t('clanDetail.members')}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-full px-3 py-1.5">
                   <Calendar size={15} className="text-[var(--accent-purple)]" />
-                  Fundado {new Date(clan.createdAt).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                  {t('clanDetail.founded')} {new Date(clan.createdAt).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-full px-3 py-1.5">
                   <Hash size={15} className="text-[var(--text-muted)]" />
-                  {clan.totalScore.toLocaleString()} pts totales
+                  {clan.totalScore.toLocaleString()} {t('clanDetail.totalPts')}
                 </span>
               </div>
             </motion.div>
@@ -572,25 +582,25 @@ export default function ClanDetailClient({
                     ) : userMembership ? (
                       <>
                         <Shield size={18} />
-                        Salir del Clan
+                        {t('clanDetail.leaveClan')}
                       </>
                     ) : (
                       <>
                         <Plus size={18} />
-                        Unirse al Clan
+                        {t('clanDetail.joinClan')}
                       </>
                     )}
                   </button>
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-xs text-[var(--text-muted)] mb-2">Inicia sesión para unirte</p>
+                  <p className="text-xs text-[var(--text-muted)] mb-2">{t('clanDetail.loginToJoin')}</p>
                   <Link
                     href="/login"
                     className="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-white hover:shadow-xl hover:shadow-[var(--accent-purple)]/25 transition-all inline-flex items-center gap-2 text-sm"
                   >
                     <Plus size={18} />
-                    Unirse al Clan
+                    {t('clanDetail.joinClan')}
                   </Link>
                 </div>
               )}
@@ -609,7 +619,7 @@ export default function ClanDetailClient({
             <button
               onClick={() => setActionError(null)}
               className="ml-auto text-[var(--error)]/70 hover:text-[var(--error)]"
-              aria-label="Cerrar error"
+              aria-label={t('clanDetail.closeError')}
             >
               ✕
             </button>
@@ -622,14 +632,14 @@ export default function ClanDetailClient({
           <div className="grid grid-cols-2 gap-3">
             <StatCard
               icon={Users}
-              label="Miembros"
+              label={t('clanDetail.members')}
               value={clan.memberCount.toString()}
               colorClass="bg-[var(--primary)]/15 text-[var(--primary)]"
               index={0}
             />
             <StatCard
               icon={Flame}
-              label="Punt. Mensual"
+              label={t('clanDetail.monthlyScore')}
               value={clan.monthlyScore.toLocaleString()}
               colorClass="bg-[var(--accent-purple)]/15 text-[var(--accent-purple)]"
               index={1}

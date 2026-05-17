@@ -6,10 +6,11 @@
 
 import { Server as NetServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import type { NextApiResponse } from 'next/dist/shared/lib/utils';
+
 import { getToken } from 'next-auth/jwt';
 import { partyService } from '@/core/services/PartyService';
 import { createRedisAdapter } from '@/lib/socket-redis-adapter';
+import { sanitizeText } from '@/lib/sanitize';
 import type {
   ServerToClientEvents,
   ClientToServerEvents,
@@ -54,6 +55,8 @@ export const initIO = (httpServer: NetServer): IOServer => {
     if (enabled) {
       console.info('[Socket] Redis adapter initialized');
     }
+  }).catch((error) => {
+    console.warn('[Socket] Redis adapter init failed (non-blocking):', error.message);
   });
 
   // Middleware de autenticacion
@@ -272,11 +275,14 @@ export const initIO = (httpServer: NetServer): IOServer => {
     socket.on('party:message', ({ partyId, content }) => {
       if (!content.trim()) return;
 
+      const sanitized = sanitizeText(content);
+      if (!sanitized) return;
+
       const message = partyService.addMessage(
         partyId,
         userId,
         username || 'Anonymous',
-        content,
+        sanitized,
         'chat',
         avatarUrl
       );

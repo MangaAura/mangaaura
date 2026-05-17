@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { invalidatePattern } from '@/lib/cache';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const updateSchema = z.object({
   status: z.enum(['READING', 'COMPLETED', 'ON_HOLD', 'DROPPED', 'PLAN_TO_READ']).optional(),
@@ -24,7 +25,7 @@ interface RouteParams {
  * GET /api/library/[mangaId]
  * Get specific library entry
  */
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, { params }: RouteParams) {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -85,6 +86,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   const { mangaId } = await params;
 
   try {
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'library');
+    if (rlResponse) return rlResponse;
+
     const body = await request.json();
     const { status, rating, currentChapter } = updateSchema.parse(body);
 
@@ -143,7 +147,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
  * DELETE /api/library/[mangaId]
  * Remove from library
  */
-export async function DELETE(request: Request, { params }: RouteParams) {
+export async function DELETE(_request: Request, { params }: RouteParams) {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -152,6 +156,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
   const { mangaId } = await params;
 
   try {
+    const rlResponse = await withRateLimit(_request, session?.user?.id, 'library');
+    if (rlResponse) return rlResponse;
+
     await prisma.userLibrary.delete({
       where: {
         userId_mangaId: {

@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { emailService } from '@/core/services/EmailService';
+import { emailService } from '@/infrastructure/adapters/emailService';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { z } from 'zod';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';

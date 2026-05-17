@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const messageSchema = z.object({
   content: z.string().min(1).max(2000),
@@ -101,6 +102,9 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'messages');
+    if (rlResponse) return rlResponse;
 
     const conversation = await prisma.conversation.findFirst({
       where: {

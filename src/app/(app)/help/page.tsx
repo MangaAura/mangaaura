@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
@@ -18,129 +18,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const faqCategories = [
-  {
-    id: 'general',
-    title: 'General',
-    icon: HelpCircle,
-    questions: [
-      {
-        q: '¿Qué es InkVerse?',
-        a: 'InkVerse es una plataforma para descubrir, leer y compartir manga. Ofrecemos una biblioteca extensa de mangas con lectura online, sistema de logros, comunidad activa y herramientas para creadores.',
-      },
-      {
-        q: '¿Es gratis usar InkVerse?',
-        a: 'Sí, la mayoría del contenido es gratuito. Algunos mangas premium o funciones exclusivas pueden requerir una suscripción o Ink Coins, nuestra moneda virtual.',
-      },
-      {
-        q: '¿Cómo creo una cuenta?',
-        a: 'Haz clic en "Registrarse" en la esquina superior derecha. Puedes registrarte con correo electrónico, Google o GitHub. Solo necesitas un nombre de usuario y una dirección de correo.',
-      },
-    ],
-  },
-  {
-    id: 'reading',
-    title: 'Lectura',
-    icon: BookOpen,
-    questions: [
-      {
-        q: '¿Cómo guardo mi progreso de lectura?',
-        a: 'Tu progreso se guarda automáticamente cuando inicias sesión. Solo necesitas hacer clic en el botón de lectura y el sistema recordará dónde te quedaste.',
-      },
-      {
-        q: '¿Puedo leer sin conexión a internet?',
-        a: 'Actualmente la lectura offline no está disponible, pero es una función planificada para futuras actualizaciones.',
-      },
-      {
-        q: '¿Cómo cambio el modo de lectura?',
-        a: 'En el lector, usa el menú de configuración (ícono de engranaje) para cambiar entre lectura de página simple, doble página o scroll continuo.',
-      },
-    ],
-  },
-  {
-    id: 'community',
-    title: 'Comunidad',
-    icon: Users,
-    questions: [
-      {
-        q: '¿Cómo sigo a otros usuarios?',
-        a: 'Visita el perfil del usuario y haz clic en el botón "Seguir". Recibirás notificaciones cuando publiquen contenido o interactúen contigo.',
-      },
-      {
-        q: '¿Cómo funcionan los clanes?',
-        a: 'Los clanes son grupos de la comunidad organizados por intereses. Puedes unirte a un clan existente o crear el tuyo propio para conectar con otros lectores.',
-      },
-      {
-        q: '¿Cómo reporto contenido inapropiado?',
-        a: 'Usa el botón de reporte que aparece en cada contenido (manga, comentario, perfil) o visita nuestra página de reportes para enviar un reporte detallado.',
-      },
-    ],
-  },
-  {
-    id: 'creators',
-    title: 'Creadores',
-    icon: Palette,
-    questions: [
-      {
-        q: '¿Cómo publico mi manga en InkVerse?',
-        a: 'Ve a "Panel de Creador" desde tu menú de perfil y haz clic en "Publicar manga". Podrás subir capítulos, añadir portadas y gestionar toda tu obra.',
-      },
-      {
-        q: '¿Puedo monetizar mi manga?',
-        a: 'Sí, a través de nuestro sistema de patrocinios y Ink Coins. Los lectores pueden apoyarte directamente y tú recibes una parte de los ingresos.',
-      },
-      {
-        q: '¿Qué formatos de imagen aceptan?',
-        a: 'Aceptamos JPG, PNG y WebP. Recomendamos imágenes de al menos 1200px de ancho para una calidad de lectura óptima.',
-      },
-    ],
-  },
-  {
-    id: 'account',
-    title: 'Cuenta y Pagos',
-    icon: CreditCard,
-    questions: [
-      {
-        q: '¿Cómo recupero mi contraseña?',
-        a: 'En la página de inicio de sesión, haz clic en "¿Olvidaste tu contraseña?" y sigue las instrucciones. Recibirás un correo para restablecerla.',
-      },
-      {
-        q: '¿Qué son los Ink Coins?',
-        a: 'Son la moneda virtual de InkVerse. Puedes usarlos para desbloquear capítulos premium, apoyar a creadores y comprar funciones especiales.',
-      },
-      {
-        q: '¿Cómo elimino mi cuenta?',
-        a: 'Ve a Configuración > Cuenta y selecciona "Eliminar cuenta". Ten en cuenta que esta acción es irreversible y perderás todos tus datos.',
-      },
-    ],
-  },
-  {
-    id: 'safety',
-    title: 'Seguridad y Privacidad',
-    icon: Shield,
-    questions: [
-      {
-        q: '¿Cómo protegen mis datos?',
-        a: 'Utilizamos encriptación SSL, autenticación segura y cumplimos con las regulaciones de privacidad. Puedes revisar nuestra política de privacidad para más detalles.',
-      },
-      {
-        q: '¿Cómo bloqueo a un usuario?',
-        a: 'Visita el perfil del usuario, haz clic en los tres puntos y selecciona "Bloquear". No podrán enviarte mensajes ni interactuar contigo.',
-      },
-      {
-        q: '¿Qué hago si soy víctima de acoso?',
-        a: 'Reporta al usuario inmediatamente usando la función de reporte. Nuestro equipo de moderación revisará el caso en un máximo de 24 horas. También puedes bloquear al usuario mientras tanto.',
-      },
-    ],
-  },
-];
-
-const quickLinks = [
-  { name: 'Contacto', href: '/contact', icon: Mail, desc: 'Envíanos un mensaje directo' },
-  { name: 'Reportar contenido', href: '/report', icon: Shield, desc: 'Reporta infracciones o contenido inapropiado' },
-  { name: 'Términos de servicio', href: '/legal/terms', icon: FileText, desc: 'Conoce nuestras reglas' },
-];
+import { useT } from '@/i18n';
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -169,8 +47,78 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export default function HelpPage() {
+  const t = useT();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('general');
+
+  const faqCategories = [
+    {
+      id: 'general',
+      title: t('help.categories.general'),
+      icon: HelpCircle,
+      questions: [
+        { q: t('help.faq.general.whatIsInkverse.q'), a: t('help.faq.general.whatIsInkverse.a') },
+        { q: t('help.faq.general.isItFree.q'), a: t('help.faq.general.isItFree.a') },
+        { q: t('help.faq.general.howToCreateAccount.q'), a: t('help.faq.general.howToCreateAccount.a') },
+      ],
+    },
+    {
+      id: 'reading',
+      title: t('help.categories.reading'),
+      icon: BookOpen,
+      questions: [
+        { q: t('help.faq.reading.saveProgress.q'), a: t('help.faq.reading.saveProgress.a') },
+        { q: t('help.faq.reading.offline.q'), a: t('help.faq.reading.offline.a') },
+        { q: t('help.faq.reading.changeMode.q'), a: t('help.faq.reading.changeMode.a') },
+      ],
+    },
+    {
+      id: 'community',
+      title: t('help.categories.community'),
+      icon: Users,
+      questions: [
+        { q: t('help.faq.community.followUsers.q'), a: t('help.faq.community.followUsers.a') },
+        { q: t('help.faq.community.howClansWork.q'), a: t('help.faq.community.howClansWork.a') },
+        { q: t('help.faq.community.reportContent.q'), a: t('help.faq.community.reportContent.a') },
+      ],
+    },
+    {
+      id: 'creators',
+      title: t('help.categories.creators'),
+      icon: Palette,
+      questions: [
+        { q: t('help.faq.creators.publishManga.q'), a: t('help.faq.creators.publishManga.a') },
+        { q: t('help.faq.creators.monetize.q'), a: t('help.faq.creators.monetize.a') },
+        { q: t('help.faq.creators.formats.q'), a: t('help.faq.creators.formats.a') },
+      ],
+    },
+    {
+      id: 'account',
+      title: t('help.categories.account'),
+      icon: CreditCard,
+      questions: [
+        { q: t('help.faq.account.recoverPassword.q'), a: t('help.faq.account.recoverPassword.a') },
+        { q: t('help.faq.account.whatAreInkCoins.q'), a: t('help.faq.account.whatAreInkCoins.a') },
+        { q: t('help.faq.account.deleteAccount.q'), a: t('help.faq.account.deleteAccount.a') },
+      ],
+    },
+    {
+      id: 'safety',
+      title: t('help.categories.safety'),
+      icon: Shield,
+      questions: [
+        { q: t('help.faq.safety.dataProtection.q'), a: t('help.faq.safety.dataProtection.a') },
+        { q: t('help.faq.safety.blockUser.q'), a: t('help.faq.safety.blockUser.a') },
+        { q: t('help.faq.safety.harassment.q'), a: t('help.faq.safety.harassment.a') },
+      ],
+    },
+  ];
+
+  const quickLinks = [
+    { name: t('help.quickLinks.contact'), href: '/contact', icon: Mail, desc: t('help.quickLinks.contactDesc') },
+    { name: t('help.quickLinks.report'), href: '/report', icon: Shield, desc: t('help.quickLinks.reportDesc') },
+    { name: t('help.quickLinks.terms'), href: '/legal/terms', icon: FileText, desc: t('help.quickLinks.termsDesc') },
+  ];
 
   const filteredFAQs = faqCategories
     .filter((cat) => cat.id === activeCategory)
@@ -189,8 +137,8 @@ export default function HelpPage() {
   return (
     <Container className="py-12">
       <PageHeader
-        title="Centro de Ayuda"
-        description="Encuentra respuestas a tus preguntas más frecuentes"
+        title={t('help.title')}
+        description={t('help.description')}
         icon={<HelpCircle className="w-8 h-8" />}
       />
 
@@ -207,7 +155,7 @@ export default function HelpPage() {
                 <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto mb-3 text-[var(--primary)] group-hover:bg-[var(--primary)]/20 transition-colors">
                   <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="font-semibold text-[var(--text-primary)] text-sm">{link.name}</h3>
+                <h2 className="font-semibold text-[var(--text-primary)] text-sm">{link.name}</h2>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">{link.desc}</p>
               </Link>
             );
@@ -220,7 +168,8 @@ export default function HelpPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar en preguntas frecuentes..."
+            placeholder={t('help.searchPlaceholder')}
+            aria-label={t('help.searchAria')}
             className="w-full pl-12 pr-4 py-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
           />
         </div>
@@ -248,7 +197,7 @@ export default function HelpPage() {
 
         {searchQuery && (
           <p className="text-sm text-[var(--text-secondary)] mb-4">
-            {totalResults} resultado{totalResults !== 1 ? 's' : ''} para &ldquo;{searchQuery}&rdquo;
+            {t('help.resultsCount', { count: totalResults })} &ldquo;{searchQuery}&rdquo;
           </p>
         )}
 
@@ -264,7 +213,7 @@ export default function HelpPage() {
               <div key={cat.id} className="text-center py-12">
                 <HelpCircle className="w-12 h-12 mx-auto mb-3 text-[var(--text-tertiary)]" />
                 <p className="text-[var(--text-secondary)]">
-                  No se encontraron resultados para &ldquo;{searchQuery}&rdquo;
+                  {t('help.noResults')} &ldquo;{searchQuery}&rdquo;
                 </p>
               </div>
             )
@@ -274,17 +223,17 @@ export default function HelpPage() {
         <div className="mt-12 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 text-center">
           <MessageSquare className="w-10 h-10 mx-auto mb-3 text-[var(--primary)]" />
           <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-            ¿No encontraste lo que buscabas?
+            {t('help.notFound')}
           </h3>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
-            Nuestro equipo de soporte está disponible para ayudarte
+            {t('help.notFoundDesc')}
           </p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-medium rounded-xl transition-colors"
           >
             <Mail className="w-4 h-4" />
-            Contactar soporte
+            {t('help.contactSupport')}
           </Link>
         </div>
       </div>

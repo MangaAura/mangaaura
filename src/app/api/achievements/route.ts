@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { XP } from '@/core/value-objects/XP';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 function parseCondition(conditionStr: string): { type: string; count?: number; level?: number } | null {
   try {
@@ -11,7 +12,7 @@ function parseCondition(conditionStr: string): { type: string; count?: number; l
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
 
@@ -144,6 +145,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
     const body = await request.json();
     const { badgeId } = body;
 
@@ -181,7 +185,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const [, updatedUser, transaction] = await prisma.$transaction([
+    const [, updatedUser] = await prisma.$transaction([
       prisma.userAchievement.create({
         data: {
           userId: session.user.id,

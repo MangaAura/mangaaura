@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useT } from '@/i18n';
 import useSWR, { mutate } from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -72,6 +73,7 @@ interface CreatorSettingsData {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function CreatorSettingsPage() {
+  const t = useT();
   const { data, error, isLoading } = useSWR<CreatorSettingsData>(
     '/api/creator/settings',
     fetcher,
@@ -119,12 +121,12 @@ export default function CreatorSettingsPage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al guardar');
+        throw new Error(err.error || t('creatorSettings.saveError'));
       }
       mutate('/api/creator/settings');
-      setSaveMessage({ type: 'success', text: 'Configuración guardada correctamente' });
+      setSaveMessage({ type: 'success', text: t('creatorSettings.saveSuccess') });
     } catch (err: any) {
-      setSaveMessage({ type: 'error', text: err.message || 'Error al guardar' });
+      setSaveMessage({ type: 'error', text: err.message || t('creatorSettings.saveError') });
     } finally {
       setSaving(false);
     }
@@ -147,7 +149,7 @@ export default function CreatorSettingsPage() {
     return (
       <div className="p-4 sm:p-6 lg:p-8 text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar la configuración</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('creatorSettings.loadError')}</h2>
         <Button onClick={() => mutate('/api/creator/settings')} className="mt-4">
           Reintentar
         </Button>
@@ -159,9 +161,9 @@ export default function CreatorSettingsPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">Configuración</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">{t('creatorSettings.title')}</h1>
           <p className="text-[var(--text-tertiary)] mt-1">
-            Gestiona tu perfil de creador y preferencias
+            {t('creatorSettings.subtitle')}
           </p>
         </div>
         <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
@@ -170,7 +172,7 @@ export default function CreatorSettingsPage() {
           ) : (
             <Save className="w-4 h-4 mr-2" />
           )}
-          Guardar Cambios
+          {t('creatorSettings.save')}
         </Button>
       </div>
 
@@ -199,7 +201,7 @@ export default function CreatorSettingsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.stats.mangaCount || 0}</p>
-              <p className="text-xs text-[var(--text-tertiary)]">Mangas publicados</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{t('creatorSettings.publishedManga')}</p>
             </div>
           </CardContent>
         </Card>
@@ -210,7 +212,7 @@ export default function CreatorSettingsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.stats.totalViews.toLocaleString() || '0'}</p>
-              <p className="text-xs text-[var(--text-tertiary)]">Vistas totales</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{t('creatorSettings.totalViews')}</p>
             </div>
           </CardContent>
         </Card>
@@ -221,7 +223,7 @@ export default function CreatorSettingsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.payments.inkcoinsBalance.toLocaleString() || '0'}</p>
-              <p className="text-xs text-[var(--text-tertiary)]">InkCoins</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{t('creatorSettings.inkCoins')}</p>
             </div>
           </CardContent>
         </Card>
@@ -231,34 +233,33 @@ export default function CreatorSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5 text-[var(--primary)]" />
-            Perfil de Creador
+            {t('creatorSettings.creatorProfile')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="username" className="text-[var(--text-secondary)]">Nombre de usuario</Label>
+              <Label htmlFor="username" className="text-[var(--text-secondary)]">{t('creatorSettings.username')}</Label>
               <Input
                 id="username"
                 value={profile.username || ''}
                 disabled
                 className="mt-1 bg-[var(--surface-sunken)]"
               />
-              <p className="text-xs text-[var(--text-tertiary)] mt-1">No se puede cambiar</p>
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">{t('creatorSettings.usernameCantChange')}</p>
             </div>
             <div>
-              <Label htmlFor="displayName" className="text-[var(--text-secondary)]">Nombre para mostrar</Label>
+              <Label htmlFor="displayName" className="text-[var(--text-secondary)]">{t('creatorSettings.displayName')}</Label>
               <Input
                 id="displayName"
                 value={profile.displayName || ''}
                 onChange={(e) => handleProfileChange('displayName', e.target.value)}
                 className="mt-1"
-                placeholder="Tu nombre artístico"
+                placeholder={t('creatorSettings.displayNameHint')}
               />
             </div>
           </div>
-          <div>
-            <Label htmlFor="email" className="text-[var(--text-secondary)]">Email</Label>
+          <div>              <Label htmlFor="email" className="text-[var(--text-secondary)]">{t('creatorSettings.email')}</Label>
             <Input
               id="email"
               type="email"
@@ -267,23 +268,21 @@ export default function CreatorSettingsPage() {
               className="mt-1 bg-[var(--surface-sunken)]"
             />
           </div>
-          <div>
-            <Label htmlFor="bio" className="text-[var(--text-secondary)]">Biografía</Label>
+          <div>              <Label htmlFor="bio" className="text-[var(--text-secondary)]">{t('creatorSettings.bio')}</Label>
             <Textarea
               id="bio"
               value={profile.bio || ''}
               onChange={(e) => handleProfileChange('bio', e.target.value)}
               className="mt-1"
               rows={4}
-              placeholder="Cuéntanos sobre ti y tu obra..."
+              placeholder={t('creatorSettings.bioPlaceholder')}
               maxLength={500}
             />
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              {(profile.bio || '').length}/500 caracteres
+              {(profile.bio || '').length}/500 {t('creatorSettings.characters')}
             </p>
           </div>
-          <div>
-            <Label htmlFor="website" className="text-[var(--text-secondary)]">Sitio web</Label>
+          <div>              <Label htmlFor="website" className="text-[var(--text-secondary)]">{t('creatorSettings.website')}</Label>
             <Input
               id="website"
               value={profile.website || ''}
@@ -299,13 +298,13 @@ export default function CreatorSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[var(--accent-purple)]" />
-            Preferencias de Publicación
+            {t('creatorSettings.publishingPreferences')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-[var(--text-secondary)]">Idioma por defecto</Label>
+              <Label className="text-[var(--text-secondary)]">{t('creatorSettings.defaultLanguage')}</Label>
               <Select
                 value={publishing.defaultLanguage}
                 onValueChange={(v) => handlePublishingChange('defaultLanguage', v)}
@@ -314,7 +313,7 @@ export default function CreatorSettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="es">Español</SelectItem>
+                  <SelectItem value="es">{t('creatorSettings.spanish')}</SelectItem>
                   <SelectItem value="en">English</SelectItem>
                   <SelectItem value="pt">Português</SelectItem>
                   <SelectItem value="ja">日本語</SelectItem>
@@ -322,7 +321,7 @@ export default function CreatorSettingsPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[var(--text-secondary)]">Estado por defecto</Label>
+              <Label className="text-[var(--text-secondary)]">{t('creatorSettings.defaultStatus')}</Label>
               <Select
                 value={publishing.defaultStatus}
                 onValueChange={(v) => handlePublishingChange('defaultStatus', v)}
@@ -331,9 +330,9 @@ export default function CreatorSettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ONGOING">En progreso</SelectItem>
-                  <SelectItem value="COMPLETED">Completado</SelectItem>
-                  <SelectItem value="HIATUS">En pausa</SelectItem>
+                  <SelectItem value="ONGOING">{t('creatorSettings.inProgress')}</SelectItem>
+                  <SelectItem value="COMPLETED">{t('creatorSettings.completed')}</SelectItem>
+                  <SelectItem value="HIATUS">{t('creatorSettings.paused')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -341,8 +340,8 @@ export default function CreatorSettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
               <div>
-                <p className="font-medium text-[var(--text-primary)]">Guardado automático</p>
-                <p className="text-sm text-[var(--text-tertiary)]">Guardar borradores automáticamente al editar</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('creatorSettings.autoSave')}</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('creatorSettings.autoSaveDesc')}</p>
               </div>
               <Switch
                 checked={publishing.autoSaveDrafts}
@@ -353,8 +352,8 @@ export default function CreatorSettingsPage() {
               <div className="flex items-center gap-3">
                 <Bell className="w-5 h-5 text-[var(--warning)]" />
                 <div>
-                  <p className="font-medium text-[var(--text-primary)]">Notificar suscriptores</p>
-                  <p className="text-sm text-[var(--text-tertiary)]">Enviar notificación al publicar un capítulo nuevo</p>
+                  <p className="font-medium text-[var(--text-primary)]">{t('creatorSettings.notifySubscribers')}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{t('creatorSettings.notifySubscribersDesc')}</p>
                 </div>
               </div>
               <Switch
@@ -366,8 +365,8 @@ export default function CreatorSettingsPage() {
               <div className="flex items-center gap-3">
                 <Sparkles className="w-5 h-5 text-[var(--accent-purple)]" />
                 <div>
-                  <p className="font-medium text-[var(--text-primary)]">Asistencia IA</p>
-                  <p className="text-sm text-[var(--text-tertiary)]">Sugerencias de IA al crear contenido</p>
+                  <p className="font-medium text-[var(--text-primary)]">{t('creatorSettings.aiAssistance')}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{t('creatorSettings.aiAssistanceDesc')}</p>
                 </div>
               </div>
               <Switch
@@ -383,7 +382,7 @@ export default function CreatorSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-[var(--success)]" />
-            Pagos y Monetización
+            {t('creatorSettings.paymentsMonetization')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -393,11 +392,11 @@ export default function CreatorSettingsPage() {
                 <CreditCard className={`w-5 h-5 ${data?.payments.stripeConnected ? 'text-[var(--success)]' : 'text-[var(--warning)]'}`} />
               </div>
               <div>
-                <p className="font-medium text-[var(--text-primary)]">Stripe</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('creatorSettings.stripe')}</p>
                 <p className="text-sm text-[var(--text-tertiary)]">
                   {data?.payments.stripeConnected
-                    ? 'Cuenta conectada'
-                    : 'Conecta tu cuenta para recibir pagos'}
+                    ? t('creatorSettings.connectedAccount')
+                    : t('creatorSettings.connectAccount')}
                 </p>
               </div>
             </div>
@@ -405,12 +404,12 @@ export default function CreatorSettingsPage() {
               {data?.payments.stripeConnected ? (
                 <>
                   <CheckCircle className="w-4 h-4 mr-1 text-[var(--success)]" />
-                  Conectado
+                  {t('creatorSettings.connected')}
                 </>
               ) : (
                 <>
                   <ExternalLink className="w-4 h-4 mr-1" />
-                  Conectar
+                  {t('creatorSettings.connect')}
                 </>
               )}
             </Button>
@@ -424,25 +423,25 @@ export default function CreatorSettingsPage() {
               <p className="text-3xl font-bold text-[var(--text-primary)]">
                 {data?.payments.inkcoinsBalance.toLocaleString() || '0'}
               </p>
-              <p className="text-sm text-[var(--text-tertiary)] mt-1">Balance actual</p>
+              <p className="text-sm text-[var(--text-tertiary)] mt-1">{t('creatorSettings.currentBalance')}</p>
             </div>
             <div className="p-4 bg-[var(--success)]/5 rounded-lg border border-[var(--success)]/20">
               <div className="flex items-center gap-2 mb-2">
                 <Globe className="w-5 h-5 text-[var(--success)]" />
-                <p className="font-medium text-[var(--text-primary)]">Propinas recibidas</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('creatorSettings.tipsReceived')}</p>
               </div>
               <p className="text-3xl font-bold text-[var(--text-primary)]">
                 {data?.payments.totalTipsReceived.toLocaleString() || '0'}
               </p>
-              <p className="text-sm text-[var(--text-tertiary)] mt-1">InkCoins en propinas</p>
+              <p className="text-sm text-[var(--text-tertiary)] mt-1">{t('creatorSettings.inkCoinsInTips')}</p>
             </div>
           </div>
           <div className="p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
             <p className="text-sm text-[var(--text-tertiary)]">
-              Pago mínimo para retiro: <span className="font-medium text-[var(--text-primary)]">{data?.payments.minimumPayout.toLocaleString() || '1,000'} InkCoins</span>
+              {t('creatorSettings.minPayout')} <span className="font-medium text-[var(--text-primary)]">{data?.payments.minimumPayout.toLocaleString() || '1,000'} InkCoins</span>
             </p>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              Miembro desde {data?.stats.memberSince ? new Date(data.stats.memberSince).toLocaleDateString('es') : '—'}
+              {t('creatorSettings.memberSince')} {data?.stats.memberSince ? new Date(data.stats.memberSince).toLocaleDateString('es') : '—'}
             </p>
           </div>
         </CardContent>

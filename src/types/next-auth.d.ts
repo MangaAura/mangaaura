@@ -9,6 +9,8 @@ declare module 'next-auth' {
     email: string;
     name?: string | null;
     image?: string | null;
+    twoFactorPending?: boolean;
+    twoFactorEnabled?: boolean;
   }
 
   interface Session {
@@ -22,5 +24,6 @@ declare module 'next-auth/jwt' {
     role: string;
     xpPoints: number;
     level: number;
+    twoFactorPending?: boolean;
   }
 }

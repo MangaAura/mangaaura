@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { GetUnreadCountUseCase } from '@/application/use-cases/notifications/GetUnreadCountUseCase';
-
-const getUnreadCountUseCase = new GetUnreadCountUseCase(notificationService);
 
 export async function GET() {
   try {
@@ -12,6 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const getUnreadCountUseCase = new GetUnreadCountUseCase(await getNotificationService());
     const result = await getUnreadCountUseCase.execute({
       userId: session.user.id,
     });

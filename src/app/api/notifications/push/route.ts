@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { savePushSubscription, deletePushSubscription } from '@/lib/push-notifications';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 /**
  * POST /api/notifications/push
@@ -17,6 +18,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'notifications');
+    if (rlResponse) return rlResponse;
 
     const subscription = await request.json();
 

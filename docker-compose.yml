@@ -6,8 +6,8 @@ services:
     image: postgres:16-alpine
     container_name: inkverse-postgres
     environment:
-      POSTGRES_USER: inkverse
-      POSTGRES_PASSWORD: inkverse_password
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER:-inkverse}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD:?Error: DOCKER_POSTGRES_PASSWORD no configurada en .env}
       POSTGRES_DB: inkverse
     ports:
       - "5432:5432"
@@ -26,8 +26,8 @@ services:
     image: mongo:7-jammy
     container_name: inkverse-mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: inkverse
-      MONGO_INITDB_ROOT_PASSWORD: inkverse_password
+      MONGO_INITDB_ROOT_USERNAME: ${DOCKER_MONGO_USER:-inkverse}
+      MONGO_INITDB_ROOT_PASSWORD: ${DOCKER_MONGO_PASSWORD:?Error: DOCKER_MONGO_PASSWORD no configurada en .env}
       MONGO_INITDB_DATABASE: inkverse_analytics
     ports:
       - "27017:27017"
@@ -63,8 +63,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: inkverse-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@inkverse.com
-      PGADMIN_DEFAULT_PASSWORD: admin_password
+      PGADMIN_DEFAULT_EMAIL: ${DOCKER_PGADMIN_EMAIL:-admin@inkverse.com}
+      PGADMIN_DEFAULT_PASSWORD: ${DOCKER_PGADMIN_PASSWORD:?Error: DOCKER_PGADMIN_PASSWORD no configurada en .env}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
       - "5050:80"

@@ -9,6 +9,7 @@
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { BookOpenIcon, ChevronDownIcon, SearchIcon, CheckIcon } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 export interface MangaOption {
   id: string;
@@ -90,9 +91,11 @@ export function MangaSelector({
         )}
       >
         {selectedManga?.coverUrl ? (
-          <img
+          <OptimizedImage
             src={selectedManga.coverUrl}
             alt={selectedManga.title}
+            width={24}
+            height={32}
             className="w-6 h-8 object-cover rounded"
           />
         ) : (
@@ -178,9 +181,11 @@ selectedId === manga.id
                   )}
                 >
                   {manga.coverUrl ? (
-                    <img
+                    <OptimizedImage
                       src={manga.coverUrl}
                       alt={manga.title}
+                      width={24}
+                      height={32}
                       className="w-6 h-8 object-cover rounded"
                     />
                   ) : (

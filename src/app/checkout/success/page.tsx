@@ -8,6 +8,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useT } from '@/i18n';
 import { CheckCircle, Loader2, Coins, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -23,6 +24,7 @@ function LoadingSpinner() {
 function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useT();
   const [isVerifying, setIsVerifying] = useState(true);
   const [inkcoinsAdded, setInkcointsAdded] = useState<number | null>(null);
   const [verifyError, setVerifyError] = useState(false);
@@ -52,8 +54,8 @@ function CheckoutSuccessContent() {
             {isVerifying ? (
               <div className="py-12">
                 <Loader2 className="w-12 h-12 animate-spin text-[var(--primary)] mx-auto mb-4" />
-                <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">Verificando tu compra...</h1>
-                <p className="text-[var(--text-secondary)]">Esto solo tomará un momento</p>
+                <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">{t('checkout.success.verifying')}</h1>
+                <p className="text-[var(--text-secondary)]">{t('checkout.success.verifyingDesc')}</p>
               </div>
             ) : verifyError ? (
               <div className="py-12">
@@ -61,17 +63,17 @@ function CheckoutSuccessContent() {
                   <AlertTriangle className="w-10 h-10 text-[var(--error)]" />
                 </div>
                 <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-                  Error al verificar la compra
+                  {t('checkout.success.error')}
                 </h1>
                 <p className="text-[var(--text-secondary)] mb-6">
-                  No pudimos confirmar tu pago. Si fuiste cobrado, los InkCoins se añadirán automáticamente.
+                  {t('checkout.success.errorDesc')}
                 </p>
                 <div className="flex flex-col gap-3">
                   <Button onClick={() => router.push('/library')}>
-                    Ir a mi biblioteca
+                    {t('checkout.success.goLibrary')}
                   </Button>
                   <Button variant="outline" onClick={() => router.push('/contact')}>
-                    Contactar soporte
+                    {t('checkout.success.contactSupport')}
                   </Button>
                 </div>
               </div>
@@ -82,11 +84,11 @@ function CheckoutSuccessContent() {
               </div>
 
               <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-                ¡Compra exitosa!
+                {t('checkout.success.title')}
               </h1>
 
               <p className="text-[var(--text-secondary)] mb-6">
-                Tus InkCoins han sido añadidos a tu cuenta.
+                {t('checkout.success.desc')}
               </p>
 
               {inkcoinsAdded && (
@@ -97,19 +99,19 @@ function CheckoutSuccessContent() {
                       +{inkcoinsAdded.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-[var(--warning)]/80 text-sm mt-1">InkCoins añadidos</p>
+                  <p className="text-[var(--warning)]/80 text-sm mt-1">{t('checkout.success.added')}</p>
                 </div>
               )}
 
               <div className="flex flex-col gap-3">
                 <Button onClick={() => router.push('/library')}>
-                  Ir a mi biblioteca
+                  {t('checkout.success.goLibrary')}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => router.push('/browse')}
                 >
-                  Explorar mangas
+                  {t('checkout.success.exploreManga')}
                 </Button>
               </div>
             </div>

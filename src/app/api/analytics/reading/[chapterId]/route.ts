@@ -1,16 +1,9 @@
-/**
- * GET /api/analytics/reading/[chapterId]
- *
- * API para obtener estadísticas de lectura de un capítulo desde MongoDB.
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { readingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
 
-// GET /api/analytics/reading/[chapterId] - Obtener estadísticas de lectura
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ chapterId: string }> }
 ) {
   try {
@@ -29,6 +22,13 @@ export async function GET(
       return NextResponse.json(
         { error: 'Se requiere chapterId' },
         { status: 400 }
+      );
+    }
+
+    if (!readingAnalyticsService) {
+      return NextResponse.json(
+        { error: 'Servicio no inicializado' },
+        { status: 500 }
       );
     }
 

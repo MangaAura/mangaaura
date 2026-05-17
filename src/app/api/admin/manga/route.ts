@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // GET /api/admin/manga - Get all mangas for admin
 export async function GET(request: NextRequest) {
@@ -15,8 +16,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100);
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || 'all';
 
@@ -132,6 +133,12 @@ export async function POST(request: NextRequest) {
         { error: 'Unauthorized' },
         { status: 401 }
       );
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('admin-manga', userId), 30, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const body = await request.json();

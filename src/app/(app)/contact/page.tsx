@@ -5,8 +5,10 @@ import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { Mail, Send, HelpCircle, MessageSquare, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
 export default function ContactPage() {
+  const t = useT();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,23 +21,23 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
 
   const categories = [
-    { value: 'general', label: 'Consulta General', icon: <HelpCircle className="w-4 h-4" /> },
-    { value: 'support', label: 'Soporte Técnico', icon: <MessageSquare className="w-4 h-4" /> },
-    { value: 'dmca', label: 'Reporte DMCA', icon: <AlertCircle className="w-4 h-4" /> },
-    { value: 'business', label: 'Negocios', icon: <Mail className="w-4 h-4" /> }
+    { value: 'general', label: t('contact.categories.general'), icon: <HelpCircle className="w-4 h-4" /> },
+    { value: 'support', label: t('contact.categories.support'), icon: <MessageSquare className="w-4 h-4" /> },
+    { value: 'dmca', label: t('contact.categories.dmca'), icon: <AlertCircle className="w-4 h-4" /> },
+    { value: 'business', label: t('contact.categories.business'), icon: <Mail className="w-4 h-4" /> }
   ];
 
   const validateForm = () => {
     const newErrors: Partial<typeof formData> = {};
-    if (!formData.name.trim()) newErrors.name = 'El nombre es requerido';
+    if (!formData.name.trim()) newErrors.name = t('contact.form.nameRequired');
     if (!formData.email.trim()) {
-      newErrors.email = 'El correo es requerido';
+      newErrors.email = t('contact.form.emailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Ingresa un correo válido';
+      newErrors.email = t('contact.form.emailInvalid');
     }
-    if (!formData.subject.trim()) newErrors.subject = 'El asunto es requerido';
-    if (!formData.message.trim()) newErrors.message = 'El mensaje es requerido';
-    if (formData.message.length < 20) newErrors.message = 'El mensaje debe tener al menos 20 caracteres';
+    if (!formData.subject.trim()) newErrors.subject = t('contact.form.subjectRequired');
+    if (!formData.message.trim()) newErrors.message = t('contact.form.messageRequired');
+    if (formData.message.length < 20) newErrors.message = t('contact.form.messageMinLength');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -53,11 +55,11 @@ export default function ContactPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al enviar');
+        throw new Error(data.error || t('contact.form.sendError'));
       }
       setIsSubmitted(true);
     } catch (err: any) {
-      setErrors({ ...errors, message: err.message || 'Error al enviar el mensaje. Intenta de nuevo.' });
+      setErrors({ ...errors, message: err.message || t('contact.form.error') });
     } finally {
       setIsSubmitting(false);
     }
@@ -71,9 +73,9 @@ export default function ContactPage() {
         <div className="w-20 h-20 bg-[var(--success)]/20 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-10 h-10 text-[var(--success)]" />
             </div>
-            <h1 className="text-3xl font-bold mb-4">¡Mensaje Enviado!</h1>
+            <h1 className="text-3xl font-bold mb-4">{t('contact.success.title')}</h1>
             <p className="text-muted mb-8">
-              Gracias por contactarnos. Hemos recibido tu mensaje y te responderemos dentro de las próximas 24-48 horas.
+              {t('contact.success.message')}
             </p>
             <button
               onClick={() => {
@@ -82,7 +84,7 @@ export default function ContactPage() {
               }}
               className="bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-medium px-8 py-3 rounded-xl transition-colors"
             >
-              Enviar otro mensaje
+              {t('contact.success.sendAnother')}
             </button>
           </div>
         </div>
@@ -93,23 +95,23 @@ export default function ContactPage() {
   return (
     <Container className="py-12">
       <PageHeader
-        title="Contacto"
-        description="¿Tienes preguntas o necesitas ayuda? Estamos aquí para ayudarte."
+        title={t('contact.title')}
+        description={t('contact.description')}
         icon={<Mail className="w-8 h-8" />}
       />
 
       <div className="max-w-3xl mx-auto">
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           {[
-            { icon: <HelpCircle className="w-6 h-6" />, title: 'FAQ', desc: 'Respuestas rápidas' },
-            { icon: <MessageSquare className="w-6 h-6" />, title: 'Soporte', desc: '24-48 horas' },
-            { icon: <Mail className="w-6 h-6" />, title: 'Email', desc: 'soporte@inkverse.app' }
+            { icon: <HelpCircle className="w-6 h-6" />, title: t('contact.info.faq'), desc: t('contact.info.faqDesc') },
+            { icon: <MessageSquare className="w-6 h-6" />, title: t('contact.info.support'), desc: t('contact.info.supportDesc') },
+            { icon: <Mail className="w-6 h-6" />, title: t('contact.info.email'), desc: 'soporte@inkverse.app' }
           ].map((item, index) => (
             <div key={item.title || `contact-card-${index}`} className="bg-secondary border border-custom rounded-xl p-6 text-center">
               <div className="w-12 h-12 bg-accent-blue/10 rounded-full flex items-center justify-center mx-auto mb-3 text-accent-blue">
                 {item.icon}
               </div>
-              <h3 className="font-semibold">{item.title}</h3>
+              <h2 className="font-semibold">{item.title}</h2>
               <p className="text-sm text-muted">{item.desc}</p>
             </div>
           ))}
@@ -119,8 +121,9 @@ export default function ContactPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">Nombre</label>
+                <label htmlFor="contact-name" className="block text-sm font-semibold mb-2">{t('contact.form.name')}</label>
                 <input
+                  id="contact-name"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -128,13 +131,14 @@ export default function ContactPage() {
                     'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
                     errors.name ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                   )}
-                  placeholder="Tu nombre"
+                  placeholder={t('contact.form.namePlaceholder')}
                 />
                 {errors.name && <p className="mt-1 text-sm text-[var(--error)]">{errors.name}</p>}
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-2">Correo electrónico</label>
+                <label htmlFor="contact-email" className="block text-sm font-semibold mb-2">{t('contact.form.email')}</label>
                 <input
+                  id="contact-email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -142,14 +146,14 @@ export default function ContactPage() {
                     'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
                     errors.email ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                   )}
-                  placeholder="tu@email.com"
+                  placeholder={t('contact.form.emailPlaceholder')}
                 />
                 {errors.email && <p className="mt-1 text-sm text-[var(--error)]">{errors.email}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Categoría</label>
+              <label className="block text-sm font-semibold mb-2">{t('contact.form.category')}</label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {categories.map((cat) => (
                   <button
@@ -171,35 +175,37 @@ export default function ContactPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Asunto</label>
-              <input
-                type="text"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                className={cn(
-                  'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
-                  errors.subject ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
-                )}
-                placeholder="¿En qué podemos ayudarte?"
-              />
+                <label htmlFor="contact-subject" className="block text-sm font-semibold mb-2">{t('contact.form.subject')}</label>
+                <input
+                  id="contact-subject"
+                  type="text"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  className={cn(
+                    'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
+                    errors.subject ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
+                  )}
+                  placeholder={t('contact.form.subjectPlaceholder')}
+                />
               {errors.subject && <p className="mt-1 text-sm text-[var(--error)]">{errors.subject}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Mensaje</label>
-              <textarea
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                rows={5}
-                className={cn(
+                <label htmlFor="contact-message" className="block text-sm font-semibold mb-2">{t('contact.form.message')}</label>
+                <textarea
+                  id="contact-message"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  rows={5}
+                  className={cn(
                   'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all resize-none',
                   errors.message ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                 )}
-                placeholder="Describe tu consulta en detalle..."
+                placeholder={t('contact.form.messagePlaceholder')}
               />
               {errors.message && <p className="mt-1 text-sm text-[var(--error)]">{errors.message}</p>}
               <p className="mt-1 text-xs text-muted text-right">
-                {formData.message.length} caracteres
+                {formData.message.length} {t('contact.form.characters')}
               </p>
             </div>
 
@@ -211,12 +217,12 @@ export default function ContactPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Enviando...
+                  {t('contact.form.sending')}
                 </>
               ) : (
                 <>
                   <Send className="w-5 h-5" />
-                  Enviar mensaje
+                  {t('contact.form.submit')}
                 </>
               )}
             </button>

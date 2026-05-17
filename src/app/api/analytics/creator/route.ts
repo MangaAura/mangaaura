@@ -76,8 +76,6 @@ where: { ...whereBase, eventType: 'chapter_complete' },
     select: { id: true, mangaId: true, chapterNumber: true, title: true },
   });
 
-    const chapterIds = chapters.map((ch: any) => ch.id);
-
 const chapterReads = await prisma.analyticsEvent.groupBy({
 by: ['chapterId' as any],
 where: {

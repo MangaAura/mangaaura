@@ -1,12 +1,12 @@
 /**
- * Índice de exportaciones para eventos de dominio
- * @packageDocumentation
+ * Re-exporta eventos de dominio desde core/events
+ * Los eventos de dominio viven en core/events/ (capa de dominio)
  */
 
-export * from './DomainEvent';
-export * from './UserRegisteredEvent';
-export * from './ChapterCompletedEvent';
-export * from './XPAddedEvent';
-export * from './CommentPostedEvent';
-export * from './InkCoinsSpentEvent';
-export * from './MangaEvents';
+export * from '@/core/events/DomainEvent';
+export * from '@/core/events/UserRegisteredEvent';
+export * from '@/core/events/ChapterCompletedEvent';
+export * from '@/core/events/XPAddedEvent';
+export * from '@/core/events/CommentPostedEvent';
+export * from '@/core/events/InkCoinsSpentEvent';
+export * from '@/core/events/MangaEvents';

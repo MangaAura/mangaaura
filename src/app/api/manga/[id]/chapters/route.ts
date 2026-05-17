@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/manga/[id]/chapters - Listar capítulos del manga
 export async function GET(
@@ -115,6 +116,9 @@ export async function POST(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id } = await params;
     const body = await request.json();
@@ -230,7 +234,7 @@ export async function POST(
         if (mangaData) {
           // Notificacion push
           const followerIds = followers.map((f: any) => f.userId);
-          notificationService.notifyMultiple(
+          (await getNotificationService()).notifyMultiple(
             followerIds,
             {
               type: 'NEW_CHAPTER',

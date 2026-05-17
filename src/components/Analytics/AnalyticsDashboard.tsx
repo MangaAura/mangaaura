@@ -19,7 +19,6 @@ import {
   CheckCircleIcon,
   BookOpenIcon,
   TrendingUpIcon,
-  Loader2Icon,
   RefreshCwIcon,
 } from 'lucide-react';
 // AnalyticsData interface inline to avoid import issues
@@ -79,17 +78,6 @@ function formatTime(seconds: number): string {
   return remainingSeconds > 0
     ? `${minutes}m ${remainingSeconds}s`
     : `${minutes}m`;
-}
-
-// Formato de número compacto
-function formatCompactNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K';
-  }
-  return num.toString();
 }
 
 export function AnalyticsDashboard({

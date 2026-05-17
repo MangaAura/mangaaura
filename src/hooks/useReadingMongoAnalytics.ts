@@ -61,7 +61,7 @@ async function sendReadingEvent(
 export function useReadingMongoAnalytics({
   mangaId,
   chapterId,
-  chapterNumber,
+  chapterNumber: _chapterNumber,
   totalPages,
 }: ReadingAnalyticsOptions) {
   const hasStartedRef = useRef(false);
@@ -160,7 +160,6 @@ export function useReadingMongoAnalytics({
   useEffect(() => {
     return () => {
       const timeSpent = Date.now() - startTimeRef.current;
-      const pagesViewed = pagesViewedRef.current.size;
 
       if (hasStartedRef.current && !hasCompletedRef.current) {
         // Enviar datos de tiempo pasado

@@ -8,8 +8,7 @@
 'use client';
 
 import { useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Bell, Loader2, Filter, Check, Trash2 } from 'lucide-react';
+import { Loader2, Filter, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NotificationCard } from './NotificationCard';
 import { EmptyState } from './EmptyState';
@@ -50,7 +49,6 @@ export function NotificationList({
   filterType = 'all',
   onFilterChange,
 }: NotificationListProps) {
-  const router = useRouter();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 

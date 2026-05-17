@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Layout/Navbar';
 import {
   UploadCloud,
   Image as ImageIcon,
-  X,
   CheckCircle,
   FileText,
   LayoutDashboard,
@@ -20,6 +19,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { MAX_FILE_SIZE, ACCEPTED_FORMATS } from '@/lib/storage-config';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface Manga {
   id: string;
@@ -48,7 +48,7 @@ function LoadingSpinner() {
 function CreatorUploadPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const mangaIdFromUrl = searchParams.get('mangaId');
 
   // Estados
@@ -404,10 +404,11 @@ function CreatorUploadPageContent() {
 
                   {/* Número de Capítulo */}
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 uppercase">
+                    <label htmlFor="chapter-number" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 uppercase">
                       Número de Cap. *
                     </label>
                     <input
+                      id="chapter-number"
                       type="number"
                       value={chapterNumber}
                       onChange={(e) => setChapterNumber(e.target.value)}
@@ -420,10 +421,11 @@ function CreatorUploadPageContent() {
 
                   {/* Título del Capítulo */}
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 uppercase">
+                    <label htmlFor="chapter-title" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 uppercase">
                       Título (Opcional)
                     </label>
                     <input
+                      id="chapter-title"
                       type="text"
                       value={chapterTitle}
                       onChange={(e) => setChapterTitle(e.target.value)}
@@ -528,9 +530,11 @@ function CreatorUploadPageContent() {
 
                         {/* Preview */}
                         {fileData.preview && (
-                          <img
+                          <OptimizedImage
                             src={fileData.preview}
                             alt={`Página ${index + 1}`}
+                            width={48}
+                            height={64}
                             className="w-12 h-16 object-cover rounded border border-[var(--border)] flex-shrink-0"
                           />
                         )}

@@ -1,8 +1,11 @@
 'use client';
 
-import { useMemo, memo } from 'react';
+import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface MangaCardProps {
@@ -38,17 +41,17 @@ const imageSizes = {
 };
 
 const statusColors: Record<string, string> = {
-  ONGOING: 'bg-emerald-500/15 text-emerald-500 border-emerald-500/20',
-  COMPLETED: 'bg-blue-500/15 text-blue-500 border-blue-500/20',
-  HIATUS: 'bg-amber-500/15 text-amber-500 border-amber-500/20',
-  DROPPED: 'bg-red-500/15 text-red-500 border-red-500/20',
+  ONGOING: 'bg-[var(--success)]/80 text-[var(--text-inverse)] border-[var(--success)]/30',
+  COMPLETED: 'bg-[var(--info)]/80 text-[var(--text-inverse)] border-[var(--info)]/30',
+  HIATUS: 'bg-[var(--warning)]/80 text-[var(--text-inverse)] border-[var(--warning)]/30',
+  DROPPED: 'bg-[var(--error)]/80 text-[var(--text-inverse)] border-[var(--error)]/30',
 };
 
-const statusLabels: Record<string, string> = {
-  ONGOING: 'En emisión',
-  COMPLETED: 'Completado',
-  HIATUS: 'Pausado',
-  DROPPED: 'Abandonado',
+const STATUS_KEYS: Record<string, string> = {
+  ONGOING: 'manga.ongoing',
+  COMPLETED: 'manga.completed',
+  HIATUS: 'manga.hiatus',
+  DROPPED: 'manga.dropped',
 };
 
 export const MangaCard = memo(function MangaCard({
@@ -58,7 +61,9 @@ export const MangaCard = memo(function MangaCard({
   priority = false,
 }: MangaCardProps) {
   const statusColor = statusColors[manga.status || ''] || 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]';
-  const statusLabel = statusLabels[manga.status || ''] || 'Desconocido';
+  const t = useT();
+  const router = useRouter();
+  const statusLabel = t(STATUS_KEYS[manga.status || ''] || '') || manga.status || '';
   const imageSize = imageSizes[size];
   const sizeClass = sizeClasses[size];
   const href = `/manga/${manga.slug || manga.id}`;
@@ -69,11 +74,13 @@ export const MangaCard = memo(function MangaCard({
   return (
     <Link href={href} className="group block" prefetch={true}>
       <div className={cn('relative', sizeClass)}>
-        <div
+        <motion.div
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           className={cn(
-            'relative rounded-xl overflow-hidden shadow-md transition-all duration-300',
-            'group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1',
-            'group-active:scale-[1.01] group-active:translate-y-0',
+            'relative rounded-xl overflow-hidden shadow-md transition-shadow duration-300',
+            'group-hover:shadow-xl',
             'bg-[var(--border)]'
           )}
           style={{ aspectRatio: `${imageSize.width}/${imageSize.height}` }}
@@ -120,45 +127,59 @@ export const MangaCard = memo(function MangaCard({
               {statusLabel}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         <div className="mt-2.5 px-0.5">
-          <h3
+          <h2
             className="font-semibold text-[var(--text-primary)] text-sm leading-tight line-clamp-2 group-hover:text-[var(--primary)] transition-colors duration-200"
             title={manga.title}
           >
             {manga.title}
-          </h3>
-          {manga.authorUsername ? (
-            <Link
-              href={`/user/${manga.authorUsername}`}
-              onClick={(e) => e.stopPropagation()}
-              className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block hover:text-[var(--primary)] transition-colors duration-200"
-            >
-              {manga.authorName || 'Autor desconocido'}
-            </Link>
-          ) : (
-            <span className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block">
-              {manga.authorName || 'Autor desconocido'}
-            </span>
-          )}
+          </h2>
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              if (manga.authorUsername) router.push(`/user/${manga.authorUsername}`);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && manga.authorUsername) {
+                e.stopPropagation();
+                router.push(`/user/${manga.authorUsername}`);
+              }
+            }}
+            role="link"
+            tabIndex={0}
+            className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block hover:text-[var(--primary)] transition-colors duration-200 cursor-pointer px-1 py-1 min-h-[24px] inline-flex items-center"
+          >
+            {manga.authorName || 'Autor desconocido'}
+          </span>
 
           <div className="flex flex-wrap gap-1 mt-1.5">
             {displayedTags.map((tag, i) => (
-              <Link
+              <span
                 key={`tag-${i}`}
-                href={`/search?genres[]=${tag}`}
-                onClick={(e) => e.stopPropagation()}
-                className="text-[10px] px-1.5 py-0.5 bg-[var(--surface-sunken)] text-[var(--text-muted)] rounded-md border border-[var(--border-subtle)] hover:bg-[var(--surface-elevated)] hover:text-[var(--primary)] transition-colors duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/search?genres[]=${tag}`);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.stopPropagation();
+                    router.push(`/search?genres[]=${tag}`);
+                  }
+                }}
+                role="link"
+                tabIndex={0}
+                className="text-[10px] px-2 py-1 min-w-[24px] min-h-[24px] inline-flex items-center justify-center bg-[var(--surface-sunken)] text-[var(--text-muted)] rounded-md border border-[var(--border-subtle)] hover:bg-[var(--surface-elevated)] hover:text-[var(--primary)] transition-colors duration-200 cursor-pointer"
               >
                 {tag}
-              </Link>
+              </span>
             ))}
           </div>
 
           {manga.chapterCount ? (
             <p className="text-xs text-[var(--text-secondary)] mt-1.5 font-medium">
-              {manga.chapterCount} {manga.chapterCount === 1 ? 'capítulo' : 'capítulos'}
+              {manga.chapterCount} {t(manga.chapterCount === 1 ? 'manga.chapter' : 'manga.chapters')}
             </p>
           ) : null}
         </div>

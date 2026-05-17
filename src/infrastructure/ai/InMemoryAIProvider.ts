@@ -68,7 +68,7 @@ export class InMemoryAIProvider implements IAProvider {
     };
   }
 
-  async generateNotificationHook(chapterSummary: string): Promise<string> {
+  async generateNotificationHook(_chapterSummary: string): Promise<string> {
     this.requestCount++;
     return '¡Nuevo capítulo disponible! Lee ahora 🔥';
   }

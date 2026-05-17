@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const reportSchema = z.object({
   targetType: z.enum(['USER', 'MANGA', 'CHAPTER', 'COMMENT']),
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') as string | null;
     const priority = searchParams.get('priority') as string | null;
     const assignedTo = searchParams.get('assignedTo') as string | null;
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100);
 
     const where: any = {};
 
@@ -100,6 +101,9 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'report');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const parsed = reportSchema.safeParse(body);

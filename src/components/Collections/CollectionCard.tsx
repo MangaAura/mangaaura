@@ -1,8 +1,10 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useTransition } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { deleteCollection } from '@/app/(app)/collections/actions';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -38,26 +40,20 @@ export function CollectionCard({
   currentUserId,
   onDelete,
 }: CollectionCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const isOwner = currentUserId === collection.user.id;
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!confirm('¿Eliminar esta colección?')) return;
 
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`/api/collections/${collection.id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
+    startTransition(async () => {
+      try {
+        await deleteCollection(collection.id);
         onDelete?.(collection.id);
+      } catch (error) {
+        console.error('Error deleting collection:', error);
       }
-    } catch (error) {
-      console.error('Error deleting collection:', error);
-    } finally {
-      setIsDeleting(false);
-    }
+    });
   };
 
   const handleShare = async () => {
@@ -78,7 +74,7 @@ export function CollectionCard({
     <Card
       className={cn(
         'group overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-[var(--primary)]/10 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md',
-        isDeleting && 'opacity-50'
+        isPending && 'opacity-50'
       )}
     >
       {/* Preview Grid */}
@@ -86,13 +82,15 @@ export function CollectionCard({
         <div className="aspect-[16/9] bg-[var(--surface-sunken)] relative overflow-hidden">
           {collection.previewMangas.length > 0 ? (
             <div className="grid grid-cols-3 gap-0.5 h-full">
-              {collection.previewMangas.slice(0, 3).map((manga, i) => (
+              {collection.previewMangas.slice(0, 3).map((manga, _i) => (
                 <div key={manga.id} className="relative overflow-hidden">
                   {manga.cover ? (
-                    <img
+                    <Image
                       src={manga.cover}
                       alt={manga.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 33vw, 25vw"
                     />
                   ) : (
                     <div className="w-full h-full bg-[var(--surface-sunken)] flex items-center justify-center">
@@ -127,9 +125,9 @@ export function CollectionCard({
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <Link href={`/collections/${collection.id}`}>
-              <h3 className="font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--primary)] transition-colors">
+              <h2 className="font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--primary)] transition-colors">
                 {collection.name}
-              </h3>
+              </h2>
             </Link>
             <p className="text-sm text-[var(--text-tertiary)] mt-1 line-clamp-2">
               {collection.description || 'Sin descripción'}
@@ -158,10 +156,10 @@ export function CollectionCard({
                 <DropdownMenuItem
                   onClick={handleDelete}
                   className="text-[var(--error)]"
-                  disabled={isDeleting}
+                  disabled={isPending}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                  {isPending ? 'Eliminando...' : 'Eliminar'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

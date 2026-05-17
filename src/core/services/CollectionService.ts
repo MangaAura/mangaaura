@@ -1,46 +1,363 @@
-import { prisma } from '@/lib/prisma';
-import { logSecurityEvent } from '@/lib/security-audit';
+import type {
+  ICollectionRepository,
+  CollectionUpdateInput,
+  CollectionQuery,
+} from './ICollectionRepository';
 
-interface CreateCollectionParams {
+export class CollectionService {
+  constructor(private readonly repo: ICollectionRepository) {}
+
+  async create(params: {
+    userId: string;
+    title: string;
+    description?: string;
+    coverUrl?: string;
+    isPublic?: boolean;
+  }): Promise<{
+    success: boolean;
+    collection?: {
+      id: string;
+      title: string;
+      description: string | null;
+      coverUrl: string | null;
+      isPublic: boolean;
+      itemCount: number;
+      createdAt: Date;
+    };
+    error?: string;
+  }> {
+    try {
+      const userCollectionCount = await this.repo.countByUser(params.userId);
+      if (userCollectionCount >= 50) {
+        return { success: false, error: 'Has alcanzado el límite de 50 colecciones' };
+      }
+
+      const collection = await this.repo.create({
+        userId: params.userId,
+        title: params.title.trim().substring(0, 100),
+        description: params.description?.trim().substring(0, 500) || null,
+        coverUrl: params.coverUrl || null,
+        isPublic: params.isPublic ?? true,
+      });
+
+      await this.repo.logSecurityEvent(params.userId, 'CREATED_COLLECTION', collection.id, 'INFO');
+
+      return {
+        success: true,
+        collection: {
+          id: collection.id,
+          title: collection.title,
+          description: collection.description,
+          coverUrl: collection.coverUrl,
+          isPublic: collection.isPublic,
+          itemCount: collection.itemCount,
+          createdAt: collection.createdAt,
+        },
+      };
+    } catch (error) {
+      console.error('Error creating collection:', error);
+      return { success: false, error: 'Error al crear colección' };
+    }
+  }
+
+  async update(params: {
+    collectionId: string;
+    userId: string;
+    title?: string;
+    description?: string;
+    coverUrl?: string;
+    isPublic?: boolean;
+  }): Promise<{
+    success: boolean;
+    collection?: {
+      id: string;
+      title: string;
+      description: string | null;
+      coverUrl: string | null;
+      isPublic: boolean;
+      itemCount: number;
+      updatedAt: Date;
+    };
+    error?: string;
+  }> {
+    try {
+      const existing = await this.repo.findByUser(params.collectionId, params.userId);
+      if (!existing) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      const updateData: CollectionUpdateInput = {};
+      if (params.title) updateData.title = params.title.trim().substring(0, 100);
+      if (params.description !== undefined) {
+        updateData.description = params.description?.trim().substring(0, 500) || null;
+      }
+      if (params.coverUrl !== undefined) updateData.coverUrl = params.coverUrl || null;
+      if (params.isPublic !== undefined) updateData.isPublic = params.isPublic;
+
+      const collection = await this.repo.update(params.collectionId, updateData);
+
+      return {
+        success: true,
+        collection: {
+          id: collection.id,
+          title: collection.title,
+          description: collection.description,
+          coverUrl: collection.coverUrl,
+          isPublic: collection.isPublic,
+          itemCount: collection.itemCount,
+          updatedAt: collection.updatedAt,
+        },
+      };
+    } catch (error) {
+      console.error('Error updating collection:', error);
+      return { success: false, error: 'Error al actualizar colección' };
+    }
+  }
+
+  async delete(params: {
+    collectionId: string;
+    userId: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const collection = await this.repo.findById(params.collectionId);
+      if (!collection || collection.userId !== params.userId) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      await this.repo.delete(params.collectionId);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+      return { success: false, error: 'Error al eliminar colección' };
+    }
+  }
+
+  async addManga(params: {
+    collectionId: string;
+    userId: string;
+    mangaId: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const collection = await this.repo.findByUser(params.collectionId, params.userId);
+      if (!collection) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      const manga = await this.repo.findManga(params.mangaId);
+      if (!manga) {
+        return { success: false, error: 'Manga no encontrado' };
+      }
+
+      const itemCount = await this.repo.countItems(params.collectionId);
+      if (itemCount >= 100) {
+        return { success: false, error: 'La colección ha alcanzado el límite de 100 mangas' };
+      }
+
+      await this.repo.addItem(params.collectionId, params.mangaId);
+
+      if (!collection.coverUrl && manga.coverUrl) {
+        await this.repo.updateCover(params.collectionId, manga.coverUrl);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding manga to collection:', error);
+      return { success: false, error: 'Error al agregar manga' };
+    }
+  }
+
+  async removeManga(params: {
+    collectionId: string;
+    userId: string;
+    mangaId: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const collection = await this.repo.findByUser(params.collectionId, params.userId);
+      if (!collection) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      await this.repo.removeItem(params.collectionId, params.mangaId);
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing manga from collection:', error);
+      return { success: false, error: 'Error al eliminar manga' };
+    }
+  }
+
+  async list(params: {
+    userId?: string;
+    isPublic?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    success: boolean;
+    collections?: Array<{
+      id: string;
+      title: string;
+      description: string | null;
+      coverUrl: string | null;
+      isPublic: boolean;
+      likesCount: number;
+      itemCount: number;
+      createdAt: Date;
+      user: {
+        id: string;
+        username: string;
+        displayName: string | null;
+        avatarUrl: string | null;
+      };
+    }>;
+    total?: number;
+    error?: string;
+  }> {
+    try {
+      const page = params.page ?? 1;
+      const limit = params.limit ?? 20;
+      const query: CollectionQuery = {
+        userId: params.userId,
+        isPublic: params.isPublic ?? true,
+        skip: (page - 1) * limit,
+        limit,
+      };
+
+      const [collections, total] = await this.repo.findMany(query);
+
+      return {
+        success: true,
+        collections: collections.map(c => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          coverUrl: c.coverUrl,
+          isPublic: c.isPublic,
+          likesCount: c.likesCount,
+          itemCount: c.itemCount,
+          createdAt: c.createdAt,
+          user: c.user!,
+        })),
+        total,
+      };
+    } catch (error) {
+      console.error('Error getting collections:', error);
+      return { success: false, error: 'Error al obtener colecciones' };
+    }
+  }
+
+  async getWithItems(params: {
+    collectionId: string;
+    userId?: string;
+  }): Promise<{
+    success: boolean;
+    collection?: {
+      id: string;
+      title: string;
+      description: string | null;
+      coverUrl: string | null;
+      isPublic: boolean;
+      likesCount: number;
+      itemCount: number;
+      createdAt: Date;
+      isOwner: boolean;
+      user: {
+        id: string;
+        username: string;
+        displayName: string | null;
+        avatarUrl: string | null;
+      };
+      items: Array<{
+        id: string;
+        mangaId: string;
+        title: string;
+        coverUrl: string | null;
+        slug: string;
+        authorName: string;
+      }>;
+    };
+    error?: string;
+  }> {
+    try {
+      const collection = await this.repo.findWithItems(params.collectionId);
+      if (!collection) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      if (!collection.isPublic && collection.userId !== params.userId) {
+        return { success: false, error: 'Colección privada' };
+      }
+
+      return {
+        success: true,
+        collection: {
+          id: collection.id,
+          title: collection.title,
+          description: collection.description,
+          coverUrl: collection.coverUrl,
+          isPublic: collection.isPublic,
+          likesCount: collection.likesCount,
+          itemCount: collection.items.length,
+          createdAt: collection.createdAt,
+          isOwner: collection.userId === params.userId,
+          user: collection.user!,
+          items: collection.items,
+        },
+      };
+    } catch (error) {
+      console.error('Error getting collection:', error);
+      return { success: false, error: 'Error al obtener colección' };
+    }
+  }
+
+  async toggleLike(params: {
+    collectionId: string;
+    userId: string;
+    isLiked?: boolean;
+  }): Promise<{ success: boolean; isLiked?: boolean; error?: string }> {
+    try {
+      const currentLikesCount = await this.repo.getLikesCount(params.collectionId);
+      if (currentLikesCount === 0 && params.collectionId) {
+        const collection = await this.repo.findById(params.collectionId);
+        if (!collection) {
+          return { success: false, error: 'Colección no encontrada' };
+        }
+      }
+
+      const wasLiked = params.isLiked ?? false;
+      const newLikesCount = wasLiked
+        ? Math.max(0, currentLikesCount - 1)
+        : currentLikesCount + 1;
+
+      await this.repo.updateLikesCount(params.collectionId, newLikesCount);
+      return { success: true, isLiked: !wasLiked };
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      return { success: false, error: 'Error al dar like' };
+    }
+  }
+}
+
+export let collectionService: CollectionService | undefined;
+
+export function initializeCollectionService(repo: ICollectionRepository): CollectionService {
+  const service = new CollectionService(repo);
+  collectionService = service;
+  return service;
+}
+
+function getService(): CollectionService {
+  if (!collectionService) {
+    throw new Error('CollectionService not initialized. Call initializeCollectionService(repo) first.');
+  }
+  return collectionService;
+}
+
+export async function createCollection(params: {
   userId: string;
   title: string;
   description?: string;
   coverUrl?: string;
   isPublic?: boolean;
-}
-
-interface UpdateCollectionParams {
-  collectionId: string;
-  userId: string;
-  title?: string;
-  description?: string;
-  coverUrl?: string;
-  isPublic?: boolean;
-}
-
-interface AddMangaParams {
-  collectionId: string;
-  userId: string;
-  mangaId: string;
-}
-
-interface GetCollectionsParams {
-  userId?: string;
-  isPublic?: boolean;
-  page?: number;
-  limit?: number;
-}
-
-/**
- * Create a new collection
- */
-export async function createCollection({
-  userId,
-  title,
-  description,
-  coverUrl,
-  isPublic = true,
-}: CreateCollectionParams): Promise<{
+}): Promise<{
   success: boolean;
   collection?: {
     id: string;
@@ -53,71 +370,17 @@ export async function createCollection({
   };
   error?: string;
 }> {
-  try {
-    // Check collection limit per user (max 50)
-    const userCollectionCount = await prisma.collection.count({
-      where: { userId },
-    });
-
-    if (userCollectionCount >= 50) {
-      return {
-        success: false,
-        error: 'Has alcanzado el límite de 50 colecciones',
-      };
-    }
-
-    const collection = await prisma.collection.create({
-      data: {
-        userId,
-        title: title.trim().substring(0, 100),
-        description: description?.trim().substring(0, 500) || null,
-        coverUrl: coverUrl || null,
-        isPublic,
-      },
-      include: {
-        items: {
-          select: { id: true },
-        },
-      },
-    });
-
-    // Log activity
-    await logSecurityEvent({
-      userId,
-      action: 'CREATED_COLLECTION',
-      targetId: collection.id,
-      severity: 'INFO',
-    });
-
-    return {
-      success: true,
-      collection: {
-        id: collection.id,
-        title: collection.title,
-        description: collection.description,
-        coverUrl: collection.coverUrl,
-        isPublic: collection.isPublic,
-        itemCount: collection.items.length,
-        createdAt: collection.createdAt,
-      },
-    };
-  } catch (error) {
-    console.error('Error creating collection:', error);
-    return { success: false, error: 'Error al crear colección' };
-  }
+  return getService().create(params);
 }
 
-/**
- * Update a collection
- */
-export async function updateCollection({
-  collectionId,
-  userId,
-  title,
-  description,
-  coverUrl,
-  isPublic,
-}: UpdateCollectionParams): Promise<{
+export async function updateCollection(params: {
+  collectionId: string;
+  userId: string;
+  title?: string;
+  description?: string;
+  coverUrl?: string;
+  isPublic?: boolean;
+}): Promise<{
   success: boolean;
   collection?: {
     id: string;
@@ -130,205 +393,38 @@ export async function updateCollection({
   };
   error?: string;
 }> {
-  try {
-    // Verify ownership
-    const existing = await prisma.collection.findFirst({
-      where: { id: collectionId, userId },
-      include: { items: { select: { id: true } } },
-    });
-
-    if (!existing) {
-      return { success: false, error: 'Colección no encontrada' };
-    }
-
-    const collection = await prisma.collection.update({
-      where: { id: collectionId },
-      data: {
-        ...(title && { title: title.trim().substring(0, 100) }),
-        ...(description !== undefined && {
-          description: description?.trim().substring(0, 500) || null,
-        }),
-        ...(coverUrl !== undefined && { coverUrl: coverUrl || null }),
-        ...(isPublic !== undefined && { isPublic }),
-      },
-      include: {
-        items: {
-          select: { id: true },
-        },
-      },
-    });
-
-    return {
-      success: true,
-      collection: {
-        id: collection.id,
-        title: collection.title,
-        description: collection.description,
-        coverUrl: collection.coverUrl,
-        isPublic: collection.isPublic,
-        itemCount: collection.items.length,
-        updatedAt: collection.updatedAt,
-      },
-    };
-  } catch (error) {
-    console.error('Error updating collection:', error);
-    return { success: false, error: 'Error al actualizar colección' };
-  }
+  return getService().update(params);
 }
 
-/**
- * Delete a collection
- */
-export async function deleteCollection({
-  collectionId,
-  userId,
-}: {
+export async function deleteCollection(params: {
   collectionId: string;
   userId: string;
 }): Promise<{ success: boolean; error?: string }> {
-  try {
-    // Verify ownership
-    const collection = await prisma.collection.findFirst({
-      where: { id: collectionId, userId },
-    });
-
-    if (!collection) {
-      return { success: false, error: 'Colección no encontrada' };
-    }
-
-    await prisma.collection.delete({
-      where: { id: collectionId },
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error deleting collection:', error);
-    return { success: false, error: 'Error al eliminar colección' };
-  }
+  return getService().delete(params);
 }
 
-/**
- * Add manga to collection
- */
-export async function addMangaToCollection({
-  collectionId,
-  userId,
-  mangaId,
-}: AddMangaParams): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  try {
-    // Verify ownership
-    const collection = await prisma.collection.findFirst({
-      where: { id: collectionId, userId },
-    });
-
-    if (!collection) {
-      return { success: false, error: 'Colección no encontrada' };
-    }
-
-    // Check if manga exists
-    const manga = await prisma.mangaSeries.findUnique({
-      where: { id: mangaId },
-      select: { id: true },
-    });
-
-    if (!manga) {
-      return { success: false, error: 'Manga no encontrado' };
-    }
-
-    // Check collection size limit (max 100 mangas per collection)
-    const itemCount = await prisma.collectionItem.count({
-      where: { collectionId },
-    });
-
-    if (itemCount >= 100) {
-      return {
-        success: false,
-        error: 'La colección ha alcanzado el límite de 100 mangas',
-      };
-    }
-
-    // Add to collection (upsert to handle duplicates)
-    await prisma.collectionItem.upsert({
-      where: {
-        collectionId_mangaId: {
-          collectionId,
-          mangaId,
-        },
-      },
-      update: {}, // No update needed
-      create: {
-        collectionId,
-        mangaId,
-      },
-    });
-
-    // Update collection cover if not set
-    if (!collection.coverUrl) {
-      const mangaCover = await prisma.mangaSeries.findUnique({
-        where: { id: mangaId },
-        select: { coverUrl: true },
-      });
-      if (mangaCover?.coverUrl) {
-        await prisma.collection.update({
-          where: { id: collectionId },
-          data: { coverUrl: mangaCover.coverUrl },
-        });
-      }
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error adding manga to collection:', error);
-    return { success: false, error: 'Error al agregar manga' };
-  }
+export async function addMangaToCollection(params: {
+  collectionId: string;
+  userId: string;
+  mangaId: string;
+}): Promise<{ success: boolean; error?: string }> {
+  return getService().addManga(params);
 }
 
-/**
- * Remove manga from collection
- */
-export async function removeMangaFromCollection({
-  collectionId,
-  userId,
-  mangaId,
-}: AddMangaParams): Promise<{ success: boolean; error?: string }> {
-  try {
-    // Verify ownership
-    const collection = await prisma.collection.findFirst({
-      where: { id: collectionId, userId },
-    });
-
-    if (!collection) {
-      return { success: false, error: 'Colección no encontrada' };
-    }
-
-    await prisma.collectionItem.delete({
-      where: {
-        collectionId_mangaId: {
-          collectionId,
-          mangaId,
-        },
-      },
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error removing manga from collection:', error);
-    return { success: false, error: 'Error al eliminar manga' };
-  }
+export async function removeMangaFromCollection(params: {
+  collectionId: string;
+  userId: string;
+  mangaId: string;
+}): Promise<{ success: boolean; error?: string }> {
+  return getService().removeManga(params);
 }
 
-/**
- * Get collections
- */
-export async function getCollections({
-  userId,
-  isPublic = true,
-  page = 1,
-  limit = 20,
-}: GetCollectionsParams): Promise<{
+export async function getCollections(params: {
+  userId?: string;
+  isPublic?: boolean;
+  page?: number;
+  limit?: number;
+}): Promise<{
   success: boolean;
   collections?: Array<{
     id: string;
@@ -349,67 +445,10 @@ export async function getCollections({
   total?: number;
   error?: string;
 }> {
-  try {
-    const skip = (page - 1) * limit;
-
-    const where: Record<string, unknown> = {};
-    if (userId) {
-      where.userId = userId;
-    } else {
-      where.isPublic = isPublic;
-    }
-
-    const [collections, total] = await Promise.all([
-      prisma.collection.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { likesCount: 'desc' },
-        include: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-              displayName: true,
-              avatarUrl: true,
-            },
-          },
-          items: {
-            select: { id: true },
-          },
-        },
-      }),
-      prisma.collection.count({ where }),
-    ]);
-
-    return {
-      success: true,
-      collections: collections.map((c: any) => ({
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        coverUrl: c.coverUrl,
-        isPublic: c.isPublic,
-        likesCount: c.likesCount,
-        itemCount: c.items.length,
-        createdAt: c.createdAt,
-        user: c.user,
-      })),
-      total,
-    };
-  } catch (error) {
-    console.error('Error getting collections:', error);
-    return { success: false, error: 'Error al obtener colecciones' };
-  }
+  return getService().list(params);
 }
 
-/**
- * Get single collection with items
- */
-export async function getCollectionWithItems({
-  collectionId,
-  userId,
-}: {
+export async function getCollectionWithItems(params: {
   collectionId: string;
   userId?: string;
 }): Promise<{
@@ -441,99 +480,15 @@ export async function getCollectionWithItems({
   };
   error?: string;
 }> {
-  try {
-  const collection = await prisma.collection.findUnique({
-  where: { id: collectionId },
-  include: {
-  user: {
-  select: {
-  id: true,
-  username: true,
-  displayName: true,
-  avatarUrl: true,
-  },
-  },
-  items: {
-    include: {
-      collection: true,
-    },
-  },
-  },
-  }) as any;
-
-  if (!collection) {
-  return { success: false, error: 'Colección no encontrada' };
-  }
-
-  // Check if user can view
-  if (!collection.isPublic && collection.userId !== userId) {
-  return { success: false, error: 'Colección privada' };
-  }
-
-  return {
-  success: true,
-  collection: {
-  id: collection.id,
-  title: collection.title,
-  description: collection.description,
-  coverUrl: collection.coverUrl,
-  isPublic: collection.isPublic,
-  likesCount: collection.likesCount,
-  itemCount: collection.items.length,
-  createdAt: collection.createdAt,
-  isOwner: collection.userId === userId,
-  user: collection.user,
-  items: collection.items.map((item: any) => ({
-          id: item.id,
-          mangaId: item.manga.id,
-          title: item.manga.title,
-          coverUrl: item.manga.coverUrl,
-          slug: item.manga.slug,
-          authorName: item.manga.authorName,
-        })),
-      },
-    };
-  } catch (error) {
-    console.error('Error getting collection:', error);
-    return { success: false, error: 'Error al obtener colección' };
-  }
+  return getService().getWithItems(params);
 }
 
-/**
- * Like/unlike collection
- */
-export async function toggleLikeCollection({
-collectionId,
-userId,
-isLiked,
-}: {
-collectionId: string;
-userId: string;
-isLiked?: boolean;
+export async function toggleLikeCollection(params: {
+  collectionId: string;
+  userId: string;
+  isLiked?: boolean;
 }): Promise<{ success: boolean; isLiked?: boolean; error?: string }> {
-try {
-const collection = await prisma.collection.findUnique({
-where: { id: collectionId },
-select: { likesCount: true },
-});
-
-if (!collection) {
-return { success: false, error: 'Colección no encontrada' };
+  return getService().toggleLike(params);
 }
 
-const wasLiked = isLiked ?? false;
-const newLikesCount = wasLiked
-? Math.max(0, collection.likesCount - 1)
-: collection.likesCount + 1;
-
-await prisma.collection.update({
-where: { id: collectionId },
-data: { likesCount: newLikesCount },
-});
-
-return { success: true, isLiked: !wasLiked };
-} catch (error) {
-console.error('Error toggling like:', error);
-return { success: false, error: 'Error al dar like' };
-}
-}
+export default CollectionService;

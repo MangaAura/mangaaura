@@ -6,11 +6,10 @@ import { Download } from 'lucide-react';
 
 interface ExportAnalyticsButtonProps {
   activeTab?: 'creator' | 'reader';
-  mangaId?: string | null;
   dateRange?: { from?: string; to?: string } | null;
 }
 
-export function ExportAnalyticsButton({ activeTab = 'reader', mangaId, dateRange }: ExportAnalyticsButtonProps) {
+export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: ExportAnalyticsButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [format, setFormat] = useState<'csv' | 'json'>('csv');
 

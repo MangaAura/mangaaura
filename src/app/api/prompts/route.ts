@@ -12,6 +12,7 @@ import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { PromptLibraryModel } from '@/infrastructure/persistence/mongodb/models/PromptLibrary';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // Schemas
 const createPromptSchema = z.object({
@@ -147,6 +148,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const result = createPromptSchema.safeParse(body);

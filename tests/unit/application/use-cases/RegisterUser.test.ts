@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { Email } from '@/core/value-objects/Email';
 import { Password } from '@/core/value-objects/Password';
 import { User } from '@/core/entities/User';
@@ -9,7 +9,7 @@ describe('RegisterUser Use Case', () => {
       const email = Email.create('newuser@test.com');
       const password = Password.createFromPlain('SecurePass123!');
 
-      const { user, events } = User.registerWithEmail(email, 'newuser', password);
+      const { user } = User.registerWithEmail(email, 'newuser', password);
 
       expect(user.email.value).toBe('newuser@test.com');
       expect(user.username).toBe('newuser');

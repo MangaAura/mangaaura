@@ -16,11 +16,11 @@ import { cn } from '@/lib/utils';
 
 interface CommentSectionProps {
   chapterId: string;
-  mangaId: string;
+  mangaId?: string;
   className?: string;
 }
 
-export function CommentSection({ chapterId, mangaId, className }: CommentSectionProps) {
+export function CommentSection({ chapterId, className }: CommentSectionProps) {
   const { data: session } = useSession();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const {

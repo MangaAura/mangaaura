@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { AddItemToCollectionUseCase } from '@/application/use-cases/collections/AddItemToCollectionUseCase';
 import { RemoveItemFromCollectionUseCase } from '@/application/use-cases/collections/RemoveItemFromCollectionUseCase';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const addItemSchema = z.object({
   mangaId: z.string(),
@@ -23,6 +24,9 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const parsed = addItemSchema.safeParse(body);
@@ -68,6 +72,9 @@ export async function DELETE(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { searchParams } = new URL(request.url);
     const mangaId = searchParams.get('mangaId');

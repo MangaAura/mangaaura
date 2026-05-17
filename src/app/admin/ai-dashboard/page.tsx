@@ -1,6 +1,9 @@
+import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { AIServiceDashboardClient } from './AIServiceDashboardClient';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 // Server Component para verificación de autenticación
 export default async function AIServiceDashboardPage() {
@@ -13,6 +16,8 @@ export default async function AIServiceDashboardPage() {
 
   // Si no es admin, mostrar acceso denegado
   if (session.user.role !== 'ADMIN') {
+    const locale = await detectLocale();
+    const t = getT(locale);
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-8 max-w-md w-full mx-4 text-center">
@@ -31,16 +36,16 @@ export default async function AIServiceDashboardPage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{t('admin.accessDenied')}</h1>
           <p className="text-[var(--text-secondary)] mb-6">
-            You don&apos;t have permission to access this page. This area is restricted to administrators only.
+            {t('admin.accessDeniedDesc')}
           </p>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center justify-center px-4 py-2 bg-[var(--primary-hover)] hover:opacity-90 text-[var(--text-primary)] rounded-lg transition-colors cursor-pointer"
           >
-            Go Home
-          </a>
+            {t('admin.goHome')}
+          </Link>
         </div>
       </div>
     );

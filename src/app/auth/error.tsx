@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { ErrorFallback } from '@/components/ui/ErrorFallback';
 import Link from 'next/link';
 
 export default function AuthError({
@@ -12,30 +10,17 @@ export default function AuthError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error('Auth error:', error);
-  }, [error]);
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--surface)] px-4">
       <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 mx-auto bg-[var(--error)]/10 rounded-full flex items-center justify-center mb-6">
-          <AlertTriangle className="w-10 h-10 text-[var(--error)]" />
-        </div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
-          Error de autenticación
-        </h1>
-        <p className="text-[var(--text-secondary)] mb-6">
-          Ocurrió un error con la autenticación.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button onClick={reset} className="bg-[var(--primary)] hover:opacity-90">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Reintentar
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/auth/login">Iniciar sesión</Link>
-          </Button>
+        <ErrorFallback error={error} reset={reset} title="Error de autenticación" message="Ocurrió un error con la autenticación." />
+        <div className="mt-4">
+          <Link
+            href="/auth/login"
+            className="inline-flex items-center px-6 py-2 rounded-lg font-medium border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-colors"
+          >
+            Iniciar sesión
+          </Link>
         </div>
       </div>
     </div>

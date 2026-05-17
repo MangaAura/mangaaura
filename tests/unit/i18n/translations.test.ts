@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { useT } from '@/i18n/index';
-
 // This tests translations at the module level without needing full React
 import es from '@/i18n/locales/es.json';
 import en from '@/i18n/locales/en.json';

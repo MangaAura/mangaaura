@@ -19,48 +19,11 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const reportTypes = [
-  {
-    value: 'USER',
-    label: 'Usuario',
-    icon: UserX,
-    desc: 'Comportamiento inapropiado de un usuario',
-    placeholder: 'ID o nombre de usuario',
-  },
-  {
-    value: 'MANGA',
-    label: 'Manga',
-    icon: FileQuestion,
-    desc: 'Contenido de manga inapropiado o infractor',
-    placeholder: 'URL o nombre del manga',
-  },
-  {
-    value: 'CHAPTER',
-    label: 'Capítulo',
-    icon: Flag,
-    desc: 'Contenido en un capítulo específico',
-    placeholder: 'URL del capítulo',
-  },
-  {
-    value: 'COMMENT',
-    label: 'Comentario',
-    icon: MessageSquare,
-    desc: 'Comentario ofensivo o spam',
-    placeholder: 'URL o ID del comentario',
-  },
-];
-
-const reasons = [
-  { value: 'spam', label: 'Spam', icon: AlertTriangle },
-  { value: 'harassment', label: 'Acoso', icon: UserX },
-  { value: 'inappropriate', label: 'Contenido inapropiado', icon: Shield },
-  { value: 'copyright', label: 'Violación de derechos de autor', icon: Copyright },
-  { value: 'other', label: 'Otro', icon: FileQuestion },
-];
+import { useT } from '@/i18n';
 
 export default function ReportPage() {
-  const { data: session, status } = useSession();
+  const t = useT();
+  const { status } = useSession();
   const [formData, setFormData] = useState({
     targetType: '',
     targetId: '',
@@ -72,15 +35,54 @@ export default function ReportPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
 
+  const reportTypes = [
+    {
+      value: 'USER',
+      label: t('report.form.targetTypeUser'),
+      icon: UserX,
+      desc: t('report.form.targetTypeUserDesc'),
+      placeholder: t('report.form.targetPlaceholderUser'),
+    },
+    {
+      value: 'MANGA',
+      label: t('report.form.targetTypeManga'),
+      icon: FileQuestion,
+      desc: t('report.form.targetTypeMangaDesc'),
+      placeholder: t('report.form.targetPlaceholderManga'),
+    },
+    {
+      value: 'CHAPTER',
+      label: t('report.form.targetTypeChapter'),
+      icon: Flag,
+      desc: t('report.form.targetTypeChapterDesc'),
+      placeholder: t('report.form.targetPlaceholderChapter'),
+    },
+    {
+      value: 'COMMENT',
+      label: t('report.form.targetTypeComment'),
+      icon: MessageSquare,
+      desc: t('report.form.targetTypeCommentDesc'),
+      placeholder: t('report.form.targetPlaceholderComment'),
+    },
+  ];
+
+  const reasons = [
+    { value: 'spam', label: t('report.form.reasonSpam'), icon: AlertTriangle },
+    { value: 'harassment', label: t('report.form.reasonHarassment'), icon: UserX },
+    { value: 'inappropriate', label: t('report.form.reasonInappropriate'), icon: Shield },
+    { value: 'copyright', label: t('report.form.reasonCopyright'), icon: Copyright },
+    { value: 'other', label: t('report.form.reasonOther'), icon: FileQuestion },
+  ];
+
   const isLoggedIn = status === 'authenticated';
 
   const validateForm = () => {
-    if (!formData.targetType) return 'Selecciona qué tipo de contenido quieres reportar';
-    if (!formData.targetId.trim()) return 'Indica el contenido a reportar';
-    if (!formData.reason) return 'Selecciona un motivo';
-    if (formData.description.length > 1000) return 'La descripción no puede exceder 1000 caracteres';
+    if (!formData.targetType) return t('report.form.typeRequired');
+    if (!formData.targetId.trim()) return t('report.form.targetRequired');
+    if (!formData.reason) return t('report.form.reasonRequired');
+    if (formData.description.length > 1000) return t('report.form.maxLengthError');
     if (formData.evidenceUrl && !/^https?:\/\/.+/.test(formData.evidenceUrl)) {
-      return 'La URL de evidencia no es válida';
+      return t('report.form.invalidUrl');
     }
     return null;
   };
@@ -106,13 +108,13 @@ export default function ReportPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Error al enviar el reporte');
+        setError(data.error || t('report.form.submitError'));
         return;
       }
 
       setIsSubmitted(true);
     } catch {
-      setError('Error de conexión. Inténtalo de nuevo.');
+      setError(t('report.form.connectionError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -123,15 +125,15 @@ export default function ReportPage() {
       <Container className="py-12">
         <div className="max-w-lg mx-auto text-center">
           <Shield className="w-16 h-16 mx-auto mb-4 text-[var(--text-tertiary)]" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Inicia sesión para reportar</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{t('report.notLoggedIn.title')}</h1>
           <p className="text-[var(--text-secondary)] mb-6">
-            Necesitas una cuenta para enviar reportes y hacer seguimiento de su estado.
+            {t('report.notLoggedIn.description')}
           </p>
           <Link
             href="/auth/login"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-medium rounded-xl transition-colors"
           >
-            Iniciar sesión
+            {t('report.notLoggedIn.login')}
           </Link>
         </div>
       </Container>
@@ -146,9 +148,9 @@ export default function ReportPage() {
         <div className="w-20 h-20 bg-[var(--success)]/20 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-10 h-10 text-[var(--success)]" />
             </div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Reporte enviado</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">{t('report.success.title')}</h1>
             <p className="text-[var(--text-secondary)] mb-8">
-              Tu reporte ha sido recibido. Nuestro equipo de moderación lo revisará en un plazo de 24-48 horas.
+              {t('report.success.message')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
@@ -158,13 +160,13 @@ export default function ReportPage() {
                 }}
                 className="px-6 py-2.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] font-medium rounded-xl transition-colors"
               >
-                Enviar otro reporte
+                {t('report.success.sendAnother')}
               </button>
               <Link
                 href="/"
                 className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-medium rounded-xl transition-colors"
               >
-                Volver al inicio
+                {t('report.success.backHome')}
               </Link>
             </div>
           </div>
@@ -176,8 +178,8 @@ export default function ReportPage() {
   return (
     <Container className="py-12">
       <PageHeader
-        title="Reportar contenido"
-        description="Ayúdanos a mantener InkVerse seguro reportando contenido que viole nuestras normas"
+        title={t('report.title')}
+        description={t('report.description')}
         icon={<Shield className="w-8 h-8" />}
       />
 
@@ -192,7 +194,7 @@ export default function ReportPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
-                ¿Qué quieres reportar?
+                {t('report.form.whatToReport')}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {reportTypes.map((type) => {
@@ -222,16 +224,17 @@ export default function ReportPage() {
 
             {formData.targetType && (
               <div>
-                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  Identifica el contenido
+                <label htmlFor="report-target" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                  {t('report.form.targetLabel')}
                 </label>
                 <input
+                  id="report-target"
                   type="text"
                   value={formData.targetId}
                   onChange={(e) => setFormData({ ...formData, targetId: e.target.value })}
                   className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
                   placeholder={
-                    reportTypes.find((t) => t.value === formData.targetType)?.placeholder || 'URL o ID'
+                    reportTypes.find((rt) => rt.value === formData.targetType)?.placeholder || 'URL o ID'
                   }
                 />
               </div>
@@ -239,7 +242,7 @@ export default function ReportPage() {
 
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
-                Motivo del reporte
+                {t('report.form.reportReason')}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {reasons.map((r) => {
@@ -265,35 +268,37 @@ export default function ReportPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Descripción <span className="text-[var(--text-tertiary)] font-normal">(opcional)</span>
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={4}
-                maxLength={1000}
-                className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors resize-none"
-                placeholder="Describe el problema con más detalle..."
-              />
+                <label htmlFor="report-description" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                  {t('report.form.description')} <span className="text-[var(--text-tertiary)] font-normal">{t('report.form.descriptionOptional')}</span>
+                </label>
+                <textarea
+                  id="report-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={4}
+                  maxLength={1000}
+                  className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                  placeholder={t('report.form.descriptionPlaceholder')}
+                />
               <p className="mt-1 text-xs text-[var(--text-tertiary)] text-right">
                 {formData.description.length}/1000
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                URL de evidencia <span className="text-[var(--text-tertiary)] font-normal">(opcional)</span>
-              </label>
-              <div className="relative">
-                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
-                <input
-                  type="url"
-                  value={formData.evidenceUrl}
-                  onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
-                  placeholder="https://ejemplo.com/captura.png"
-                />
+                <label htmlFor="report-evidence" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                  {t('report.form.evidence')} <span className="text-[var(--text-tertiary)] font-normal">{t('report.form.evidenceOptional')}</span>
+                </label>
+                <div className="relative">
+                  <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+                  <input
+                    id="report-evidence"
+                    type="url"
+                    value={formData.evidenceUrl}
+                    onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
+                    className="w-full pl-10 pr-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
+                    placeholder={t('report.form.evidencePlaceholder')}
+                  />
               </div>
             </div>
 
@@ -306,12 +311,12 @@ export default function ReportPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Enviando reporte...
+                    {t('report.form.sending')}
                   </>
                 ) : (
                   <>
                     <Send className="w-5 h-5" />
-                    Enviar reporte
+                    {t('report.form.submit')}
                   </>
                 )}
               </button>
@@ -321,16 +326,15 @@ export default function ReportPage() {
 
         <div className="mt-6 p-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl">
           <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-            Los reportes falsos o malintencionados pueden resultar en acciones contra tu cuenta.
-            Solo reporta contenido que realmente viole nuestros{' '}
+            {t('report.disclaimerPart1')}
             <Link href="/legal/terms" className="text-[var(--primary)] hover:underline">
-              términos de servicio
+              {t('report.termsOfService')}
             </Link>
-            . Los reportes de derechos de autor deben seguir nuestro{' '}
+            {t('report.disclaimerPart2')}
             <Link href="/legal/dmca" className="text-[var(--primary)] hover:underline">
-              proceso DMCA
+              {t('report.dmcaProcess')}
             </Link>
-            .
+            {t('report.disclaimerPart3')}
           </p>
         </div>
       </div>

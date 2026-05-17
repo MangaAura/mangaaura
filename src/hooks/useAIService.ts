@@ -158,7 +158,7 @@ service.on('health:check-completed', handleHealthCheck);
 
   const submit = useCallback(<T = unknown>(
     job: ServiceJob,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<T>> => {
     setState((prev) => ({ ...prev, isProcessing: true }));
     
@@ -169,8 +169,8 @@ service.on('health:check-completed', handleHealthCheck);
       abortControllersRef.current.set(jobId, abortController);
       
       // Link external signal if provided
-      if (signal) {
-        signal.addEventListener('abort', () => {
+      if (_signal) {
+        _signal.addEventListener('abort', () => {
           abortController.abort();
         });
       }
@@ -208,7 +208,7 @@ service.on('health:check-completed', handleHealthCheck);
 
   const submitBatch = useCallback(<T = unknown>(
     request: BatchJobRequest,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<T>[]> => {
     setState((prev) => ({ ...prev, isProcessing: true }));
     
@@ -235,7 +235,7 @@ service.on('health:check-completed', handleHealthCheck);
   const analyzeComment = useCallback((
     content: string,
     context?: string,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<CommentAnalysis>> => {
     return service.analyzeComment(content, context);
   }, [service]);
@@ -243,35 +243,35 @@ service.on('health:check-completed', handleHealthCheck);
   const detectSpoiler = useCallback((
     content: string,
     chapterContext: string,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<number>> => {
     return service.detectSpoiler(content, chapterContext);
   }, [service]);
 
   const summarizeChapter = useCallback((
     chapterText: string,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<ChapterSummary>> => {
     return service.summarizeChapter(chapterText);
   }, [service]);
 
   const generateEmbedding = useCallback((
     text: string,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<number[]>> => {
     return service.generateEmbedding(text);
   }, [service]);
 
   const classifyGenre = useCallback((
     prompt: string,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<string[]>> => {
     return service.classifyGenre(prompt);
   }, [service]);
 
   const classifyQuality = useCallback((
     imageUrl: string,
-    signal?: AbortSignal
+    _signal?: AbortSignal
   ): Promise<ServiceJobResult<QualityAssessment>> => {
     return service.classifyQuality(imageUrl);
   }, [service]);
@@ -326,7 +326,7 @@ service.on('health:check-completed', handleHealthCheck);
 /**
  * Hook for real-time health monitoring
  */
-export function useAIServiceHealth(pollInterval = 5000): ServiceHealth {
+export function useAIServiceHealth(_pollInterval = 5000): ServiceHealth {
   const service = getService();
   
   return useSyncExternalStore(

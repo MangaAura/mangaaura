@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -121,7 +120,6 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function CreatorCommunityPage() {
-  const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [threads, setThreads] = useState<ApiForumThread[]>(FALLBACK_THREADS);

@@ -208,7 +208,7 @@ export async function GET(request: NextRequest) {
         if (cursor) {
           try {
             // Decode cursor - use TextEncoder for Edge runtime compatibility
-            const decodedCursor = JSON.parse(atob(cursor));
+            JSON.parse(atob(cursor));
             skip = (page - 1) * limit;
           } catch {
             skip = (page - 1) * limit;

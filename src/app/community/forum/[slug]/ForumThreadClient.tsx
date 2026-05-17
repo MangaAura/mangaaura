@@ -8,13 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ForumReplyForm } from './ForumReplyForm';
 import { MessageSquare, Clock } from 'lucide-react';
+import { useT } from '@/i18n';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-const roleBadgeStyles: Record<string, { className: string; label: string }> = {
-  ADMIN: { className: 'bg-[var(--error)]/10 text-[var(--error)]', label: 'Admin' },
-  MODERATOR: { className: 'bg-[var(--info)]/10 text-[var(--info)]', label: 'Moderador' },
-  CREATOR: { className: 'bg-[var(--primary)]/10 text-[var(--primary)]', label: 'Creador' },
+const roleBadgeStyles: Record<string, { className: string; labelKey: string }> = {
+  ADMIN: { className: 'bg-[var(--error)]/10 text-[var(--error)]', labelKey: 'forumThread.moderator' },
+  MODERATOR: { className: 'bg-[var(--info)]/10 text-[var(--info)]', labelKey: 'forumThread.moderator' },
+  CREATOR: { className: 'bg-[var(--primary)]/10 text-[var(--primary)]', labelKey: 'forumThread.creator' },
 };
 
 interface ForumThreadClientProps {
@@ -46,6 +47,7 @@ interface ForumThreadClientProps {
 
 export function ForumThreadClient({ thread, posts, canReply, isLoggedIn }: ForumThreadClientProps) {
   const shouldReduceMotion = useReducedMotion();
+  const t = useT();
 
   const postAnimation = (i: number) => ({
     initial: shouldReduceMotion ? {} : { opacity: 0, y: 16 },
@@ -80,12 +82,12 @@ export function ForumThreadClient({ thread, posts, canReply, isLoggedIn }: Forum
                       </Link>
                       {post.author.role !== 'USER' && (
                         <Badge className={(roleBadgeStyles[post.author.role]?.className || 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]') + ' text-xs'}>
-                          {roleBadgeStyles[post.author.role]?.label || post.author.role}
+                          {t(roleBadgeStyles[post.author.role]?.labelKey || post.author.role)}
                         </Badge>
                       )}
                       {post.author.id === thread.author.id && (
                         <Badge className="bg-[var(--primary-subtle)] text-[var(--primary)] text-xs">
-                          Autor
+                          {t('forumThread.author')}
                         </Badge>
                       )}
                       <span className="text-xs text-[var(--text-tertiary)] flex items-center gap-1 ml-auto">
@@ -109,8 +111,8 @@ export function ForumThreadClient({ thread, posts, canReply, isLoggedIn }: Forum
           ))
         ) : (
           <EmptyState
-            title="Sin respuestas"
-            description="Aún no hay respuestas en este hilo"
+            title={t('forumThread.noReplies')}
+            description={t('forumThread.noRepliesDesc')}
             icon={<MessageSquare className="w-12 h-12 text-[var(--text-tertiary)]" />}
           />
         )}
@@ -128,24 +130,24 @@ export function ForumThreadClient({ thread, posts, canReply, isLoggedIn }: Forum
           ) : thread.isLocked ? (
             <Card className="p-6 text-center border border-[var(--border)] bg-[var(--surface)]">
               <p className="text-[var(--text-secondary)]">
-                Este hilo está cerrado y no acepta nuevas respuestas.
+                {t('forumThread.threadLocked')}
               </p>
             </Card>
           ) : (
             <Card className="p-6 text-center border border-[var(--border)] bg-[var(--surface)]">
               <p className="text-[var(--text-secondary)]">
-                Solo los creadores y administradores pueden responder en el foro.
+                {t('forumThread.creatorOnlyReply')}
               </p>
             </Card>
           )
         ) : (
           <Card className="p-6 text-center border border-[var(--border)] bg-[var(--surface)]">
             <p className="text-[var(--text-secondary)] mb-3">
-              Inicia sesión para participar en el foro.
+              {t('forumThread.loginToReply')}
             </p>
             <Link href={`/auth/login?callbackUrl=/community/forum/${thread.slug}`}>
               <span className="text-[var(--primary)] hover:underline font-medium">
-                Iniciar sesión
+                {t('forumThread.login')}
               </span>
             </Link>
           </Card>

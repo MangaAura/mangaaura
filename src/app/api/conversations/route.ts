@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/conversations - Get user's conversations
 export async function GET(request: NextRequest) {
@@ -11,8 +12,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100);
 
     const conversations = await prisma.conversation.findMany({
       where: {
@@ -115,6 +116,9 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'messages');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const { userId } = body;

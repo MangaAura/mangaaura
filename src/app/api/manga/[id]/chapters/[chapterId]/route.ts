@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { invalidateCache } from '@/lib/apiCache';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/manga/[id]/chapters/[chapterId] - Obtener capítulo específico
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string; chapterId: string }> }
 ) {
   try {
@@ -100,6 +101,9 @@ export async function PUT(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id, chapterId } = await params;
     const body = await request.json();
@@ -276,6 +280,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id, chapterId } = await params;
 

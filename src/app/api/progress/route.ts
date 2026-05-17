@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateCacheKey, getCache, setCache, deleteCache } from '@/lib/cache';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const CACHE_TTL = 60;
 
@@ -96,6 +97,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const rlResponse = await withRateLimit(req, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
     const body = await req.json();
     const result = progressSchema.safeParse(body);
 
@@ -187,6 +191,9 @@ export async function DELETE(req: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(req, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { searchParams } = new URL(req.url);
     const mangaId = searchParams.get('mangaId');

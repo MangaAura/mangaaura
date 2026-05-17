@@ -1,25 +1,19 @@
-/**
- * Eventos de dominio - Barrel export
- * @packageDocumentation
- */
-
 export { registerDomainEventHandlers, initializeDomainEvents } from './handlers';
 
-// Re-export de events de la capa de aplicación para acceso unificado
-export { DomainEvent } from '@/application/events/DomainEvent';
-export type { DomainEventHandler, EventMetadata } from '@/application/events/DomainEvent';
+export { DomainEvent } from './DomainEvent';
+export type { DomainEventHandler, EventMetadata } from './DomainEvent';
 
 export {
   UserRegisteredEvent,
   UserVerifiedEvent,
   UserProfileUpdatedEvent,
-} from '@/application/events/UserRegisteredEvent';
+} from './UserRegisteredEvent';
 
 export {
   ChapterCompletedEvent,
   ReadingSessionCreatedEvent,
   ReadingStreakUpdatedEvent,
-} from '@/application/events/ChapterCompletedEvent';
+} from './ChapterCompletedEvent';
 
 export {
   XPAddedEvent,
@@ -27,14 +21,14 @@ export {
   RankAchievedEvent,
   RANKS,
   getRankForLevel,
-} from '@/application/events/XPAddedEvent';
+} from './XPAddedEvent';
 
 export {
   CommentPostedEvent,
   CommentMarkedAsSpoilerEvent,
   CommentReportedEvent,
   CommentDeletedEvent,
-} from '@/application/events/CommentPostedEvent';
+} from './CommentPostedEvent';
 
 export {
   InkCoinsSpentEvent,
@@ -42,7 +36,7 @@ export {
   AuthorEarningsEvent,
   CrowdfundingContributionEvent,
   CrowdfundingGoalReachedEvent,
-} from '@/application/events/InkCoinsSpentEvent';
+} from './InkCoinsSpentEvent';
 
 export {
   MangaCreatedEvent,
@@ -51,4 +45,4 @@ export {
   MangaStatusChangedEvent,
   MangaFavoritedEvent,
   MangaRatedEvent,
-} from '@/application/events/MangaEvents';
+} from './MangaEvents';

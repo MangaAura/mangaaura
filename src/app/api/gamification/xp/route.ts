@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { amount, reason, referenceId } = result.data;
+    const { amount, reason: _reason, referenceId: _referenceId } = result.data;
 
     // Obtener usuario actual
     const user = await prisma.user.findUnique({
@@ -65,18 +65,11 @@ export async function POST(request: NextRequest) {
     const newLevel = newXP.level;
 
     // Actualizar usuario
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: {
         xpPoints: newXP.amount,
         level: newLevel,
-      },
-      select: {
-        id: true,
-        username: true,
-        xpPoints: true,
-        level: true,
-        inkcoinsBalance: true,
       },
     });
 

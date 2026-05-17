@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/clans - Listar clanes
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100);
     const sortBy = searchParams.get('sortBy') || 'monthlyScore'; // monthlyScore, totalScore, name
     const order = searchParams.get('order') || 'desc';
     const search = searchParams.get('search') || '';
@@ -82,6 +83,9 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(req, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const body = await req.json();
     const { name, description, emblemUrl } = body;

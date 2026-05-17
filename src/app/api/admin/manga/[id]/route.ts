@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/admin/manga/[id] - Get specific manga details
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -120,6 +121,9 @@ export async function PATCH(
       );
     }
 
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
+
     const body = await request.json();
     const { title, description, coverUrl, tags, status, authorId, authorName } = body;
 
@@ -188,6 +192,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     await prisma.mangaSeries.delete({
       where: { id },

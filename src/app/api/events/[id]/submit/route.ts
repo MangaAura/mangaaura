@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const submitSchema = z.object({
   imageUrl: z.string().url(),
@@ -17,6 +18,9 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id } = await params;
 

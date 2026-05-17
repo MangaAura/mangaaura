@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const voteSchema = z.object({
   submissionId: z.string().uuid(),
@@ -16,6 +17,9 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id } = await params;
 
@@ -80,7 +84,6 @@ export async function POST(
       });
     }
 
-    const targetSubmissionId = userExistingVote ? userExistingVote.submissionId : data.submissionId;
     await prisma.eventVote.create({
       data: {
         submissionId: data.submissionId,

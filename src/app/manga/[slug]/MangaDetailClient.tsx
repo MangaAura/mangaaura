@@ -1,97 +1,81 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import {
-  BookOpen,
-  Eye,
-  Star,
-  Library,
-  Plus,
-  Check,
-  ChevronDown,
-  Clock,
-  User,
-  Tag,
-} from 'lucide-react';
-import { cn, formatDate, formatNumber } from '@/lib/utils';
-
-interface Chapter {
-  id: string;
-  chapterNumber: number;
-  title: string | null;
-  totalPages: number;
-  viewCount: number;
-  createdAt: string | Date;
-}
-
-interface MangaData {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  coverUrl: string | null;
-  authorId: string;
-  authorName: string;
-  status: string;
-  tags: string[];
-  rating: number | null;
-  totalViews: number;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  chapters: Chapter[];
-  libraryCount: number;
-}
+import { BookOpen, Clock, Eye, Star, ChevronDown, Plus, Check, User, Library, Tag } from 'lucide-react';
+import { toast } from 'sonner';
+import { useT } from '@/i18n';
+import { cn, formatNumber, formatDate } from '@/lib/utils';
+import { toggleLibrary } from './actions';
 
 interface Props {
-  manga: MangaData;
+  manga: {
+    id: string;
+    title: string;
+    slug: string;
+    coverUrl: string | null;
+    description: string | null;
+    status: string;
+    tags: string[];
+    totalViews: number;
+    libraryCount: number;
+    rating: number | null;
+    authorName: string | null;
+    createdAt: Date | string;
+    chapters: { id: string; chapterNumber: number; title: string | null; viewCount: number; totalPages: number; createdAt: Date | string }[];
+  };
   isInLibrary: boolean;
   userId: string | null;
 }
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  ONGOING: { label: 'En curso', color: 'bg-[var(--success)]' },
-  COMPLETED: { label: 'Completado', color: 'bg-[var(--info)]' },
-  HIATUS: { label: 'En pausa', color: 'bg-[var(--warning)]' },
-  CANCELLED: { label: 'Cancelado', color: 'bg-[var(--error)]' },
+const STATUS_KEYS: Record<string, string> = {
+  ONGOING: 'manga.ongoing',
+  COMPLETED: 'manga.completed',
+  HIATUS: 'manga.hiatus',
+  DROPPED: 'manga.dropped',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  ONGOING: 'bg-[var(--success)]/80 text-[var(--text-inverse)] border-[var(--success)]/30',
+  COMPLETED: 'bg-[var(--info)]/80 text-[var(--text-inverse)] border-[var(--info)]/30',
+  HIATUS: 'bg-[var(--warning)]/80 text-[var(--text-inverse)] border-[var(--warning)]/30',
+  DROPPED: 'bg-[var(--error)]/80 text-[var(--text-inverse)] border-[var(--error)]/30',
 };
 
 export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary, userId }: Props) {
   const router = useRouter();
   const [isInLibrary, setIsInLibrary] = useState(initialInLibrary);
   const [showAllChapters, setShowAllChapters] = useState(false);
-  const [isTogglingLibrary, setIsTogglingLibrary] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const displayedChapters = showAllChapters
     ? manga.chapters
     : manga.chapters.slice(0, 20);
 
-  const statusInfo = statusLabels[manga.status] || { label: manga.status, color: 'bg-[var(--text-muted)]' };
+  const t = useT();
+  const statusKey = STATUS_KEYS[manga.status] || '';
+  const statusInfo = {
+    label: statusKey ? t(statusKey) : manga.status,
+    color: STATUS_COLORS[manga.status] || 'bg-[var(--text-muted)]',
+  };
 
-  const toggleLibrary = async () => {
+  const handleToggleLibrary = () => {
     if (!userId) {
       router.push('/auth/login');
       return;
     }
 
-    setIsTogglingLibrary(true);
-    try {
-      const res = await fetch('/api/library', {
-        method: isInLibrary ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mangaId: manga.id }),
-      });
-
-      if (res.ok) {
-        setIsInLibrary(!isInLibrary);
+    startTransition(async () => {
+      try {
+        const result = await toggleLibrary(manga.id);
+        setIsInLibrary(result.isInLibrary);
+      } catch {
+        toast.error('Error al cambiar estado');
       }
-    } catch (err) {
-      console.error('Error toggling library:', err);
-    } finally {
-      setIsTogglingLibrary(false);
-    }
+    });
   };
 
   return (
@@ -129,10 +113,11 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
             >
               {manga.coverUrl ? (
                 <>
-                  <img
+                  <OptimizedImage
                     src={manga.coverUrl}
                     alt={manga.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                 </>
@@ -181,13 +166,13 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               transition={{ delay: 0.3, duration: 0.5 }}
             >
               <span className="flex items-center gap-1">
-                <Eye className="w-4 h-4" /> {formatNumber(manga.totalViews)} vistas
+                <Eye className="w-4 h-4" /> {formatNumber(manga.totalViews)} {t('manga.views')}
               </span>
               <span className="flex items-center gap-1">
-                <BookOpen className="w-4 h-4" /> {manga.chapters.length} capítulos
+                <BookOpen className="w-4 h-4" /> {manga.chapters.length} {t('manga.chapters')}
               </span>
               <span className="flex items-center gap-1">
-                <Library className="w-4 h-4" /> {formatNumber(manga.libraryCount)} en biblioteca
+                <Library className="w-4 h-4" /> {formatNumber(manga.libraryCount)} {t('manga.inLibrary')}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" /> {formatDate(manga.createdAt)}
@@ -202,12 +187,12 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                   className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
                 >
                   <BookOpen className="w-5 h-5" />
-                  Empezar a leer
+                  {t('manga.startReading')}
                 </Link>
               )}
               <button
-                onClick={toggleLibrary}
-                disabled={isTogglingLibrary}
+                onClick={handleToggleLibrary}
+                disabled={isPending}
                 className={cn(
                   'px-6 py-2.5 font-bold rounded-xl border transition-all flex items-center gap-2',
                   isInLibrary
@@ -216,9 +201,9 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                 )}
               >
                 {isInLibrary ? (
-                  <><Check className="w-5 h-5" /> En biblioteca</>
+                  <><Check className="w-5 h-5" /> {t('manga.inLibrary')}</>
                 ) : (
-                  <><Plus className="w-5 h-5" /> Agregar a biblioteca</>
+                  <><Plus className="w-5 h-5" /> {t('manga.addToLibrary')}</>
                 )}
               </button>
             </div>
@@ -250,7 +235,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
               >
-                <h2 className="text-lg font-bold mb-2">Sinopsis</h2>
+                <h2 className="text-lg font-bold mb-2">{t('manga.synopsis')}</h2>
                 <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
                   {manga.description}
                 </p>
@@ -268,7 +253,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
         >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-[var(--primary)]" />
-            Capítulos
+            {t('manga.chaptersTitle')}
             <span className="text-sm font-normal text-[var(--text-secondary)]">
               ({manga.chapters.length})
             </span>
@@ -277,7 +262,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
           {manga.chapters.length === 0 ? (
             <div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-2xl">
               <BookOpen className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
-              <p className="text-[var(--text-secondary)] font-medium">Aún no hay capítulos disponibles</p>
+              <p className="text-[var(--text-secondary)] font-medium">{t('manga.noChapters')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -298,7 +283,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                       </span>
                       <div>
                         <p className="font-semibold text-sm group-hover:text-[var(--primary)] transition-colors">
-                          Capítulo {chapter.chapterNumber}
+                          {t('manga.chapter')} {chapter.chapterNumber}
                           {chapter.title && `: ${chapter.title}`}
                         </p>
                         <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)] mt-1">
@@ -306,7 +291,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                             <Eye className="w-3 h-3" /> {formatNumber(chapter.viewCount)}
                           </span>
                           <span>{formatDate(chapter.createdAt)}</span>
-                          <span>{chapter.totalPages} págs.</span>
+                          <span>{chapter.totalPages} {t('manga.pagesAbbr')}</span>
                         </div>
                       </div>
                     </div>
@@ -323,7 +308,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               className="w-full mt-4 py-3 text-[var(--primary)] hover:bg-[var(--primary)]/5 border border-[var(--border)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
             >
               <ChevronDown className="w-5 h-5" />
-              Ver los {manga.chapters.length} capítulos
+              {t('manga.viewAllChapters', { count: manga.chapters.length })}
             </button>
           )}
         </motion.div>

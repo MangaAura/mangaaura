@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Creator/Sidebar';
 import { StatsCard } from '@/components/Creator/StatsCard';
 import { MangaCard } from '@/components/Creator/MangaCard';
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/i18n';
 import { useCreatorMangas } from '@/hooks/useCreatorMangas';
 import { Skeletons } from '@/components/Skeletons';
 import {
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function CreatorDashboardPage() {
+  const t = useT();
   const { mangas, dashboardStats, isLoading, error, deleteMangaOptimistic } = useCreatorMangas();
 
   return (
@@ -32,16 +34,16 @@ export default function CreatorDashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
-              Panel de Creador
+              {t('creatorDashboard.title')}
             </h1>
             <p className="text-[var(--text-tertiary)] mt-1">
-              Gestiona tus mangas y sigue tu progreso
+              {t('creatorDashboard.subtitle')}
             </p>
           </div>
           <Link href="/creator/manga/new">
             <Button size="lg" className="w-full sm:w-auto">
               <PlusIcon className="w-5 h-5 mr-2" />
-              Nuevo Manga
+              {t('creatorDashboard.newManga')}
             </Button>
           </Link>
         </div>
@@ -58,29 +60,29 @@ export default function CreatorDashboardPage() {
           ) : (
             <>
               <StatsCard
-                title="Total Mangas"
+                title={t('creatorDashboard.totalMangas')}
                 value={dashboardStats?.totalMangas ?? 0}
                 icon={BookOpenIcon}
                 variant="indigo"
               />
               <StatsCard
-                title="Capítulos Publicados"
+                title={t('creatorDashboard.publishedChapters')}
                 value={dashboardStats?.totalChapters ?? 0}
                 icon={FileTextIcon}
                 variant="purple"
                 trend={8}
-                trendLabel="este mes"
+                trendLabel={t('creatorDashboard.thisMonth')}
               />
               <StatsCard
-                title="Vistas Totales"
+                title={t('creatorDashboard.totalViews')}
                 value={dashboardStats?.totalViews ?? 0}
                 icon={EyeIcon}
                 variant="green"
                 trend={12.5}
-                trendLabel="vs mes anterior"
+                trendLabel={t('creatorDashboard.vsLastMonth')}
               />
           <StatsCard
-            title="Lectores"
+            title={t('creatorDashboard.readers')}
             value={dashboardStats?.totalViews ?? 0}
             icon={UsersIcon}
             variant="amber"
@@ -99,9 +101,9 @@ export default function CreatorDashboardPage() {
                   <PlusIcon className="w-6 h-6 text-[var(--primary)]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[var(--text-primary)]">Subir Capítulo</h3>
+                  <h3 className="font-semibold text-[var(--text-primary)]">{t('creatorDashboard.uploadChapter')}</h3>
                   <p className="text-sm text-[var(--text-tertiary)] mt-1">
-                    Añade un nuevo capítulo a tu manga
+                    {t('creatorDashboard.uploadChapterDesc')}
                   </p>
                 </div>
               </div>
@@ -114,9 +116,9 @@ export default function CreatorDashboardPage() {
                   <BarChart3Icon className="w-6 h-6 text-[var(--secondary)]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[var(--text-primary)]">Analíticas</h3>
+                  <h3 className="font-semibold text-[var(--text-primary)]">{t('creatorDashboard.analytics')}</h3>
                   <p className="text-sm text-[var(--text-tertiary)] mt-1">
-                    Revisa estadísticas detalladas
+                    {t('creatorDashboard.analyticsDesc')}
                   </p>
                 </div>
               </div>
@@ -129,9 +131,9 @@ export default function CreatorDashboardPage() {
                   <SparklesIcon className="w-6 h-6 text-[var(--warning)]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[var(--text-primary)]">Prompts IA</h3>
+                  <h3 className="font-semibold text-[var(--text-primary)]">{t('creatorDashboard.aiPrompts')}</h3>
                   <p className="text-sm text-[var(--text-tertiary)] mt-1">
-                    Explora prompts para mejorar tu arte
+                    {t('creatorDashboard.aiPromptsDesc')}
                   </p>
                 </div>
               </div>
@@ -142,9 +144,9 @@ export default function CreatorDashboardPage() {
         {/* Mangas Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-[var(--text-primary)]">Mis Mangas</h2>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('creatorDashboard.myManga')}</h2>
             <Link href="/creator/dashboard" className="text-[var(--primary)] hover:text-[var(--primary-hover)] text-sm font-medium">
-              Ver todos
+              {t('creatorDashboard.viewAll')}
             </Link>
           </div>
 
@@ -159,7 +161,7 @@ export default function CreatorDashboardPage() {
             <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl p-8 text-center">
               <p className="text-[var(--error)]">{error instanceof Error ? error.message : String(error)}</p>
               <Button variant="outline" className="mt-4">
-                Reintentar
+                {t('creatorDashboard.retry')}
               </Button>
             </div>
           ) : mangas.length === 0 ? (
@@ -168,15 +170,15 @@ export default function CreatorDashboardPage() {
                 <BookOpenIcon className="w-8 h-8 text-[var(--primary)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                No tienes mangas aún
+                {t('creatorDashboard.noMangaYet')}
               </h3>
               <p className="text-[var(--text-tertiary)] mb-6 max-w-md mx-auto">
-                Comienza tu viaje como creador publicando tu primer manga
+                {t('creatorDashboard.noMangaYetDesc')}
               </p>
               <Link href="/creator/manga/new">
                 <Button>
                   <PlusIcon className="w-5 h-5 mr-2" />
-                  Crear Primer Manga
+                  {t('creatorDashboard.createFirstManga')}
                 </Button>
               </Link>
             </div>

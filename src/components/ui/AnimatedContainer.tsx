@@ -35,6 +35,7 @@ interface AnimatedContainerProps {
   animation?: keyof typeof animations;
   delay?: number;
   className?: string;
+  viewport?: boolean | { once?: boolean; margin?: string };
 }
 
 export function AnimatedContainer({
@@ -42,19 +43,42 @@ export function AnimatedContainer({
   animation = 'fadeInUp',
   delay = 0,
   className,
+  viewport,
 }: AnimatedContainerProps) {
   const shouldReduceMotion = useReducedMotion();
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.5,
+    delay: shouldReduceMotion ? 0 : delay,
+    ease: [0.25, 0.1, 0.25, 1] as const,
+  };
+
+  if (viewport) {
+    const viewportOpts =
+      typeof viewport === 'boolean'
+        ? { once: true, margin: '-50px' }
+        : { once: viewport.once ?? true, margin: viewport.margin ?? '-50px' };
+
+    return (
+      <motion.div
+        variants={animations[animation]}
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOpts}
+        transition={transition}
+        className={className}
+      >
+        {children}
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
       variants={animations[animation]}
       initial="hidden"
       animate="visible"
-      transition={{
-        duration: shouldReduceMotion ? 0 : 0.5,
-        delay: shouldReduceMotion ? 0 : delay,
-        ease: [0.25, 0.1, 0.25, 1],
-      }}
+      transition={transition}
       className={className}
     >
       {children}

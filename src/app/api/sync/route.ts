@@ -3,17 +3,6 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-const VALID_ACTION_TYPES = [
-  'LIBRARY_ADD',
-  'LIBRARY_REMOVE',
-  'READING_PROGRESS',
-  'CHAPTER_READ',
-  'FOLLOW',
-  'UNFOLLOW',
-  'LIKE',
-  'BOOKMARK',
-] as const;
-
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();

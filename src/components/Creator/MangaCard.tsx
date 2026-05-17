@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import {
@@ -27,17 +28,28 @@ interface MangaCardProps {
   className?: string;
 }
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  ONGOING: { label: 'Publicando', color: 'bg-[var(--success)]/10 text-[var(--success)]' },
-  COMPLETED: { label: 'Completado', color: 'bg-[var(--info)]/10 text-[var(--info)]' },
-  HIATUS: { label: 'Pausado', color: 'bg-[var(--warning)]/10 text-[var(--warning)]' },
-  DROPPED: { label: 'Abandonado', color: 'bg-[var(--error)]/10 text-[var(--error)]' },
+const STATUS_KEYS: Record<string, string> = {
+  ONGOING: 'manga.ongoing',
+  COMPLETED: 'manga.completed',
+  HIATUS: 'manga.hiatus',
+  DROPPED: 'manga.dropped',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  ONGOING: 'bg-[var(--success)]/80 text-[var(--text-inverse)] border-[var(--success)]/30',
+  COMPLETED: 'bg-[var(--info)]/80 text-[var(--text-inverse)] border-[var(--info)]/30',
+  HIATUS: 'bg-[var(--warning)]/80 text-[var(--text-inverse)] border-[var(--warning)]/30',
+  DROPPED: 'bg-[var(--error)]/80 text-[var(--text-inverse)] border-[var(--error)]/30',
 };
 
 export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
+  const t = useT();
   const [showActions, setShowActions] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const status = statusLabels[manga.status];
+  const status = {
+    label: t(STATUS_KEYS[manga.status] || ''),
+    color: STATUS_COLORS[manga.status] || 'bg-[var(--text-muted)]',
+  };
 
   const handleDelete = async () => {
     if (!confirm('¿Estás seguro de que deseas eliminar este manga? Esta acción no se puede deshacer.')) {
@@ -129,9 +141,9 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
 
       {/* Info */}
       <div className="p-4">
-        <h3 className="font-semibold text-[var(--text-primary)] line-clamp-1" title={manga.title}>
+        <h2 className="font-semibold text-[var(--text-primary)] line-clamp-1" title={manga.title}>
           {manga.title}
-        </h3>
+        </h2>
         
         <div className="flex items-center gap-4 mt-3 text-sm text-[var(--text-tertiary)]">
           <div className="flex items-center gap-1">

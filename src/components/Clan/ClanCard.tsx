@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Users, Trophy, Flame } from 'lucide-react';
 import Link from 'next/link';
 
@@ -16,10 +17,9 @@ interface ClanCardProps {
   };
   index?: number;
   rank?: number;
-  isUserClan?: boolean;
 }
 
-export default function ClanCard({ clan, index = 0, rank, isUserClan }: ClanCardProps) {
+export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -33,12 +33,14 @@ export default function ClanCard({ clan, index = 0, rank, isUserClan }: ClanCard
           <div className="flex items-start gap-3 mb-3">
             {/* Clan Emblem */}
             <div className="relative">
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center overflow-hidden">
+              <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center overflow-hidden">
                 {clan.emblemUrl ? (
-                  <img
+                  <Image
                     src={clan.emblemUrl}
                     alt={clan.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="64px"
                   />
                 ) : (
                   <span className="text-2xl font-bold text-[var(--primary)]">

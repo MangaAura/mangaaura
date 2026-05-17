@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Sun, Moon, Monitor, Check, Palette, Layout, Type } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

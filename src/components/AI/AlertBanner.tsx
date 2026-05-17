@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { AlertTriangle, XCircle, AlertCircle, X, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
-import { Alert, AlertSeverity, AlertType } from '@/infrastructure/ai/AlertManager';
+import { Alert, AlertSeverity } from '@/infrastructure/ai/AlertManager';
 
 // =============================================================================
 // TYPES
@@ -69,13 +69,6 @@ const alertConfig: Record<
     },
     label: 'Info',
   },
-};
-
-const alertTypeLabels: Record<AlertType, string> = {
-  model_degraded: 'Degradación de Modelo',
-  model_unhealthy: 'Modelo No Saludable',
-  high_error_rate: 'Tasa de Error Alta',
-  queue_backlog: 'Backlog en Cola',
 };
 
 // =============================================================================

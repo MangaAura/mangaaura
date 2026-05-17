@@ -17,18 +17,11 @@ import {
   Shield,
   TrendingUp,
 } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from 'recharts';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
+
+const ChartsSection = dynamic(() => import('@/components/Admin/ChartsSection').then(m => ({ default: m.ChartsSection })), { ssr: false });
+import { useT } from '@/i18n';
 
 interface DashboardStats {
   totalUsers: number;
@@ -59,13 +52,14 @@ interface ModerationAlert {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AdminDashboardPage() {
+  const t = useT();
   const { data: stats, error: statsError, isLoading: statsLoading } = useSWR<DashboardStats>(
     '/api/admin/stats',
     fetcher,
     { refreshInterval: 60000 }
   );
 
-  const { data: alertsData, error: alertsError, isLoading: alertsLoading } = useSWR<{ alerts: ModerationAlert[] }>(
+  const { data: alertsData, error: _alertsError, isLoading: alertsLoading } = useSWR<{ alerts: ModerationAlert[] }>(
     '/api/admin/moderation/alerts',
     fetcher,
     { refreshInterval: 30000 }
@@ -92,10 +86,10 @@ export default function AdminDashboardPage() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Failed to load dashboard</h2>
-        <p className="text-[var(--text-tertiary)] mt-2">Please try refreshing the page</p>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.failedToLoad')}</h2>
+        <p className="text-[var(--text-tertiary)] mt-2">{t('common.retry')}</p>
         <Button onClick={() => window.location.reload()} className="mt-4">
-          Refresh
+          {t('admin.refresh')}
         </Button>
       </div>
     );
@@ -106,11 +100,11 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
-          <p className="text-[var(--text-muted)]">Overview of your platform</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('admin.dashboard')}</h1>
+          <p className="text-[var(--text-muted)]">{t('admin.overview')}</p>
         </div>
         <div className="text-sm text-[var(--text-tertiary)]">
-          Last updated: {new Date().toLocaleTimeString()}
+          {t('admin.lastUpdated')}: {new Date().toLocaleTimeString()}
         </div>
       </div>
 
@@ -118,115 +112,56 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link href="/admin/users" className="block">
           <StatCard
-            title="Total Users"
+            title={t('admin.totalUsers')}
             value={stats?.totalUsers.toLocaleString() || '0'}
-            description="Active accounts"
+            description={t('admin.activeAccounts')}
             change={stats?.changes?.users}
-            changeLabel="from last month"
+            changeLabel={t('admin.fromLastMonth')}
             icon={Users}
             trend={stats?.changes?.users && stats.changes.users > 0 ? 'up' : stats?.changes?.users && stats.changes.users < 0 ? 'down' : 'neutral'}
           />
         </Link>
         <Link href="/admin/manga" className="block">
           <StatCard
-            title="Total Mangas"
+            title={t('admin.totalMangas')}
             value={stats?.totalMangas.toLocaleString() || '0'}
-            description="Published series"
+            description={t('admin.publishedSeries')}
             change={stats?.changes?.mangas}
-            changeLabel="from last month"
+            changeLabel={t('admin.fromLastMonth')}
             icon={BookOpen}
             trend={stats?.changes?.mangas && stats.changes.mangas > 0 ? 'up' : stats?.changes?.mangas && stats.changes.mangas < 0 ? 'down' : 'neutral'}
           />
         </Link>
         <Link href="/admin/manga" className="block">
           <StatCard
-            title="Chapters"
+            title={t('admin.chapters')}
             value={stats?.totalChapters.toLocaleString() || '0'}
-            description="Published chapters"
+            description={t('admin.publishedChapters')}
             change={stats?.changes?.chapters}
-            changeLabel="from last month"
+            changeLabel={t('admin.fromLastMonth')}
             icon={FileText}
             trend={stats?.changes?.chapters && stats.changes.chapters > 0 ? 'up' : stats?.changes?.chapters && stats.changes.chapters < 0 ? 'down' : 'neutral'}
           />
         </Link>
         <Link href="/admin/moderation" className="block">
           <StatCard
-            title="Comments"
+            title={t('admin.comments')}
             value={stats?.totalComments.toLocaleString() || '0'}
-            description="Total comments"
+            description={t('admin.totalComments')}
             change={stats?.changes?.comments}
-            changeLabel="from last month"
+            changeLabel={t('admin.fromLastMonth')}
             icon={MessageSquare}
             trend={stats?.changes?.comments && stats.changes.comments > 0 ? 'up' : stats?.changes?.comments && stats.changes.comments < 0 ? 'down' : 'neutral'}
           />
         </Link>
       </div>
 
-      {/* Activity Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>User Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              {stats?.activityData && stats.activityData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stats.activityData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="users"
-                      stroke="#4f46e5"
-                      strokeWidth={2}
-                      name="New Users"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="views"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      name="Page Views"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex items-center justify-center text-[var(--text-secondary)]">
-                  No activity data available
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Content Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { name: 'Mangas', value: stats?.totalMangas || 0 },
-                    { name: 'Chapters', value: stats?.totalChapters || 0 },
-                    { name: 'Comments', value: stats?.totalComments || 0 },
-                  ]}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#4f46e5" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ChartsSection
+        activityData={stats?.activityData}
+        totalMangas={stats?.totalMangas}
+        totalChapters={stats?.totalChapters}
+        totalComments={stats?.totalComments}
+      />
 
       {/* Today's Activity */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -234,7 +169,7 @@ export default function AdminDashboardPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">New Users Today</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.newUsersToday')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {stats?.newUsersToday || 0}
                 </p>
@@ -249,7 +184,7 @@ export default function AdminDashboardPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">New Mangas Today</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.newMangasToday')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {stats?.newMangasToday || 0}
                 </p>
@@ -264,7 +199,7 @@ export default function AdminDashboardPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">New Comments Today</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.newCommentsToday')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {stats?.newCommentsToday || 0}
                 </p>
@@ -280,10 +215,9 @@ export default function AdminDashboardPage() {
       {/* Moderation Alerts */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
+          <div className="flex items-center justify-between">              <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[var(--warning)]" />
-              Moderation Alerts
+              {t('admin.moderationAlerts')}
               {alerts.length > 0 && (
                 <Badge variant="destructive" className="ml-2">
                   {alerts.length}
@@ -307,7 +241,7 @@ export default function AdminDashboardPage() {
           ) : alerts.length === 0 ? (
             <div className="text-center py-8 text-[var(--text-tertiary)]">
               <CheckCircle className="w-12 h-12 mx-auto mb-3 text-[var(--success)]" />
-              <p>No pending moderation alerts</p>
+              <p>{t('admin.noPendingAlerts')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -361,8 +295,8 @@ export default function AdminDashboardPage() {
                 <Users className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)]">Manage Users</h3>
-                <p className="text-sm text-[var(--text-tertiary)]">View and edit user accounts</p>
+                <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.manageUsers')}</h3>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.manageUsersDesc')}</p>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
             </CardContent>
@@ -375,8 +309,8 @@ export default function AdminDashboardPage() {
                 <Shield className="w-6 h-6 text-[var(--warning)]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)]">Moderation</h3>
-                <p className="text-sm text-[var(--text-tertiary)]">Review reported content</p>
+                <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.moderation')}</h3>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.moderationDesc')}</p>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
             </CardContent>
@@ -389,8 +323,8 @@ export default function AdminDashboardPage() {
                 <BookOpen className="w-6 h-6 text-[var(--success)]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)]">Manage Manga</h3>
-                <p className="text-sm text-[var(--text-tertiary)]">Edit manga metadata</p>
+                <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.manageManga')}</h3>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.manageMangaDesc')}</p>
               </div>
               <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
             </CardContent>

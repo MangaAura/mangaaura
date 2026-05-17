@@ -9,13 +9,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   Users,
   Send,
   Smile,
   ArrowLeft,
-  Settings,
+
   Eye,
   Zap,
   Crown,
@@ -23,18 +22,15 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  MoreVertical,
   Wifi,
   WifiOff,
   UserPlus,
-  LogOut,
   Copy,
   Check,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useParty } from '@/hooks/useParty';
 import { useToast } from '@/components/ui/Toast';
-import ReaderViewer from './ReaderViewer';
 
 // Reacciones rapidas
 const QUICK_REACTIONS = ['🔥', '❤️', '😂', '😮', '👏', '😱', '🤩', '👀'];
@@ -49,24 +45,12 @@ interface PartyReaderProps {
   onChapterEnd?: () => void;
 }
 
-interface Member {
-  userId: string;
-  username: string;
-  avatarUrl?: string;
-  currentPage: number;
-  isHost: boolean;
-  isOnline: boolean;
-  joinedAt: Date;
-}
-
 export default function PartyReader({
   partyId,
   pages,
   mangaId,
-  chapterId,
   chapterNumber,
   mangaTitle,
-  onChapterEnd,
 }: PartyReaderProps) {
   const { toast } = useToast();
   const [chatMessage, setChatMessage] = useState('');
@@ -82,7 +66,6 @@ export default function PartyReader({
 
   const {
     isConnected,
-    isJoined,
     members,
     messages,
     currentPage: hostPage,
@@ -90,8 +73,6 @@ export default function PartyReader({
     typingUsers,
     reactions,
     error,
-    joinParty,
-    leaveParty,
     changePage,
     sendMessage,
     sendReaction,
@@ -195,14 +176,6 @@ export default function PartyReader({
     });
   };
 
-  const handleLeave = () => {
-    leaveParty();
-    toast({
-      title: 'Left party',
-      description: 'You have left the reading party',
-    });
-  };
-
   // Renderizar reaccion flotante
   const FloatingReaction = ({ reaction, username }: { reaction: string; username: string }) => (
     <div className="absolute pointer-events-none animate-float-up z-50">
@@ -298,11 +271,14 @@ export default function PartyReader({
             {/* Imagen del manga */}
             {pages[localPage - 1] && (
               <div className="relative group">
-                <img
-                  src={pages[localPage - 1]}
-                  alt={`Page ${localPage}`}
-                  className="w-full h-auto max-h-[80vh] object-contain rounded shadow-2xl"
-                />
+                <div className="relative w-full rounded shadow-2xl overflow-hidden" style={{ aspectRatio: '2/3', maxHeight: '80vh' }}>
+                  <OptimizedImage
+                    src={pages[localPage - 1]}
+                    alt={`Page ${localPage}`}
+                    fill
+                    objectFit="contain"
+                  />
+                </div>
 
                 {/* Reacciones overlay */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -417,7 +393,7 @@ export default function PartyReader({
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2 mb-0.5">
                       {msg.avatarUrl ? (
-                        <img src={msg.avatarUrl} alt={msg.username} className="w-5 h-5 rounded-full" />
+                        <OptimizedImage src={msg.avatarUrl} alt={msg.username} width={20} height={20} className="rounded-full" />
                       ) : (
                         <div className="w-5 h-5 rounded-full bg-accent-blue/50 flex items-center justify-center text-[10px] font-bold">
                           {msg.username.charAt(0).toUpperCase()}
@@ -457,6 +433,7 @@ export default function PartyReader({
                   handleTyping();
                 }}
                 placeholder="Type a message..."
+                aria-label="Mensaje de chat"
                 className="w-full bg-[var(--background)] border border-[var(--text-inverse)]/10 focus:border-accent-blue rounded-full py-2.5 pl-10 pr-12 text-sm outline-none transition-colors"
                 disabled={!isConnected}
               />
@@ -516,7 +493,7 @@ export default function PartyReader({
                 <div key={member.userId} className="flex items-center gap-3 p-2 hover:bg-[var(--text-inverse)]/5 rounded">
                   <div className="relative">
                     {member.avatarUrl ? (
-                      <img src={member.avatarUrl} alt={member.username} className="w-8 h-8 rounded-full" />
+                      <OptimizedImage src={member.avatarUrl} alt={member.username} width={32} height={32} className="rounded-full" />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-accent-blue/50 flex items-center justify-center text-xs font-bold">
                         {member.username.charAt(0).toUpperCase()}
@@ -568,6 +545,7 @@ export default function PartyReader({
                 type="text"
                 value={`${typeof window !== 'undefined' ? window.location.origin : ''}/reader/party/${partyId}`}
                 readOnly
+                aria-label="Enlace de invitación"
                 className="flex-1 bg-[var(--text-inverse)]/5 border border-[var(--text-inverse)]/10 rounded-lg px-3 py-2 text-sm"
               />
         <button

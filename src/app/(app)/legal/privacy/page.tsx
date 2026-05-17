@@ -2,57 +2,49 @@ import type { Metadata } from 'next';
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { Shield, Lock, Eye, Server, Trash2, Mail, Check } from 'lucide-react';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad - InkVerse',
   description: 'Cómo InkVerse recopila, usa y protege tu información personal',
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const locale = await detectLocale();
+  const t = getT(locale);
   const lastUpdated = '29 de abril de 2026';
 
   const dataTypes = [
     {
       icon: <Eye className="w-5 h-5" />,
-      title: 'Información de Cuenta',
-      items: ['Nombre de usuario', 'Correo electrónico', 'Contraseña (encriptada)', 'Foto de perfil']
+      title: t('legal.privacy.accountInfo'),
+      items: [t('legal.privacy.accountItem1'), t('legal.privacy.accountItem2'), t('legal.privacy.accountItem3'), t('legal.privacy.accountItem4')]
     },
     {
       icon: <Server className="w-5 h-5" />,
-      title: 'Datos de Uso',
-      items: ['Mangas leídos', 'Tiempo de lectura', 'Preferencias', 'Actividad en la plataforma']
+      title: t('legal.privacy.usageData'),
+      items: [t('legal.privacy.usageItem1'), t('legal.privacy.usageItem2'), t('legal.privacy.usageItem3'), t('legal.privacy.usageItem4')]
     },
     {
       icon: <Lock className="w-5 h-5" />,
-      title: 'Información Técnica',
-      items: ['Dirección IP', 'Tipo de navegador', 'Dispositivo', 'Cookies']
+      title: t('legal.privacy.technicalInfo'),
+      items: [t('legal.privacy.technicalItem1'), t('legal.privacy.technicalItem2'), t('legal.privacy.technicalItem3'), t('legal.privacy.technicalItem4')]
     }
   ];
 
   const rights = [
-    {
-      title: 'Acceso',
-      description: 'Puedes solicitar una copia de tus datos personales en cualquier momento.'
-    },
-    {
-      title: 'Rectificación',
-      description: 'Puedes actualizar tu información de perfil desde la configuración de cuenta.'
-    },
-    {
-      title: 'Eliminación',
-      description: 'Puedes eliminar tu cuenta y todos tus datos asociados permanentemente.'
-    },
-    {
-      title: 'Portabilidad',
-      description: 'Puedes exportar tus datos en formato JSON desde tu panel de usuario.'
-    }
+    { title: t('legal.privacy.access'), description: t('legal.privacy.accessDesc') },
+    { title: t('legal.privacy.rectification'), description: t('legal.privacy.rectificationDesc') },
+    { title: t('legal.privacy.deletion'), description: t('legal.privacy.deletionDesc') },
+    { title: t('legal.privacy.portability'), description: t('legal.privacy.portabilityDesc') }
   ];
 
   return (
     <Container className="py-12">
       <PageHeader
-        title="Política de Privacidad"
-        description={`Última actualización: ${lastUpdated}`}
+        title={t('legal.privacy.title')}
+        description={`${t('legal.dmca.lastUpdated')}: ${lastUpdated}`}
         icon={<Shield className="w-8 h-8" />}
       />
 
@@ -60,14 +52,14 @@ export default function PrivacyPage() {
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Lock className="w-5 h-5 text-accent-blue" />
-            Información que Recopilamos
+            {t('legal.privacy.infoCollect')}
           </h2>
           <p className="text-muted mb-6">
-            En InkVerse, nos tomamos tu privacidad muy en serio. Solo recopilamos la información necesaria para proporcionar y mejorar nuestros servicios.
+            {t('legal.privacy.infoCollectDesc')}
           </p>
 
           <div className="grid md:grid-cols-3 gap-4">
-            {dataTypes.map((type, index) => (
+            {dataTypes.map((type, _index) => (
               <div key={type.title} className="bg-tertiary border border-custom rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3 text-accent-blue">
                   {type.icon}
@@ -89,28 +81,28 @@ export default function PrivacyPage() {
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Eye className="w-5 h-5 text-accent-blue" />
-            Cómo Usamos tu Información
+            {t('legal.privacy.howUse')}
           </h2>
           <ul className="space-y-3 text-muted">
             <li className="flex items-start gap-3">
               <span className="w-2 h-2 bg-accent-blue rounded-full mt-2 flex-shrink-0" />
-              <span>Proporcionar y mantener el servicio de lectura y publicación de mangas</span>
+              <span>{t('legal.privacy.use1')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="w-2 h-2 bg-accent-blue rounded-full mt-2 flex-shrink-0" />
-              <span>Personalizar tu experiencia y recomendaciones de contenido</span>
+              <span>{t('legal.privacy.use2')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="w-2 h-2 bg-accent-blue rounded-full mt-2 flex-shrink-0" />
-              <span>Procesar pagos y transacciones de manera segura</span>
+              <span>{t('legal.privacy.use3')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="w-2 h-2 bg-accent-blue rounded-full mt-2 flex-shrink-0" />
-              <span>Comunicarnos contigo sobre actualizaciones y soporte</span>
+              <span>{t('legal.privacy.use4')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="w-2 h-2 bg-accent-blue rounded-full mt-2 flex-shrink-0" />
-              <span>Prevenir fraudes y garantizar la seguridad de la plataforma</span>
+              <span>{t('legal.privacy.use5')}</span>
             </li>
           </ul>
         </div>
@@ -118,10 +110,10 @@ export default function PrivacyPage() {
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Shield className="w-5 h-5 text-accent-blue" />
-            Tus Derechos de Privacidad
+            {t('legal.privacy.rights')}
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
-            {rights.map((right, index) => (
+            {rights.map((right, _index) => (
               <div key={right.title} className="p-4 bg-tertiary border border-custom rounded-xl">
                 <h3 className="font-semibold mb-1">{right.title}</h3>
                 <p className="text-sm text-muted">{right.description}</p>
@@ -133,27 +125,27 @@ export default function PrivacyPage() {
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Server className="w-5 h-5 text-accent-blue" />
-            Seguridad de Datos
+            {t('legal.privacy.dataSecurity')}
           </h2>
           <p className="text-muted mb-4">
-            Implementamos medidas de seguridad técnicas y organizativas para proteger tus datos:
+            {t('legal.privacy.dataSecurityDesc')}
           </p>
           <ul className="space-y-2 text-muted">
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-[var(--success)]" />
-              Encriptación SSL/TLS para todas las comunicaciones
+              {t('legal.privacy.security1')}
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-[var(--success)]" />
-              Contraseñas hasheadas con bcrypt
+              {t('legal.privacy.security2')}
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-[var(--success)]" />
-              Acceso restringido a datos personales
+              {t('legal.privacy.security3')}
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-[var(--success)]" />
-              Auditorías regulares de seguridad
+              {t('legal.privacy.security4')}
             </li>
           </ul>
         </div>
@@ -161,20 +153,20 @@ export default function PrivacyPage() {
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Trash2 className="w-5 h-5 text-accent-blue" />
-            Retención y Eliminación
+            {t('legal.privacy.retention')}
           </h2>
           <p className="text-muted">
-            Conservamos tus datos mientras mantengas una cuenta activa. Si eliminas tu cuenta, tus datos personales se eliminarán permanentemente dentro de 30 días, excepto cuando la ley requiera su conservación.
+            {t('legal.privacy.retentionDesc')}
           </p>
         </div>
 
         <div className="bg-accent-blue/10 border border-accent-blue/30 rounded-2xl p-8">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-accent-blue">
             <Mail className="w-5 h-5" />
-            Contacto de Privacidad
+            {t('legal.privacy.contact')}
           </h2>
           <p className="text-muted mb-4">
-            Si tienes preguntas sobre esta política de privacidad o deseas ejercer tus derechos, contáctanos:
+            {t('legal.privacy.contactDesc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a

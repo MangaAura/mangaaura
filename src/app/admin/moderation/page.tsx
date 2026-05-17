@@ -1,10 +1,13 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { ReportList } from '@/components/Admin/ReportList';
 import { ReportStats } from '@/components/Admin/ReportStats';
 import { AIModerationQueue } from '@/components/Admin/AIModerationQueue';
 import type { Metadata } from 'next';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export const metadata: Metadata = {
   title: 'Moderación | Admin',
@@ -51,19 +54,21 @@ export default async function ModerationPage({
     }),
   ]);
 
+  const locale = await detectLocale();
+  const t = getT(locale);
   const activeTab = tab || 'reports';
 
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Moderación</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{t('admin.moderation')}</h1>
         <p className="text-[var(--text-secondary)]">
-          Gestiona reportes de usuarios y contenido moderado por IA
+          {t('admin.moderationDesc')}
         </p>
       </div>
 
       <div className="flex gap-4 mb-8 border-b border-[var(--border)]">
-        <a
+        <Link
           href="/admin/moderation?tab=reports"
           className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'reports'
@@ -71,9 +76,9 @@ export default async function ModerationPage({
               : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
           }`}
         >
-          Reportes de usuarios
-        </a>
-        <a
+          {t('admin.moderationReports')}
+        </Link>
+        <Link
           href="/admin/moderation?tab=ai"
           className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'ai'
@@ -81,8 +86,8 @@ export default async function ModerationPage({
               : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
           }`}
         >
-          Moderación por IA
-        </a>
+          {t('admin.moderationAI')}
+        </Link>
       </div>
 
       {activeTab === 'reports' ? (
@@ -100,7 +105,6 @@ export default async function ModerationPage({
             <ReportList
               initialStatus={status}
               initialPriority={priority}
-              currentUserId={session.user.id}
             />
           </div>
         </>

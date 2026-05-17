@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { deleteFile, extractPathname } from '@/lib/storage';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 interface DeleteRequest {
   url: string;
@@ -28,6 +29,9 @@ export async function DELETE(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'upload');
+    if (rlResponse) return rlResponse;
 
     const userId = session.user.id;
 

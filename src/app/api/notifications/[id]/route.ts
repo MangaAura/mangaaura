@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { DeleteNotificationUseCase } from '@/application/use-cases/notifications/DeleteNotificationUseCase';
-
-const deleteNotificationUseCase = new DeleteNotificationUseCase(notificationService);
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -14,6 +13,9 @@ export async function DELETE(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(_request, session?.user?.id, 'notifications');
+    if (rlResponse) return rlResponse;
 
     const { id: notificationId } = await params;
     if (!notificationId) {
@@ -23,6 +25,7 @@ export async function DELETE(
       );
     }
 
+    const deleteNotificationUseCase = new DeleteNotificationUseCase(await getNotificationService());
     const result = await deleteNotificationUseCase.execute({
       userId: session.user.id,
       notificationId,
@@ -42,7 +45,7 @@ export async function DELETE(
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -61,7 +64,8 @@ export async function GET(
       );
     }
 
-    const notifications = await notificationService.getUserNotifications(userId, 1, 0);
+    const svc = await getNotificationService();
+    const notifications = await svc.getUserNotifications(userId, 1, 0);
     const notification = notifications.find(n => n.id === notificationId);
 
     if (!notification) {

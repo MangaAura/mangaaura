@@ -344,8 +344,6 @@ export class ModelWorkerPool {
    * Ejecuta un job en un worker disponible
    */
   async execute(job: InferenceJob, provider: IAProvider): Promise<InferenceResult> {
-    const startTime = Date.now();
-
     try {
       const worker = await this.acquire();
       worker.currentJob = job;
@@ -430,7 +428,7 @@ export class ModelWorkerPool {
   /**
    * Ejecuta el job usando el provider
    */
-  private async runJob(worker: Worker, job: InferenceJob, provider: IAProvider): Promise<unknown> {
+  private async runJob(_worker: Worker, job: InferenceJob, provider: IAProvider): Promise<unknown> {
     switch (job.type) {
       case 'analyzeComment':
         return provider.analyzeComment(...(job.params as [string, string?]));

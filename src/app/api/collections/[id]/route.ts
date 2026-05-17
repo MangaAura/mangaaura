@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { GetCollectionUseCase } from '@/application/use-cases/collections/GetCollectionUseCase';
 import { UpdateCollectionUseCase } from '@/application/use-cases/collections/UpdateCollectionUseCase';
 import { DeleteCollectionUseCase } from '@/application/use-cases/collections/DeleteCollectionUseCase';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -17,7 +18,7 @@ const deleteCollectionUseCase = new DeleteCollectionUseCase();
 
 // GET /api/collections/[id] - Get collection details
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -77,6 +78,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
+
     const body = await request.json();
     const parsed = updateSchema.safeParse(body);
 
@@ -131,6 +135,9 @@ export async function DELETE(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     await deleteCollectionUseCase.execute({
       collectionId: id,

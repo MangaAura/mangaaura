@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // POST /api/clans/[id]/promote - Ascender/Degradar miembro
 export async function POST(
-  req: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -18,7 +19,10 @@ export async function POST(
       );
     }
 
-    const body = await req.json();
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
+    const body = await request.json();
     const { userId, role } = body;
 
     if (!userId || !role) {

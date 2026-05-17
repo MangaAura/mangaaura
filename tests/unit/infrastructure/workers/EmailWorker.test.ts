@@ -23,7 +23,12 @@ const emailServiceMock = {
   sendEmail: vi.fn().mockResolvedValue(undefined),
 };
 
+vi.mock('@/infrastructure/adapters/emailService', () => ({
+  emailService: emailServiceMock,
+}));
+
 vi.mock('@/core/services/EmailService', () => ({
+  EmailService: vi.fn(),
   emailService: emailServiceMock,
 }));
 

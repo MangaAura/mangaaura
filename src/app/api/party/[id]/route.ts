@@ -8,13 +8,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { partyService } from '@/core/services/PartyService';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
 // GET /api/party/[id] - Obtener estado del party
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id: partyId } = await params;
 
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/party/[id] - Cerrar el party (solo host)
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -63,6 +64,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(_request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id: partyId } = await params;
     const party = partyService.getParty(partyId);

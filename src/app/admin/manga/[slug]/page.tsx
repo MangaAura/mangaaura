@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Badge } from '@/components/ui/Badge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
@@ -27,6 +28,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useT } from '@/i18n';
 import {
   Dialog,
   DialogContent,
@@ -76,6 +78,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function EditMangaPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
+  const t = useT();
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -175,8 +178,8 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Failed to load manga</h2>
-        <p className="text-[var(--text-tertiary)] mt-2">Please try again later</p>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.failedToLoad')}</h2>
+        <p className="text-[var(--text-tertiary)] mt-2">{t('common.retry')}</p>
       </div>
     );
   }
@@ -194,7 +197,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-[var(--primary)]" />
-              Edit Manga
+              {t('admin.edit')}
             </h1>
             <p className="text-[var(--text-muted)]">{manga.title}</p>
           </div>
@@ -211,7 +214,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
             onClick={() => setShowDeleteDialog(true)}
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete
+            {t('admin.delete')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
@@ -219,7 +222,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
-            Save Changes
+            {t('admin.saveChanges')}
           </Button>
         </div>
       </div>
@@ -229,7 +232,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Manga Information</CardTitle>
+              <CardTitle>{t('admin.mangaManagement')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -319,12 +322,12 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Chapters ({manga.chapters.length})
+                {t('admin.chapters')} ({manga.chapters.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               {manga.chapters.length === 0 ? (
-                <p className="text-[var(--text-tertiary)] text-center py-8">No chapters yet</p>
+                <p className="text-[var(--text-tertiary)] text-center py-8">{t('manga.noChapters')}</p>
               ) : (
                 <div className="space-y-2">
                   {manga.chapters.map((chapter) => (
@@ -363,12 +366,13 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
               <CardTitle>Cover Preview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
+              <div className="relative aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
                 {formData.coverUrl ? (
-                  <img
+                  <OptimizedImage
                     src={formData.coverUrl}
                     alt={formData.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -386,12 +390,13 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center">
+                <div className="relative w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center">
                   {manga.author.avatarUrl ? (
-                    <img
+                    <OptimizedImage
                       src={manga.author.avatarUrl}
                       alt={manga.authorName}
-                      className="w-full h-full rounded-full object-cover"
+                      fill
+                      className="rounded-full object-cover"
                     />
                   ) : (
                     <span className="text-sm font-medium">
@@ -410,7 +415,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
           {/* Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Statistics</CardTitle>
+              <CardTitle>{t('admin.statistics')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
@@ -454,14 +459,14 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Manga</DialogTitle>
+            <DialogTitle>{t('admin.deleteManga')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete "{manga.title}" and all its chapters. This action cannot be undone.
+              {t('admin.deleteMangaDesc')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isDeleting}>
-              Cancel
+              {t('admin.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? (
@@ -469,7 +474,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
               ) : (
                 <Trash2 className="w-4 h-4 mr-2" />
               )}
-              Delete Manga
+              {t('admin.deleteManga')}
             </Button>
           </DialogFooter>
         </DialogContent>

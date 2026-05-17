@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { validateImageFile, optimizeImageBuffer } from '@/lib/image-optimizer';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { uploadImage, validateFile as validateStorageFile } from '@/lib/storage';
 import { randomUUID } from 'crypto';
 
@@ -13,6 +14,12 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('upload', userId), 10, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const formData = await request.formData();

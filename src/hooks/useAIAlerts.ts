@@ -69,11 +69,6 @@ function getAlertManagerInstance(): AlertManager {
   return alertManagerInstance;
 }
 
-function subscribeToStore(listener: () => void): () => void {
-  storeListeners.add(listener);
-  return () => storeListeners.delete(listener);
-}
-
 function notifyStoreListeners(): void {
   storeListeners.forEach((l) => l());
 }

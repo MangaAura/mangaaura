@@ -1,188 +1,329 @@
-import { prisma } from '@/lib/prisma';
-import { logSecurityEvent } from '@/lib/security-audit';
+import type {
+  IFollowRepository,
+  FollowingType,
+  FollowQuery,
+} from './IFollowRepository';
 
-export type FollowingType = 'USER' | 'MANGA';
+export { FollowingType };
 
-interface FollowOptions {
-  followerId: string;
-  followingId: string;
-  followingType: FollowingType;
-}
+export class FollowService {
+  constructor(private readonly repo: IFollowRepository) {}
 
-interface GetFollowersOptions {
-  followingId: string;
-  followingType: FollowingType;
-  page?: number;
-  limit?: number;
-}
+  async follow(params: {
+    followerId: string;
+    followingId: string;
+    followingType: FollowingType;
+  }): Promise<{
+    success: boolean;
+    isFollowing: boolean;
+    error?: string;
+  }> {
+    try {
+      const existingFollow = await this.repo.findUnique(
+        params.followerId, params.followingId, params.followingType
+      );
+      if (existingFollow) {
+        return { success: true, isFollowing: true };
+      }
 
-interface GetFollowingOptions {
-  followerId: string;
-  followingType?: FollowingType;
-  page?: number;
-  limit?: number;
-}
+      await this.repo.create({
+        followerId: params.followerId,
+        followingId: params.followingId,
+        followingType: params.followingType,
+      });
 
-/**
- * Follow a user or manga
- */
-export async function follow({
-  followerId,
-  followingId,
-  followingType,
-}: FollowOptions): Promise<{
-  success: boolean;
-  isFollowing: boolean;
-  error?: string;
-}> {
-  try {
-    // Check if already following
-    const existingFollow = await prisma.follow.findUnique({
-      where: {
-        followerId_followingId_followingType: {
-          followerId,
-          followingId,
-          followingType,
-        },
-      },
-    });
+      await this.repo.logSecurityEvent(
+        params.followerId,
+        'USER_FOLLOWED_USER',
+        params.followingId,
+        params.followingType === 'USER' ? 'USER' : 'MANGA',
+        'INFO'
+      );
 
-    if (existingFollow) {
       return { success: true, isFollowing: true };
+    } catch (error) {
+      console.error('Error following:', error);
+      return { success: false, isFollowing: false, error: 'Error al seguir' };
     }
+  }
 
-    // Create follow
-    await prisma.follow.create({
-      data: {
-        followerId,
-        followingId,
-        followingType,
+  async unfollow(params: {
+    followerId: string;
+    followingId: string;
+    followingType: FollowingType;
+  }): Promise<{
+    success: boolean;
+    isFollowing: boolean;
+    error?: string;
+  }> {
+    try {
+      await this.repo.delete(params.followerId, params.followingId, params.followingType);
+      return { success: true, isFollowing: false };
+    } catch {
+      return { success: true, isFollowing: false };
+    }
+  }
+
+  async isFollowing(params: {
+    followerId: string;
+    followingId: string;
+    followingType: FollowingType;
+  }): Promise<boolean> {
+    try {
+      const follow = await this.repo.findUnique(
+        params.followerId, params.followingId, params.followingType
+      );
+      return !!follow;
+    } catch {
+      return false;
+    }
+  }
+
+  async toggle(params: {
+    followerId: string;
+    followingId: string;
+    followingType: FollowingType;
+  }): Promise<{
+    success: boolean;
+    isFollowing: boolean;
+    error?: string;
+  }> {
+    const currentlyFollowing = await this.isFollowing(params);
+    if (currentlyFollowing) {
+      return this.unfollow(params);
+    }
+    return this.follow(params);
+  }
+
+  async getFollowers(params: {
+    followingId: string;
+    followingType: FollowingType;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    followers: Array<{
+      id: string;
+      username: string;
+      displayName: string | null;
+      avatarUrl: string | null;
+      followedAt: Date;
+    }>;
+    total: number;
+    hasMore: boolean;
+  }> {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const query: FollowQuery = {
+      followingId: params.followingId,
+      followingType: params.followingType,
+      skip,
+      limit,
+    };
+
+    const [follows, total] = await this.repo.findMany(query);
+
+    return {
+      followers: follows.map(f => ({
+        id: f.follower!.id,
+        username: f.follower!.username,
+        displayName: f.follower!.displayName,
+        avatarUrl: f.follower!.avatarUrl,
+        followedAt: f.createdAt,
+      })),
+      total,
+      hasMore: skip + follows.length < total,
+    };
+  }
+
+  async getFollowing(params: {
+    followerId: string;
+    followingType?: FollowingType;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    following: Array<{
+      id: string;
+      type: FollowingType;
+      name: string;
+      avatarUrl: string | null;
+      followedAt: Date;
+      metadata?: Record<string, unknown>;
+    }>;
+    total: number;
+    hasMore: boolean;
+  }> {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const [follows, total] = await this.repo.findFollowingWithUsers(
+      params.followerId, params.followingType, skip, limit
+    );
+
+    const enriched = await Promise.all(
+      follows.map(async (f) => {
+        if (f.followingType === 'USER') {
+          const user = await this.repo.findUser(f.followingId);
+          return {
+            id: f.followingId,
+            type: 'USER' as FollowingType,
+            name: user?.displayName || user?.username || 'Unknown',
+            avatarUrl: user?.avatarUrl ?? null,
+            followedAt: f.createdAt,
+          };
+        }
+        const manga = await this.repo.findManga(f.followingId);
+        return {
+          id: f.followingId,
+          type: 'MANGA' as FollowingType,
+          name: manga?.title || 'Unknown',
+          avatarUrl: manga?.coverUrl ?? null,
+          followedAt: f.createdAt,
+        };
+      })
+    );
+
+    return {
+      following: enriched,
+      total,
+      hasMore: skip + follows.length < total,
+    };
+  }
+
+  async getCounts(userId: string): Promise<{
+    followers: number;
+    following: {
+      users: number;
+      mangas: number;
+      total: number;
+    };
+  }> {
+    const [followers, followingUsers, followingMangas] = await Promise.all([
+      this.repo.countFollowers(userId, 'USER'),
+      this.repo.countFollowing(userId, 'USER'),
+      this.repo.countFollowing(userId, 'MANGA'),
+    ]);
+
+    return {
+      followers,
+      following: {
+        users: followingUsers,
+        mangas: followingMangas,
+        total: followingUsers + followingMangas,
       },
-    });
+    };
+  }
 
-    // Update follower counts
-    if (followingType === 'USER') {
-      await prisma.user.update({
-        where: { id: followingId },
-        data: {
-          // This would need a followersCount field in User model
-          // For now, we'll handle this via aggregation
-        },
-      });
-    } else if (followingType === 'MANGA') {
-      await prisma.mangaSeries.update({
-        where: { id: followingId },
-        data: {
-          // Similarly, would need followersCount
-        },
-      });
+  async getRecommended(userId: string, limit: number = 10): Promise<
+    Array<{
+      id: string;
+      username: string;
+      displayName: string | null;
+      avatarUrl: string | null;
+      reason: string;
+    }>
+  > {
+    const followingIds = await this.repo.findFollowingIds(userId);
+
+    if (followingIds.length === 0) {
+      const popular = await this.repo.findPopularUsers(userId, limit);
+      return popular.map(u => ({
+        ...u,
+        reason: 'Popular en la comunidad',
+      }));
     }
 
-    // Log activity
-    await logSecurityEvent({
-      userId: followerId,
-      action: 'USER_FOLLOWED_USER',
-      targetId: followingId,
-      targetType: followingType === 'USER' ? 'USER' : 'MANGA',
-      severity: 'INFO',
+    const recommendedIds = await this.repo.findRecommendedIds(
+      followingIds,
+      [...followingIds, userId]
+    );
+
+    const frequency: Record<string, number> = {};
+    recommendedIds.forEach(id => {
+      frequency[id] = (frequency[id] || 0) + 1;
     });
 
-    return { success: true, isFollowing: true };
-  } catch (error) {
-    console.error('Error following:', error);
-    return { success: false, isFollowing: false, error: 'Error al seguir' };
+    const sortedIds = Object.entries(frequency)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([id]) => id);
+
+    const users = await this.repo.findUsersByIds(sortedIds);
+
+    return users.map(u => ({
+      ...u,
+      reason: 'Seguido por personas que sigues',
+    }));
   }
 }
 
-/**
- * Unfollow a user or manga
- */
-export async function unfollow({
-  followerId,
-  followingId,
-  followingType,
-}: FollowOptions): Promise<{
+export let followService: FollowService | undefined;
+
+export function initializeFollowService(repo: IFollowRepository): FollowService {
+  const service = new FollowService(repo);
+  followService = service;
+  return service;
+}
+
+function getService(): FollowService {
+  if (!followService) {
+    throw new Error('FollowService not initialized. Call initializeFollowService(repo) first.');
+  }
+  return followService;
+}
+
+export async function follow(params: {
+  followerId: string;
+  followingId: string;
+  followingType: FollowingType;
+}): Promise<{
   success: boolean;
   isFollowing: boolean;
   error?: string;
 }> {
-  try {
-    await prisma.follow.delete({
-      where: {
-        followerId_followingId_followingType: {
-          followerId,
-          followingId,
-          followingType,
-        },
-      },
-    });
-
-    return { success: true, isFollowing: false };
-  } catch (error) {
-    // If follow doesn't exist, it's fine
-    return { success: true, isFollowing: false };
-  }
+  return getService().follow(params);
 }
 
-/**
- * Check if user is following something
- */
-export async function isFollowing({
-  followerId,
-  followingId,
-  followingType,
-}: FollowOptions): Promise<boolean> {
-  try {
-    const follow = await prisma.follow.findUnique({
-      where: {
-        followerId_followingId_followingType: {
-          followerId,
-          followingId,
-          followingType,
-        },
-      },
-    });
-
-    return !!follow;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Toggle follow status
- */
-export async function toggleFollow({
-  followerId,
-  followingId,
-  followingType,
-}: FollowOptions): Promise<{
+export async function unfollow(params: {
+  followerId: string;
+  followingId: string;
+  followingType: FollowingType;
+}): Promise<{
   success: boolean;
   isFollowing: boolean;
   error?: string;
 }> {
-  const currentlyFollowing = await isFollowing({
-    followerId,
-    followingId,
-    followingType,
-  });
-
-  if (currentlyFollowing) {
-    return unfollow({ followerId, followingId, followingType });
-  } else {
-    return follow({ followerId, followingId, followingType });
-  }
+  return getService().unfollow(params);
 }
 
-/**
- * Get followers of a user or manga
- */
-export async function getFollowers({
-  followingId,
-  followingType,
-  page = 1,
-  limit = 20,
-}: GetFollowersOptions): Promise<{
+export async function isFollowing(params: {
+  followerId: string;
+  followingId: string;
+  followingType: FollowingType;
+}): Promise<boolean> {
+  return getService().isFollowing(params);
+}
+
+export async function toggleFollow(params: {
+  followerId: string;
+  followingId: string;
+  followingType: FollowingType;
+}): Promise<{
+  success: boolean;
+  isFollowing: boolean;
+  error?: string;
+}> {
+  return getService().toggle(params);
+}
+
+export async function getFollowers(params: {
+  followingId: string;
+  followingType: FollowingType;
+  page?: number;
+  limit?: number;
+}): Promise<{
   followers: Array<{
     id: string;
     username: string;
@@ -193,58 +334,15 @@ export async function getFollowers({
   total: number;
   hasMore: boolean;
 }> {
-  const skip = (page - 1) * limit;
-
-  const [followers, total] = await Promise.all([
-    prisma.follow.findMany({
-      where: {
-        followingId,
-        followingType,
-      },
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        follower: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    }),
-    prisma.follow.count({
-      where: {
-        followingId,
-        followingType,
-      },
-    }),
-  ]);
-
-  return {
-    followers: followers.map((f: any) => ({
-      id: f.follower.id,
-      username: f.follower.username,
-      displayName: f.follower.displayName,
-      avatarUrl: f.follower.avatarUrl,
-      followedAt: f.createdAt,
-    })),
-    total,
-    hasMore: skip + followers.length < total,
-  };
+  return getService().getFollowers(params);
 }
 
-/**
- * Get who a user is following
- */
-export async function getFollowing({
-  followerId,
-  followingType,
-  page = 1,
-  limit = 20,
-}: GetFollowingOptions): Promise<{
+export async function getFollowing(params: {
+  followerId: string;
+  followingType?: FollowingType;
+  page?: number;
+  limit?: number;
+}): Promise<{
   following: Array<{
     id: string;
     type: FollowingType;
@@ -256,73 +354,9 @@ export async function getFollowing({
   total: number;
   hasMore: boolean;
 }> {
-  const skip = (page - 1) * limit;
-
-  const where: Record<string, unknown> = { followerId };
-  if (followingType) {
-    where.followingType = followingType;
-  }
-
-  const [follows, total] = await Promise.all([
-    prisma.follow.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.follow.count({ where }),
-  ]);
-
-  // Enrich with user/manga data
-  const enriched = await Promise.all(
-    follows.map(async (f: any) => {
-      if (f.followingType === 'USER') {
-        const user = await prisma.user.findUnique({
-          where: { id: f.followingId },
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-          },
-        });
-return {
-        id: f.followingId,
-        type: 'USER' as FollowingType,
-        name: user?.displayName || user?.username || 'Unknown',
-        avatarUrl: user?.avatarUrl ?? null,
-        followedAt: f.createdAt,
-      };
-      } else {
-        const manga = await prisma.mangaSeries.findUnique({
-          where: { id: f.followingId },
-          select: {
-            id: true,
-            title: true,
-            coverUrl: true,
-          },
-        });
-return {
-      id: f.followingId,
-      type: 'MANGA' as FollowingType,
-      name: manga?.title || 'Unknown',
-      avatarUrl: manga?.coverUrl ?? null,
-      followedAt: f.createdAt,
-    };
-      }
-    })
-  );
-
-  return {
-    following: enriched,
-    total,
-    hasMore: skip + follows.length < total,
-  };
+  return getService().getFollowing(params);
 }
 
-/**
- * Get follow counts
- */
 export async function getFollowCounts(userId: string): Promise<{
   followers: number;
   following: {
@@ -331,41 +365,9 @@ export async function getFollowCounts(userId: string): Promise<{
     total: number;
   };
 }> {
-  const [followers, followingUsers, followingMangas] = await Promise.all([
-    prisma.follow.count({
-      where: {
-        followingId: userId,
-        followingType: 'USER',
-      },
-    }),
-    prisma.follow.count({
-      where: {
-        followerId: userId,
-        followingType: 'USER',
-      },
-    }),
-    prisma.follow.count({
-      where: {
-        followerId: userId,
-        followingType: 'MANGA',
-      },
-    }),
-  ]);
-
-  return {
-    followers,
-    following: {
-      users: followingUsers,
-      mangas: followingMangas,
-      total: followingUsers + followingMangas,
-    },
-  };
+  return getService().getCounts(userId);
 }
 
-/**
- * Get recommended users to follow
- * Based on common follows and reading history
- */
 export async function getRecommendedUsers(
   userId: string,
   limit: number = 10
@@ -378,74 +380,7 @@ export async function getRecommendedUsers(
     reason: string;
   }>
 > {
-  // Get users followed by people user follows
-  const following = await prisma.follow.findMany({
-    where: {
-      followerId: userId,
-      followingType: 'USER',
-    },
-    select: { followingId: true },
-  });
-
-  const followingIds = following.map((f: any) => f.followingId);
-
-  if (followingIds.length === 0) {
-    // Return popular users
-    const popular = await prisma.user.findMany({
-      where: {
-        id: { not: userId },
-        role: 'USER',
-      },
-      take: limit,
-      orderBy: { xpPoints: 'desc' },
-      select: {
-        id: true,
-        username: true,
-        displayName: true,
-        avatarUrl: true,
-      },
-    });
-
-    return popular.map((u: any) => ({
-      ...u,
-      reason: 'Popular en la comunidad',
-    }));
-  }
-
-  // Find users followed by people user follows
-  const recommendations = await prisma.follow.findMany({
-    where: {
-      followerId: { in: followingIds },
-      followingType: 'USER',
-      followingId: { not: { in: [...followingIds, userId] } },
-    },
-    select: { followingId: true },
-  });
-
-  // Count frequency
-  const frequency: Record<string, number> = {};
-  recommendations.forEach((r: any) => {
-    frequency[r.followingId] = (frequency[r.followingId] || 0) + 1;
-  });
-
-  // Sort by frequency
-  const sortedIds = Object.entries(frequency)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
-    .map(([id]) => id);
-
-  const users = await prisma.user.findMany({
-    where: { id: { in: sortedIds } },
-    select: {
-      id: true,
-      username: true,
-      displayName: true,
-      avatarUrl: true,
-    },
-  });
-
-  return users.map((u: any) => ({
-    ...u,
-    reason: 'Seguido por personas que sigues',
-  }));
+  return getService().getRecommended(userId, limit);
 }
+
+export default FollowService;

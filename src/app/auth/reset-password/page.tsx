@@ -17,25 +17,12 @@ import {
 import { z } from 'zod';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
-import { useAuthError, passwordResetErrorMap } from '@/hooks/useAuthError';
+import { useAuthError } from '@/hooks/useAuthError';
 import { cn } from '@/lib/utils';
-
-const resetPasswordSchema = z.object({
-  password: z
-    .string()
-    .min(8, 'La contraseña debe tener al menos 8 caracteres')
-    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
-    .regex(/[a-z]/, 'Debe contener al menos una minúscula')
-    .regex(/[0-9]/, 'Debe contener al menos un número'),
-  confirmPassword: z.string(),
-}).refine((data: any) => data.password === data.confirmPassword, {
-  message: 'Las contraseñas no coinciden',
-  path: ['confirmPassword'],
-});
-
-type FormState = 'initial' | 'loading' | 'success' | 'error' | 'invalid_token';
+import { useT } from '@/i18n';
 
 function Content() {
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -46,30 +33,41 @@ function Content() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formState, setFormState] = useState<FormState>('initial');
+  const [formState, setFormState] = useState<'initial' | 'loading' | 'success' | 'error' | 'invalid_token'>('initial');
   const [countdown, setCountdown] = useState(5);
 
   const [touched, setTouched] = useState({ password: false, confirmPassword: false });
   const [validationErrors, setValidationErrors] = useState<{ password?: string; confirmPassword?: string }>({});
 
-  // Validación en tiempo real
+  const resetPasswordSchema = z.object({
+    password: z
+      .string()
+      .min(8, t('auth.validation.passwordMin'))
+      .regex(/[A-Z]/, t('auth.validation.passwordUppercase'))
+      .regex(/[a-z]/, t('auth.validation.passwordLowercase'))
+      .regex(/[0-9]/, t('auth.validation.passwordNumber')),
+    confirmPassword: z.string(),
+  }).refine((data: any) => data.password === data.confirmPassword, {
+    message: t('auth.validation.passwordMismatch'),
+    path: ['confirmPassword'],
+  });
+
   const validateField = (field: 'password' | 'confirmPassword', value: string) => {
     try {
       if (field === 'password') {
         const fieldSchema = resetPasswordSchema.shape.password;
         fieldSchema.parse(value);
       } else {
-        // Validar que coincidan
         if (value !== password) {
-          setValidationErrors((prev: any) => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden' }));
+          setValidationErrors((prev: any) => ({ ...prev, confirmPassword: t('auth.validation.passwordMismatch') }));
           return false;
         }
       }
       setValidationErrors((prev: any) => ({ ...prev, [field]: undefined }));
       return true;
     } catch (err: any) {
-  if (err instanceof z.ZodError) {
-  const message = (err as any).errors[0]?.message || 'Campo inválido';
+      if (err instanceof z.ZodError) {
+        const message = (err as any).errors[0]?.message || t('auth.validation.passwordMin');
         setValidationErrors((prev: any) => ({ ...prev, [field]: message }));
         return false;
       }
@@ -84,7 +82,6 @@ function Content() {
     if (touched.password) {
       validateField('password', value);
     }
-    // Revalidar confirmPassword si ya tiene valor
     if (touched.confirmPassword && confirmPassword) {
       validateField('confirmPassword', confirmPassword);
     }
@@ -104,7 +101,6 @@ function Content() {
     validateField(field, field === 'password' ? password : confirmPassword);
   };
 
-  // Verificar token al cargar
   useEffect(() => {
     if (!token) {
       setFormState('invalid_token');
@@ -112,7 +108,6 @@ function Content() {
     }
   }, [token]);
 
-  // Countdown para redirección
   useEffect(() => {
     if (formState === 'success' && countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -129,20 +124,19 @@ function Content() {
 
     if (!token) {
       handlePasswordResetError('INVALID_TOKEN', {
-        label: 'Solicitar nuevo enlace',
+        label: t('auth.resetPassword.requestNewLink'),
         onClick: () => router.push('/auth/forgot-password'),
       });
       setFormState('invalid_token');
       return;
     }
 
-    // Validar campos
     try {
       resetPasswordSchema.parse({ password, confirmPassword });
-  } catch (err: any) {
-  if (err instanceof z.ZodError) {
-  const errors: { password?: string; confirmPassword?: string } = {};
-  (err as any).errors.forEach((error: any) => {
+    } catch (err: any) {
+      if (err instanceof z.ZodError) {
+        const errors: { password?: string; confirmPassword?: string } = {};
+        (err as any).errors.forEach((error: any) => {
           const field = error.path[0] as 'password' | 'confirmPassword';
           errors[field] = error.message;
         });
@@ -169,10 +163,9 @@ function Content() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Manejar errores específicos
         if (data.error?.includes('expired') || data.error?.includes('expirado')) {
           handlePasswordResetError('TOKEN_EXPIRED', {
-            label: 'Solicitar nuevo enlace',
+            label: t('auth.resetPassword.requestNewLink'),
             onClick: () => router.push('/auth/forgot-password'),
           });
           setFormState('invalid_token');
@@ -181,35 +174,34 @@ function Content() {
         
         if (data.error?.includes('token') || data.error?.includes('inválido')) {
           handlePasswordResetError('INVALID_TOKEN', {
-            label: 'Solicitar nuevo enlace',
+            label: t('auth.resetPassword.requestNewLink'),
             onClick: () => router.push('/auth/forgot-password'),
           });
           setFormState('invalid_token');
           return;
         }
 
-        throw new Error(data.error || 'Error al restablecer la contraseña');
+        throw new Error(data.error || t('errors.generic'));
       }
 
       setFormState('success');
       toast({
-        title: '¡Contraseña actualizada!',
-        description: 'Tu contraseña ha sido restablecida correctamente. Serás redirigido al inicio de sesión.',
+        title: t('auth.resetPassword.toastTitle'),
+        description: t('auth.resetPassword.toastDesc'),
         variant: 'default',
       });
     } catch (err) {
-      const networkError = handleNetworkError(() => handleSubmit(e));
+      handleNetworkError(() => handleSubmit(e));
       setFormState('error');
     }
   };
 
-  // Vista de token inválido
   if (formState === 'invalid_token') {
     return (
       <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
         <div className="p-6">
           <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
-            <ArrowLeft size={20} /> Volver al Inicio
+            <ArrowLeft size={20} /> {t('auth.resetPassword.backToHome')}
           </Link>
         </div>
 
@@ -220,25 +212,25 @@ function Content() {
                 <Shield className="w-8 h-8 text-[var(--error)]" />
               </div>
               <h3 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">
-                Enlace Inválido o Expirado
+                {t('auth.resetPassword.invalidToken')}
               </h3>
               <p className="text-muted mb-6">
-                El enlace de recuperación no es válido o ha expirado. Por seguridad, estos enlaces solo son válidos por 1 hora.
+                {t('auth.resetPassword.invalidTokenDesc')}
               </p>
               <div className="space-y-3">
                 <Link
                   href="/auth/forgot-password"
-className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
-          >
-            <KeyRound size={18} />
-                  Solicitar nuevo enlace
+                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
+                >
+                  <KeyRound size={18} />
+                  {t('auth.resetPassword.requestNewLink')}
                 </Link>
                 <Link
                   href="/auth/login"
                   className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 text-accent-blue hover:text-accent-blue-hover font-semibold transition-colors"
                 >
                   <ArrowLeft size={18} />
-                  Volver al inicio de sesión
+                  {t('auth.resetPassword.backToLogin')}
                 </Link>
               </div>
             </div>
@@ -248,13 +240,13 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
     );
   }
 
-  const passwordStrength = getPasswordStrength(password);
+  const passwordStrength = getPasswordStrength(password, t);
 
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
-          <ArrowLeft size={20} /> Volver al Inicio
+          <ArrowLeft size={20} /> {t('auth.resetPassword.backToHome')}
         </Link>
       </div>
 
@@ -262,12 +254,12 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
         <div className="w-full max-w-md animate-fade-in-up">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-extrabold tracking-tight mb-2">
-              {formState === 'success' ? '¡Listo!' : 'Nueva Contraseña'}
+              {formState === 'success' ? t('auth.resetPassword.successTitle') : t('auth.resetPassword.title')}
             </h1>
             <p className="text-muted">
               {formState === 'success'
-                ? `Serás redirigido al inicio de sesión en ${countdown} segundos...`
-                : 'Crea una contraseña segura para tu cuenta.'}
+                ? t('auth.resetPassword.successSubtitle', { countdown })
+                : t('auth.resetPassword.subtitle')}
             </p>
           </div>
 
@@ -278,22 +270,21 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                   <CheckCircle className="w-8 h-8 text-[var(--success)]" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">
-                  ¡Contraseña Actualizada!
+                  {t('auth.resetPassword.passwordUpdated')}
                 </h3>
                 <p className="text-muted mb-6">
-                  Tu contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.
+                  {t('auth.resetPassword.passwordUpdatedDesc')}
                 </p>
                 <Link
                   href="/auth/login"
-className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
-          >
-            <ArrowLeft size={18} />
-                  Ir al inicio de sesión ahora
+                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
+                >
+                  <ArrowLeft size={18} />
+                  {t('auth.resetPassword.goToLogin')}
                 </Link>
               </div>
             ) : (
               <>
-                {/* Mensaje de error general */}
                 {error && (
                   <div className="mb-6">
                     <ErrorMessage
@@ -307,12 +298,12 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Nueva Contraseña */}
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Nueva Contraseña</label>
+                    <label htmlFor="reset-password" className="block text-sm font-semibold mb-2">{t('auth.resetPassword.newPassword')}</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                       <input
+                        id="reset-password"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={handlePasswordChange}
@@ -321,12 +312,12 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           touched.password && validationErrors.password
-? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
-: touched.password && !validationErrors.password && password
-? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
-                            : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+                            ? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
+                            : touched.password && !validationErrors.password && password
+                              ? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
+                              : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
-                        placeholder="Mínimo 8 caracteres"
+                        placeholder={t('auth.resetPassword.passwordPlaceholder')}
                       />
                       <button
                         type="button"
@@ -338,7 +329,6 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                       </button>
                     </div>
 
-                    {/* Indicador de fortaleza */}
                     {password && (
                       <div className="mt-2">
                         <div className="flex gap-1 h-1">
@@ -355,7 +345,7 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                           ))}
                         </div>
                         <p className="mt-1 text-xs text-muted">
-                          Fortaleza: <span className={cn('font-medium', passwordStrength.color.replace('bg-', 'text-'))}>
+                          {t('auth.passwordStrengthLabel')} <span className={cn('font-medium', passwordStrength.color.replace('bg-', 'text-'))}>
                             {passwordStrength.label}
                           </span>
                         </p>
@@ -363,19 +353,19 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                     )}
 
                     {touched.password && validationErrors.password && (
-<p className="mt-1 text-xs text-[var(--error)] flex items-center gap-1">
-<AlertCircle className="w-3 h-3" />
-{validationErrors.password}
+                      <p className="mt-1 text-xs text-[var(--error)] flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {validationErrors.password}
                       </p>
                     )}
                   </div>
 
-                  {/* Confirmar Contraseña */}
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Confirmar Contraseña</label>
+                    <label htmlFor="reset-confirm-password" className="block text-sm font-semibold mb-2">{t('auth.resetPassword.confirmPassword')}</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                       <input
+                        id="reset-confirm-password"
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={handleConfirmChange}
@@ -384,12 +374,12 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           touched.confirmPassword && validationErrors.confirmPassword
-? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
-: touched.confirmPassword && !validationErrors.confirmPassword && confirmPassword
-? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
-                            : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+                            ? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
+                            : touched.confirmPassword && !validationErrors.confirmPassword && confirmPassword
+                              ? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
+                              : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
-                        placeholder="Repite tu contraseña"
+                        placeholder={t('auth.resetPassword.confirmPlaceholder')}
                       />
                       <button
                         type="button"
@@ -408,7 +398,6 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                     )}
                   </div>
 
-                  {/* Botón Submit */}
                   <button
                     type="submit"
                     disabled={formState === 'loading'}
@@ -417,12 +406,12 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
                     {formState === 'loading' ? (
                       <>
                         <Loader2 size={18} className="animate-spin" />
-                        Actualizando...
+                        {t('auth.resetPassword.updating')}
                       </>
                     ) : (
                       <>
                         <Lock size={18} />
-                        Restablecer Contraseña
+                        {t('auth.resetPassword.submit')}
                       </>
                     )}
                   </button>
@@ -430,9 +419,9 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
 
                 <div className="mt-6 pt-6 border-t border-custom">
                   <p className="text-sm text-muted">
-                    <strong className="text-[var(--text-primary)]">Consejo de seguridad:</strong>
+                    <strong className="text-[var(--text-primary)]">{t('auth.resetPassword.securityTip')}</strong>
                     <br />
-                    Usa una combinación de letras mayúsculas, minúsculas, números y símbolos para mayor seguridad.
+                    {t('auth.resetPassword.securityTipDesc')}
                   </p>
                 </div>
               </>
@@ -441,9 +430,9 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
 
           {formState !== 'success' && (
             <p className="text-center text-sm text-muted mt-8">
-              ¿Recordaste tu contraseña?{' '}
+              {t('auth.resetPassword.rememberedPassword')}{' '}
               <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
-                Inicia sesión aquí
+                {t('auth.resetPassword.loginHere')}
               </Link>
             </p>
           )}
@@ -453,8 +442,7 @@ className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-acc
   );
 }
 
-// Función helper para calcular fortaleza de contraseña
-function getPasswordStrength(password: string): { strength: number; label: string; color: string } {
+function getPasswordStrength(password: string, t: (key: string) => string): { strength: number; label: string; color: string } {
   if (!password) return { strength: 0, label: '', color: '' };
   
   let strength = 0;
@@ -464,7 +452,7 @@ function getPasswordStrength(password: string): { strength: number; label: strin
   if (/[0-9]/.test(password)) strength++;
   if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-  const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte', 'Muy fuerte'];
+  const labels = [t('auth.passwordStrength.weak'), t('auth.passwordStrength.weak'), t('auth.passwordStrength.fair'), t('auth.passwordStrength.good'), t('auth.passwordStrength.strong'), t('auth.passwordStrength.veryStrong')];
   const colors = ['bg-[var(--error)]', 'bg-[var(--error)]', 'bg-[var(--warning)]', 'bg-[var(--info)]', 'bg-[var(--success)]', 'bg-[var(--success)]'];
   
   return {
@@ -479,7 +467,7 @@ function LoadingSpinner() {
     <div className="min-h-screen bg-background font-sans text-fg-primary flex items-center justify-center">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
-        <span>Cargando...</span>
+        <span>Loading...</span>
       </div>
     </div>
   );

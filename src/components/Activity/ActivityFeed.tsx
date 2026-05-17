@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -18,11 +17,8 @@ import {
   Trophy,
   Users,
   Star,
-  Share2,
   Plus,
-  Flame,
   Crown,
-  Sparkles,
 } from 'lucide-react';
 
 interface Activity {

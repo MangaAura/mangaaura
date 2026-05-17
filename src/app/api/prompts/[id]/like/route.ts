@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { PromptLibraryModel } from '@/infrastructure/persistence/mongodb/models/PromptLibrary';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // POST /api/prompts/[id]/like - Dar/quitar like
 export async function POST(
@@ -32,6 +33,9 @@ export async function POST(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const userId = session.user.id;
 
@@ -86,7 +90,7 @@ export async function POST(
 
 // GET /api/prompts/[id]/like - Verificar si el usuario dio like
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

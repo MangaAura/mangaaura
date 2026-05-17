@@ -29,6 +29,12 @@ describe('Button', () => {
     expect(button).toHaveClass('border-[var(--border)]');
   });
 
+  it('applies ghost variant styles', () => {
+    const { container } = render(<Button variant="ghost">Ghost</Button>);
+    const button = container.querySelector('button');
+    expect(button).toHaveClass('text-[var(--text-primary)]');
+  });
+
   it('applies different size variants', () => {
     const { container: sm } = render(<Button size="sm">Small</Button>);
     const smButton = sm.querySelector('button');

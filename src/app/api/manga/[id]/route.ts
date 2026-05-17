@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { invalidateCache } from '@/lib/apiCache';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // Helper para generar slug
 function generateSlug(title: string): string {
@@ -15,7 +16,7 @@ function generateSlug(title: string): string {
 
 // GET /api/manga/[id] - Obtener manga con sus capítulos
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -53,7 +54,7 @@ export async function GET(
     prisma.mangaSeries.update({
       where: { id },
       data: { totalViews: { increment: 1 } },
-    }).catch(() => {});
+    }).catch(err => console.error('[Manga] View count increment failed:', err));
 
     // Add cache headers for stale-while-revalidate
     const response = NextResponse.json({
@@ -116,6 +117,9 @@ export async function PUT(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id } = await params;
     const body = await request.json();
@@ -250,6 +254,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session.user.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id } = await params;
 

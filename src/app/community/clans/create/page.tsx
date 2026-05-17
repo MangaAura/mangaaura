@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ArrowLeft, Users, ImageIcon, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function CreateClanPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
@@ -180,13 +181,13 @@ export default function CreateClanPage() {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-3xl shadow-lg">
                   {formData.emblemUrl ? (
-                    <img
+                    <OptimizedImage
                       src={formData.emblemUrl}
                       alt="Emblema"
-                      className="w-full h-full object-cover rounded-xl"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
+                      width={64}
+                      height={64}
+                      className="rounded-xl"
+                      objectFit="cover"
                     />
                   ) : (
                     '👑'

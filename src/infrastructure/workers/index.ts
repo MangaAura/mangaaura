@@ -4,7 +4,7 @@
  */
 
 import { EmailWorker, getEmailWorker, stopEmailWorker } from './EmailWorker';
-import { getEmailQueue, resetEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { resetEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { closeRedisConnection } from '@/lib/redis';
 
 export { EmailWorker, getEmailWorker, stopEmailWorker };
@@ -21,7 +21,7 @@ export function startWorkers(): void {
   }
 
   try {
-    const worker = getEmailWorker();
+    getEmailWorker();
     console.info('[Workers] EmailWorker started');
   } catch (error) {
     console.error('[Workers] Failed to start EmailWorker:', error);

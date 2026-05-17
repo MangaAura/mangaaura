@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
+import { useT } from '@/i18n';
 import { Send, Loader2 } from 'lucide-react';
 
 interface ForumReplyFormProps {
@@ -15,6 +16,7 @@ export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const t = useT();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +35,13 @@ export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Error al enviar respuesta');
+        throw new Error(data.error || t('forumReply.errorSending'));
       }
 
       setContent('');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al enviar');
+      setError(err instanceof Error ? err.message : t('forumReply.errorGeneric'));
     } finally {
       setIsSubmitting(false);
     }
@@ -47,11 +49,10 @@ export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <h3 className="font-semibold text-[var(--text-primary)]">Responder al hilo</h3>
+      <h3 className="font-semibold text-[var(--text-primary)]">{t('forumReply.replyToThread')}</h3>
       <Textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Escribe tu respuesta..."
+        onChange={(e) => setContent(e.target.value)}            placeholder={t('forumReply.placeholder')}
         rows={4}
         className="resize-none"
         disabled={isSubmitting}
@@ -71,7 +72,7 @@ export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
           ) : (
             <Send className="w-4 h-4 mr-2" />
           )}
-          Responder
+          {t('forumReply.reply')}
         </Button>
       </div>
     </form>

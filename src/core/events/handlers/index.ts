@@ -7,8 +7,31 @@
 
 import { getEventBus, DomainEvent } from '@/infrastructure/queue/LocalEventBus';
 import { prisma } from '@/lib/prisma';
-import { achievementService } from '@/core/services/AchievementService';
-import { notificationService } from '@/core/services/NotificationService';
+import { achievementService, initializeAchievementService } from '@/core/services/AchievementService';
+import { notificationService, initializeNotificationService } from '@/core/services/NotificationService';
+import { readingAnalyticsService, initializeReadingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+import { PrismaAchievementRepository } from '@/infrastructure/adapters/PrismaAchievementRepository';
+import { PrismaNotificationRepository, PushNotificationAdapter, RealtimeNotificationAdapter } from '@/infrastructure/adapters/PrismaNotificationRepository';
+import { MongoReadingAnalyticsRepository } from '@/infrastructure/adapters/MongoReadingAnalyticsRepository';
+
+// Initialize achievement service with infrastructure adapter
+if (!achievementService) {
+  initializeAchievementService(new PrismaAchievementRepository(prisma));
+}
+
+// Initialize notification service with infrastructure adapters
+if (!notificationService) {
+  initializeNotificationService(
+    new PrismaNotificationRepository(),
+    new PushNotificationAdapter(),
+    new RealtimeNotificationAdapter()
+  );
+}
+
+// Initialize reading analytics service with infrastructure adapter
+if (!readingAnalyticsService) {
+  initializeReadingAnalyticsService(new MongoReadingAnalyticsRepository());
+}
 
 let initialized = false;
 
@@ -18,11 +41,13 @@ function register(): void {
 
   const eventBus = getEventBus();
 
+  const svc = achievementService!;
+
   eventBus.subscribe('CHAPTER_COMPLETED', async (event: DomainEvent) => {
     try {
       const userId = event.payload.userId as string;
       if (userId) {
-        await achievementService.checkAchievements(userId).catch(err =>
+        await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking achievements:', err)
         );
       }
@@ -35,7 +60,7 @@ function register(): void {
     try {
       const userId = event.payload.userId as string;
       if (userId) {
-        await achievementService.checkAchievements(userId).catch(err =>
+        await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking achievements for comment:', err)
         );
       }
@@ -50,7 +75,7 @@ function register(): void {
       const username = event.payload.username as string;
 
       if (userId) {
-        await notificationService.notifyMultiple([userId], {
+        await notificationService!.notifyMultiple([userId], {
           type: 'SYSTEM',
           title: '¡Bienvenido a InkVerse!',
           message: `¡Hola ${username}! Comienza tu aventura leyendo mangas y ganando XP.`,
@@ -59,7 +84,7 @@ function register(): void {
           console.error('[DomainEvents] Error sending welcome notification:', err)
         );
 
-        await achievementService.checkAchievements(userId).catch(err =>
+        await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking initial achievements:', err)
         );
       }
@@ -75,11 +100,11 @@ function register(): void {
       const oldLevel = event.payload.oldLevel as number;
 
       if (userId && newLevel > oldLevel) {
-        await notificationService.notifyLevelUp(userId, oldLevel, newLevel).catch(err =>
+        await notificationService!.notifyLevelUp(userId, oldLevel, newLevel).catch(err =>
           console.error('[DomainEvents] Error notifying level up:', err)
         );
 
-        await achievementService.checkAchievements(userId).catch(err =>
+        await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking level achievements:', err)
         );
       }
@@ -112,7 +137,7 @@ function register(): void {
     try {
       const userId = event.payload.userId as string;
       if (userId) {
-        await achievementService.checkAchievements(userId).catch(err =>
+        await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking sponsorship achievements:', err)
         );
       }

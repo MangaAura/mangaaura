@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-    console.log(`[CRON] Cleaned up ${expiredBids.length} expired bids`);
+    // console.log(`[CRON] Cleaned up ${expiredBids.length} expired bids`);
 
     return NextResponse.json({
       success: true,

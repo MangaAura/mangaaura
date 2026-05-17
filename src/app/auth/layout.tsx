@@ -9,7 +9,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen bg-[var(--background)] font-sans text-[var(--text-primary)]">
       <Navbar />
-      <main>
+      <main id="main-content">
         <PageTransition>{children}</PageTransition>
       </main>
     </div>

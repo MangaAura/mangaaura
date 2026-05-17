@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error obteniendo transacciones:', error);
+    // console.error('Error obteniendo transacciones:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

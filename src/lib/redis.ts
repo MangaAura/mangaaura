@@ -6,20 +6,24 @@ import { Redis } from 'ioredis';
 
 const REDIS_URL = process.env.REDIS_URL;
 const isDevelopment = process.env.NODE_ENV !== 'production';
-const isRedisEnabled = process.env.ENABLE_REDIS !== 'false'; // Opt-out via env var
-
 // Suppress ioredis unhandled error warnings globally in development
-if (isDevelopment) {
-  const originalEmit = process.emit;
-  process.emit = function(this: NodeJS.Process, event: string | symbol, ...args: unknown[]): boolean {
-    if (event === 'warning' && args[0] instanceof Error) {
-      const warning = args[0] as Error;
-      if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event')) {
-        return false;
+// Guard: only run in Node.js runtime (not Edge or browser)
+if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (globalThis.process as any).emit === 'function') {
+  try {
+    const nodeProcess = globalThis.process as any;
+    const originalEmit = nodeProcess.emit;
+    nodeProcess.emit = function (event: string | symbol, ...args: unknown[]): boolean {
+      if (event === 'warning' && args[0] instanceof Error) {
+        const warning = args[0] as Error;
+        if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event')) {
+          return false;
+        }
       }
-    }
-    return (originalEmit as Function).call(this, event, ...args);
-  } as typeof process.emit;
+      return originalEmit.call(this, event, ...args);
+    };
+  } catch {
+    // Silently fail if process.emit manipulation is not allowed
+  }
 }
 
 // Track if Redis is available

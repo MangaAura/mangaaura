@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
 
 // Schema para editar comentario
@@ -35,7 +36,7 @@ function extractMentions(content: string): string[] {
 
 // GET /api/chapters/[id]/comments/[commentId] - Obtener un comentario específico
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string; commentId: string }> }
 ) {
   try {
@@ -167,6 +168,9 @@ export async function PUT(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const result = updateCommentSchema.safeParse(body);
@@ -309,6 +313,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     // Verificar que el comentario existe y pertenece al usuario
     const comment = await prisma.comment.findFirst({

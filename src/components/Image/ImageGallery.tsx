@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import OptimizedImage, { OptimizedImageProps } from './OptimizedImage';
+import Image from 'next/image';
+import OptimizedImage from './OptimizedImage';
 
 // ============================================================================
 // Types
@@ -44,8 +45,6 @@ export interface ImageGalleryProps {
   enableLightbox?: boolean;
   /** Show image info in lightbox */
   showInfo?: boolean;
-  /** Lazy loading threshold */
-  lazyOffset?: string;
   /** Callback when image is clicked */
   onImageClick?: (image: GalleryImage, index: number) => void;
   /** Callback when lightbox opens */
@@ -262,12 +261,15 @@ function Lightbox({
         className="absolute inset-0 flex items-center justify-center p-4 md:p-12"
         onClick={(e) => e.stopPropagation()}
       >
-        <img
+        <Image
           src={currentImage.src}
           alt={currentImage.alt}
+          width={currentImage.width || 1200}
+          height={currentImage.height || 1600}
           className="max-w-full max-h-full object-contain transition-transform duration-200"
-          style={{ transform: `scale(${zoom})` }}
+          style={{ transform: `scale(${zoom})`, width: 'auto', height: 'auto' }}
           onClick={(e) => e.stopPropagation()}
+          priority
         />
       </div>
 
@@ -318,7 +320,6 @@ export function ImageGallery({
   itemClassName = '',
   enableLightbox = true,
   showInfo = true,
-  lazyOffset = '200px',
   onImageClick,
   onLightboxOpen,
   onLightboxClose,

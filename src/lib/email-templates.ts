@@ -3,6 +3,15 @@
  * Beautiful, responsive HTML email templates
  */
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 interface EmailTemplateProps {
   title: string;
   preview?: string;
@@ -145,8 +154,9 @@ https://inkverse.app
 // Specific email templates
 
 export function welcomeEmail(username: string): { html: string; text: string; subject: string } {
+  const safeUsername = escapeHtml(username);
   const { html, text } = baseEmailTemplate({
-    title: `¡Bienvenido a InkVerse, ${username}!`,
+    title: `¡Bienvenido a InkVerse, ${safeUsername}!`,
     preview: 'Descubre, lee y comparte manga de calidad',
     content: `
       <p>¡Nos alegra tenerte con nosotros!</p>
@@ -190,14 +200,16 @@ export function newChapterEmail(
   chapterUrl: string,
   coverImage?: string
 ): { html: string; text: string; subject: string } {
+  const safeTitle = escapeHtml(mangaTitle);
+  const safeChapterTitle = escapeHtml(chapterTitle);
   const { html, text } = baseEmailTemplate({
-    title: `¡Nuevo capítulo de ${mangaTitle}!`,
-    preview: `Capítulo ${chapterNumber}: ${chapterTitle}`,
+    title: `¡Nuevo capítulo de ${safeTitle}!`,
+    preview: `Capítulo ${chapterNumber}: ${safeChapterTitle}`,
     content: `
-      ${coverImage ? `<img src="${coverImage}" alt="${mangaTitle}" style="width: 100%; max-width: 300px; border-radius: 8px; margin-bottom: 20px;" />` : ''}
-      <p><strong>${mangaTitle}</strong> acaba de publicar un nuevo capítulo.</p>
+      ${coverImage ? `<img src="${coverImage}" alt="${safeTitle}" style="width: 100%; max-width: 300px; border-radius: 8px; margin-bottom: 20px;" />` : ''}
+      <p><strong>${safeTitle}</strong> acaba de publicar un nuevo capítulo.</p>
       <p style="margin-top: 15px; font-size: 18px; color: #6366f1;">
-        <strong>Capítulo ${chapterNumber}</strong>${chapterTitle ? `: ${chapterTitle}` : ''}
+        <strong>Capítulo ${chapterNumber}</strong>${chapterTitle ? `: ${safeChapterTitle}` : ''}
       </p>
       <p style="margin-top: 15px;">¡No esperes más para leerlo!</p>
     `,
@@ -206,7 +218,7 @@ export function newChapterEmail(
     footerText: 'Puedes desactivar estas notificaciones en tu configuración de cuenta.',
   });
 
-  return { html, text, subject: `¡Nuevo capítulo: ${mangaTitle}!` };
+  return { html, text, subject: `¡Nuevo capítulo: ${safeTitle}!` };
 }
 
 export function achievementUnlockedEmail(
@@ -214,16 +226,18 @@ export function achievementUnlockedEmail(
   achievementDescription: string,
   xpAwarded: number
 ): { html: string; text: string; subject: string } {
+  const safeName = escapeHtml(achievementName);
+  const safeDesc = escapeHtml(achievementDescription);
   const { html, text } = baseEmailTemplate({
     title: '🏆 ¡Logro desbloqueado!',
     preview: `Ganaste ${xpAwarded} XP`,
     content: `
       <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 12px; margin-bottom: 20px;">
         <span style="font-size: 48px;">🏆</span>
-        <h3 style="margin: 10px 0 0 0; color: white; font-size: 20px;">${achievementName}</h3>
+        <h3 style="margin: 10px 0 0 0; color: white; font-size: 20px;">${safeName}</h3>
       </div>
-      <p><strong>${achievementName}</strong></p>
-      <p style="margin-top: 10px; color: #475569;">${achievementDescription}</p>
+      <p><strong>${safeName}</strong></p>
+      <p style="margin-top: 10px; color: #475569;">${safeDesc}</p>
       <p style="margin-top: 15px; padding: 12px; background-color: #f1f5f9; border-radius: 8px; text-align: center;">
         <strong style="color: #6366f1;">+${xpAwarded} XP</strong> ganados
       </p>
@@ -233,7 +247,7 @@ export function achievementUnlockedEmail(
     ctaUrl: 'https://inkverse.app/profile',
   });
 
-  return { html, text, subject: `🏆 Logro desbloqueado: ${achievementName}` };
+  return { html, text, subject: `🏆 Logro desbloqueado: ${safeName}` };
 }
 
 export function tipReceivedEmail(
@@ -241,15 +255,17 @@ export function tipReceivedEmail(
   tipAmount: number,
   fromUsername: string
 ): { html: string; text: string; subject: string } {
+  const safeManga = escapeHtml(mangaTitle);
+  const safeUser = escapeHtml(fromUsername);
   const { html, text } = baseEmailTemplate({
     title: '💰 ¡Recibiste una propina!',
-    preview: `${fromUsername} te envió ${tipAmount} InkCoins`,
+    preview: `${safeUser} te envió ${tipAmount} InkCoins`,
     content: `
       <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; margin-bottom: 20px;">
         <span style="font-size: 48px;">💰</span>
         <h3 style="margin: 10px 0 0 0; color: white; font-size: 24px;">+${tipAmount} InkCoins</h3>
       </div>
-      <p><strong>${fromUsername}</strong> te envió una propina por tu manga <strong>"${mangaTitle}"</strong>.</p>
+      <p><strong>${safeUser}</strong> te envió una propina por tu manga <strong>"${safeManga}"</strong>.</p>
       <p style="margin-top: 15px;">¡Gracias por crear contenido increíble para la comunidad!</p>
       <p style="margin-top: 15px; padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
         Usa tus InkCoins para destacar tus mangas o canjearlos por recompensas exclusivas.
@@ -268,7 +284,7 @@ export function weeklyDigestEmail(
   yourStats: { chaptersRead: number; xpGained: number }
 ): { html: string; text: string; subject: string } {
   const popularMangasHtml = popularMangas
-    .map(m => `<li style="margin: 8px 0;"><a href="${m.url}" style="color: #6366f1; text-decoration: none;">${m.title}</a></li>`)
+    .map(m => `<li style="margin: 8px 0;"><a href="${escapeHtml(m.url)}" style="color: #6366f1; text-decoration: none;">${escapeHtml(m.title)}</a></li>`)
     .join('');
 
   const { html, text } = baseEmailTemplate({
@@ -343,10 +359,12 @@ export function securityAlertEmail(
   };
 
   const alert = alerts[alertType];
+  const safeLocation = location ? escapeHtml(location) : '';
+  const safeDevice = device ? escapeHtml(device) : '';
   const detailsHtml = location || device ? `
     <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
-      ${location ? `<p style="margin: 5px 0; color: #475569;"><strong>Ubicación:</strong> ${location}</p>` : ''}
-      ${device ? `<p style="margin: 5px 0; color: #475569;"><strong>Dispositivo:</strong> ${device}</p>` : ''}
+      ${location ? `<p style="margin: 5px 0; color: #475569;"><strong>Ubicación:</strong> ${safeLocation}</p>` : ''}
+      ${device ? `<p style="margin: 5px 0; color: #475569;"><strong>Dispositivo:</strong> ${safeDevice}</p>` : ''}
       <p style="margin: 5px 0; color: #475569;"><strong>Fecha:</strong> ${new Date().toLocaleString('es-ES')}</p>
     </div>
   ` : '';

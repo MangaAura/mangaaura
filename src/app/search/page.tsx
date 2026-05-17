@@ -6,12 +6,14 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Search, Filter, Grid3X3, List, Loader2, X, BookOpen } from 'lucide-react';
 import { SearchBar } from '@/components/Search/SearchBar';
 import { MangaCard } from '@/components/MangaCard';
 import { Button } from '@/components/ui/Button';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { cn } from '@/lib/utils';
 
 
@@ -73,13 +75,13 @@ function SkeletonGrid() {
 
 function MangaListItem({ manga }: { manga: MangaResult }) {
   return (
-    <a
+    <Link
       href={`/manga/${manga.slug}`}
       className="flex gap-4 p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 transition-all group"
     >
-      <div className="w-16 h-24 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
+      <div className="w-16 h-24 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative">
         {manga.coverUrl ? (
-          <img src={manga.coverUrl} alt={manga.title} className="w-full h-full object-cover" loading="lazy" />
+          <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <BookOpen className="w-6 h-6 text-[var(--text-tertiary)]" />
@@ -87,15 +89,15 @@ function MangaListItem({ manga }: { manga: MangaResult }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-sm group-hover:text-[var(--info)] transition-colors truncate">
-          {manga.title}
-        </h3>
+<h2 className="font-bold text-sm group-hover:text-[var(--info)] transition-colors truncate">
+  {manga.title}
+</h2>
         {manga.authorName && (
           <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{manga.authorName}</p>
         )}
         <div className="flex flex-wrap gap-1 mt-2">
           {manga.tags.slice(0, 3).map(tag => (
-            <span key={tag} className="px-1.5 py-0.5 bg-[var(--surface-sunken)] text-[10px] rounded text-[var(--text-tertiary)]">
+            <span key={tag} className="px-2.5 py-1 text-xs bg-[var(--surface-sunken)] rounded text-[var(--text-tertiary)]">
               {tag}
             </span>
           ))}
@@ -123,7 +125,7 @@ function MangaListItem({ manga }: { manga: MangaResult }) {
           </p>
         )}
       </div>
-    </a>
+    </Link>
   );
 }
 
@@ -260,6 +262,7 @@ function SearchPageContent() {
             <select
               value={selectedSort}
               onChange={(e) => setSelectedSort(e.target.value)}
+              aria-label="Ordenar por"
               className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--info)]/30 focus:border-[var(--info)] outline-none"
             >
               {SORT_OPTIONS.map(option => (
@@ -299,7 +302,7 @@ function SearchPageContent() {
           {showFilters && (
             <div className="mb-8 p-6 bg-[var(--surface)]/50 rounded-xl border border-[var(--border)] animate-fade-in-up">
               <div className="mb-6">
-                <h3 className="text-sm font-bold text-[var(--text-tertiary)] mb-3">Géneros</h3>
+                <h2 className="text-sm font-bold text-[var(--text-tertiary)] mb-3">Géneros</h2>
                 <div className="flex flex-wrap gap-2">
                   {GENRES.map(genre => (
                     <button
@@ -319,7 +322,7 @@ function SearchPageContent() {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-sm font-bold text-[var(--text-tertiary)] mb-3">Estado</h3>
+                <h2 className="text-sm font-bold text-[var(--text-tertiary)] mb-3">Estado</h2>
                 <div className="flex flex-wrap gap-2">
                   {STATUS_OPTIONS.map(option => (
                     <button
@@ -417,9 +420,9 @@ function SearchPageContent() {
           {!isLoading && results.length === 0 && (
             <div className="text-center py-20">
               <Search className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" />
-              <h3 className="text-xl font-bold mb-2">
+              <h2 className="text-xl font-bold mb-2">
                 No se encontraron resultados
-              </h3>
+              </h2>
               <p className="text-[var(--text-tertiary)]">
                 Intenta con otros términos o ajusta los filtros
               </p>

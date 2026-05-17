@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+
+const updateUserSchema = z.object({
+  displayName: z.string().min(1).max(50).optional(),
+  email: z.string().email().max(254).optional(),
+  role: z.enum(['USER', 'ADMIN', 'BANNED', 'CREATOR']).optional(),
+  xpPoints: z.number().int().min(0).optional(),
+  inkcoinsBalance: z.number().int().min(0).optional(),
+  level: z.number().int().min(1).optional(),
+});
 
 // GET /api/admin/users/[id] - Get specific user details
 export async function GET(
@@ -105,6 +116,13 @@ export async function POST(
       );
     }
 
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('admin-user-update', userId), 30, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const { action } = await request.json();
 
     // Prevent self-actions
@@ -188,10 +206,25 @@ export async function PATCH(
       );
     }
 
-    const body = await request.json();
-    const { displayName, email, role, xpPoints, inkcoinsBalance, level } = body;
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('admin-user-update', userId), 30, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
 
-    const updateData: any = {};
+    const body = await request.json();
+    const result = updateUserSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: result.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { displayName, email, role, xpPoints, inkcoinsBalance, level } = result.data;
+
+    const updateData: Record<string, unknown> = {};
     if (displayName !== undefined) updateData.displayName = displayName;
     if (email !== undefined) updateData.email = email;
     if (role !== undefined) updateData.role = role;

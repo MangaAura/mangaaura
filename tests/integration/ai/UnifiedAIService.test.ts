@@ -9,7 +9,6 @@ import {
   UnifiedAIService,
   ServiceConfig,
   ServiceJob,
-  ServiceJobType,
 } from '@/infrastructure/ai/UnifiedAIService';
 
 describe('UnifiedAIService Integration', () => {

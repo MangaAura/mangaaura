@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Bell, BellOff } from 'lucide-react';
+
 
 interface PushNotificationState {
   isSupported: boolean;

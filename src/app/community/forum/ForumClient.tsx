@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useT } from '@/i18n';
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen,
@@ -68,6 +69,7 @@ interface ForumClientProps {
 
 export function ForumClient({ categories, threads, canCreate }: ForumClientProps) {
   const shouldReduceMotion = useReducedMotion();
+  const t = useT();
 
   const cardAnimation = (i: number) => ({
     initial: shouldReduceMotion ? {} : { opacity: 0, y: 16 },
@@ -88,17 +90,17 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-[var(--text-primary)]">
-                Foro de la Comunidad <MessageSquare className="text-[var(--primary)]" />
+                {t('forum.title')} <MessageSquare className="text-[var(--primary)]" />
               </h1>
               <p className="text-[var(--text-secondary)] mt-2">
-                Discute técnicas de dibujo, comparte consejos y conecta con otros creadores
+                {t('forum.description')}
               </p>
             </div>
             {canCreate && (
               <Link href="/community/forum/create">
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
-                  Nuevo Hilo
+                  {t('forum.newThread')}
                 </Button>
               </Link>
             )}
@@ -115,8 +117,8 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
                   <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-[var(--primary-subtle)] flex items-center justify-center">
                     <Icon className="w-5 h-5 text-[var(--primary)]" />
                   </div>
-                  <h3 className="font-semibold text-sm text-[var(--text-primary)]">{cat.name}</h3>
-                  <p className="text-xs text-[var(--text-tertiary)] mt-1">{cat._count.threads} hilos</p>
+                  <h2 className="font-semibold text-sm text-[var(--text-primary)]">{cat.name}</h2>
+                  <p className="text-xs text-[var(--text-tertiary)] mt-1">{cat._count.threads} {t('forum.threads')}</p>
                 </Card>
               </motion.div>
             );
@@ -148,7 +150,7 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
                         </h3>
                         {thread.isLocked && (
                           <Badge variant="outline" className="text-xs text-[var(--text-tertiary)]">
-                            Cerrado
+                            {t('forum.closed')}
                           </Badge>
                         )}
                       </div>
@@ -191,8 +193,8 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
           </div>
         ) : (
           <EmptyState
-            title="Sin hilos"
-            description="Aún no hay hilos en el foro"
+            title={t('forum.noThreads')}
+            description={t('forum.noThreadsDesc')}
             icon={<MessageSquare className="w-12 h-12 text-[var(--text-tertiary)]" />}
           />
         )}

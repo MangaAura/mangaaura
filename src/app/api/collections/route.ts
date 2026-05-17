@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { CreateCollectionUseCase } from '@/application/use-cases/collections/CreateCollectionUseCase';
-import { GetCollectionsUseCase } from '@/application/use-cases/collections/GetCollectionsUseCase';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
 
 const collectionSchema = z.object({
@@ -12,7 +12,6 @@ const collectionSchema = z.object({
 });
 
 const createCollectionUseCase = new CreateCollectionUseCase();
-const getCollectionsUseCase = new GetCollectionsUseCase();
 
 // GET /api/collections - List collections
 export async function GET(request: NextRequest) {
@@ -20,8 +19,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const filter = searchParams.get('filter') as 'all' | 'public' | 'private' | null;
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '12');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '12'), 1), 100);
 
     const session = await auth();
     const currentUserId = session?.user?.id;
@@ -119,6 +118,12 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('collection', userId), 20, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const body = await request.json();

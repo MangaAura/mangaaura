@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Send, MoreVertical, Flag, Ban } from 'lucide-react';
+import { Send, MoreVertical, Flag } from 'lucide-react';
 import { AccessibleModal } from '@/components/A11y/AccessibleModal';
 
 interface Message {

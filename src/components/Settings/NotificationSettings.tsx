@@ -9,7 +9,7 @@ import { Mail, Bell, MessageSquare, BookOpen, Trophy, Heart } from 'lucide-react
 import { cn } from '@/lib/utils';
 
 interface NotificationSettingsProps {
-  userId: string;
+  userId?: string;
   preferences: {
     newsletter: boolean;
     newFollowers: boolean;
@@ -59,7 +59,7 @@ const notificationTypes = [
   },
 ];
 
-export function NotificationSettings({ userId, preferences }: NotificationSettingsProps) {
+export function NotificationSettings({ preferences }: NotificationSettingsProps) {
   const [settings, setSettings] = useState(preferences);
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);

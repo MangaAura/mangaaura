@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Image as ImageIcon, MousePointerClick, Crown } from 'lucide-react';
 import { OptimizedImage } from '@/components/Image';
 
@@ -48,7 +48,6 @@ export default function ReaderViewer({
   viewMode,
   mangaId,
   chapterId,
-  chapterNumber,
   onChapterEnd,
   onOpenMeme,
   onOpenEditor,

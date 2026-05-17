@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 
-import { Sparkles, Search, Filter, Hash, BookOpen, Eye, Star, Loader2, AlertTriangle } from 'lucide-react';
+import { useT } from '@/i18n';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Sparkles, Search, Hash, BookOpen, Eye, Star, AlertTriangle } from 'lucide-react';
 
 interface MangaItem {
   id: string;
@@ -24,6 +26,7 @@ interface MangaItem {
 }
 
 export default function BrowsePage() {
+  const t = useT();
   const shouldReduceMotion = useReducedMotion();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -55,7 +58,7 @@ export default function BrowsePage() {
       }
     } catch (err) {
       console.error('Error fetching manga:', err);
-      setError('Error al cargar los mangas. Inténtalo de nuevo.');
+      setError(t('browse.error'));
     } finally {
       setLoading(false);
       setIsSearching(false);
@@ -82,7 +85,7 @@ export default function BrowsePage() {
     <div className="max-w-6xl mx-auto space-y-12 p-6">
       <div className="flex items-center justify-between mt-4">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
-          <span className="text-[var(--primary)]">Descubrir</span>
+          <span className="text-[var(--primary)]">{t('browse.title')}</span>
           <Sparkles className="text-[var(--accent-purple)]" size={24} />
         </h1>
       </div>
@@ -91,12 +94,12 @@ export default function BrowsePage() {
       <section className="relative rounded-2xl p-1 overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary), var(--accent-purple))' }}>
         <div className="bg-[var(--surface)] dark:bg-[var(--surface)] rounded-xl p-8 md:p-10">
           <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary-subtle)] text-[var(--primary)] text-xs font-semibold uppercase tracking-wider mb-2">
-              <Sparkles size={14} /> IA
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold">Búsqueda Semántica</h2>
+<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary-subtle)] text-indigo-600 text-xs font-semibold uppercase tracking-wider mb-2">
+  <Sparkles size={14} /> IA
+</div>
+            <h2 className="text-2xl md:text-3xl font-bold">{t('browse.semanticSearch')}</h2>
             <p className="text-[var(--text-secondary)] text-base max-w-lg mx-auto">
-              Busca por título, autor o describe qué te apetece leer. Nuestra IA entiende lo que buscas.
+              {t('browse.semanticSearchDesc')}
             </p>
 
             <form onSubmit={handleSearch} className="relative max-w-xl mx-auto">
@@ -107,14 +110,15 @@ export default function BrowsePage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Describe qué te apetece leer hoy..."
+                placeholder={t('browse.searchPlaceholder')}
+                aria-label={t('browse.searchAriaLabel')}
                 className="w-full pl-12 pr-36 py-4 bg-[var(--background)] border-2 border-[var(--border)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 rounded-xl outline-none transition-all text-base"
               />
               <button
                 type="submit"
                 className="absolute inset-y-2 right-2 bg-[var(--accent-purple)] hover:bg-[var(--accent-purple-hover)] text-[var(--text-inverse)] px-6 rounded-lg font-bold transition-colors flex items-center gap-2"
               >
-                {isSearching ? 'Buscando...' : 'Buscar'}
+                {isSearching ? t('browse.searching') : t('common.search')}
               </button>
             </form>
           </div>
@@ -126,12 +130,12 @@ export default function BrowsePage() {
 
         {/* Sort and Filter Bar */}
         <div className="flex flex-wrap items-center gap-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-2">
-          <span className="text-sm font-semibold text-[var(--text-secondary)] px-2">Ordenar:</span>
+          <span className="text-sm font-semibold text-[var(--text-secondary)] px-2">{t('browse.sortBy')}</span>
           {[
-            { key: 'popular', label: 'Popular' },
-            { key: 'rating', label: 'Mejor valorado' },
-            { key: 'newest', label: 'Más reciente' },
-            { key: 'title', label: 'A-Z' },
+            { key: 'popular', label: t('browse.popular') },
+            { key: 'rating', label: t('browse.bestRated') },
+            { key: 'newest', label: t('browse.newest') },
+            { key: 'title', label: t('browse.aToZ') },
           ].map(s => (
             <button
               key={s.key}
@@ -150,7 +154,7 @@ export default function BrowsePage() {
             <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--primary-subtle)] text-[var(--primary)] border border-[var(--primary)]/20 flex items-center gap-1.5">
               <Hash size={14} />
               {selectedTag}
-              <button onClick={() => setSelectedTag(null)} className="ml-1 hover:text-[var(--error)] transition-colors cursor-pointer" aria-label="Eliminar filtro">&times;</button>
+              <button onClick={() => setSelectedTag(null)} className="ml-1 hover:text-[var(--error)] transition-colors cursor-pointer" aria-label={t('browse.removeFilter')}>&times;</button>
             </span>
           )}
         </div>
@@ -161,7 +165,7 @@ export default function BrowsePage() {
       <div className="text-center py-20 bg-[var(--surface)] border border-[var(--border)] rounded-2xl hover-lift">
         <AlertTriangle className="w-14 h-14 text-[var(--warning)] mx-auto mb-4" />
         <p className="text-[var(--text-secondary)] font-medium mb-4">{error}</p>
-        <button onClick={() => fetchMangas(undefined, selectedTag, sort, 1)} className="px-6 py-2.5 bg-[var(--primary)] text-white rounded-xl font-semibold hover:bg-[var(--primary-hover)] transition-colors cursor-pointer">Reintentar</button>
+        <button onClick={() => fetchMangas(undefined, selectedTag, sort, 1)} className="px-6 py-2.5 bg-[var(--primary)] text-white rounded-xl font-semibold hover:bg-[var(--primary-hover)] transition-colors cursor-pointer">{t('common.retry')}</button>
       </div>
     ) : loading ? (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -177,11 +181,11 @@ export default function BrowsePage() {
       <div className="text-center py-20 bg-[var(--surface)] border border-[var(--border)] rounded-2xl">
         <BookOpen className="w-14 h-14 text-[var(--text-tertiary)] mx-auto mb-4" />
         <p className="text-[var(--text-secondary)] font-medium text-lg">
-          {searchQuery || selectedTag ? 'No se encontraron resultados' : 'Aún no hay mangas disponibles'}
+          {searchQuery || selectedTag ? t('common.noResults') : t('browse.noMangas')}
         </p>
         {(searchQuery || selectedTag) && (
           <button onClick={() => { setSearchQuery(''); setSelectedTag(null); }} className="mt-4 text-sm text-[var(--primary)] hover:underline font-medium cursor-pointer">
-            Limpiar filtros
+            {t('browse.clearFilters')}
           </button>
         )}
       </div>
@@ -199,10 +203,11 @@ export default function BrowsePage() {
           <Link href={`/manga/${manga.slug}`} className="group cursor-pointer block">
             <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-xl shadow-sm border border-[var(--border)] group-hover:border-[var(--primary)] transition-all duration-300 group-hover:shadow-md bg-[var(--surface)]">
               {manga.coverUrl ? (
-                <img
+                <OptimizedImage
                   src={manga.coverUrl}
                   alt={manga.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
                 />
               ) : (
@@ -222,16 +227,16 @@ export default function BrowsePage() {
                     manga.status === 'COMPLETED' ? 'bg-[var(--info)]/80 text-[var(--text-inverse)] border-[var(--info)]/30' :
                     'bg-[var(--warning)]/80 text-[var(--text-inverse)] border-[var(--warning)]/30'
                   }`}>
-                    {manga.status === 'ONGOING' ? 'En emisión' : manga.status === 'COMPLETED' ? 'Completado' : manga.status}
+                    {manga.status === 'ONGOING' ? t('manga.ongoing') : manga.status === 'COMPLETED' ? t('manga.completed') : manga.status}
                   </span>
                 </div>
               )}
             </div>
-            <h4 className="font-semibold text-sm leading-tight group-hover:text-[var(--primary)] transition-colors line-clamp-1">{manga.title}</h4>
+            <h3 className="font-semibold text-sm leading-tight group-hover:text-[var(--primary)] transition-colors line-clamp-1">{manga.title}</h3>
             <p className="text-xs text-[var(--text-tertiary)] mt-1 truncate">{manga.authorName}</p>
             <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1.5">
               <span className="flex items-center gap-1"><Eye size={12} /> {manga.totalViews ?? 0}</span>
-              <span>{manga.chapterCount ?? 0} caps.</span>
+              <span>{t('browse.chapterCount', { count: manga.chapterCount ?? 0 })}</span>
             </div>
           </Link>
           </motion.div>
@@ -247,7 +252,7 @@ export default function BrowsePage() {
           disabled={page <= 1}
           className="px-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-sunken)] transition-colors"
         >
-          Anterior
+          {t('common.previous')}
         </button>
         <div className="flex items-center gap-1.5">
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -273,7 +278,7 @@ export default function BrowsePage() {
           disabled={page >= totalPages}
           className="px-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-sunken)] transition-colors"
         >
-          Siguiente
+          {t('common.next')}
         </button>
       </div>
     )}
@@ -282,10 +287,10 @@ export default function BrowsePage() {
   {/* Tag Cloud */}
   {availableTags.length > 0 && (
     <section className="space-y-4">
-      <h3 className="text-xl font-bold flex items-center gap-2">
+      <h2 className="text-xl font-bold flex items-center gap-2">
         <Hash className="text-[var(--primary)]" size={20} />
-        Explorar por Género
-      </h3>
+        {t('browse.exploreByGenre')}
+      </h2>
       <div className="flex flex-wrap gap-2">
         {availableTags.map((genre) => (
           <button

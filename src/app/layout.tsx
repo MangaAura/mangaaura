@@ -1,23 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
+import Script from "next/script";
+import { headers } from 'next/headers';
+import { Suspense } from 'react';
 import { Providers } from "@/components/Providers";
-import { SkipLink } from "@/components/A11y/SkipLink";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
-import { ScrollProgress } from '@/components/ui/ScrollProgress';
 import { AppFooter } from "@/components/Layout/AppFooter";
 import { detectLocale } from "@/i18n/server";
 import { validateEnv } from "@/lib/env";
+import "@/infrastructure/init";
 import "./globals.css";
 
 validateEnv();
 
-// Optimize font loading with display: swap and preload
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
   preload: true,
   adjustFontFallback: true,
+});
+
+const displayFont = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -76,18 +84,37 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
-// Performance monitoring for production
-export function reportWebVitals(metric: {
+export function reportWebVitals(_metric: {
   id: string;
   name: string;
   startTime: number;
   value: number;
   label: string;
 }) {
-  // Send to analytics in production
-  if (process.env.NODE_ENV === "production") {
-    console.info("[Web Vitals]", metric.name, metric.value);
-  }
+}
+
+async function DynamicProviders({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locale = await detectLocale();
+
+  return (
+    <div className="flex flex-col flex-1 noise">
+      <Providers locale={locale}>
+        <Suspense fallback={null}>
+          {children}
+        </Suspense>
+        <Suspense fallback={null}>
+          <PwaComponents />
+        </Suspense>
+        <Suspense fallback={null}>
+          <AppFooter />
+        </Suspense>
+      </Providers>
+    </div>
+  );
 }
 
 export default async function RootLayout({
@@ -95,29 +122,23 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await detectLocale();
+  const nonce = (await headers()).get('x-nonce') ?? '';
+  const htmlLang = await detectLocale();
+
   return (
-    <html lang={locale} suppressHydrationWarning className={inter.variable}>
+    <html lang={htmlLang} suppressHydrationWarning className={`${inter.variable} ${displayFont.variable}`}>
       <head>
-        {/* Prevent theme flash - inline before React hydrates */}
-        <script dangerouslySetInnerHTML={{
-          __html: `(function(){try{var e=localStorage.getItem('inkverse-theme');if(e==='dark'||(e!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`
-        }} />
-        {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://**.vercel-storage.com" />
       </head>
-<body className="font-sans antialiased flex flex-col min-h-screen">
-      <ScrollProgress />
-      <SkipLink />
-      <div className="flex flex-col flex-1 noise">
-      <Providers locale={locale}>
-        {children}
-        <PwaComponents />
-        <AppFooter />
-      </Providers>
-    </div>
+      <Script id="theme-init" strategy="beforeInteractive" nonce={nonce} dangerouslySetInnerHTML={{
+        __html: `(function(){try{var e=localStorage.getItem('inkverse-theme');if(e==='dark'||(e!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`
+      }} />
+      <body className="font-sans antialiased flex flex-col min-h-screen">
+        <Suspense fallback={<div className="flex flex-col flex-1 noise" />}>
+          <DynamicProviders>{children}</DynamicProviders>
+        </Suspense>
       </body>
     </html>
   );

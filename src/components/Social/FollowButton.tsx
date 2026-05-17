@@ -1,9 +1,11 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useOptimistic, useTransition } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
+import { toggleFollow } from '@/app/social/actions';
 
 interface FollowButtonProps {
   targetId: string;
@@ -20,58 +22,46 @@ export function FollowButton({
   onFollowChange,
   size = 'default',
 }: FollowButtonProps) {
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [optimisticFollowing, addOptimistic] = useOptimistic(
+    initialIsFollowing,
+    (state) => !state,
+  );
   const { toast } = useToast();
+  const pathname = usePathname();
 
-  const handleToggleFollow = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/follow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          followingId: targetId,
-          followingType: targetType,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al seguir');
+  const handleToggleFollow = () => {
+    startTransition(async () => {
+      addOptimistic(undefined);
+      try {
+        const result = await toggleFollow(targetId, targetType, pathname);
+        onFollowChange?.(result.isFollowing);
+        toast({
+          title: result.isFollowing ? 'Siguiendo' : 'Dejaste de seguir',
+          description: result.message,
+          variant: result.isFollowing ? 'default' : 'destructive',
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: error instanceof Error ? error.message : 'Error al seguir',
+          variant: 'destructive',
+        });
       }
-
-      setIsFollowing(data.isFollowing);
-      onFollowChange?.(data.isFollowing);
-
-      toast({
-        title: data.isFollowing ? 'Siguiendo' : 'Dejaste de seguir',
-        description: data.message,
-        variant: data.isFollowing ? 'default' : 'destructive',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al seguir',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
     <Button
       onClick={handleToggleFollow}
-      disabled={isLoading}
+      disabled={isPending}
       size={size}
-      variant={isFollowing ? 'outline' : 'default'}
-      className={isFollowing ? 'border-[var(--border)]' : ''}
+      variant={optimisticFollowing ? 'outline' : 'default'}
+      className={optimisticFollowing ? 'border-[var(--border)]' : ''}
     >
-      {isLoading ? (
+      {isPending ? (
         <Loader2 className="w-4 h-4 animate-spin" />
-      ) : isFollowing ? (
+      ) : optimisticFollowing ? (
         <>
           <UserMinus className="w-4 h-4 mr-2" />
           Dejar de seguir

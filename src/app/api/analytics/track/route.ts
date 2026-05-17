@@ -172,7 +172,7 @@ async function updateMangaStats(
 async function updateChapterStats(
   tx: any,
   event: _Output<typeof eventSchema>,
-  timestamp: Date
+  _timestamp: Date
 ): Promise<void> {
   if (!event.chapterId || !event.mangaId) return;
 

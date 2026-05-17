@@ -1,18 +1,19 @@
 ﻿'use client';
 
 import { useEffect } from 'react';
+import { ErrorFallback } from '@/components/ui/ErrorFallback';
 import { Button } from '@/components/ui/Button';
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
+import { RefreshCw, Home, Bug } from 'lucide-react';
 import Link from 'next/link';
 
-interface ErrorProps {
+export default function ErrorPage({
+  error,
+  reset,
+}: {
   error: Error & { digest?: string };
   reset: () => void;
-}
-
-export default function ErrorPage({ error, reset }: ErrorProps) {
+}) {
   useEffect(() => {
-    // Log error to monitoring service
     console.error('Application error:', {
       message: error.message,
       digest: error.digest,
@@ -20,7 +21,6 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
       timestamp: new Date().toISOString(),
     });
 
-    // Report to error tracking (Sentry)
     if (process.env.NODE_ENV === 'production') {
       import('@sentry/nextjs').then((sentry) => {
         sentry.captureException(error);
@@ -31,27 +31,8 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--surface)] px-4">
       <div className="max-w-lg w-full text-center">
-        {/* Error Icon */}
-        <div className="mb-8">
-<div className="w-24 h-24 mx-auto bg-[var(--error)]/10 rounded-full flex items-center justify-center">
-                                <AlertTriangle className="w-12 h-12 text-[var(--error)]" />
-          </div>
-        </div>
+        <ErrorFallback error={error} reset={reset} showReset={false} />
 
-        {/* Title */}
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
-          ¡Ups! Algo salió mal
-        </h1>
-
-        {/* Message */}
-        <p className="text-[var(--text-secondary)] text-lg mb-2">
-          Ha ocurrido un error inesperado.
-        </p>
-        <p className="text-[var(--text-tertiary)] text-sm mb-8">
-          No te preocupes, estamos trabajando para solucionarlo.
-        </p>
-
-        {/* Error details (only in development) */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mb-8 text-left">
             <div className="bg-[var(--surface)] rounded-lg p-4 border border-[var(--border)]">
@@ -71,12 +52,11 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button
             onClick={reset}
             size="lg"
-	className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:opacity-90"
+            className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:opacity-90"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Intentar de nuevo
@@ -95,7 +75,6 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
           </Button>
         </div>
 
-        {/* Help text */}
         <p className="mt-8 text-[var(--text-tertiary)] text-sm">
           Si el problema persiste, contacta con{' '}
           <Link href="/contact" className="text-[var(--primary)] hover:underline">

@@ -1,16 +1,10 @@
-/**
- * POST /api/analytics/reading
- *
- * API para guardar eventos de lectura en MongoDB.
- * Usa el ReadingAnalyticsService para procesar y almacenar los eventos.
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
-import { readingAnalyticsService, ReadingEventType } from '@/core/services/ReadingAnalyticsService';
+import { readingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+import type { ReadingEventType } from '@/core/services/IReadingAnalyticsRepository';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
-// Schema de validación
 const readingEventSchema = z.object({
   chapterId: z.string().min(1),
   mangaId: z.string().min(1),
@@ -39,7 +33,6 @@ const batchEventsSchema = z.object({
   })).max(10),
 });
 
-// POST /api/analytics/reading - Guardar evento(s) de lectura
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -51,11 +44,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
+    if (!readingAnalyticsService) {
+      return NextResponse.json(
+        { error: 'Servicio no inicializado' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
 
-    // Verificar si es batch de eventos o evento único
     if (body.events && Array.isArray(body.events)) {
-      // Procesar batch de eventos
       const result = batchEventsSchema.safeParse(body);
       if (!result.success) {
         return NextResponse.json(
@@ -66,15 +67,14 @@ export async function POST(request: NextRequest) {
 
       const { chapterId, mangaId, events } = result.data;
 
-    // Procesar todos los eventos
     const userId = session.user.id;
     if (!userId) {
       return NextResponse.json({ error: 'Usuario no autenticado' }, { status: 401 });
     }
-    
+
     const savedLogs = await Promise.all(
-        events.map((evt: any) =>
-        readingAnalyticsService.trackReadingEvent(
+        events.map((evt) =>
+        readingAnalyticsService!.trackReadingEvent(
           userId,
           chapterId,
           mangaId,
@@ -90,15 +90,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         eventsProcessed: savedLogs.length,
-        logs: savedLogs.map((log: any) => ({
-          id: log._id?.toString(),
+        logs: savedLogs.map((log) => ({
+          id: log.id,
           totalTimeSeconds: log.totalTimeSeconds,
           pagesViewed: log.pagesViewed.length,
           completed: log.completed,
         })),
       });
     } else {
-      // Procesar evento único
       const result = readingEventSchema.safeParse(body);
       if (!result.success) {
         return NextResponse.json(
@@ -123,7 +122,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         log: {
-          id: log._id?.toString(),
+          id: log.id,
           totalTimeSeconds: log.totalTimeSeconds,
           pagesViewed: log.pagesViewed.length,
           completed: log.completed,

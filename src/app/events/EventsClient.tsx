@@ -15,6 +15,8 @@ import {
   ChevronRight,
   AlertTriangle,
 } from 'lucide-react';
+import { useT } from '@/i18n';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface SubData {
   id: string;
@@ -61,13 +63,13 @@ export function EventsClient({
   userId,
   search,
   typeFilter,
-  highlight,
+  highlight: _highlight,
   types,
 }: EventsClientProps) {
+  const t = useT();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(initialTab);
 
-  // Sync activeTab when initialTab prop changes (e.g. browser back/forward)
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
@@ -128,7 +130,6 @@ export function EventsClient({
         } else {
           setVotedId(null);
         }
-        // Update vote count locally
         setLocalVoting((prev) => {
           if (!prev) return prev;
           return {
@@ -140,19 +141,18 @@ export function EventsClient({
         });
       }
     } catch {
-      setVoteError('Error al registrar tu voto. Inténtalo de nuevo.');
+      setVoteError(t('events.voteError'));
     } finally {
       setVotingLoading(false);
     }
   };
 
-  // Type label helper
-  const typeLabel = (t: string) => {
-    switch (t) {
-      case 'ART_CHALLENGE': return '🎨 Desafío de Arte';
-      case 'SPEEDREADING': return '⚡ Lectura Rápida';
-      case 'COMMUNITY': return '👥 Comunidad';
-      default: return t;
+  const typeLabel = (typeVal: string) => {
+    switch (typeVal) {
+      case 'ART_CHALLENGE': return `🎨 ${t('events.typeLabel.artChallenge')}`;
+      case 'SPEEDREADING': return `⚡ ${t('events.typeLabel.speedReading')}`;
+      case 'COMMUNITY': return `👥 ${t('events.typeLabel.community')}`;
+      default: return typeVal;
     }
   };
 
@@ -177,16 +177,16 @@ export function EventsClient({
         </div>
         <div className="max-w-6xl mx-auto px-6 py-14 relative z-10 text-center">
           <div className="inline-flex justify-center items-center gap-2 bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] border border-[var(--accent-purple)]/20 text-xs font-bold px-4 py-1.5 rounded-full mb-5">
-            <Flame size={14} /> EVENTOS DE LA COMUNIDAD
+            <Flame size={14} /> {t('events.hero.badge')}
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
-            Desafíos de{' '}
+            {t('events.hero.title1')}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-purple)] to-[var(--warning)]">
-              Arte IA
+              {t('events.hero.title2')}
             </span>
           </h1>
           <p className="text-[var(--text-secondary)] text-xl max-w-2xl mx-auto">
-            La plataforma da el prompt base. Tú generas el arte. La comunidad vota. El mejor gana InkCoins y reconocimiento eterno.
+            {t('events.hero.desc')}
           </p>
         </div>
       </div>
@@ -199,12 +199,13 @@ export function EventsClient({
             <select
               value={typeFilter}
               onChange={handleTypeChange}
+              aria-label={t('events.filter.typeAria')}
               className="bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold rounded-lg px-3 py-2 cursor-pointer hover:border-[var(--primary)]/50 focus:outline-none focus:border-[var(--primary)] transition-colors"
             >
-              <option value="">Todos los tipos</option>
-              {types.map((t) => (
-                <option key={t} value={t}>
-                  {typeLabel(t)}
+              <option value="">{t('events.filter.allTypes')}</option>
+              {types.map((tv) => (
+                <option key={tv} value={tv}>
+                  {typeLabel(tv)}
                 </option>
               ))}
             </select>
@@ -220,7 +221,8 @@ export function EventsClient({
               <input
                 name="q"
                 defaultValue={search}
-                placeholder="Buscar eventos..."
+                placeholder={t('events.filter.searchPlaceholder')}
+                aria-label={t('events.filter.searchAria')}
                 className="bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] text-sm rounded-lg pl-9 pr-3 py-2 w-56 focus:outline-none focus:border-[var(--primary)]/50 transition-colors placeholder:text-[var(--text-muted)]"
               />
             </div>
@@ -228,7 +230,7 @@ export function EventsClient({
               type="submit"
               className="bg-[var(--primary)] text-[var(--text-inverse)] text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
             >
-              Buscar
+              {t('events.filter.searchButton')}
             </button>
           </form>
         </div>
@@ -245,7 +247,7 @@ export function EventsClient({
                   : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {tab === 'active' ? '🔴 Activos' : tab === 'voting' ? '🗳️ Votación' : '🏆 Pasados'}
+              {tab === 'active' ? `🔴 ${t('events.tabs.active')}` : tab === 'voting' ? `🗳️ ${t('events.tabs.voting')}` : `🏆 ${t('events.tabs.past')}`}
             </button>
           ))}
         </div>
@@ -258,13 +260,13 @@ export function EventsClient({
                 <Trophy size={48} className="mx-auto mb-4 opacity-30" />
                 <p className="text-lg font-semibold">
                   {activeTab === 'active'
-                    ? 'No hay eventos activos ahora'
-                    : 'No hay eventos pasados'}
+                    ? t('events.empty.active')
+                    : t('events.empty.past')}
                 </p>
                 <p className="text-sm mt-1">
                   {activeTab === 'active'
-                    ? 'Vuelve pronto para nuevos desafíos'
-                    : 'Los eventos completados aparecerán aquí'}
+                    ? t('events.empty.activeHint')
+                    : t('events.empty.pastHint')}
                 </p>
               </div>
             )}
@@ -273,7 +275,7 @@ export function EventsClient({
               return <EventCard key={event.id} event={event} badge={badge} index={idx} />;
             })}
 
-            {/* Submit Your Own (only on active tab) */}
+            {/* Submit Your Own */}
             {activeTab === 'active' && (
               <div className="bg-[var(--surface)] border border-dashed border-[var(--border)] rounded-3xl p-7 flex flex-col items-center justify-center text-center hover:bg-[var(--surface-sunken)] transition-colors cursor-pointer group">
                 <div className="bg-[var(--surface-sunken)] border border-[var(--border)] group-hover:border-[var(--accent-purple)] p-4 rounded-full mb-4 transition-colors">
@@ -281,19 +283,18 @@ export function EventsClient({
                     size={28}
                     className="text-[var(--text-muted)] group-hover:text-[var(--accent-purple)] transition-colors"
                   />
-                </div>
-                <h3 className="font-bold text-lg mb-2 group-hover:text-[var(--accent-purple)] transition-colors">
-                  ¿Tienes una idea para un evento?
-                </h3>
+                </div><h2 className="font-bold text-lg mb-2 group-hover:text-[var(--accent-purple)] transition-colors">
+  {t('events.submit.idea')}
+</h2>
                 <p className="text-sm text-[var(--text-secondary)] mb-4">
-                  Propón un desafío y si la comunidad vota a favor, lo lanzaremos con recompensas oficiales.
+                  {t('events.submit.desc')}
                 </p>
                 <button
                   disabled
                   className="bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] border border-[var(--accent-purple)]/30 font-bold text-sm px-5 py-2.5 rounded-xl opacity-60 cursor-not-allowed transition-all"
-                  title="Próximamente"
+                  title={t('events.submit.button')}
                 >
-                  Proponer Evento (próximamente)
+                  {t('events.submit.button')}
                 </button>
               </div>
             )}
@@ -312,26 +313,26 @@ export function EventsClient({
               <>
                 <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
                   <div>
-                    <h2 className="font-bold text-lg">Votación: {localVoting.event.title}</h2>
+                    <h2 className="font-bold text-lg">{t('events.voting.title', { title: localVoting.event.title })}</h2>
                     <p className="text-[var(--text-secondary)] text-sm mt-1">
-                      Cierra en:{' '}
-                      <span className="font-bold text-[var(--warning)]">
+                      {t('events.voting.closesIn')}{' '}
+                      <span className="font-bold text-amber-600 dark:text-amber-400">
                         {(() => {
                           const end = new Date(localVoting.event.endDate);
                           const now = new Date();
                           const diff = end.getTime() - now.getTime();
-                          if (diff <= 0) return 'Finalizado';
+                          if (diff <= 0) return t('events.voting.finished');
                           const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                           const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                          if (days > 0) return `${days} día${days > 1 ? 's' : ''}`;
-                          return `${hours}h`;
+                          if (days > 0) return t('events.voting.days', { count: days });
+                          return t('events.voting.hours', { count: hours });
                         })()}
                       </span>
                     </p>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)] font-semibold">
                     <Star className="text-[var(--warning)] fill-current" />{' '}
-                    <span>Vota por tu favorita</span>
+                    <span>{t('events.voting.votePrompt')}</span>
                   </div>
                 </div>
 
@@ -341,11 +342,13 @@ export function EventsClient({
                       key={sub.id}
                       className="break-inside-avoid bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group"
                     >
-                      <div className="relative">
-                        <img
+                      <div className="relative overflow-hidden min-h-[200px]">
+                        <OptimizedImage
                           src={sub.imageUrl}
-                          alt={`Entrada de ${sub.user.username}`}
-                          className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                          alt={`${t('events.voting.voteButton')} ${sub.user.username}`}
+                          fill
+                          className="group-hover:scale-[1.02] transition-transform duration-300"
+                          objectFit="cover"
                         />
                         <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-[var(--text-inverse)] text-xs font-bold px-2.5 py-1 rounded-lg">
                           @{sub.user.username}
@@ -373,7 +376,7 @@ export function EventsClient({
                                   : 'bg-[var(--primary)] text-[var(--text-inverse)] hover:opacity-90'
                             }`}
                           >
-                            {votedId === sub.id ? '✓ Votada' : 'Votar'}
+                            {votedId === sub.id ? `✓ ${t('events.voting.votedButton')}` : t('events.voting.voteButton')}
                           </button>
                         </div>
                       </div>
@@ -384,9 +387,9 @@ export function EventsClient({
             ) : (
               <div className="text-center py-16 text-[var(--text-muted)]">
                 <Star size={48} className="mx-auto mb-4 opacity-30" />
-                <p className="text-lg font-semibold">No hay votaciones activas</p>
+                <p className="text-lg font-semibold">{t('events.voting.noActiveTitle')}</p>
                 <p className="text-sm mt-1">
-                  Las votaciones se abren cuando finaliza un evento de arte
+                  {t('events.voting.noActiveHint')}
                 </p>
               </div>
             )}
@@ -402,7 +405,7 @@ export function EventsClient({
               className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               <ChevronLeft size={16} />
-              Anterior
+              {t('events.pagination.previous')}
             </button>
             <span className="text-sm font-semibold text-[var(--text-secondary)]">
               {page} / {totalPages}
@@ -412,7 +415,7 @@ export function EventsClient({
               disabled={page >= totalPages}
               className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
-              Siguiente
+              {t('events.pagination.next')}
               <ChevronRight size={16} />
             </button>
           </div>

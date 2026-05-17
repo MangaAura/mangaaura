@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import { sanitizeText } from '@/lib/sanitize';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // Schema para DMCA takedown request
 const dmcaSchema = z.object({
@@ -21,6 +22,10 @@ const dmcaSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    const rlResponse = await withRateLimit(request, undefined, 'dmca');
+    if (rlResponse) return rlResponse;
+
     const result = dmcaSchema.safeParse(body);
 
     if (!result.success) {
@@ -50,7 +55,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar rate limiting (1 DMCA cada 24 horas por IP)
-    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     
     const recentDMCAs = await prisma.dMCATakedown.count({
@@ -128,7 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log de seguridad
-    console.log(`[Security] DMCA request submitted: ${dmca.id} by ${requesterEmail}`);
+    // console.log(`[Security] DMCA request submitted: ${dmca.id} by ${requesterEmail}`);
 
     return NextResponse.json({
       success: true,

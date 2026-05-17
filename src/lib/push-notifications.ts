@@ -109,8 +109,6 @@ export async function sendPushNotification(
   );
 
   const failed = results.filter((r: any) => r.status === 'rejected');
-  const success = results.filter((r: any) => r.status === 'fulfilled');
-
   return {
     success: failed.length === 0,
     error: failed.length > 0 ? `${failed.length} de ${results.length} fallaron` : undefined,

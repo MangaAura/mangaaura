@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
               stripeCustomerId: session.customer as string,
             },
           });
-          console.log(`[Stripe Webhook] Subscription activated for user ${userId}: ${planId}`);
+          // console.log(`[Stripe Webhook] Subscription activated for user ${userId}: ${planId}`);
           break;
         }
 
@@ -74,17 +74,17 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(`[Stripe Webhook] Added ${inkcoinsAmount} InkCoins to user ${userId}`);
+        // console.log(`[Stripe Webhook] Added ${inkcoinsAmount} InkCoins to user ${userId}`);
         break;
       }
 
       case 'checkout.session.expired': {
-        console.log('[Stripe Webhook] Checkout session expired');
+        // console.log('[Stripe Webhook] Checkout session expired');
         break;
       }
 
       case 'payment_intent.payment_failed': {
-        console.log('[Stripe Webhook] Payment failed');
+        // console.log('[Stripe Webhook] Payment failed');
         break;
       }
 
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           data: updateData,
         });
 
-        console.log(`[Stripe Webhook] Subscription ${status} for user ${user.id}`);
+        // console.log(`[Stripe Webhook] Subscription ${status} for user ${user.id}`);
         break;
       }
 
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(`[Stripe Webhook] Subscription canceled for user ${user.id}`);
+        // console.log(`[Stripe Webhook] Subscription canceled for user ${user.id}`);
         break;
       }
 
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(`[Stripe Webhook] Invoice paid for user ${user.id}, renewed until ${new Date((sub as any).current_period_end * 1000).toISOString()}`);
+        // console.log(`[Stripe Webhook] Invoice paid for user ${user.id}, renewed until ${new Date((sub as any).current_period_end * 1000).toISOString()}`);
         break;
       }
 
@@ -206,17 +206,17 @@ export async function POST(request: NextRequest) {
           data: { subscriptionStatus: 'past_due' },
         });
 
-        console.log(`[Stripe Webhook] Invoice payment failed for user ${failedUser.id}`);
+        // console.log(`[Stripe Webhook] Invoice payment failed for user ${failedUser.id}`);
         break;
       }
 
       default:
-        console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
+        // console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
     }
 
     return Response.json({ received: true });
   } catch (error) {
-    console.error('[Stripe Webhook] Error processing event:', error);
+    // console.error('[Stripe Webhook] Error processing event:', error);
     return Response.json({ error: 'Failed to process webhook' }, { status: 500 });
   }
 }

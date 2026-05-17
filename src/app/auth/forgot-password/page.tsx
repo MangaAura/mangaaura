@@ -6,23 +6,23 @@ import { ArrowLeft, Mail, Loader2, CheckCircle, ArrowRight } from 'lucide-react'
 import { z } from 'zod';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
-import { useAuthError, passwordResetErrorMap } from '@/hooks/useAuthError';
+import { useAuthError } from '@/hooks/useAuthError';
 import { cn } from '@/lib/utils';
-
-const forgotPasswordSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'El correo electrónico es obligatorio')
-    .email('Por favor ingresa un correo electrónico válido'),
-});
-
-type FormState = 'initial' | 'loading' | 'success' | 'error';
+import { useT } from '@/i18n';
 
 export default function ForgotPasswordPage() {
+  const t = useT();
   const [email, setEmail] = useState('');
-  const [formState, setFormState] = useState<FormState>('initial');
+  const [formState, setFormState] = useState<'initial' | 'loading' | 'success' | 'error'>('initial');
   const { toast } = useToast();
   const { error, clearError, handleNetworkError, handleValidationError } = useAuthError();
+
+  const forgotPasswordSchema = z.object({
+    email: z
+      .string()
+      .min(1, t('auth.validation.emailRequired'))
+      .email(t('auth.validation.emailInvalid')),
+  });
   
   const [touched, setTouched] = useState(false);
   const [validationError, setValidationError] = useState('');
@@ -33,8 +33,8 @@ export default function ForgotPasswordPage() {
       setValidationError('');
       return true;
     } catch (err) {
-    if (err instanceof z.ZodError) {
-      const message = (err as any).issues?.[0]?.message || (err as any).errors?.[0]?.message || 'Email inválido';
+      if (err instanceof z.ZodError) {
+        const message = (err as any).issues?.[0]?.message || (err as any).errors?.[0]?.message || t('auth.validation.emailInvalid');
         setValidationError(message);
         return false;
       }
@@ -62,7 +62,6 @@ export default function ForgotPasswordPage() {
     setTouched(true);
     clearError();
 
-    // Validar antes de enviar
     if (!validateEmail(email)) {
       handleValidationError('email', validationError);
       setFormState('error');
@@ -83,38 +82,33 @@ export default function ForgotPasswordPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Manejar errores específicos
         if (data.error?.includes('not found') || data.error?.includes('no existe')) {
-          // Por seguridad, no revelar si el email existe
-          // Mostrar mensaje de éxito igual
           setFormState('success');
           toast({
-            title: 'Email enviado',
-            description: 'Si existe una cuenta con este email, recibirás un enlace para restablecer tu contraseña.',
+            title: t('auth.forgotPassword.toastTitle'),
+            description: t('auth.forgotPassword.toastDesc'),
             variant: 'default',
           });
           return;
         }
-        throw new Error(data.error || 'Error al enviar el email');
+        throw new Error(data.error || t('auth.forgotPassword.submitError'));
       }
 
       setFormState('success');
       toast({
-        title: '¡Email enviado!',
-        description: 'Revisa tu bandeja de entrada para continuar.',
+        title: t('auth.forgotPassword.toastSuccessTitle'),
+        description: t('auth.forgotPassword.toastSuccessDesc'),
         variant: 'default',
       });
     } catch (err) {
-      const networkError = handleNetworkError(() => handleSubmit(e));
+      handleNetworkError(() => handleSubmit(e));
       setFormState('error');
       
-      // Por seguridad, mostrar éxito igual
-      // para no revelar si el email existe o no
       setTimeout(() => {
         setFormState('success');
         toast({
-          title: 'Email enviado',
-          description: 'Si existe una cuenta con este email, recibirás un enlace para restablecer tu contraseña.',
+          title: t('auth.forgotPassword.toastTitle'),
+          description: t('auth.forgotPassword.toastDesc'),
           variant: 'default',
         });
       }, 100);
@@ -128,7 +122,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
-          <ArrowLeft size={20} /> Volver al Inicio
+          <ArrowLeft size={20} /> {t('auth.resetPassword.backToHome')}
         </Link>
       </div>
 
@@ -136,12 +130,12 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-md animate-fade-in-up">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-extrabold tracking-tight mb-2">
-              {formState === 'success' ? '¡Revisa tu email!' : 'Recuperar Contraseña'}
+              {formState === 'success' ? t('auth.forgotPassword.successTitle') : t('auth.forgotPassword.title')}
             </h1>
             <p className="text-muted">
               {formState === 'success'
-                ? 'Te hemos enviado instrucciones para restablecer tu contraseña.'
-                : 'Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña.'}
+                ? t('auth.forgotPassword.successSubtitle')
+                : t('auth.forgotPassword.subtitle')}
             </p>
           </div>
 
@@ -151,10 +145,9 @@ export default function ForgotPasswordPage() {
                 <div className="w-16 h-16 bg-[var(--success)]/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-[var(--success)]" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">Email Enviado</h3>
+                <h3 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">{t('auth.forgotPassword.emailSent')}</h3>
                 <p className="text-muted mb-6">
-                  Si existe una cuenta con el email <strong className="text-[var(--text-primary)]">{email}</strong>, 
-                  recibirás un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada y carpeta de spam.
+                  {t('auth.forgotPassword.emailSentDesc', { email })}
                 </p>
                 <div className="space-y-3">
                   <Link
@@ -162,7 +155,7 @@ export default function ForgotPasswordPage() {
                     className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
                   >
                     <ArrowLeft size={18} />
-                    Volver al inicio de sesión
+                    {t('auth.forgotPassword.backToLogin')}
                   </Link>
                   <button
                     onClick={() => {
@@ -172,14 +165,13 @@ export default function ForgotPasswordPage() {
                     }}
                     className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 text-accent-blue hover:text-accent-blue-hover font-semibold transition-colors"
                   >
-                    Enviar de nuevo
+                    {t('auth.forgotPassword.sendAgain')}
                     <ArrowRight size={18} />
                   </button>
                 </div>
               </div>
             ) : (
               <>
-                {/* Mensaje de error general */}
                 {error && (
                   <div className="mb-6">
                     <ErrorMessage
@@ -194,10 +186,11 @@ export default function ForgotPasswordPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Correo Electrónico</label>
+                    <label htmlFor="forgot-email" className="block text-sm font-semibold mb-2">{t('auth.email')}</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                       <input
+                        id="forgot-email"
                         type="email"
                         value={email}
                         onChange={handleChange}
@@ -206,12 +199,12 @@ export default function ForgotPasswordPage() {
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           hasError
-? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
-: isValidEmail
-? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
-                            : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
+                            ? 'border-[var(--error)] focus:border-[var(--error)] focus:ring-1 focus:ring-[var(--error)]'
+                            : isValidEmail
+                              ? 'border-[var(--success)] focus:border-[var(--success)] focus:ring-1 focus:ring-[var(--success)]'
+                              : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
-                        placeholder="tu@email.com"
+                        placeholder={t('auth.forgotPassword.emailPlaceholder')}
                       />
                       {isValidEmail && (
                         <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
@@ -227,7 +220,7 @@ export default function ForgotPasswordPage() {
                       </div>
                     )}
                     <p className="mt-2 text-xs text-muted">
-                      Ingresa el email asociado a tu cuenta. Te enviaremos un enlace seguro.
+                      {t('auth.forgotPassword.emailHelp')}
                     </p>
                   </div>
 
@@ -239,12 +232,12 @@ export default function ForgotPasswordPage() {
                     {formState === 'loading' ? (
                       <>
                         <Loader2 size={18} className="animate-spin" />
-                        Enviando...
+                        {t('auth.forgotPassword.sending')}
                       </>
                     ) : (
                       <>
                         <Mail size={18} />
-                        Enviar Enlace de Recuperación
+                        {t('auth.forgotPassword.submit')}
                       </>
                     )}
                   </button>
@@ -252,9 +245,9 @@ export default function ForgotPasswordPage() {
 
                 <div className="mt-6 pt-6 border-t border-custom">
                   <p className="text-sm text-muted">
-                    <strong className="text-[var(--text-primary)]">¿No recibiste el email?</strong>
+                    <strong className="text-[var(--text-primary)]">{t('auth.forgotPassword.noEmail')}</strong>
                     <br />
-                    Revisa tu carpeta de spam o solicita un nuevo enlace en unos minutos.
+                    {t('auth.forgotPassword.noEmailHint')}
                   </p>
                 </div>
               </>
@@ -263,9 +256,9 @@ export default function ForgotPasswordPage() {
 
           {formState !== 'success' && (
             <p className="text-center text-sm text-muted mt-8">
-              ¿Recordaste tu contraseña?{' '}
+              {t('auth.forgotPassword.rememberedPassword')}{' '}
               <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
-                Inicia sesión aquí
+                {t('auth.forgotPassword.loginHere')}
               </Link>
             </p>
           )}

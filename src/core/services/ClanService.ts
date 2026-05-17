@@ -1,7 +1,5 @@
-import { prisma } from '@/lib/prisma';
+import type { IClanRepository } from './IClanRepository';
 
-// Season configuration
-const SEASON_DURATION_DAYS = 30;
 const REWARD_DISTRIBUTION = {
   TOP_1: { banner: true, inkcoins: 10000, badge: 'season_champion' },
   TOP_2: { banner: false, inkcoins: 5000, badge: 'season_runner_up' },
@@ -27,161 +25,87 @@ export interface SeasonResult {
 }
 
 export class ClanService {
-  /**
-   * Calculate monthly rankings for clans
-   */
+  constructor(private readonly repo: IClanRepository) {}
+
   async calculateSeasonalRanking(
     seasonNumber?: number,
     limit: number = 100
   ): Promise<ClanRanking[]> {
     const where = seasonNumber ? { currentSeason: seasonNumber } : {};
+    const clans = await this.repo.findClansOrderedByScore(where as { currentSeason?: number }, limit);
 
-    const clans = await prisma.clan.findMany({
-      where,
-      orderBy: { monthlyScore: 'desc' },
-      take: limit,
-      include: {
-        _count: {
-          select: { members: true },
-        },
-      },
-    });
-
-    return clans.map((clan: any, index: any) => ({
+    return clans.map((clan, index) => ({
       clanId: clan.id,
       clanName: clan.name,
       emblemUrl: clan.emblemUrl,
       monthlyScore: clan.monthlyScore,
       totalScore: clan.totalScore,
-      memberCount: clan._count.members,
+      memberCount: clan._count?.members ?? 0,
       rank: index + 1,
     }));
   }
 
-  /**
-   * Get current season rankings
-   */
   async getCurrentRankings(limit: number = 100): Promise<ClanRanking[]> {
     return this.calculateSeasonalRanking(undefined, limit);
   }
 
-  /**
-   * Distribute seasonal rewards to top clans
-   */
   async distributeSeasonRewards(
     seasonNumber: number,
-    seasonWinnerId: string
+    _seasonWinnerId: string
   ): Promise<SeasonResult> {
     const rankings = await this.calculateSeasonalRanking(seasonNumber, 10);
-    
+
     const endDate = new Date();
-    const rewardsDistributed = await prisma.$transaction(async (tx: any) => {
-      // Process rewards for top clans
-      for (const clan of rankings) {
-        const reward = this.getRewardForRank(clan.rank);
-        
-        if (!reward) continue;
 
-        // Get clan members to distribute rewards
-        const members = await tx.clanMembership.findMany({
-          where: { clanId: clan.clanId },
-          include: {
-            user: {
-              select: { id: true },
-            },
-          },
-        });
+    for (const clan of rankings) {
+      const reward = this.getRewardForRank(clan.rank);
+      if (!reward) continue;
 
-        // Distribute InkCoins to members based on contribution
-        const totalContributed = members.reduce(
-          (sum: any, m: any) => sum + m.contributedScore,
-          0
-        ) || 1;
+      const members = await this.repo.findMembersByClan(clan.clanId);
 
-        for (const member of members) {
-          const share = member.contributedScore / totalContributed;
-          const memberReward = Math.floor(reward.inkcoins * share);
+      const totalContributed = members.reduce(
+        (sum, m) => sum + m.contributedScore,
+        0
+      ) || 1;
 
-          if (memberReward > 0) {
-            // Update user balance
-            await tx.user.update({
-              where: { id: member.userId },
-              data: {
-                inkcoinsBalance: { increment: memberReward },
-              },
-            });
+      for (const member of members) {
+        const share = member.contributedScore / totalContributed;
+        const memberReward = Math.floor(reward.inkcoins * share);
 
-            // Create transaction record
-            await tx.transaction.create({
-              data: {
-                userId: member.userId,
-                amount: memberReward,
-                type: 'CLAN_SEASON_REWARD',
-                description: `Recompensa de temporada ${seasonNumber} - Clan ${clan.clanName} (Posición #${clan.rank})`,
-              },
-            });
-          }
+        if (memberReward > 0) {
+          await this.repo.updateUserInkCoins(member.userId, memberReward);
+          await this.repo.createTransaction(
+            member.userId,
+            memberReward,
+            'CLAN_SEASON_REWARD',
+            `Recompensa de temporada ${seasonNumber} - Clan ${clan.clanName} (Posición #${clan.rank})`
+          );
         }
+      }
 
-        // Award badge if applicable
-        if (reward.badge) {
-          const achievementDef = await tx.achievementDefinition.findUnique({
-            where: { badgeId: reward.badge },
-          });
-
-          if (achievementDef) {
-            for (const member of members) {
-              const hasAchievement = await tx.userAchievement.findUnique({
-                where: {
-                  userId_achievementId: {
-                    userId: member.userId,
-                    achievementId: achievementDef.id,
-                  },
-                },
-              });
-
-              if (!hasAchievement) {
-                await tx.userAchievement.create({
-                  data: {
-                    userId: member.userId,
-                    achievementId: achievementDef.id,
-                  },
-                });
-              }
+      if (reward.badge) {
+        const achievementDef = await this.repo.findAchievementByBadge(reward.badge);
+        if (achievementDef) {
+          for (const member of members) {
+            const hasAchievement = await this.repo.findUserAchievement(member.userId, achievementDef.id);
+            if (!hasAchievement) {
+              await this.repo.createUserAchievement(member.userId, achievementDef.id);
             }
           }
         }
       }
+    }
 
-      // Reset monthly scores and increment season
-      await tx.clan.updateMany({
-        data: {
-          monthlyScore: 0,
-          currentSeason: { increment: 1 },
-        },
-      });
-
-      // Reset member contributed scores
-      await tx.clanMembership.updateMany({
-        data: {
-          contributedScore: 0,
-        },
-      });
-
-      return true;
-    });
+    await this.repo.resetSeasonalScores();
 
     return {
       seasonNumber,
       endDate,
       topClans: rankings,
-      rewardsDistributed,
+      rewardsDistributed: true,
     };
   }
 
-  /**
-   * Get reward configuration for a specific rank
-   */
   private getRewardForRank(rank: number) {
     if (rank === 1) return REWARD_DISTRIBUTION.TOP_1;
     if (rank === 2) return REWARD_DISTRIBUTION.TOP_2;
@@ -190,9 +114,6 @@ export class ClanService {
     return null;
   }
 
-  /**
-   * Get clan statistics
-   */
   async getClanStats(clanId: string): Promise<{
     totalMembers: number;
     totalContributed: number;
@@ -204,33 +125,21 @@ export class ClanService {
       contributedScore: number;
     } | null;
   }> {
-    const members = await prisma.clanMembership.findMany({
-      where: { clanId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-          },
-        },
-      },
-      orderBy: { contributedScore: 'desc' },
-    });
+    const members = await this.repo.findMembersWithUsers(clanId);
 
     const totalMembers = members.length;
-const totalContributed = members.reduce(
-        (sum: any, m: any) => sum + m.contributedScore,
-        0
-      );
+    const totalContributed = members.reduce(
+      (sum, m) => sum + (m.contributedScore || 0),
+      0
+    );
     const averageContribution = totalMembers > 0 ? totalContributed / totalMembers : 0;
 
     const topContributor = members.length > 0
       ? {
-          userId: members[0].user.id,
-          username: members[0].user.username,
-          avatarUrl: members[0].user.avatarUrl,
-          contributedScore: members[0].contributedScore,
+          userId: members[0].user!.id,
+          username: members[0].user!.username,
+          avatarUrl: members[0].user!.avatarUrl,
+          contributedScore: members[0].contributedScore || 0,
         }
       : null;
 
@@ -242,66 +151,29 @@ const totalContributed = members.reduce(
     };
   }
 
-  /**
-   * Update clan leader
-   */
   async transferLeadership(
     clanId: string,
     currentLeaderId: string,
     newLeaderId: string
   ): Promise<void> {
-    await prisma.$transaction([
-      // Demote current leader
-      prisma.clanMembership.updateMany({
-        where: {
-          clanId,
-          userId: currentLeaderId,
-          role: 'LEADER',
-        },
-        data: { role: 'OFFICER' },
-      }),
-
-      // Promote new leader
-      prisma.clanMembership.updateMany({
-        where: {
-          clanId,
-          userId: newLeaderId,
-        },
-        data: { role: 'LEADER' },
-      }),
-
-      // Update clan leaderId
-      prisma.clan.update({
-        where: { id: clanId },
-        data: { leaderId: newLeaderId },
-      }),
-    ]);
+    await this.repo.transferLeadershipInTransaction(clanId, currentLeaderId, newLeaderId);
   }
 
-  /**
-   * Check if season should end and distribute rewards
-   */
   async checkAndEndSeason(): Promise<SeasonResult | null> {
-    // Get the clan with the highest current season to determine current season
-    const latestClan = await prisma.clan.findFirst({
-      orderBy: { currentSeason: 'desc' },
-    });
-
-    const currentSeason = latestClan?.currentSeason || 1;
-
-    // Season end logic - checks if 30 days have passed since season start
-    // For now, this is a manual trigger and returns null
-    // Future implementation: store season start date and compare with current date
-    const seasonDurationMs = SEASON_DURATION_DAYS * 24 * 60 * 60 * 1000;
-    const now = new Date();
-
-    // Placeholder: manual trigger - returns null to indicate no auto-end
-    void seasonDurationMs;
-    void now;
+    const currentSeason = await this.repo.findLatestSeason();
+    void currentSeason;
 
     return null;
   }
 }
 
-// Export singleton instance
-export const clanService = new ClanService();
+export let clanService: ClanService | undefined;
+
+export function initializeClanService(repo: IClanRepository): ClanService {
+  const service = new ClanService(repo);
+  clanService = service;
+  return service;
+}
+
+export { ClanService as ClanServiceClass };
+export default ClanService;

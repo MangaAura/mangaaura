@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import { ToggleFollowUseCase } from '@/application/use-cases/follows/ToggleFollowUseCase';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const followSchema = z.object({
   followingId: z.string().uuid(),
@@ -20,6 +21,12 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('follow', userId), 20, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const body = await request.json();

@@ -40,9 +40,10 @@ import {
   ImageIcon,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
 } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import Link from 'next/link';
+import { useT } from '@/i18n';
 
 interface MangaData {
   id: string;
@@ -72,6 +73,7 @@ interface MangaData {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MangaManagementPage() {
+  const t = useT();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedManga, setSelectedManga] = useState<MangaData | null>(null);
@@ -114,10 +116,13 @@ export default function MangaManagementPage() {
           <div className="flex items-center gap-3">
             <div className="w-12 h-16 bg-[var(--surface-sunken)] rounded overflow-hidden flex-shrink-0">
               {row.original.coverUrl ? (
-                <img
+                <OptimizedImage
                   src={row.original.coverUrl}
                   alt={row.original.title}
-                  className="w-full h-full object-cover"
+                  width={48}
+                  height={64}
+                  className="rounded"
+                  objectFit="cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -250,14 +255,14 @@ export default function MangaManagementPage() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-[var(--primary)]" />
-            Manga Management
+            {t('admin.mangaManagement')}
           </h1>
-          <p className="text-[var(--text-muted)]">Manage all manga series on the platform</p>
+          <p className="text-[var(--text-muted)]">{t('admin.manageAllManga')}</p>
         </div>
         <Link href="/creator/upload">
           <Button>
             <Plus className="w-4 h-4 mr-2" />
-            Add Manga
+            {t('admin.addManga')}
           </Button>
         </Link>
       </div>
@@ -269,7 +274,7 @@ export default function MangaManagementPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
               <Input
-                placeholder="Search manga by title or author..."
+                placeholder={t('admin.searchManga')}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -286,10 +291,10 @@ export default function MangaManagementPage() {
               }}
             >
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t('admin.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="all">{t('admin.allStatus')}</SelectItem>
                 <SelectItem value="ONGOING">Ongoing</SelectItem>
                 <SelectItem value="COMPLETED">Completed</SelectItem>
                 <SelectItem value="HIATUS">Hiatus</SelectItem>
@@ -304,7 +309,7 @@ export default function MangaManagementPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            All Manga{' '}
+            {t('admin.allManga')}{' '}
             <span className="text-[var(--text-tertiary)] font-normal">
               ({pagination?.total || 0})
             </span>
@@ -319,16 +324,16 @@ export default function MangaManagementPage() {
             </div>
           ) : error ? (
             <div className="text-center py-8 text-[var(--error)]">
-              Failed to load manga data
+              {t('admin.failedToLoad')}
             </div>
           ) : mangas.length === 0 ? (
             <div className="text-center py-12">
               <BookOpen className="w-12 h-12 mx-auto mb-4 text-[var(--text-secondary)]" />
-              <h3 className="text-lg font-medium text-[var(--text-primary)]">No manga found</h3>
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">{t('admin.noMangaFound')}</h3>
               <p className="text-[var(--text-tertiary)]">
                 {searchQuery
-                  ? 'Try adjusting your search filters'
-                  : 'No manga have been created yet'}
+                  ? t('admin.tryAdjustingFilters')
+                  : t('admin.noMangaCreated')}
               </p>
             </div>
           ) : (
@@ -374,7 +379,7 @@ export default function MangaManagementPage() {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
                   <div className="text-sm text-[var(--text-tertiary)]">
-                    Page {page} of {pagination.totalPages}
+                    {t('admin.page')} {page} {t('admin.of')} {pagination.totalPages}
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -405,9 +410,9 @@ export default function MangaManagementPage() {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Manga</DialogTitle>
+            <DialogTitle>{t('admin.deleteManga')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete the manga and all its chapters. This action cannot be undone.
+              {t('admin.deleteMangaDesc')}
             </DialogDescription>
           </DialogHeader>
           {selectedManga && (
@@ -423,11 +428,11 @@ export default function MangaManagementPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
+              {t('admin.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Delete Manga
+              {t('admin.deleteManga')}
             </Button>
           </DialogFooter>
         </DialogContent>

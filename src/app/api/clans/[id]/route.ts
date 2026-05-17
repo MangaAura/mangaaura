@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/clans/[id] - Obtener detalle de un clan
 export async function GET(
@@ -84,6 +85,9 @@ export async function PUT(
       );
     }
 
+    const rlResponse = await withRateLimit(req, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
     // Check if user is the clan leader
     const membership = await prisma.clanMembership.findFirst({
       where: {
@@ -123,7 +127,7 @@ export async function PUT(
 
 // DELETE /api/clans/[id] - Eliminar clan (solo líder)
 export async function DELETE(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -136,6 +140,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(_req, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     // Check if user is the clan leader
     const membership = await prisma.clanMembership.findFirst({

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { z } from 'zod';
-import { sanitizeText, validateContent } from '@/lib/sanitize';
+import { validateContent } from '@/lib/sanitize';
 
 // Schema para crear comentario
 const createCommentSchema = z.object({
@@ -20,7 +20,6 @@ const FORBIDDEN_WORDS = [
 // Verificar rate limiting (1 comentario por minuto)
 async function checkRateLimit(userId: string): Promise<{ allowed: boolean; retryAfter?: number }> {
   const now = new Date();
-  const windowStart = new Date(now.getTime() - 60000); // 1 minuto atrás
 
   // Buscar o crear registro de rate limit
   const identifier = `comment:${userId}`;
@@ -377,7 +376,7 @@ export async function POST(
         });
 
         if (parentComment && parentComment.userId !== session.user.id) {
-          await notificationService.notifyCommentReply(
+          await (await getNotificationService()).notifyCommentReply(
             parentComment.userId,
             comment,
             comment.user,
@@ -406,10 +405,11 @@ export async function POST(
       });
 
       // Notificar a usuarios mencionados en paralelo
+      const ns = await getNotificationService();
       const mentionNotifications = mentionedUsers
         .filter((u: { id: string }) => u.id !== session.user.id)
         .map((mentionedUser: { id: string; username: string }) =>
-          notificationService.notifyMention(
+          ns.notifyMention(
             mentionedUser.id,
             comment,
             comment.user,

@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Settings, MessageSquare, AlertTriangle, Share2, Menu, X, ArrowLeft, MoreVertical, Coins, Moon, Sun, Monitor, Coffee } from 'lucide-react';
+import { Settings, MessageSquare, AlertTriangle, Share2, Menu, X, ArrowLeft, Coins, Moon, Sun, Monitor, Coffee } from 'lucide-react';
 import Link from 'next/link';
-import { TipButton, CrowdfundingWidget } from '@/components/Payments';
+import { CrowdfundingWidget } from '@/components/Payments';
 
 interface Manga {
   id: string;
@@ -43,10 +43,7 @@ export default function ReaderLayout({
   children,
   manga,
   chapter,
-  prevChapter,
-  nextChapter,
   allChapters,
-  isAuthenticated
 }: ReaderLayoutProps) {
   const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

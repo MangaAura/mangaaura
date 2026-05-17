@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { format = 'csv', dateRange, type = 'reading' } = body;
+    const { format = 'csv', type = 'reading' } = body;
 
     // Only allow users to export their own data or manga they created
     const userId = session.user.id;

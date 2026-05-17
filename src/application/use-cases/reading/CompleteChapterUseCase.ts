@@ -43,7 +43,6 @@ export class CompleteChapterUseCase {
   constructor(
     private readonly userRepo: IUserRepository,
     private readonly chapterRepo: IChapterRepository,
-    private readonly readingSessionRepo: IReadingSessionRepository,
     private readonly eventBus: IEventBus
   ) {}
 
@@ -92,18 +91,6 @@ export class CompleteChapterUseCase {
 
     // Incrementar contador de vistas del capítulo
     await this.chapterRepo.incrementViewCount(dto.chapterId);
-
-    // Crear registro de sesión de lectura
-    const readingSession = await this.readingSessionRepo.create({
-      userId: dto.userId,
-      chapterId: dto.chapterId,
-      mangaId: chapter.mangaId,
-      startTime: new Date(Date.now() - 5 * 60 * 1000), // Simular que empezó hace 5 min
-      endTime: new Date(),
-      pagesRead: chapter.totalPages,
-      totalPages: chapter.totalPages,
-      completed: true,
-    });
 
     // Verificar si subió de nivel
     const levelUp = newLevel > previousLevel;

@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Search, Bell, Users, MessageSquare, AlertTriangle, Library } from 'lucide-react';
+import { Search, Bell, Users, MessageSquare, AlertTriangle, Library } from 'lucide-react';
 import { Button } from './Button';
 import { cn } from '@/lib/utils';
 
@@ -79,11 +80,9 @@ export function EmptyState({
         >
           {icon}
         </motion.div>
-      )}
-
-      <h3 className={cn('font-semibold text-[var(--text-primary)] mb-2', sizes[size].title)}>
-        {title}
-      </h3>
+      )}          <h2 className={cn('font-semibold text-[var(--text-primary)] mb-2', sizes[size].title)}>
+            {title}
+          </h2>
 
       {description && (
         <p className={cn('text-[var(--text-secondary)] max-w-md mb-6', sizes[size].description)}>
@@ -105,7 +104,7 @@ export function EmptyState({
               {...(action.href ? { asChild: true } : { onClick: action.onClick })}
             >
               {action.href ? (
-                <a href={action.href}>{action.label}</a>
+                <Link href={action.href}>{action.label}</Link>
               ) : (
                 action.label
               )}
@@ -119,7 +118,7 @@ export function EmptyState({
               {...(secondaryAction.href ? { asChild: true } : { onClick: secondaryAction.onClick })}
             >
               {secondaryAction.href ? (
-                <a href={secondaryAction.href}>{secondaryAction.label}</a>
+                <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
               ) : (
                 secondaryAction.label
               )}

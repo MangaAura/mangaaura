@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useSWR, { mutate } from 'swr';
+import { useT } from '@/i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -54,6 +55,7 @@ export default function AdminSettingsPage() {
     { revalidateOnFocus: false }
   );
 
+  const t = useT();
   const [form, setForm] = useState<Partial<SiteSettings>>({});
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -83,9 +85,9 @@ export default function AdminSettingsPage() {
         throw new Error(err.error || 'Error al guardar');
       }
       mutate('/api/admin/settings');
-      setSaveMessage({ type: 'success', text: 'Configuración guardada correctamente' });
+      setSaveMessage({ type: 'success', text: t('admin.savedCorrectly') });
     } catch (err: any) {
-      setSaveMessage({ type: 'error', text: err.message || 'Error al guardar' });
+      setSaveMessage({ type: 'error', text: err.message || t('admin.errorSavingSettings') });
     } finally {
       setSaving(false);
     }
@@ -106,9 +108,9 @@ export default function AdminSettingsPage() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar la configuración</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.errorLoadingSettings')}</h2>
         <Button onClick={() => mutate('/api/admin/settings')} className="mt-4">
-          Reintentar
+          {t('admin.retry')}
         </Button>
       </div>
     );
@@ -120,8 +122,8 @@ export default function AdminSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Configuración</h1>
-          <p className="text-[var(--text-secondary)] mt-1">Administra la configuración global de InkVerse</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('admin.configuracion')}</h1>
+          <p className="text-[var(--text-secondary)] mt-1">{t('admin.adminSettingsDesc')}</p>
         </div>
         <Button onClick={handleSave} disabled={saving}>
           {saving ? (
@@ -129,7 +131,7 @@ export default function AdminSettingsPage() {
           ) : (
             <Save className="w-4 h-4 mr-2" />
           )}
-          Guardar Cambios
+          {t('admin.saveChanges')}
         </Button>
       </div>
 
@@ -154,13 +156,13 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Globe className="w-5 h-5 text-[var(--primary)]" />
-            General
+            {t('admin.general')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="siteName" className="text-[var(--text-secondary)]">Nombre del sitio</Label>
+              <Label htmlFor="siteName" className="text-[var(--text-secondary)]">{t('admin.siteName')}</Label>
               <Input
                 id="siteName"
                 value={form.siteName || ''}
@@ -169,7 +171,7 @@ export default function AdminSettingsPage() {
               />
             </div>
             <div>
-              <Label htmlFor="defaultLanguage" className="text-[var(--text-secondary)]">Idioma por defecto</Label>
+              <Label htmlFor="defaultLanguage" className="text-[var(--text-secondary)]">{t('admin.defaultLanguage')}</Label>
               <Select
                 value={form.defaultLanguage || 'es'}
                 onValueChange={(v) => handleChange('defaultLanguage', v)}
@@ -186,8 +188,7 @@ export default function AdminSettingsPage() {
               </Select>
             </div>
           </div>
-          <div>
-            <Label htmlFor="siteDescription" className="text-[var(--text-secondary)]">Descripción del sitio</Label>
+          <div>              <Label htmlFor="siteDescription" className="text-[var(--text-secondary)]">{t('admin.siteDescription')}</Label>
             <Textarea
               id="siteDescription"
               value={form.siteDescription || ''}
@@ -203,14 +204,14 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-[var(--warning)]" />
-            Seguridad y Acceso
+            {t('admin.securityAccess')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
             <div>
-              <p className="font-medium text-[var(--text-primary)]">Modo mantenimiento</p>
-              <p className="text-sm text-[var(--text-tertiary)]">Solo administradores pueden acceder al sitio</p>
+              <p className="font-medium text-[var(--text-primary)]">{t('admin.maintenanceMode')}</p>
+              <p className="text-sm text-[var(--text-tertiary)]">{t('admin.maintenanceModeDesc')}</p>
             </div>
             <Switch
               checked={form.maintenanceMode || false}
@@ -219,8 +220,8 @@ export default function AdminSettingsPage() {
           </div>
           <div className="flex items-center justify-between p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
             <div>
-              <p className="font-medium text-[var(--text-primary)]">Registros abiertos</p>
-              <p className="text-sm text-[var(--text-tertiary)]">Permitir que nuevos usuarios se registren</p>
+              <p className="font-medium text-[var(--text-primary)]">{t('admin.registrationsOpen')}</p>
+              <p className="text-sm text-[var(--text-tertiary)]">{t('admin.registrationsOpenDesc')}</p>
             </div>
             <Switch
               checked={form.enableRegistrations ?? true}
@@ -234,7 +235,7 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Monitor className="w-5 h-5 text-[var(--accent-purple)]" />
-            Funcionalidades
+            {t('admin.features')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -242,8 +243,8 @@ export default function AdminSettingsPage() {
             <div className="flex items-center gap-3">
               <Sparkles className="w-5 h-5 text-[var(--accent-purple)]" />
               <div>
-                <p className="font-medium text-[var(--text-primary)]">IA</p>
-                <p className="text-sm text-[var(--text-tertiary)]">Habilitar funciones de inteligencia artificial</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('admin.ai')}</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.aiDesc')}</p>
               </div>
             </div>
             <Switch
@@ -255,8 +256,8 @@ export default function AdminSettingsPage() {
             <div className="flex items-center gap-3">
               <Banknote className="w-5 h-5 text-[var(--success)]" />
               <div>
-                <p className="font-medium text-[var(--text-primary)]">Crowdfunding</p>
-                <p className="text-sm text-[var(--text-tertiary)]">Permitir financiamiento colectivo de capítulos</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('admin.crowdfunding')}</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.crowdfundingDesc')}</p>
               </div>
             </div>
             <Switch
@@ -268,8 +269,8 @@ export default function AdminSettingsPage() {
             <div className="flex items-center gap-3">
               <Users className="w-5 h-5 text-[var(--info)]" />
               <div>
-                <p className="font-medium text-[var(--text-primary)]">Clanes</p>
-                <p className="text-sm text-[var(--text-tertiary)]">Permitir creación y participación en clanes</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('admin.clanes')}</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.clanesDesc')}</p>
               </div>
             </div>
             <Switch
@@ -284,14 +285,14 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-[var(--warning)]" />
-            Subidas y Economía
+            {t('admin.uploadsEconomy')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="maxUploadSize" className="text-[var(--text-secondary)]">
-                Tamaño máximo de subida (MB)
+                {t('admin.maxUploadSize')}
               </Label>
               <Input
                 id="maxUploadSize"
@@ -307,7 +308,7 @@ export default function AdminSettingsPage() {
             </div>
             <div>
               <Label htmlFor="minimumPayoutAmount" className="text-[var(--text-secondary)]">
-                Pago mínimo (InkCoins)
+                {t('admin.minimumPayout')}
               </Label>
               <Input
                 id="minimumPayoutAmount"
@@ -322,7 +323,7 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="inkcoinsRewardPerChapter" className="text-[var(--text-secondary)]">
-                InkCoins por capítulo leído
+                {t('admin.inkcoinsPerChapter')}
               </Label>
               <Input
                 id="inkcoinsRewardPerChapter"
@@ -335,7 +336,7 @@ export default function AdminSettingsPage() {
             </div>
             <div>
               <Label htmlFor="xpRewardPerChapter" className="text-[var(--text-secondary)]">
-                XP por capítulo leído
+                {t('admin.xpPerChapter')}
               </Label>
               <Input
                 id="xpRewardPerChapter"
@@ -348,7 +349,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
           <div>
-            <Label className="text-[var(--text-secondary)]">Tipos de imagen permitidos</Label>
+            <Label className="text-[var(--text-secondary)]">{t('admin.allowedImageTypes')}</Label>
             <div className="flex flex-wrap gap-2 mt-2">
               {(form.allowedImageTypes || []).map((type) => (
                 <span

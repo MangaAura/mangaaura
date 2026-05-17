@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import dbConnect from '@/lib/mongoose';
 import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 export async function PATCH(
   request: NextRequest,
@@ -16,6 +16,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
     const { action } = await request.json();
 
     if (action === 'approve') {
@@ -26,7 +29,7 @@ export async function PATCH(
         prisma.comment.update({
           where: { id },
           data: { isHidden: false },
-        }).catch(() => {}),
+        }).catch(err => console.error('[Moderation] Hidden update failed:', err)),
       ]);
     } else if (action === 'keep_hidden') {
       await Promise.all([
@@ -36,7 +39,7 @@ export async function PATCH(
         prisma.comment.update({
           where: { id },
           data: { isHidden: true },
-        }).catch(() => {}),
+        }).catch(err => console.error('[Moderation] Hidden update failed:', err)),
       ]);
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

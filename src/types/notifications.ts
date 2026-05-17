@@ -12,6 +12,7 @@ export enum NotificationType {
   NEW_FOLLOWER = 'NEW_FOLLOWER',
   ACHIEVEMENT_UNLOCKED = 'ACHIEVEMENT_UNLOCKED',
   SYSTEM = 'SYSTEM',
+  STREAK_MILESTONE = 'STREAK_MILESTONE',
 }
 
 export interface NotificationPayload {
@@ -67,6 +68,12 @@ export interface NotificationPayload {
     message: string;
     actionUrl?: string;
     actionLabel?: string;
+  };
+  [NotificationType.STREAK_MILESTONE]: {
+    days: number;
+    label: string;
+    xpBonus: number;
+    freezesAwarded: number;
   };
 }
 

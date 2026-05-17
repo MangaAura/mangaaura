@@ -7,8 +7,8 @@
 
 'use client';
 
+import { useT } from '@/i18n';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { useCreatorMangas } from '@/hooks/useCreatorMangas';
 import {
   AnalyticsDashboard,
@@ -18,11 +18,11 @@ import {
 import type { DateRange, DateRangePreset } from '@/components/Analytics';
 import {
   BarChart3Icon,
-  CalendarIcon,
   ChevronRightIcon,
   Loader2Icon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface ChapterStats {
   chapterId: string;
@@ -51,7 +51,7 @@ interface CreatorStats {
 }
 
 export default function CreatorAnalyticsPage() {
-  const { data: session } = useSession();
+  const t = useT();
   const { mangas, isLoading: isLoadingMangas } = useCreatorMangas({
     autoRefresh: false,
   });
@@ -134,7 +134,7 @@ const fetchMongoAnalytics = useCallback(async () => {
       setStats(formattedData);
     } catch (err) {
       console.error('Error fetching analytics:', err);
-      setError('Error al cargar los datos de analytics');
+      setError(t('creatorAnalytics.error'));
     } finally {
       setIsLoading(false);
     }
@@ -188,9 +188,9 @@ const fetchMongoAnalytics = useCallback(async () => {
                 <BarChart3Icon className="w-5 h-5 text-[var(--primary)]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-[var(--text-primary)]">Estadísticas</h1>
+                <h1 className="text-xl font-bold text-[var(--text-primary)]">{t('creatorAnalytics.title')}</h1>
                 <p className="text-sm text-[var(--text-tertiary)]">
-                  Analiza el rendimiento de tus obras
+                  {t('creatorAnalytics.subtitle')}
                 </p>
               </div>
             </div>
@@ -233,9 +233,11 @@ const fetchMongoAnalytics = useCallback(async () => {
         {selectedManga && (
           <div className="mb-6 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-xl p-4 flex items-center gap-4">
             {selectedManga.coverUrl ? (
-              <img
+              <OptimizedImage
                 src={selectedManga.coverUrl}
                 alt={selectedManga.title}
+                width={48}
+                height={64}
                 className="w-12 h-16 object-cover rounded-lg shadow-sm"
               />
             ) : (
@@ -249,14 +251,14 @@ const fetchMongoAnalytics = useCallback(async () => {
               </h2>
               <p className="text-sm text-[var(--text-tertiary)]">
                 {selectedManga.chapterCount} capítulos ·{' '}
-                {selectedManga.totalViews.toLocaleString('es')} vistas totales
+                {selectedManga.totalViews.toLocaleString('es')} {t('creatorAnalytics.totalViews')}
               </p>
             </div>
             <button
               onClick={() => setSelectedMangaId(null)}
               className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium"
             >
-              Ver todos
+              {t('creatorAnalytics.viewAll')}
             </button>
           </div>
         )}
@@ -265,7 +267,7 @@ const fetchMongoAnalytics = useCallback(async () => {
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <Loader2Icon className="w-8 h-8 animate-spin text-[var(--primary)]" />
-            <span className="ml-3 text-[var(--text-secondary)]">Cargando estadísticas...</span>
+            <span className="ml-3 text-[var(--text-secondary)]">{t('creatorAnalytics.loading')}</span>
           </div>
         )}
 
@@ -277,7 +279,7 @@ const fetchMongoAnalytics = useCallback(async () => {
               onClick={fetchMongoAnalytics}
               className="mt-3 px-4 py-2 bg-[var(--error)] text-[var(--text-inverse)] rounded-lg hover:bg-[var(--error)] transition-colors"
             >
-              Reintentar
+              {t('creatorAnalytics.retry')}
             </button>
           </div>
         )}
@@ -297,7 +299,7 @@ const fetchMongoAnalytics = useCallback(async () => {
             {/* Tiempo de lectura promedio */}
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
               <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
-                Tiempo de lectura promedio
+                {t('creatorAnalytics.avgReadingTime')}
               </h3>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-[var(--text-primary)]">
@@ -306,14 +308,14 @@ const fetchMongoAnalytics = useCallback(async () => {
                 </span>
               </div>
               <p className="text-xs text-[var(--text-tertiary)] mt-2">
-                Por capítulo completado
+                {t('creatorAnalytics.perChapterCompleted')}
               </p>
             </div>
 
             {/* Tasa de finalización */}
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
               <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
-                Tasa de finalización
+                {t('creatorAnalytics.completionRate')}
               </h3>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-[var(--text-primary)]">
@@ -321,14 +323,14 @@ const fetchMongoAnalytics = useCallback(async () => {
                 </span>
               </div>
               <p className="text-xs text-[var(--text-tertiary)] mt-2">
-                Lectores que completan el capítulo
+                {t('creatorAnalytics.completionRateDesc')}
               </p>
             </div>
 
             {/* Total de lecturas */}
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
               <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
-                Total de lecturas
+                {t('creatorAnalytics.totalReads')}
               </h3>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-[var(--text-primary)]">
@@ -336,14 +338,14 @@ const fetchMongoAnalytics = useCallback(async () => {
                 </span>
               </div>
               <p className="text-xs text-[var(--text-tertiary)] mt-2">
-                En el período seleccionado
+                {t('creatorAnalytics.totalReadsDesc')}
               </p>
             </div>
 
             {/* Completados */}
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
               <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-2">
-                Capítulos completados
+                {t('creatorAnalytics.chaptersCompleted')}
               </h3>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-[var(--text-primary)]">
@@ -351,7 +353,7 @@ const fetchMongoAnalytics = useCallback(async () => {
                 </span>
               </div>
               <p className="text-xs text-[var(--text-tertiary)] mt-2">
-                Lecturas hasta el final
+                {t('creatorAnalytics.chaptersCompletedDesc')}
               </p>
             </div>
           </div>
@@ -361,23 +363,23 @@ const fetchMongoAnalytics = useCallback(async () => {
         {stats?.chapterStats && stats.chapterStats.length > 0 && (
           <div className="mt-8 bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-              Páginas más vistas por capítulo
+              {t('creatorAnalytics.mostViewedPages')}
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-[var(--surface)]">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Capítulo
+                      {t('creatorAnalytics.chapter')}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Lecturas
+                      {t('creatorAnalytics.reads')}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Completados
+                      {t('creatorAnalytics.completed')}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Tasa
+                      {t('creatorAnalytics.rate')}
                     </th>
                   </tr>
                 </thead>
@@ -389,7 +391,7 @@ const fetchMongoAnalytics = useCallback(async () => {
                   <tr key={stat.chapterId} className="hover:bg-[var(--surface)]">
                     <td className="px-4 py-3">
                       <span className="font-medium text-[var(--text-primary)]">
-                        {stat.title ?? `Cap. ${stat.chapterNumber}`}
+                        {stat.title ?? `${t('creatorAnalytics.chapterNumber')} ${stat.chapterNumber}`}
                       </span>
                     </td>
                         <td className="px-4 py-3 text-right">

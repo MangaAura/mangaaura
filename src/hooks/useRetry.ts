@@ -149,7 +149,7 @@ export function useAutoRetry<T>(
 ): UseRetryReturn<T> {
   const { autoRetry = true, ...retryOptions } = options;
   const retryHook = useRetry(asyncFn, retryOptions);
-  const { error, retryCount, execute } = retryHook;
+  const { error, retryCount, execute: _execute } = retryHook;
   const hasRetriedRef = useRef(false);
 
   // Auto-retry on error

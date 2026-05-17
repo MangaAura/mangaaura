@@ -5,19 +5,6 @@
 
 import sharp, { OutputInfo, Metadata } from 'sharp';
 
-// Blurhash encode function - implemented locally to avoid dependency issues
-function encodeBlurHash(
-  pixels: Uint8ClampedArray,
-  width: number,
-  height: number,
-  componentX: number,
-  componentY: number
-): string {
-  // Simple blurhash implementation
-  // In production, use the full blurhash library
-  return `L$${Math.floor(Math.random() * 100)}`;
-}
-
 // ============================================================================
 // Types
 // ============================================================================

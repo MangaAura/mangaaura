@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // Helper para generar slug desde el título
 function generateSlug(title: string): string {
@@ -112,6 +113,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const body = await request.json();
     const { title, description, coverUrl, tags } = body;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { paymentService } from '@/core/services/PaymentService';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
 import { GetBalanceUseCase, IUserBalanceRepository } from '@/application/use-cases/economy/GetBalanceUseCase';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error obteniendo balance:', error);
+    // console.error('Error obteniendo balance:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

@@ -8,7 +8,6 @@ interface MangaStructuredDataProps {
   slug: string;
   rating?: number;
   tags?: string[];
-  status: string;
   totalChapters: number;
 }
 
@@ -38,7 +37,6 @@ export function MangaStructuredData({
   slug,
   rating,
   tags,
-  status,
   totalChapters,
 }: MangaStructuredDataProps) {
   const structuredData = {

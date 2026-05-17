@@ -15,8 +15,6 @@ import {
   Layers,
   AlertCircle,
   TrendingUp,
-  TrendingDown,
-  Minus,
   Cpu,
   Database,
   BarChart3,

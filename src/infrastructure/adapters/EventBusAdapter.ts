@@ -34,11 +34,11 @@ export class EventBusAdapter implements IEventBus {
     return eventNames;
   }
 
-  unsubscribe(subscriptionId: string): boolean {
+  unsubscribe(_subscriptionId: string): boolean {
     return true;
   }
 
-  unsubscribeAll(eventName: string): number {
+  unsubscribeAll(_eventName: string): number {
     return 0;
   }
 

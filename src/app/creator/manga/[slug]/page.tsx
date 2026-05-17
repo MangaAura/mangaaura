@@ -3,14 +3,14 @@
 import { use } from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { ChapterList, ChapterListChapter } from '@/components/Creator/ChapterList';
 import { useManga } from '@/hooks/useManga';
-import { Skeletons } from '@/components/Skeletons';
+import { useT } from '@/i18n';
 import { cn, formatNumber } from '@/lib/utils';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import {
   ArrowLeftIcon,
   EditIcon,
@@ -28,7 +28,6 @@ interface PageProps {
 
 export default function MangaDetailPage({ params }: PageProps) {
   const { slug } = use(params);
-  const router = useRouter();
   const { manga, chapters, isLoading, error, deleteChapter } = useManga({ mangaId: slug });
   const [activeTab, setActiveTab] = useState('chapters');
 
@@ -65,13 +64,23 @@ export default function MangaDetailPage({ params }: PageProps) {
     );
   }
 
-  const statusLabels: Record<string, { label: string; color: string }> = {
-  ONGOING: { label: 'Publicando', color: 'bg-[var(--success)]/20 text-[var(--success)]' },
-  COMPLETED: { label: 'Completado', color: 'bg-[var(--info)]/20 text-[var(--info)]' },
-  HIATUS: { label: 'Pausado', color: 'bg-[var(--warning)]/20 text-[var(--warning)]' },
-  DROPPED: { label: 'Abandonado', color: 'bg-[var(--error)]/20 text-[var(--error)]' },
+  const t = useT();
+  const STATUS_KEYS: Record<string, string> = {
+    ONGOING: 'manga.ongoing',
+    COMPLETED: 'manga.completed',
+    HIATUS: 'manga.hiatus',
+    DROPPED: 'manga.dropped',
   };
-  const status = statusLabels[manga.status];
+  const STATUS_COLORS: Record<string, string> = {
+    ONGOING: 'bg-[var(--success)]/80 text-[var(--text-inverse)] border-[var(--success)]/30',
+    COMPLETED: 'bg-[var(--info)]/80 text-[var(--text-inverse)] border-[var(--info)]/30',
+    HIATUS: 'bg-[var(--warning)]/80 text-[var(--text-inverse)] border-[var(--warning)]/30',
+    DROPPED: 'bg-[var(--error)]/80 text-[var(--text-inverse)] border-[var(--error)]/30',
+  };
+  const status = {
+    label: t(STATUS_KEYS[manga.status] || ''),
+    color: STATUS_COLORS[manga.status] || 'bg-[var(--text-muted)]',
+  };
 
   return (
     <div className="min-h-screen bg-[var(--surface)]">
@@ -118,9 +127,10 @@ export default function MangaDetailPage({ params }: PageProps) {
                 <div className="w-full md:w-48 flex-shrink-0">
                   <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
                     {manga.coverUrl ? (
-                      <img
+                      <OptimizedImage
                         src={manga.coverUrl}
                         alt={manga.title}
+                        fill
                         className="w-full h-full object-cover"
                       />
                     ) : (

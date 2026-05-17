@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { X, Check, MousePointerClick, Loader2 } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface EditorModeOverlayProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ export default function EditorModeOverlay({ isOpen, onClose, imageUrl, chapterId
 
   if (!isOpen) return null;
 
-  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
+  const handleImageClick = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -110,12 +111,15 @@ export default function EditorModeOverlay({ isOpen, onClose, imageUrl, chapterId
       </div>
 
       <div className="flex-1 overflow-auto flex items-center justify-center p-8 relative cursor-crosshair">
-        <div className="relative inline-block shadow-2xl bg-background">
-          <img
+        <div className="relative inline-block shadow-2xl bg-background max-h-[90vh]">
+          <OptimizedImage
             src={imageUrl}
             alt="Página actual"
+            width={800}
+            height={1200}
+            objectFit="contain"
             onClick={handleImageClick}
-            className="max-h-[90vh] object-contain opacity-90 hover:opacity-100 transition-opacity"
+            className="opacity-90 hover:opacity-100 transition-opacity"
           />
           {clickCoords && (
             <div

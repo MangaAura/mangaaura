@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const createEventSchema = z.object({
   title: z.string().min(3).max(200),
@@ -21,12 +22,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const status = searchParams.get('status') || 'ACTIVE';
     const type = searchParams.get('type');
+    const search = searchParams.get('search') || '';
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '20', 10);
+    const includeVoting = searchParams.get('includeVoting') === 'true';
     const skip = (page - 1) * limit;
 
-    const where: any = { status };
+    // Support comma-separated statuses for 'PAST' (COMPLETED,CANCELLED)
+    const statuses = status.split(',').filter(Boolean);
+    const where: any = {};
+    if (statuses.length === 1) where.status = statuses[0];
+    else if (statuses.length > 1) where.status = { in: statuses };
     if (type) where.type = type;
+    if (search) where.title = { contains: search, mode: 'insensitive' };
 
     const now = new Date();
     if (status === 'ACTIVE') {
@@ -39,7 +47,7 @@ export async function GET(request: NextRequest) {
       where.status = 'COMPLETED';
     }
 
-    const [events, total] = await Promise.all([
+    const [events, total, votingEvent] = await Promise.all([
       prisma.event.findMany({
         where,
         orderBy: { endDate: 'asc' },
@@ -53,10 +61,32 @@ export async function GET(request: NextRequest) {
         },
       }),
       prisma.event.count({ where }),
+      includeVoting
+        ? prisma.event.findFirst({
+            where: { status: 'VOTING' },
+            include: {
+              _count: { select: { submissions: true } },
+              submissions: {
+                include: {
+                  user: {
+                    select: { id: true, username: true, displayName: true, avatarUrl: true },
+                  },
+                },
+                orderBy: { votes: 'desc' },
+              },
+            },
+          })
+        : Promise.resolve(null),
     ]);
 
     return NextResponse.json({
       events,
+      voting: votingEvent
+        ? {
+            event: votingEvent,
+            submissions: votingEvent.submissions,
+          }
+        : null,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
@@ -71,6 +101,9 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const role = session.user.role;
     if (role !== 'ADMIN' && role !== 'CREATOR') {

@@ -8,7 +8,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { 
   ChevronLeft, 
@@ -26,7 +25,9 @@ import { CommentSection } from '@/components/Comments/CommentSection';
 import { useChapterComments } from '@/hooks/useChapterComments';
 import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { cn } from '@/lib/utils';
-import Navbar from '@/components/Layout/Navbar';
+import dynamic from 'next/dynamic';
+
+const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });
 import { OptimizedImage } from '@/components/Image';
 
 interface Chapter {
@@ -45,7 +46,6 @@ interface Chapter {
 export default function ChapterReaderPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
   const chapterId = params.slug as string;
   
   const [chapter, setChapter] = useState<Chapter | null>(null);
@@ -53,12 +53,12 @@ export default function ChapterReaderPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const [isDarkMode] = useState(false);
 
   const { comments } = useChapterComments(chapterId);
-  const { trackComment, trackLike } = useChapterAnalytics(chapterId, chapter?.manga.id ?? '');
+  void useChapterAnalytics(chapterId, chapter?.manga.id ?? '');
 
   // Cargar capítulo
   useEffect(() => {

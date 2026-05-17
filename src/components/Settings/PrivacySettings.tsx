@@ -44,7 +44,7 @@ const privacyOptions = [
   },
 ];
 
-export function PrivacySettings({ userId }: PrivacySettingsProps) {
+export function PrivacySettings({}: PrivacySettingsProps) {
   const [settings, setSettings] = useState({
     isPublicProfile: true,
     allowMessages: true,
@@ -53,7 +53,7 @@ export function PrivacySettings({ userId }: PrivacySettingsProps) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
-  const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
+  const [blockedUsers] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('privacySettings');

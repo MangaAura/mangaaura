@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Tag, X, Plus, Send, Loader2 } from 'lucide-react';
+import { useT } from '@/i18n';
 
 interface Category {
   id: string;
@@ -21,6 +22,7 @@ interface NewThreadFormProps {
 
 export function NewThreadForm({ categories }: NewThreadFormProps) {
   const router = useRouter();
+  const t = useT();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState(categories[0]?.id || '');
@@ -70,13 +72,13 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Error al crear el hilo');
+        throw new Error(data.error || t('newThread.errorCreating'));
       }
 
       router.push(`/community/forum/${data.thread.slug}`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear');
+      setError(err instanceof Error ? err.message : t('newThread.errorGeneric'));
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +88,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-          Categoría
+          {t('newThread.category')}
         </label>
         <select
           value={categoryId}
@@ -104,12 +106,12 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
 
       <div>
         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-          Título
+          {t('newThread.title')}
         </label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Escribe un título descriptivo..."
+          placeholder={t('newThread.titlePlaceholder')}
           maxLength={200}
           required
           disabled={isSubmitting}
@@ -121,12 +123,12 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
 
       <div>
         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-          Contenido
+          {t('newThread.content')}
         </label>
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Escribe el contenido de tu hilo..."
+          placeholder={t('newThread.contentPlaceholder')}
           rows={8}
           maxLength={10000}
           required
@@ -140,14 +142,14 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
 
       <div>
         <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-          Etiquetas
+          {t('newThread.tags')}
         </label>
         <div className="flex gap-2">
           <Input
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
-            placeholder="Añadir etiqueta..."
+            placeholder={t('newThread.tagPlaceholder')}
             disabled={isSubmitting || tags.length >= 5}
             className="flex-1"
           />
@@ -173,7 +175,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
               type="button"
               onClick={() => removeTag(tag)}
               className="ml-0.5 hover:text-[var(--error)] transition-colors cursor-pointer"
-              aria-label={`Eliminar etiqueta ${tag}`}
+              aria-label={`${t('newThread.removeTag')} ${tag}`}
             >
                   <X className="w-3 h-3" />
                 </button>
@@ -191,7 +193,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
 
       <div className="flex items-center justify-between pt-2">
         <p className="text-xs text-[var(--text-tertiary)]">
-          Solo los creadores y administradores pueden crear hilos
+          {t('newThread.creatorOnly')}
         </p>
         <Button
           type="submit"
@@ -202,7 +204,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
           ) : (
             <Send className="w-4 h-4 mr-2" />
           )}
-          Publicar hilo
+          {t('newThread.publishThread')}
         </Button>
       </div>
     </form>

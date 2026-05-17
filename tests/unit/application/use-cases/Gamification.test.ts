@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { Email } from '@/core/value-objects/Email';
 import { User } from '@/core/entities/User';
 import { XP } from '@/core/value-objects/XP';

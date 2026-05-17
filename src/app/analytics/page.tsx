@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { Shield, Target, Award, Loader2, AlertTriangle, BookOpen, BarChart, Users, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import { Shield, Target, Award, AlertTriangle, BookOpen, BarChart, Users, TrendingUp } from 'lucide-react';
 
+import { useT } from '@/i18n';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnalyticsDashboard } from '@/components/Analytics/AnalyticsDashboard';
 import { DateRangePicker, type DateRangePreset, type DateRange } from '@/components/Analytics/DateRangePicker';
 import { MangaSelector, type MangaOption } from '@/components/Analytics/MangaSelector';
@@ -75,6 +78,7 @@ function getDefaultDateRange(): DateRange {
 
 export default function AnalyticsPage() {
   const { data: session } = useSession();
+  const t = useT();
   const [activeTab, setActiveTab] = useState<'creator' | 'reader'>('creator');
 
   const [creatorData, setCreatorData] = useState<CreatorData | null>(null);
@@ -110,7 +114,7 @@ export default function AnalyticsPage() {
         setCreatorMangas(data.mangas || data || []);
       }
     } catch {
-      setError('Error al cargar tus mangas');
+      setError(t('analytics.errorLoadingMangas'));
     }
   }, []);
 
@@ -133,15 +137,9 @@ export default function AnalyticsPage() {
     setIsLoading(true);
     setError(null);
     Promise.all([fetchCreatorMangas(), fetchCreatorData(), fetchReaderData()])
-      .catch(() => setError('Error al cargar los datos'))
+      .catch(() => setError(t('analytics.errorLoading')))
       .finally(() => setIsLoading(false));
   }, [session?.user?.id, fetchCreatorMangas, fetchCreatorData, fetchReaderData]);
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}m ${s}s`;
-  };
 
   const xpForNextLevel = readerData?.stats.nextLevelXp || 2000;
   const currentXp = readerData?.user.xpPoints || 0;
@@ -176,7 +174,7 @@ export default function AnalyticsPage() {
         <header className="flex flex-col md:flex-row justify-between items-center gap-4 mt-2 border-b border-custom pb-6">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <BarChart size={28} className="text-accent-blue" />
-            <h1 className="text-3xl font-extrabold tracking-tight">Panel de Control</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">{t('analytics.title')}</h1>
           </div>
 
           <div className="flex items-center gap-4">
@@ -185,13 +183,13 @@ export default function AnalyticsPage() {
                 onClick={() => setActiveTab('creator')}
                 className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'creator' ? 'bg-secondary shadow-sm text-accent-blue' : 'text-muted hover:text-fg-primary'}`}
               >
-                Creator Studio
+                {t('analytics.creatorStudio')}
               </button>
               <button
                 onClick={() => setActiveTab('reader')}
                 className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'reader' ? 'bg-secondary shadow-sm text-accent-orange' : 'text-muted hover:text-fg-primary'}`}
               >
-                Reader Profile
+                {t('analytics.readerProfile')}
               </button>
             </div>
             <ExportAnalyticsButton activeTab={activeTab} />
@@ -220,7 +218,7 @@ export default function AnalyticsPage() {
             <AlertTriangle size={32} className="text-accent-red mx-auto mb-3" />
             <p className="text-muted mb-4">{error}</p>
             <button onClick={() => window.location.reload()} className="px-6 py-2 bg-accent-blue text-[var(--text-inverse)] rounded-lg hover:opacity-90 transition-opacity font-bold text-sm">
-              Reintentar
+              {t('analytics.retry')}
             </button>
           </div>
         )}
@@ -228,7 +226,7 @@ export default function AnalyticsPage() {
         {!isLoading && !session?.user?.id && (
           <div className="card p-16 rounded-xl text-center">
             <BarChart size={40} className="text-muted mx-auto mb-4" />
-            <p className="text-muted text-lg">Inicia sesión para ver tus estadísticas</p>
+            <p className="text-muted text-lg">{t('analytics.loginToView')}</p>
           </div>
         )}
 
@@ -240,8 +238,8 @@ export default function AnalyticsPage() {
                   mangas={creatorMangas}
                   selectedId={selectedMangaId}
                   onSelect={setSelectedMangaId}
-                  allText="Todos los mangas"
-                  placeholder="Seleccionar manga"
+                  allText={t('analytics.allManga')}
+                  placeholder={t('analytics.selectManga')}
                   className="sm:w-72"
                 />
                 <DateRangePicker
@@ -270,11 +268,11 @@ export default function AnalyticsPage() {
                 <div className="bg-gradient-to-r from-secondary to-tertiary p-8 rounded-2xl shadow-sm border border-custom flex flex-col md:flex-row items-center gap-8">
                   <div className="w-32 h-32 rounded-full border-4 border-accent-orange shadow-lg flex items-center justify-center bg-secondary relative overflow-hidden flex-shrink-0">
                     {readerData.user.avatarUrl ? (
-                      <img src={readerData.user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      <OptimizedImage src={readerData.user.avatarUrl} alt="Avatar" fill className="w-full h-full" />
                     ) : (
-                      <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(readerData.user.displayName || readerData.user.username)}&size=128&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                      <OptimizedImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(readerData.user.displayName || readerData.user.username)}&size=128&background=random`} alt="Avatar" fill className="w-full h-full" />
                     )}
-                    <div className="absolute bottom-0 w-full bg-black/60 text-[var(--text-inverse)] text-center text-xs font-bold py-1">Nivel {readerData.user.level}</div>
+                    <div className="absolute bottom-0 w-full bg-black/60 text-[var(--text-inverse)] text-center text-xs font-bold py-1">{t('analytics.level')} {readerData.user.level}</div>
                   </div>
                   <div className="flex-1 space-y-4 w-full">
                     <div>
@@ -283,7 +281,7 @@ export default function AnalyticsPage() {
                         <Shield size={24} className="text-accent-purple" />
                       </h2>
                       <p className="text-muted">
-                        {readerData.clan ? `Miembro de: ${readerData.clan.name}` : 'Sin clan'}
+                        {readerData.clan ? `${t('analytics.memberOf')}: ${readerData.clan.name}` : t('analytics.noClanLabel')}
                         {' \u2022 '}InkCoins: {readerData.user.inkcoinsBalance.toLocaleString('es')}
                       </p>
                     </div>
@@ -302,17 +300,17 @@ export default function AnalyticsPage() {
                       <div className="text-center">
                         <BookOpen size={20} className="text-accent-blue mx-auto mb-1" />
                         <p className="text-lg font-bold">{readerData.stats.totalChaptersRead.toLocaleString('es')}</p>
-                        <p className="text-xs text-muted">Capítulos</p>
+                        <p className="text-xs text-muted">{t('analytics.chapters')}</p>
                       </div>
                       <div className="text-center">
                         <TrendingUp size={20} className="text-accent-green mx-auto mb-1" />
                         <p className="text-lg font-bold">{readerData.stats.totalMangaInLibrary.toLocaleString('es')}</p>
-                        <p className="text-xs text-muted">En biblioteca</p>
+                        <p className="text-xs text-muted">{t('analytics.inLibrary')}</p>
                       </div>
                       <div className="text-center">
                         <Award size={20} className="text-accent-orange mx-auto mb-1" />
                         <p className="text-lg font-bold">{readerData.stats.totalAchievements.toLocaleString('es')}</p>
-                        <p className="text-xs text-muted">Logros</p>
+                        <p className="text-xs text-muted">{t('analytics.achievements')}</p>
                       </div>
                     </div>
                   </div>
@@ -320,7 +318,7 @@ export default function AnalyticsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="card p-6 rounded-xl">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" /> Logros Desbloqueados ({readerData.stats.totalAchievements})</h3>
+                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" /> {t('analytics.unlockedAchievements')} ({readerData.stats.totalAchievements})</h3>
                     {readerData.achievements.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {readerData.achievements.slice(0, 6).map((badge) => (
@@ -334,25 +332,25 @@ export default function AnalyticsPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-muted text-sm">Aún no has desbloqueado logros. ¡Sigue leyendo!</p>
+                      <p className="text-muted text-sm">{t('analytics.noAchievements')}</p>
                     )}
                   </div>
 
                   <div className="card p-6 rounded-xl border-t-4 border-t-accent-purple">
                     {readerData.clan ? (
                       <>
-                        <h3 className="font-bold text-lg mb-4">Clan: {readerData.clan.name}</h3>
+                        <h3 className="font-bold text-lg mb-4">{t('analytics.memberOf')}: {readerData.clan.name}</h3>
                         <div className="space-y-4">
                           <div className="flex justify-between items-center p-3 bg-tertiary rounded-lg">
-                            <span className="font-semibold text-sm">Posición Global</span>
+                            <span className="font-semibold text-sm">{t('analytics.globalPosition')}</span>
                             <span className="text-xl font-black text-accent-purple">#{readerData.clan.rank}</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-tertiary rounded-lg">
-                            <span className="font-semibold text-sm">Tu contribución este mes</span>
+                            <span className="font-semibold text-sm">{t('analytics.monthlyContribution')}</span>
                             <span className="font-bold">{readerData.clan.contributedScore.toLocaleString('es')} XP</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-tertiary rounded-lg">
-                            <span className="font-semibold text-sm">Puntaje total del clan</span>
+                            <span className="font-semibold text-sm">{t('analytics.clanTotalScore')}</span>
                             <span className="font-bold">{readerData.clan.totalScore.toLocaleString('es')} XP</span>
                           </div>
                         </div>
@@ -360,11 +358,11 @@ export default function AnalyticsPage() {
                     ) : (
                       <div className="text-center py-8">
                         <Users size={48} className="text-muted mx-auto mb-4" />
-                        <h3 className="font-bold text-lg mb-1">Sin Clan</h3>
-                        <p className="text-muted text-sm mb-4">Únete a un clan para competir con otros lectores</p>
-                        <a href="/community" className="px-4 py-2 bg-accent-purple text-[var(--text-inverse)] rounded-lg inline-block font-bold text-sm hover:bg-accent-purple/80 transition-colors">
-                          Explorar clanes
-                        </a>
+                        <h3 className="font-bold text-lg mb-1">{t('analytics.noClan')}</h3>
+                        <p className="text-muted text-sm mb-4">{t('analytics.joinClan')}</p>
+                        <Link href="/community" className="px-4 py-2 bg-accent-purple text-[var(--text-inverse)] rounded-lg inline-block font-bold text-sm hover:bg-accent-purple/80 transition-colors">
+                          {t('analytics.exploreClans')}
+                        </Link>
                       </div>
                     )}
                   </div>
@@ -373,7 +371,7 @@ export default function AnalyticsPage() {
             ) : (
               <div className="card p-16 rounded-xl text-center">
                 <Target size={40} className="text-muted mx-auto mb-4" />
-                <p className="text-muted">No se pudieron cargar tus datos de perfil</p>
+                <p className="text-muted">{t('analytics.profileLoadError')}</p>
               </div>
             )}
           </div>

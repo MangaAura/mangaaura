@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { invalidateCache } from '@/lib/apiCache';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // PATCH /api/chapters/[id]/finalize - Finalize chapter upload
 export async function PATCH(
@@ -19,6 +20,9 @@ export async function PATCH(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const { id: chapterId } = await params;
 
@@ -121,7 +125,7 @@ export async function PATCH(
         const followerIds = followers.map((f: any) => f.userId);
 
         // Send push notifications
-        notificationService
+        (await getNotificationService())
           .notifyMultiple(followerIds, {
             type: 'NEW_CHAPTER',
             title: '📖 Nuevo Capítulo',

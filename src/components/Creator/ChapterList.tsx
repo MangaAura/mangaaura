@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { cn, formatTimeAgo } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
 import {
   EditIcon,
   Trash2Icon,

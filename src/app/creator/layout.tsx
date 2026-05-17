@@ -21,9 +21,9 @@ export default async function CreatorLayout({
   return (
     <div className="flex min-h-screen bg-[var(--surface)]">
       <Sidebar className="hidden lg:flex fixed left-0 top-0 h-screen z-50" />
-      <div className="flex-1 lg:ml-64">
+      <main id="main-content" className="flex-1 lg:ml-64">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { XP } from '@/core/value-objects/XP';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const memeSchema = z.object({
   panelId: z.string().min(1).max(200),
@@ -23,18 +24,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
+
     const contentType = request.headers.get('content-type') || '';
     let panelId: string;
     let mangaTitle: string;
     let chapterNumber: number | undefined;
-    let texts: string[] | undefined;
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       panelId = (formData.get('panelId') as string) || crypto.randomUUID();
       mangaTitle = (formData.get('mangaTitle') as string) || '';
       chapterNumber = formData.get('chapterNumber') ? parseInt(formData.get('chapterNumber') as string) : undefined;
-      texts = formData.get('texts') ? [formData.get('texts') as string] : undefined;
     } else {
       const body = await request.json();
       const parsed = memeSchema.safeParse(body);
@@ -47,7 +49,6 @@ export async function POST(request: NextRequest) {
       panelId = parsed.data.panelId;
       mangaTitle = parsed.data.mangaTitle;
       chapterNumber = parsed.data.chapterNumber;
-      texts = parsed.data.texts;
     }
 
     const user = await prisma.user.findUnique({
@@ -100,8 +101,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '12');
+    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '12'), 1), 100);
 
     const activities = await prisma.userActivity.findMany({
       where: {

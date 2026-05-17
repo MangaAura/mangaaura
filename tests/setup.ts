@@ -69,8 +69,6 @@ value: mockStorage,
 // Mock de console en tests para reducir ruido
 const originalConsoleError = console.error;
 const originalConsoleWarn = console.warn;
-const originalConsoleLog = console.log;
-
 console.error = (...args: unknown[]) => {
 // Ignorar warnings específicos de React
 if (

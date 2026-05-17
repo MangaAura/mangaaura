@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { auth } from '@/lib/auth';
 import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import { getPremiumStatus } from '@/lib/premium';
@@ -21,6 +22,12 @@ export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  const userId = session?.user?.id || 'anonymous';
+  const { allowed } = await rateLimit(getRateLimitKey('subscribe', userId), 20, 60);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   // Redirect to checkout with planId

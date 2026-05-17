@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logSecurityEvent } from '@/lib/security-audit';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/conversations/[id] - Get conversation details
 export async function GET(
@@ -108,6 +109,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'messages');
+    if (rlResponse) return rlResponse;
+
     const conversation = await prisma.conversation.findFirst({
       where: {
         id,
@@ -193,6 +197,9 @@ export async function DELETE(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
+
+    const rlResponse = await withRateLimit(_request, session?.user?.id, 'messages');
+    if (rlResponse) return rlResponse;
 
     const conversation = await prisma.conversation.findFirst({
       where: {

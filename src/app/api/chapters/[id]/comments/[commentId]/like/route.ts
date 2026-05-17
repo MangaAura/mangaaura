@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { notificationService } from '@/core/services/NotificationService';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { getNotificationService } from '@/core/services/NotificationService';
 
 // POST /api/chapters/[id]/comments/[commentId]/like - Like a comment
 export async function POST(
@@ -18,6 +19,9 @@ export async function POST(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const userId = session.user.id;
 
@@ -101,7 +105,7 @@ export async function POST(
   // Notify comment owner (async, don't wait)
   if (comment.userId !== userId) {
     try {
-      await notificationService.createNotification({
+      await (await getNotificationService()).createNotification({
         userId: comment.userId,
         type: 'COMMENT_LIKE',
         title: '👍 Nuevo like',
@@ -149,6 +153,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const userId = session.user.id;
 

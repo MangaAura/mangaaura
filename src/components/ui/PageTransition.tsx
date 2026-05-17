@@ -1,40 +1,24 @@
 'use client';
 
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { motion, useReducedMotion } from 'framer-motion';
 
-const pageVariants = {
-  initial: (reduceMotion: boolean) => ({
-    opacity: reduceMotion ? 1 : 0,
-  }),
-  animate: { opacity: 1 },
-  exit: (reduceMotion: boolean) => ({
-    opacity: reduceMotion ? 1 : 0,
-  }),
+const pageTransition = {
+  duration: 0.2,
+  ease: [0.4, 0, 0.2, 1] as const,
 };
 
-const pageTransition = (reduceMotion: boolean) => ({
-  duration: reduceMotion ? 0 : 0.3,
-  ease: [0.4, 0, 0.2, 1] as const,
-});
-
 export function PageTransition({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion() ?? false;
 
+  if (shouldReduceMotion) return <>{children}</>;
+
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={pathname}
-        custom={shouldReduceMotion}
-        variants={pageVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={pageTransition(shouldReduceMotion)}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={pageTransition}
+    >
+      {children}
+    </motion.div>
   );
 }

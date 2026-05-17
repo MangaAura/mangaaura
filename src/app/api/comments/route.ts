@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       warning: output.isHidden ? (output.hiddenReason || 'Tu comentario fue moderado por IA') : undefined,
     }, { status: 201 });
   } catch (error) {
-    console.error('Error creando comentario:', error);
+    // console.error('Error creando comentario:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error('Error obteniendo comentarios:', error);
+    // console.error('Error obteniendo comentarios:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

@@ -6,18 +6,23 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Send, X } from 'lucide-react';
+import { useState, useEffect, useRef, useActionState, useOptimistic } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { createComment } from '@/app/api/comments/actions';
 
 interface CommentFormProps {
   initialContent?: string;
-  onSubmit: (content: string) => Promise<void>;
+  onSubmit?: (content: string) => Promise<void>;
   onCancel?: () => void;
   placeholder?: string;
   submitLabel?: string;
   isCompact?: boolean;
   autoFocus?: boolean;
+  chapterId?: string;
+  mangaSlug?: string;
+  parentId?: string;
 }
 
 const MAX_CHARS = 1000;
@@ -30,13 +35,26 @@ export function CommentForm({
   submitLabel = 'Post',
   isCompact = false,
   autoFocus = false,
+  chapterId,
+  mangaSlug,
+  parentId,
 }: CommentFormProps) {
   const [content, setContent] = useState(initialContent);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const [state, formAction, isPending] = useActionState(createComment, {} as Record<string, unknown>);
+  const [optimisticState, addOptimistic] = useOptimistic(
+    state,
+    (currentState: Record<string, unknown>, payload: { content: string }) => ({
+      ...currentState,
+      optimisticContent: payload.content,
+    })
+  );
+
   const charCount = content.length;
   const isOverLimit = charCount > MAX_CHARS;
+  const loading = isSubmitting || isPending;
 
   useEffect(() => {
     if (autoFocus && textareaRef.current) {
@@ -46,16 +64,28 @@ export function CommentForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || isOverLimit || isSubmitting) return;
+    if (!content.trim() || isOverLimit || loading) return;
 
-    setIsSubmitting(true);
-    try {
-      await onSubmit(content.trim());
+    if (onSubmit) {
+      setIsSubmitting(true);
+      try {
+        await onSubmit(content.trim());
+        setContent('');
+      } catch (error) {
+        console.error('Error submitting comment:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else if (chapterId) {
+      const formData = new FormData();
+      formData.set('content', content.trim());
+      formData.set('chapterId', chapterId);
+      if (mangaSlug) formData.set('mangaSlug', mangaSlug);
+      if (parentId) formData.set('parentId', parentId);
+
+      addOptimistic({ content: content.trim() });
+      formAction(formData);
       setContent('');
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -66,17 +96,45 @@ export function CommentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="relative">
-        <textarea
-          ref={textareaRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          maxLength={MAX_CHARS + 100} // Allow some overflow for UX
-          rows={isCompact ? 2 : 3}
-          className={cn(
+    <div>
+      <AnimatePresence>
+        {!!(optimisticState as Record<string, unknown>)?.optimisticContent && isPending && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-2 p-3 rounded-lg bg-[var(--surface-elevated)]/30 border border-[var(--border)]"
+          >
+            <p className="text-xs text-[var(--text-tertiary)] mb-1">Enviando...</p>
+            <p className="text-sm text-[var(--text-secondary)]">{(optimisticState as Record<string, unknown>)?.optimisticContent as string}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!!(state as Record<string, unknown>)?.error && !isPending && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-2 p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30"
+          >
+            <p className="text-xs text-[var(--error)]">{(state as Record<string, unknown>)?.error as string}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <div className="relative">
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            maxLength={MAX_CHARS + 100}
+            rows={isCompact ? 2 : 3}
+            className={cn(
 'w-full px-3 py-2 bg-[var(--surface-sunken)] border rounded-lg resize-none outline-none transition-all',
           'text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]',
           isOverLimit
@@ -84,9 +142,9 @@ export function CommentForm({
             : 'border-[var(--border)] focus:border-[var(--primary)]',
             isCompact && 'text-sm'
           )}
+          disabled={loading}
         />
 
-        {/* Character count */}
         <div
           className={cn(
             'absolute bottom-2 right-2 text-xs',
@@ -97,10 +155,9 @@ export function CommentForm({
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex items-center justify-between">
         <div className="text-xs text-[var(--text-tertiary)]">
-          {isSubmitting ? 'Posting...' : 'Ctrl+Enter to post'}
+          {loading ? 'Posting...' : 'Ctrl+Enter to post'}
         </div>
 
         <div className="flex items-center gap-2">
@@ -108,7 +165,7 @@ export function CommentForm({
             <button
               type="button"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={loading}
               className="flex items-center gap-1 px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X className="w-4 h-4" />
@@ -116,22 +173,46 @@ export function CommentForm({
             </button>
           )}
 
-          <button
+          <motion.button
             type="submit"
-            disabled={!content.trim() || isOverLimit || isSubmitting}
+            disabled={!content.trim() || isOverLimit || loading}
+            whileTap={!loading ? { scale: 0.95 } : undefined}
             className={cn(
               'flex items-center gap-1 px-4 py-1.5 rounded-lg text-sm font-medium transition-all',
-              !content.trim() || isOverLimit || isSubmitting
+              !content.trim() || isOverLimit || loading
                 ? 'bg-[var(--surface-sunken)] text-[var(--text-secondary)] cursor-not-allowed'
                 : 'bg-[var(--info)] hover:opacity-90 text-[var(--text-inverse)]'
             )}
           >
-            <Send className="w-4 h-4" />
-            {submitLabel}
-          </button>
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div
+                  key="spinner"
+                  initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
+                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                  exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="send"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Send className="w-4 h-4" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {loading ? 'Enviando...' : submitLabel}
+          </motion.button>
         </div>
       </div>
     </form>
+    </div>
   );
 }
 

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { MarkNotificationReadUseCase } from '@/application/use-cases/notifications/MarkNotificationReadUseCase';
-
-const markNotificationReadUseCase = new MarkNotificationReadUseCase(notificationService);
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 export async function POST(
   request: NextRequest,
@@ -15,6 +14,9 @@ export async function POST(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
+    const rlResponse = await withRateLimit(request, session.user.id, 'notifications');
+    if (rlResponse) return rlResponse;
+
     const { id: notificationId } = await params;
     if (!notificationId) {
       return NextResponse.json(
@@ -23,6 +25,7 @@ export async function POST(
       );
     }
 
+    const markNotificationReadUseCase = new MarkNotificationReadUseCase(await getNotificationService());
     const result = await markNotificationReadUseCase.execute({
       userId: session.user.id,
       notificationId,

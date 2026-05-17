@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface ChapterInfo {
   id: string;
@@ -156,9 +157,11 @@ export function ProgressBar({
             >
               {pageUrls[hoveredPage] && (
                 <>
-                  <img
+                  <OptimizedImage
                     src={pageUrls[hoveredPage]}
                     alt={`Page ${hoveredPage + 1}`}
+                    width={128}
+                    height={171}
                     className="w-32 h-auto object-cover"
                   />
                   <div className="px-2 py-1 text-center text-xs text-[var(--text-primary)] bg-[var(--surface)]">
@@ -228,11 +231,11 @@ export function ProgressBar({
                         : 'opacity-60 hover:opacity-100'
                     )}
                   >
-                    <img
+                    <OptimizedImage
                       src={url}
                       alt={`Page ${index + 1}`}
+                      fill
                       className="w-full h-full object-cover"
-                      loading="lazy"
                     />
                     <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] bg-black/50 text-[var(--text-inverse)] py-0.5">
                       {index + 1}

@@ -73,7 +73,6 @@ export function StatCard({
 }: StatCardProps) {
   const styles = variantStyles[variant];
   const isPositive = trend !== undefined && trend >= 0;
-  const isNegative = trend !== undefined && trend < 0;
 
   return (
     <div

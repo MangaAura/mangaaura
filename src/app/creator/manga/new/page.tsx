@@ -1,5 +1,6 @@
 'use client';
 
+import { useT } from '@/i18n';
 import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,6 +21,7 @@ import {
 
 export default function NewMangaPage() {
   const router = useRouter();
+  const t = useT();
   const { createManga, isCreating, validateField } = useCreateManga();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -68,11 +70,11 @@ export default function NewMangaPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        setErrors((prev) => ({ ...prev, cover: 'El archivo debe ser una imagen' }));
+        setErrors((prev) => ({ ...prev, cover: t('creatorMangaNew.errorImageType') }));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, cover: 'La imagen no debe superar 5MB' }));
+        setErrors((prev) => ({ ...prev, cover: t('creatorMangaNew.errorImageSize') }));
         return;
       }
       
@@ -147,16 +149,16 @@ export default function NewMangaPage() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/creator/dashboard">
-            <Button variant="ghost" size="icon" aria-label="Volver">
+            <Button variant="ghost" size="icon" aria-label={t('creatorMangaNew.back')}>
               <ArrowLeftIcon className="w-5 h-5" />
             </Button>
           </Link>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
-              Nuevo Manga
+              {t('creatorMangaNew.title')}
             </h1>
             <p className="text-[var(--text-secondary)] mt-1">
-              Crea tu nueva historia
+              {t('creatorMangaNew.subtitle')}
             </p>
           </div>
         </div>
@@ -167,19 +169,19 @@ export default function NewMangaPage() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Información del Manga</CardTitle>
+                  <CardTitle>{t('creatorMangaNew.mangaInfo')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Title */}
                   <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Título <span className="text-red-500">*</span>
+              {t('creatorMangaNew.titleLabel')} <span className="text-red-500">*</span>
               </label>
                     <Input
                       value={formData.title}
                       onChange={(e) => handleChange('title', e.target.value)}
                       onBlur={() => handleBlur('title')}
-                      placeholder="Ej: El Viaje del Héroe"
+                      placeholder={t('creatorMangaNew.titlePlaceholder')}
                       error={touched.title ? errors.title : undefined}
                       className={cn(
                         touched.title && !errors.title && 'border-green-500 focus:ring-green-500'
@@ -188,7 +190,7 @@ export default function NewMangaPage() {
                     {touched.title && !errors.title && formData.title.length >= 3 && (
                       <div className="flex items-center gap-1 mt-1 text-green-600 text-xs">
                         <CheckIcon className="w-3 h-3" />
-                        <span>Título válido</span>
+                        <span>{t('creatorMangaNew.titleValid')}</span>
                       </div>
                     )}
                   </div>
@@ -196,13 +198,13 @@ export default function NewMangaPage() {
                   {/* Description */}
                   <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Descripción <span className="text-red-500">*</span>
+              {t('creatorMangaNew.description')} <span className="text-red-500">*</span>
               </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
                       onBlur={() => handleBlur('description')}
-                      placeholder="Describe la trama de tu manga..."
+                      placeholder={t('creatorMangaNew.descriptionPlaceholder')}
                       rows={5}
                       className={cn(
           'w-full rounded-lg border bg-[var(--surface-elevated)] px-3 py-2 text-sm',
@@ -220,7 +222,7 @@ export default function NewMangaPage() {
                     )}
                     <div className="flex justify-between mt-1">
                   <span className="text-xs text-[var(--text-tertiary)]">
-                  Mínimo 10 caracteres
+                  {t('creatorMangaNew.descriptionMin')}
                   </span>
                   <span className={cn(
                     'text-xs',
@@ -234,14 +236,14 @@ export default function NewMangaPage() {
                   {/* Tags */}
                   <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Tags <span className="text-red-500">*</span>
+              {t('creatorMangaNew.tags')} <span className="text-red-500">*</span>
               </label>
                     <div className="flex gap-2">
                       <Input
                         value={formData.tags}
                         onChange={(e) => handleChange('tags', e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Añade tags (presiona Enter)"
+                        placeholder={t('creatorMangaNew.tagsPlaceholder')}
                         error={touched.tags && tagList.length === 0 ? errors.tags : undefined}
                       />
                       <Button
@@ -254,7 +256,7 @@ export default function NewMangaPage() {
                       </Button>
                     </div>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              Presiona Enter o coma para añadir un tag (máx. 10)
+              {t('creatorMangaNew.tagsHint')}
             </p>
                     
                     {tagList.length > 0 && (
@@ -285,7 +287,7 @@ export default function NewMangaPage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Portada</CardTitle>
+                  <CardTitle>{t('creatorMangaNew.cover')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div
@@ -320,10 +322,10 @@ export default function NewMangaPage() {
                       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
               <UploadIcon className="w-10 h-10 text-[var(--text-tertiary)] mb-3" />
               <p className="text-sm font-medium text-[var(--text-primary)]">
-                Click para subir
+                {t('creatorMangaNew.coverClick')}
               </p>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                          PNG, JPG hasta 5MB
+                          {t('creatorMangaNew.coverHint')}
                         </p>
                       </div>
                     )}
@@ -347,7 +349,7 @@ export default function NewMangaPage() {
               {/* Preview Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Vista Previa</CardTitle>
+                  <CardTitle>{t('creatorMangaNew.preview')}</CardTitle>
                 </CardHeader>
                 <CardContent>
         <div className="bg-[var(--surface-sunken)] rounded-lg p-4">
@@ -369,7 +371,7 @@ export default function NewMangaPage() {
                       )}
                     </div>
                     <h3 className="font-semibold text-[var(--text-primary)] line-clamp-1">
-                      {formData.title || 'Título del Manga'}
+                      {formData.title || t('creatorMangaNew.previewTitle')}
                     </h3>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {tagList.slice(0, 3).map((tag) => (
@@ -391,7 +393,7 @@ export default function NewMangaPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-[var(--border-subtle)]">
             <Link href="/creator/dashboard">
               <Button variant="outline" type="button">
-                Cancelar
+                {t('creatorMangaNew.cancel')}
               </Button>
             </Link>
             <div className="flex gap-3">
@@ -400,7 +402,7 @@ export default function NewMangaPage() {
                 isLoading={isCreating}
                 disabled={!isFormValid}
               >
-                {isCreating ? 'Creando...' : 'Crear Manga'}
+                {isCreating ? t('creatorMangaNew.creating') : t('creatorMangaNew.create')}
               </Button>
             </div>
           </div>

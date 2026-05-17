@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { WifiOff, RefreshCw, BookOpen, Download, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -58,7 +58,7 @@ export default function OfflinePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--surface)] flex flex-col items-center justify-center p-4">
+    <main id="main-content" className="min-h-screen bg-[var(--surface)] flex flex-col items-center justify-center p-4">
       <div className="max-w-2xl w-full text-center">
         {/* Offline Icon */}
         <div className="mb-8">
@@ -178,6 +178,6 @@ export default function OfflinePage() {
           </ul>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

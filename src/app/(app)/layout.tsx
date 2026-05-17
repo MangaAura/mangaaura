@@ -1,5 +1,10 @@
-import Navbar from '@/components/Layout/Navbar';
-import { PageTransition } from '@/components/ui/PageTransition';
+import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import { SkipToContent } from '@/components/Layout/SkipToContent';
+
+const Navbar = dynamic(() => import('@/components/Layout/Navbar'), {
+  ssr: true,
+});
 
 export default function AppLayout({
   children,
@@ -8,9 +13,12 @@ export default function AppLayout({
 }) {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col">
+      <SkipToContent />
       <Navbar />
-      <main className="flex-1">
-        <PageTransition>{children}</PageTransition>
+      <main id="main-content" className="flex-1">
+        <Suspense fallback={<div className="h-screen animate-pulse bg-[var(--background)]" />}>
+          {children}
+        </Suspense>
       </main>
     </div>
   );

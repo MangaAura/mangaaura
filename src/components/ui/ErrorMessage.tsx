@@ -88,9 +88,9 @@ export function ErrorMessage({
         </div>
         <div className="flex-1 min-w-0">
           {(title || config.title) && (
-            <h3 className={cn('text-sm font-semibold mb-1', config.textColor)}>
+            <h2 className={cn('text-sm font-semibold mb-1', config.textColor)}>
               {title || config.title}
-            </h3>
+            </h2>
           )}
           <p className={cn('text-sm', config.textColor)}>{message}</p>
           {children && <div className="mt-2">{children}</div>}

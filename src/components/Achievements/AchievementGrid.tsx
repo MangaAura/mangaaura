@@ -2,31 +2,15 @@
 
 import { useState, useMemo } from 'react';
 import { AchievementCard, adaptAchievement } from './AchievementCard';
+import type { AchievementUI } from './AchievementCard';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Progress } from '@/components/ui/Progress';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import { cn } from '@/lib/utils';
-import { Trophy, Lock, Unlock, Target, Zap, BookOpen, Users, MessageSquare, Star } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { Trophy, Lock, Unlock, Target, Zap, BookOpen, Users, Star } from 'lucide-react';
 import type { AchievementWithProgress, Difficulty } from '@/hooks/useAchievements';
-
-interface AchievementUI {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: string;
-  rarity: Difficulty;
-  points: number;
-  requirement: number;
-  requirementType: string;
-  userAchievement?: {
-    earnedAt: Date;
-    progress: number;
-  } | null;
-}
 
 interface AchievementGridProps {
   achievements: AchievementWithProgress[];
@@ -176,8 +160,8 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+      <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <TabsList>
             {categories.map((cat) => {
               const Icon = cat.icon;
@@ -189,51 +173,56 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
               );
             })}
           </TabsList>
-        </Tabs>
 
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedRarity}
-            onChange={(e) => setSelectedRarity(e.target.value as Difficulty | 'ALL')}
-            className="bg-secondary border border-custom text-fg-primary rounded-lg px-3 py-2 text-sm outline-none"
-          >
-            {rarities.map((r) => (
-              <option key={r} value={r}>{RARITY_LABELS[r] || r}</option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedRarity}
+              onChange={(e) => setSelectedRarity(e.target.value as Difficulty | 'ALL')}
+              className="bg-secondary border border-custom text-fg-primary rounded-lg px-3 py-2 text-sm outline-none"
+              aria-label="Filtrar por rareza"
+            >
+              {rarities.map((r) => (
+                <option key={r} value={r}>{RARITY_LABELS[r] || r}</option>
+              ))}
+            </select>
 
-          <Button
-            variant={showUnlockedOnly ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setShowUnlockedOnly(!showUnlockedOnly)}
-          >
-            {showUnlockedOnly ? (
-              <>
-                <Unlock className="w-4 h-4 mr-2" />
-                Desbloqueados
-              </>
+            <Button
+              variant={showUnlockedOnly ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowUnlockedOnly(!showUnlockedOnly)}
+            >
+              {showUnlockedOnly ? (
+                <>
+                  <Unlock className="w-4 h-4 mr-2" />
+                  Desbloqueados
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 mr-2" />
+                  Todos
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {categories.map((cat) => (
+          <TabsContent key={cat.id} value={cat.id} className="mt-6">
+            {filteredAchievements.length === 0 ? (
+              <EmptyState
+                title="Sin logros"
+                description="Los logros se desbloquearán a medida que uses InkVerse"
+              />
             ) : (
-              <>
-                <Lock className="w-4 h-4 mr-2" />
-                Todos
-              </>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredAchievements.map((achievement) => (
+                  <AchievementCard key={achievement.id} achievement={achievement} />
+                ))}
+              </div>
             )}
-          </Button>
-        </div>
-      </div>
-
-      {filteredAchievements.length === 0 ? (
-        <EmptyState
-          title="Sin logros"
-          description="Los logros se desbloquearán a medida que uses InkVerse"
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAchievements.map((achievement) => (
-            <AchievementCard key={achievement.id} achievement={achievement} />
-          ))}
-        </div>
-      )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }

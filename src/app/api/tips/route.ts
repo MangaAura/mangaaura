@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { paymentService } from '@/core/services/PaymentService';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const sendTipSchema = z.object({
@@ -21,7 +22,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('tip', userId), 10, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const body = await request.json();
+
     const result = sendTipSchema.safeParse(body);
 
     if (!result.success) {

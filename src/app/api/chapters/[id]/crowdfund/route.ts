@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const crowdfundSchema = z.object({
@@ -20,6 +21,12 @@ export async function POST(
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('crowdfund', userId), 10, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const { id: chapterId } = await params;
@@ -141,7 +148,7 @@ export async function POST(
             chapterTitle: chapter.title || undefined,
           });
 
-          console.log(`[Crowdfund] Goal reached notification queued for ${manga.title} chap ${chapter.chapterNumber}`);
+          // console.log(`[Crowdfund] Goal reached notification queued for ${manga.title} chap ${chapter.chapterNumber}`);
         }
       } catch (emailError) {
         console.error('[Crowdfund] Error queueing goal reached email:', emailError);
@@ -179,7 +186,7 @@ export async function POST(
 
 // GET /api/chapters/[id]/crowdfund - Ver estado del crowdfunding
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

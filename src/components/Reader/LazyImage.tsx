@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface LazyImageProps {
   src: string;
@@ -21,13 +22,11 @@ export function LazyImage({
   isCurrent,
   onLoad,
   className,
-  fitMode = 'width',
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
 
   // Intersection Observer for lazy loading
   useEffect(() => {
@@ -51,13 +50,6 @@ export function LazyImage({
     return () => observer.disconnect();
   }, []);
 
-  // Preload current and adjacent images
-  useEffect(() => {
-    if (isCurrent && imageRef.current) {
-      imageRef.current.loading = 'eager';
-    }
-  }, [isCurrent]);
-
   const handleLoad = () => {
     setIsLoaded(true);
     setHasError(false);
@@ -67,21 +59,6 @@ export function LazyImage({
   const handleError = () => {
     setHasError(true);
     setIsLoaded(true);
-  };
-
-  const getFitStyles = () => {
-    switch (fitMode) {
-      case 'width':
-        return 'max-w-full h-auto';
-      case 'height':
-        return 'max-h-full w-auto';
-      case 'screen':
-        return 'max-w-full max-h-full object-contain';
-      case 'original':
-        return 'w-auto h-auto';
-      default:
-        return 'max-w-full h-auto';
-    }
   };
 
   return (
@@ -129,16 +106,16 @@ export function LazyImage({
 
       {/* Actual image */}
       {isInView && !hasError && (
-        <img
-          ref={imageRef}
+        <OptimizedImage
           src={src}
           alt={alt}
+          fill
+          objectFit="contain"
           onLoad={handleLoad}
           onError={handleError}
           loading={isCurrent ? 'eager' : 'lazy'}
           className={cn(
             'transition-opacity duration-300',
-            getFitStyles(),
             isLoaded ? 'opacity-100' : 'opacity-0'
           )}
         />
@@ -176,8 +153,7 @@ export function DoublePageImage({
   onLoad,
   className,
 }: DoublePageImageProps) {
-  const [loadedCount, setLoadedCount] = useState(0);
-  const isLoaded = loadedCount >= 2;
+  const [, setLoadedCount] = useState(0);
 
   const handleLoad = () => {
     setLoadedCount(prev => {

@@ -1,7 +1,6 @@
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
-
-export const runtime = 'edge';
+import Image from 'next/image';
 
 export async function GET(request: NextRequest) {
   try {
@@ -105,12 +104,12 @@ export async function GET(request: NextRequest) {
           >
             {/* Cover image */}
             {coverImage ? (
-              <img
+              <Image
                 src={coverImage}
                 alt=""
+                width={300}
+                height={450}
                 style={{
-                  width: '300px',
-                  height: '450px',
                   objectFit: 'cover',
                   borderRadius: '16px',
                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',

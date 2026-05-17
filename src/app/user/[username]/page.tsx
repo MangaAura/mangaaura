@@ -67,17 +67,50 @@ async function getUserData(username: string) {
         orderBy: { createdAt: 'desc' },
         take: 10,
       },
+      collections: {
+        where: { isPublic: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 12,
+        include: {
+          _count: { select: { items: true, likes: true } },
+        },
+      },
     },
   });
 
-  return user;
+  return user as any;
 }
 
 export async function generateMetadata({ params }: UserProfilePageProps): Promise<Metadata> {
   const { username } = await params;
+  const user = await getUserData(username);
+
+  if (!user) {
+    return { title: 'Usuario no encontrado | InkVerse' };
+  }
+
+  const displayName = user.displayName || user.username;
+  const title = `${displayName} | InkVerse`;
+  const description = `Perfil de ${displayName} en InkVerse · Nivel ${user.level} · ${user._count.createdMangas} mangas creados`;
+  const ogImage = user.avatarUrl || undefined;
+
   return {
-    title: `${username} | Inkverse`,
-    description: `Perfil de ${username} en Inkverse`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'profile',
+      images: ogImage ? [{ url: ogImage, width: 400, height: 400, alt: displayName }] : undefined,
+      username: user.username,
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
+    alternates: { canonical: `/user/${username}` },
   };
 }
 

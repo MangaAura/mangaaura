@@ -1,8 +1,8 @@
+import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { MangaStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import MangaDetailClient from './MangaDetailClient';
 
 interface MangaPageProps {
@@ -54,7 +54,7 @@ async function getMangaData(slug: string) {
   };
 }
 
-export async function generateMetadata({ params }: MangaPageProps) {
+export async function generateMetadata({ params }: MangaPageProps): Promise<Metadata> {
   const { slug } = await params;
   const manga = await getMangaData(slug);
 
@@ -62,9 +62,28 @@ export async function generateMetadata({ params }: MangaPageProps) {
     return { title: 'Manga no encontrado | InkVerse' };
   }
 
+  const title = `${manga.title} | InkVerse`;
+  const description = manga.description?.slice(0, 160) || `Lee ${manga.title} en InkVerse. ${manga.chapters.length} capítulos disponibles.`;
+  const ogImage = manga.coverUrl
+    ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}`
+    : undefined;
+
   return {
-    title: `${manga.title} | InkVerse`,
-    description: manga.description || `Lee ${manga.title} en InkVerse. ${manga.chapters.length} capítulos disponibles.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: manga.title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
+    alternates: { canonical: `/manga/${slug}` },
   };
 }
 
@@ -89,5 +108,26 @@ export default async function MangaDetailPage({ params }: MangaPageProps) {
     isInLibrary = !!entry;
   }
 
-  return <MangaDetailClient manga={manga} isInLibrary={isInLibrary} userId={userId} />;
+  return (
+    <>
+      <MangaStructuredData
+        title={manga.title}
+        description={manga.description}
+        author={manga.authorName}
+        coverUrl={manga.coverUrl || undefined}
+        slug={manga.slug}
+        rating={manga.rating || undefined}
+        tags={manga.tags}
+        totalChapters={manga.chapters.length}
+      />
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Manga', item: '/browse' },
+          { name: manga.title, item: `/manga/${manga.slug}` },
+        ]}
+      />
+      <MangaDetailClient manga={manga} isInLibrary={isInLibrary} userId={userId} />
+    </>
+  );
 }

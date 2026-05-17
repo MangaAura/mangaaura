@@ -1,9 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
-import Link from 'next/link';
+import { ErrorFallback } from '@/components/ui/ErrorFallback';
 
 export default function AppError({
   error,
@@ -12,32 +9,5 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error('App error:', error);
-  }, [error]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--surface)] px-4">
-      <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 mx-auto bg-[var(--error)]/10 rounded-full flex items-center justify-center mb-6">
-          <AlertTriangle className="w-10 h-10 text-[var(--error)]" />
-        </div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
-          Algo salió mal
-        </h1>
-        <p className="text-[var(--text-secondary)] mb-6">
-          Ocurrió un error inesperado.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button onClick={reset} className="bg-[var(--primary)] hover:opacity-90">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Reintentar
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/">Volver al inicio</Link>
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  return <ErrorFallback error={error} reset={reset} />;
 }

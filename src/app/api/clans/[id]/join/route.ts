@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // POST /api/clans/[id]/join - Unirse a un clan
 export async function POST(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -17,6 +18,9 @@ export async function POST(
         { status: 401 }
       );
     }
+
+    const rlResponse = await withRateLimit(_req, session?.user?.id, 'default');
+    if (rlResponse) return rlResponse;
 
     const userId = session.user.id;
 

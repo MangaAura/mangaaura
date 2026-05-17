@@ -2,8 +2,10 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { useT } from '@/i18n';
 
 export default function ClansFilters() {
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const search = searchParams.get('search') || '';
@@ -37,7 +39,8 @@ export default function ClansFilters() {
         <input
           type="text"
           name="search"
-          placeholder="Buscar clanes..."
+          placeholder={t('clansFilter.searchPlaceholder')}
+          aria-label={t('clansFilter.searchLabel')}
           defaultValue={search}
           className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl pl-12 pr-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
         />
@@ -45,11 +48,12 @@ export default function ClansFilters() {
       <select
         value={sortBy}
         onChange={(e) => updateParams({ sortBy: e.target.value === 'monthlyScore' ? null : e.target.value })}
+        aria-label={t('clansFilter.sortLabel')}
         className="bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer"
       >
-        <option value="monthlyScore">Puntuación Mensual</option>
-        <option value="totalScore">Puntuación Total</option>
-        <option value="name">Nombre</option>
+        <option value="monthlyScore">{t('clansFilter.sortMonthly')}</option>
+        <option value="totalScore">{t('clansFilter.sortTotal')}</option>
+        <option value="name">{t('clansFilter.sortName')}</option>
       </select>
     </div>
   );

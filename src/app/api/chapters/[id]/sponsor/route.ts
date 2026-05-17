@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const sponsorSchema = z.object({
@@ -22,6 +23,12 @@ export async function POST(
         { error: 'No autorizado' },
         { status: 401 }
       );
+    }
+
+    const userId = session?.user?.id || 'anonymous';
+    const { allowed } = await rateLimit(getRateLimitKey('sponsor', userId), 10, 60);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const { id: chapterId } = await params;
@@ -77,19 +84,20 @@ export async function POST(
       );
     }
 
-    // Marcar pujas anteriores como perdidas
+    // Marcar pujas anteriores como perdidas (incluyendo isWinning)
     await prisma.sponsorshipBid.updateMany({
       where: { chapterId, status: 'ACTIVE' },
-      data: { status: 'LOST' },
+      data: { status: 'LOST', isWinning: false },
     });
 
-    // Crear puja
+    // Crear puja como ganadora
     const bid = await prisma.sponsorshipBid.create({
       data: {
         chapterId,
         userId: session.user.id,
         bidAmount,
         status: 'ACTIVE',
+        isWinning: true,
         sponsorName: sponsorName || user.username,
         message,
       },
@@ -136,7 +144,7 @@ export async function POST(
 
 // GET /api/chapters/[id]/sponsor - Ver pujas activas
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { paymentService } from '@/core/services/PaymentService';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
 
 // GET /api/tips/chapter/[id] - Obtener propinas de un capítulo
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

@@ -9,7 +9,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import type { Stripe } from '@stripe/stripe-js';
 import { loadStripe } from '@stripe/stripe-js/pure';
 import { 
   Coins, 
@@ -23,6 +22,7 @@ import {
 import { INKCOIN_PACKAGES, formatAmount } from '@/lib/stripe';
 import { Button } from '@/components/ui/Button';
 
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -30,7 +30,8 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const t = useT();
+  const [selectedPackage, _setSelectedPackage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,10 +85,10 @@ export default function CheckoutPage() {
   if (status === 'unauthenticated') {
     return (
       <div className="min-h-screen bg-[var(--background)] pt-20 text-center px-4">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Inicia sesión</h1>
-          <p className="text-[var(--text-secondary)] mb-6">Debes iniciar sesión para comprar InkCoins</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">{t('checkout.loginRequired')}</h1>
+          <p className="text-[var(--text-secondary)] mb-6">{t('checkout.loginRequiredDesc')}</p>
           <Button onClick={() => router.push('/auth/login?callbackUrl=/checkout')}>
-            Iniciar sesión
+            {t('checkout.login')}
           </Button>
         </div>
     );
@@ -100,14 +101,13 @@ export default function CheckoutPage() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--warning)]/20 to-[var(--warning)]/10 rounded-full border border-[var(--warning)]/30 mb-6">
               <Coins className="w-5 h-5 text-[var(--warning)]" />
-              <span className="text-[var(--warning)] font-medium">Compra InkCoins</span>
+              <span className="text-[var(--warning)] font-medium">{t('checkout.badge')}</span>
             </div>
             <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-4">
-              Obtén InkCoins
+              {t('checkout.title')}
             </h1>
             <p className="text-[var(--text-secondary)] text-lg max-w-2xl mx-auto">
-              Usa InkCoins para dar propinas a tus creadores favoritos, patrocinar capítulos 
-              y apoyar el contenido que amas.
+              {t('checkout.description')}
             </p>
           </div>
 
@@ -133,7 +133,7 @@ export default function CheckoutPage() {
                 {/* Popular badge */}
                 {index === 1 && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[var(--primary)] text-[var(--text-primary)] text-xs font-bold rounded-full">
-                    Popular
+                    {t('checkout.popular')}
                   </div>
                 )}
 
@@ -155,7 +155,7 @@ export default function CheckoutPage() {
                 <div className="text-3xl font-bold text-[var(--text-primary)] mb-1">
                   {pkg.amount.toLocaleString()}
                 </div>
-                <div className="text-sm text-[var(--text-secondary)] mb-4">InkCoins</div>
+                <div className="text-sm text-[var(--text-secondary)] mb-4">{t('checkout.inkCoins')}</div>
 
                 {/* Price */}
                 <div className="text-2xl font-bold text-[var(--text-primary)] mb-1">
@@ -166,7 +166,7 @@ export default function CheckoutPage() {
                 {/* Savings */}
                 {index > 0 && (
                   <div className="text-xs text-[var(--success)] mb-4">
-                    Ahorra {Math.round((1 - pkg.priceUSD / (pkg.amount * 1)) * 100)}%
+                    {t('checkout.save')} {Math.round((1 - pkg.priceUSD / (pkg.amount * 1)) * 100)}%
                   </div>
                 )}
 
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
                   ) : (
                     <>
                       <CreditCard className="w-4 h-4 mr-2" />
-                      Comprar
+                      {t('checkout.buy')}
                     </>
                   )}
                 </Button>
@@ -194,55 +194,53 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
               <CheckCircle className="w-8 h-8 text-[var(--success)] mb-4" />
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Pago seguro</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.securePayment')}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                Procesado por Stripe con encriptación SSL de 256 bits
+                {t('checkout.securePaymentDesc')}
               </p>
             </div>
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
               <Coins className="w-8 h-8 text-[var(--warning)] mb-4" />
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Entrega inmediata</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.instantDelivery')}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                Los InkCoins se añaden a tu cuenta al completar el pago
+                {t('checkout.instantDeliveryDesc')}
               </p>
             </div>
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
               <Sparkles className="w-8 h-8 text-[var(--accent-purple)] mb-4" />
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">Sin expiración</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.noExpiration')}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                Tus InkCoins nunca expiran, úsalos cuando quieras
+                {t('checkout.noExpirationDesc')}
               </p>
             </div>
           </div>
 
           {/* FAQ */}
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6 text-center">Preguntas frecuentes</h2>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6 text-center">{t('checkout.faq')}</h2>
             <div className="space-y-4">
               <details className="bg-[var(--surface)]/30 rounded-xl border border-[var(--border)]">
                 <summary className="p-4 cursor-pointer font-medium text-[var(--text-primary)]">
-                  ¿Qué puedo hacer con los InkCoins?
+                  {t('checkout.faq1Q')}
                 </summary>
                 <div className="px-4 pb-4 text-[var(--text-secondary)] text-sm">
-                  Puedes dar propinas a creadores, patrocinar capítulos para que se publiquen más rápido,
-                  y participar en eventos especiales de la comunidad.
+                  {t('checkout.faq1A')}
                 </div>
               </details>
               <details className="bg-[var(--surface)]/30 rounded-xl border border-[var(--border)]">
                 <summary className="p-4 cursor-pointer font-medium text-[var(--text-primary)]">
-                  ¿Los InkCoins tienen fecha de expiración?
+                  {t('checkout.faq2Q')}
                 </summary>
                 <div className="px-4 pb-4 text-[var(--text-secondary)] text-sm">
-                  No, tus InkCoins nunca expiran. Una vez comprados, permanecen en tu cuenta indefinidamente.
+                  {t('checkout.faq2A')}
                 </div>
               </details>
               <details className="bg-[var(--surface)]/30 rounded-xl border border-[var(--border)]">
                 <summary className="p-4 cursor-pointer font-medium text-[var(--text-primary)]">
-                  ¿Puedo obtener reembolso?
+                  {t('checkout.faq3Q')}
                 </summary>
                 <div className="px-4 pb-4 text-[var(--text-secondary)] text-sm">
-                  Los InkCoins son bienes digitales y generalmente no son reembolsables.
-                  Contáctanos si tienes algún problema con tu compra.
+                  {t('checkout.faq3A')}
                 </div>
               </details>
             </div>

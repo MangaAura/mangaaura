@@ -1,7 +1,8 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { PanelTextOverlay, type PanelText } from '@/components/Reader/PanelTextOverlay';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { PanelTextOverlay } from '@/components/Reader/PanelTextOverlay';
 import { usePanelTexts } from '@/hooks/usePanelTexts';
 import { Button } from '@/components/ui/Button';
 import { Pencil, Eye, Download, Upload, Trash2 } from 'lucide-react';
@@ -294,11 +295,14 @@ export default function PanelTextsDemoPage() {
             {exportUrl && (
               <div className="bg-[var(--surface-sunken)] rounded-xl p-4">
                 <h3 className="font-semibold text-[var(--text-primary)] mb-3">👁️ Vista previa</h3>
-                <img 
-                  src={exportUrl} 
-                  alt="Export preview" 
-                  className="w-full rounded-lg"
-                />
+                <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                  <OptimizedImage 
+                    src={exportUrl} 
+                    alt="Export preview" 
+                    fill
+                    objectFit="contain"
+                  />
+                </div>
               </div>
             )}
           </div>

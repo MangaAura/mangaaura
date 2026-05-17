@@ -1,8 +1,9 @@
 ﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, Users, TrendingUp, Crown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import ContributionModal from './ContributionModal';
 
 interface CrowdfundingWidgetProps {
@@ -214,9 +215,11 @@ ${index === 0 ? 'bg-[var(--warning)]/10 text-[var(--warning)]' :
                     ) : (
                       <div className="flex items-center gap-2">
                         {contributor.user.avatarUrl ? (
-                          <img
+                          <OptimizedImage
                             src={contributor.user.avatarUrl}
                             alt={contributor.user.username}
+                            width={20}
+                            height={20}
                             className="w-5 h-5 rounded-full object-cover"
                           />
                         ) : (

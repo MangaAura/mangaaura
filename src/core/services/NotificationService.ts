@@ -1,18 +1,10 @@
-/**
- * Servicio de Notificaciones
- * 
- * Gestiona la creación, lectura y limpieza de notificaciones en Prisma.
- * 
- * @module NotificationService
- */
+import type {
+  INotificationRepository,
+  IRealtimeNotificationService,
+  IPushNotificationService,
+  NotificationRecord,
+} from './INotificationRepository';
 
-import { PrismaClient } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
-import { emitNotification } from '@/lib/socket';
-import { sendPushNotification } from '@/lib/push-notifications';
-import type { AchievementDefinition, Chapter, MangaSeries, Comment, User } from '@prisma/client';
-
-// Tipos de notificación
 export type NotificationType =
   | 'ACHIEVEMENT_UNLOCKED'
   | 'NEW_CHAPTER'
@@ -23,86 +15,66 @@ export type NotificationType =
   | 'SYSTEM'
   | 'MENTION'
   | 'TIP_RECEIVED'
-  | 'CROWDFUNDING_CONTRIBUTION';
+  | 'CROWDFUNDING_CONTRIBUTION'
+  | 'STREAK_MILESTONE';
 
-// DTO para crear notificación
 export interface CreateNotificationDTO {
   userId: string;
   type: NotificationType;
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   imageUrl?: string;
   linkUrl?: string;
 }
 
-// Re-export Notification type from Prisma
-export type Notification = import('@prisma/client').Notification;
+export type Notification = NotificationRecord;
 
-/**
- * Servicio de notificaciones
- */
 export class NotificationService {
-  private readonly pushEnabled: boolean;
+  constructor(
+    private readonly notificationRepo: INotificationRepository,
+    private readonly pushService?: IPushNotificationService,
+    private readonly realtimeService?: IRealtimeNotificationService
+  ) {}
 
-  constructor(private readonly prismaClient: PrismaClient = prisma) {
-    this.pushEnabled = process.env.ENABLE_PUSH_NOTIFICATIONS !== 'false';
-  }
-
-  /**
-   * Crear una notificación
-   */
   async createNotification(data: CreateNotificationDTO): Promise<Notification> {
-    const notification = await this.prismaClient.notification.create({
-      data: {
-        userId: data.userId,
+    const notification = await this.notificationRepo.create({
+      userId: data.userId,
+      type: data.type,
+      title: data.title,
+      message: data.message,
+      data: data.data as Record<string, unknown> | null | undefined,
+      linkUrl: data.linkUrl,
+    });
+
+    if (this.realtimeService) {
+      this.realtimeService.emitToUser(data.userId, {
+        id: notification.id,
         type: data.type,
         title: data.title,
         message: data.message,
-        data: data.data ? JSON.stringify(data.data) : null,
-        linkUrl: data.linkUrl,
-      },
-    });
-
-    // Emitir notificación en tiempo real si está disponible
-    try {
-      const notificationPayload = {
-        id: notification.id,
-        type: notification.type as NotificationType,
-        title: notification.title,
-        message: notification.message,
-        userId: notification.userId,
+        userId: data.userId,
         metadata: data.data,
         isRead: notification.isRead,
         createdAt: notification.createdAt,
-      };
-      emitNotification(data.userId, notificationPayload);
-    } catch (error) {
-      // Silenciar errores de socket
-      console.info('[NotificationService] Socket emit failed (may be server-side)');
+      });
     }
 
-    // Enviar notificación push si está habilitado
-    if (this.pushEnabled && data.type !== 'SYSTEM') {
-      sendPushNotification(data.userId, {
+    if (this.pushService && data.type !== 'SYSTEM') {
+      this.pushService.sendToUser(data.userId, {
         title: data.title,
         body: data.message,
         url: data.linkUrl || '/',
         tag: data.type.toLowerCase(),
-      }).catch(() => {
-        // Errores de push no deben afectar la creación de la notificación
       });
     }
 
     return notification;
   }
 
-  /**
-   * Notificar logro desbloqueado
-   */
   async notifyAchievementUnlocked(
     userId: string,
-    achievement: AchievementDefinition
+    achievement: { id: string; badgeId: string; name: string; description: string; xpReward: number; iconUrl?: string | null; }
   ): Promise<Notification> {
     return this.createNotification({
       userId,
@@ -122,13 +94,10 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar nuevo capítulo de manga seguido
-   */
   async notifyNewChapter(
     userId: string,
-    manga: MangaSeries,
-    chapter: Chapter
+    manga: { id: string; title: string; slug: string; coverUrl?: string | null; },
+    chapter: { id: string; chapterNumber: number; title?: string | null; }
   ): Promise<Notification> {
     return this.createNotification({
       userId,
@@ -148,12 +117,9 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar respuesta a comentario
-   */
   async notifyCommentReply(
     userId: string,
-    comment: Comment,
+    comment: { id: string; parentId?: string | null; chapterId?: string | null; content: string; },
     replier: { id: string; username: string; displayName: string | null; avatarUrl: string | null },
     mangaTitle?: string
   ): Promise<Notification> {
@@ -176,12 +142,9 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar patrocinio ganado
-   */
   async notifySponsorshipWon(
     userId: string,
-    chapter: Chapter,
+    chapter: { id: string; chapterNumber: number; },
     bidAmount: number,
     mangaTitle?: string
   ): Promise<Notification> {
@@ -200,9 +163,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar subida de nivel
-   */
   async notifyLevelUp(
     userId: string,
     oldLevel: number,
@@ -221,9 +181,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar recepción de InkCoins
-   */
   async notifyInkCoinsReceived(
     userId: string,
     amount: number,
@@ -242,9 +199,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar propina recibida
-   */
   async notifyTipReceived(
     userId: string,
     amount: number,
@@ -271,9 +225,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar contribución a crowdfunding
-   */
   async notifyCrowdfundingContribution(
     userId: string,
     amount: number,
@@ -286,9 +237,9 @@ export class NotificationService {
     const chapterTitle = chapter.title ? `: ${chapter.title}` : '';
     const percentage = Math.min(Math.round((newTotal / goalAmount) * 100), 100);
     const goalReached = newTotal >= goalAmount;
-    
+
     const contributorName = isAnonymous ? 'Alguien anónimo' : (contributor.displayName || contributor.username);
-    
+
     return this.createNotification({
       userId,
       type: 'CROWDFUNDING_CONTRIBUTION',
@@ -313,12 +264,9 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notificar mención en comentario
-   */
   async notifyMention(
     userId: string,
-    comment: Comment,
+    comment: { id: string; chapterId?: string | null; content: string; },
     mentioner: { id: string; username: string; displayName: string | null; avatarUrl: string | null },
     mangaTitle?: string
   ): Promise<Notification> {
@@ -340,183 +288,90 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Buscar una notificación por ID
-   */
   async findById(notificationId: string): Promise<Notification | null> {
-    try {
-      const notification = await this.prismaClient.notification.findUnique({
-        where: { id: notificationId },
-      });
-      return notification as Notification | null;
-    } catch {
-      return null;
-    }
+    return this.notificationRepo.findById(notificationId);
   }
 
-  /**
-   * Obtener notificaciones de un usuario
-   */
   async getUserNotifications(
     userId: string,
     limit: number = 20,
     offset: number = 0
   ): Promise<Notification[]> {
-    const notifications = await this.prismaClient.notification.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    skip: offset,
-  });
+    return this.notificationRepo.findByUserId(userId, { limit, offset });
+  }
 
-  return notifications as Notification[];
-}
+  async getUnreadNotifications(
+    userId: string,
+    limit: number = 50
+  ): Promise<Notification[]> {
+    return this.notificationRepo.findUnreadByUserId(userId, limit);
+  }
 
-/**
- * Obtener notificaciones no leídas
- */
-async getUnreadNotifications(
-  userId: string,
-  limit: number = 50
-): Promise<Notification[]> {
-  const notifications = await this.prismaClient.notification.findMany({
-    where: { userId, isRead: false },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-  });
-
-  return notifications as Notification[];
-}
-
-  /**
-   * Contar notificaciones no leídas
-   */
   async getUnreadCount(userId: string): Promise<number> {
-    return this.prismaClient.notification.count({
-      where: { userId, isRead: false },
-    });
+    return this.notificationRepo.getUnreadCount(userId);
   }
 
-  /**
-   * Marcar notificación como leída
-   */
   async markAsRead(notificationId: string): Promise<Notification | null> {
-    try {
-      const notification = await this.prismaClient.notification.update({
-        where: { id: notificationId },
-        data: { isRead: true },
-      });
-      return notification as Notification;
-    } catch (error) {
-      console.error('[NotificationService] Error marking as read:', error);
-      return null;
-    }
+    return this.notificationRepo.markAsRead(notificationId);
   }
 
-  /**
-   * Marcar todas las notificaciones como leídas
-   */
   async markAllAsRead(userId: string): Promise<number> {
-    const result = await this.prismaClient.notification.updateMany({
-      where: { userId, isRead: false },
-      data: { isRead: true },
-    });
-
-    return result.count;
+    return this.notificationRepo.markAllAsRead(userId);
   }
 
-  /**
-   * Eliminar notificación
-   */
   async deleteNotification(notificationId: string, userId?: string): Promise<boolean> {
-    try {
-      if (userId) {
-        const notification = await this.prismaClient.notification.findFirst({
-          where: { id: notificationId, userId },
-        });
-        if (!notification) return false;
-      }
-      await this.prismaClient.notification.delete({
-        where: { id: notificationId },
-      });
-      return true;
-    } catch (error) {
-      console.error('[NotificationService] Error deleting notification:', error);
-      return false;
-    }
+    return this.notificationRepo.delete(notificationId, userId);
   }
 
-  /**
-   * Eliminar notificaciones antiguas (más de 30 días)
-   */
   async cleanupOldNotifications(days: number = 30): Promise<number> {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-
-    const result = await this.prismaClient.notification.deleteMany({
-      where: {
-        createdAt: {
-          lt: cutoffDate,
-        },
-        isRead: true,
-      },
-    });
-
-    console.info(`[NotificationService] Cleaned up ${result.count} old notifications`);
-    return result.count;
+    return this.notificationRepo.cleanupOld(days);
   }
 
-  /**
-   * Obtener estadísticas de notificaciones
-   */
   async getNotificationStats(userId: string): Promise<{
     total: number;
     unread: number;
     byType: Record<string, number>;
   }> {
-    const [total, unread, byType] = await Promise.all([
-      this.prismaClient.notification.count({ where: { userId } }),
-      this.prismaClient.notification.count({ where: { userId, isRead: false } }),
-      this.prismaClient.notification.groupBy({
-        by: ['type'],
-        where: { userId },
-        _count: { type: true },
-      }),
-    ]);
-
-    const byTypeMap = byType.reduce((acc: Record<string, number>, curr: any) => {
-      acc[curr.type] = curr._count.type;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return { total, unread, byType: byTypeMap };
+    return this.notificationRepo.getStats(userId);
   }
 
-  /**
-   * Notificar a múltiples usuarios
-   */
   async notifyMultiple(
     userIds: string[],
     notificationData: Omit<CreateNotificationDTO, 'userId'>
   ): Promise<Notification[]> {
-    const notifications: Notification[] = [];
+    const dataList = userIds.map(userId => ({
+      userId,
+      type: notificationData.type,
+      title: notificationData.title,
+      message: notificationData.message,
+      data: notificationData.data as Record<string, unknown> | null | undefined,
+      linkUrl: notificationData.linkUrl,
+    }));
 
-    // Procesar en lotes para evitar sobrecarga
-    const batchSize = 50;
-    for (let i = 0; i < userIds.length; i += batchSize) {
-      const batch = userIds.slice(i, i + batchSize);
-      const promises = batch.map(userId =>
-        this.createNotification({ ...notificationData, userId })
-      );
-      const results = await Promise.all(promises);
-      notifications.push(...results);
-    }
-
-    return notifications;
+    return this.notificationRepo.createMany(dataList);
   }
 }
 
-// Instancia singleton
-export const notificationService = new NotificationService();
+export let notificationService: NotificationService | undefined;
+
+export function initializeNotificationService(
+  repo: INotificationRepository,
+  pushService?: IPushNotificationService,
+  realtimeService?: IRealtimeNotificationService
+): NotificationService {
+  const service = new NotificationService(repo, pushService, realtimeService);
+  notificationService = service;
+  return service;
+}
+
+export async function getNotificationService(): Promise<NotificationService> {
+  if (notificationService) return notificationService;
+  const { PrismaNotificationRepository, PushNotificationAdapter, RealtimeNotificationAdapter } = await import('@/infrastructure/adapters/PrismaNotificationRepository');
+  return initializeNotificationService(
+    new PrismaNotificationRepository(),
+    new PushNotificationAdapter(),
+    new RealtimeNotificationAdapter()
+  );
+}
 
 export default notificationService;

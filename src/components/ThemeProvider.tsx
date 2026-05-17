@@ -53,7 +53,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyTheme();
 
     // Listen for system theme changes
-    const handleChange = (e: MediaQueryListEvent) => {
+    const handleChange = (_e: MediaQueryListEvent) => {
       if (theme === 'system') {
         applyTheme();
       }

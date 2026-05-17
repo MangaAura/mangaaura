@@ -31,7 +31,7 @@ interface NotificationBellProps {
   userId: string;
 }
 
-export function NotificationBell({ userId }: NotificationBellProps) {
+export function NotificationBell({}: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);

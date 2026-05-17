@@ -5,6 +5,7 @@ import type { NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 import { prisma } from './prisma';
+import { rateLimit, getRateLimitKey } from './rate-limit';
 
 // Configuración compatible con NextAuth 5 beta
 export const authConfig = {
@@ -13,6 +14,35 @@ export const authConfig = {
   session: {
     strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 60, // 30 días
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+    callbackUrl: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.callback-url' : 'next-auth.callback-url',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+    csrfToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.csrf-token' : 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   pages: {
     signIn: '/auth/login',
@@ -36,14 +66,30 @@ export const authConfig = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials: Record<string, string> | undefined) {
+      async authorize(credentials: Record<string, string> | undefined, request?: { headers?: Headers | Record<string, string> }) {
         try {
           if (!credentials?.email || !credentials?.password) {
             return null;
           }
 
+          const email = credentials.email.toLowerCase();
+          const ip = request?.headers instanceof Headers
+            ? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+            : request?.headers?.['x-forwarded-for']?.split(',')[0]?.trim();
+
+          const limiterKey = ip
+            ? getRateLimitKey('login', `${email}:${ip}`)
+            : getRateLimitKey('login', email);
+
+          const { allowed } = await rateLimit(limiterKey, 5, 300);
+
+          if (!allowed) {
+            console.warn(`[RateLimit] Login exceeded for ${email} from ${ip || 'unknown'}`);
+            return null;
+          }
+
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email.toLowerCase() },
+            where: { email },
           });
 
           if (!user || !user.passwordHash) {
@@ -188,7 +234,7 @@ export const authConfig = {
   },
   events: {
     async signIn({ user, account }: { user: any; account?: any }) {
-      console.log(`[Auth] User ${user.email} signed in via ${account?.provider || 'credentials'}`);
+      // Sign-in event logged
     },
   },
   debug: process.env.NODE_ENV === 'development',

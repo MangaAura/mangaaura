@@ -34,14 +34,14 @@ export const swrConfig: SWRConfiguration = {
   // Data refresh interval (revalidate every 5 minutes)
   refreshInterval: 5 * 60 * 1000,
   
-  // Revalidate when window regains focus
-  revalidateOnFocus: true,
+  // Revalidate when window regains focus (disabled globally to reduce requests)
+  revalidateOnFocus: false,
   
   // Revalidate on reconnect
-  revalidateOnReconnect: true,
+  revalidateOnReconnect: false,
   
   // Revalidate if stale
-  revalidateIfStale: true,
+  revalidateIfStale: false,
   
   // Keep previous data while fetching new data
   keepPreviousData: true,

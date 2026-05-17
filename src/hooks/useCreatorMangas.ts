@@ -4,7 +4,6 @@ import useSWR, { SWRConfiguration } from 'swr';
 import { useSession } from 'next-auth/react';
 import { useCallback, useState, useMemo, useRef } from 'react';
 import { swrConfigs, fetcher } from '@/lib/swr-config';
-import { invalidateMangaCache } from '@/lib/cache';
 
 export interface CreatorMangaStats {
   id: string;

@@ -22,7 +22,7 @@ const floatVariants = {
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
+    <main id="main-content" className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -145,6 +145,6 @@ export default function NotFoundPage() {
           </Link>
         </motion.p>
       </motion.div>
-    </div>
+    </main>
   );
 }

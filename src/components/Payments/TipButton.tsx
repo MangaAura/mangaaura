@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, Coins, Loader2, Check, X, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/Input';
 interface TipButtonProps {
   chapterId: string;
   authorName: string;
-  authorId: string;
   onTipSent?: () => void;
 }
 
@@ -18,7 +17,7 @@ interface UserBalance {
   balance: number;
 }
 
-export default function TipButton({ chapterId, authorName, authorId, onTipSent }: TipButtonProps) {
+export default function TipButton({ chapterId, authorName, onTipSent }: TipButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(100);
   const [customAmount, setCustomAmount] = useState('');

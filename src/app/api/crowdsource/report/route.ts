@@ -10,6 +10,7 @@ import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { QualityReportModel } from '@/infrastructure/persistence/mongodb/models/QualityReport';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // Schema de validación
 const reportSchema = z.object({
@@ -44,6 +45,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'report');
+    if (rlResponse) return rlResponse;
+
     const body = await request.json();
     const result = reportSchema.safeParse(body);
 
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { chapterId, issueType, severity, description, pageNumber, panelNumber, coords } = result.data;
+    const { chapterId, issueType, severity, description, pageNumber, panelNumber } = result.data;
 
     await dbConnect();
 

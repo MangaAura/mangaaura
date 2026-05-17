@@ -6,8 +6,6 @@
 
 import { PrismaClient as PrismaSQLite } from '@prisma/client';
 import { PrismaClient as PrismaPostgres } from '@prisma/client';
-import { execSync } from 'child_process';
-
 const sqlitePrisma = new PrismaSQLite({
   datasources: {
     db: {

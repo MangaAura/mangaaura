@@ -9,11 +9,9 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AccessibleModal } from '@/components/A11y/AccessibleModal';
-import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
-  AlertTriangle,
   CheckCircle,
   Eye,
   Flag,
@@ -57,13 +55,11 @@ interface Report {
 interface ReportListProps {
   initialStatus?: string;
   initialPriority?: string;
-  currentUserId: string;
 }
 
 export function ReportList({
   initialStatus,
   initialPriority,
-  currentUserId,
 }: ReportListProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);

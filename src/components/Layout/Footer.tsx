@@ -2,19 +2,18 @@
 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 import {
   BookOpen,
   Users,
   Trophy,
   Heart,
-  Globe,
   Mail,
   Shield,
   FileText,
   HelpCircle,
 } from 'lucide-react';
-import React from 'react';
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -42,20 +41,20 @@ function InstagramIcon({ className }: { className?: string }) {
 
 const footerLinks = {
   platform: [
-    { name: 'Explorar', href: '/browse', icon: BookOpen },
-    { name: 'Rankings', href: '/rankings', icon: Trophy },
-    { name: 'Comunidad', href: '/community', icon: Users },
-    { name: 'Biblioteca', href: '/library', icon: Heart },
+    { labelKey: 'nav.explore', href: '/browse', icon: BookOpen },
+    { labelKey: 'nav.rankings', href: '/rankings', icon: Trophy },
+    { labelKey: 'nav.community', href: '/community', icon: Users },
+    { labelKey: 'nav.library', href: '/library', icon: Heart },
   ],
   support: [
-    { name: 'Ayuda', href: '/help', icon: HelpCircle },
-    { name: 'Contacto', href: '/contact', icon: Mail },
-    { name: 'Reportar', href: '/report', icon: Shield },
+    { labelKey: 'footer.help', href: '/help', icon: HelpCircle },
+    { labelKey: 'footer.contact', href: '/contact', icon: Mail },
+    { labelKey: 'footer.report', href: '/report', icon: Shield },
   ],
   legal: [
-    { name: 'Términos', href: '/legal/terms', icon: FileText },
-    { name: 'Privacidad', href: '/legal/privacy', icon: Shield },
-    { name: 'DMCA', href: '/legal/dmca', icon: Shield },
+    { labelKey: 'footer.terms', href: '/legal/terms', icon: FileText },
+    { labelKey: 'footer.privacy', href: '/legal/privacy', icon: Shield },
+    { labelKey: 'footer.dmca', href: '/legal/dmca', icon: Shield },
   ],
 };
 
@@ -66,6 +65,7 @@ const socialLinks = [
 ];
 
 export function Footer({ className }: { className?: string }) {
+  const t = useT();
   const { status } = useSession();
   const isLoggedIn = status === 'authenticated';
 
@@ -88,7 +88,7 @@ export function Footer({ className }: { className?: string }) {
               <span className="text-xl font-bold text-[var(--text-primary)]">Inkverse</span>
             </Link>
             <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm">
-              Tu plataforma de manga favorita. Descubre, lee y conecta con una comunidad apasionada de lectores.
+              {t('footer.tagline')}
             </p>
 
             <div className="flex gap-4">
@@ -111,20 +111,20 @@ export function Footer({ className }: { className?: string }) {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Plataforma</h3>
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionPlatform')}</h2>
             <ul className="space-y-3">
               {footerLinks.platform
                 .filter((link) => !link.href.includes('/library') || isLoggedIn)
                 .map((link) => {
                   const Icon = link.icon;
                   return (
-                    <li key={link.name}>
+                    <li key={link.labelKey}>
                       <Link
                         href={link.href}
                         className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
                       >
                         <Icon className="w-4 h-4" />
-                        {link.name}
+                        {t(link.labelKey)}
                       </Link>
                     </li>
                   );
@@ -133,18 +133,18 @@ export function Footer({ className }: { className?: string }) {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Soporte</h3>
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionSupport')}</h2>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => {
                 const Icon = link.icon;
                 return (
-                  <li key={link.name}>
+                  <li key={link.labelKey}>
                     <Link
                       href={link.href}
                       className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
                     >
                       <Icon className="w-4 h-4" />
-                      {link.name}
+                      {t(link.labelKey)}
                     </Link>
                   </li>
                 );
@@ -153,18 +153,18 @@ export function Footer({ className }: { className?: string }) {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Legal</h3>
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionLegal')}</h2>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => {
                 const Icon = link.icon;
                 return (
-                  <li key={link.name}>
+                  <li key={link.labelKey}>
                     <Link
                       href={link.href}
                       className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
                     >
                       <Icon className="w-4 h-4" />
-                      {link.name}
+                      {t(link.labelKey)}
                     </Link>
                   </li>
                 );
@@ -175,26 +175,26 @@ export function Footer({ className }: { className?: string }) {
 
         <div className="mt-12 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[var(--text-tertiary)] text-sm">
-            &copy; {new Date().getFullYear()} Inkverse. Todos los derechos reservados.
+            {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex items-center gap-6">
             <Link
               href="/legal/terms"
               className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm transition-colors"
             >
-              Términos de servicio
+              {t('footer.termsOfService')}
             </Link>
             <Link
               href="/legal/privacy"
               className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm transition-colors"
             >
-              Política de privacidad
+              {t('footer.privacyPolicy')}
             </Link>
             <Link
               href="/legal/dmca"
               className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm transition-colors"
             >
-              DMCA
+              {t('footer.dmca')}
             </Link>
           </div>
         </div>

@@ -111,6 +111,7 @@ export default function PromptHunterPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por estilo, autor o palabra clave... (ej. 'cyberpunk', 'niji 6')"
+              aria-label="Buscar prompts"
               className="w-full pl-12 pr-4 py-4 bg-[var(--surface-sunken)] border border-[var(--border)] focus:border-[var(--accent-purple)] focus:ring-1 focus:ring-[var(--accent-purple)] rounded-2xl outline-none transition-all shadow-lg"
             />
           </form>

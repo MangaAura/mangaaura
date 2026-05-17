@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
@@ -15,55 +15,61 @@ import {
   Loader2,
   UserPlus,
   AlertCircle,
-  CheckCircle2,
-  Info
+  CheckCircle2
 } from 'lucide-react';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils';
-import { useAuthError, registerErrorMap } from '@/hooks/useAuthError';
+import { useT } from '@/i18n';
+import { useAuthError } from '@/hooks/useAuthError';
 
-function LoadingSpinner() {
+function LoadingSpinner({ t }: { t: (key: string) => string }) {
   return (
     <div className="flex items-center justify-center">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
-        <span>Cargando...</span>
+        <span>{t('common.loading')}</span>
       </div>
     </div>
   );
 }
 
-const baseSchema = z.object({
-  username: z
-    .string()
-    .min(3, 'El nombre de usuario debe tener al menos 3 caracteres')
-    .max(30, 'El nombre de usuario no puede exceder 30 caracteres')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Solo se permiten letras, números y guiones bajos'),
-  email: z.string().email('Ingresa un correo electrónico válido'),
-  password: z
-    .string()
-    .min(8, 'La contraseña debe tener al menos 8 caracteres')
-    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
-    .regex(/[a-z]/, 'Debe contener al menos una minúscula')
-    .regex(/[0-9]/, 'Debe contener al menos un número'),
-  confirmPassword: z.string(),
-});
+function createRegisterSchemas(t: (key: string) => string) {
+  const base = z.object({
+    username: z
+      .string()
+      .min(3, t('auth.validation.usernameMin'))
+      .max(30, t('auth.validation.usernameMax'))
+      .regex(/^[a-zA-Z0-9_]+$/, t('auth.validation.usernamePattern')),
+    email: z.string().email(t('auth.validation.emailInvalid')),
+    password: z
+      .string()
+      .min(8, t('auth.validation.passwordMin'))
+      .regex(/[A-Z]/, t('auth.validation.passwordUppercase'))
+      .regex(/[a-z]/, t('auth.validation.passwordLowercase'))
+      .regex(/[0-9]/, t('auth.validation.passwordNumber')),
+    confirmPassword: z.string(),
+  });
+  const register = base.refine((data: any) => data.password === data.confirmPassword, {
+    message: t('auth.validation.passwordMismatch'),
+    path: ['confirmPassword'],
+  });
+  return { baseSchema: base, registerSchema: register };
+}
 
-const registerSchema = baseSchema.refine((data: any) => data.password === data.confirmPassword, {
-  message: 'Las contraseñas no coinciden',
-  path: ['confirmPassword'],
-});
-
-type _Output<T> = T extends { _zod: { output: infer O } } ? O : never;
-type FormData = _Output<typeof baseSchema>;
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 function Content() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get('callbackUrl') || '/';
   const { toast } = useToast();
-const { error, setError, clearError, handleAuthError: handleRegisterAuthError } = useAuthError();
+const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthError();
 
   const [formData, setFormData] = useState<FormData>({
     username: '',
@@ -75,7 +81,9 @@ const { error, setError, clearError, handleAuthError: handleRegisterAuthError } 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms] = useState(false);
+  const t = useT();
+  const { baseSchema, registerSchema } = useMemo(() => createRegisterSchemas(t), [t]);
 
   const handleOAuthSignIn = (provider: 'google' | 'github') => {
     setIsLoading(true);
@@ -94,20 +102,17 @@ const { error, setError, clearError, handleAuthError: handleRegisterAuthError } 
 
     const levels = [
       { label: '', color: 'bg-[var(--border)]' },
-{ label: 'Débil', color: 'bg-[var(--error)]' },
-    { label: 'Regular', color: 'bg-[var(--accent-orange)]' },
-  { label: 'Buena', color: 'bg-[var(--warning)]' },
-  { label: 'Fuerte', color: 'bg-[var(--success)]' },
-  { label: 'Muy fuerte', color: 'bg-[var(--success)]' },
+{ label: t('auth.passwordStrength.weak'), color: 'bg-[var(--error)]' },
+    { label: t('auth.passwordStrength.fair'), color: 'bg-[var(--accent-orange)]' },
+  { label: t('auth.passwordStrength.good'), color: 'bg-[var(--warning)]' },
+  { label: t('auth.passwordStrength.strong'), color: 'bg-[var(--success)]' },
+  { label: t('auth.passwordStrength.veryStrong'), color: 'bg-[var(--success)]' },
     ];
 
     return { ...levels[score], score };
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
-
-  const hasErrors = Object.values(errors).some(Boolean);
-  const errorFields = Object.entries(errors).filter(([, v]) => v) as [keyof FormData, string][];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,10 +147,10 @@ const { error, setError, clearError, handleAuthError: handleRegisterAuthError } 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear cuenta');
+        throw new Error(data.error || t('errors.createAccount'));
       }
 
-      toast({ title: 'Cuenta creada exitosamente', variant: 'default' });
+      toast({ title: t('auth.accountCreated'), variant: 'default' });
 
       const result = await signIn('credentials', {
         email: formData.email,
@@ -169,9 +174,9 @@ const { error, setError, clearError, handleAuthError: handleRegisterAuthError } 
   const validateField = (field: keyof FormData, value: string) => {
     if (field === 'confirmPassword') {
       if (!value) {
-        setErrors((prev) => ({ ...prev, confirmPassword: 'Confirma tu contraseña' }));
+        setErrors((prev) => ({ ...prev, confirmPassword: t('auth.validation.confirmPasswordRequired') }));
       } else if (value !== formData.password) {
-        setErrors((prev) => ({ ...prev, confirmPassword: 'Las contraseñas no coinciden' }));
+        setErrors((prev) => ({ ...prev, confirmPassword: t('auth.validation.passwordMismatch') }));
       } else {
         setErrors((prev) => ({ ...prev, confirmPassword: '' }));
       }
@@ -188,26 +193,19 @@ const { error, setError, clearError, handleAuthError: handleRegisterAuthError } 
     }
   };
 
-  const fieldLabels: Record<keyof FormData, string> = {
-    username: 'Usuario',
-    email: 'Correo',
-    password: 'Contraseña',
-    confirmPassword: 'Confirmar',
-  };
-
   return (
     <div className="flex flex-col">
       <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
-          <ArrowLeft size={20} /> Volver al Inicio
+          <ArrowLeft size={20} /> {t('common.back')}
         </Link>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-extrabold tracking-tight mb-2">Crear cuenta</h1>
-            <p className="text-muted">Únete a InkVerse y descubre un mundo de mangas.</p>
+            <h1 className="text-4xl font-extrabold tracking-tight mb-2">{t('auth.registerTitle')}</h1>
+            <p className="text-muted">{t('auth.registerSubtitle')}</p>
           </div>
 
           <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-xl">
@@ -224,10 +222,11 @@ const { error, setError, clearError, handleAuthError: handleRegisterAuthError } 
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold mb-2">Nombre de usuario</label>
+                <label htmlFor="register-username" className="block text-sm font-semibold mb-2">{t('auth.username')}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
+                    id="register-username"
                     type="text"
                     value={formData.username}
                     onChange={(e) => {
@@ -258,10 +257,11 @@ errors.username
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">Correo electrónico</label>
+                <label htmlFor="register-email" className="block text-sm font-semibold mb-2">{t('auth.email')}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
+                    id="register-email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => {
@@ -292,10 +292,11 @@ errors.email
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">Contraseña</label>
+                <label htmlFor="register-password" className="block text-sm font-semibold mb-2">{t('auth.password')}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
+                    id="register-password"
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => {
@@ -308,14 +309,14 @@ errors.email
                     )}
                     placeholder="••••••••"
                     disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-fg-primary transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                  /><button
+  type="button"
+  onClick={() => setShowPassword(!showPassword)}
+  className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-muted hover:text-fg-primary transition-colors"
+  aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+>
+  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+</button>
                 </div>
                 {formData.password && (
                   <div className="mt-2">
@@ -331,7 +332,7 @@ errors.email
                       ))}
                     </div>
                     <p className="mt-1 text-xs text-muted">
-                      Fortaleza: <span className={cn('font-medium', passwordStrength.color.replace('bg-', 'text-'))}>
+                      {t('auth.passwordStrengthLabel')} <span className={cn('font-medium', passwordStrength.color.replace('bg-', 'text-'))}>
                         {passwordStrength.label}
                       </span>
                     </p>
@@ -346,10 +347,11 @@ errors.email
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">Confirmar contraseña</label>
+                <label htmlFor="register-confirm-password" className="block text-sm font-semibold mb-2">{t('auth.confirmPassword')}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input
+                    id="register-confirm-password"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={(e) => {
@@ -367,6 +369,7 @@ errors.email
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-fg-primary transition-colors"
+                    aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                   >
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -387,19 +390,19 @@ errors.email
                 {isLoading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Creando cuenta...
+                    {t('auth.creatingAccount')}
                   </>
                 ) : (
                   <>
                     <UserPlus size={18} />
-                    Crear cuenta
+                    {t('auth.registerTitle')}
                   </>
                 )}
               </button>
       </form>
 
       <div className="mt-6 flex items-center gap-4 before:h-px before:flex-1 before:bg-custom after:h-px after:flex-1 after:bg-custom text-xs text-muted font-medium">
-        O REGÍSTRATE CON
+        {t('auth.orRegisterWith')}
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4">
@@ -424,17 +427,17 @@ errors.email
       </div>
 
       <p className="text-center text-sm text-muted mt-6">
-              ¿Ya tienes una cuenta?{' '}
+              {t('auth.hasAccount')}{' '}
               <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
-                Inicia sesión
+                {t('auth.signIn')}
               </Link>
             </p>
 
             <p className="text-center text-xs text-muted mt-6">
-              Al crear una cuenta, aceptas nuestros{' '}
-              <Link href="/legal/terms" className="text-accent-blue hover:underline">Términos de servicio</Link>
-              {' '}y{' '}
-              <Link href="/legal/privacy" className="text-accent-blue hover:underline">Política de privacidad</Link>.
+              {t('auth.acceptTerms')}{' '}
+              <Link href="/legal/terms" className="text-accent-blue underline underline-offset-2">{t('footer.terms')}</Link>
+              {' '}{t('common.and')}{' '}
+              <Link href="/legal/privacy" className="text-accent-blue underline underline-offset-2">{t('footer.privacy')}</Link>.
             </p>
           </div>
         </div>
@@ -444,8 +447,9 @@ errors.email
 }
 
 export default function RegisterPage() {
+  const t = useT();
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={<LoadingSpinner t={t} />}>
       <Content />
     </Suspense>
   );

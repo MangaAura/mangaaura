@@ -13,19 +13,17 @@
 
 import { EventEmitter } from 'events';
 import { IAProvider, CommentAnalysis, ChapterSummary, QualityAssessment } from '@/core/services/IAProvider';
-import { InferenceJobQueue, JobType, QueuedJob, QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
-import { ModelWorkerPool, InferenceJob as WorkerJob, InferenceResult, PoolMetrics, PoolEvent } from '@/infrastructure/ai/ModelWorkerPool';
+import { InferenceJobQueue, JobType, QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
+import { ModelWorkerPool, InferenceJob as WorkerJob, PoolMetrics, PoolEvent } from '@/infrastructure/ai/ModelWorkerPool';
 import { 
   ParallelInferenceEngine, 
   InferenceJob as EngineJob, 
   InferenceResult as EngineResult,
-  InferenceProvider,
-  InferenceStats 
+  InferenceProvider
 } from '@/infrastructure/ai/ParallelInferenceEngine';
 import { 
   ModelRegistry, 
   RegisteredModel, 
-  ModelCapability, 
   RoutingStrategy,
   RoutingMetrics 
 } from '@/infrastructure/ai/ModelRegistry';
@@ -147,7 +145,7 @@ export interface ServiceMetrics {
 // ============================================================================
 
 class IAProviderAdapter implements InferenceProvider {
-  constructor(private provider: IAProvider) {}
+  constructor(_provider?: any) {}
 
   async infer(modelId: string, input: unknown): Promise<unknown> {
     // Este adapter es un puente genérico - en producción sería más específico
@@ -758,7 +756,6 @@ export class UnifiedAIService extends EventEmitter {
 
   getMetrics(): ServiceMetrics {
     const modelMetrics = this.registry.getRoutingMetrics();
-    const queueStats = this.queue.getStats();
     const totalCompleted = this.metrics.completedJobs + this.metrics.failedJobs;
     
     return {

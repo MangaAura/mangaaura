@@ -58,8 +58,11 @@ model User {
   displayName         String?
   avatarUrl           String?
   passwordHash        String?
-  role                String    @default("USER")
-  xpPoints            Int       @default(0)
+  role String @default("USER")
+  twoFactorSecret String?
+  twoFactorEnabled Boolean @default(false)
+  twoFactorBackupCodes String?
+  xpPoints Int @default(0)
   level               Int       @default(1)
   inkcoinsBalance     Int       @default(0)
   readingStreak       Int       @default(0)
@@ -123,6 +126,9 @@ model MangaSeries {
   @@index([authorId])
   @@index([status])
   @@index([rating])
+  @@index([createdAt])
+  @@index([totalViews])
+  @@index([updatedAt])
 }
 
 model Chapter {

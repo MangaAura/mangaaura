@@ -5,7 +5,8 @@
  * POST: Agregar manga a la biblioteca
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateCacheKey, getCache, setCache, invalidateUserCache } from '@/lib/cache';
@@ -152,6 +153,12 @@ export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userId = session?.user?.id || 'anonymous';
+  const { allowed } = await rateLimit(getRateLimitKey('library', userId), 20, 60);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   try {

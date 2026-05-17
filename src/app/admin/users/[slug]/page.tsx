@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Badge } from '@/components/ui/Badge';
 import {
   Select,
@@ -22,12 +23,9 @@ import {
   Loader2,
   AlertTriangle,
   BookOpen,
-  MessageSquare,
-  FileText,
-  Star,
-  Coins,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useT } from '@/i18n';
 import {
   Dialog,
   DialogContent,
@@ -67,6 +65,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function EditUserPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
+  const t = useT();
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -157,8 +156,8 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Failed to load user</h2>
-        <p className="text-[var(--text-tertiary)] mt-2">Please try again later</p>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.failedToLoad')}</h2>
+        <p className="text-[var(--text-tertiary)] mt-2">{t('common.retry')}</p>
       </div>
     );
   }
@@ -176,7 +175,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Users className="w-6 h-6 text-[var(--primary)]" />
-              Edit User
+              {t('admin.editUser')}
             </h1>
             <p className="text-[var(--text-muted)]">@{user.username}</p>
           </div>
@@ -187,14 +186,14 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
             onClick={handleBan}
             disabled={isSaving}
           >
-            {user.role === 'BANNED' ? 'Unban User' : 'Ban User'}
+            {user.role === 'BANNED' ? t('admin.unbanUser') : t('admin.banUser')}
           </Button>
           <Button
             variant="destructive"
             onClick={() => setShowDeleteDialog(true)}
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete
+            {t('admin.delete')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
@@ -202,7 +201,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
-            Save Changes
+            {t('admin.saveChanges')}
           </Button>
         </div>
       </div>
@@ -212,7 +211,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>User Information</CardTitle>
+              <CardTitle>{t('admin.userInformation')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -271,7 +270,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Gamification Stats</CardTitle>
+              <CardTitle>{t('admin.gamificationStats')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
@@ -314,15 +313,14 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
 
           {/* User Mangas */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader>                <CardTitle className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5" />
-                Created Mangas ({user.mangas.length})
+                {t('admin.createdMangas')} ({user.mangas.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               {user.mangas.length === 0 ? (
-                <p className="text-[var(--text-tertiary)] text-center py-8">No mangas created yet</p>
+                <p className="text-[var(--text-tertiary)] text-center py-8">{t('admin.noMangasCreated')}</p>
               ) : (
                 <div className="space-y-2">
                   {user.mangas.map((manga) => (
@@ -354,16 +352,17 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
           {/* Avatar Preview */}
           <Card>
             <CardHeader>
-              <CardTitle>Profile</CardTitle>
+              <CardTitle>{t('admin.profile')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center mb-4">
+                <div className="relative w-24 h-24 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center mb-4">
                   {user.avatarUrl ? (
-                    <img
+                    <OptimizedImage
                       src={user.avatarUrl}
                       alt={user.username}
-                      className="w-full h-full rounded-full object-cover"
+                      fill
+                      className="rounded-full object-cover"
                     />
                   ) : (
                     <span className="text-2xl font-bold text-[var(--text-tertiary)]">
@@ -388,42 +387,42 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
           {/* Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Statistics</CardTitle>
+              <CardTitle>{t('admin.statistics')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">Level</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.level')}</span>
                 <span className="font-medium">{user.level}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">XP Points</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.xpPoints')}</span>
                 <span className="font-medium">{user.xpPoints.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">InkCoins</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.inkCoins')}</span>
                 <span className="font-medium">{user.inkcoinsBalance.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">Reading Streak</span>
-                <span className="font-medium">{user.readingStreak} days</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.readingStreak')}</span>
+                <span className="font-medium">{user.readingStreak} {t('admin.days')}</span>
               </div>
               <div className="border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-tertiary)]">Mangas</span>
+                  <span className="text-[var(--text-tertiary)]">{t('admin.mangasCreated')}</span>
                   <span className="font-medium">{user.mangaCount}</span>
                 </div>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">Chapters</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.chapters')}</span>
                 <span className="font-medium">{user.chapterCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">Comments</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.comments')}</span>
                 <span className="font-medium">{user.commentCount}</span>
               </div>
               <div className="border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-tertiary)]">Joined</span>
+                  <span className="text-[var(--text-tertiary)]">{t('admin.joined')}</span>
                   <span className="font-medium">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </span>
@@ -438,14 +437,14 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>{t('admin.deleteUser')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete @{user.username} and all their data. This action cannot be undone.
+              {t('admin.deleteUserDesc')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isDeleting}>
-              Cancel
+              {t('admin.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? (
@@ -453,7 +452,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
               ) : (
                 <Trash2 className="w-4 h-4 mr-2" />
               )}
-              Delete User
+              {t('admin.deleteUser')}
             </Button>
           </DialogFooter>
         </DialogContent>

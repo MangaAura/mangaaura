@@ -8,7 +8,8 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X, Clock, TrendingUp, Loader2 } from 'lucide-react';
+import { Search, X, Clock, Loader2 } from 'lucide-react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useDebouncedCallback } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';
 
@@ -247,10 +248,13 @@ export function SearchBar({
                   )}
                 >
                   {suggestion.coverUrl ? (
-                    <img
+                    <OptimizedImage
                       src={suggestion.coverUrl}
                       alt={suggestion.title}
-                      className="w-8 h-10 object-cover rounded"
+                      width={32}
+                      height={40}
+                      className="rounded"
+                      objectFit="cover"
                     />
                   ) : (
                     <div className="w-8 h-10 bg-[var(--surface-sunken)] rounded flex items-center justify-center">

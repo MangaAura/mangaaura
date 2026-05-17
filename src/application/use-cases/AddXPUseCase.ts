@@ -65,10 +65,7 @@ export interface IUserXRepository {
  * Caso de uso para agregar XP a un usuario
  */
 export class AddXPUseCase {
-  /**
-   * XP necesario por nivel (cada nivel = 1000 XP)
-   */
-  private readonly XP_PER_LEVEL = 1000;
+
 
   constructor(
     private readonly userRepo: IUserXRepository,
@@ -189,37 +186,6 @@ export class AddXPUseCase {
     }
   }
 
-  /**
-   * Calcula el nivel basado en el XP total
-   * @param xp - Cantidad total de XP
-   * @returns Nivel calculado
-   */
-  private calculateLevel(xp: number): number {
-    return Math.floor(xp / this.XP_PER_LEVEL) + 1;
-  }
-
-  /**
-   * Calcula el XP necesario para el siguiente nivel
-   * @param xp - Cantidad total de XP
-   * @returns XP necesario para el siguiente nivel
-   */
-  private calculateXPToNextLevel(xp: number): number {
-    const nextLevelXP = this.calculateLevel(xp) * this.XP_PER_LEVEL;
-    return nextLevelXP - xp;
-  }
-
-  /**
-   * Calcula el progreso hacia el siguiente nivel (0-100)
-   * @param xp - Cantidad total de XP
-   * @returns Porcentaje de progreso
-   */
-  private calculateProgressToNextLevel(xp: number): number {
-    const level = this.calculateLevel(xp);
-    const currentLevelXP = (level - 1) * this.XP_PER_LEVEL;
-    const nextLevelXP = level * this.XP_PER_LEVEL;
-    const progress = (xp - currentLevelXP) / (nextLevelXP - currentLevelXP);
-    return Math.round(progress * 100);
-  }
 }
 
 /**

@@ -88,7 +88,6 @@ export interface ChapterUploadResult {
 }
 
 // Constantes
-const UPLOAD_TIMEOUT = 30000; // 30 segundos
 const MAX_RETRIES = 3;
 const DEFAULT_CONCURRENCY = 3;
 

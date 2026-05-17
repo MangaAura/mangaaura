@@ -20,8 +20,13 @@ model User {
   level            Int       @default(1)
   readingStreak    Int       @default(0)
   lastReadAt       DateTime?
-  role             String    @default("USER")
-  emailPreferences String    @default("{}")
+  streakFreezes    Int       @default(2)
+  lastStreakMilestone Int    @default(0)
+  role String @default("USER")
+  twoFactorSecret String?
+  twoFactorEnabled Boolean @default(false)
+  twoFactorBackupCodes String?
+  emailPreferences String @default("{}")
   stripeCustomerId    String?   @unique
   subscriptionId      String?
   subscriptionStatus  String?
@@ -53,13 +58,16 @@ model User {
   activities                UserActivity[]
   ledClan                   Clan?                      @relation("ClanLeader")
   pushSubscriptions         PushSubscription[]
+  quests                    UserQuest[]
 
   // Security & Social
   reportsMade      UserReport[]       @relation("ReportsMade")
   reportsReceived  UserReport[]       @relation("ReportsReceived")
   assignedReports  UserReport[]       @relation("AssignedReports")
   securityAudits   SecurityAuditLog[] @relation("SecurityAudits")
+  refreshTokens    RefreshToken[]
   following        Follow[]           @relation("Following")
+  followers        Follow[]           @relation("UserFollowers")
   activitiesFeed   Activity[]         @relation("Activities")
   conversations1   Conversation[]     @relation("Participant1")
   forumThreads     ForumThread[]
@@ -74,6 +82,8 @@ model User {
   eventSubmissions EventSubmission[]
   eventVotes       EventVote[]
   createdEvents    Event[]
+
+  @@index([xpPoints])
 }
 
 model MangaSeries {
@@ -102,6 +112,9 @@ model MangaSeries {
   @@index([slug])
   @@index([authorId])
   @@index([status])
+  @@index([createdAt])
+  @@index([totalViews])
+  @@index([updatedAt])
 }
 
 model Chapter {
@@ -126,6 +139,7 @@ model Chapter {
   sponsorshipBids           SponsorshipBid[]
   readingSessions           ReadingSession[]
   bookmarks                 Bookmark[]
+  corrections               ChapterCorrection[]
 
   @@unique([mangaId, chapterNumber])
   @@index([mangaId])
@@ -345,6 +359,20 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -396,7 +424,8 @@ model ChapterCorrection {
   createdAt      DateTime  @default(now())
   reviewedAt     DateTime?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@index([chapterId])
   @@index([userId])
@@ -465,6 +494,29 @@ model AchievementDefinition {
   createdAt   DateTime @default(now())
 
   userAchievements UserAchievement[]
+}
+
+model UserQuest {
+  id           String    @id @default(uuid())
+  userId       String
+  questId      String
+  progress     Int       @default(0)
+  target       Int
+  completed    Boolean   @default(false)
+  completedAt  DateTime?
+  claimed      Boolean   @default(false)
+  claimedAt    DateTime?
+  periodStart  DateTime
+  periodEnd    DateTime
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questId, periodStart])
+  @@index([userId])
+  @@index([userId, completed])
+  @@index([periodEnd])
 }
 
 model PushSubscription {
@@ -622,7 +674,8 @@ model Follow {
   followingType String   @default("USER") // USER, MANGA
   createdAt     DateTime @default(now())
 
-  follower User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId, followingType])
   @@index([followerId])
@@ -759,6 +812,7 @@ model Repost {
 
   user User @relation("Reposts", fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, originalType, originalId])
   @@index([userId])
   @@index([originalId, originalType])
   @@index([createdAt])

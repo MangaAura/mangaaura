@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { notificationService } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { GetNotificationsUseCase } from '@/application/use-cases/notifications/GetNotificationsUseCase';
 import { z } from 'zod';
-
-const getNotificationsUseCase = new GetNotificationsUseCase(notificationService);
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const createNotificationSchema = z.object({
   userId: z.string().uuid(),
@@ -37,10 +36,11 @@ export async function GET(request: NextRequest) {
     const isReadParam = searchParams.get('isRead');
     const includeRead = searchParams.get('includeRead') !== 'false';
 
+    const getNotificationsUseCase = new GetNotificationsUseCase(await getNotificationService());
     const result = await getNotificationsUseCase.execute({
       userId: session.user.id,
-      limit: Math.min(parseInt(searchParams.get('limit') || '20'), 100),
-      offset: parseInt(searchParams.get('offset') || '0'),
+      limit: Math.min(Math.max(parseInt(searchParams.get('limit') || '20'), 1), 100),
+      offset: Math.max(parseInt(searchParams.get('offset') || '0'), 0),
       type,
       isRead: isReadParam !== null ? isReadParam === 'true' : undefined,
       includeRead,
@@ -63,6 +63,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const rlResponse = await withRateLimit(request, session?.user?.id, 'notifications');
+    if (rlResponse) return rlResponse;
+
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Forbidden - Admin only' },
@@ -80,7 +83,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const notification = await notificationService.createNotification(result.data);
+    const notification = await (await getNotificationService()).createNotification(result.data);
 
     return NextResponse.json({
       success: true,

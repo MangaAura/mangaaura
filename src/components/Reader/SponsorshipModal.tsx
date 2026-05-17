@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { X, Crown, Loader2, Coins, Target, Check } from 'lucide-react';
+import { X, Crown, Loader2, Coins, Target, Check, MessageSquare } from 'lucide-react';
 
 interface SponsorshipModalProps {
   isOpen: boolean;
@@ -11,32 +11,37 @@ interface SponsorshipModalProps {
   chapterId: string;
 }
 
-interface CrowdfundData {
-  goal: number;
-  current: number;
-  topSponsors: Array<{ username: string; amount: number }>;
+interface SponsorData {
+  currentWinner: {
+    bidAmount: number;
+    sponsorName: string;
+    message: string | null;
+    username: string;
+  } | null;
+  bids: Array<{ bidAmount: number; username: string; status: string }>;
+  minNextBid: number;
+  bidCount: number;
 }
 
 export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapterId }: SponsorshipModalProps) {
   const { data: session } = useSession();
   const [bidAmount, setBidAmount] = useState<number | ''>('');
+  const [sponsorName, setSponsorName] = useState('');
+  const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [crowdfund, setCrowdfund] = useState<CrowdfundData | null>(null);
+  const [sponsorData, setSponsorData] = useState<SponsorData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !chapterId) return;
     setLoadingData(true);
-    fetch(`/api/chapters/${chapterId}/crowdfund`)
+    fetch(`/api/chapters/${chapterId}/sponsor`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
-          setCrowdfund({
-            goal: data.goal || 10000,
-            current: data.current || 0,
-            topSponsors: data.topSponsors || [],
-          });
+          setSponsorData(data);
+          setBidAmount(data.minNextBid || '');
         }
       })
       .catch(() => {})
@@ -45,26 +50,26 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
 
   if (!isOpen) return null;
 
-  const currentGoal = crowdfund?.goal || 10000;
-  const currentRaised = crowdfund?.current || 0;
-  const percentage = Math.min((currentRaised / currentGoal) * 100, 100);
+  const minBid = sponsorData?.minNextBid || 10;
+  const currentWinner = sponsorData?.currentWinner;
 
   const handleSponsor = async () => {
     if (!bidAmount || bidAmount <= 0 || !session?.user?.id) return;
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/gamification/sponsor', {
+      const res = await fetch(`/api/chapters/${chapterId}/sponsor`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chapterId,
-          bidAmount: Number(bidAmount)
+          bidAmount: Number(bidAmount),
+          sponsorName: sponsorName || undefined,
+          message: message || undefined,
         })
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Error en la transacción');
       }
 
@@ -100,55 +105,97 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                 <div className="flex justify-center py-4"><Loader2 size={20} className="animate-spin text-muted" /></div>
               ) : (
                 <>
-                  <div className="flex justify-between text-sm font-bold mb-2">
-                    <span className="flex items-center gap-1 text-accent-blue"><Target size={16}/> Meta de Crowdfunding</span>
-                    <span>{currentRaised.toLocaleString()} / {currentGoal.toLocaleString()} IC</span>
-                  </div>
-                  <div className="w-full bg-secondary h-3 rounded-full overflow-hidden border border-custom mb-3">
-                    <div className="bg-gradient-to-r from-accent-blue to-accent-purple h-full transition-all" style={{ width: `${percentage}%` }}></div>
-                  </div>
-
-                  {crowdfund?.topSponsors && crowdfund.topSponsors.length > 0 && (
-                    <div className="pt-3 mt-3 border-t border-custom">
-                      <h4 className="text-xs font-bold text-muted uppercase mb-2">Top Mecenas Actuales</h4>
-                      {crowdfund.topSponsors.slice(0, 3).map((s, i) => (
-                        <div key={s.username || `sponsor-${i}`} className="flex justify-between items-center text-sm mb-1">
-                          <span className="font-semibold flex items-center gap-2">
-                            <span className={i === 0 ? 'text-[var(--warning)]' : i === 1 ? 'text-[var(--text-muted)]' : 'text-[var(--accent-orange)]'}>{i + 1}.</span>
-                            {s.username}
-                          </span>
-                          <span className="font-mono text-xs">{s.amount.toLocaleString()} IC</span>
-                        </div>
-                      ))}
+                  {currentWinner ? (
+                    <div className="text-center mb-4">
+                      <p className="text-xs text-muted uppercase font-bold mb-2">Patrocinador Actual</p>
+                      <p className="text-lg font-bold text-[var(--warning)]">{currentWinner.sponsorName}</p>
+                      <p className="text-sm font-mono">{currentWinner.bidAmount.toLocaleString()} IC</p>
+                      {currentWinner.message && (
+                        <p className="text-xs text-muted italic mt-2">"{currentWinner.message}"</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center mb-4">
+                      <Target size={24} className="mx-auto text-muted mb-2" />
+                      <p className="text-sm text-muted">Sé el primer patrocinador de este capítulo</p>
                     </div>
                   )}
+                  <div className="border-t border-custom pt-3 mt-3">
+                    <div className="flex justify-between text-xs text-muted font-semibold mb-2">
+                      <span>Puja mínima</span>
+                      <span className="font-mono">{minBid.toLocaleString()} IC</span>
+                    </div>
+                    {sponsorData && sponsorData.bids.length > 0 && (
+                      <div className="max-h-32 overflow-y-auto space-y-1">
+                        {sponsorData.bids.filter(b => b.status === 'ACTIVE' || b.status === 'LOST').slice(0, 5).map((b, i) => (
+                          <div key={`bid-${i}`} className="flex justify-between items-center text-xs py-1">
+                            <span className="font-semibold">{b.username}</span>
+                            <span className="font-mono">{b.bidAmount.toLocaleString()} IC</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">Tu Aportación (InkCoins)</label>
+                <label htmlFor="sponsor-amount" className="block text-sm font-semibold mb-2">Tu Puja (InkCoins)</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--warning)]">
                     <Coins size={18} />
                   </div>
                   <input
+                    id="sponsor-amount"
                     type="number"
                     value={bidAmount}
                     onChange={(e) => setBidAmount(Number(e.target.value))}
-                    placeholder="Ej: 500"
+                    placeholder={`Mín: ${minBid}`}
+                    min={minBid}
                     className="w-full pl-10 pr-4 py-3 bg-background border border-custom focus:border-[var(--warning)] focus:ring-1 focus:ring-[var(--warning)] rounded-xl outline-none font-mono font-bold transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="sponsor-name" className="block text-sm font-semibold mb-2">Nombre Visible (opcional)</label>
+                <input
+                  id="sponsor-name"
+                  type="text"
+                  value={sponsorName}
+                  onChange={(e) => setSponsorName(e.target.value)}
+                  placeholder="Tu nombre del patrocinio"
+                  maxLength={50}
+                  className="w-full px-4 py-3 bg-background border border-custom focus:border-[var(--warning)] focus:ring-1 focus:ring-[var(--warning)] rounded-xl outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="sponsor-message" className="block text-sm font-semibold mb-2">Mensaje (opcional)</label>
+                <div className="relative">
+                  <div className="absolute top-3 left-3 pointer-events-none text-muted">
+                    <MessageSquare size={16} />
+                  </div>
+                  <textarea
+                    id="sponsor-message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Deja un mensaje al creador..."
+                    maxLength={100}
+                    rows={2}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-custom focus:border-[var(--warning)] focus:ring-1 focus:ring-[var(--warning)] rounded-xl outline-none transition-all resize-none"
                   />
                 </div>
               </div>
 
               <button
                 onClick={handleSponsor}
-                disabled={!bidAmount || bidAmount <= 0 || isLoading || !session?.user?.id}
+                disabled={!bidAmount || Number(bidAmount) < minBid || isLoading || !session?.user?.id}
                 className="w-full bg-gradient-to-r from-[var(--warning)] to-[var(--warning)] hover:brightness-110 text-[var(--text-inverse)] font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <><Crown size={18} /> Donar InkCoins</>}
+                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <><Crown size={18} /> Patrocinar</>}
               </button>
             </div>
           </>

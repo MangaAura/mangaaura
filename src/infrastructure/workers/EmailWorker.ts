@@ -6,7 +6,7 @@
 
 import { Worker, Job } from 'bullmq';
 import type { Redis } from 'ioredis';
-import { emailService } from '@/core/services/EmailService';
+import { emailService } from '@/infrastructure/adapters/emailService';
 import { baseEmailTemplate } from '@/lib/email-templates';
 import { redis, isMockRedis } from '@/lib/redis';
 import type {
@@ -214,10 +214,8 @@ export class EmailWorker {
 
   private async processNewChapterEmail(job: Job<NewChapterData>): Promise<void> {
     const { to, userId, username, mangaTitle, chapterTitle, mangaCoverUrl } = job.data;
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const mangaSlug = job.data.mangaSlug;
     const chapterNumber = job.data.chapterNumber;
-    const chapterLink = `${baseUrl}/manga/${mangaSlug}/chapter/${chapterNumber}`;
 
     await emailService.sendNewChapterNotification(
       { id: userId, email: to, username },
@@ -275,7 +273,7 @@ category: 'general',
   }
 
   private async processCustomEmail(job: Job<EmailJobData>): Promise<void> {
-    const { to, userId, username } = job.data;
+    const { to, username } = job.data;
     const subject = job.data.subject as string | undefined;
     const htmlContent = job.data.htmlContent as string | undefined;
     const textContent = job.data.textContent as string | undefined;
@@ -294,7 +292,7 @@ category: 'general',
   }
 
   private async processMarketingEmail(job: Job<EmailJobData>): Promise<void> {
-    const { to, userId, username } = job.data;
+    const { to, username } = job.data;
     const subject = job.data.subject as string | undefined;
     const htmlContent = job.data.htmlContent as string | undefined;
 
@@ -312,7 +310,7 @@ category: 'general',
   }
 
   private async processCommentReplyEmail(job: Job<CommentReplyData>): Promise<void> {
-    const { to, userId, username, commentId, replyContent, replierUsername, chapterId, chapterNumber, mangaTitle } = job.data;
+    const { to, commentId, replyContent, replierUsername, chapterId, chapterNumber, mangaTitle } = job.data;
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const chapterLink = `${baseUrl}/chapter/${chapterId}#comment-${commentId}`;
 

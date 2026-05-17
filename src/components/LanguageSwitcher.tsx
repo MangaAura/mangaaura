@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from '@/i18n/index';
+import { useLocale, useT } from '@/i18n/index';
 import { Languages } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +11,7 @@ interface LanguageSwitcherProps {
 
 export function LanguageSwitcher({ className, variant = 'toggle' }: LanguageSwitcherProps) {
   const { locale, setLocale } = useLocale();
+  const t = useT();
 
   if (variant === 'toggle') {
     return (
@@ -19,13 +20,13 @@ export function LanguageSwitcher({ className, variant = 'toggle' }: LanguageSwit
       className={cn(
         'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-100 cursor-pointer',
         'bg-secondary text-muted hover:text-fg-primary hover:bg-tertiary border border-custom',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]',
         className
       )}
-      title={locale === 'es' ? 'Switch to English' : 'Cambiar a Español'}
-      aria-label={locale === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'}
+      aria-label={`${locale === 'es' ? t('language.en') : t('language.es')} (${locale.toUpperCase()})`}
     >
-        <Languages className="w-4 h-4" />
-        <span className="uppercase">{locale}</span>
+        <Languages className="w-4 h-4" aria-hidden="true" />
+        <span>{locale.toUpperCase()}</span>
       </button>
     );
   }
@@ -36,22 +37,23 @@ export function LanguageSwitcher({ className, variant = 'toggle' }: LanguageSwit
         onClick={() => setLocale('es')}
         className={cn(
           'px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1',
           locale === 'es' ? 'bg-secondary shadow-sm text-fg-primary' : 'text-muted hover:text-fg-primary'
         )}
-        aria-label="Español"
+        aria-label={t('language.es')}
       >
-        ES
+        {t('language.es')}
       </button>
       <button
         onClick={() => setLocale('en')}
         className={cn(
           'px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1',
           locale === 'en' ? 'bg-secondary shadow-sm text-fg-primary' : 'text-muted hover:text-fg-primary'
         )}
-        aria-label="English"
+        aria-label={t('language.en')}
       >
-        EN
+        {t('language.en')}
       </button>
     </div>
-  );
-}
+  );}

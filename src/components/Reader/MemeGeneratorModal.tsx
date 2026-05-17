@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { X, Download, Type, Loader2, Share2 } from 'lucide-react';
 
 interface MemeGeneratorModalProps {
@@ -12,7 +13,7 @@ interface MemeGeneratorModalProps {
   chapterNumber?: number;
 }
 
-export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, chapterId, mangaTitle, chapterNumber }: MemeGeneratorModalProps) {
+export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTitle, chapterNumber }: MemeGeneratorModalProps) {
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -127,7 +128,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, chapterI
 
         <div className="p-6 flex flex-col gap-6">
           <div className="relative w-full aspect-square bg-[var(--surface-sunken)] rounded-lg overflow-hidden flex items-center justify-center">
-            <img src={imageUrl} alt="Meme template" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+            <OptimizedImage src={imageUrl} alt="Meme template" fill className="object-cover opacity-60" />
 
             <div className="absolute inset-0 flex flex-col justify-between py-4 px-2 text-center">
 <h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
@@ -150,8 +151,9 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, chapterI
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-1">Texto Superior</label>
+                <label htmlFor="meme-top-text" className="block text-sm font-semibold mb-1">Texto Superior</label>
                 <input
+                  id="meme-top-text"
                   type="text"
                   value={topText}
                   onChange={(e) => setTopText(e.target.value)}
@@ -160,8 +162,9 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, chapterI
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">Texto Inferior</label>
+                <label htmlFor="meme-bottom-text" className="block text-sm font-semibold mb-1">Texto Inferior</label>
                 <input
+                  id="meme-bottom-text"
                   type="text"
                   value={bottomText}
                   onChange={(e) => setBottomText(e.target.value)}

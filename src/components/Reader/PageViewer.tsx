@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Image as ImageIcon, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import OptimizedImage from '@/components/Image/OptimizedImage';
@@ -196,20 +196,6 @@ export const PageViewer = memo(function PageViewer({
   const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const preloadedPages = useRef<Set<number>>(new Set());
-
-  // Preload adjacent pages - stable reference
-  const preloadAdjacentPages = useCallback((currentIdx: number) => {
-    const pagesToPreload = [currentIdx - 1, currentIdx + 1].filter(
-      idx => idx >= 0 && idx < pages.length && !preloadedPages.current.has(idx)
-    );
-
-    pagesToPreload.forEach(idx => {
-      const img = new window.Image();
-      img.src = pages[idx];
-      preloadedPages.current.add(idx);
-    });
-  }, [pages]);
 
   // Track page changes
   useEffect(() => {

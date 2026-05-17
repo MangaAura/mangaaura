@@ -1,9 +1,17 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
-const nextConfig: NextConfig = {
-  
+type BundleAnalyzerFn = (config: NextConfig) => NextConfig;
+let withBundleAnalyzer: BundleAnalyzerFn = (config) => config;
+if (process.env.ANALYZE === 'true') {
+  try {
+    withBundleAnalyzer = require('@next/bundle-analyzer').default({ enabled: true });
+  } catch {
+    console.warn('Bundle analyzer not available');
+  }
+}
 
+const nextConfig: NextConfig = {
   // Turbopack configuration
   turbopack: {
     resolveAlias: {
@@ -17,7 +25,6 @@ const nextConfig: NextConfig = {
       'lucide-react',
       '@radix-ui/react-icons',
       'framer-motion',
-      '@heroicons/react',
     ],
     // Enable optimistic client-side navigation
     optimisticClientCache: true,
@@ -28,7 +35,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.unsplash.com',
+        hostname: '*.unsplash.com',
       },
       {
         protocol: 'https',
@@ -60,7 +67,8 @@ const nextConfig: NextConfig = {
   compress: true,
 
   // Output configuration for optimized builds
-  output: 'standalone',
+  // Temporarily disabled - causing chunk loading issues
+  // output: 'standalone',
 
   // Headers for caching (skip _next/static to avoid warnings)
   async headers() {
@@ -125,37 +133,10 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Webpack config for performance optimizations
-  webpack: (config: any, { isServer, nextRuntime }: any) => {
-    // Optimize chunk loading
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\/]node_modules[\/]/,
-              name: 'vendors',
-              chunks: 'all',
-              priority: 10,
-            },
-            common: {
-              minChunks: 2,
-              chunks: 'all',
-              enforce: true,
-              priority: 5,
-            },
-          },
-        },
-      };
-    }
-    return config;
-  },
 };
 
 // Wrap with Sentry if SENTRY_DSN is configured
-const sentryConfig = process.env.SENTRY_DSN
+const withSentry = process.env.SENTRY_DSN
   ? withSentryConfig(nextConfig, {
       org: process.env.SENTRY_ORG || "inkverse",
       project: process.env.SENTRY_PROJECT || "inkverse-web",
@@ -167,4 +148,4 @@ const sentryConfig = process.env.SENTRY_DSN
     })
   : nextConfig;
 
-export default sentryConfig;
+export default withBundleAnalyzer(withSentry);

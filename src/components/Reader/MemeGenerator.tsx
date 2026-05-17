@@ -2,8 +2,9 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Download, Share2, Type, Image as ImageIcon, X } from 'lucide-react';
-import html2canvas from 'html2canvas';
+
 
 interface MemeGeneratorProps {
   imageUrl: string;
@@ -115,6 +116,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
       `;
       canvasRef.current.appendChild(watermark);
 
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(canvasRef.current, {
         useCORS: true,
         allowTaint: true,
@@ -153,6 +155,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
     if (!canvasRef.current) return;
     
     try {
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(canvasRef.current, { scale: 2 });
       const blob = await new Promise<Blob>((resolve) => 
         canvas.toBlob((b) => resolve(b!), 'image/png')
@@ -206,11 +209,11 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                 className="relative inline-block"
                 style={{ maxWidth: '100%', maxHeight: '60vh' }}
               >
-                <img 
+                <OptimizedImage 
                   src={imageUrl} 
                   alt="Panel para meme"
-                  className="max-w-full max-h-[60vh] object-contain rounded-lg"
-                  crossOrigin="anonymous"
+                  fill
+                  className="object-contain rounded-lg"
                 />
                 
                 {/* Text Overlays */}
@@ -266,6 +269,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                     type="text"
                     value={text.text}
                     onChange={(e) => updateText(text.id, { text: e.target.value })}
+                    aria-label="Texto del meme"
                     className="w-full bg-transparent text-[var(--text-primary)] mb-2 focus:outline-none"
                     placeholder="Texto del meme..."
                   />
@@ -280,6 +284,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                           max="72"
                           value={text.fontSize}
                           onChange={(e) => updateText(text.id, { fontSize: parseInt(e.target.value) })}
+                          aria-label="Tamaño de texto"
                           className="flex-1"
                         />
                         <span className="text-xs text-[var(--text-primary)] w-8">{text.fontSize}px</span>
@@ -291,6 +296,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                           type="color"
                           value={text.color}
                           onChange={(e) => updateText(text.id, { color: e.target.value })}
+                          aria-label="Color de texto"
                           className="w-8 h-8 rounded cursor-pointer"
                         />
                       </div>
