@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="50%" stop-color="#ff8c00"/>
+      <stop offset="100%" stop-color="#ffd700"/>
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="40%" stop-color="#ff8c00"/>
+      <stop offset="70%" stop-color="#d040f0"/>
+      <stop offset="100%" stop-color="#8030c0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="#1a1a2e" stroke="url(#goldGrad)" stroke-width="2.5"/>
+  <circle cx="32" cy="32" r="26" fill="#16213e" opacity="0.6"/>
+  <circle cx="32" cy="32" r="22" stroke="#ffd700" stroke-width="0.5" opacity="0.2"/>
+  <path d="M32 51l-2.5-5h5l-2.5 5z" fill="#ffd700" opacity="0.3"/>
+  <path d="M32 1c-7 0-13 10-17 20-3 12-5 26-2 35 5 11 10 18 19 18s14-7 19-18c3-9 1-23-2-35-4-10-10-20-17-20z" fill="url(#flameGrad)" opacity="0.95"/>
+  <path d="M21 13c-6 9-9 19-6 28 3 10 8 16 17 16s14-6 17-16c3-9 0-19-6-28-1-7-6-13-11-13s-10 6-11 13z" fill="url(#flameGrad)"/>
+  <path d="M23 23c-3 7 1 15 6 22 2 4 5 6 8 6s6-2 8-6c5-7 9-15 6-22-1-7-4-12-7-16-1-2-4-5-7-5s-6 3-7 5c-3 4-6 9-7 16z" fill="#ffd700" opacity="0.8"/>
+  <path d="M25 31c0 4 2 10 5 15 1 4 3 5 5 5s4-1 5-5c3-5 5-11 5-15 0-4 0-6-1-9-1-3-3-5-5-5s-4 2-5 5c-1 3-1 5-1 9z" fill="#fff8dc"/>
+  <circle cx="28" cy="30" r="0.8" fill="#ffd700" opacity="0.6"/>
+  <circle cx="36" cy="28" r="0.6" fill="#ffd700" opacity="0.4"/>
+  <circle cx="33" cy="35" r="0.7" fill="#ffd700" opacity="0.5"/>
+  <circle cx="32" cy="52" r="2" fill="#ffd700" opacity="0.7"/>
+  <text x="32" y="56" text-anchor="middle" font-size="6" font-weight="bold" fill="#ffd700" font-family="system-ui">365</text>
+</svg>
