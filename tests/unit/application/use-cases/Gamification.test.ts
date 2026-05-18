@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { Email } from '@/core/value-objects/Email';
+
 import { User } from '@/core/entities/User';
+import { Email } from '@/core/value-objects/Email';
 import { XP } from '@/core/value-objects/XP';
 
 describe('Gamification Use Cases', () => {

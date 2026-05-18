@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+
 import { readingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+import { auth } from '@/lib/auth';
 
 export async function GET(
   _request: NextRequest,

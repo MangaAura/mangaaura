@@ -1,21 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import useSWR, { mutate } from 'swr';
-import { useT } from '@/i18n';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/Label';
-import { Textarea } from '@/components/ui/Textarea';
-import { Switch } from '@/components/ui/Switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select';
 import {
   Globe,
   Shield,
@@ -29,6 +13,23 @@ import {
   Banknote,
   Users,
 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import useSWR, { mutate } from 'swr';
+
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
+import { Switch } from '@/components/ui/Switch';
+import { Textarea } from '@/components/ui/Textarea';
+import { useT } from '@/i18n';
 
 interface SiteSettings {
   siteName: string;
@@ -60,14 +61,12 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  useEffect(() => {
-    if (data?.settings) {
-      setForm(data.settings);
-    }
-  }, [data]);
+  // Use useMemo to derive form state from SWR data without setState in effect
+  const effectiveForm = useMemo(() => data?.settings || form, [data?.settings, form]);
 
   const handleChange = (key: keyof SiteSettings, value: any) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    // Only update local form state, not SWR data
+    setForm(prev => ({ ...prev, [key]: value }));
     setSaveMessage(null);
   };
 
@@ -78,7 +77,7 @@ export default function AdminSettingsPage() {
       const res = await fetch('/api/admin/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(effectiveForm),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -115,8 +114,6 @@ export default function AdminSettingsPage() {
       </div>
     );
   }
-
-  const uploadSizeMB = form.maxUploadSize ? form.maxUploadSize / (1024 * 1024) : 10;
 
   return (
     <div className="space-y-6">
@@ -165,7 +162,7 @@ export default function AdminSettingsPage() {
               <Label htmlFor="siteName" className="text-[var(--text-secondary)]">{t('admin.siteName')}</Label>
               <Input
                 id="siteName"
-                value={form.siteName || ''}
+                value={effectiveForm.siteName || ''}
                 onChange={(e) => handleChange('siteName', e.target.value)}
                 className="mt-1"
               />
@@ -173,7 +170,7 @@ export default function AdminSettingsPage() {
             <div>
               <Label htmlFor="defaultLanguage" className="text-[var(--text-secondary)]">{t('admin.defaultLanguage')}</Label>
               <Select
-                value={form.defaultLanguage || 'es'}
+                value={effectiveForm.defaultLanguage || 'es'}
                 onValueChange={(v) => handleChange('defaultLanguage', v)}
               >
                 <SelectTrigger className="mt-1">
@@ -190,8 +187,7 @@ export default function AdminSettingsPage() {
           </div>
           <div>              <Label htmlFor="siteDescription" className="text-[var(--text-secondary)]">{t('admin.siteDescription')}</Label>
             <Textarea
-              id="siteDescription"
-              value={form.siteDescription || ''}
+              id="siteDescription"                value={effectiveForm.siteDescription || ''}
               onChange={(e) => handleChange('siteDescription', e.target.value)}
               className="mt-1"
               rows={3}
@@ -214,7 +210,7 @@ export default function AdminSettingsPage() {
               <p className="text-sm text-[var(--text-tertiary)]">{t('admin.maintenanceModeDesc')}</p>
             </div>
             <Switch
-              checked={form.maintenanceMode || false}
+              checked={effectiveForm.maintenanceMode || false}
               onCheckedChange={(v) => handleChange('maintenanceMode', v)}
             />
           </div>
@@ -224,7 +220,7 @@ export default function AdminSettingsPage() {
               <p className="text-sm text-[var(--text-tertiary)]">{t('admin.registrationsOpenDesc')}</p>
             </div>
             <Switch
-              checked={form.enableRegistrations ?? true}
+              checked={effectiveForm.enableRegistrations ?? true}
               onCheckedChange={(v) => handleChange('enableRegistrations', v)}
             />
           </div>
@@ -248,7 +244,7 @@ export default function AdminSettingsPage() {
               </div>
             </div>
             <Switch
-              checked={form.enableAI ?? true}
+              checked={effectiveForm.enableAI ?? true}
               onCheckedChange={(v) => handleChange('enableAI', v)}
             />
           </div>
@@ -261,7 +257,7 @@ export default function AdminSettingsPage() {
               </div>
             </div>
             <Switch
-              checked={form.enableCrowdfunding ?? true}
+              checked={effectiveForm.enableCrowdfunding ?? true}
               onCheckedChange={(v) => handleChange('enableCrowdfunding', v)}
             />
           </div>
@@ -274,7 +270,7 @@ export default function AdminSettingsPage() {
               </div>
             </div>
             <Switch
-              checked={form.enableClans ?? true}
+              checked={effectiveForm.enableClans ?? true}
               onCheckedChange={(v) => handleChange('enableClans', v)}
             />
           </div>
@@ -299,7 +295,7 @@ export default function AdminSettingsPage() {
                 type="number"
                 min={1}
                 max={50}
-                value={uploadSizeMB}
+                value={effectiveForm.maxUploadSize ? effectiveForm.maxUploadSize / (1024 * 1024) : 10}
                 onChange={(e) =>
                   handleChange('maxUploadSize', Number(e.target.value) * 1024 * 1024)
                 }
@@ -314,7 +310,7 @@ export default function AdminSettingsPage() {
                 id="minimumPayoutAmount"
                 type="number"
                 min={100}
-                value={form.minimumPayoutAmount || 1000}
+                value={effectiveForm.minimumPayoutAmount || 1000}
                 onChange={(e) => handleChange('minimumPayoutAmount', Number(e.target.value))}
                 className="mt-1"
               />
@@ -329,7 +325,7 @@ export default function AdminSettingsPage() {
                 id="inkcoinsRewardPerChapter"
                 type="number"
                 min={0}
-                value={form.inkcoinsRewardPerChapter ?? 10}
+                value={effectiveForm.inkcoinsRewardPerChapter ?? 10}
                 onChange={(e) => handleChange('inkcoinsRewardPerChapter', Number(e.target.value))}
                 className="mt-1"
               />
@@ -342,7 +338,7 @@ export default function AdminSettingsPage() {
                 id="xpRewardPerChapter"
                 type="number"
                 min={0}
-                value={form.xpRewardPerChapter ?? 25}
+                value={effectiveForm.xpRewardPerChapter ?? 25}
                 onChange={(e) => handleChange('xpRewardPerChapter', Number(e.target.value))}
                 className="mt-1"
               />
@@ -351,7 +347,7 @@ export default function AdminSettingsPage() {
           <div>
             <Label className="text-[var(--text-secondary)]">{t('admin.allowedImageTypes')}</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {(form.allowedImageTypes || []).map((type) => (
+              {(effectiveForm.allowedImageTypes || []).map((type) => (
                 <span
                   key={type}
                   className="px-2 py-1 bg-[var(--surface-sunken)] border border-[var(--border)] rounded text-sm text-[var(--text-secondary)]"

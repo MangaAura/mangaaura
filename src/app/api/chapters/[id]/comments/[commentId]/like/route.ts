@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+import { getNotificationService } from '@/core/services/NotificationService';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
-import { getNotificationService } from '@/core/services/NotificationService';
 
 // POST /api/chapters/[id]/comments/[commentId]/like - Like a comment
 export async function POST(

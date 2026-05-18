@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
+
+import { User } from '@/core/entities/User';
 import { Email } from '@/core/value-objects/Email';
 import { Password } from '@/core/value-objects/Password';
-import { User } from '@/core/entities/User';
 
 describe('Auth API Integration', () => {
   describe('registro de usuario', () => {

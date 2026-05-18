@@ -1,12 +1,13 @@
 ﻿'use client';
 
+import html2canvas from 'html2canvas';
+import { Pencil, Eye, Download, Upload, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { PanelTextOverlay } from '@/components/Reader/PanelTextOverlay';
-import { usePanelTexts } from '@/hooks/usePanelTexts';
 import { Button } from '@/components/ui/Button';
-import { Pencil, Eye, Download, Upload, Trash2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { usePanelTexts } from '@/hooks/usePanelTexts';
 
 // Demo image - you can replace with your own manga panel
 const DEMO_IMAGE = 'https://placehold.co/800x600/1a1a2e/ffffff?text=Panel+de+Manga';

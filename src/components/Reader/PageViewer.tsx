@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Image as ImageIcon, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
+
 import OptimizedImage from '@/components/Image/OptimizedImage';
+import { cn } from '@/lib/utils';
 
 export interface PageViewerProps {
   pages: string[];

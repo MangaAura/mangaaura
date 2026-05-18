@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+
 import AuthErrorPage from './AuthErrorPage';
 
 export default function AuthError() {

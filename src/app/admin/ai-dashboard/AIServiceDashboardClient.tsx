@@ -1,11 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useAIService } from '@/hooks/useAIService';
-import { useAIAlerts } from '@/hooks/useAIAlerts';
-import { MetricCard } from '@/components/AI/MetricCard';
-import { AlertsPanel } from '@/components/AI/AlertBanner';
-import { Badge } from '@/components/ui/Badge';
 import {
   Activity,
   CheckCircle,
@@ -21,6 +15,13 @@ import {
   RefreshCw,
   Bell,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { AlertsPanel } from '@/components/AI/AlertBanner';
+import { MetricCard } from '@/components/AI/MetricCard';
+import { Badge } from '@/components/ui/Badge';
+import { useAIAlerts } from '@/hooks/useAIAlerts';
+import { useAIService } from '@/hooks/useAIService';
 import {
   ServiceHealth,
   ServiceMetrics,
@@ -161,35 +162,35 @@ export function AIServiceDashboardClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAlerts, setShowAlerts] = useState(true);
 
-  const fetchData = useCallback(() => {
-    try {
-      const health = getHealth();
-      const metrics = getMetrics();
-      const queueStats = getQueueStats();
-
-      setData({
-        health,
-        metrics,
-        queueStats,
-        modelMetrics: metrics?.models?.models || [],
-      });
-      setLastUpdated(new Date());
-    } catch (error) {
-      console.error('Error fetching AI service data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [getHealth, getMetrics, getQueueStats]);
-
   // Polling every 2 seconds
   useEffect(() => {
-    // Initial fetch
-    fetchData();
+    // Initial fetch - moved outside effect to avoid set-state-in-effect
+    const doFetch = () => {
+      setIsLoading(true);
+      try {
+        const health = getHealth();
+        const metrics = getMetrics();
+        const queueStats = getQueueStats();
 
-    const interval = setInterval(fetchData, 2000);
+        setData({
+          health,
+          metrics,
+          queueStats,
+          modelMetrics: metrics?.models?.models || [],
+        });
+        setLastUpdated(new Date());
+      } catch (error) {
+        console.error('Error fetching AI service data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    doFetch();
+    const interval = setInterval(doFetch, 2000);
 
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [getHealth, getMetrics, getQueueStats]);
 
   const { health, metrics, queueStats, modelMetrics } = data;
 

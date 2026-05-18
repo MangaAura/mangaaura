@@ -9,8 +9,9 @@
  */
 
 import { NextRequest } from 'next/server';
-import { stripe, verifyStripeWebhook, SUBSCRIPTION_PLANS } from '@/lib/stripe';
+
 import { prisma } from '@/lib/prisma';
+import { stripe, verifyStripeWebhook, SUBSCRIPTION_PLANS } from '@/lib/stripe';
 
 /**
  * POST /api/webhooks/stripe

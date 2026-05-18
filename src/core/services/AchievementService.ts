@@ -122,21 +122,14 @@ export class AchievementService {
 
     try {
       const ns = await getNotificationService();
-      await ns.notifyAchievementUnlocked(
-        userId,
-        {
-          id: achievement.id,
-          badgeId: achievement.badgeId,
-          name: achievement.name,
-          description: achievement.description,
-          xpReward: achievement.xpReward,
-          iconUrl: achievement.iconUrl,
-          condition: JSON.stringify(achievement.condition),
-          category: achievement.category,
-          difficulty: achievement.difficulty || 'EASY',
-          createdAt: achievement.createdAt,
-        } as never
-      );
+    await ns.notifyAchievementUnlocked(userId, {
+      id: achievement.id,
+      badgeId: achievement.badgeId,
+      name: achievement.name,
+      description: achievement.description,
+      xpReward: achievement.xpReward,
+      iconUrl: achievement.iconUrl,
+    } as any);
     } catch (notifyError) {
       console.error('Error sending achievement notification:', notifyError);
     }

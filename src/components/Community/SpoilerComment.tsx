@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import { ShieldAlert, ThumbsUp, MessageSquare } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface SpoilerCommentProps {
   user: string;

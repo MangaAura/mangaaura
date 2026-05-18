@@ -1,9 +1,10 @@
 'use client';
 
-import { GENRE_CATEGORIES } from '@/constants/genres';
-import { useT } from '@/i18n';
 import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
+
+import { GENRE_CATEGORIES } from '@/constants/genres';
+import { useT } from '@/i18n';
 
 function GenreCard({
   genre,

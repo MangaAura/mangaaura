@@ -4,9 +4,10 @@
  * Run: node scripts/deploy/setup-production.js
  */
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+/* eslint-disable @typescript-eslint/no-require-imports */
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 console.log('🚀 InkVerse Production Setup\n');
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { useT } from '@/i18n';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
   Bell, ChevronDown, User, Library, FolderOpen, MessageCircle,
@@ -11,9 +10,9 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
-
 import { NotificationDropdown } from './NotificationDropdown';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useT } from '@/i18n';
 
 interface AuthSectionProps {
   mounted: boolean;

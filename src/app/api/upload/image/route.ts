@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { put } from '@vercel/blob';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { auth } from '@/lib/auth';
 import {
   optimizeImage,
   generateBlurHash,
@@ -11,6 +11,7 @@ import {
   OptimizedImageResult,
   CACHE_CONTROL,
 } from '@/lib/image-optimization';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // Tamaño máximo de archivo: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;

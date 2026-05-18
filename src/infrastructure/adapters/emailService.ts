@@ -1,5 +1,5 @@
-import { EmailService } from '@/core/services/EmailService';
 import { ResendEmailRepository } from './ResendEmailRepository';
+import { EmailService } from '@/core/services/EmailService';
 
 const emailRepository = new ResendEmailRepository();
 

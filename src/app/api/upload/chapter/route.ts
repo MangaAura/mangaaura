@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { uploadChapterImages } from '@/lib/storage';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { uploadChapterImages } from '@/lib/storage';
 
 // Tamaño máximo por archivo: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;

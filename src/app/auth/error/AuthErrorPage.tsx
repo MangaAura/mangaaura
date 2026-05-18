@@ -1,7 +1,5 @@
 ﻿'use client';
 
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import {
   AlertTriangle,
   Home,
@@ -15,6 +13,9 @@ import {
   ArrowRight,
   RefreshCw
 } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
 import { Button } from '@/components/ui/Button';
 import { authErrorMap } from '@/hooks/useAuthError';
 import { cn } from '@/lib/utils';

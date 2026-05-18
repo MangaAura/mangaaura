@@ -1,16 +1,18 @@
 ﻿'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { ScrollArea } from '@/components/ui/ScrollArea';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Send, MoreVertical, Flag } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+
 import { AccessibleModal } from '@/components/A11y/AccessibleModal';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { ScrollArea } from '@/components/ui/ScrollArea';
+import { cn } from '@/lib/utils';
+
 
 interface Message {
   id: string;

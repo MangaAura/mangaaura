@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { prisma } from '@/lib/prisma';
 
 // GET /api/clans/[id]/members - Obtener miembros del clan

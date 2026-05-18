@@ -1,10 +1,11 @@
 'use client';
 
+import { Home, Compass, Library, Bell, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Library, Bell, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 const navItems: { href: string; labelKey: string; icon: typeof Home }[] = [
   { href: '/', labelKey: 'nav.home', icon: Home },

@@ -4,10 +4,11 @@
  * Optimiza imágenes de capítulos usando Sharp.
  */
 
-import sharp from 'sharp';
-import { writeFile, readFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import { writeFile, readFile, mkdir } from 'fs/promises';
 import path from 'path';
+import sharp from 'sharp';
+
 import { generateCacheKey, getCached, setCache } from './cache';
 
 const IMAGE_CACHE_TTL = 7 * 24 * 60 * 60; // 7 days

@@ -1,8 +1,5 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   ArrowLeft, 
   Lock, 
@@ -14,12 +11,16 @@ import {
   Shield,
   KeyRound
 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
 import { z } from 'zod';
+
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthError } from '@/hooks/useAuthError';
-import { cn } from '@/lib/utils';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 function Content() {
   const t = useT();
@@ -101,12 +102,15 @@ function Content() {
     validateField(field, field === 'password' ? password : confirmPassword);
   };
 
+  // Validar token al cargar - necesario para sincronizar estado con URL
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!token) {
       setFormState('invalid_token');
       handlePasswordResetError('INVALID_TOKEN');
     }
   }, [token]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (formState === 'success' && countdown > 0) {

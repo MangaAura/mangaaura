@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 export async function PATCH(

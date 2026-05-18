@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
+
+import { FollowingClient } from './FollowingClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { FollowingClient } from './FollowingClient';
 
 export const metadata = {
   title: 'Siguiendo | InkVerse',

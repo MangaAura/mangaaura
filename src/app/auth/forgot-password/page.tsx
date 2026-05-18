@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
 import { ArrowLeft, Mail, Loader2, CheckCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import React, { useState } from 'react';
 import { z } from 'zod';
+
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthError } from '@/hooks/useAuthError';
-import { cn } from '@/lib/utils';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 export default function ForgotPasswordPage() {
   const t = useT();

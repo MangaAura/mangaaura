@@ -1,18 +1,15 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
+import nextConfig from "eslint-config-next";
 import nextTs from "eslint-config-next/typescript";
 
 const eslintConfig = defineConfig([
-  ...nextVitals,
+  ...nextConfig,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Additional ignores:
     "node_modules/**",
     "dist/**",
     "coverage/**",
@@ -20,12 +17,10 @@ const eslintConfig = defineConfig([
     "prisma/migrations/**",
     "*.config.*",
   ]),
-  // Additional rules configuration
   {
     name: "inkverse-custom-rules",
     files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
     rules: {
-      // Import/export rules
       "import/no-anonymous-default-export": "warn",
       "import/no-duplicates": "warn",
       "import/order": [
@@ -42,10 +37,10 @@ const eslintConfig = defineConfig([
           },
         },
       ],
-      // React hooks rules (already included in eslint-config-next, but can be customized here)
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      // TypeScript rules
+      "react/no-unescaped-entities": "warn",
+      "react-hooks/purity": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
@@ -55,7 +50,7 @@ const eslintConfig = defineConfig([
         },
       ],
       "@typescript-eslint/no-explicit-any": "warn",
-      // General rules
+      "@typescript-eslint/no-empty-object-type": "warn",
       "prefer-const": "warn",
       "no-var": "error",
     },

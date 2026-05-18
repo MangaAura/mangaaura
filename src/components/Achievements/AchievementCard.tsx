@@ -1,10 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Progress } from '@/components/ui/Progress';
-import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   Lock,
   Check,
@@ -12,12 +9,16 @@ import {
   Sparkles,
   Share2,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { useState } from 'react';
+
 import { AchievementBadgeDisplay } from './AchievementBadgeDisplay';
-import { UnlockAnimation } from './UnlockAnimation';
 import { ShareAchievementModal } from './ShareAchievementModal';
+import { UnlockAnimation } from './UnlockAnimation';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { Progress } from '@/components/ui/Progress';
 import type { AchievementWithProgress, Difficulty } from '@/hooks/useAchievements';
+import { cn } from '@/lib/utils';
 
 export interface AchievementUI {
   id: string;

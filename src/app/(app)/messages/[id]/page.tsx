@@ -1,9 +1,11 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
+import { redirect, notFound } from 'next/navigation';
+
 import { ChatInterface } from '@/components/Messages/ChatInterface';
-import { notFound } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+
 
 interface ConversationPageProps {
   params: Promise<{ id: string }>;

@@ -6,14 +6,15 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { Heart, MessageCircle, Edit2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+
 import { CommentForm } from './CommentForm';
 import type { Comment } from '@/hooks/useChapterComments';
+import { cn } from '@/lib/utils';
 
 interface CommentItemProps {
   comment: Comment;

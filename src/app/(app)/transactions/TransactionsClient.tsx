@@ -1,8 +1,9 @@
 'use client';
 
-import { useT } from '@/i18n';
 import { ArrowDown, ArrowUp, Clock, Coins, Trophy } from 'lucide-react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 
 const typeConfig: Record<string, { icon: typeof ArrowUp; color: string; labelKey: string }> = {
   TIP_SENT: { icon: ArrowUp, color: 'text-red-400', labelKey: 'transactions.tipSent' },

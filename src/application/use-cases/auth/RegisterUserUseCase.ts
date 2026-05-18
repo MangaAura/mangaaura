@@ -7,10 +7,10 @@
 import { DomainError } from '../../../core/errors/DomainError';
 import { Email } from '../../../core/value-objects/Email';
 import { Password } from '../../../core/value-objects/Password';
+import { UserResponseDTO, mapUserToResponseDTO } from '../../dtos/user/UserResponseDTO';
+import { UserRegisteredEvent } from '../../events/UserRegisteredEvent';
 import { IUserRepository } from '../../ports/IUserRepository';
 import { IEventBus } from '../../services/IEventBus';
-import { UserRegisteredEvent } from '../../events/UserRegisteredEvent';
-import { UserResponseDTO, mapUserToResponseDTO } from '../../dtos/user/UserResponseDTO';
 
 /**
  * DTO de entrada para registrar usuario

@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
 import type { Difficulty } from '@/hooks/useAchievements';
+import { auth } from '@/lib/auth';
 
 // ─── Data types ─────────────────────────────────────────────────────
 

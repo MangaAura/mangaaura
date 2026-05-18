@@ -1,9 +1,9 @@
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
-import type { NextAuthConfig } from 'next-auth';
-import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
+import Google from 'next-auth/providers/google';
+
 import { prisma } from './prisma';
 import { rateLimit, getRateLimitKey } from './rate-limit';
 
@@ -66,25 +66,19 @@ export const authConfig = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials: Record<string, string> | undefined, request?: { headers?: Headers | Record<string, string> }) {
+      async authorize(credentials: Record<string, string> | undefined) {
         try {
           if (!credentials?.email || !credentials?.password) {
             return null;
           }
 
           const email = credentials.email.toLowerCase();
-          const ip = request?.headers instanceof Headers
-            ? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-            : request?.headers?.['x-forwarded-for']?.split(',')[0]?.trim();
-
-          const limiterKey = ip
-            ? getRateLimitKey('login', `${email}:${ip}`)
-            : getRateLimitKey('login', email);
+          const limiterKey = getRateLimitKey('login', email);
 
           const { allowed } = await rateLimit(limiterKey, 5, 300);
 
           if (!allowed) {
-            console.warn(`[RateLimit] Login exceeded for ${email} from ${ip || 'unknown'}`);
+            console.warn(`[RateLimit] Login exceeded for ${email}`);
             return null;
           }
 
@@ -122,21 +116,19 @@ export const authConfig = {
     },
   ],
   callbacks: {
-    async signIn({ user, account, profile }: { user: any; account?: any; profile?: any }) {
-      // Manejar usuarios OAuth
+    async signIn({ user, account, profile }: any) {
       if (account?.provider === 'google' || account?.provider === 'github') {
+        if (!user?.email) return true;
         try {
           const existingUser = await prisma.user.findUnique({
-            where: { email: user.email! },
+            where: { email: user.email },
           });
 
           if (!existingUser) {
-            // Crear nuevo usuario OAuth
             const username =
               user.name?.replace(/\s+/g, '').toLowerCase() ||
-              user.email!.split('@')[0];
+              user.email.split('@')[0];
 
-            // Verificar si el username ya existe
             const existingUsername = await prisma.user.findUnique({
               where: { username },
             });
@@ -145,7 +137,6 @@ export const authConfig = {
               ? `${username}_${Date.now()}`
               : username;
 
-            // Obtener avatar del proveedor OAuth
             let avatarUrl = user.image;
             if (!avatarUrl && account.provider === 'github' && profile) {
               avatarUrl = profile.avatar_url;
@@ -153,31 +144,28 @@ export const authConfig = {
 
             const newUser = await prisma.user.create({
               data: {
-                email: user.email!,
+                email: user.email,
                 username: finalUsername,
                 displayName: user.name || finalUsername,
                 avatarUrl: avatarUrl,
                 role: 'USER',
                 xpPoints: 0,
                 level: 1,
-                inkcoinsBalance: 50, // 50 InkCoins de regalo por OAuth
-                passwordHash: null, // OAuth users no tienen password
+                inkcoinsBalance: 50,
+                passwordHash: null,
               },
             });
 
-            // Asignar el ID del usuario creado
             user.id = newUser.id;
-            user.xpPoints = newUser.xpPoints;
-            user.level = newUser.level;
-            user.role = newUser.role;
+            user.xpPoints = newUser.xpPoints ?? undefined;
+            user.level = newUser.level ?? undefined;
+            user.role = newUser.role ?? undefined;
           } else {
-            // Usuario existe, cargar datos
             user.id = existingUser.id;
             user.xpPoints = existingUser.xpPoints;
             user.level = existingUser.level;
             user.role = existingUser.role;
 
-            // Actualizar avatar si no tiene uno
             if (!existingUser.avatarUrl && user.image) {
               await prisma.user.update({
                 where: { id: existingUser.id },
@@ -192,15 +180,14 @@ export const authConfig = {
       }
       return true;
     },
-    async jwt({ token, user, account }: { token: any; user?: any; account?: any }) {
+    async jwt({ token, user, account }: any) {
       if (user) {
-        token.id = user.id;
-        token.xpPoints = user.xpPoints || 0;
-        token.level = user.level || 1;
-        token.role = user.role || 'USER';
+        token.id = user.id as string;
+        token.xpPoints = (user.xpPoints as number) || 0;
+        token.level = (user.level as number) || 1;
+        token.role = (user.role as string) || 'USER';
       }
 
-      // Si es un login OAuth reciente, refrescar datos desde DB
       if (account && (account.provider === 'google' || account.provider === 'github')) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email! },
@@ -222,18 +209,24 @@ export const authConfig = {
 
       return token;
     },
-    async session({ session, token }: { session: any; token?: any }) {
+    async session({ session, token }: any) {
       if (token && session.user) {
-        session.user.id = token.id;
-        session.user.xpPoints = token.xpPoints;
-        session.user.level = token.level;
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.xpPoints = token.xpPoints as number;
+        session.user.level = token.level as number;
+        session.user.role = token.role as string;
       }
       return session;
     },
-  },
+  } as any,
   events: {
-    async signIn({ user, account }: { user: any; account?: any }) {
+    async signIn({
+      user: _user,
+      account: _account,
+    }: {
+      user?: { id?: string; email?: string; name?: string } | null;
+      account?: { provider?: string; type?: string } | null;
+    }) {
       // Sign-in event logged
     },
   },
@@ -241,5 +234,5 @@ export const authConfig = {
 };
 
 // Export for NextAuth 5 beta
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig as any);
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig as any) as any;
 export default authConfig;

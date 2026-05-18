@@ -11,9 +11,9 @@
  *   npx tsx scripts/auto-translate.ts --key home.welcome  # Traducir una sola clave
  */
 
+import { translate } from '@vitalets/google-translate-api';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { translate } from '@vitalets/google-translate-api';
 
 const PROJECT_ROOT = resolve(__dirname !== '..' ? join(__dirname, '..') : '.');
 const LOCALES_DIR = join(PROJECT_ROOT, 'src', 'i18n', 'locales');

@@ -153,7 +153,7 @@ export class AlertManager extends EventEmitter {
         createdAt: new Date(),
       };
       this.alerts.set(updated.id, updated);
-      this.emit('alert:updated', updated);
+      (this as any).emit('alert:updated', updated);
       return updated;
     }
 
@@ -171,7 +171,7 @@ export class AlertManager extends EventEmitter {
     };
 
     this.alerts.set(alert.id, alert);
-    this.emit('alert:new', alert);
+    (this as any).emit('alert:new', alert);
 
     return alert;
   }
@@ -241,7 +241,7 @@ export class AlertManager extends EventEmitter {
 
     alert.acknowledged = true;
     this.alerts.set(alertId, alert);
-    this.emit('alert:updated', alert);
+    (this as any).emit('alert:updated', alert);
     return true;
   }
 
@@ -254,7 +254,7 @@ export class AlertManager extends EventEmitter {
 
     alert.dismissed = true;
     this.alerts.set(alertId, alert);
-    this.emit('alert:updated', alert);
+    (this as any).emit('alert:updated', alert);
     return true;
   }
 
@@ -266,7 +266,7 @@ export class AlertManager extends EventEmitter {
     if (!alert) return false;
 
     this.alerts.delete(alertId);
-    this.emit('alert:cleared', alert);
+    (this as any).emit('alert:cleared', alert);
     return true;
   }
 
@@ -289,7 +289,7 @@ export class AlertManager extends EventEmitter {
       const alert = this.alerts.get(id);
       if (alert) {
       this.alerts.delete(id);
-      this.emit('alert:cleared', alert);
+      (this as any).emit('alert:cleared', alert);
     }
   });
 
@@ -312,7 +312,7 @@ export class AlertManager extends EventEmitter {
       const alert = this.alerts.get(id);
       if (alert) {
         this.alerts.delete(id);
-        this.emit('alert:cleared', alert);
+        (this as any).emit('alert:cleared', alert);
       }
     });
 
@@ -325,7 +325,7 @@ export class AlertManager extends EventEmitter {
   clearAllAlerts(): void {
     const allAlerts = Array.from(this.alerts.values());
     this.alerts.clear();
-    allAlerts.forEach((alert) => this.emit('alert:cleared', alert));
+    allAlerts.forEach((alert) => (this as any).emit('alert:cleared', alert));
   }
 
   // ===========================================================================
@@ -392,7 +392,7 @@ export class AlertManager extends EventEmitter {
    */
   updateThresholds(thresholds: Partial<AlertThresholds>): void {
     this.thresholds = { ...this.thresholds, ...thresholds };
-    this.emit('config:updated', { thresholds: this.thresholds });
+    (this as any).emit('config:updated', { thresholds: this.thresholds });
   }
 
   /**

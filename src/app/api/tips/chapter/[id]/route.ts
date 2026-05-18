@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+
 import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { auth } from '@/lib/auth';
 
 // GET /api/tips/chapter/[id] - Obtener propinas de un capítulo
 export async function GET(

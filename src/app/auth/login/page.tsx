@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import { ArrowLeft, Mail, Lock, LogIn, Loader2, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
-import { ArrowLeft, Mail, Lock, LogIn, Loader2, Smartphone } from 'lucide-react';
+import React, { useState, Suspense } from 'react';
+
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 
@@ -54,12 +55,14 @@ function Content() {
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const authError = searchParams.get('error');
 
-  // Mostrar error de URL si existe
+  // Mostrar error de URL si existe - necesario para sincronizar con parámetros de URL
+  /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
     if (authError) {
       setError(getErrorMessage(authError, t));
     }
   }, [authError, t]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

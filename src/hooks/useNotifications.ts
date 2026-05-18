@@ -7,8 +7,9 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+
 import type { Notification, NotificationType } from '@/core/services/NotificationService';
 
 interface NotificationFilter {
@@ -23,7 +24,7 @@ interface UseNotificationsOptions {
   pollingInterval?: number; // en milisegundos
 }
 
-interface UseNotificationsReturn {
+export interface UseNotificationsReturn {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
@@ -37,7 +38,7 @@ interface UseNotificationsReturn {
   refetch: () => Promise<void>;
 }
 
-export function useNotifications(
+export function useMangaNotifications(
   options: UseNotificationsOptions = {}
 ): UseNotificationsReturn {
   const { 
@@ -323,7 +324,7 @@ export function useNotifications(
 }
 
 // Hook para conteo de notificaciones (lightweight)
-export function useNotificationCount(pollingInterval: number = 30000) {
+export function useNotificationListener(pollingInterval: number = 30000) {
   const { data: session, status } = useSession();
   const [count, setCount] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
@@ -367,4 +368,7 @@ export function useNotificationCount(pollingInterval: number = 30000) {
   return count;
 }
 
-export default useNotifications;
+// Alias for backwards compatibility
+export const useNotifications = useMangaNotifications;
+export const useNotificationCount = useNotificationListener;
+export default useMangaNotifications;

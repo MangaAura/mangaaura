@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { User } from '@/core/entities/User';
 import { Email } from '@/core/value-objects/Email';
 import { Password } from '@/core/value-objects/Password';
@@ -193,7 +194,7 @@ describe('User Entity', () => {
           if (args.length === 0) {
             super(today);
           } else {
-            super(...(args as [string | number | Date]));
+            super(...(args as unknown as [string | number | Date]));
           }
         }
         static now() {

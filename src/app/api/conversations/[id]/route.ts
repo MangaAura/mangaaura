@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { logSecurityEvent } from '@/lib/security-audit';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { logSecurityEvent } from '@/lib/security-audit';
 
 // GET /api/conversations/[id] - Get conversation details
 export async function GET(

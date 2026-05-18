@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { put } from '@vercel/blob';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { auth } from '@/lib/auth';
 import {
   optimizeImage,
   isValidImage,
@@ -9,6 +9,7 @@ import {
   CACHE_CONTROL,
 } from '@/lib/image-optimization';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const AVATAR_SIZE = 256;

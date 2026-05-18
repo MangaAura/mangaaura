@@ -1,8 +1,10 @@
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+import { BookmarksClient } from './BookmarksClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
-import type { Metadata } from 'next';
-import { BookmarksClient } from './BookmarksClient';
+
 
 export const metadata: Metadata = {
   title: 'Marcadores | Inkverse',

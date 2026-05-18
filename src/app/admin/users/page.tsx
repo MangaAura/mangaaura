@@ -1,7 +1,5 @@
 ﻿'use client';
 
-import { useState, useMemo } from 'react';
-import useSWR from 'swr';
 import {
   useReactTable,
   getCoreRowModel,
@@ -11,18 +9,6 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/Dialog';
 import {
   Search,
   Users,
@@ -34,8 +20,23 @@ import {
   Check,
   Loader2,
 } from 'lucide-react';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import Link from 'next/link';
+import { useState, useMemo } from 'react';
+import useSWR from 'swr';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
 import { useT } from '@/i18n';
 
 interface UserData {
@@ -59,6 +60,7 @@ interface UserData {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function UsersPage() {
+  // Always call useT first before any conditional logic
   const t = useT();
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');

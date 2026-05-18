@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { uploadCover, deleteFile } from '@/lib/storage';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { uploadCover, deleteFile } from '@/lib/storage';
 
 // Tamaño máximo para portadas: 5MB
 const MAX_COVER_SIZE = 5 * 1024 * 1024;
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Intentar optimizar con sharp si está disponible
-    let finalUrl = result.url;
+    const finalUrl = result.url;
     let optimized = false;
 
     try {

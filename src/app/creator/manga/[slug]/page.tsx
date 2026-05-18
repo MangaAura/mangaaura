@@ -1,16 +1,6 @@
 'use client';
 
-import { use } from 'react';
-import { useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
-import { ChapterList, ChapterListChapter } from '@/components/Creator/ChapterList';
-import { useManga } from '@/hooks/useManga';
-import { useT } from '@/i18n';
-import { cn, formatNumber } from '@/lib/utils';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import {
   ArrowLeftIcon,
   EditIcon,
@@ -21,6 +11,17 @@ import {
   TrendingUpIcon,
   BarChart3Icon,
 } from 'lucide-react';
+import Link from 'next/link';
+import { use , useState } from 'react';
+
+import { ChapterList, ChapterListChapter } from '@/components/Creator/ChapterList';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useManga } from '@/hooks/useManga';
+import { useT } from '@/i18n';
+import { cn, formatNumber } from '@/lib/utils';
+
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -30,6 +31,9 @@ export default function MangaDetailPage({ params }: PageProps) {
   const { slug } = use(params);
   const { manga, chapters, isLoading, error, deleteChapter } = useManga({ mangaId: slug });
   const [activeTab, setActiveTab] = useState('chapters');
+
+  // Always call hooks before any early returns
+  const t = useT();
 
   if (isLoading) {
     return (
@@ -63,8 +67,6 @@ export default function MangaDetailPage({ params }: PageProps) {
       </div>
     );
   }
-
-  const t = useT();
   const STATUS_KEYS: Record<string, string> = {
     ONGOING: 'manga.ongoing',
     COMPLETED: 'manga.completed',

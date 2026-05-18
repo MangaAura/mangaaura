@@ -67,11 +67,15 @@ export function useReadingMongoAnalytics({
   const hasStartedRef = useRef(false);
   const hasCompletedRef = useRef(false);
   const pagesViewedRef = useRef<Set<number>>(new Set());
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
   const lastPageRef = useRef<number>(0);
   const lastScrollEventRef = useRef<number>(0);
   const [readingStats, setReadingStats] = useState<ReadingStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Use state for values needed during render (refs rule)
+  const [pagesViewedCount, setPagesViewedCount] = useState(0);
+  const [hasCompletedState, setHasCompletedState] = useState(false);
 
   // Track page view
   const trackPageView = useCallback((pageNumber: number) => {
@@ -80,6 +84,7 @@ export function useReadingMongoAnalytics({
     // Agregar a páginas vistas
     pagesViewedRef.current.add(pageNumber);
     lastPageRef.current = pageNumber;
+    setPagesViewedCount(pagesViewedRef.current.size);
 
     // Enviar evento a MongoDB
     sendReadingEvent(chapterId, mangaId, 'page_view', {
@@ -111,6 +116,7 @@ export function useReadingMongoAnalytics({
   const trackCompletion = useCallback(() => {
     if (hasCompletedRef.current) return;
     hasCompletedRef.current = true;
+    setHasCompletedState(true);
 
     const timeSpent = Date.now() - startTimeRef.current;
     const pagesViewed = pagesViewedRef.current.size;
@@ -144,8 +150,9 @@ export function useReadingMongoAnalytics({
     }
   }, [chapterId]);
 
-  // Auto-start tracking después de 3 segundos
+  // Initialize start time and auto-start tracking después de 3 segundos
   useEffect(() => {
+    startTimeRef.current = Date.now();
     const timer = setTimeout(() => {
       if (!hasStartedRef.current) {
         hasStartedRef.current = true;
@@ -178,9 +185,9 @@ export function useReadingMongoAnalytics({
     fetchReadingStats,
     readingStats,
     isLoading,
-    pagesViewed: pagesViewedRef.current.size,
-    hasCompleted: hasCompletedRef.current,
+    pagesViewed: pagesViewedCount,
+    hasCompleted: hasCompletedState,
   };
 }
 
-export default useReadingMongoAnalytics;
+export default useReadingMongoAnalytics;

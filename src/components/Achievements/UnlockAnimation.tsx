@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { cn } from '@/lib/utils';
 import { Sparkles } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+
 import { AchievementBadgeDisplay } from './AchievementBadgeDisplay';
 import type { Difficulty } from '@/hooks/useAchievements';
+import { cn } from '@/lib/utils';
 
 interface UnlockAnimationProps {
   badgeId: string;

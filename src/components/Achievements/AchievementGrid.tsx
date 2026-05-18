@@ -1,15 +1,16 @@
 ﻿'use client';
 
+import { Trophy, Lock, Unlock, Target, Zap, BookOpen, Users, Star } from 'lucide-react';
 import { useState, useMemo } from 'react';
+
 import { AchievementCard, adaptAchievement } from './AchievementCard';
 import type { AchievementUI } from './AchievementCard';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { Progress } from '@/components/ui/Progress';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import { Trophy, Lock, Unlock, Target, Zap, BookOpen, Users, Star } from 'lucide-react';
 import type { AchievementWithProgress, Difficulty } from '@/hooks/useAchievements';
 
 interface AchievementGridProps {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { rateLimit, getRateLimitKey } from './rate-limit';
 
 export type LimitConfig = {

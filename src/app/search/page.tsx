@@ -6,14 +6,15 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Search, Filter, Grid3X3, List, Loader2, X, BookOpen } from 'lucide-react';
-import { SearchBar } from '@/components/Search/SearchBar';
-import { MangaCard } from '@/components/MangaCard';
-import { Button } from '@/components/ui/Button';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { MangaCard } from '@/components/MangaCard';
+import { SearchBar } from '@/components/Search/SearchBar';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 

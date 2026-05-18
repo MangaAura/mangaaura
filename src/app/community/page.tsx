@@ -1,7 +1,8 @@
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
 import type { Metadata } from 'next';
+
 import CommunityTabs from './CommunityTabs';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'Comunidad | Inkverse',

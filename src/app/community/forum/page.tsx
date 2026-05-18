@@ -1,7 +1,8 @@
+import type { Metadata } from 'next';
+
+import { ForumClient } from './ForumClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import type { Metadata } from 'next';
-import { ForumClient } from './ForumClient';
 
 export const metadata: Metadata = {
   title: 'Foro | Inkverse',

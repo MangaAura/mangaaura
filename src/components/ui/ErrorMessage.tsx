@@ -4,8 +4,9 @@
  * Componente reutilizable para mostrar mensajes de error amigables y accionables.
  */
 
-import React from 'react';
 import { AlertCircle, X, Info, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 
 type ErrorSeverity = 'error' | 'warning' | 'info' | 'success';

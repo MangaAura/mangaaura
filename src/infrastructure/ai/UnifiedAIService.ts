@@ -12,24 +12,25 @@
  */
 
 import { EventEmitter } from 'events';
+
 import { IAProvider, CommentAnalysis, ChapterSummary, QualityAssessment } from '@/core/services/IAProvider';
-import { InferenceJobQueue, JobType, QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
-import { ModelWorkerPool, InferenceJob as WorkerJob, PoolMetrics, PoolEvent } from '@/infrastructure/ai/ModelWorkerPool';
-import { 
-  ParallelInferenceEngine, 
-  InferenceJob as EngineJob, 
-  InferenceResult as EngineResult,
-  InferenceProvider
-} from '@/infrastructure/ai/ParallelInferenceEngine';
+import { AlertManager, getAlertManager } from '@/infrastructure/ai/AlertManager';
+import { InMemoryAIProvider } from '@/infrastructure/ai/InMemoryAIProvider';
 import { 
   ModelRegistry, 
   RegisteredModel, 
   RoutingStrategy,
   RoutingMetrics 
 } from '@/infrastructure/ai/ModelRegistry';
+import { ModelWorkerPool, InferenceJob as WorkerJob, PoolMetrics, PoolEvent } from '@/infrastructure/ai/ModelWorkerPool';
 import { NVIDIAProvider } from '@/infrastructure/ai/NVIDIAProvider';
-import { InMemoryAIProvider } from '@/infrastructure/ai/InMemoryAIProvider';
-import { AlertManager, getAlertManager } from '@/infrastructure/ai/AlertManager';
+import { 
+  ParallelInferenceEngine, 
+  InferenceJob as EngineJob, 
+  InferenceResult as EngineResult,
+  InferenceProvider
+} from '@/infrastructure/ai/ParallelInferenceEngine';
+import { InferenceJobQueue, JobType, QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
 
 // ============================================================================
 // Types & Interfaces
@@ -249,17 +250,17 @@ export class UnifiedAIService extends EventEmitter {
   private setupEventListeners(): void {
     // Queue events
     this.queue.on('job:added', (payload) => {
-      this.emit('job:queued', payload);
+      (this as any).emit('job:queued', payload);
       this.processQueue();
     });
 
     this.queue.on('job:started', (payload) => {
-      this.emit('job:started', payload);
+      (this as any).emit('job:started', payload);
     });
 
     this.queue.on('job:completed', (payload) => {
       this.metrics.completedJobs++;
-      this.emit('job:completed', payload);
+      (this as any).emit('job:completed', payload);
     });
 
     this.queue.on('job:failed', (payload) => {
@@ -268,12 +269,12 @@ export class UnifiedAIService extends EventEmitter {
       } else {
         this.metrics.retriedJobs++;
       }
-      this.emit('job:failed', payload);
+      (this as any).emit('job:failed', payload);
     });
 
     // Pool events
     this.pool.onEvent((event: PoolEvent) => {
-      this.emit('pool:event', event);
+      (this as any).emit('pool:event', event);
     });
   }
 
@@ -370,7 +371,7 @@ export class UnifiedAIService extends EventEmitter {
       this.performHealthChecks();
     }, 30000);
 
-    this.emit('service:started');
+    (this as any).emit('service:started', undefined);
     console.info('[UnifiedAIService] Service started');
   }
 
@@ -389,7 +390,7 @@ export class UnifiedAIService extends EventEmitter {
     this.pool.shutdown();
     this.queue.dispose();
     
-    this.emit('service:stopped');
+    (this as any).emit('service:stopped', undefined);
     console.info('[UnifiedAIService] Service stopped');
   }
 
@@ -693,12 +694,12 @@ export class UnifiedAIService extends EventEmitter {
 
   registerModel(model: RegisteredModel): void {
     this.registry.register(model);
-    this.emit('model:registered', { modelId: model.id, name: model.name });
+    (this as any).emit('model:registered', { modelId: model.id, name: model.name });
   }
 
   unregisterModel(modelId: string): void {
     this.registry.unregister(modelId);
-    this.emit('model:unregistered', { modelId });
+    (this as any).emit('model:unregistered', { modelId });
   }
 
   getModel(modelId: string): RegisteredModel | undefined {
@@ -711,7 +712,7 @@ export class UnifiedAIService extends EventEmitter {
 
   setRoutingStrategy(strategy: RoutingStrategy): void {
     // Strategy is applied per-request in selectModel
-    this.emit('strategy:changed', { strategy });
+    (this as any).emit('strategy:changed', { strategy });
   }
 
   // ==========================================================================
@@ -952,7 +953,7 @@ export class UnifiedAIService extends EventEmitter {
     // Check for queue backlog
     this.checkAndEmitQueueBacklogAlert();
 
-    this.emit('health:check-completed');
+    (this as any).emit('health:check-completed', undefined);
   }
 
   // ===========================================================================
@@ -981,7 +982,7 @@ export class UnifiedAIService extends EventEmitter {
         model.name,
         `El modelo tiene ${model.status.consecutiveFailures} fallos consecutivos`
       );
-      this.emit('alert:model-degraded', { modelId: model.id, modelName: model.name });
+      (this as any).emit('alert:model-degraded', { modelId: model.id, modelName: model.name });
     }
 
     // Emitir alerta si el modelo pasó a unhealthy
@@ -991,12 +992,12 @@ export class UnifiedAIService extends EventEmitter {
         model.name,
         model.status.consecutiveFailures
       );
-      this.emit('alert:model-unhealthy', { modelId: model.id, modelName: model.name, consecutiveFailures: model.status.consecutiveFailures });
+      (this as any).emit('alert:model-unhealthy', { modelId: model.id, modelName: model.name, consecutiveFailures: model.status.consecutiveFailures });
     }
 
     // Limpiar alertas si el modelo volvió a healthy
     if (newHealth === 'healthy' && (previousHealth === 'degraded' || previousHealth === 'unhealthy')) {
-      this.emit('alert:model-recovered', { modelId: model.id, modelName: model.name, previousHealth });
+      (this as any).emit('alert:model-recovered', { modelId: model.id, modelName: model.name, previousHealth });
     }
 
     // Guardar estado actual
@@ -1013,7 +1014,7 @@ export class UnifiedAIService extends EventEmitter {
     if (errorRate > threshold) {
       if (!this.lastEmittedStates.errorRateHigh) {
         this.alertManager.notifyHighErrorRate(errorRate, threshold);
-        this.emit('alert:high-error-rate', { errorRate, threshold });
+        (this as any).emit('alert:high-error-rate', { errorRate, threshold });
         this.lastEmittedStates.errorRateHigh = true;
       }
     } else {
@@ -1030,7 +1031,7 @@ export class UnifiedAIService extends EventEmitter {
     if (queueDepth > threshold) {
       if (!this.lastEmittedStates.queueBacklog) {
         this.alertManager.notifyQueueBacklog(queueDepth, threshold);
-        this.emit('alert:queue-backlog', { queueDepth, threshold });
+        (this as any).emit('alert:queue-backlog', { queueDepth, threshold });
         this.lastEmittedStates.queueBacklog = true;
       }
     } else {

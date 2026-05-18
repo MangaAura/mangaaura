@@ -6,9 +6,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+import { getQuestService } from '@/core/services/QuestService';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getQuestService } from '@/core/services/QuestService';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // GET /api/gamification/quests - Obtener misiones activas con progreso

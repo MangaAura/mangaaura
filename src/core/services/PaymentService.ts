@@ -1,4 +1,3 @@
-import { getNotificationService } from '@/core/services/NotificationService';
 import type {
   IPaymentRepository,
   TipRecord,
@@ -6,6 +5,7 @@ import type {
   ContributionWithRelationsRecord,
   CrowdfundingContributionRecord,
 } from '@/core/services/IPaymentRepository';
+import { getNotificationService } from '@/core/services/NotificationService';
 
 export interface SendTipDTO {
   chapterId: string;

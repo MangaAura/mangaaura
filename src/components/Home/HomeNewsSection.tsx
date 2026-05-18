@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { Star } from 'lucide-react';
+import Link from 'next/link';
+
 import { useT } from '@/i18n';
 
 export function HomeNewsSection() {

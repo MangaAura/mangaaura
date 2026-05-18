@@ -1,8 +1,8 @@
+import { DomainError } from '../errors/DomainError';
 import { Email } from '../value-objects/Email';
+import { Money } from '../value-objects/Money';
 import { Password } from '../value-objects/Password';
 import { XP } from '../value-objects/XP';
-import { Money } from '../value-objects/Money';
-import { DomainError } from '../errors/DomainError';
 
 export class UserAlreadyVerifiedError extends DomainError {
   readonly code = 'USER_ALREADY_VERIFIED';

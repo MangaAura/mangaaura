@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+
 import { AIServiceDashboardClient } from './AIServiceDashboardClient';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { auth } from '@/lib/auth';
 
 // Server Component para verificación de autenticación
 export default async function AIServiceDashboardPage() {

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
-import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 
 export async function GET(request: NextRequest) {
   try {

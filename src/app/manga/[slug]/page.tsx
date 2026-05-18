@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { MangaStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+
 import MangaDetailClient from './MangaDetailClient';
+import { MangaStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 interface MangaPageProps {
   params: Promise<{ slug: string }>;

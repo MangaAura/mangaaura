@@ -7,12 +7,13 @@
 
 'use client';
 
-import { useRef, useCallback } from 'react';
 import { Loader2, Filter, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { NotificationCard } from './NotificationCard';
+import { useRef, useCallback } from 'react';
+
 import { EmptyState } from './EmptyState';
+import { NotificationCard } from './NotificationCard';
 import type { Notification, NotificationType } from '@/core/services/NotificationService';
+import { cn } from '@/lib/utils';
 
 interface NotificationListProps {
   notifications: Notification[];

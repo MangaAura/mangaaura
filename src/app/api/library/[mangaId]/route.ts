@@ -5,10 +5,11 @@
  * DELETE: Remove from library
  */
 
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { invalidatePattern } from '@/lib/cache';
 import { z } from 'zod';
+
+import { auth } from '@/lib/auth';
+import { invalidatePattern } from '@/lib/cache';
+import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const updateSchema = z.object({

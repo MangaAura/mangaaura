@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
+import { cn } from '@/lib/utils';
 
 interface QueueVisualizerProps {
   stats: QueueStats;

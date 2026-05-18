@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ToastProvider, useToast, Toast, ToastTitle, ToastClose } from '../Toast';
 import * as ToastPrimitives from '@radix-ui/react-toast';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+
+import { ToastProvider, useToast, Toast, ToastTitle, ToastClose } from '../Toast';
+
 
 function TestConsumer() {
   const { toast } = useToast();

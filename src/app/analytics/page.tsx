@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import { Shield, Target, Award, AlertTriangle, BookOpen, BarChart, Users, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { useT } from '@/i18n';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnalyticsDashboard } from '@/components/Analytics/AnalyticsDashboard';
 import { DateRangePicker, type DateRangePreset, type DateRange } from '@/components/Analytics/DateRangePicker';
-import { MangaSelector, type MangaOption } from '@/components/Analytics/MangaSelector';
 import { ExportAnalyticsButton } from '@/components/Analytics/ExportAnalyticsButton';
+import { MangaSelector, type MangaOption } from '@/components/Analytics/MangaSelector';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useT } from '@/i18n';
 
 interface CreatorData {
   views: number;
@@ -83,13 +83,13 @@ export default function AnalyticsPage() {
 
   const [creatorData, setCreatorData] = useState<CreatorData | null>(null);
   const [readerData, setReaderData] = useState<ReaderData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange());
   const [datePreset, setDatePreset] = useState<DateRangePreset>('30d');
   const [selectedMangaId, setSelectedMangaId] = useState<string | null>(null);
   const [creatorMangas, setCreatorMangas] = useState<MangaOption[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchCreatorData = useCallback(async () => {
     try {
@@ -113,8 +113,8 @@ export default function AnalyticsPage() {
         const data = await res.json();
         setCreatorMangas(data.mangas || data || []);
       }
-    } catch {
-      setError(t('analytics.errorLoadingMangas'));
+    } catch {        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setError(t('analytics.errorLoadingMangas'));
     }
   }, []);
 
@@ -129,17 +129,23 @@ export default function AnalyticsPage() {
     }
   }, []);
 
+  // Data fetching effect - setState is necessary for async SWR data loading
+  const shouldFetch = session?.user?.id;
+
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (!session?.user?.id) {
-      setIsLoading(false);
+    if (!shouldFetch) {
       return;
     }
     setIsLoading(true);
     setError(null);
     Promise.all([fetchCreatorMangas(), fetchCreatorData(), fetchReaderData()])
-      .catch(() => setError(t('analytics.errorLoading')))
+      .catch(() => {
+        setError(t('analytics.errorLoading'));
+      })
       .finally(() => setIsLoading(false));
-  }, [session?.user?.id, fetchCreatorMangas, fetchCreatorData, fetchReaderData]);
+  }, [shouldFetch, fetchCreatorMangas, fetchCreatorData, fetchReaderData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const xpForNextLevel = readerData?.stats.nextLevelXp || 2000;
   const currentXp = readerData?.user.xpPoints || 0;

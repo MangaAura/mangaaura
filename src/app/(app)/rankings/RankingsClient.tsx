@@ -1,10 +1,11 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { LeaderboardTable } from '@/components/Rankings/LeaderboardTable';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import { Card } from '@/components/ui/Card';
 import { Trophy, Users, Crown, Flame, BookOpen } from 'lucide-react';
+
+import { LeaderboardTable } from '@/components/Rankings/LeaderboardTable';
+import { Card } from '@/components/ui/Card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { useT } from '@/i18n';
 
 interface RankingsClientProps {

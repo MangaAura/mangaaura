@@ -1,5 +1,6 @@
-import { TOTP, Secret } from 'otpauth';
 import bcrypt from 'bcryptjs';
+import { TOTP, Secret } from 'otpauth';
+
 import { prisma } from './prisma';
 
 function generateBackupCodes(): string[] {

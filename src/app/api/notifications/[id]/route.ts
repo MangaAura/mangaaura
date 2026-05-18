@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { getNotificationService } from '@/core/services/NotificationService';
+
 import { DeleteNotificationUseCase } from '@/application/use-cases/notifications/DeleteNotificationUseCase';
+import { getNotificationService } from '@/core/services/NotificationService';
+import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 export async function DELETE(

@@ -1,9 +1,10 @@
+import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { validateImageFile, optimizeImageBuffer } from '@/lib/image-optimizer';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { uploadImage, validateFile as validateStorageFile } from '@/lib/storage';
-import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {

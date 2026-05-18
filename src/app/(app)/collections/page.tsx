@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import CollectionsPageContent from './CollectionsPageContent';
 
 export const metadata: Metadata = {

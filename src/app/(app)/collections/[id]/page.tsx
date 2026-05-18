@@ -1,14 +1,5 @@
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { MangaCard } from '@/components/MangaCard';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   Lock,
   Globe,
@@ -17,8 +8,20 @@ import {
   Clock,
   Share2,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+import { MangaCard } from '@/components/MangaCard';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+
 
 interface CollectionDetailPageProps {
   params: Promise<{ id: string }>;

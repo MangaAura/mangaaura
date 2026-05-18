@@ -1,17 +1,5 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/Dialog';
-import { Button } from '@/components/ui/Button';
-import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
-import { cn } from '@/lib/utils';
 import {
   Share2,
   Copy,
@@ -19,7 +7,20 @@ import {
   ExternalLink,
   Loader2,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useState, useCallback } from 'react';
+
+import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
+import { Button } from '@/components/ui/Button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/Dialog';
 import type { Difficulty } from '@/hooks/useAchievements';
+import { cn } from '@/lib/utils';
 
 interface ShareAchievementProps {
   open: boolean;

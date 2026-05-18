@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PrismaUserRepository } from '@/infrastructure/persistence/postgres/PrismaUserRepository';
+
 import { User } from '@/core/entities/User';
 import { Email } from '@/core/value-objects/Email';
+import { PrismaUserRepository } from '@/infrastructure/persistence/postgres/PrismaUserRepository';
 
 // Mock de Prisma para tests sin DB real
 const mockPrisma = {

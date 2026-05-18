@@ -1,11 +1,13 @@
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Card } from '@/components/ui/Card';
-import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { redirect } from 'next/navigation';
+
 import { NewThreadForm } from './NewThreadForm';
+import { Card } from '@/components/ui/Card';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
 
 export const metadata: Metadata = {
   title: 'Nuevo Hilo | Foro | Inkverse',

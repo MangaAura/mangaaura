@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockAuth = vi.hoisted(() => vi.fn());
 const mockClanFindMany = vi.hoisted(() => vi.fn());

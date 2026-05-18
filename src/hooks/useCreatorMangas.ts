@@ -1,8 +1,9 @@
 'use client';
 
-import useSWR, { SWRConfiguration } from 'swr';
 import { useSession } from 'next-auth/react';
 import { useCallback, useState, useMemo, useRef } from 'react';
+import useSWR, { SWRConfiguration } from 'swr';
+
 import { swrConfigs, fetcher } from '@/lib/swr-config';
 
 export interface CreatorMangaStats {

@@ -1,10 +1,11 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
 import { SettingsTabs } from '@/components/Settings/SettingsTabs';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'Configuración | Inkverse',

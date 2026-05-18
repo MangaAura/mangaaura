@@ -1,12 +1,13 @@
 'use client';
 
+import { Flame, Target, Trophy, Loader2, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState, useCallback } from 'react';
-import useSWR from 'swr';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import useSWR from 'swr';
+
 import { QuestCard } from './QuestCard';
 import type { ActiveQuest } from '@/core/services/QuestService';
-import { Flame, Target, Trophy, Loader2, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface QuestPanelProps {
   className?: string;

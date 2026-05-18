@@ -6,8 +6,6 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   ChevronLeft, 
@@ -21,14 +19,18 @@ import {
   ZoomIn,
   ZoomOut
 } from 'lucide-react';
-import { CommentSection } from '@/components/Comments/CommentSection';
-import { useChapterComments } from '@/hooks/useChapterComments';
-import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
-import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
+import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+
+import { CommentSection } from '@/components/Comments/CommentSection';
+import { OptimizedImage } from '@/components/Image';
+import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
+import { useChapterComments } from '@/hooks/useChapterComments';
+import { cn } from '@/lib/utils';
+
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });
-import { OptimizedImage } from '@/components/Image';
 
 interface Chapter {
   id: string;

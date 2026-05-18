@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { timingSafeEqual } from 'crypto';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { prisma } from '@/lib/prisma';
 
 // POST /api/cron/reset-monthly-scores - Reset monthly clan scores (runs 1st of month)
 export async function POST(request: NextRequest) {

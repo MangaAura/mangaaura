@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { Shield, Home, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/Button';
 
 export default function AdminNotFoundPage() {
   return (

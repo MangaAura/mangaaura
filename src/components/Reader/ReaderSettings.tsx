@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -12,6 +11,8 @@ import {
   Monitor,
   RotateCcw,
 } from 'lucide-react';
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 
 export interface ReaderSettings {

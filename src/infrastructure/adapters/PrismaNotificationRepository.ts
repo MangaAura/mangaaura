@@ -1,6 +1,3 @@
-import { prisma } from '@/lib/prisma';
-import { emitNotification } from '@/lib/socket';
-import { sendPushNotification } from '@/lib/push-notifications';
 import type {
   INotificationRepository,
   IRealtimeNotificationService,
@@ -8,6 +5,9 @@ import type {
   NotificationRecord,
   CreateNotificationData,
 } from '@/core/services/INotificationRepository';
+import { prisma } from '@/lib/prisma';
+import { sendPushNotification } from '@/lib/push-notifications';
+import { emitNotification } from '@/lib/socket';
 
 export class PrismaNotificationRepository implements INotificationRepository {
   async create(data: CreateNotificationData): Promise<NotificationRecord> {

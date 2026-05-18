@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+import { CreatorSponsors } from '@/components/Sponsorships/CreatorSponsors';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
-import { CreatorSponsors } from '@/components/Sponsorships/CreatorSponsors';
 
 export const metadata: Metadata = {
   title: 'Patrocinios | Creador | Inkverse',

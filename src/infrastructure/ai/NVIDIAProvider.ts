@@ -1,4 +1,5 @@
 import Bottleneck from 'bottleneck';
+
 import {
   IAProvider,
   CommentAnalysis,
@@ -448,11 +449,11 @@ Responde en JSON:
     queued: number;
     running: number;
   }> {
-    const counts = this.limiter.counts() as { RECEIVED: number; QUEUED: number; RUNNING: number; EXECUTING: number; DONE: number };
+    const counts = this.limiter.counts() as any;
     return {
-      reservoir: counts.RECEIVED || 0,
-      queued: await this.limiter.queued(),
-      running: await this.limiter.running(),
+      reservoir: (counts as any).RECEIVED || 0,
+      queued: await (this.limiter as any).queued(),
+      running: await (this.limiter as any).running(),
     };
   }
 }

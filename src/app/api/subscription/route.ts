@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+
 import { auth } from '@/lib/auth';
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import { getPremiumStatus } from '@/lib/premium';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 
 export async function GET() {
   const session = await auth();

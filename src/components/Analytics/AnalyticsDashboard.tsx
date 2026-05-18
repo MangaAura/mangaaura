@@ -6,12 +6,6 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { cn } from '@/lib/utils';
-import { useAnalytics } from '@/hooks/useAnalytics';
-import { StatCard } from './StatCard';
-import { ViewsChart } from './ViewsChart';
-import { PopularChaptersChart } from './PopularChaptersChart';
 import {
   EyeIcon,
   UsersIcon,
@@ -21,6 +15,13 @@ import {
   TrendingUpIcon,
   RefreshCwIcon,
 } from 'lucide-react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+
+import { PopularChaptersChart } from './PopularChaptersChart';
+import { StatCard } from './StatCard';
+import { ViewsChart } from './ViewsChart';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { cn } from '@/lib/utils';
 // AnalyticsData interface inline to avoid import issues
 interface AnalyticsData {
   views: number;

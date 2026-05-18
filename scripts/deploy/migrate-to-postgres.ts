@@ -4,8 +4,8 @@
  * Run: npx tsx scripts/deploy/migrate-to-postgres.ts
  */
 
-import { PrismaClient as PrismaSQLite } from '@prisma/client';
-import { PrismaClient as PrismaPostgres } from '@prisma/client';
+import { PrismaClient as PrismaSQLite , PrismaClient as PrismaPostgres } from '@prisma/client';
+
 const sqlitePrisma = new PrismaSQLite({
   datasources: {
     db: {

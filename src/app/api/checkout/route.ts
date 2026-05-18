@@ -5,11 +5,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { getStripe, getPackageById, getSubscriptionPlanById } from '@/lib/stripe';
-import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { getStripe, getPackageById, getSubscriptionPlanById } from '@/lib/stripe';
 
 const checkoutSchema = z.object({
   packageId: z.string().optional(),

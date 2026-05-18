@@ -1,9 +1,10 @@
 'use client';
 
+import { Flame, ChevronLeft, ChevronRight, Lock, Snowflake } from 'lucide-react';
 import { useState, useMemo } from 'react';
+
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
-import { Flame, ChevronLeft, ChevronRight, Lock, Snowflake } from 'lucide-react';
 
 /** A single day cell in the calendar */
 interface DayCell {

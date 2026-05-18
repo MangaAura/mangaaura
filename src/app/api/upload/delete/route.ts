@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { deleteFile, extractPathname } from '@/lib/storage';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { deleteFile, extractPathname } from '@/lib/storage';
 
 interface DeleteRequest {
   url: string;

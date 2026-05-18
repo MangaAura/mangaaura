@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { TrendingUp, Clock, Star, Sparkles, Eye, BookOpen, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface MangaItem {
   id: string;

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { NVIDIAProvider } from '@/infrastructure/ai/NVIDIAProvider';
+
 import { InMemoryAIProvider } from '@/infrastructure/ai/InMemoryAIProvider';
+import { NVIDIAProvider } from '@/infrastructure/ai/NVIDIAProvider';
 
 describe('AI Provider Integration', () => {
   describe('InMemoryAIProvider (para desarrollo/testing)', () => {

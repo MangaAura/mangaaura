@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import useSWR from 'swr';
 import { Repeat2, Loader2, BookOpen, MessageSquare, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import useSWR from 'swr';
+
 import { RepostButton } from '@/components/Repost/RepostButton';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -78,7 +79,7 @@ export default function RepostsPage() {
                   <div className="min-w-0">
                     <p className="text-xs text-muted">{typeLabels[repost.originalType] || repost.originalType}</p>
                     <p className="text-sm font-semibold truncate">ID: {repost.originalId.slice(0, 12)}...</p>
-                    {repost.comment && <p className="text-xs text-muted italic truncate">"{repost.comment}"</p>}
+                    {repost.comment && <p className="text-xs text-muted italic truncate">&quot;{repost.comment}&quot;</p>}
                     <p className="text-xs text-muted">{new Date(repost.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>

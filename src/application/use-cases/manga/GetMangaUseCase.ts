@@ -3,8 +3,8 @@
  * @packageDocumentation
  */
 
-import { IMangaRepository, MangaNotFoundError } from '../../ports/IMangaRepository';
 import { MangaResponseDTO, mapMangaToResponseDTO, PaginatedMangaResponseDTO } from '../../dtos/manga/MangaResponseDTO';
+import { IMangaRepository, MangaNotFoundError } from '../../ports/IMangaRepository';
 
 export interface GetMangaInputDTO {
   mangaId: string;

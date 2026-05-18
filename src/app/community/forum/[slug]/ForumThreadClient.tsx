@@ -1,16 +1,17 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import Link from 'next/link';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { ForumReplyForm } from './ForumReplyForm';
-import { MessageSquare, Clock } from 'lucide-react';
-import { useT } from '@/i18n';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { motion, useReducedMotion } from 'framer-motion';
+import { MessageSquare, Clock } from 'lucide-react';
+import Link from 'next/link';
+
+import { ForumReplyForm } from './ForumReplyForm';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useT } from '@/i18n';
 
 const roleBadgeStyles: Record<string, { className: string; labelKey: string }> = {
   ADMIN: { className: 'bg-[var(--error)]/10 text-[var(--error)]', labelKey: 'forumThread.moderator' },

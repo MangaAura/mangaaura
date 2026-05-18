@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
+
+import { CorrectionsClient } from './CorrectionsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { CorrectionsClient } from './CorrectionsClient';
 
 export const metadata = {
   title: 'Correcciones | InkVerse',

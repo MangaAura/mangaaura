@@ -1,7 +1,8 @@
 'use client';
 
-import { Card } from '@/components/ui/Card';
 import { AlertTriangle, CheckCircle, Clock, ShieldAlert } from 'lucide-react';
+
+import { Card } from '@/components/ui/Card';
 
 interface ReportStatsProps {
   stats: {

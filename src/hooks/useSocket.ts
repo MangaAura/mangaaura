@@ -6,9 +6,10 @@
 
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -26,6 +27,7 @@ interface UseSocketOptions {
 export function useSocket(options: UseSocketOptions = {}) {
   const { data: session, status } = useSession();
   const socketRef = useRef<SocketType | null>(null);
+  const [socket, setSocket] = useState<SocketType | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState('N/A');
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         });
 
         socketRef.current = socket;
+        setSocket(socket); // Update state after socket is initialized
 
         // Event listeners
         socket.on('connect', () => {
@@ -132,7 +135,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   }, []);
 
   return {
-    socket: socketRef.current,
+    socket,
     isConnected,
     transport,
     error,

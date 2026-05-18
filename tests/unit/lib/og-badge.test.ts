@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { getBadgeSvg, getBadgeIcon, RARITY_COLORS } from '@/lib/og-badge';
 
 // ─── Helpers ───────────────────────────────────────────────────────

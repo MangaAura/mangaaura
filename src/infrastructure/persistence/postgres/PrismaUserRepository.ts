@@ -1,10 +1,11 @@
-import { prisma as defaultPrisma } from '@/lib/prisma';
 import { PrismaClient } from '@prisma/client';
-import { UserRepository } from '@/core/repositories/UserRepository';
+import bcrypt from 'bcryptjs';
+
 import { User, UserProps } from '@/core/entities/User';
+import { UserRepository } from '@/core/repositories/UserRepository';
 import { Email } from '@/core/value-objects/Email';
 import { Password } from '@/core/value-objects/Password';
-import bcrypt from 'bcryptjs';
+import { prisma as defaultPrisma } from '@/lib/prisma';
 
 export class PrismaUserRepository implements UserRepository {
   private prisma: PrismaClient;

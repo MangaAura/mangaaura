@@ -17,8 +17,8 @@ export {
 
 // Notifications
 export {
-  useNotifications,
-  useNotificationCount,
+  useMangaNotifications as useNotifications,
+  useNotificationListener as useNotificationCount,
 } from './useNotifications';
 
 // Auth & User

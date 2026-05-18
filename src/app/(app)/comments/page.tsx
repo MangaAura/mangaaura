@@ -1,8 +1,9 @@
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+
+import { CommentsClient } from './CommentsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
-import { CommentsClient } from './CommentsClient';
 
 export const metadata = {
   title: 'Mis Comentarios | InkVerse',

@@ -1,10 +1,11 @@
 ﻿'use client';
 
-import { useEffect, useRef, ReactNode, useCallback } from 'react';
-import FocusLock from 'react-focus-lock';
 import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState, ReactNode, useCallback } from 'react';
+import FocusLock from 'react-focus-lock';
+
 import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 
 interface AccessibleModalProps {
   isOpen: boolean;
@@ -34,8 +35,9 @@ export function AccessibleModal({
   footer,
 }: AccessibleModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
-  const titleId = useRef(`modal-title-${Math.random().toString(36).substr(2, 9)}`).current;
-  const descId = useRef(`modal-desc-${Math.random().toString(36).substr(2, 9)}`).current;
+  // Generate stable IDs for ARIA attributes (once per component instance)
+  const [titleId] = useState(() => `modal-title-${Math.random().toString(36).substr(2, 9)}`);
+  const [descId] = useState(() => `modal-desc-${Math.random().toString(36).substr(2, 9)}`);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {

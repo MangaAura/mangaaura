@@ -5,6 +5,7 @@
  */
 
 import { useCallback, useState } from 'react';
+
 import { useToast } from '@/components/ui/Toast';
 
 export type AuthErrorSeverity = 'error' | 'warning' | 'info';

@@ -6,8 +6,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+
 import { partyService } from '@/core/services/PartyService';
+import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 interface RouteParams {

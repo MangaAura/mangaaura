@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Info } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+
 import OptimizedImage from './OptimizedImage';
+import { cn } from '@/lib/utils';
 
 // ============================================================================
 // Types
@@ -369,6 +370,16 @@ export function ImageGallery({
     return classes.join(' ');
   }, [columns]);
 
+  // Masonry layout - must be defined before conditional returns
+  const columnsArray = useMemo(() => {
+    const colCount = typeof columns === 'number' ? columns : columns.default || 2;
+    const cols: GalleryImage[][] = Array.from({ length: colCount }, () => []);
+    images.forEach((image, index) => {
+      cols[index % colCount].push(image);
+    });
+    return cols;
+  }, [images, columns]);
+
   // Grid layout
   if (layout === 'grid') {
     return (
@@ -417,16 +428,6 @@ export function ImageGallery({
       </>
     );
   }
-
-  // Masonry layout
-  const columnsArray = useMemo(() => {
-    const colCount = typeof columns === 'number' ? columns : columns.default || 2;
-    const cols: GalleryImage[][] = Array.from({ length: colCount }, () => []);
-    images.forEach((image, index) => {
-      cols[index % colCount].push(image);
-    });
-    return cols;
-  }, [images, columns]);
 
   return (
     <>

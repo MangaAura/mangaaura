@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
-import { UnlockAnimation } from '@/components/Achievements/UnlockAnimation';
-import { ShareAchievementModal } from '@/components/Achievements/ShareAchievementModal';
-import { Button } from '@/components/ui/Button';
 import { Share2 } from 'lucide-react';
+import { useState } from 'react';
+
+import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
+import { ShareAchievementModal } from '@/components/Achievements/ShareAchievementModal';
+import { UnlockAnimation } from '@/components/Achievements/UnlockAnimation';
+import { Button } from '@/components/ui/Button';
 import type { Difficulty } from '@/hooks/useAchievements';
 
 interface AchievementDetailClientProps {

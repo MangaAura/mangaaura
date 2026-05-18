@@ -6,9 +6,10 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+
 import type {
   PartyMember,
   PartyMessage,
@@ -34,6 +35,7 @@ export function useParty(options: UsePartyOptions) {
   const { data: session, status } = useSession();
 
   const socketRef = useRef<PartySocket | null>(null);
+  const [socket, setSocket] = useState<PartySocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
   const [party, setParty] = useState<PartyState | null>(null);
@@ -68,6 +70,7 @@ export function useParty(options: UsePartyOptions) {
         });
 
         socketRef.current = socket;
+        setSocket(socket);
 
         // Event listeners de conexion
         socket.on('connect', () => {
@@ -315,7 +318,7 @@ export function useParty(options: UsePartyOptions) {
 
   return {
     // Estado
-    socket: socketRef.current,
+    socket,
     isConnected,
     isJoined,
     party,

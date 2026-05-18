@@ -1,12 +1,5 @@
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { ForumThreadClient } from './ForumThreadClient';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   MessageSquare,
   Clock,
@@ -16,8 +9,18 @@ import {
   Tag,
   ArrowLeft,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+import { ForumThreadClient } from './ForumThreadClient';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+
 
 interface ForumThreadPageProps {
   params: Promise<{ slug: string }>;

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { paymentService } from '@/infrastructure/adapters/paymentService';
+
 import { GetBalanceUseCase, IUserBalanceRepository } from '@/application/use-cases/economy/GetBalanceUseCase';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 

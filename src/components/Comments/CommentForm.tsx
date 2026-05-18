@@ -6,11 +6,12 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useActionState, useOptimistic } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, X, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef, useActionState, useOptimistic } from 'react';
+
 import { createComment } from '@/app/api/comments/actions';
+import { cn } from '@/lib/utils';
 
 interface CommentFormProps {
   initialContent?: string;

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { X, Crown, Loader2, Coins, Target, Check, MessageSquare } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 interface SponsorshipModalProps {
   isOpen: boolean;

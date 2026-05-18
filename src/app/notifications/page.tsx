@@ -7,15 +7,15 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { Bell, Check, Loader2, Filter } from 'lucide-react';
-import { useNotifications } from '@/hooks/useNotifications';
-import { NotificationList } from '@/components/Notifications/NotificationList';
-import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
+import { NotificationList } from '@/components/Notifications/NotificationList';
 import type { NotificationType } from '@/core/services/NotificationService';
+import { useNotifications } from '@/hooks/useNotifications';
+import { cn } from '@/lib/utils';
 
 type FilterType = NotificationType | 'all';
 

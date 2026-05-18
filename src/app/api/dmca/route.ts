@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
 import { z } from 'zod';
-import { sanitizeText } from '@/lib/sanitize';
+
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { sanitizeText } from '@/lib/sanitize';
 
 // Schema para DMCA takedown request
 const dmcaSchema = z.object({

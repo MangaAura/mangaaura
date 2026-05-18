@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
 import { Copy, Terminal, Sparkles, Image as ImageIcon, Search, CheckCircle, Heart, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 
 interface Prompt {

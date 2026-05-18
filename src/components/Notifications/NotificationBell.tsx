@@ -1,15 +1,17 @@
 ﻿'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { cn } from '@/lib/utils';
-import { Bell, Check, MessageSquare, Heart, Trophy, AlertCircle, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Bell, Check, MessageSquare, Heart, Trophy, AlertCircle, X } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect, useCallback } from 'react';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { cn } from '@/lib/utils';
+
 
 interface Notification {
   id: string;

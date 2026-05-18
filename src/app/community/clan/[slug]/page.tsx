@@ -1,10 +1,11 @@
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { Prisma } from '@prisma/client';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import { Prisma } from '@prisma/client';
+
 import ClanDetailClient from './ClanDetailClient';
-import type { Metadata } from 'next';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 // ── Shared Prisma query (deduplicated across metadata and page) ──
 

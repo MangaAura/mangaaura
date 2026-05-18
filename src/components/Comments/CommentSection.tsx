@@ -6,12 +6,13 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { MessageSquare, Loader2 } from 'lucide-react';
-import { useChapterComments } from '@/hooks/useChapterComments';
-import { CommentItem } from './CommentItem';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+
 import { CommentForm } from './CommentForm';
+import { CommentItem } from './CommentItem';
+import { useChapterComments } from '@/hooks/useChapterComments';
 import { cn } from '@/lib/utils';
 
 interface CommentSectionProps {

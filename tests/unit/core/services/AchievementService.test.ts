@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import {
   AchievementService,
-  type UserAchievement,
   type AchievementUnlockedEvent,
   type AchievementListener,
 } from '@/core/services/AchievementService';
@@ -57,17 +57,17 @@ function createMockRepo(overrides: Partial<IAchievementRepository> = {}): IAchie
   };
 }
 
-function createMockXpService(): {
-  addXP: ReturnType<typeof vi.fn>;
-} {
-  return { addXP: vi.fn().mockResolvedValue(undefined) };
+function createMockXpService() {
+  return { 
+    addXP: vi.fn().mockResolvedValue(undefined) as unknown as (userId: string, amount: number, source: string, description?: string) => Promise<void>
+  };
 }
 
 // ─── AchievementService ─────────────────────────────────────────────
 
 describe('AchievementService', () => {
   let repo: IAchievementRepository;
-  let xpService: { addXP: ReturnType<typeof vi.fn> };
+  let xpService: { addXP: (userId: string, amount: number, source: string, description?: string) => Promise<void> };
   let service: AchievementService;
 
   beforeEach(() => {
@@ -220,7 +220,7 @@ describe('AchievementService', () => {
       await service.checkAchievements('user-1');
 
       expect(listener).toHaveBeenCalledTimes(1);
-      const event: AchievementUnlockedEvent = listener.mock.calls[0][0];
+      const event = (listener as unknown as { mock: { calls: Array<[AchievementUnlockedEvent]> } }).mock.calls[0][0];
       expect(event.badgeId).toBe('racha-7');
       expect(event.userId).toBe('user-1');
       expect(event.xpReward).toBe(50);
@@ -435,7 +435,7 @@ describe('AchievementService', () => {
       await service.unlockAchievement('user-1', 'racha-7');
 
       expect(listener).toHaveBeenCalledTimes(1);
-      const event: AchievementUnlockedEvent = listener.mock.calls[0][0];
+      const event = (listener as unknown as { mock: { calls: Array<[AchievementUnlockedEvent]> } }).mock.calls[0][0];
       expect(event.badgeId).toBe('racha-7');
       expect(event.xpReward).toBe(50);
       expect(event.unlockedAt).toBeInstanceOf(Date);

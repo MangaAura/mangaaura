@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+
 import type { PanelText } from '@/components/Reader/PanelTextOverlay';
 
 interface UsePanelTextsOptions {

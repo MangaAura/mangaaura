@@ -1,9 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { useT } from '@/i18n';
 import {
   BookOpenIcon,
   ChartBarIcon,
@@ -13,6 +9,11 @@ import {
   UsersIcon,
   Medal,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 interface SidebarProps {
   className?: string;

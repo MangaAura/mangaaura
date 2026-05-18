@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Bookmark, Trash2, BookOpen } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+
 
 interface BookmarkData {
   id: string;

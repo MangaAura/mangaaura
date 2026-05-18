@@ -1,9 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
-import type { EventData } from '@/components/Event/EventCard';
 import {
   Palette,
   Trophy,
@@ -15,8 +11,13 @@ import {
   ChevronRight,
   AlertTriangle,
 } from 'lucide-react';
-import { useT } from '@/i18n';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
+import type { EventData } from '@/components/Event/EventCard';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useT } from '@/i18n';
 
 interface SubData {
   id: string;

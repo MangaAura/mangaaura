@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
+import React, { useState, useCallback, useMemo } from 'react';
 
 // ============================================================================
 // Types

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 
 vi.hoisted(() => {
   process.env.AUTH_SECRET = 'test-secret-for-testing';

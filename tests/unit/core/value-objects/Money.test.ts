@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Money, InvalidAmountError, InsufficientFundsError } from '@/core/value-objects/Money';
 
 describe('Money Value Object', () => {

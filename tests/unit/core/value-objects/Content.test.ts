@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Content } from '@/core/value-objects/Content';
 
 describe('Content Value Object', () => {

@@ -1,8 +1,5 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
@@ -24,12 +21,16 @@ import {
   Crown,
   Type,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import EditorModeOverlay from '@/components/Reader/EditorModeOverlay';
 import { Button } from '@/components/ui/Button';
 import { useAutoSaveProgress } from '@/hooks/useReadingProgress';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import dynamic from 'next/dynamic';
-import EditorModeOverlay from '@/components/Reader/EditorModeOverlay';
+import { cn } from '@/lib/utils';
 
 const QuizPopup = dynamic(() => import('@/components/Reader/QuizPopup'), { ssr: false });
 const SponsorshipModal = dynamic(() => import('@/components/Reader/SponsorshipModal'), { ssr: false });

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { X, Check, MousePointerClick, Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import React, { useState } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface EditorModeOverlayProps {

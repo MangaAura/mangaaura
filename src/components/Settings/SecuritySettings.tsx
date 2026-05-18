@@ -1,13 +1,15 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { Card } from '@/components/ui/Card';
-import { Alert, AlertDescription } from '@/components/ui/Alert';
-import { Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download } from 'lucide-react';
+
 
 interface SecuritySettingsProps {
   userId: string;

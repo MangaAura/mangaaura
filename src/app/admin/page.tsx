@@ -1,10 +1,5 @@
 ﻿'use client';
 
-import useSWR from 'swr';
-import { StatCard } from '@/components/Admin/StatCard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import {
   Users,
   BookOpen,
@@ -19,6 +14,12 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import useSWR from 'swr';
+
+import { StatCard } from '@/components/Admin/StatCard';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 const ChartsSection = dynamic(() => import('@/components/Admin/ChartsSection').then(m => ({ default: m.ChartsSection })), { ssr: false });
 import { useT } from '@/i18n';

@@ -1,5 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
+
+import { prisma } from '@/lib/prisma';
 
 interface ChapterPageProps {
   params: Promise<{ slug: string; chapterNumber: string }>;

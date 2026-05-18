@@ -4,9 +4,10 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
+
 import { Chapter } from '@/core/entities/Chapter';
 import type { ChapterRepository, ChapterFilters } from '@/core/repositories/ChapterRepository';
+import { prisma } from '@/lib/prisma';
 
 type PrismaChapterRow = {
   id: string;

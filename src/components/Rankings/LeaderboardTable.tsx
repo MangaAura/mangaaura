@@ -1,13 +1,5 @@
 ﻿'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { cn } from '@/lib/utils';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import {
   Trophy,
   Medal,
@@ -20,6 +12,16 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
+
 
 type LeaderboardType = 'readers' | 'creators' | 'clans' | 'manga';
 

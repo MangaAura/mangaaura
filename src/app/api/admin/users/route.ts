@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 // GET /api/admin/users - Get all users for admin
 export async function GET() {
@@ -42,12 +43,7 @@ export async function GET() {
 
     const userIds = users.map((u: any) => u.id);
 
-    const [userMangaCounts, chapterCounts, mangaAuthorMap] = await Promise.all([
-      prisma.mangaSeries.groupBy({
-        by: ['authorId'],
-        where: { authorId: { in: userIds } },
-        _count: { id: true },
-      }),
+    const [chapterCounts, mangaAuthorMap] = await Promise.all([
       prisma.chapter.groupBy({
         by: ['mangaId'],
         _count: { id: true },
@@ -57,10 +53,6 @@ export async function GET() {
         select: { id: true, authorId: true },
       }),
     ]);
-
-    const mangaAuthorLookup = Object.fromEntries(
-      mangaAuthorMap.map((m: any) => [m.id, m.authorId])
-    );
 
     const chapterCountByManga = Object.fromEntries(
       chapterCounts.map((c: any) => [c.mangaId, c._count.id])

@@ -1,8 +1,9 @@
 'use client';
 
-import { useT } from '@/i18n';
 import { Search } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+
+import { useT } from '@/i18n';
 
 interface SearchBarProps {
   onSearch?: (query: string) => void;

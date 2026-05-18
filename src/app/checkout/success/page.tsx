@@ -6,11 +6,14 @@
 
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useT } from '@/i18n';
 import { CheckCircle, Loader2, Coins, AlertTriangle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/i18n';
+
+
 
 
 function LoadingSpinner() {

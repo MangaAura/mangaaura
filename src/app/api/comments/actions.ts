@@ -1,16 +1,17 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+
+import { PostCommentUseCase } from '@/application/use-cases/PostCommentUseCase';
+import { AchievementServiceAdapter } from '@/infrastructure/adapters/AchievementServiceAdapter';
+import { CommentRepositoryAdapter } from '@/infrastructure/adapters/CommentRepositoryAdapter';
+import { EventBusAdapter } from '@/infrastructure/adapters/EventBusAdapter';
+import { UserXPRepositoryAdapter } from '@/infrastructure/adapters/UserXPRepositoryAdapter';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { PostCommentUseCase } from '@/application/use-cases/PostCommentUseCase';
-import { CommentRepositoryAdapter } from '@/infrastructure/adapters/CommentRepositoryAdapter';
-import { UserXPRepositoryAdapter } from '@/infrastructure/adapters/UserXPRepositoryAdapter';
-import { EventBusAdapter } from '@/infrastructure/adapters/EventBusAdapter';
-import { AchievementServiceAdapter } from '@/infrastructure/adapters/AchievementServiceAdapter';
-import { moderateComment, quickFilterSpam } from '@/services/ModerationService';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { z } from 'zod';
+import { moderateComment, quickFilterSpam } from '@/services/ModerationService';
 
 const postCommentUseCase = new PostCommentUseCase(
   new CommentRepositoryAdapter(),

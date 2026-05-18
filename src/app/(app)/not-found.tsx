@@ -1,9 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/Button';
 import { Home, Library, BookOpen, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/Button';
 import { useT } from '@/i18n';
 
 export default function AppNotFoundPage() {

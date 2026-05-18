@@ -1,17 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
-import Script from "next/script";
 import { headers } from 'next/headers';
+import Script from "next/script";
 import { Suspense } from 'react';
+
+import { AppFooter } from "@/components/Layout/AppFooter";
 import { Providers } from "@/components/Providers";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
-import { AppFooter } from "@/components/Layout/AppFooter";
 import { detectLocale } from "@/i18n/server";
 import { validateEnv } from "@/lib/env";
-import "@/infrastructure/init";
+import { ensureInfrastructure } from "@/infrastructure/init";
 import "./globals.css";
 
 validateEnv();
+ensureInfrastructure();
 
 const inter = Inter({
   variable: "--font-inter",

@@ -1,9 +1,10 @@
 ﻿'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
-import { AccessibleModal } from '@/components/A11y/AccessibleModal';
 import { Flag, AlertTriangle, ShieldAlert, UserX, MessageSquareOff } from 'lucide-react';
+import { useState } from 'react';
+
+import { AccessibleModal } from '@/components/A11y/AccessibleModal';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 interface ReportDialogProps {

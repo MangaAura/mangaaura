@@ -5,16 +5,18 @@
  * Uso: node scripts/setup-env.js
  */
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+/* eslint-disable @typescript-eslint/no-require-imports */
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
 
-const readline = require('readline').createInterface({
+const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const question = (query) => new Promise((resolve) => readline.question(query, resolve));
+const question = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 async function setup() {
   console.log('🚀 Configuración de InkVerse\n');
@@ -99,7 +101,7 @@ async function setup() {
     const overwrite = await question('\n⚠️  .env.local ya existe. ¿Sobrescribir? (s/n): ');
     if (overwrite.toLowerCase() !== 's') {
       console.log('\n❌ Cancelado. No se hicieron cambios.\n');
-      readline.close();
+      rl.close();
       return;
     }
   }
@@ -123,10 +125,10 @@ async function setup() {
   console.log('  3. Ejecuta: npm run prisma:migrate');
   console.log('  4. Inicia el servidor: npm run dev\n');
 
-  readline.close();
+  rl.close();
 }
 
-setup().catch(err => {
+setup().catch((err) => {
   console.error('Error:', err);
   process.exit(1);
 });

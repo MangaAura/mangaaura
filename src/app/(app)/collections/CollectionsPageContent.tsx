@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CollectionGrid } from '@/components/Collections/CollectionGrid';
+import { useEffect, useState, Suspense } from 'react';
+
 import { CollectionsTabs } from './CollectionsTabs';
+import { CollectionGrid } from '@/components/Collections/CollectionGrid';
 
 function CollectionsPageInner() {
   const searchParams = useSearchParams();

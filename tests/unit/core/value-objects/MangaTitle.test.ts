@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { MangaTitle } from '@/core/value-objects/MangaTitle';
 
 describe('MangaTitle Value Object', () => {

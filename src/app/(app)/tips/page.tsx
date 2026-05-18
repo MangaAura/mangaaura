@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
+
+import { TipsClient } from './TipsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { TipsClient } from './TipsClient';
 
 export const metadata = {
   title: 'Propinas | InkVerse',

@@ -1,5 +1,6 @@
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
+
 import { RARITY_COLORS, getBadgeSvg } from '@/lib/og-badge';
 
 export async function GET(

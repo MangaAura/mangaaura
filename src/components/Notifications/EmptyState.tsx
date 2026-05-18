@@ -1,6 +1,5 @@
 ﻿'use client';
 
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Bell,
@@ -10,6 +9,8 @@ import {
   ArrowRight,
   BookOpen,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
 import { Button } from '@/components/ui/Button';
 
 interface EmptyStateProps {

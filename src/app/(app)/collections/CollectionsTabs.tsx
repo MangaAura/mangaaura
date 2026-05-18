@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
 interface CollectionsTabsProps {
@@ -24,10 +25,12 @@ export function CollectionsTabs({
   const router = useRouter();
   const [value, setValue] = useState(defaultValue);
 
-  // Sync with prop changes (e.g. browser back/forward navigation)
+  /* eslint-disable react-hooks/set-state-in-effect */
+  // Sync with URL changes (browser back/forward navigation)
   useEffect(() => {
     setValue(defaultValue);
   }, [defaultValue]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <Tabs

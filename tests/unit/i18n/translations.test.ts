@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
+
 // This tests translations at the module level without needing full React
-import es from '@/i18n/locales/es.json';
 import en from '@/i18n/locales/en.json';
+import es from '@/i18n/locales/es.json';
 
 describe('i18n translations', () => {
   describe('Spanish translations', () => {

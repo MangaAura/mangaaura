@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import React, { useState, useCallback } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { cn } from '@/lib/utils';
 
 interface ChapterInfo {
   id: string;

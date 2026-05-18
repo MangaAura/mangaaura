@@ -8,15 +8,16 @@ export type NotificationType =
   | 'SYSTEM'
   | 'MENTION'
   | 'TIP_RECEIVED'
-  | 'CROWDFUNDING_CONTRIBUTION';
+  | 'CROWDFUNDING_CONTRIBUTION'
+  | 'STREAK_MILESTONE';
 
 export interface NotificationRecord {
   id: string;
   userId: string;
-  type: string;
+  type: NotificationType;
   title: string;
   message: string;
-  data: string | null;
+  data: Record<string, unknown> | null;
   linkUrl: string | null;
   isRead: boolean;
   createdAt: Date;
@@ -25,7 +26,7 @@ export interface NotificationRecord {
 
 export interface CreateNotificationData {
   userId: string;
-  type: string;
+  type: NotificationType;
   title: string;
   message: string;
   data?: Record<string, unknown> | null;

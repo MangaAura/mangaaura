@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
+
 import { AddItemToCollectionUseCase } from '@/application/use-cases/collections/AddItemToCollectionUseCase';
 import { RemoveItemFromCollectionUseCase } from '@/application/use-cases/collections/RemoveItemFromCollectionUseCase';
+import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const addItemSchema = z.object({

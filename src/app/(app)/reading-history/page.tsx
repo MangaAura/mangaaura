@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
+
+import { ReadingHistoryClient } from './ReadingHistoryClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { ReadingHistoryClient } from './ReadingHistoryClient';
 
 export const metadata = {
   title: 'Historial de Lectura | InkVerse',

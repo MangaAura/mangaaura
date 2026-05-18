@@ -1,12 +1,13 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Switch } from '@/components/ui/Switch';
-import { Label } from '@/components/ui/Label';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Eye, MessageCircle, Users, Activity, Globe, Lock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Label } from '@/components/ui/Label';
+import { Switch } from '@/components/ui/Switch';
 import { cn } from '@/lib/utils';
 
 interface PrivacySettingsProps {

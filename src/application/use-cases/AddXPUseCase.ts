@@ -6,9 +6,8 @@
 
 import { DomainError } from '../../core/errors/DomainError';
 import { XP } from '../../core/value-objects/XP';
+import { XPAddedEvent , LevelUpEvent } from '../events/XPAddedEvent';
 import { IEventBus } from '../services/IEventBus';
-import { XPAddedEvent } from '../events/XPAddedEvent';
-import { LevelUpEvent } from '../events/XPAddedEvent';
 
 /**
  * DTO de entrada para agregar XP

@@ -1,9 +1,11 @@
+import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { randomUUID } from 'crypto';
+
 
 export async function DELETE(request: NextRequest) {
   try {

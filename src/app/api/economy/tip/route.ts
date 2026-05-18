@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { paymentService } from '@/infrastructure/adapters/paymentService';
-import { SendTipUseCase } from '@/application/use-cases/economy/SendTipUseCase';
 import { z } from 'zod';
+
+import { SendTipUseCase } from '@/application/use-cases/economy/SendTipUseCase';
+import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { auth } from '@/lib/auth';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const tipSchema = z.object({

@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import Link from 'next/link';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, Eye, Star, ChevronDown, Plus, Check, User, Library, Tag } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+
+import { toggleLibrary } from './actions';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useT } from '@/i18n';
 import { cn, formatNumber, formatDate } from '@/lib/utils';
-import { toggleLibrary } from './actions';
 
 interface Props {
   manga: {

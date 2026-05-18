@@ -7,7 +7,8 @@
 
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
+
 import { trackEvent } from './useAnalytics';
 
 interface ReadingAnalyticsOptions {
@@ -26,8 +27,12 @@ export function useReadingAnalytics({
   const hasStartedRef = useRef(false);
   const hasCompletedRef = useRef(false);
   const pagesViewedRef = useRef<Set<number>>(new Set());
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
   const lastPageRef = useRef<number>(0);
+
+  // Use state for values needed during render (purity rule)
+  const [pagesViewedCount, setPagesViewedCount] = useState(0);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   // Track start reading
   const trackStartReading = useCallback(() => {
@@ -51,6 +56,7 @@ export function useReadingAnalytics({
     // Track that this page was viewed
     pagesViewedRef.current.add(pageNumber);
     lastPageRef.current = pageNumber;
+    setPagesViewedCount(pagesViewedRef.current.size);
 
     trackEvent({
       type: 'page_view',
@@ -69,6 +75,7 @@ export function useReadingAnalytics({
   const trackCompletion = useCallback(() => {
     if (hasCompletedRef.current) return;
     hasCompletedRef.current = true;
+    setHasCompleted(true);
 
     const timeSpent = Date.now() - startTimeRef.current;
     const percentageRead = (pagesViewedRef.current.size / totalPages) * 100;
@@ -114,6 +121,7 @@ export function useReadingAnalytics({
 
   // Auto-start tracking after 3 seconds of being on page
   useEffect(() => {
+    startTimeRef.current = Date.now();
     const timer = setTimeout(() => {
       trackStartReading();
     }, 3000);
@@ -125,8 +133,8 @@ export function useReadingAnalytics({
     trackStartReading,
     trackPageTurn,
     trackCompletion,
-    pagesViewed: pagesViewedRef.current.size,
-    hasCompleted: hasCompletedRef.current,
+    pagesViewed: pagesViewedCount,
+    hasCompleted: hasCompleted,
   };
 }
 

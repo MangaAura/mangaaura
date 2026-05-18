@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { Share2, ArrowRight, X, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/Input';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+
+import { Input } from '@/components/ui/Input';
+
 
 interface SharedData {
   title: string;

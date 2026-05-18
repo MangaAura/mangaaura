@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+
 import { initIO } from '@/lib/socket';
 
 const PORT = parseInt(process.env.SOCKET_PORT || '3001', 10);

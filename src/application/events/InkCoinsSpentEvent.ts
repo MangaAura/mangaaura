@@ -5,7 +5,7 @@
  */
 
 import { DomainEvent } from './DomainEvent';
-import { InkCoinsTransactionType } from '../use-cases/SpendInkCoinsUseCase';
+import type { InkCoinsTransactionType } from '../types/transaction-types';
 
 /**
 * Payload del evento InkCoinsSpentEvent

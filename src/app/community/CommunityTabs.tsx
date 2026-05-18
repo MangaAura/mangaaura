@@ -1,10 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import ClanCard from '@/components/Clan/ClanCard';
-import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
-import type { EventData } from '@/components/Event/EventCard';
 import {
   Trophy,
   Calendar,
@@ -14,6 +9,12 @@ import {
   ChevronRight,
   Plus,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import ClanCard from '@/components/Clan/ClanCard';
+import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
+import type { EventData } from '@/components/Event/EventCard';
 import { useT } from '@/i18n';
 
 interface ClanData {

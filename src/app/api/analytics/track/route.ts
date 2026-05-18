@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { redis } from '@/lib/redis';
-import { z } from 'zod';
 
 type _Output<T> = T extends { _zod: { output: infer O } } ? O : never;
 

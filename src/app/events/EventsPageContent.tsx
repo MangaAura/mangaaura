@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { EventsClient } from './EventsClient';
 import { Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+
+import { EventsClient } from './EventsClient';
+
 
 const VALID_TABS = ['active', 'voting', 'past'] as const;
 const VALID_TYPES = ['ART_CHALLENGE', 'SPEEDREADING', 'COMMUNITY'] as const;

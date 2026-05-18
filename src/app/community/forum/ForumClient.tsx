@@ -1,12 +1,8 @@
 'use client';
 
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { motion, useReducedMotion } from 'framer-motion';
-import Link from 'next/link';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { EmptyState } from '@/components/ui/EmptyState';
 import {
   MessageSquare,
   Pin,
@@ -20,8 +16,13 @@ import {
   HelpCircle,
   Plus,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import Link from 'next/link';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useT } from '@/i18n';
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {

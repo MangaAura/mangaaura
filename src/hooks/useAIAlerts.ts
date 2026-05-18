@@ -10,6 +10,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+
 import {
   AlertManager,
   Alert,
@@ -60,7 +61,7 @@ interface UseAIAlertsReturn {
 // =============================================================================
 
 let alertManagerInstance: AlertManager | null = null;
-let storeListeners: Set<() => void> = new Set();
+const storeListeners: Set<() => void> = new Set();
 
 function getAlertManagerInstance(): AlertManager {
   if (!alertManagerInstance) {

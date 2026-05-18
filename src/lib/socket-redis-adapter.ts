@@ -7,8 +7,9 @@
 
 import { createAdapter } from '@socket.io/redis-adapter';
 import { Redis } from 'ioredis';
-import { redis, isMockRedis } from '@/lib/redis';
 import type { Server as SocketIOServer } from 'socket.io';
+
+import { redis, isMockRedis } from '@/lib/redis';
 
 export async function createRedisAdapter(io: SocketIOServer): Promise<boolean> {
   if (isMockRedis()) {

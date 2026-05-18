@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/prisma';
-import { XP } from '@/core/value-objects/XP';
 import { IUserRepositoryPort } from '../../application/use-cases/PostCommentUseCase';
+import { XP } from '@/core/value-objects/XP';
+import { prisma } from '@/lib/prisma';
 
 export class UserXPRepositoryAdapter implements IUserRepositoryPort {
   async findById(id: string): Promise<{ id: string; xp: { amount: number } } | null> {

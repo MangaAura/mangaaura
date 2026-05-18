@@ -1,7 +1,8 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
 import { Heart, Coins, Loader2, Check, X, MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 

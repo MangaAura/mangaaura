@@ -1,10 +1,11 @@
 ﻿'use client';
 
-import { useCallback, useState } from 'react';
 import { AlertTriangle, XCircle, AlertCircle, X, Info } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useCallback, useState } from 'react';
+
 import { Button } from '@/components/ui/Button';
 import { Alert, AlertSeverity } from '@/infrastructure/ai/AlertManager';
+import { cn } from '@/lib/utils';
 
 // =============================================================================
 // TYPES

@@ -12,6 +12,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+
+import { CommentAnalysis, ChapterSummary, QualityAssessment } from '@/core/services/IAProvider';
 import {
   UnifiedAIService,
   getUnifiedAIService,
@@ -22,7 +24,6 @@ import {
   ServiceMetrics,
   QueueStats,
 } from '@/infrastructure/ai';
-import { CommentAnalysis, ChapterSummary, QualityAssessment } from '@/core/services/IAProvider';
 
 // ============================================================================
 // Types
@@ -54,7 +55,7 @@ interface JobState<T = unknown> {
 // ============================================================================
 
 let serviceInstance: UnifiedAIService | null = null;
-let listeners: Set<() => void> = new Set();
+const listeners: Set<() => void> = new Set();
 
 function getService(): UnifiedAIService {
   if (!serviceInstance) {

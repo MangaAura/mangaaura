@@ -11,7 +11,7 @@ export interface IPromptLibrary {
   likedBy: string[];
   chapterId?: string;
   mangaId?: string;
-  aiModel?: string;
+  model?: string;
   negativePrompt?: string;
   seed?: number;
   cfgScale?: number;
@@ -20,7 +20,10 @@ export interface IPromptLibrary {
   forkedBy: string[];
   createdAt: Date;
   updatedAt: Date;
-  [key: string]: unknown;
+}
+
+export interface IPromptLibraryDocument extends IPromptLibrary {
+  _id: string;
 }
 
 const PromptLibrarySchema = new Schema<IPromptLibrary>(
@@ -37,7 +40,7 @@ const PromptLibrarySchema = new Schema<IPromptLibrary>(
     chapterId: { type: String, index: true },
     mangaId: { type: String, index: true },
     // Configuración
-    aiModel: String,
+    model: String,
     negativePrompt: String,
     seed: Number,
     cfgScale: Number,
@@ -82,4 +85,4 @@ PromptLibrarySchema.methods.fork = function(userId: string) {
 
 export const PromptLibraryModel =
   mongoose.models.PromptLibrary ||
-  mongoose.model<IPromptLibrary>('PromptLibrary', PromptLibrarySchema);
+  mongoose.model<IPromptLibrary>('PromptLibrary', PromptLibrarySchema) as mongoose.Model<IPromptLibrary, {}, {}, {}>;

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
 import { Image as ImageIcon, MousePointerClick, Crown } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
 import { OptimizedImage } from '@/components/Image';
 
 interface ReaderViewerProps {

@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+
 import { AdminSidebar } from '@/components/Admin/AdminSidebar';
 import { SkipToContent } from '@/components/Layout/SkipToContent';
 import { PageTransition } from '@/components/ui/PageTransition';
+import { auth } from '@/lib/auth';
 
 export default async function AdminLayout({
   children,

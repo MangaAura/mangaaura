@@ -1,7 +1,8 @@
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
-import { SkipToContent } from '@/components/Layout/SkipToContent';
+import { Suspense } from 'react';
+
 import { MobileBottomNav } from '@/components/Layout/MobileBottomNav';
+import { SkipToContent } from '@/components/Layout/SkipToContent';
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), {
   ssr: true,

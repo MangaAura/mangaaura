@@ -6,6 +6,7 @@
 
 import { Queue, Job, type QueueOptions } from 'bullmq';
 import { Redis } from 'ioredis';
+
 import { redis, isMockRedis } from '@/lib/redis';
 
 // ============================================================================
@@ -294,10 +295,7 @@ export class EmailQueue {
     data: Omit<EmailJobData, 'type'>,
     options?: EmailJobOptions
   ): Promise<Job> {
-const jobData: EmailJobData = {
-...data,
-type,
-} as EmailJobData;
+    const jobData = { ...data, type } as EmailJobData;
 
     const jobOptions = {
       delay: options?.delay,

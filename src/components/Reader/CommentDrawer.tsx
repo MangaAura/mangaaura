@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
 import { X, MessageSquare, ChevronLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useEffect, useRef, useState } from 'react';
+
 import CommentSection from '@/components/Comments/CommentSection';
+import { cn } from '@/lib/utils';
 
 export interface CommentDrawerProps {
   isOpen: boolean;

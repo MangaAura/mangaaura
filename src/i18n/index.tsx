@@ -1,10 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
-import es from '@/i18n/locales/es.json';
-import en from '@/i18n/locales/en.json';
 
 import type { Locale } from './locales';
+import en from '@/i18n/locales/en.json';
+import es from '@/i18n/locales/es.json';
+
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE } from './locales';
 export type { Locale } from './locales';
 

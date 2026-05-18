@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import {
   QuestService,
   getQuestService,
@@ -514,7 +515,7 @@ describe('QuestService', () => {
         mockQuest({ questId: 'DAILY_READ_1', progress: 0, target: 1, actionType: 'READ_CHAPTERS' }),
       ];
 
-      const { updatedQuests, newlyCompleted } = service.reportProgress(
+      const { updatedQuests } = service.reportProgress(
         quests,
         'READ_CHAPTERS',
         1,

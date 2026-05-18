@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react";
+import React from "react";
 
 interface MetricCardProps {
   title: string;

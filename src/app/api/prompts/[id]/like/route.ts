@@ -5,9 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+import { PromptLibraryModel } from '@/infrastructure/persistence/mongodb/models/PromptLibrary';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
-import { PromptLibraryModel } from '@/infrastructure/persistence/mongodb/models/PromptLibrary';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // POST /api/prompts/[id]/like - Dar/quitar like

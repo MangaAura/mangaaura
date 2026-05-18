@@ -1,10 +1,11 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
-import { redis } from '@/lib/redis';
+
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
-import crypto from 'crypto';
+import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { redis } from '@/lib/redis';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),

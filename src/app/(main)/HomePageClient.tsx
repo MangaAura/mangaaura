@@ -1,19 +1,20 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import { useT } from '@/i18n';
-import { MangaCard } from '@/components/MangaCard';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Trophy, TrendingUp, Clock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+
+import { GenreMarquee } from '@/components/GenreMarquee';
+import { AnimatedHero } from '@/components/Home/AnimatedHero';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
-import { AnimatedHero } from '@/components/Home/AnimatedHero';
-import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { MangaCard } from '@/components/MangaCard';
 import { QuestPanel } from '@/components/Quest/QuestPanel';
-import { GenreMarquee } from '@/components/GenreMarquee';
+import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 
 interface HomePageClientProps {
   latestMangas: any[];

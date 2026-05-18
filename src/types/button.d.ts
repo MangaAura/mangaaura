@@ -1,6 +1,6 @@
 declare module '@/components/ui/Button' {
-  import { ForwardRefExoticComponent } from 'react';
-  import { ButtonHTMLAttributes } from 'react';
+  import { ForwardRefExoticComponent , ButtonHTMLAttributes } from 'react';
+  
 
   interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'ink';

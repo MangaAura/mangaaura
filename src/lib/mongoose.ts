@@ -3,7 +3,7 @@ import mongoose, { Connection } from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var mongoose: {
     conn: Connection | null;
     promise: Promise<Connection> | null;

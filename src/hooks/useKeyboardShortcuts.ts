@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 
 export interface ShortcutConfig {
   key: string;
@@ -27,7 +27,16 @@ export function useKeyboardShortcuts({
   target = typeof window !== 'undefined' ? window : null,
 }: UseKeyboardShortcutsOptions) {
   const shortcutsRef = useRef(shortcuts);
-  shortcutsRef.current = shortcuts;
+  const [enabledState, setEnabledState] = useState(enabled);
+
+  // Keep refs and state in sync
+  useEffect(() => {
+    shortcutsRef.current = shortcuts;
+  }, [shortcuts]);
+
+  useEffect(() => {
+    setEnabledState(enabled);
+  }, [enabled]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const activeElement = document.activeElement;
@@ -67,13 +76,13 @@ export function useKeyboardShortcuts({
   }, []);
 
   useEffect(() => {
-    if (!enabled || !target) return;
+    if (!enabledState || !target) return;
 
     target.addEventListener('keydown', handleKeyDown as EventListener);
     return () => {
       target.removeEventListener('keydown', handleKeyDown as EventListener);
     };
-  }, [enabled, target, handleKeyDown]);
+  }, [enabledState, target, handleKeyDown]);
 }
 
 // Preset shortcuts for reader

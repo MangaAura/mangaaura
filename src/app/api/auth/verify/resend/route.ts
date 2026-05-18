@@ -1,9 +1,10 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import crypto from 'crypto';
+
+import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 
 const resendSchema = z.object({
   email: z.string().email(),

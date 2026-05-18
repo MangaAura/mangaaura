@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useMotionValue, animate, useInView } from 'framer-motion';
+import { TrendingUp, Trophy, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TrendingUp, Trophy, Award } from 'lucide-react';
-import { useT } from '@/i18n';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import useSWR from 'swr';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useT } from '@/i18n';
 
 interface RankingManga {
   id: string;

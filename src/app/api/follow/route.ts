@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { z } from 'zod';
+
 import { ToggleFollowUseCase } from '@/application/use-cases/follows/ToggleFollowUseCase';
+import { auth } from '@/lib/auth';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const followSchema = z.object({

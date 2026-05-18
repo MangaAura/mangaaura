@@ -1,4 +1,5 @@
 import { cookies, headers } from 'next/headers';
+
 import type { Locale } from './locales';
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from './locales';
 

@@ -1,8 +1,10 @@
-import { prisma } from '@/lib/prisma';
+import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
+
 import { HomePageClient } from './HomePageClient';
 import { WebsiteStructuredData } from '@/components/SEO/StructuredData';
-import type { Metadata } from 'next';
+import { prisma } from '@/lib/prisma';
+
 
 export const metadata: Metadata = {
   title: 'InkVerse - Descubre y Lee Manga',

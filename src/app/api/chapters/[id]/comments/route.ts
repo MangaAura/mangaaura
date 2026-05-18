@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { getNotificationService } from '@/core/services/NotificationService';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getNotificationService } from '@/core/services/NotificationService';
-import { z } from 'zod';
 import { validateContent } from '@/lib/sanitize';
 
 // Schema para crear comentario

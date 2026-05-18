@@ -5,8 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
+import { prisma } from '@/lib/prisma';
 
 // Using Node.js runtime for database access
 // export const runtime = 'edge';

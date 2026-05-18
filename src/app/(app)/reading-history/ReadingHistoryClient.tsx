@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import Link from 'next/link';
 import { BookOpen, CheckCircle, Clock, Search, Filter } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useMemo } from 'react';
 
 interface ReadingEntry {
   id: string;

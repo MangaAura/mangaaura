@@ -11,6 +11,7 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
 

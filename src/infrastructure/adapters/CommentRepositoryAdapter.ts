@@ -1,6 +1,6 @@
-import dbConnect from '@/lib/mongoose';
-import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
 import { ICommentRepository } from '../../application/use-cases/PostCommentUseCase';
+import { CommentModel } from '@/infrastructure/persistence/mongodb/models/Comment';
+import dbConnect from '@/lib/mongoose';
 
 export class CommentRepositoryAdapter implements ICommentRepository {
   async create(data: Parameters<ICommentRepository['create']>[0]): Promise<Awaited<ReturnType<ICommentRepository['create']>>> {

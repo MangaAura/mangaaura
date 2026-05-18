@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useT } from '@/i18n';
 import { UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+
+import { useT } from '@/i18n';
 
 export function FollowingClient({ following, followers }: { following: any[]; followers: any[] }) {
   const [tab, setTab] = useState<'following' | 'followers'>('following');

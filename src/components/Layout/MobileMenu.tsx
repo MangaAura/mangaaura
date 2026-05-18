@@ -1,6 +1,5 @@
 'use client';
 
-import { useT } from '@/i18n';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Rss, MessageCircle, FolderOpen, Calendar, Plus, Settings, X, Bell, Crown, LogOut, Medal,
@@ -13,6 +12,7 @@ import { NavLinks, isActive, type NavLinkDef } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useT } from '@/i18n';
 
 interface MobileMenuProps {
   open: boolean;

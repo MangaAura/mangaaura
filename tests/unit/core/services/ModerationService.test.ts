@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { moderateComment, quickFilterSpam } from '@/services/ModerationService';
 
 describe('ModerationService', () => {

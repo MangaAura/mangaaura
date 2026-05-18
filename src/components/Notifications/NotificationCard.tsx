@@ -6,7 +6,6 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   Bell, 
@@ -21,8 +20,10 @@ import {
   Trash2,
   AlertCircle
 } from 'lucide-react';
-import { cn, formatTimeAgo } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+
 import type { Notification } from '@/core/services/NotificationService';
+import { cn, formatTimeAgo } from '@/lib/utils';
 
 interface NotificationCardProps {
   notification: Notification;

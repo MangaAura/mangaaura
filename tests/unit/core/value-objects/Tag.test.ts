@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Tag } from '@/core/value-objects/Tag';
 
 describe('Tag Value Object', () => {

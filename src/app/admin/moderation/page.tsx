@@ -1,13 +1,14 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
+import { redirect } from 'next/navigation';
+
+import { AIModerationQueue } from '@/components/Admin/AIModerationQueue';
 import { ReportList } from '@/components/Admin/ReportList';
 import { ReportStats } from '@/components/Admin/ReportStats';
-import { AIModerationQueue } from '@/components/Admin/AIModerationQueue';
-import type { Metadata } from 'next';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'Moderación | Admin',
@@ -31,6 +32,9 @@ export default async function ModerationPage({
 
   const { status, priority, tab } = await searchParams;
 
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
   const [
     totalPending,
     totalUnderReview,
@@ -48,7 +52,7 @@ export default async function ModerationPage({
     prisma.userReport.count({
       where: {
         createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          gte: oneDayAgo,
         },
       },
     }),

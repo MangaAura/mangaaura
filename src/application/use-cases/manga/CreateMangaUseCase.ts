@@ -3,14 +3,14 @@
  * @packageDocumentation
  */
 
-import { DomainError } from '../../../core/errors/DomainError';
 import { Manga } from '../../../core/entities/Manga';
-import { IEventBus } from '../../services/IEventBus';
-import { IUserRepository } from '../../ports/IUserRepository';
-import { IMangaRepository } from '../../ports/IMangaRepository';
-import { MangaCreatedEvent } from '../../events/MangaEvents';
-import { MangaResponseDTO, mapMangaToResponseDTO } from '../../dtos/manga/MangaResponseDTO';
+import { DomainError } from '../../../core/errors/DomainError';
 import { validateCreateMangaDTO, CreateMangaDTO, generateSlug } from '../../dtos/manga/CreateMangaDTO';
+import { MangaResponseDTO, mapMangaToResponseDTO } from '../../dtos/manga/MangaResponseDTO';
+import { MangaCreatedEvent } from '../../events/MangaEvents';
+import { IMangaRepository } from '../../ports/IMangaRepository';
+import { IUserRepository } from '../../ports/IUserRepository';
+import { IEventBus } from '../../services/IEventBus';
 
 export interface CreateMangaInputDTO extends CreateMangaDTO {
   authorId: string;

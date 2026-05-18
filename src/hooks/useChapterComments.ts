@@ -6,8 +6,8 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface Comment {
   id: string;

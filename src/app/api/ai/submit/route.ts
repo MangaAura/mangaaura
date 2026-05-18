@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
 import { getUnifiedAIService, ServiceJob } from '@/infrastructure/ai';
 import { auth } from '@/lib/auth';
 

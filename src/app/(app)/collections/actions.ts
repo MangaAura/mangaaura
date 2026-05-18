@@ -1,8 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { prisma } from '@/lib/prisma';
+
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function createCollection(name: string, description?: string, isPublic: boolean = true) {
   const session = await auth();

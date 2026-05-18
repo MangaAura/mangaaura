@@ -1,8 +1,10 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+
+import { UserProfileClient } from './UserProfileClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import { UserProfileClient } from './UserProfileClient';
+
 
 interface UserProfilePageProps {
   params: Promise<{ username: string }>;

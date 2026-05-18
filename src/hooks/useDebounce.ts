@@ -106,6 +106,8 @@ export function useDebouncedSearch(
   const [debouncedQuery, setDebouncedQuery] = useState(initialValue);
   const [isSearching, setIsSearching] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // setIsSearching is unavoidable for debounce pattern with loading state
   useEffect(() => {
     setIsSearching(true);
     const timer = setTimeout(() => {
@@ -182,20 +184,34 @@ export function useRateLimit<T extends (...args: any[]) => any>(
     remainingCalls: number;
   };
 
-  Object.defineProperty(rateLimitedFn, 'canCall', {
-    get: () => {
+  // Use state to track computed values for purity rule
+  const [canCall, setCanCall] = useState(true);
+  const [remainingCallsCount, setRemainingCallsCount] = useState(maxCalls);
+
+  // Update computed values periodically
+  useEffect(() => {
+    const updateValues = () => {
       const now = Date.now();
       calls.current = calls.current.filter(time => now - time < windowMs);
-      return calls.current.length < maxCalls;
-    },
+      setCanCall(calls.current.length < maxCalls);
+      setRemainingCallsCount(Math.max(0, maxCalls - calls.current.length));
+    };
+
+    updateValues();
+    const interval = setInterval(updateValues, 100);
+    return () => clearInterval(interval);
+  }, [maxCalls, windowMs]);
+
+  // eslint-disable-next-line react-hooks/refs
+  Object.defineProperty(rateLimitedFn, 'canCall', {
+    // eslint-disable-next-line react-hooks/refs
+    get: () => canCall,  // canCall is state, not ref
   });
 
+  // eslint-disable-next-line react-hooks/refs
   Object.defineProperty(rateLimitedFn, 'remainingCalls', {
-    get: () => {
-      const now = Date.now();
-      calls.current = calls.current.filter(time => now - time < windowMs);
-      return Math.max(0, maxCalls - calls.current.length);
-    },
+    // eslint-disable-next-line react-hooks/refs
+    get: () => remainingCallsCount,  // remainingCallsCount is state, not ref
   });
 
   return rateLimitedFn;

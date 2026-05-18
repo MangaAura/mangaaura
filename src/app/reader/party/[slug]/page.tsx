@@ -5,8 +5,9 @@
  * Obtiene datos reales del capitulo desde la API.
  */
 
-import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
+
 import { partyService } from '@/core/services/PartyService';
 
 const PartyReader = dynamic(() => import('@/components/Reader/PartyReader'), {

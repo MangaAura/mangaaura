@@ -19,7 +19,6 @@ export const fetcher = async <T>(url: string): Promise<T> => {
 // Retry configuration with exponential backoff
 const retryOptions = {
   errorRetryCount: 3,
-  errorRetryInterval: 1000,
   shouldRetryOnError: (error: Error) => {
     // Don't retry on 4xx errors (client errors)
     if (error.message.includes('401') || error.message.includes('403') || error.message.includes('404')) {
@@ -51,6 +50,9 @@ export const swrConfig: SWRConfiguration = {
   
   // Loading timeout
   loadingTimeout: 3000,
+  
+  // Retry interval
+  errorRetryInterval: 1000,
   
   // Retry options
   ...retryOptions,

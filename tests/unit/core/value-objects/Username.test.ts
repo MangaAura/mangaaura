@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Username, InvalidUsernameError } from '@/core/value-objects/Username';
 
 describe('Username Value Object', () => {

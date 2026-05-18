@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
-import { verifyTwoFactorLogin } from '@/lib/two-factor';
-import { redis } from '@/lib/redis';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { redis } from '@/lib/redis';
+import { verifyTwoFactorLogin } from '@/lib/two-factor';
 
 export async function POST(request: NextRequest) {
   try {

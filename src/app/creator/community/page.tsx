@@ -1,9 +1,5 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import {
   Users,
   Search,
@@ -22,6 +18,11 @@ import {
   X,
   AlertTriangle,
 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 
 interface ForumAuthor {
   id: string;

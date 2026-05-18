@@ -1,9 +1,11 @@
-import { auth } from '@/lib/auth';
-import type { Metadata } from 'next';
-import { ActivityFeed } from '@/components/Activity/ActivityFeed';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import { Card } from '@/components/ui/Card';
 import { Activity, Globe, Users } from 'lucide-react';
+import type { Metadata } from 'next';
+
+import { ActivityFeed } from '@/components/Activity/ActivityFeed';
+import { Card } from '@/components/ui/Card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { auth } from '@/lib/auth';
+
 
 export const metadata: Metadata = {
   title: 'Actividad | Inkverse',

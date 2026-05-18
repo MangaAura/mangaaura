@@ -1,12 +1,13 @@
+import { Trophy, Target, Zap, Star, Lock, Sparkles, TrendingUp } from 'lucide-react';
 import type { Metadata } from 'next';
-import { AchievementGrid } from '@/components/Achievements/AchievementGrid';
+
 import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
+import { AchievementGrid } from '@/components/Achievements/AchievementGrid';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
-import { Trophy, Target, Zap, Star, Lock, Sparkles, TrendingUp } from 'lucide-react';
+import type { Difficulty } from '@/hooks/useAchievements';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
-import type { Difficulty } from '@/hooks/useAchievements';
 
 export const metadata: Metadata = {
   title: 'Logros | Inkverse',

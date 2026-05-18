@@ -1,7 +1,8 @@
 'use client';
 
-import { useLocale, useT } from '@/i18n/index';
 import { Languages } from 'lucide-react';
+
+import { useLocale, useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
 interface LanguageSwitcherProps {

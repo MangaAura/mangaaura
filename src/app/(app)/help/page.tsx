@@ -1,9 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Container } from '@/components/Layout/Container';
-import { PageHeader } from '@/components/Layout/PageHeader';
 import {
   HelpCircle,
   Search,
@@ -17,8 +13,13 @@ import {
   Mail,
   FileText,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { Container } from '@/components/Layout/Container';
+import { PageHeader } from '@/components/Layout/PageHeader';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);

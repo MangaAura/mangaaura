@@ -1,5 +1,6 @@
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
 import { SkipToContent } from '@/components/Layout/SkipToContent';
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), {

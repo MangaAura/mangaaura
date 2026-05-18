@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({ prisma: { chapter: { findUnique: vi.fn() } } }));
 
-import { prisma } from '@/lib/prisma';
 import { GET } from '@/app/api/chapters/[id]/route';
+import { prisma } from '@/lib/prisma';
 
 describe('GET /api/chapters/[id]', () => {
   beforeEach(() => { vi.clearAllMocks(); });

@@ -1,8 +1,9 @@
 'use client';
 
-import { useT } from '@/i18n';
 import { Clock, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
+
+import { useT } from '@/i18n';
 
 const statusConfig: Record<string, { icon: typeof Clock; color: string; labelKey: string }> = {
   PENDING: { icon: Clock, color: 'text-yellow-400', labelKey: 'corrections.pending' },

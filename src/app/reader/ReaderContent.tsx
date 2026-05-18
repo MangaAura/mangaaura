@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import useSWR from 'swr';
 import { ArrowLeft, MessageSquare, Maximize, Minimize, Sun, Moon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useState, useCallback, useEffect } from 'react';
+import useSWR from 'swr';
+
 
 // Components
-import PageViewer from '@/components/Reader/PageViewer';
 import CommentDrawer from '@/components/Reader/CommentDrawer';
+import PageViewer from '@/components/Reader/PageViewer';
 import ReadingProgress from '@/components/Reader/ReadingProgress';
 
 // Hooks
 import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
+import { cn } from '@/lib/utils';
 
 interface ChapterData {
   id: string;

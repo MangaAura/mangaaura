@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import { useT } from '@/i18n';
 
 export default function ClansFilters() {

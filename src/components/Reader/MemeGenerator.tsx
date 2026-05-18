@@ -1,9 +1,10 @@
 ﻿'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
-import { Button } from '@/components/ui/Button';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Download, Share2, Type, Image as ImageIcon, X } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Button } from '@/components/ui/Button';
 
 
 interface MemeGeneratorProps {

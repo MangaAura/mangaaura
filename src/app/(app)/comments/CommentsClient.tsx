@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { MessageSquare, Heart, Reply, Pencil, Trash2, Loader2, Check, X, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 interface CommentData {
   id: string;

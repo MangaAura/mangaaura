@@ -1,11 +1,14 @@
 ﻿'use client';
 
-import { useOptimistic, useTransition } from 'react';
+import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useOptimistic, useTransition } from 'react';
+
+import { toggleFollow } from '@/app/social/actions';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
-import { toggleFollow } from '@/app/social/actions';
+
+
 
 interface FollowButtonProps {
   targetId: string;

@@ -1,11 +1,12 @@
 ﻿'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Switch } from '@/components/ui/Switch';
-import { Label } from '@/components/ui/Label';
-import { Card } from '@/components/ui/Card';
 import { Mail, Bell, MessageSquare, BookOpen, Trophy, Heart } from 'lucide-react';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Label } from '@/components/ui/Label';
+import { Switch } from '@/components/ui/Switch';
 import { cn } from '@/lib/utils';
 
 interface NotificationSettingsProps {

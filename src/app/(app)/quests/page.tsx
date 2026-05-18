@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import { QuestsPageClient } from './QuestsPageClient';
 
 export const metadata: Metadata = {

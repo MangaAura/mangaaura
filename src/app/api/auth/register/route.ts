@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { Email } from '@/core/value-objects/Email';
-import { Password } from '@/core/value-objects/Password';
-import { InvalidEmailError } from '@/core/value-objects/Email';
-import { WeakPasswordError } from '@/core/value-objects/Password';
-import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { z } from 'zod';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import crypto from 'crypto';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { Email , InvalidEmailError } from '@/core/value-objects/Email';
+import { Password , WeakPasswordError } from '@/core/value-objects/Password';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const registerSchema = z.object({
   email: z.string().email(),

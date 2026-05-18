@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 // GET /api/creator/mangas - Listar todos los mangas del creador logueado
 export async function GET(request: NextRequest) {

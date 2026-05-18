@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
-import { cn } from '@/lib/utils';
 import { Edit2, Trash2 } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { cn } from '@/lib/utils';
 
 export interface PanelText {
   id: string;

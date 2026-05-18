@@ -7,8 +7,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { fetcher, getErrorMessage } from '@/lib/swr-config';
+
 import { useThrottle } from '@/hooks/useDebounce';
+import { fetcher, getErrorMessage } from '@/lib/swr-config';
 
 export interface ReadingProgress {
   id: string;

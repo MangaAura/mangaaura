@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Password, WeakPasswordError } from '@/core/value-objects/Password';
 
 describe('Password Value Object', () => {

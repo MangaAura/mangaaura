@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+
 import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { auth } from '@/lib/auth';
 
 // GET /api/crowdfunding/chapter/[id] - Obtener estado del crowdfunding de un capítulo
 export async function GET(

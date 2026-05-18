@@ -1,21 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useT } from '@/i18n';
-import useSWR, { mutate } from 'swr';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/Label';
-import { Textarea } from '@/components/ui/Textarea';
-import { Switch } from '@/components/ui/Switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select';
 import {
   User,
   BookOpen,
@@ -31,6 +15,23 @@ import {
   Eye,
   ExternalLink,
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import useSWR, { mutate } from 'swr';
+
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
+import { Switch } from '@/components/ui/Switch';
+import { Textarea } from '@/components/ui/Textarea';
+import { useT } from '@/i18n';
 
 interface CreatorProfile {
   username: string;

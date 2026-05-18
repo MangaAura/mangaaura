@@ -1,10 +1,3 @@
-import { Suspense } from 'react';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
-import type { Metadata } from 'next';
-import ClanCard from '@/components/Clan/ClanCard';
-import ClansFilters from './ClansFilters';
-import Link from 'next/link';
 import {
   Users,
   Trophy,
@@ -14,6 +7,15 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Suspense } from 'react';
+
+import ClansFilters from './ClansFilters';
+import ClanCard from '@/components/Clan/ClanCard';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
 
 export const metadata: Metadata = {
   title: 'Clanes | Inkverse',

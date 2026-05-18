@@ -1,8 +1,9 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
 import { Sun, Moon, Monitor, Check, Palette, Layout, Type } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 type Theme = 'light' | 'dark' | 'system';

@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/lib/push-notifications', () => ({ savePushSubscription: vi.fn(), deletePushSubscription: vi.fn() }));
 
-import { auth } from '@/lib/auth';
-import { savePushSubscription } from '@/lib/push-notifications';
 import { POST } from '@/app/api/notifications/push/route';
 import { GET as VapidGet } from '@/app/api/notifications/vapid-public-key/route';
+import { auth } from '@/lib/auth';
+import { savePushSubscription } from '@/lib/push-notifications';
 
 describe('Notifications API', () => {
   beforeEach(() => {

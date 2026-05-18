@@ -6,10 +6,11 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils';
 import { BookOpenIcon, ChevronDownIcon, SearchIcon, CheckIcon } from 'lucide-react';
+import { useState, useMemo } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { cn } from '@/lib/utils';
 
 export interface MangaOption {
   id: string;

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
-import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
+
 import { getNotificationService } from '@/core/services/NotificationService';
+import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/manga/[id]/chapters - Listar capítulos del manga

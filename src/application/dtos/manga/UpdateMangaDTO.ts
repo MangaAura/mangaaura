@@ -3,8 +3,8 @@
  * @packageDocumentation
  */
 
-import { DomainError } from '../../../core/errors/DomainError';
 import { MangaStatus } from './CreateMangaDTO';
+import { DomainError } from '../../../core/errors/DomainError';
 
 /**
  * Datos que pueden ser actualizados de un manga

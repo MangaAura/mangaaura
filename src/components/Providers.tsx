@@ -1,11 +1,12 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
+import { SWRConfig } from 'swr';
+
 import { ThemeProvider } from './ThemeProvider';
 import { ToastProvider } from '@/components/ui/Toast';
-import { SWRConfig } from 'swr';
-import { swrConfig } from '@/lib/swr-config';
 import { I18nProvider, type Locale } from '@/i18n/index';
+import { swrConfig } from '@/lib/swr-config';
 
 interface ProvidersProps {
   children: React.ReactNode;

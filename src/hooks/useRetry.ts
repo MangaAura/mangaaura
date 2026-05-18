@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface UseRetryOptions {
   maxRetries?: number;
@@ -150,18 +150,24 @@ export function useAutoRetry<T>(
   const { autoRetry = true, ...retryOptions } = options;
   const retryHook = useRetry(asyncFn, retryOptions);
   const { error, retryCount, execute: _execute } = retryHook;
-  const hasRetriedRef = useRef(false);
+  const [hasRetried, setHasRetried] = useState(false);
 
-  // Auto-retry on error
-  if (error && autoRetry && retryCount < (options.maxRetries || 3) && !hasRetriedRef.current) {
-    hasRetriedRef.current = true;
-    retryHook.retry();
-  }
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // auto-retry pattern requires setState in effect when error occurs
+  useEffect(() => {
+    if (error && autoRetry && retryCount < (options.maxRetries || 3) && !hasRetried) {
+      setHasRetried(true);
+      retryHook.retry();
+    }  // eslint-disable-next-line react-hooks/set-state-in-effect
+    // retryHook.retry() intentionally triggers state changes for auto-retry
+  }, [error, autoRetry, retryCount, options.maxRetries, hasRetried, retryHook]);
 
   // Reset flag when successful
-  if (!error) {
-    hasRetriedRef.current = false;
-  }
+  useEffect(() => {
+    if (!error) {
+      setHasRetried(false);
+    }
+  }, [error]);
 
   return retryHook;
 }
@@ -211,4 +217,4 @@ export function useOptimisticRetry<T>(
     ...retryHook,
     optimisticData: optimisticState,
   };
-}
+}

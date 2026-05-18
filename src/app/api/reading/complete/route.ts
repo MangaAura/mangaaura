@@ -1,13 +1,14 @@
+import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+
+import { getNotificationService } from '@/core/services/NotificationService';
+import { getQuestService } from '@/core/services/QuestService';
+import { getStreakService } from '@/core/services/StreakService';
 import { XP } from '@/core/value-objects/XP';
 import { getEventBus } from '@/infrastructure/queue/LocalEventBus';
-import { getNotificationService } from '@/core/services/NotificationService';
-import { getStreakService } from '@/core/services/StreakService';
-import { getQuestService } from '@/core/services/QuestService';
-import { z } from 'zod';
-import { randomUUID } from 'crypto';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const completeSchema = z.object({

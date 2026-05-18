@@ -1,6 +1,5 @@
 'use client';
 
-import { useT } from '@/i18n';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
@@ -9,6 +8,8 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
+
+import { useT } from '@/i18n';
 
 export interface NavLinkDef {
   name: string;

@@ -4,11 +4,11 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
   DATABASE_URL: z.string().min(1),
-  MONGODB_URI: z.string().min(1),
-  REDIS_URL: z.string().min(1),
+  MONGODB_URI: z.string().optional().default('mongodb://localhost:27017/inkverse_dev'),
+  REDIS_URL: z.string().optional().default('redis://localhost:6379'),
 
-  NEXTAUTH_SECRET: z.string().min(16),
-  NEXTAUTH_URL: z.string().url(),
+  NEXTAUTH_SECRET: z.string().min(16).optional().default('dev-secret-key-not-for-production-!!'),
+  NEXTAUTH_URL: z.string().url().optional().default('http://localhost:3000'),
 
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),

@@ -5,12 +5,12 @@
  */
 
 import { DomainError } from '../../../core/errors/DomainError';
-import { IUserRepository } from '../../ports/IUserRepository';
-import { IChapterRepository, ChapterNotFoundError } from '../../ports/IChapterRepository';
-import { IEventBus } from '../../services/IEventBus';
+import { CompleteChapterDTO, CompleteChapterResultDTO } from '../../dtos/chapter/CompleteChapterDTO';
 import { ChapterCompletedEvent } from '../../events/ChapterCompletedEvent';
 import { XPAddedEvent } from '../../events/XPAddedEvent';
-import { CompleteChapterDTO, CompleteChapterResultDTO } from '../../dtos/chapter/CompleteChapterDTO';
+import { IChapterRepository, ChapterNotFoundError } from '../../ports/IChapterRepository';
+import { IUserRepository } from '../../ports/IUserRepository';
+import { IEventBus } from '../../services/IEventBus';
 
 /**
  * Puerto para registro de sesiones de lectura

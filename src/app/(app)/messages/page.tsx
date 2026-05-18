@@ -1,7 +1,8 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
 import { ConversationList } from '@/components/Messages/ConversationList';
+import { auth } from '@/lib/auth';
 
 
 export const metadata: Metadata = {

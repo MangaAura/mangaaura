@@ -1,7 +1,8 @@
+import { FileText, Check } from 'lucide-react';
 import type { Metadata } from 'next';
+
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
-import { FileText, Check } from 'lucide-react';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 

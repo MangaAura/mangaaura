@@ -1,6 +1,5 @@
 'use client';
 
-import { useT } from '@/i18n';
 import {
   BookOpen, Rss, MessageCircle, FolderOpen, Calendar, Sparkles, Plus, Menu, X,
 } from 'lucide-react';
@@ -18,6 +17,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useScrolled } from '@/hooks/useScrolled';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
+import { useT } from '@/i18n';
 
 export default function Navbar() {
   const { data: session, status } = useSession();

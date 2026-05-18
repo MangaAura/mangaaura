@@ -1,13 +1,14 @@
 'use client';
 
+import { User, Bell, Shield, Lock, Palette } from 'lucide-react';
 import { useState } from 'react';
-import { ProfileSettings } from './ProfileSettings';
+
+import { AppearanceSettings } from './AppearanceSettings';
 import { NotificationSettings } from './NotificationSettings';
 import { PrivacySettings } from './PrivacySettings';
+import { ProfileSettings } from './ProfileSettings';
 import { SecuritySettings } from './SecuritySettings';
-import { AppearanceSettings } from './AppearanceSettings';
 import { cn } from '@/lib/utils';
-import { User, Bell, Shield, Lock, Palette } from 'lucide-react';
 
 interface User {
   id: string;

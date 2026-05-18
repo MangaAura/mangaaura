@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+
 import { offlineStorage } from '@/lib/offline-storage';
 
 interface UseOfflineReturn {

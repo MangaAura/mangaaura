@@ -1,10 +1,3 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { auth } from '@/lib/auth';
-import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import {
   ArrowLeft,
   Trophy,
@@ -15,9 +8,17 @@ import {
   Clock,
   ChevronRight,
 } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
 import { AchievementDetailClient } from './AchievementDetailClient';
 import { getAchievementBySlug } from './getAchievementBySlug';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 import type { Difficulty } from '@/hooks/useAchievements';
+import { auth } from '@/lib/auth';
+import { cn } from '@/lib/utils';
 
 // ─── Metadata ──────────────────────────────────────────────────────
 
@@ -240,10 +241,13 @@ export default async function AchievementDetailPage({
   const related = await getRelatedAchievements(achievement.category, achievement.id);
   const rarity = RARITY_COLORS[achievement.rarity] || RARITY_COLORS.EASY;
   const categoryLabel = CATEGORY_LABELS[achievement.category] || achievement.category;
-  const wasJustUnlocked =
-    achievement.unlockedAt
-      ? Date.now() - new Date(achievement.unlockedAt).getTime() < 86400000
-      : false;
+  // Calcular si se desbloqueó recientemente (menos de 24 horas)
+  // En Server Components, Date.now() se ejecuta en request-time, no en render
+  const unlockedTime = achievement.unlockedAt ? new Date(achievement.unlockedAt).getTime() : 0;
+  const ONE_DAY_MS = 86400000;
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
+  const wasJustUnlocked = unlockedTime > 0 && unlockedTime > now - ONE_DAY_MS;
 
   return (
     <div className="max-w-4xl mx-auto space-y-10 p-6 min-h-screen bg-background font-sans text-fg-primary">

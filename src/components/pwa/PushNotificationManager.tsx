@@ -1,9 +1,10 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/Button';
 import { Bell, BellOff, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/Button';
 
 export function PushNotificationManager() {
   const { data: session } = useSession();

@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import dbConnect from '@/lib/mongoose';
-import { PostCommentUseCase } from '@/application/use-cases/PostCommentUseCase';
-import { CommentRepositoryAdapter } from '@/infrastructure/adapters/CommentRepositoryAdapter';
-import { UserXPRepositoryAdapter } from '@/infrastructure/adapters/UserXPRepositoryAdapter';
-import { EventBusAdapter } from '@/infrastructure/adapters/EventBusAdapter';
-import { AchievementServiceAdapter } from '@/infrastructure/adapters/AchievementServiceAdapter';
-import { moderateComment, quickFilterSpam } from '@/services/ModerationService';
 import { z } from 'zod';
+
+import { PostCommentUseCase } from '@/application/use-cases/PostCommentUseCase';
+import { AchievementServiceAdapter } from '@/infrastructure/adapters/AchievementServiceAdapter';
+import { CommentRepositoryAdapter } from '@/infrastructure/adapters/CommentRepositoryAdapter';
+import { EventBusAdapter } from '@/infrastructure/adapters/EventBusAdapter';
+import { UserXPRepositoryAdapter } from '@/infrastructure/adapters/UserXPRepositoryAdapter';
+import { auth } from '@/lib/auth';
+import dbConnect from '@/lib/mongoose';
+import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { moderateComment, quickFilterSpam } from '@/services/ModerationService';
 
 const postCommentUseCase = new PostCommentUseCase(
   new CommentRepositoryAdapter(),

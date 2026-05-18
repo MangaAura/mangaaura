@@ -5,14 +5,14 @@
  * @packageDocumentation
  */
 
-import { getEventBus, DomainEvent } from '@/infrastructure/queue/LocalEventBus';
-import { prisma } from '@/lib/prisma';
 import { achievementService, initializeAchievementService } from '@/core/services/AchievementService';
 import { notificationService, initializeNotificationService } from '@/core/services/NotificationService';
 import { readingAnalyticsService, initializeReadingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+import { MongoReadingAnalyticsRepository } from '@/infrastructure/adapters/MongoReadingAnalyticsRepository';
 import { PrismaAchievementRepository } from '@/infrastructure/adapters/PrismaAchievementRepository';
 import { PrismaNotificationRepository, PushNotificationAdapter, RealtimeNotificationAdapter } from '@/infrastructure/adapters/PrismaNotificationRepository';
-import { MongoReadingAnalyticsRepository } from '@/infrastructure/adapters/MongoReadingAnalyticsRepository';
+import { getEventBus, DomainEvent } from '@/infrastructure/queue/LocalEventBus';
+import { prisma } from '@/lib/prisma';
 
 // Initialize achievement service with infrastructure adapter
 if (!achievementService) {

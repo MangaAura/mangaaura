@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { MessageCircle, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { cn } from '@/lib/utils';
+
 
 interface Conversation {
   id: string;

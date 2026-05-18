@@ -113,7 +113,6 @@ async function main() {
         description: 'Clan para lectores apasionados',
         totalScore: 15000,
         monthlyScore: 5000,
-        // @ts-ignore - leaderId exists in schema but needs proper relation setup
         leaderId: users[0].id, // admin as leader
       },
     }),
@@ -125,7 +124,6 @@ async function main() {
         description: 'Amantes del shonen manga',
         totalScore: 8000,
         monthlyScore: 3000,
-        // @ts-ignore - leaderId exists in schema but needs proper relation setup
         leaderId: users[1].id, // creator as leader
       },
     }),

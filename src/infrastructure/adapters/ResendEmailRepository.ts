@@ -1,12 +1,6 @@
-import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
-import { prisma } from '@/lib/prisma';
-import {
-  welcomeEmail,
-  passwordResetEmail,
-  newChapterEmail,
-  baseEmailTemplate,
-} from '@/lib/email-templates';
+import { Resend } from 'resend';
+
 import type {
   IEmailRepository,
   IEmailTemplateService,
@@ -14,6 +8,13 @@ import type {
   EmailTemplate,
   SendEmailResult,
 } from '@/core/services/IEmailRepository';
+import {
+  welcomeEmail,
+  passwordResetEmail,
+  newChapterEmail,
+  baseEmailTemplate,
+} from '@/lib/email-templates';
+import { prisma } from '@/lib/prisma';
 
 export class ResendEmailRepository implements IEmailRepository, IEmailTemplateService {
   private provider: 'resend' | 'smtp' | 'console';

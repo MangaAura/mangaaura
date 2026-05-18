@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { cn } from '@/lib/utils';
 
 interface LazyImageProps {
   src: string;

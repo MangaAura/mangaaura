@@ -90,7 +90,7 @@ export async function setCache<T>(
   try {
     // Try Redis first
     if (redis) {
-      await redis.set(key, value, { ex: ttl });
+      await redis.set(key, JSON.stringify(value), { ex: ttl });
       return;
     }
     

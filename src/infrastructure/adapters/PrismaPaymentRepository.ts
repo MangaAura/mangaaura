@@ -1,4 +1,3 @@
-import { prisma } from '@/lib/prisma';
 import {
   type IPaymentRepository,
   type ChapterInfo,
@@ -13,6 +12,7 @@ import {
   type SendTipTransactionParams,
   type ContributeTransactionParams,
 } from '@/core/services/IPaymentRepository';
+import { prisma } from '@/lib/prisma';
 
 export class PrismaPaymentRepository implements IPaymentRepository {
   async getChapterWithAuthor(chapterId: string): Promise<ChapterInfo | null> {

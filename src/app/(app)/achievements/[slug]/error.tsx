@@ -1,8 +1,9 @@
 'use client';
 
-import { ErrorFallback } from '@/components/ui/ErrorFallback';
-import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+import { ErrorFallback } from '@/components/ui/ErrorFallback';
 
 export default function AchievementDetailError({
   error,

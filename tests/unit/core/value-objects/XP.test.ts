@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { XP, InvalidXPError } from '@/core/value-objects/XP';
 
 describe('XP Value Object', () => {

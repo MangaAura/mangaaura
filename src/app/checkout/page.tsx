@@ -6,9 +6,6 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { loadStripe } from '@stripe/stripe-js/pure';
 import { 
   Coins, 
@@ -19,10 +16,13 @@ import {
   Zap,
   Crown
 } from 'lucide-react';
-import { INKCOIN_PACKAGES, formatAmount } from '@/lib/stripe';
-import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
+import { Button } from '@/components/ui/Button';
 import { useT } from '@/i18n';
+import { INKCOIN_PACKAGES, formatAmount } from '@/lib/stripe';
 import { cn } from '@/lib/utils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');

@@ -1,9 +1,11 @@
 ﻿'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/Button';
 import { Search, Home, BookOpen, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/Button';
+
 
 const containerVariants = {
   hidden: { opacity: 0 },

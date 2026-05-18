@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
+
 import { CreateCollectionUseCase } from '@/application/use-cases/collections/CreateCollectionUseCase';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const collectionSchema = z.object({
   name: z.string().min(1).max(100),

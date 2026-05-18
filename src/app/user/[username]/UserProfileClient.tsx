@@ -1,16 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { formatDistanceToNow, isToday, isThisWeek, isThisMonth, format } from 'date-fns';
+import type { Locale } from 'date-fns';
+import { enUS } from 'date-fns/locale/en-US';
+import { es } from 'date-fns/locale/es';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { FollowButton } from '@/components/Social/FollowButton';
 import {
   Crown,
   Flame,
@@ -29,10 +23,17 @@ import {
   Eye,
   Bookmark,
 } from 'lucide-react';
-import { formatDistanceToNow, isToday, isThisWeek, isThisMonth, format } from 'date-fns';
-import type { Locale } from 'date-fns';
-import { es } from 'date-fns/locale/es';
-import { enUS } from 'date-fns/locale/en-US';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { FollowButton } from '@/components/Social/FollowButton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { useT, useLocale } from '@/i18n';
 
 // ─── Types ───────────────────────────────────────────────────────────────────────

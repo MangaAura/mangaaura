@@ -1,7 +1,7 @@
 import { DomainError } from '../../core/errors/DomainError';
-import { IEventBus } from '../services/IEventBus';
-import { CommentPostedEvent } from '../events/CommentPostedEvent';
 import { IAProvider } from '../../core/services/IAProvider';
+import { CommentPostedEvent } from '../events/CommentPostedEvent';
+import { IEventBus } from '../services/IEventBus';
 
 export interface PostCommentInputDTO {
   userId: string;

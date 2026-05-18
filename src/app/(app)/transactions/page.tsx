@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
+
+import { TransactionsClient } from './TransactionsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { TransactionsClient } from './TransactionsClient';
 
 export const metadata = {
   title: 'Historial de Transacciones | InkVerse',

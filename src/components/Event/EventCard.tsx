@@ -1,8 +1,6 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import Link from 'next/link';
-import { useCountdown } from '@/hooks/useCountdown';
 import {
   Users,
   Timer,
@@ -10,6 +8,9 @@ import {
   Clock,
   Trophy,
 } from 'lucide-react';
+import Link from 'next/link';
+
+import { useCountdown } from '@/hooks/useCountdown';
 
 export interface EventData {
   id: string;

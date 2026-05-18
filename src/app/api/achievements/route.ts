@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+import { XP } from '@/core/value-objects/XP';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { XP } from '@/core/value-objects/XP';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 function parseCondition(conditionStr: string): { type: string; count?: number; level?: number } | null {

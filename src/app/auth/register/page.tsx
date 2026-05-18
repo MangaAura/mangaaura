@@ -1,10 +1,5 @@
 'use client';
 
-import React, { useState, Suspense, useMemo } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
-import { z } from 'zod';
 import {
   ArrowLeft,
   User,
@@ -17,11 +12,17 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import React, { useState, Suspense, useMemo } from 'react';
+import { z } from 'zod';
+
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
-import { cn } from '@/lib/utils';
-import { useT } from '@/i18n';
 import { useAuthError } from '@/hooks/useAuthError';
+import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
   return (

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { paymentService } from '@/infrastructure/adapters/paymentService';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { z } from 'zod';
+
+import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { auth } from '@/lib/auth';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+
 
 const sendTipSchema = z.object({
   chapterId: z.string().uuid(),

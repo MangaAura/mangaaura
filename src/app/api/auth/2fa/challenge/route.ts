@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { prisma } from '@/lib/prisma';
-import { verifyTwoFactorLogin } from '@/lib/two-factor';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { verifyTwoFactorLogin } from '@/lib/two-factor';
 
 export async function POST(request: NextRequest) {
   try {

@@ -5,19 +5,9 @@
  */
 
 import { DomainError } from '../../core/errors/DomainError';
-import { IEventBus } from '../services/IEventBus';
 import { InkCoinsSpentEvent } from '../events/InkCoinsSpentEvent';
-
-/**
- * Tipos de transacción de InkCoins
- */
-export type InkCoinsTransactionType = 
-  | 'TIP_AUTHOR'
-  | 'CROWDFUND_CONTRIBUTION'
-  | 'PREMIUM_CHAPTER'
-  | 'MARKETPLACE_PURCHASE'
-  | 'BOOST_MANGA'
-  | 'OTHER';
+import { IEventBus } from '../services/IEventBus';
+import type { InkCoinsTransactionType } from '../types/transaction-types';
 
 /**
  * DTO de entrada para gastar InkCoins

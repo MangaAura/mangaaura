@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import {
   StreakService,
   getStreakService,
@@ -7,7 +8,6 @@ import {
   MAX_STREAK_FREEZES,
   MAX_STREAK_MULTIPLIER,
   type StreakUpdateResult,
-  type StreakState,
 } from '@/core/services/StreakService';
 
 // Helper: create a Date relative to today

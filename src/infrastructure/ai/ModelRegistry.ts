@@ -472,7 +472,7 @@ export class ModelRegistry extends EventEmitter {
 
     // Emitir evento si el estado de salud cambió
     if (previousHealth !== model.status.health) {
-      this.emit('model:health-changed', {
+      (this as any).emit('model:health-changed', {
         modelId: model.id,
         modelName: model.name,
         previousHealth,

@@ -1,11 +1,12 @@
 ﻿'use client';
 
+import { Upload, X, Check, User } from 'lucide-react';
 import { useState, useRef } from 'react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { Upload, X, Check, User } from 'lucide-react';
 
 interface ProfileSettingsProps {
   user: {

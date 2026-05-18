@@ -1,11 +1,5 @@
 ﻿'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { useT } from '@/i18n';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
 import {
   EditIcon,
   Trash2Icon,
@@ -13,6 +7,13 @@ import {
   MoreVerticalIcon,
   EyeIcon,
 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 interface MangaCardProps {
   manga: {

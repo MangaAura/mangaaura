@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { getNotificationService } from '@/core/services/NotificationService';
-import { GetNotificationsUseCase } from '@/application/use-cases/notifications/GetNotificationsUseCase';
 import { z } from 'zod';
+
+import { GetNotificationsUseCase } from '@/application/use-cases/notifications/GetNotificationsUseCase';
+import { getNotificationService } from '@/core/services/NotificationService';
+import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const createNotificationSchema = z.object({

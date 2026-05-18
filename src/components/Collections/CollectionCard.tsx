@@ -1,16 +1,18 @@
 ﻿'use client';
 
-import { useTransition } from 'react';
-import Link from 'next/link';
+import { Lock, Globe, MoreVertical, Edit, Trash2, Share2 } from 'lucide-react';
 import Image from 'next/image';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import Link from 'next/link';
+import { useTransition } from 'react';
+
 import { deleteCollection } from '@/app/(app)/collections/actions';
-import { Button } from '@/components/ui/Button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
 import { cn } from '@/lib/utils';
-import { Lock, Globe, MoreVertical, Edit, Trash2, Share2 } from 'lucide-react';
+
 
 interface CollectionCardProps {
   collection: {

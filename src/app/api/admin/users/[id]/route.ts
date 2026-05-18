@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
+
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const updateUserSchema = z.object({
@@ -15,7 +16,7 @@ const updateUserSchema = z.object({
 
 // GET /api/admin/users/[id] - Get specific user details
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -116,7 +117,6 @@ export async function POST(
       );
     }
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const userId = session?.user?.id || 'anonymous';
     const { allowed } = await rateLimit(getRateLimitKey('admin-user-update', userId), 30, 60);
     if (!allowed) {
@@ -206,7 +206,6 @@ export async function PATCH(
       );
     }
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const userId = session?.user?.id || 'anonymous';
     const { allowed } = await rateLimit(getRateLimitKey('admin-user-update', userId), 30, 60);
     if (!allowed) {

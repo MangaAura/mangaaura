@@ -1,8 +1,9 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { formatNumber } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
+
+import { cn , formatNumber } from '@/lib/utils';
+
 
 interface StatsCardProps {
   title: string;

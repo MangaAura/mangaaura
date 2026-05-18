@@ -5,6 +5,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+
 import type { AchievementCondition } from '@/core/services/IAchievementRepository';
 
 const prisma = new PrismaClient();

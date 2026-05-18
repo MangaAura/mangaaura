@@ -1,9 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
-import { useT } from '@/i18n';
-import { cn } from '@/lib/utils';
 import {
   BookOpen,
   Users,
@@ -14,6 +10,11 @@ import {
   FileText,
   HelpCircle,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+
+import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 function GithubIcon({ className }: { className?: string }) {
   return (

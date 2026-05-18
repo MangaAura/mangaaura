@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { z } from 'zod';
-import { readingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+
 import type { ReadingEventType } from '@/core/services/IReadingAnalyticsRepository';
+import { readingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const readingEventSchema = z.object({

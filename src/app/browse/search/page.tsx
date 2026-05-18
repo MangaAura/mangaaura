@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import Link from 'next/link';
-
 import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, Loader2, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 const GENRES = ['Action', 'Adventure', 'Comedy', 'Dark Fantasy', 'Drama', 'Fantasy', 'Horror', 'Isekai', 'Mecha', 'Romance', 'School Life', 'Sci-Fi', 'Shounen', 'Slice of Life', 'Supernatural', 'System'];

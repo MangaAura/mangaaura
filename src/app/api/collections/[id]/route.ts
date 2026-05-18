@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
+
+import { DeleteCollectionUseCase } from '@/application/use-cases/collections/DeleteCollectionUseCase';
 import { GetCollectionUseCase } from '@/application/use-cases/collections/GetCollectionUseCase';
 import { UpdateCollectionUseCase } from '@/application/use-cases/collections/UpdateCollectionUseCase';
-import { DeleteCollectionUseCase } from '@/application/use-cases/collections/DeleteCollectionUseCase';
+import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const updateSchema = z.object({

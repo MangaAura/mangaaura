@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-
-import { useT } from '@/i18n';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Sparkles, Search, Hash, BookOpen, Eye, Star, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useT } from '@/i18n';
+
 
 interface MangaItem {
   id: string;

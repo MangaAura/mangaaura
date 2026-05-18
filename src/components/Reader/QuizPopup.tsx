@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { HelpCircle, CheckCircle2, XCircle, Coins, Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 interface QuizQuestion {
   question: string;

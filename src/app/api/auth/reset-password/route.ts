@@ -1,9 +1,10 @@
+import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
 import { prisma } from '@/lib/prisma';
-import { redis } from '@/lib/redis';
-import bcrypt from 'bcryptjs';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { redis } from '@/lib/redis';
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token requerido'),

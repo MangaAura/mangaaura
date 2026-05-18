@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { XP } from '@/core/value-objects/XP';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { XP } from '@/core/value-objects/XP';
-import { z } from 'zod';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const addXPSchema = z.object({

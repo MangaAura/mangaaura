@@ -1,17 +1,4 @@
-﻿import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Progress } from '@/components/ui/Progress';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import {
+﻿import {
   BookOpen,
   Trophy,
   Heart,
@@ -21,6 +8,21 @@ import {
   Flame,
   Star,
 } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Progress } from '@/components/ui/Progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
 
 export const metadata: Metadata = {
   title: 'Mi Perfil | Inkverse',

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+
 import { cn } from '@/lib/utils';
 
 interface Chapter {
@@ -42,7 +43,6 @@ export function ReadingProgress({
 }: ReadingProgressProps) {
   const [progress, setProgress] = useState(0);
   const [showChapterList, setShowChapterList] = useState(false);
-  const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
 
   // Calculate reading progress
   useEffect(() => {
@@ -52,20 +52,18 @@ export function ReadingProgress({
     setProgress(Math.min(100, Math.max(0, totalProgress)));
   }, [currentChapter, totalChapters, currentPage, totalPages]);
 
-  // Load saved progress
-  useEffect(() => {
+  // Load saved progress from localStorage using useMemo to avoid setState in effect
+  const savedProgress = useMemo(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const allProgress: SavedProgress[] = JSON.parse(stored);
-        const mangaProgress = allProgress.find(p => p.mangaId === mangaId);
-        if (mangaProgress) {
-          setSavedProgress(mangaProgress);
-        }
+        return allProgress.find(p => p.mangaId === mangaId) || null;
       }
     } catch (error) {
       console.error('Error loading reading progress:', error);
     }
+    return null;
   }, [mangaId]);
 
   // Save progress
@@ -88,7 +86,6 @@ export function ReadingProgress({
       // Keep only last 100 entries
       const trimmed = filtered.slice(-100);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-      setSavedProgress(newProgress);
     } catch (error) {
       console.error('Error saving reading progress:', error);
     }

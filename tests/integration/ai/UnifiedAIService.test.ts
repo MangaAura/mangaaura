@@ -5,6 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
+import { ModelCapability } from '@/infrastructure/ai/ModelRegistry';
 import {
   UnifiedAIService,
   ServiceConfig,
@@ -146,7 +148,7 @@ describe('UnifiedAIService Integration', () => {
         id: 'test-custom-model',
         name: 'Test Custom Model',
         provider: 'test',
-        capabilities: ['chat', 'classification'] as const,
+        capabilities: ['chat', 'classification'] as ModelCapability[],
         config: { maxRequestsPerMinute: 50 },
         status: {
           health: 'healthy' as const,
@@ -158,7 +160,7 @@ describe('UnifiedAIService Integration', () => {
       };
 
       // Act
-      service.registerModel(model as any);
+      service.registerModel(model);
       const retrieved = service.getModel('test-custom-model');
 
       // Assert

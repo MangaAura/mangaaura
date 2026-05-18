@@ -6,9 +6,10 @@
 
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { Search, X, Clock, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useCallback, useEffect, useRef } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useDebouncedCallback } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';

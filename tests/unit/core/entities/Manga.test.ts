@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Manga, InvalidMangaTitleError } from '@/core/entities/Manga';
 
 describe('Manga entity', () => {

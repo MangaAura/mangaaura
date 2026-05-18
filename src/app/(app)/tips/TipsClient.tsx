@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { Coins, Send, Inbox, User, Search } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 interface TipEntry {
   id: string;
@@ -95,7 +95,7 @@ export function TipsClient({ sent, received }: { sent: TipEntry[]; received: Tip
                     <p className="text-xs text-muted truncate">
                       Cap. {tip.chapter.chapterNumber} · {tip.chapter.manga.title}
                     </p>
-                    {tip.message && <p className="text-xs text-muted italic truncate">"{tip.message}"</p>}
+                    {tip.message && <p className="text-xs text-muted italic truncate">&quot;{tip.message}&quot;</p>}
                   </div>
                 </div>
                 <div className="shrink-0 text-right">

@@ -1,8 +1,9 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Lock, Sparkles } from 'lucide-react';
+
 import type { Difficulty } from '@/hooks/useAchievements';
+import { cn } from '@/lib/utils';
 
 interface AchievementBadgeDisplayProps {
   badgeId: string;

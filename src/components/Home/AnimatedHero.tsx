@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { Play, Compass, BookOpen, Users, BookMarked } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
 import { useT } from '@/i18n';
-import { Play, Compass, BookOpen, Users, BookMarked } from 'lucide-react';
+
 
 function CountUp({ value }: { value: number }) {
   const [count, setCount] = useState(0);

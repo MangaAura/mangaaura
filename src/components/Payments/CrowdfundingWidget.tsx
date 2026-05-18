@@ -1,10 +1,11 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
 import { Target, Users, TrendingUp, Crown, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useState, useEffect } from 'react';
+
 import ContributionModal from './ContributionModal';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Button } from '@/components/ui/Button';
 
 interface CrowdfundingWidgetProps {
   chapterId: string;

@@ -1,6 +1,6 @@
-import es from '@/i18n/locales/es.json';
-import en from '@/i18n/locales/en.json';
 import type { Locale } from './locales';
+import en from '@/i18n/locales/en.json';
+import es from '@/i18n/locales/es.json';
 
 type NestedRecord = { [key: string]: string | NestedRecord };
 const messages: Record<Locale, NestedRecord> = { es, en };

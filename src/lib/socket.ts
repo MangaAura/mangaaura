@@ -5,18 +5,19 @@
  */
 
 import { Server as NetServer } from 'http';
+import { getToken } from 'next-auth/jwt';
 import { Server as SocketIOServer } from 'socket.io';
 
-import { getToken } from 'next-auth/jwt';
 import { partyService } from '@/core/services/PartyService';
-import { createRedisAdapter } from '@/lib/socket-redis-adapter';
 import { sanitizeText } from '@/lib/sanitize';
+import { createRedisAdapter } from '@/lib/socket-redis-adapter';
 import type {
   ServerToClientEvents,
   ClientToServerEvents,
   InterServerEvents,
   SocketData,
   JoinPartyUser,
+  Notification,
 } from '@/types/socket';
 
 // Re-exportar tipos para compatibilidad
@@ -369,7 +370,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
   });
 
     // Desconexion
-    socket.on('disconnect', () => {
+    (socket.on as (event: string, handler: (...args: any[]) => void) => void)('disconnect', () => {
       console.info(`[Socket] User ${userId} disconnected`);
 
       // Desconectar de todos los parties
@@ -393,19 +394,19 @@ export const initIO = (httpServer: NetServer): IOServer => {
 
 // Helper para emitir notificaciones
 export const emitNotification = (
-userId: string,
-notification: any
+  userId: string,
+  notification: unknown
 ) => {
   const io = getIO();
   if (io) {
-    io.to(`user:${userId}`).emit('notification:new', notification);
+    io.to(`user:${userId}`).emit('notification:new', notification as Notification);
   }
 };
 
 // Helper para emitir a múltiples usuarios
 export const emitToRoom = (
   room: string,
-  event: keyof ServerToClientEvents,
+  event: keyof ServerToClientEvents & string,
   data: any
 ) => {
   const io = getIO();
@@ -416,7 +417,7 @@ export const emitToRoom = (
 
 // Helper para broadcast
 export const broadcastNotification = (
-  event: keyof ServerToClientEvents,
+  event: keyof ServerToClientEvents & string,
   data: any
 ) => {
   const io = getIO();

@@ -4,11 +4,11 @@
  */
 
 import { DomainError } from '../../../core/errors/DomainError';
-import { IMangaRepository, MangaNotFoundError } from '../../ports/IMangaRepository';
-import { IEventBus } from '../../services/IEventBus';
-import { MangaUpdatedEvent } from '../../events/MangaEvents';
 import { MangaResponseDTO, mapMangaToResponseDTO } from '../../dtos/manga/MangaResponseDTO';
 import { UpdateMangaDTO } from '../../dtos/manga/UpdateMangaDTO';
+import { MangaUpdatedEvent } from '../../events/MangaEvents';
+import { IMangaRepository, MangaNotFoundError } from '../../ports/IMangaRepository';
+import { IEventBus } from '../../services/IEventBus';
 
 export interface UpdateMangaInputDTO extends UpdateMangaDTO {
   userId: string;

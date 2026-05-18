@@ -4,10 +4,11 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
+
 import { Manga, type MangaStatus } from '@/core/entities/Manga';
-import { Slug } from '@/core/value-objects/Slug';
 import type { MangaRepository, MangaFilters } from '@/core/repositories/MangaRepository';
+import { Slug } from '@/core/value-objects/Slug';
+import { prisma } from '@/lib/prisma';
 
 
 type PrismaMangaRow = {

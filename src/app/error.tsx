@@ -1,10 +1,11 @@
 ﻿'use client';
 
-import { useEffect } from 'react';
-import { ErrorFallback } from '@/components/ui/ErrorFallback';
-import { Button } from '@/components/ui/Button';
 import { RefreshCw, Home, Bug } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { ErrorFallback } from '@/components/ui/ErrorFallback';
 
 export default function ErrorPage({
   error,

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { X, Download, Type, Loader2, Share2 } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
 interface MemeGeneratorModalProps {
   isOpen: boolean;
@@ -14,13 +15,12 @@ interface MemeGeneratorModalProps {
 }
 
 export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTitle, chapterNumber }: MemeGeneratorModalProps) {
+  // Always call hooks before any early returns
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  if (!isOpen) return null;
 
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -61,6 +61,8 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
     };
     img.src = imageUrl;
   }, [imageUrl, topText, bottomText]);
+
+  if (!isOpen) return null;
 
   const handleDownload = () => {
     renderCanvas();
@@ -131,11 +133,11 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
             <OptimizedImage src={imageUrl} alt="Meme template" fill className="object-cover opacity-60" />
 
             <div className="absolute inset-0 flex flex-col justify-between py-4 px-2 text-center">
-<h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
-              {topText || "TEXTO SUPERIOR"}
+              <h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
+                {topText || "TEXTO SUPERIOR"}
               </h3>
-<h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
-              {bottomText || "TEXTO INFERIOR"}
+              <h3 className="text-[var(--text-inverse)] text-3xl font-black uppercase" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 0 #000' }}>
+                {bottomText || "TEXTO INFERIOR"}
               </h3>
             </div>
 
@@ -195,4 +197,4 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
       </div>
     </div>
   );
-}
+}

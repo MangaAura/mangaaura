@@ -1,7 +1,8 @@
 'use client';
 
-import { useTheme } from './ThemeProvider';
 import { Sun, Moon, Monitor } from 'lucide-react';
+
+import { useTheme } from './ThemeProvider';
 import { useT } from '@/i18n';
 
 export function ThemeToggle() {

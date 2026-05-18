@@ -23,7 +23,7 @@ export interface SendEmailResult {
 
 export interface IEmailRepository {
   sendEmail(to: string, subject: string, htmlContent: string, textContent?: string): Promise<SendEmailResult>;
-  sendTemplate(template: string, to: string, data: Record<string, unknown>): Promise<void>;
+  sendTemplate(template: string, to: string, data: Record<string, unknown> | string): Promise<void>;
   getEmailPreferences(userId: string): Promise<EmailPreferences>;
   updateEmailPreferences(userId: string, preferences: Partial<EmailPreferences>): Promise<EmailPreferences>;
   verifyConnection(): Promise<{ success: boolean; message: string }>;

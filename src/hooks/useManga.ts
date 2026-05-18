@@ -1,10 +1,11 @@
 'use client';
 
-import useSWR, { SWRConfiguration } from 'swr';
 import { useSession } from 'next-auth/react';
 import { useCallback, useMemo, useState } from 'react';
-import { swrConfigs, fetcher } from '@/lib/swr-config';
+import useSWR, { SWRConfiguration } from 'swr';
+
 import { invalidateMangaCache } from '@/lib/cache';
+import { swrConfigs, fetcher } from '@/lib/swr-config';
 
 // Tipos exportados
 export interface Manga {
@@ -271,6 +272,10 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
   }, [mutateList, mutateDetail, listData, manga, chapters]);
 
   return { mangas, manga, chapters, isLoading, isValidating, isMutating, error, createManga, updateManga, deleteManga, createChapter, updateChapter, deleteChapter, loadMangas, refresh, mutate: mutateData };
+}
+
+export function useMangaData(mangaId: string, swrOptions?: SWRConfiguration) {
+  return useManga({ mangaId, swrOptions });
 }
 
 export default useManga;

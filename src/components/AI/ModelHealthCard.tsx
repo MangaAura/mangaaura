@@ -1,13 +1,14 @@
 'use client';
 
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+
 import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import {
   RegisteredModel,
   ModelRoutingMetrics,
 } from '@/infrastructure/ai';
+import { cn } from '@/lib/utils';
 
 interface ModelHealthCardProps {
   model: RegisteredModel;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {

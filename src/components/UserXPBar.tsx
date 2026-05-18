@@ -1,10 +1,12 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { cn, getRankColor, getRankBgColor } from '@/lib/utils';
 import { Flame, Snowflake } from 'lucide-react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
+
+import { cn, getRankColor, getRankBgColor } from '@/lib/utils';
+
 
 interface StreakData {
   streak: number;

@@ -3,14 +3,14 @@
  * @packageDocumentation
  */
 
-import { DomainError } from '../../../core/errors/DomainError';
 import { Chapter } from '../../../core/entities/Chapter';
-import { IEventBus } from '../../services/IEventBus';
-import { IMangaRepository, MangaNotFoundError } from '../../ports/IMangaRepository';
-import { IChapterRepository, ChapterNumberAlreadyExistsError } from '../../ports/IChapterRepository';
-import { ChapterPublishedEvent } from '../../events/MangaEvents';
+import { DomainError } from '../../../core/errors/DomainError';
 import { ChapterResponseDTO, mapChapterToResponseDTO } from '../../dtos/chapter/ChapterResponseDTO';
 import { validateCreateChapterDTO, CreateChapterDTO } from '../../dtos/chapter/CreateChapterDTO';
+import { ChapterPublishedEvent } from '../../events/MangaEvents';
+import { IChapterRepository, ChapterNumberAlreadyExistsError } from '../../ports/IChapterRepository';
+import { IMangaRepository, MangaNotFoundError } from '../../ports/IMangaRepository';
+import { IEventBus } from '../../services/IEventBus';
 
 export interface CreateChapterInputDTO extends CreateChapterDTO {
   userId: string;

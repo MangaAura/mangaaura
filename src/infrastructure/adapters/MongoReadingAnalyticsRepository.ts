@@ -1,5 +1,3 @@
-import dbConnect from '@/lib/mongoose';
-import { ReadingLogModel, IReadingLog } from '@/infrastructure/persistence/mongodb/models/ReadingLog';
 import type {
   IReadingAnalyticsRepository,
   ReadingEvent,
@@ -9,6 +7,8 @@ import type {
   CreatorStats,
   ChapterLogsResult,
 } from '@/core/services/IReadingAnalyticsRepository';
+import { ReadingLogModel, IReadingLog } from '@/infrastructure/persistence/mongodb/models/ReadingLog';
+import dbConnect from '@/lib/mongoose';
 
 function toRecord(doc: IReadingLog): ReadingLogRecord {
   return {

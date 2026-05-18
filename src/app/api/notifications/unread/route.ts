@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { getNotificationService } from '@/core/services/NotificationService';
+
 import { GetUnreadCountUseCase } from '@/application/use-cases/notifications/GetUnreadCountUseCase';
+import { getNotificationService } from '@/core/services/NotificationService';
+import { auth } from '@/lib/auth';
 
 export async function GET() {
   try {

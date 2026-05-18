@@ -6,10 +6,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { QualityReportModel } from '@/infrastructure/persistence/mongodb/models/QualityReport';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
-import { QualityReportModel } from '@/infrastructure/persistence/mongodb/models/QualityReport';
-import { z } from 'zod';
 
 // Query schema
 const querySchema = z.object({

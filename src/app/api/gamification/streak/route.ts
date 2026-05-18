@@ -6,9 +6,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+import { getStreakService } from '@/core/services/StreakService';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getStreakService } from '@/core/services/StreakService';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // GET /api/gamification/streak - Obtener estado completo del streak

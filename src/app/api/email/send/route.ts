@@ -5,10 +5,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { z } from 'zod';
+
 import { emailService } from '@/infrastructure/adapters/emailService';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
-import { z } from 'zod';
+import { auth } from '@/lib/auth';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 // ============================================================================

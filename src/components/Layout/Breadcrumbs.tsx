@@ -1,9 +1,10 @@
 'use client';
 
-import Link from 'next/link';
-import Script from 'next/script';
-import { usePathname } from 'next/navigation';
 import { ChevronRight, Home } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Script from 'next/script';
+
 import { cn } from '@/lib/utils';
 
 // Route name mappings

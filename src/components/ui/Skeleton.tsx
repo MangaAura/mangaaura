@@ -1,6 +1,7 @@
 'use client';
 
 import { cva, type VariantProps } from 'class-variance-authority';
+
 import { cn } from '@/lib/utils';
 const skeletonVariants = cva(
   'relative overflow-hidden rounded-md bg-surface-elevated',

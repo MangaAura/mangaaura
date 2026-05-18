@@ -5,7 +5,7 @@ export default function LegalLoading() {
         <div className="h-8 w-64 bg-tertiary rounded-lg mb-8" />
         <div className="space-y-3">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="h-4 bg-tertiary rounded w-full" style={{ width: `${80 + Math.random() * 20}%` }} />
+            <div key={i} className="h-4 bg-tertiary rounded w-full" style={{ width: '85%' }} />
           ))}
         </div>
       </div>

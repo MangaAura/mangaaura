@@ -1,8 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
+
 import { ToggleFollowUseCase } from '@/application/use-cases/follows/ToggleFollowUseCase';
+import { auth } from '@/lib/auth';
 
 const toggleFollowUseCase = new ToggleFollowUseCase();
 

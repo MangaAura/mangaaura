@@ -1,11 +1,12 @@
 'use client';
 
+import { Mail, Send, HelpCircle, MessageSquare, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 import React, { useState } from 'react';
+
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
-import { Mail, Send, HelpCircle, MessageSquare, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 export default function ContactPage() {
   const t = useT();

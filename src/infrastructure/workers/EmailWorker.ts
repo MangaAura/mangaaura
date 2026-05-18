@@ -6,9 +6,8 @@
 
 import { Worker, Job } from 'bullmq';
 import type { Redis } from 'ioredis';
+
 import { emailService } from '@/infrastructure/adapters/emailService';
-import { baseEmailTemplate } from '@/lib/email-templates';
-import { redis, isMockRedis } from '@/lib/redis';
 import type {
   EmailJobData,
   WelcomeEmailData,
@@ -19,6 +18,8 @@ import type {
   CrowdfundingGoalData,
   CommentReplyData,
 } from '@/infrastructure/queue/EmailQueue';
+import { baseEmailTemplate } from '@/lib/email-templates';
+import { redis, isMockRedis } from '@/lib/redis';
 
 // ============================================================================
 // Mock Worker for Development (when Redis is not available)
@@ -228,15 +229,12 @@ export class EmailWorker {
     const { to, userId, username, achievementName, xpReward, achievementIconUrl } = job.data;
     const achievement = {
       id: job.data.achievementId,
+      badgeId: `badge-${achievementName}`,
       name: achievementName,
       description: job.data.achievementDescription,
       xpReward,
       iconUrl: achievementIconUrl || null,
-condition: '',
-category: 'general',
-      difficulty: 'EASY',
-      createdAt: new Date(),
-      badgeId: `badge-${achievementName}`,
+      category: 'ACHIEVEMENT',
     };
 
     await emailService.sendAchievementUnlockedEmail(

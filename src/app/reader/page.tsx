@@ -1,5 +1,6 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
+
 import ReaderContent from './ReaderContent';
 
 export const metadata: Metadata = {

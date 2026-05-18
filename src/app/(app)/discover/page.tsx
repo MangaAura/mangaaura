@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
+
 import { DiscoverClient } from './DiscoverClient';
+import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'Descubrir | Inkverse',

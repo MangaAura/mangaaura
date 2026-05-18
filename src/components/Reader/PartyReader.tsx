@@ -7,8 +7,6 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Link from 'next/link';
 import {
   Users,
   Send,
@@ -28,9 +26,12 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
+import Link from 'next/link';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { useParty } from '@/hooks/useParty';
 import { useToast } from '@/components/ui/Toast';
+import { useParty } from '@/hooks/useParty';
 
 // Reacciones rapidas
 const QUICK_REACTIONS = ['🔥', '❤️', '😂', '😮', '👏', '😱', '🤩', '👀'];

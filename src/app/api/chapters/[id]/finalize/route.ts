@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+import { getNotificationService } from '@/core/services/NotificationService';
+import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getNotificationService } from '@/core/services/NotificationService';
-import { invalidateCache } from '@/lib/apiCache';
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // PATCH /api/chapters/[id]/finalize - Finalize chapter upload

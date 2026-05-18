@@ -1,8 +1,9 @@
 'use client';
 
 import { Flame, Trophy, BookOpen, Star } from 'lucide-react';
-import { QuestPanel } from '@/components/Quest/QuestPanel';
 import Link from 'next/link';
+
+import { QuestPanel } from '@/components/Quest/QuestPanel';
 
 export function QuestsPageClient() {
 

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { Slug, InvalidSlugError } from '@/core/value-objects/Slug';
 
 describe('Slug Value Object', () => {
