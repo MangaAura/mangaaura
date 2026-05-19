@@ -187,12 +187,12 @@ export default function ReportPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 shadow-lg">
           {error && (
-            <div className="mb-6 p-4 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl text-sm text-[var(--error)]">
+            <div className="mb-6 p-4 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl text-sm text-[var(--error)]" role="alert">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" aria-describedby={error ? 'report-global-error' : undefined}>
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
                 {t('report.form.whatToReport')}
@@ -237,6 +237,8 @@ export default function ReportPage() {
                   placeholder={
                     reportTypes.find((rt) => rt.value === formData.targetType)?.placeholder || 'URL o ID'
                   }
+                  aria-required
+                  autoComplete="url"
                 />
               </div>
             )}
@@ -292,13 +294,14 @@ export default function ReportPage() {
                 </label>
                 <div className="relative">
                   <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
-                  <input
+                    <input
                     id="report-evidence"
                     type="url"
                     value={formData.evidenceUrl}
                     onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
                     className="w-full pl-10 pr-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
                     placeholder={t('report.form.evidencePlaceholder')}
+                    autoComplete="url"
                   />
               </div>
             </div>

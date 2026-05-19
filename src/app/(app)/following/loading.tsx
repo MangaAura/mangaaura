@@ -1,6 +1,6 @@
 export default function FollowingLoading() {
   return (
-    <div className="animate-pulse space-y-4 p-6 max-w-2xl mx-auto">
+    <div role="status" className="animate-pulse space-y-4 p-6 max-w-2xl mx-auto">
       <div className="h-8 w-40 bg-[var(--surface-elevated)] rounded" />
       <div className="flex gap-2">
         <div className="h-10 w-28 bg-[var(--surface-elevated)] rounded-lg" />

@@ -1,4 +1,5 @@
 import Navbar from '@/components/Layout/Navbar';
+import { SkipToContent } from '@/components/Layout/SkipToContent';
 import { PageTransition } from '@/components/ui/PageTransition';
 
 export default function AuthLayout({
@@ -8,6 +9,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen bg-[var(--background)] font-sans text-[var(--text-primary)]">
+      <SkipToContent />
       <Navbar />
       <main id="main-content">
         <PageTransition>{children}</PageTransition>

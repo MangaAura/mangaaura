@@ -11,7 +11,7 @@ import { useT } from '@/i18n';
 
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center" role="status">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
         <span>{t('common.loading')}</span>
@@ -50,7 +50,11 @@ function Content() {
   const [error, setError] = useState<{ title: string; message: string; severity: 'error' | 'warning' } | null>(null);
   const [show2FA, setShow2FA] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const t = useT();
+  const emailErrorId = 'login-email-error';
+  const passwordErrorId = 'login-password-error';
+  const twoFAErrorId = 'login-2fa-error';
 
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const authError = searchParams.get('error');
@@ -69,25 +73,24 @@ function Content() {
     setIsLoading(true);
     setError(null);
 
+    const newFieldErrors: { email?: string; password?: string } = {};
     if (!email.trim()) {
-      setError({
-        title: t('auth.requiredField'),
-        message: t('auth.validation.emailRequired'),
-        severity: 'warning',
-      });
-      setIsLoading(false);
-      return;
+      newFieldErrors.email = t('auth.validation.emailRequired');
     }
-
     if (!password) {
+      newFieldErrors.password = t('auth.validation.passwordRequired');
+    }
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
       setError({
         title: t('auth.requiredField'),
-        message: t('auth.validation.passwordRequired'),
+        message: Object.values(newFieldErrors).join('. '),
         severity: 'warning',
       });
       setIsLoading(false);
       return;
     }
+    setFieldErrors({});
 
     try {
       const result = await signIn('credentials', {
@@ -100,6 +103,7 @@ function Content() {
       if (result?.error) {
         const errorInfo = getErrorMessage(result.error, t);
         setError(errorInfo);
+        setFieldErrors({});
         setIsLoading(false);
         return;
       }
@@ -201,6 +205,7 @@ function Content() {
                 </div>
                 <div>
                   <input
+                    id="login-2fa-code"
                     type="text"
                     inputMode="numeric"
                     value={twoFactorCode}
@@ -210,6 +215,11 @@ function Content() {
                     maxLength={6}
                     disabled={isLoading}
                     autoFocus
+                    aria-label="Código de verificación de 6 dígitos"
+                    aria-required="true"
+                    aria-invalid={!!error && show2FA}
+                    aria-describedby={error && show2FA ? twoFAErrorId : undefined}
+                    autoComplete="one-time-code"
                   />
                 </div>
                 <button
@@ -241,11 +251,18 @@ function Content() {
                       id="login-email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: undefined })); }}
                       className="w-full pl-10 pr-4 py-3 bg-tertiary border border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue rounded-xl outline-none transition-all text-sm"
                       placeholder="tu@email.com"
                       disabled={isLoading}
+                      aria-invalid={!!fieldErrors.email}
+                      aria-describedby={fieldErrors.email ? emailErrorId : undefined}
+                      aria-required="true"
+                      autoComplete="email"
                     />
+                    {fieldErrors.email && (
+                      <span id={emailErrorId} className="text-xs text-[var(--error)] mt-1" role="alert">{fieldErrors.email}</span>
+                    )}
                   </div>
                 </div>
 
@@ -262,11 +279,18 @@ function Content() {
                       id="login-password"
                       type="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
                       className="w-full pl-10 pr-4 py-3 bg-tertiary border border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue rounded-xl outline-none transition-all text-sm"
                       placeholder="••••••••"
                       disabled={isLoading}
+                      aria-invalid={!!fieldErrors.password}
+                      aria-describedby={fieldErrors.password ? passwordErrorId : undefined}
+                      aria-required="true"
+                      autoComplete="current-password"
                     />
+                    {fieldErrors.password && (
+                      <span id={passwordErrorId} className="text-xs text-[var(--error)] mt-1" role="alert">{fieldErrors.password}</span>
+                    )}
                   </div>
                 </div>
 

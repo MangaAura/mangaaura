@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
 import { SkipToContent } from '@/components/Layout/SkipToContent';
+import { PageTransition } from '@/components/ui/PageTransition';
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), {
   ssr: true,
@@ -18,7 +19,7 @@ export default function AppLayout({
       <Navbar />
       <main id="main-content" className="flex-1">
         <Suspense fallback={<div className="h-screen animate-pulse bg-[var(--background)]" />}>
-          {children}
+          <PageTransition>{children}</PageTransition>
         </Suspense>
       </main>
     </div>

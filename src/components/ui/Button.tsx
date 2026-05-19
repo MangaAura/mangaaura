@@ -48,6 +48,7 @@ function Button({ className, variant, size, isLoading, asChild: _asChild, childr
         <>
           <svg
             className="mr-2 h-4 w-4 animate-spin"
+            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

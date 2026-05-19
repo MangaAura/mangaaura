@@ -147,7 +147,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64" role="status">
         <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
       </div>
     );

@@ -11,7 +11,7 @@ import { notFound } from 'next/navigation';
 import { partyService } from '@/core/services/PartyService';
 
 const PartyReader = dynamic(() => import('@/components/Reader/PartyReader'), {
-  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>,
+  loading: () => <div className="flex items-center justify-center min-h-screen" role="status"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>,
 });
 
 interface PartyPageProps {

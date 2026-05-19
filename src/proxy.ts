@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 import { logRequest, generateRequestId } from '@/lib/request-logger';
 
-const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health'];
+const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health', '/_rsc/'];
 const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health'];
 const CSRF_COOKIE_NAME = '__csrf_mw';
 const CSRF_HEADER_NAME = 'x-csrf-token';
@@ -36,24 +36,18 @@ function generateNonce(): string {
   return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+// Pre-build CSP template parts — only the nonce changes per page request.
+const CSP_PREFIX = `default-src 'self'; script-src 'self' 'nonce-`;
+const CSP_SUFFIX = process.env.NODE_ENV === 'development'
+  ? `' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`
+  : `' https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
+
 function buildCSP(nonce: string): string {
-  const isDev = process.env.NODE_ENV === 'development';
-  return [
-    `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}'${isDev ? " 'unsafe-eval'" : ''} https://js.stripe.com https://www.googletagmanager.com`,
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `font-src 'self' https://fonts.gstatic.com`,
-    `img-src 'self' data: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com`,
-    `connect-src 'self' https://api.stripe.com https://*.supabase.co`,
-    `frame-src https://js.stripe.com https://hooks.stripe.com`,
-    `frame-ancestors 'none'`,
-    `base-uri 'self'`,
-    `form-action 'self'`,
-    `upgrade-insecure-requests`,
-  ].join('; ');
+  return CSP_PREFIX + nonce + CSP_SUFFIX;
 }
 
 function applySecurityHeaders(response: NextResponse, nonce: string) {
+  const csp = buildCSP(nonce);
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-XSS-Protection', '1; mode=block');
@@ -68,7 +62,6 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
   );
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
-  const csp = buildCSP(nonce);
   response.headers.set('Content-Security-Policy', csp);
   const reportUrl = process.env.CSP_REPORT_URL;
   if (reportUrl) {
@@ -116,26 +109,35 @@ export function proxy(request: NextRequest) {
 
   if (STATIC_SKIP_PATHS.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  const nonce = generateNonce();
+  // RSC payload requests carry an 'RSC: 1' header — skip proxy to avoid
+  // CSP/security headers interfering with serialized RSC payload delivery.
+  if (request.headers.get('RSC') === '1') return NextResponse.next();
 
-  // Pass nonce to SSR via request headers (Next.js reads the CSP header to auto-apply nonces)
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-  requestHeaders.set(
-    'Content-Security-Policy',
-    buildCSP(nonce)
-  );
+  // API routes return JSON, not HTML — skip nonce/CSP generation overhead.
+  const isApiRoute = pathname.startsWith('/api/');
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  let response: NextResponse;
+  let nonce = '';
 
-  // Set CSP header on response for the browser
-  applySecurityHeaders(response, nonce);
+  if (isApiRoute) {
+    // API routes: no SSP HTML → no nonce/CSP needed.
+    response = NextResponse.next();
+  } else {
+    // Page routes: generate nonce and inject CSP for SSR inline scripts.
+    nonce = generateNonce();
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-nonce', nonce);
+    requestHeaders.set('Content-Security-Policy', buildCSP(nonce));
+
+    response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+
+    applySecurityHeaders(response, nonce);
+    response.headers.set('X-CSP-Nonce', nonce);
+  }
+
   applyCORSHeaders(response, request);
-  response.headers.set('X-CSP-Nonce', nonce);
   response.headers.set('X-Request-ID', requestId);
 
   if (method === 'OPTIONS') {

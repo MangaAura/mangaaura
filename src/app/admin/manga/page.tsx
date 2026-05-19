@@ -283,6 +283,7 @@ export default function MangaManagementPage() {
                   setPage(1);
                 }}
                 className="pl-10"
+                aria-label={t('admin.searchManga')}
               />
             </div>
             <Select

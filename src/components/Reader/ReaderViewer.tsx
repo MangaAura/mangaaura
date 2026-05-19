@@ -171,7 +171,7 @@ export default function ReaderViewer({
       title="Patrocinar Próximo Capítulo"
       aria-label="Patrocinar capítulo"
     >
-        <Crown size={18} />
+        <Crown size={18} aria-hidden="true" />
       </button>
     </div>
   );

@@ -9,6 +9,7 @@ import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { QuestPanelWrapper } from '@/components/Home/QuestPanelWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Trophy, Clock, TrendingUp, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 function parseTags(tags: unknown): string[] {
@@ -81,7 +82,7 @@ export default async function HomePage() {
         <AnimatedContainer viewport>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
-              🏆 Top Mangas
+              <Trophy className="w-6 h-6 text-[var(--warning)]" /> Top Mangas
             </h2>
             <Link href="/rankings">
               <Button variant="ghost" size="sm">Ver todo →</Button>
@@ -115,7 +116,7 @@ export default async function HomePage() {
               <section>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold flex items-center gap-2">
-                    🕐 Últimas Actualizaciones
+                    <Clock className="w-6 h-6 text-[var(--primary)]" /> Últimas Actualizaciones
                   </h2>
                   <Link href="/browse">
                     <Button variant="ghost" size="sm">Ver todo →</Button>
@@ -159,7 +160,7 @@ export default async function HomePage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    📈 Top Lectores
+                    <TrendingUp className="w-5 h-5 text-accent-green" /> Top Lectores
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -191,7 +192,7 @@ export default async function HomePage() {
             <AnimatedContainer viewport>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">🆕 Nuevos Mangas</CardTitle>
+                  <CardTitle className="text-lg flex items-center gap-2"><Sparkles className="w-5 h-5 text-accent-blue" /> Nuevos Mangas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {latestMangas.slice(0, 3).map((manga) => (
@@ -236,7 +237,7 @@ export default async function HomePage() {
                 className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-white"
                 style={{ background: 'linear-gradient(to right, var(--accent-purple), var(--primary))' }}
               >
-                ✨ Empezar a crear
+                <Sparkles className="w-4 h-4" /> Empezar a crear
               </a>
             </div>
           </section>

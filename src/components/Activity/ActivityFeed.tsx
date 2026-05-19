@@ -88,10 +88,12 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchActivities = useCallback(async () => {
     try {
       setIsLoading(true);
+      setFetchError(null);
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('limit', limit.toString());
@@ -113,6 +115,7 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
       setHasMore(newActivities.length === limit);
     } catch (error) {
       console.error('Error fetching activities:', error);
+      setFetchError('Error al cargar actividades');
     } finally {
       setIsLoading(false);
     }
@@ -124,6 +127,11 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
 
   const loadMore = () => {
     setPage((p) => p + 1);
+  };
+
+  const handleRetry = () => {
+    setPage(1);
+    setFetchError(null);
   };
 
   const getActivityContent = (activity: Activity) => {
@@ -267,6 +275,17 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
             </div>
           </Card>
         ))}
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center" role="alert">
+        <p className="text-[var(--error)] mb-4">{fetchError}</p>
+        <Button variant="outline" onClick={handleRetry}>
+          Reintentar
+        </Button>
       </div>
     );
   }

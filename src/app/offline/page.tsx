@@ -68,7 +68,7 @@ export default function OfflinePage() {
             isOnline ? "bg-[var(--success)]/20" : "bg-[var(--warning)]/20"
           )}>
             {isOnline ? (
-              <RefreshCw className="w-12 h-12 text-[var(--success)] animate-spin" />
+              <RefreshCw className="w-12 h-12 text-[var(--success)] animate-spin" role="status" />
             ) : (
               <WifiOff className="w-12 h-12 text-[var(--warning)]" />
             )}
@@ -160,7 +160,7 @@ export default function OfflinePage() {
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center py-8">
+          <div className="flex justify-center py-8" role="status">
             <RefreshCw className="w-8 h-8 text-[var(--text-tertiary)] animate-spin" />
           </div>
         )}

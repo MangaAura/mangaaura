@@ -4,6 +4,8 @@ import { BookOpen, CheckCircle, Clock, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 
+import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
+
 interface ReadingEntry {
   id: string;
   percentage: number;
@@ -71,6 +73,7 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por manga o capítulo..."
+            aria-label="Buscar en historial de lectura"
             className="w-full pl-9 pr-4 py-2.5 bg-secondary border border-custom rounded-xl text-sm outline-none focus:border-accent-blue transition-colors"
           />
         </div>
@@ -89,8 +92,10 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
         </div>
       </div>
 
+      <StaggerContainer className="space-y-4" staggerDelay={0.06}>
       {groupedByManga.map(({ manga, chapters }) => (
-        <div key={manga.id} className="bg-secondary border border-custom rounded-xl overflow-hidden">
+        <StaggerItem key={manga.id}>
+        <div className="bg-secondary border border-custom rounded-xl overflow-hidden">
           <Link href={`/manga/${manga.slug}`} className="flex items-center gap-3 p-4 bg-tertiary/50 hover:bg-tertiary transition-colors border-b border-custom">
             {manga.coverUrl ? (
               <img src={manga.coverUrl} alt="" className="w-10 h-14 rounded object-cover" />
@@ -104,7 +109,7 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
           </Link>
           <div className="divide-y divide-custom">
             {chapters.map((entry) => (
-              <Link key={entry.id} href={`/manga/${manga.slug}/${entry.chapter.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-tertiary transition-colors">
+              <Link key={entry.id} href={`/manga/${manga.slug}/${entry.chapter.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-tertiary transition-colors group/link">
                 <div className="flex items-center gap-3 min-w-0">
                   {entry.completed ? (
                     <CheckCircle size={16} className="shrink-0 text-accent-green" />
@@ -125,7 +130,9 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
             ))}
           </div>
         </div>
+        </StaggerItem>
       ))}
+      </StaggerContainer>
 
       {filtered.length === 0 && (
         <div className="text-center py-12 text-muted">

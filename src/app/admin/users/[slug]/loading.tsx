@@ -1,6 +1,6 @@
 export default function AdminUserDetailLoading() {
   return (
-    <div className="animate-pulse p-6">
+    <div role="status" className="animate-pulse p-6">
       <div className="h-8 w-48 bg-tertiary rounded-lg mb-6" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Array.from({ length: 6 }).map((_, i) => (

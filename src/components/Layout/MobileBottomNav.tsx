@@ -39,8 +39,9 @@ export function MobileBottomNav() {
                   ? 'text-[var(--primary)]'
                   : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
               )}
+              aria-current={active ? 'page' : undefined}
             >
-              <Icon size={22} className={active ? 'drop-shadow-sm' : ''} />
+              <Icon size={22} className={active ? 'drop-shadow-sm' : ''} aria-hidden="true" />
               <span className={cn('text-[10px] font-medium', active ? 'font-semibold' : '')}>
                 {t(labelKey)}
               </span>

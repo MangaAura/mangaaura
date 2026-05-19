@@ -1,6 +1,6 @@
 export default function CreateCollectionLoading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div role="status" className="min-h-screen bg-background animate-pulse">
       <div className="max-w-2xl mx-auto px-6 py-8">
         <div className="h-8 w-1/3 bg-tertiary rounded-lg mb-6" />
         <div className="bg-secondary rounded-xl p-6 space-y-6">

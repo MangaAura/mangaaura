@@ -1,4 +1,5 @@
 import Navbar from '@/components/Layout/Navbar';
+import { SkipToContent } from '@/components/Layout/SkipToContent';
 import { PageTransition } from '@/components/ui/PageTransition';
 
 export default function CommunityLayout({
@@ -8,10 +9,11 @@ export default function CommunityLayout({
 }) {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col">
+      <SkipToContent />
       <Navbar />
-      <div role="main" id="main-content" className="flex-1">
+      <main id="main-content" className="flex-1">
         <PageTransition>{children}</PageTransition>
-      </div>
+      </main>
     </div>
   );
 }

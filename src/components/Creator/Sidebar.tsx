@@ -68,6 +68,7 @@ export function Sidebar({ className }: SidebarProps) {
 ? 'bg-[var(--primary)] text-[var(--text-inverse)]'
           : 'text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-inverse)]'
                   )}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="font-medium">{t(item.labelKey)}</span>

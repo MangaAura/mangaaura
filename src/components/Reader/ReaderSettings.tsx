@@ -87,7 +87,7 @@ export function ReaderSettingsPanel({
             className="p-2 rounded-lg hover:bg-[var(--surface-elevated)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             aria-label="Cerrar configuración"
           >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
             </div>

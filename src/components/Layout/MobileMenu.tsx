@@ -7,6 +7,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { useEffect, useRef } from 'react';
 
 import { NavLinks, isActive, type NavLinkDef } from './NavLinks';
 import { SearchBar } from './SearchBar';
@@ -31,6 +32,16 @@ export function MobileMenu({
 }: MobileMenuProps) {
   const pathname = usePathname();
   const t = useT();
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      triggerRef.current = document.activeElement as HTMLElement;
+    } else if (triggerRef.current) {
+      triggerRef.current.focus();
+      triggerRef.current = null;
+    }
+  }, [open]);
 
   const handleSearch = (query: string) => {
     onSearch(query);
@@ -47,7 +58,7 @@ export function MobileMenu({
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-[60] md:hidden"
         >
-          <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+          <div className="absolute inset-0 bg-black/50" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} role="presentation" />
 
           <motion.div
             initial={{ x: '100%' }}
@@ -73,7 +84,7 @@ export function MobileMenu({
                 </button>
               </div>
 
-              <nav className="space-y-1">
+              <nav className="space-y-1" aria-label={t('common.menu')}>
                 <NavLinks links={links} mounted={mounted} mobile />
 
                 {mounted && isLoggedIn && (
@@ -89,6 +100,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/feed') ? 'page' : undefined}
                     >
                       <Rss className="w-5 h-5" aria-hidden="true" />
                       {t('nav.feed')}
@@ -103,6 +115,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/notifications') ? 'page' : undefined}
                     >
                       <span className="flex items-center gap-3">
                         <Bell className="w-5 h-5" aria-hidden="true" />
@@ -124,6 +137,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/messages') ? 'page' : undefined}
                     >
                       <span className="flex items-center gap-3">
                         <MessageCircle className="w-5 h-5" aria-hidden="true" />
@@ -145,6 +159,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/collections') ? 'page' : undefined}
                     >
                       <FolderOpen className="w-5 h-5" aria-hidden="true" />
                       {t('nav.collections')}
@@ -159,6 +174,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/events') ? 'page' : undefined}
                     >
                       <Calendar className="w-5 h-5" aria-hidden="true" />
                       {t('nav.events')}
@@ -173,6 +189,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/quests') ? 'page' : undefined}
                     >
                       <Medal className="w-5 h-5" aria-hidden="true" />
                       {t('nav.quests')}
@@ -188,6 +205,7 @@ export function MobileMenu({
                             ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                             : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                         }
+                        aria-current={isActive(pathname, '/creator') ? 'page' : undefined}
                       >
                         <Crown className="w-5 h-5" aria-hidden="true" />
                         {t('creator.dashboard')}
@@ -212,6 +230,7 @@ export function MobileMenu({
                           ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
                           : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                       }
+                      aria-current={isActive(pathname, '/settings') ? 'page' : undefined}
                     >
                       <Settings className="w-5 h-5" aria-hidden="true" />
                       {t('common.settings')}
@@ -242,6 +261,7 @@ export function MobileMenu({
                     href="/auth/login"
                     onClick={onClose}
                     className="block w-full px-4 py-2.5 text-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--background)] border border-[var(--border)] rounded-lg hover:bg-[var(--surface-elevated)] transition-colors"
+                    aria-current={isActive(pathname, '/auth/login') ? 'page' : undefined}
                   >
                     {t('nav.login')}
                   </Link>
@@ -249,6 +269,7 @@ export function MobileMenu({
                     href="/auth/register"
                     onClick={onClose}
                     className="block w-full px-4 py-2.5 text-center text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] rounded-lg transition-colors"
+                    aria-current={isActive(pathname, '/auth/register') ? 'page' : undefined}
                   >
                     {t('nav.register')}
                   </Link>

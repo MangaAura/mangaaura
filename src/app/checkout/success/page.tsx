@@ -18,7 +18,7 @@ import { useT } from '@/i18n';
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" role="status">
       <Loader2 className="w-8 h-8 animate-spin text-[var(--info)]" />
     </div>
   );

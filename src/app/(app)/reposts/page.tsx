@@ -26,7 +26,7 @@ export default function RepostsPage() {
   const [filter, setFilter] = useState<string | null>(null);
 
   if (error) return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-muted">Error al cargar reposts</div>;
-  if (!data) return <div className="max-w-3xl mx-auto px-4 py-8"><Loader2 size={24} className="animate-spin mx-auto text-muted" /></div>;
+  if (!data) return <div className="max-w-3xl mx-auto px-4 py-8" role="status"><Loader2 size={24} className="animate-spin mx-auto text-muted" /></div>;
 
   const reposts = data.reposts || [];
   const filtered = filter ? reposts.filter((r: any) => r.originalType === filter) : reposts;

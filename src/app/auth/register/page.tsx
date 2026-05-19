@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils';
 
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center" role="status">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
         <span>{t('common.loading')}</span>
@@ -83,6 +83,11 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms] = useState(false);
+  const [idPrefix] = useState(() => `register-${Math.random().toString(36).substr(2, 6)}`);
+  const usernameErrorId = `${idPrefix}-username-error`;
+  const emailErrorId = `${idPrefix}-email-error`;
+  const passwordErrorId = `${idPrefix}-password-error`;
+  const confirmPasswordErrorId = `${idPrefix}-confirm-password-error`;
   const t = useT();
   const { baseSchema, registerSchema } = useMemo(() => createRegisterSchemas(t), [t]);
 
@@ -244,13 +249,17 @@ errors.username
                     )}
                     placeholder="usuario123"
                     disabled={isLoading}
+                    aria-invalid={!!errors.username}
+                    aria-describedby={errors.username ? usernameErrorId : undefined}
+                    aria-required="true"
+                    autoComplete="username"
                   />
                   {formData.username && !errors.username && (
 <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
 )}
 </div>
 {errors.username && (
-<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<div id={usernameErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg" role="alert">
 <AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
 <p className="text-sm font-medium text-[var(--error)]">{errors.username}</p>
                   </div>
@@ -279,13 +288,17 @@ errors.email
                     )}
                     placeholder="tu@email.com"
                     disabled={isLoading}
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? emailErrorId : undefined}
+                    aria-required="true"
+                    autoComplete="email"
                   />
                   {formData.email && !errors.email && (
 <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
 )}
 </div>
 {errors.email && (
-<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<div id={emailErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg" role="alert">
 <AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
 <p className="text-sm font-medium text-[var(--error)]">{errors.email}</p>
                   </div>
@@ -310,6 +323,10 @@ errors.email
                     )}
                     placeholder="••••••••"
                     disabled={isLoading}
+                    aria-invalid={!!errors.password}
+                    aria-describedby={errors.password ? passwordErrorId : undefined}
+                    aria-required="true"
+                    autoComplete="new-password"
                   /><button
   type="button"
   onClick={() => setShowPassword(!showPassword)}
@@ -340,7 +357,7 @@ errors.email
                   </div>
                 )}
                 {errors.password && (
-<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<div id={passwordErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg" role="alert">
 <AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
 <p className="text-sm font-medium text-[var(--error)]">{errors.password}</p>
                   </div>
@@ -365,6 +382,10 @@ errors.email
                     )}
                     placeholder="••••••••"
                     disabled={isLoading}
+                    aria-invalid={!!errors.confirmPassword}
+                    aria-describedby={errors.confirmPassword ? confirmPasswordErrorId : undefined}
+                    aria-required="true"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -376,7 +397,7 @@ errors.email
                   </button>
                 </div>
                 {errors.confirmPassword && (
-<div className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg">
+<div id={confirmPasswordErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg" role="alert">
 <AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
 <p className="text-sm font-medium text-[var(--error)]">{errors.confirmPassword}</p>
                   </div>

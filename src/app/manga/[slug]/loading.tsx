@@ -1,6 +1,6 @@
 export default function MangaLoading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div role="status" className="min-h-screen bg-background animate-pulse">
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-48 h-72 bg-tertiary rounded-xl flex-shrink-0" />

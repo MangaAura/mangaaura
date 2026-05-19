@@ -80,7 +80,7 @@ export function InstallPrompt() {
             className="p-1 hover:opacity-90 rounded-lg transition-colors cursor-pointer"
             aria-label="Cerrar"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
         <div className="flex gap-2 mt-3">

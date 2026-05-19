@@ -1,6 +1,6 @@
 export default function SearchLoading() {
   return (
-    <div className="min-h-screen bg-[var(--background)] animate-pulse">
+    <div role="status" className="min-h-screen bg-[var(--background)] animate-pulse">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="h-12 w-full max-w-xl bg-[var(--surface-sunken)] rounded-lg mb-6" />
         <div className="flex gap-3 mb-8">

@@ -496,7 +496,7 @@ export default function ClanDetailClient({
     : null;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pb-16" role="main">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pb-16">
       {/* ═══ Hero Banner ═══ */}
       <header className="relative bg-gradient-to-br from-[var(--accent-purple)]/20 via-[var(--primary)]/10 to-[var(--background)] border-b border-[var(--border)] overflow-hidden">
         {/* Background pattern */}

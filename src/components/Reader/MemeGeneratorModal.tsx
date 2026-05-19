@@ -1,7 +1,8 @@
 'use client';
 
 import { X, Download, Type, Loader2, Share2 } from 'lucide-react';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import FocusLock from 'react-focus-lock';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 
@@ -21,6 +22,23 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
   const [isUploading, setIsUploading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [titleId] = useState(() => `meme-title-${Math.random().toString(36).substr(2, 9)}`);
+
+  useEffect(() => {
+    if (isOpen) {
+      const trigger = document.activeElement as HTMLElement;
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') handleClose();
+      };
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = '';
+        trigger?.focus();
+      };
+    }
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -118,13 +136,14 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in-up">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <FocusLock returnFocus>
       <canvas ref={canvasRef} className="hidden" />
       <div className="bg-secondary w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-custom">
         <div className="flex justify-between items-center p-4 border-b border-custom">
-          <h2 className="text-lg font-bold flex items-center gap-2"><Type size={20} /> Generador de Memes</h2>
+          <h2 id={titleId} className="text-lg font-bold flex items-center gap-2"><Type size={20} /> Generador de Memes</h2>
           <button onClick={handleClose} className="p-1 rounded hover:bg-tertiary transition-colors cursor-pointer" aria-label="Cerrar">
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
@@ -195,6 +214,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
           </button>
         </div>
       </div>
+      </FocusLock>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 export default function ReaderChapterLoading() {
   return (
-    <div className="min-h-screen bg-[var(--background)] animate-pulse">
+    <div role="status" className="min-h-screen bg-[var(--background)] animate-pulse">
       <div className="h-12 bg-[var(--surface-sunken)]" />
       <div className="flex flex-col items-center py-8 gap-2">
         {Array.from({ length: 4 }).map((_, i) => (

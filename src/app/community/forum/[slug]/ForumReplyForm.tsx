@@ -60,9 +60,11 @@ export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
         disabled={isSubmitting}
         minLength={1}
         maxLength={10000}
+        aria-required
+        aria-describedby={error ? 'forum-reply-error' : undefined}
       />
       {error && (
-        <p className="text-sm text-[var(--error)]">{error}</p>
+        <p id="forum-reply-error" className="text-sm text-[var(--error)]" role="alert">{error}</p>
       )}
       <div className="flex items-center justify-between">
         <span className="text-xs text-[var(--text-tertiary)]">

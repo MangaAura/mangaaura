@@ -44,7 +44,7 @@ export default function CreateCollectionPage() {
           href="/collections"
           className="inline-flex items-center text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
           Volver a colecciones
         </Link>
 
@@ -62,29 +62,32 @@ export default function CreateCollectionPage() {
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ej: Mis mangas favoritos"
-                maxLength={100}
-                required
-              />
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej: Mis mangas favoritos"
+              maxLength={100}
+              required
+              autoComplete="off"
+              aria-describedby={error ? 'collection-error' : undefined}
+            />
             </div>
 
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Descripción (opcional)</Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe qué mangas incluirás..."
-                maxLength={500}
-                rows={3}
-                className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none"
-              />
-              <p className="text-xs text-[var(--text-tertiary)] text-right">
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe qué mangas incluirás..."
+              maxLength={500}
+              rows={3}
+              className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none"
+              aria-describedby="description-count"
+            />
+            <p id="description-count" className="text-xs text-[var(--text-tertiary)] text-right">
                 {description.length}/500
               </p>
             </div>
@@ -93,39 +96,41 @@ export default function CreateCollectionPage() {
             <div className="space-y-4">
               <Label>Privacidad</Label>
               <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(true)}
-          className={`flex-1 p-4 rounded-lg border text-left transition-all ${
-            isPublic
-              ? 'border-[var(--primary)] bg-[var(--primary-subtle)]'
-              : 'border-[var(--border)] hover:border-[var(--border-strong)]'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <Globe className={`w-5 h-5 ${isPublic ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]'}`} />
-            <div>
-              <p className={`font-medium ${isPublic ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                Pública
-              </p>
-              <p className="text-xs text-[var(--text-tertiary)]">
-                        Cualquiera puede ver y seguir
-                      </p>
-                    </div>
+              <button
+                type="button"
+                onClick={() => setIsPublic(true)}
+                aria-pressed={isPublic}
+                className={`flex-1 p-4 rounded-lg border text-left transition-all ${
+                  isPublic
+                    ? 'border-[var(--primary)] bg-[var(--primary-subtle)]'
+                    : 'border-[var(--border)] hover:border-[var(--border-strong)]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Globe className={`w-5 h-5 ${isPublic ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]'}`} aria-hidden="true" />
+                  <div>
+                    <p className={`font-medium ${isPublic ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
+                      Pública
+                    </p>
+                    <p className="text-xs text-[var(--text-tertiary)]">
+                      Cualquiera puede ver y seguir
+                    </p>
                   </div>
-                </button>
+                </div>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(false)}
-          className={`flex-1 p-4 rounded-lg border text-left transition-all ${
-            !isPublic
-              ? 'border-[var(--primary)] bg-[var(--primary-subtle)]'
-              : 'border-[var(--border)] hover:border-[var(--border-strong)]'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <Lock className={`w-5 h-5 ${!isPublic ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]'}`} />
+              <button
+                type="button"
+                onClick={() => setIsPublic(false)}
+                aria-pressed={!isPublic}
+                className={`flex-1 p-4 rounded-lg border text-left transition-all ${
+                  !isPublic
+                    ? 'border-[var(--primary)] bg-[var(--primary-subtle)]'
+                    : 'border-[var(--border)] hover:border-[var(--border-strong)]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Lock className={`w-5 h-5 ${!isPublic ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]'}`} aria-hidden="true" />
             <div>
               <p className={`font-medium ${!isPublic ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
                 Privada
@@ -141,7 +146,7 @@ export default function CreateCollectionPage() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 rounded-lg bg-[var(--error)]/10 text-[var(--error)] text-sm">
+              <div className="p-3 rounded-lg bg-[var(--error)]/10 text-[var(--error)] text-sm" role="alert" id="collection-error">
                 {error}
               </div>
             )}
@@ -159,7 +164,7 @@ export default function CreateCollectionPage() {
                 isLoading={isPending}
                 className="flex-1"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
                 Crear colección
               </Button>
             </div>

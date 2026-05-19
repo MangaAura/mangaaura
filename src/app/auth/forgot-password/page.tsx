@@ -27,6 +27,7 @@ export default function ForgotPasswordPage() {
   
   const [touched, setTouched] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const emailErrorId = 'forgot-email-error';
 
   const validateEmail = (value: string): boolean => {
     try {
@@ -206,13 +207,17 @@ export default function ForgotPasswordPage() {
                               : 'border-custom focus:border-accent-blue focus:ring-1 focus:ring-accent-blue'
                         )}
                         placeholder={t('auth.forgotPassword.emailPlaceholder')}
+                        aria-invalid={!!hasError}
+                        aria-describedby={validationError ? emailErrorId : undefined}
+                        aria-required="true"
+                        autoComplete="email"
                       />
                       {isValidEmail && (
                         <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
                       )}
                     </div>
                     {touched && validationError && (
-                      <div className="mt-2">
+                      <div id={emailErrorId} className="mt-2" role="alert">
                         <ErrorMessage
                           message={validationError}
                           severity="warning"

@@ -281,6 +281,7 @@ export default function UsersPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
+              aria-label={t('admin.searchUsers')}
             />
           </div>
         </CardContent>
@@ -295,7 +296,7 @@ export default function UsersPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-12" role="status">
               <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
             </div>
           ) : error ? (

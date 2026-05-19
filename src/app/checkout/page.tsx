@@ -76,7 +76,7 @@ export default function CheckoutPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-[var(--background)] pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] pt-20 flex items-center justify-center" role="status">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     );

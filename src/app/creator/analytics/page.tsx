@@ -266,7 +266,7 @@ const fetchMongoAnalytics = useCallback(async () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-12" role="status">
             <Loader2Icon className="w-8 h-8 animate-spin text-[var(--primary)]" />
             <span className="ml-3 text-[var(--text-secondary)]">{t('creatorAnalytics.loading')}</span>
           </div>

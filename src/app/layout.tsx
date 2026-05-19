@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { headers } from 'next/headers';
-import Script from "next/script";
+
 import { Suspense } from 'react';
 
 import { AppFooter } from "@/components/Layout/AppFooter";
@@ -134,10 +134,15 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://**.vercel-storage.com" />
       </head>
-      <Script id="theme-init" strategy="beforeInteractive" nonce={nonce} dangerouslySetInnerHTML={{
-        __html: `(function(){try{var e=localStorage.getItem('inkverse-theme');if(e==='dark'||(e!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`
-      }} />
       <body className="font-sans antialiased flex flex-col min-h-screen">
+        <script
+          id="theme-init"
+          nonce={nonce}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var e=localStorage.getItem("inkverse-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
+          }}
+        />
         <Suspense fallback={<div className="flex flex-col flex-1 noise" />}>
           <DynamicProviders>{children}</DynamicProviders>
         </Suspense>

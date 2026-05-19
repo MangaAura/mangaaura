@@ -2,7 +2,8 @@
 
 import { X, Crown, Loader2, Coins, Target, Check, MessageSquare } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import FocusLock from 'react-focus-lock';
 
 interface SponsorshipModalProps {
   isOpen: boolean;
@@ -32,6 +33,8 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
   const [isSuccess, setIsSuccess] = useState(false);
   const [sponsorData, setSponsorData] = useState<SponsorData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const [titleId] = useState(() => `sponsor-title-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (!isOpen || !chapterId) return;
@@ -47,6 +50,22 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
       .catch(() => {})
       .finally(() => setLoadingData(false));
   }, [isOpen, chapterId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const trigger = document.activeElement as HTMLElement;
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = '';
+        trigger?.focus();
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -82,11 +101,18 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in-up">
-      <div className="bg-secondary w-full max-w-lg rounded-2xl shadow-2xl p-6 border border-custom relative">
-        <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded hover:bg-tertiary text-muted transition-colors cursor-pointer" aria-label="Cerrar">
-          <X size={20} />
-        </button>
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      <FocusLock returnFocus>
+        <div className="bg-secondary w-full max-w-lg rounded-2xl shadow-2xl p-6 border border-custom relative">
+          <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded hover:bg-tertiary text-muted transition-colors cursor-pointer" aria-label="Cerrar">
+            <X size={20} aria-hidden="true" />
+          </button>
 
         {!isSuccess ? (
           <>
@@ -94,7 +120,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--warning)]/10 text-[var(--warning)] mb-4 border border-[var(--warning)]/20">
                 <Crown size={28} />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Patrocinar Próximo Capítulo</h2>
+              <h2 id={titleId} className="text-2xl font-bold mb-2">Patrocinar Próximo Capítulo</h2>
               <p className="text-sm text-muted px-4">
                 Apoya directamente al creador de <strong>{chapterTitle}</strong> con tus InkCoins para desbloquear el próximo capítulo más rápido.
               </p>
@@ -217,6 +243,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
           </div>
         )}
       </div>
+      </FocusLock>
     </div>
   );
 }

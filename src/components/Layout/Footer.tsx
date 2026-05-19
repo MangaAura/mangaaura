@@ -111,7 +111,7 @@ export function Footer({ className }: { className?: string }) {
             </div>
           </div>
 
-          <div>
+          <nav aria-label={t('footer.sectionPlatform')}>
             <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionPlatform')}</h2>
             <ul className="space-y-3">
               {footerLinks.platform
@@ -131,9 +131,9 @@ export function Footer({ className }: { className?: string }) {
                   );
                 })}
             </ul>
-          </div>
+          </nav>
 
-          <div>
+          <nav aria-label={t('footer.sectionSupport')}>
             <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionSupport')}</h2>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => {
@@ -151,9 +151,9 @@ export function Footer({ className }: { className?: string }) {
                 );
               })}
             </ul>
-          </div>
+          </nav>
 
-          <div>
+          <nav aria-label={t('footer.sectionLegal')}>
             <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionLegal')}</h2>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => {
@@ -171,7 +171,7 @@ export function Footer({ className }: { className?: string }) {
                 );
               })}
             </ul>
-          </div>
+          </nav>
         </div>
 
         <div className="mt-12 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4">

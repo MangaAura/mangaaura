@@ -78,6 +78,7 @@ export function CommentsClient({ comments }: { comments: CommentData[] }) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Buscar en comentarios..."
+        aria-label="Buscar en comentarios"
         className="w-full px-4 py-3 bg-secondary border border-custom rounded-xl text-sm outline-none focus:border-accent-blue transition-colors"
       />
 

@@ -1,6 +1,6 @@
 export default function HelpLoading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div role="status" className="min-h-screen bg-background animate-pulse">
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="h-8 w-1/4 bg-tertiary rounded-lg mb-6" />
         <div className="h-10 bg-tertiary rounded-xl mb-6" />

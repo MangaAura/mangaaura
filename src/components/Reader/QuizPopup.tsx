@@ -2,7 +2,8 @@
 
 import { HelpCircle, CheckCircle2, XCircle, Coins, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import FocusLock from 'react-focus-lock';
 
 interface QuizQuestion {
   question: string;
@@ -39,6 +40,8 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
   const [isLoading, setIsLoading] = useState(false);
   const [quizData, setQuizData] = useState<QuizQuestion>(FALLBACK_QUESTION);
   const [isFetching, setIsFetching] = useState(true);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const [titleId] = useState(() => `quiz-title-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (isOpen && chapterId) {
@@ -56,6 +59,22 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
         .finally(() => setIsFetching(false));
     }
   }, [isOpen, chapterId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const trigger = document.activeElement as HTMLElement;
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = '';
+        trigger?.focus();
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -88,23 +107,32 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
 
   if (isFetching) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div className="bg-secondary w-full max-w-md rounded-2xl shadow-2xl p-6 border border-custom text-center">
-          <Loader2 size={32} className="animate-spin mx-auto text-accent-blue mb-4" />
-          <p className="text-muted">Generando pregunta...</p>
-        </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Quiz pregunta">
+        <FocusLock returnFocus>
+          <div className="bg-secondary w-full max-w-md rounded-2xl shadow-2xl p-6 border border-custom text-center">
+            <Loader2 size={32} className="animate-spin mx-auto text-accent-blue mb-4" />
+            <p className="text-muted" role="status">Generando pregunta...</p>
+          </div>
+        </FocusLock>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in-up">
-      <div className="bg-secondary w-full max-w-md rounded-2xl shadow-2xl p-6 border border-custom">
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      <FocusLock returnFocus>
+        <div className="bg-secondary w-full max-w-md rounded-2xl shadow-2xl p-6 border border-custom">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent-blue/10 text-accent-blue mb-4">
             <HelpCircle size={24} />
           </div>
-          <h2 className="text-xl font-bold mb-1">Pop Quiz: {chapterTitle}</h2>
+          <h2 id={titleId} className="text-xl font-bold mb-1">Pop Quiz: {chapterTitle}</h2>
           <p className="text-sm text-muted">¡Responde correctamente para ganar experiencia!</p>
         </div>
 
@@ -173,6 +201,7 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
           </button>
         )}
       </div>
+      </FocusLock>
     </div>
   );
 }

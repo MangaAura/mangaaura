@@ -211,7 +211,7 @@ export default function AdvancedSearchPage() {
           <div className="flex justify-between items-center mb-6">
             <p className="text-muted font-semibold text-sm">
               {loading ? (
-                <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Buscando...</span>
+                <span className="flex items-center gap-2" role="status"><Loader2 size={16} className="animate-spin" /> Buscando...</span>
               ) : (
                 <><span className="text-[var(--text-primary)] font-black text-xl mr-1">{total}</span> resultados encontrados</>
               )}
@@ -254,7 +254,7 @@ export default function AdvancedSearchPage() {
                       <p className="text-xs text-muted mb-3">Por <span className="font-semibold text-accent-purple">{manga.authorName || 'Desconocido'}</span></p>
                       <div className="flex flex-wrap gap-1.5 mb-auto">
                         {manga.tags?.slice(0, 3).map((genre: string) => (
-                          <span key={genre} onClick={(e) => { e.preventDefault(); toggleGenre(genre); }} className="text-[10px] font-bold bg-tertiary border border-custom hover:border-accent-purple text-muted px-2 py-0.5 rounded-full cursor-pointer transition-colors">
+                          <span key={genre} onClick={(e) => { e.preventDefault(); toggleGenre(genre); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleGenre(genre); } }} role="button" tabIndex={0} className="text-[10px] font-bold bg-tertiary border border-custom hover:border-accent-purple text-muted px-2 py-0.5 rounded-full cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1">
                             {genre}
                           </span>
                         ))}

@@ -249,6 +249,14 @@ export function StreakCalendar({
                         'w-3 h-3 rounded-sm transition-colors',
                         getIntensityColor(cell.hasRead, cell.isToday, cell.isFuture),
                       )}
+                      role="gridcell"
+                      aria-label={
+                        cell.isFuture
+                          ? `${cell.date} — futuro`
+                          : cell.hasRead
+                            ? `${cell.date} — leído`
+                            : `${cell.date} — no leído`
+                      }
                       title={
                         cell.isFuture
                           ? cell.date

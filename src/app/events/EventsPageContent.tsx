@@ -142,7 +142,7 @@ function EventsPageInner() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center" role="status">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     );
@@ -152,7 +152,7 @@ function EventsPageInner() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[var(--text-secondary)] mb-4">{error}</p>
+          <p className="text-[var(--text-secondary)] mb-4" role="alert">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
@@ -188,7 +188,7 @@ function EventsPageInner() {
 
 function EventsSkeleton() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="min-h-[60vh] flex items-center justify-center" role="status">
       <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
     </div>
   );

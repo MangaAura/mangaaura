@@ -94,6 +94,7 @@ export function NavLinks({ links, mobile, mounted = true }: NavLinksProps) {
             key={link.path}
             href={link.path}
             className={navLinkVariants({ active, mobile })}
+            aria-current={active ? 'page' : undefined}
           >
             {mounted && Icon ? (
               <Icon className={mobile ? 'w-5 h-5' : 'w-4 h-4'} />

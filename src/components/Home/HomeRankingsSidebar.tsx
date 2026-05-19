@@ -163,6 +163,7 @@ export function HomeRankingsSidebar({ topMangas = [] }: HomeRankingsSidebarProps
   const showSkeleton = isLoading && rankings.length === 0;
 
   return (
+    <aside aria-label={t('home.topMangas')}>
     <Card ref={ref}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
@@ -227,5 +228,6 @@ export function HomeRankingsSidebar({ topMangas = [] }: HomeRankingsSidebarProps
         </Link>
       </CardContent>
     </Card>
+    </aside>
   );
 }

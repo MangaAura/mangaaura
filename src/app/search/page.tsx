@@ -15,6 +15,7 @@ import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { MangaCard } from '@/components/MangaCard';
 import { SearchBar } from '@/components/Search/SearchBar';
 import { Button } from '@/components/ui/Button';
+import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { cn } from '@/lib/utils';
 
 
@@ -54,7 +55,7 @@ interface MangaResult {
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center" role="status">
       <Loader2 className="w-10 h-10 animate-spin text-[var(--info)]" />
     </div>
   );
@@ -90,9 +91,9 @@ function MangaListItem({ manga }: { manga: MangaResult }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-<h2 className="font-bold text-sm group-hover:text-[var(--info)] transition-colors truncate">
+<h3 className="font-bold text-sm group-hover:text-[var(--info)] transition-colors truncate">
   {manga.title}
-</h2>
+</h3>
         {manga.authorName && (
           <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{manga.authorName}</p>
         )}
@@ -368,30 +369,33 @@ function SearchPageContent() {
           {!isLoading && results.length > 0 && (
             <>
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" staggerDelay={0.04}>
                   {results.map(manga => (
-                    <MangaCard
-                      key={manga.id}
-                      manga={{
-                        id: manga.id,
-                        title: manga.title,
-                        slug: manga.slug,
-                        coverUrl: manga.coverUrl,
-                        status: manga.status,
-                        tags: manga.tags,
-                        authorName: manga.authorName,
-                        rating: manga.rating,
-                        chapterCount: manga.chapterCount,
-                      }}
-                    />
+                    <StaggerItem key={manga.id}>
+                      <MangaCard
+                        manga={{
+                          id: manga.id,
+                          title: manga.title,
+                          slug: manga.slug,
+                          coverUrl: manga.coverUrl,
+                          status: manga.status,
+                          tags: manga.tags,
+                          authorName: manga.authorName,
+                          rating: manga.rating,
+                          chapterCount: manga.chapterCount,
+                        }}
+                      />
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerContainer>
               ) : (
-                <div className="flex flex-col gap-3">
+                <StaggerContainer className="flex flex-col gap-3" staggerDelay={0.03}>
                   {results.map(manga => (
-                    <MangaListItem key={manga.id} manga={manga} />
+                    <StaggerItem key={manga.id}>
+                      <MangaListItem manga={manga} />
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerContainer>
               )}
 
               {/* Load More */}

@@ -128,13 +128,16 @@ export default function ContactPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'contact-name-error' : undefined}
+                  aria-required
                   className={cn(
                     'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
                     errors.name ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                   )}
                   placeholder={t('contact.form.namePlaceholder')}
                 />
-                {errors.name && <p className="mt-1 text-sm text-[var(--error)]">{errors.name}</p>}
+                {errors.name && <p id="contact-name-error" className="mt-1 text-sm text-[var(--error)]">{errors.name}</p>}
               </div>
               <div>
                 <label htmlFor="contact-email" className="block text-sm font-semibold mb-2">{t('contact.form.email')}</label>
@@ -143,13 +146,17 @@ export default function ContactPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'contact-email-error' : undefined}
+                  aria-required
+                  autoComplete="email"
                   className={cn(
                     'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
                     errors.email ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                   )}
                   placeholder={t('contact.form.emailPlaceholder')}
                 />
-                {errors.email && <p className="mt-1 text-sm text-[var(--error)]">{errors.email}</p>}
+                {errors.email && <p id="contact-email-error" className="mt-1 text-sm text-[var(--error)]">{errors.email}</p>}
               </div>
             </div>
 
@@ -182,13 +189,16 @@ export default function ContactPage() {
                   type="text"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  aria-invalid={!!errors.subject}
+                  aria-describedby={errors.subject ? 'contact-subject-error' : undefined}
+                  aria-required
                   className={cn(
                     'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
                     errors.subject ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                   )}
                   placeholder={t('contact.form.subjectPlaceholder')}
                 />
-              {errors.subject && <p className="mt-1 text-sm text-[var(--error)]">{errors.subject}</p>}
+              {errors.subject && <p id="contact-subject-error" className="mt-1 text-sm text-[var(--error)]">{errors.subject}</p>}
             </div>
 
             <div>
@@ -198,13 +208,16 @@ export default function ContactPage() {
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   rows={5}
+                  aria-invalid={!!errors.message}
+                  aria-describedby={errors.message ? 'contact-message-error' : undefined}
+                  aria-required
                   className={cn(
                   'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all resize-none',
                   errors.message ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
                 )}
                 placeholder={t('contact.form.messagePlaceholder')}
               />
-              {errors.message && <p className="mt-1 text-sm text-[var(--error)]">{errors.message}</p>}
+              {errors.message && <p id="contact-message-error" className="mt-1 text-sm text-[var(--error)]">{errors.message}</p>}
               <p className="mt-1 text-xs text-muted text-right">
                 {formData.message.length} {t('contact.form.characters')}
               </p>

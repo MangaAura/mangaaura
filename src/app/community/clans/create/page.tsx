@@ -28,7 +28,7 @@ export default function CreateClanPage() {
 
   if (status === 'loading' || status === 'unauthenticated') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center" role="status">
         <Loader2 className="w-8 h-8 animate-spin text-accent-purple" />
       </div>
     );
@@ -91,11 +91,11 @@ export default function CreateClanPage() {
             href="/community/clans"
             className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors mb-4"
           >
-            <ArrowLeft size={18} />
-            Volver a Clanes
-          </Link>
-          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
-            <Users className="text-accent-purple" size={32} />
+          <ArrowLeft size={18} aria-hidden="true" />
+          Volver a Clanes
+        </Link>
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Users className="text-accent-purple" size={32} aria-hidden="true" />
             Crear Nuevo Clan
           </h1>
           <p className="text-muted mt-2">
@@ -106,12 +106,12 @@ export default function CreateClanPage() {
 
       <div className="max-w-3xl mx-auto px-6 mt-8">
         <form onSubmit={handleSubmit} className="bg-secondary border border-custom rounded-2xl p-8 shadow-sm">
-          {error && (
-            <div className="bg-accent-red/10 border border-accent-red/30 rounded-xl p-4 mb-6 flex items-start gap-3">
-              <AlertCircle className="text-accent-red flex-shrink-0 mt-0.5" size={20} />
-              <p className="text-accent-red text-sm">{error}</p>
-            </div>
-          )}
+        {error && (
+          <div className="bg-accent-red/10 border border-accent-red/30 rounded-xl p-4 mb-6 flex items-start gap-3" role="alert" id="clan-error">
+            <AlertCircle className="text-accent-red flex-shrink-0 mt-0.5" size={20} aria-hidden="true" />
+            <p className="text-accent-red text-sm">{error}</p>
+          </div>
+        )}
 
           {/* Clan Name */}
           <div className="mb-6">
@@ -128,8 +128,10 @@ export default function CreateClanPage() {
               maxLength={50}
               className="w-full bg-tertiary border border-custom rounded-xl px-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors"
               required
+              autoComplete="off"
+              aria-describedby="name-count clan-error"
             />
-            <p className="text-xs text-muted mt-2">
+            <p id="name-count" className="text-xs text-muted mt-2">
               {formData.name.length}/50 caracteres
             </p>
           </div>
@@ -148,8 +150,9 @@ export default function CreateClanPage() {
               rows={4}
               maxLength={500}
               className="w-full bg-tertiary border border-custom rounded-xl px-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors resize-none"
+              aria-describedby="desc-count"
             />
-            <p className="text-xs text-muted mt-2">
+            <p id="desc-count" className="text-xs text-muted mt-2">
               {formData.description.length}/500 caracteres
             </p>
           </div>
@@ -160,7 +163,7 @@ export default function CreateClanPage() {
               URL del Emblema
             </label>
             <div className="relative">
-              <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
+              <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} aria-hidden="true" />
               <input
                 type="url"
                 id="emblemUrl"
@@ -169,9 +172,11 @@ export default function CreateClanPage() {
                 onChange={handleChange}
                 placeholder="https://ejemplo.com/emblema.png"
                 className="w-full bg-tertiary border border-custom rounded-xl pl-11 pr-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors"
+                autoComplete="url"
+                aria-describedby="emblem-hint"
               />
             </div>
-            <p className="text-xs text-muted mt-2">
+            <p id="emblem-hint" className="text-xs text-muted mt-2">
               URL de una imagen para el emblema de tu clan (recomendado: 256x256px)
             </p>
           </div>
@@ -214,12 +219,12 @@ export default function CreateClanPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" size={20} />
-                  Creando...
-                </>
-              ) : (
-                <>
-                  <Users size={20} />
+                <Loader2 className="animate-spin" size={20} aria-hidden="true" />
+                Creando...
+              </>
+            ) : (
+              <>
+                <Users size={20} aria-hidden="true" />
                   Crear Clan
                 </>
               )}

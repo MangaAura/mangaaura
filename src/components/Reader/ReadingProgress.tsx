@@ -43,6 +43,7 @@ export function ReadingProgress({
 }: ReadingProgressProps) {
   const [progress, setProgress] = useState(0);
   const [showChapterList, setShowChapterList] = useState(false);
+  const [lastSaved, setLastSaved] = useState<number | null>(null);
 
   // Calculate reading progress
   useEffect(() => {
@@ -86,6 +87,7 @@ export function ReadingProgress({
       // Keep only last 100 entries
       const trimmed = filtered.slice(-100);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+      setLastSaved(Date.now());
     } catch (error) {
       console.error('Error saving reading progress:', error);
     }
@@ -115,6 +117,7 @@ export function ReadingProgress({
   };
 
   return (
+    <>
     <div className={cn('bg-surface border-t border-border', className)}>
       {/* Progress Bar */}
       <div className="relative h-1 bg-surface-sunken">
@@ -220,6 +223,13 @@ chapter.number === currentChapter
         </div>
       )}
     </div>
+
+    {lastSaved && (
+      <div aria-live="polite" className="sr-only">
+        Progreso guardado automáticamente
+      </div>
+    )}
+    </>
   );
 }
 

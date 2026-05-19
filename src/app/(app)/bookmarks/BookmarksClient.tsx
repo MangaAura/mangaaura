@@ -8,6 +8,7 @@ import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 
 
 interface BookmarkData {
@@ -83,9 +84,10 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" staggerDelay={0.04}>
         {bookmarks.map((bookmark) => (
-          <Card key={bookmark.id} className="group overflow-hidden">
+          <StaggerItem key={bookmark.id}>
+          <Card className="group overflow-hidden">
             <div className="relative aspect-[3/4] bg-[var(--surface-sunken)]">
               {bookmark.manga.coverUrl ? (
                 <OptimizedImage
@@ -134,8 +136,9 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
               </div>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
     </div>
   );
 }

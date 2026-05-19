@@ -55,17 +55,19 @@ function NotificationItem({
 export function NotificationDropdown({ onClose }: { onClose: () => void }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const fetchNotifs = async () => {
       try {
+        setFetchError(null);
         const res = await fetch('/api/notifications?limit=5');
         if (!res.ok) return;
         const data = await res.json();
         if (!cancelled) setNotifications(data.notifications || []);
       } catch {
-        console.info('[Navbar] Failed to fetch notifications');
+        if (!cancelled) setFetchError('Error al cargar notificaciones');
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -117,6 +119,10 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           ))}
+        </div>
+      ) : fetchError ? (
+        <div className="p-4 text-center" role="alert">
+          <p className="text-sm text-[var(--error)]">{fetchError}</p>
         </div>
       ) : notifications.length === 0 ? (
         <div className="p-8 text-center">

@@ -1,6 +1,6 @@
 export default function RankingsLoading() {
   return (
-    <div className="min-h-screen bg-[var(--background)] animate-pulse">
+    <div role="status" className="min-h-screen bg-[var(--background)] animate-pulse">
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="h-8 w-1/3 bg-[var(--surface-sunken)] rounded-lg mb-6" />
         <div className="space-y-3">

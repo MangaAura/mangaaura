@@ -168,7 +168,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     <div className="space-y-8">
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <Lock className="w-5 h-5 text-[var(--primary)]" />
+          <Lock className="w-5 h-5 text-[var(--primary)]" aria-hidden="true" />
           <h2 className="text-xl font-semibold text-[var(--text-primary)]">Cambiar contraseña</h2>
         </div>
 
@@ -181,6 +181,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
             }`}
           >
             <AlertDescription
+              id="password-change-error"
               className={
                 message.type === 'error' ? 'text-[var(--error)]' : 'text-[var(--success)]'
               }
@@ -201,6 +202,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 setPasswordData((p) => ({ ...p, currentPassword: e.target.value }))
               }
               required
+              autoComplete="current-password"
+              aria-describedby={message?.type === 'error' ? 'password-change-error' : undefined}
             />
           </div>
 
@@ -214,8 +217,10 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 setPasswordData((p) => ({ ...p, newPassword: e.target.value }))
               }
               required
+              autoComplete="new-password"
+              aria-describedby={`new-password-hint${message?.type === 'error' ? ' password-change-error' : ''}`}
             />
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p id="new-password-hint" className="text-xs text-[var(--text-tertiary)]">
               Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números
             </p>
           </div>
@@ -230,6 +235,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 setPasswordData((p) => ({ ...p, confirmPassword: e.target.value }))
               }
               required
+              autoComplete="new-password"
+              aria-describedby={message?.type === 'error' ? 'password-change-error' : undefined}
             />
           </div>
 
@@ -242,7 +249,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               !passwordData.confirmPassword
             }
           >
-            <Key className="w-4 h-4 mr-2" />
+            <Key className="w-4 h-4 mr-2" aria-hidden="true" />
             Cambiar contraseña
           </Button>
         </form>
@@ -250,7 +257,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
 
       <div className="pt-6 border-t border-[var(--border)]">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-5 h-5 text-[var(--success)]" />
+          <Shield className="w-5 h-5 text-[var(--success)]" aria-hidden="true" />
           <h2 className="text-xl font-semibold text-[var(--text-primary)]">Seguridad de la cuenta</h2>
         </div>
 
@@ -258,7 +265,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           <Card className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--success)]/20 rounded-lg flex items-center justify-center">
-                <Check className="w-5 h-5 text-[var(--success)]" />
+                <Check className="w-5 h-5 text-[var(--success)]" aria-hidden="true" />
               </div>
               <div>
                 <p className="font-medium text-[var(--text-primary)]">Contraseña segura</p>
@@ -274,7 +281,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               }`}>
                 <Smartphone className={`w-5 h-5 ${
                   twoFactorEnabled ? 'text-[var(--success)]' : 'text-[var(--text-tertiary)]'
-                }`} />
+                }`} aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-[var(--text-primary)]">Autenticación de dos factores</p>
@@ -325,6 +332,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 maxLength={6}
                 value={verificationToken}
                 onChange={(e) => setVerificationToken(e.target.value.replace(/\D/g, ''))}
+                autoComplete="one-time-code"
               />
               <Button onClick={handle2FAVerify} disabled={verificationToken.length < 6} isLoading={isLoading}>
                 Verificar y activar
@@ -336,7 +344,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
         {backupCodes && (
           <Card className="mt-4 p-6 border-[var(--warning)]/30">
             <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle className="w-5 h-5 text-[var(--warning)]" />
+              <AlertTriangle className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
               <h3 className="text-lg font-semibold">Códigos de respaldo</h3>
             </div>
             <p className="text-sm text-[var(--text-tertiary)] mb-3">
@@ -367,7 +375,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
         {showDisableConfirm && (
           <Card className="mt-4 p-6 border-[var(--error)]/30">
             <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle className="w-5 h-5 text-[var(--error)]" />
+              <AlertTriangle className="w-5 h-5 text-[var(--error)]" aria-hidden="true" />
               <h3 className="text-lg font-semibold">Deshabilitar 2FA</h3>
             </div>
             <p className="text-sm text-[var(--text-tertiary)] mb-3">
@@ -375,10 +383,12 @@ export function SecuritySettings({}: SecuritySettingsProps) {
             </p>
             <div className="space-y-3">
               <Input
+                id="disable-2fa-password"
                 type="password"
                 placeholder="Contraseña actual"
                 value={disablePassword}
                 onChange={(e) => setDisablePassword(e.target.value)}
+                autoComplete="current-password"
               />
               <div className="flex gap-2">
                 <Button onClick={handle2FADisable} disabled={!disablePassword} isLoading={isLoading}>
@@ -393,7 +403,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
         )}
 
         <Alert className="mt-6 bg-[var(--warning)]/10 border-[var(--warning)]/20">
-          <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />
+          <AlertTriangle className="w-4 h-4 text-[var(--warning)]" aria-hidden="true" />
           <AlertDescription className="text-[var(--warning)]">
             Por seguridad, te recomendamos cambiar tu contraseña cada 3 meses y activar 2FA
           </AlertDescription>

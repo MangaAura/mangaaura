@@ -25,6 +25,7 @@ import { useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
+import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { useLibrary, LibraryStatus } from '@/hooks/useLibrary';
 import { cn } from '@/lib/utils';
 
@@ -90,9 +91,9 @@ export default function LibraryPage() {
 
 if (status === 'loading') {
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pt-20 pb-10">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-20" role="status">
           <Loader2 className="w-8 h-8 animate-spin text-[var(--info)]" />
         </div>
       </div>
@@ -242,17 +243,21 @@ if (status === 'unauthenticated') {
           {!isLoading && entries.length > 0 && (
             <>
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" staggerDelay={0.04}>
                   {entries.map((entry) => (
-                    <LibraryCard key={entry.id} entry={entry} />
+                    <StaggerItem key={entry.id}>
+                      <LibraryCard entry={entry} />
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerContainer>
               ) : (
-                <div className="space-y-3">
+                <StaggerContainer className="space-y-3" staggerDelay={0.03}>
                   {entries.map((entry) => (
-                    <LibraryListItem key={entry.id} entry={entry} />
+                    <StaggerItem key={entry.id}>
+                      <LibraryListItem entry={entry} />
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerContainer>
               )}
             </>
           )}

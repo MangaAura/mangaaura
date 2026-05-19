@@ -1,6 +1,6 @@
 export default function ReportLoading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div role="status" className="min-h-screen bg-background animate-pulse">
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="h-8 w-48 bg-tertiary rounded-lg mb-8" />
         <div className="space-y-4">

@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div role="status" className="min-h-screen bg-background animate-pulse">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="h-8 w-1/3 bg-tertiary rounded-lg mb-8" />
         <div className="space-y-3">

@@ -1,6 +1,6 @@
 export default function AdminModerationLoading() {
   return (
-    <div className="animate-pulse p-6">
+    <div role="status" className="animate-pulse p-6">
       <div className="h-8 w-48 bg-tertiary rounded-lg mb-6" />
       <div className="space-y-3">
         {Array.from({ length: 8 }).map((_, i) => (

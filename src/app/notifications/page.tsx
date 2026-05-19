@@ -53,7 +53,7 @@ export default function NotificationsPage() {
 
   if (status === 'loading' || !session) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center" role="status">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     );

@@ -220,10 +220,10 @@ export default function EditMangaPage({ params }: PageProps) {
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-              <p className="text-red-600">{error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}</p>
+              <p className="text-red-600" role="alert">{error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}</p>
               <Link href="/creator/dashboard">
                 <Button variant="outline" className="mt-4">
-                  <ArrowLeftIcon className="w-4 h-4 mr-2" />
+                  <ArrowLeftIcon className="w-4 h-4 mr-2" aria-hidden="true" />
                   {t('creatorMangaEdit.backToDashboard')}
                 </Button>
               </Link>
@@ -246,7 +246,7 @@ export default function EditMangaPage({ params }: PageProps) {
           <div className="flex items-center gap-4 mb-8">
             <button onClick={handleCancel}>
 <Button variant="ghost" size="icon" type="button" aria-label={t('creatorMangaEdit.backToDashboard')}>
-        <ArrowLeftIcon className="w-5 h-5" />
+        <ArrowLeftIcon className="w-5 h-5" aria-hidden="true" />
       </Button>
             </button>
             <div>
@@ -270,11 +270,12 @@ export default function EditMangaPage({ params }: PageProps) {
                   <CardContent className="space-y-6">
                     {/* Title */}
                     <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              {t('creatorMangaEdit.titleLabel')} <span className="text-red-500">*</span>
-              </label>
-                      <Input
-                        value={formData.title}
+          <label htmlFor="edit-manga-title" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            {t('creatorMangaEdit.titleLabel')} <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="edit-manga-title"
+            value={formData.title}
                         onChange={(e) => handleChange('title', e.target.value)}
                         placeholder={t('creatorMangaEdit.titlePlaceholder')}
                         error={errors.title}
@@ -284,7 +285,7 @@ export default function EditMangaPage({ params }: PageProps) {
                       />
                       {!errors.title && formData.title.length >= 3 && (
                         <div className="flex items-center gap-1 mt-1 text-green-600 text-xs">
-                          <CheckIcon className="w-3 h-3" />
+                          <CheckIcon className="w-3 h-3" aria-hidden="true" />
                           <span>{t('creatorMangaEdit.titleValid')}</span>
                         </div>
                       )}
@@ -292,15 +293,19 @@ export default function EditMangaPage({ params }: PageProps) {
 
                     {/* Description */}
                     <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              {t('creatorMangaEdit.description')} <span className="text-red-500">*</span>
-              </label>
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => handleChange('description', e.target.value)}
-                        placeholder={t('creatorMangaEdit.descriptionPlaceholder')}
-                        rows={5}
-                        className={cn(
+          <label htmlFor="edit-manga-description" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            {t('creatorMangaEdit.description')} <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            id="edit-manga-description"
+            value={formData.description}
+            onChange={(e) => handleChange('description', e.target.value)}
+            placeholder={t('creatorMangaEdit.descriptionPlaceholder')}
+            rows={5}
+            aria-required
+            aria-invalid={!!errors.description}
+            aria-describedby={errors.description ? 'edit-desc-error' : 'edit-desc-hint'}
+            className={cn(
           'w-full rounded-lg border bg-[var(--surface-elevated)] px-3 py-2 text-sm',
           'placeholder:text-[var(--text-tertiary)]',
                           'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
@@ -308,14 +313,14 @@ export default function EditMangaPage({ params }: PageProps) {
                           !errors.description && formData.description.length >= 10 && 'border-green-500'
                         )}
                       />
-                      {errors.description && (
-                        <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                          <AlertCircleIcon className="w-3 h-3" />
+          {errors.description && (
+            <p id="edit-desc-error" className="mt-1 text-xs text-red-500 flex items-center gap-1" role="alert">
+              <AlertCircleIcon className="w-3 h-3" aria-hidden="true" />
                           {errors.description}
                         </p>
                       )}
-                      <div className="flex justify-between mt-1">
-                  <span className="text-xs text-[var(--text-tertiary)]">
+          <div className="flex justify-between mt-1">
+              <span id="edit-desc-hint" className="text-xs text-[var(--text-tertiary)]">
                   {t('creatorMangaEdit.descriptionMin')}
                   </span>
                   <span className={cn(
@@ -354,12 +359,13 @@ export default function EditMangaPage({ params }: PageProps) {
 
                     {/* Tags */}
                     <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              {t('creatorMangaEdit.tags')} <span className="text-red-500">*</span>
+              <label htmlFor="edit-manga-tags" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                {t('creatorMangaEdit.tags')} <span className="text-red-500">*</span>
               </label>
-                      <div className="flex gap-2">
-                        <Input
-                          value={currentTag}
+              <div className="flex gap-2">
+                <Input
+                  id="edit-manga-tags"
+                  value={currentTag}
                           onChange={(e) => setCurrentTag(e.target.value)}
                           onKeyDown={handleKeyDown}
                           placeholder={t('creatorMangaEdit.tagsPlaceholder')}
@@ -371,7 +377,7 @@ export default function EditMangaPage({ params }: PageProps) {
                           onClick={addTag}
                           disabled={!currentTag.trim()}
                         >
-                          <PlusIcon className="w-4 h-4" />
+                          <PlusIcon className="w-4 h-4" aria-hidden="true" />
                         </Button>
                       </div>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
@@ -386,12 +392,13 @@ export default function EditMangaPage({ params }: PageProps) {
                               className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm"
                             >
                               {tag}
-                              <button
-                                type="button"
-                                onClick={() => removeTag(tag)}
-                                className="hover:text-indigo-900"
-                              >
-                                <XIcon className="w-3 h-3" />
+                                <button
+                                  type="button"
+                                  onClick={() => removeTag(tag)}
+                                  className="hover:text-indigo-900"
+                                  aria-label={`Eliminar etiqueta ${tag}`}
+                                >
+                                  <XIcon className="w-3 h-3" aria-hidden="true" />
                               </button>
                             </span>
                           ))}
@@ -434,12 +441,12 @@ export default function EditMangaPage({ params }: PageProps) {
                             }}
           className="absolute top-2 right-2 p-1 bg-[var(--surface-elevated)]/90 rounded-full hover:bg-[var(--surface-elevated)] shadow-sm"
         >
-          <XIcon className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <XIcon className="w-4 h-4 text-[var(--text-secondary)]" aria-hidden="true" />
                           </button>
                         </>
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-              <UploadIcon className="w-10 h-10 text-[var(--text-tertiary)] mb-3" />
+                  <UploadIcon className="w-10 h-10 text-[var(--text-tertiary)] mb-3" aria-hidden="true" />
               <p className="text-sm font-medium text-[var(--text-primary)]">
                 {t('creatorMangaEdit.coverClick')}
               </p>
@@ -457,8 +464,8 @@ export default function EditMangaPage({ params }: PageProps) {
                       />
                     </div>
                     {errors.cover && (
-                      <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircleIcon className="w-3 h-3" />
+                <p className="mt-2 text-xs text-red-500 flex items-center gap-1" role="alert">
+                  <AlertCircleIcon className="w-3 h-3" aria-hidden="true" />
                         {errors.cover}
                       </p>
                     )}
@@ -524,7 +531,7 @@ export default function EditMangaPage({ params }: PageProps) {
                     isLoading={isSaving}
                     disabled={!isFormValid || !hasChanges}
                   >
-                    <SaveIcon className="w-4 h-4 mr-2" />
+                    <SaveIcon className="w-4 h-4 mr-2" aria-hidden="true" />
                     {isSaving ? t('creatorMangaEdit.saving') : t('creatorMangaEdit.save')}
                   </Button>
                 </div>

@@ -117,7 +117,7 @@ export function ErrorMessage({
             )}
             aria-label="Cerrar"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
       </div>

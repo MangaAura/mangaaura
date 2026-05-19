@@ -58,7 +58,7 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
       {/* Header */}
       <motion.div
         className="mb-8"
-        initial={shouldReduceMotion ? {} : { opacity: 0, y: -16 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
@@ -78,7 +78,7 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
           return (
             <motion.div
               key={stat.key}
-              initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.1 + i * 0.06, ease: [0.4, 0, 0.2, 1] }}
               whileHover={shouldReduceMotion ? {} : { y: -3, transition: { duration: 0.2 } }}

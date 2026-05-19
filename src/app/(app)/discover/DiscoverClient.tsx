@@ -3,6 +3,8 @@
 import { TrendingUp, Clock, Star, Sparkles, Eye, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
+
 interface MangaItem {
   id: string;
   title: string;
@@ -67,26 +69,28 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
         <h2 className="text-lg font-bold flex items-center gap-2">{icon} {title}</h2>
         <Link href="/browse" className="text-sm text-accent-blue hover:underline font-semibold">Ver todo</Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" staggerDelay={0.04}>
         {manga.map((m) => (
-          <Link key={m.id} href={`/manga/${m.slug}`} className="group">
-            <div className="aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
-              {m.coverUrl ? (
-                <img src={m.coverUrl} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen size={24} className="text-muted" />
-                </div>
-              )}
-            </div>
-            <h3 className="text-sm font-semibold truncate">{m.title}</h3>
-            <div className="flex items-center gap-2 text-xs text-muted">
-              {m.rating && <span className="flex items-center gap-0.5"><Star size={10} />{m.rating.toFixed(1)}</span>}
-              <span className="flex items-center gap-0.5"><Eye size={10} />{m.totalViews}</span>
-            </div>
-          </Link>
+          <StaggerItem key={m.id}>
+            <Link href={`/manga/${m.slug}`} className="group">
+              <div className="aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
+                {m.coverUrl ? (
+                  <img src={m.coverUrl} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <BookOpen size={24} className="text-muted" />
+                  </div>
+                )}
+              </div>
+              <h3 className="text-sm font-semibold truncate">{m.title}</h3>
+              <div className="flex items-center gap-2 text-xs text-muted">
+                {m.rating && <span className="flex items-center gap-0.5"><Star size={10} />{m.rating.toFixed(1)}</span>}
+                <span className="flex items-center gap-0.5"><Eye size={10} />{m.totalViews}</span>
+              </div>
+            </Link>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
     </section>
   );
 }

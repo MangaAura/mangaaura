@@ -119,15 +119,18 @@ export function CommentForm({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="mb-2 p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30"
+            role="alert"
           >
-            <p className="text-xs text-[var(--error)]">{(state as Record<string, unknown>)?.error as string}</p>
+            <p id="comment-error" className="text-xs text-[var(--error)]">{(state as Record<string, unknown>)?.error as string}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
       <form onSubmit={handleSubmit} className="space-y-2">
         <div className="relative">
+          <label htmlFor="comment-content" className="sr-only">{placeholder}</label>
           <textarea
+            id="comment-content"
             ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -135,6 +138,9 @@ export function CommentForm({
             placeholder={placeholder}
             maxLength={MAX_CHARS + 100}
             rows={isCompact ? 2 : 3}
+            aria-required
+            aria-invalid={!!((state as Record<string, unknown>)?.error) ? true : undefined}
+            aria-describedby={!!((state as Record<string, unknown>)?.error) ? 'comment-error' : undefined}
             className={cn(
 'w-full px-3 py-2 bg-[var(--surface-sunken)] border rounded-lg resize-none outline-none transition-all',
           'text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]',
@@ -169,7 +175,7 @@ export function CommentForm({
               disabled={loading}
               className="flex items-center gap-1 px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
               Cancel
             </button>
           )}
@@ -194,7 +200,7 @@ export function CommentForm({
                   exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                 </motion.div>
               ) : (
                 <motion.div
@@ -204,7 +210,7 @@ export function CommentForm({
                   exit={{ opacity: 0, scale: 0.5 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-4 h-4" aria-hidden="true" />
                 </motion.div>
               )}
             </AnimatePresence>

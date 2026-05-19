@@ -1,6 +1,7 @@
 'use client';
 
 import { X, MessageSquare, ChevronLeft } from 'lucide-react';
+import FocusLock from 'react-focus-lock';
 import React, { useEffect, useRef, useState } from 'react';
 
 import CommentSection from '@/components/Comments/CommentSection';
@@ -22,6 +23,7 @@ export function CommentDrawer({
   commentCount = 0,
 }: CommentDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
   const touchStartY = useRef<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -43,6 +45,16 @@ export function CommentDrawer({
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
+
+  // Save and restore focus
+  useEffect(() => {
+    if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement;
+    } else if (previousActiveElement.current) {
+      previousActiveElement.current.focus();
+      previousActiveElement.current = null;
+    }
+  }, [isOpen]);
 
   // Handle click outside on desktop
   useEffect(() => {
@@ -108,6 +120,7 @@ export function CommentDrawer({
   if (!isOpen) return null;
 
   return (
+    <FocusLock returnFocus>
     <>
       {/* Backdrop */}
       <div
@@ -140,7 +153,7 @@ export function CommentDrawer({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-[var(--info)]" />
+            <MessageSquare className="w-5 h-5 text-[var(--info)]" aria-hidden="true" />
             <h2 className="text-lg font-semibold">
               Comentarios
               {commentCount > 0 && (
@@ -157,7 +170,7 @@ export function CommentDrawer({
           onClick={onClose}
           className="md:hidden flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={16} aria-hidden="true" />
               Volver
             </button>
 
@@ -167,7 +180,7 @@ export function CommentDrawer({
               className="p-2 hover:bg-[var(--surface-sunken)] rounded-lg transition-colors cursor-pointer"
               aria-label="Cerrar comentarios"
             >
-              <X size={20} />
+              <X size={20} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -184,6 +197,7 @@ export function CommentDrawer({
         </div>
       </div>
     </>
+    </FocusLock>
   );
 }
 

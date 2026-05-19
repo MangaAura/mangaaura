@@ -135,7 +135,7 @@ export function PushNotificationManager() {
               className="p-1 hover:bg-[var(--surface-sunken)] rounded-lg transition-colors cursor-pointer"
               aria-label="Cerrar"
             >
-              <X className="w-4 h-4 text-[var(--text-tertiary)]" />
+              <X className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
             </button>
           </div>
           <Button
@@ -172,7 +172,7 @@ export function PushNotificationManager() {
         className="p-1 hover:bg-[var(--surface-sunken)] rounded-lg transition-colors cursor-pointer"
         aria-label="Descartar"
       >
-            <X className="w-4 h-4 text-[var(--text-tertiary)]" />
+            <X className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
           </button>
         </div>
         <div className="flex gap-2 mt-4">

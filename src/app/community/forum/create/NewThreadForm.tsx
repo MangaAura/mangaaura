@@ -88,14 +88,16 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+        <label htmlFor="thread-category" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
           {t('newThread.category')}
         </label>
         <select
+          id="thread-category"
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
           className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]"
           required
+          aria-required
         >
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
@@ -106,27 +108,30 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+        <label htmlFor="thread-title" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
           {t('newThread.title')}
         </label>
         <Input
+          id="thread-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t('newThread.titlePlaceholder')}
           maxLength={200}
           required
           disabled={isSubmitting}
+          aria-describedby={error ? 'thread-error title-char-count' : 'title-char-count'}
         />
-        <p className="text-xs text-[var(--text-tertiary)] mt-1">
+        <p id="title-char-count" className="text-xs text-[var(--text-tertiary)] mt-1">
           {title.length}/200
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+        <label htmlFor="thread-content" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
           {t('newThread.content')}
         </label>
         <Textarea
+          id="thread-content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={t('newThread.contentPlaceholder')}
@@ -135,18 +140,20 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
           required
           disabled={isSubmitting}
           className="resize-y"
+          aria-describedby={error ? 'thread-error content-char-count' : 'content-char-count'}
         />
-        <p className="text-xs text-[var(--text-tertiary)] mt-1">
+        <p id="content-char-count" className="text-xs text-[var(--text-tertiary)] mt-1">
           {content.length}/10,000
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+        <label htmlFor="thread-tags" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
           {t('newThread.tags')}
         </label>
         <div className="flex gap-2">
           <Input
+            id="thread-tags"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
@@ -160,7 +167,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
             onClick={addTag}
             disabled={!tagInput.trim() || tags.length >= 5 || isSubmitting}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
           </Button>
         </div>
         {tags.length > 0 && (
@@ -170,7 +177,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
                 key={tag}
                 className="inline-flex items-center gap-1 px-2.5 py-1 bg-[var(--primary-subtle)] text-[var(--primary)] text-xs rounded-full"
               >
-                <Tag className="w-3 h-3" />
+                <Tag className="w-3 h-3" aria-hidden="true" />
                 {tag}
             <button
               type="button"
@@ -178,7 +185,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
               className="ml-0.5 hover:text-[var(--error)] transition-colors cursor-pointer"
               aria-label={`${t('newThread.removeTag')} ${tag}`}
             >
-                  <X className="w-3 h-3" />
+                  <X className="w-3 h-3" aria-hidden="true" />
                 </button>
               </span>
             ))}
@@ -187,7 +194,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
       </div>
 
       {error && (
-        <div className="p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg">
+        <div className="p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg" role="alert" id="thread-error">
           <p className="text-sm text-[var(--error)]">{error}</p>
         </div>
       )}
@@ -201,9 +208,9 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
           disabled={isSubmitting || !title.trim() || !content.trim() || !categoryId}
         >
           {isSubmitting ? (
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
           ) : (
-            <Send className="w-4 h-4 mr-2" />
+            <Send className="w-4 h-4 mr-2" aria-hidden="true" />
           )}
           {t('newThread.publishThread')}
         </Button>

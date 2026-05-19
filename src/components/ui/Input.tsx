@@ -9,10 +9,15 @@ export interface InputProps
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, error, ...props }, ref) => {
+    const errorId = React.useId();
     return (
       <div className="w-full">
         <input
           type={type}
+          ref={ref}
+          {...props}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           className={cn(
 'flex h-10 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm',
           'placeholder:text-[var(--text-tertiary)]',
@@ -21,11 +26,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             error && 'border-[var(--error)] focus:ring-[var(--error)]',
             className
           )}
-          ref={ref}
-          {...props}
         />
         {error && (
-          <p className="mt-1 text-xs text-[var(--error)]">{error}</p>
+          <p id={errorId} className="mt-1 text-xs text-[var(--error)]" role="alert">{error}</p>
         )}
       </div>
     );

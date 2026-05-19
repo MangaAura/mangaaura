@@ -55,9 +55,10 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
                     rank === 1
                       ? 'bg-yellow-500 text-yellow-950'
                       : rank === 2
-                        ? 'bg-gray-400 text-gray-950'
-                        : 'bg-amber-600 text-amber-950'
+                      ? 'bg-gray-400 text-gray-950'
+                      : 'bg-amber-600 text-amber-950'
                   }`}
+                  aria-label={`Ranking #${rank}${rank === 1 ? ', oro' : rank === 2 ? ', plata' : ', bronce'}`}
                 >
                   #{rank}
                 </div>
@@ -71,11 +72,11 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
               </h3>
               <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
                 <span className="flex items-center gap-1">
-                  <Users size={14} />
+                  <Users size={14} aria-hidden="true" />
                   {clan.memberCount}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Flame size={14} className="text-[var(--accent-orange)]" />
+                  <Flame size={14} className="text-[var(--accent-orange)]" aria-hidden="true" />
                   {clan.monthlyScore.toLocaleString()}
                 </span>
               </div>
@@ -94,7 +95,7 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
             <div className="flex items-center justify-between text-xs">
               <span className="text-[var(--text-secondary)]">Puntaje total</span>
               <span className="font-medium flex items-center gap-1">
-                <Trophy size={12} className="text-[var(--warning)]" />
+                <Trophy size={12} className="text-[var(--warning)]" aria-hidden="true" />
                 {clan.totalScore.toLocaleString()}
               </span>
             </div>

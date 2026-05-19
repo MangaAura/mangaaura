@@ -1,6 +1,6 @@
 export default function CreatorMangaDetailLoading() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 animate-pulse">
+    <div role="status" className="p-4 sm:p-6 lg:p-8 animate-pulse">
       <div className="h-8 w-48 bg-tertiary rounded-lg mb-8" />
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-48 h-72 bg-tertiary rounded-xl flex-shrink-0" />

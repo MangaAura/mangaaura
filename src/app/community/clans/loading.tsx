@@ -1,6 +1,6 @@
 export default function ClansLoading() {
   return (
-    <div className="min-h-screen animate-pulse">
+    <div role="status" className="min-h-screen animate-pulse">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="h-8 w-40 bg-[var(--surface-sunken)] rounded-lg mb-6" />
         <div className="flex gap-4 mb-6">

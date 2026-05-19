@@ -183,14 +183,14 @@ export default function ReaderLayout({
             </div>
             
             <button onClick={() => setShowComments(!showComments)} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer hidden sm:block" title="Comentarios" aria-label="Comentarios">
-              <MessageSquare size={20} />
+              <MessageSquare size={20} aria-hidden="true" />
             </button>
 
             <button onClick={handleReport} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer" title="Reportar Error" aria-label="Reportar error">
-              <AlertTriangle size={20} />
+              <AlertTriangle size={20} aria-hidden="true" />
             </button>
             <button onClick={handleShare} className="p-2 rounded hover:bg-tertiary transition-colors cursor-pointer" title="Compartir" aria-label="Compartir">
-              <Share2 size={20} />
+              <Share2 size={20} aria-hidden="true" />
             </button>
           </div>
         </header>

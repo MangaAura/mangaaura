@@ -215,9 +215,9 @@ function Content() {
               <div className="w-16 h-16 bg-[var(--error)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-[var(--error)]" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">
-                {t('auth.resetPassword.invalidToken')}
-              </h3>
+          <h2 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">
+            {t('auth.resetPassword.invalidToken')}
+          </h2>
               <p className="text-muted mb-6">
                 {t('auth.resetPassword.invalidTokenDesc')}
               </p>
@@ -273,9 +273,9 @@ function Content() {
                 <div className="w-16 h-16 bg-[var(--success)]/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-[var(--success)]" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">
+                <h2 className="text-xl font-semibold mb-2 text-[var(--text-primary)]">
                   {t('auth.resetPassword.passwordUpdated')}
-                </h3>
+                </h2>
                 <p className="text-muted mb-6">
                   {t('auth.resetPassword.passwordUpdatedDesc')}
                 </p>
@@ -313,6 +313,10 @@ function Content() {
                         onChange={handlePasswordChange}
                         onBlur={() => handleBlur('password')}
                         disabled={formState === 'loading'}
+                        aria-invalid={!!(touched.password && validationErrors.password)}
+                        aria-describedby={touched.password && validationErrors.password ? 'reset-password-error' : undefined}
+                        aria-required
+                        autoComplete="new-password"
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           touched.password && validationErrors.password
@@ -357,7 +361,7 @@ function Content() {
                     )}
 
                     {touched.password && validationErrors.password && (
-                      <p className="mt-1 text-xs text-[var(--error)] flex items-center gap-1">
+                      <p id="reset-password-error" className="mt-1 text-xs text-[var(--error)] flex items-center gap-1" role="alert">
                         <AlertCircle className="w-3 h-3" />
                         {validationErrors.password}
                       </p>
@@ -375,6 +379,10 @@ function Content() {
                         onChange={handleConfirmChange}
                         onBlur={() => handleBlur('confirmPassword')}
                         disabled={formState === 'loading'}
+                        aria-invalid={!!(touched.confirmPassword && validationErrors.confirmPassword)}
+                        aria-describedby={touched.confirmPassword && validationErrors.confirmPassword ? 'reset-confirm-password-error' : undefined}
+                        aria-required
+                        autoComplete="new-password"
                         className={cn(
                           'w-full pl-10 pr-12 py-3 bg-tertiary border rounded-xl outline-none transition-all text-sm',
                           touched.confirmPassword && validationErrors.confirmPassword
@@ -395,7 +403,7 @@ function Content() {
                       </button>
                     </div>
                     {touched.confirmPassword && validationErrors.confirmPassword && (
-                      <p className="mt-1 text-xs text-[var(--error)] flex items-center gap-1">
+                      <p id="reset-confirm-password-error" className="mt-1 text-xs text-[var(--error)] flex items-center gap-1" role="alert">
                         <AlertCircle className="w-3 h-3" />
                         {validationErrors.confirmPassword}
                       </p>
@@ -468,7 +476,7 @@ function getPasswordStrength(password: string, t: (key: string) => string): { st
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-background font-sans text-fg-primary flex items-center justify-center">
+    <div className="min-h-screen bg-background font-sans text-fg-primary flex items-center justify-center" role="status">
       <div className="flex items-center gap-3 text-muted">
         <Loader2 size={24} className="animate-spin" />
         <span>Loading...</span>

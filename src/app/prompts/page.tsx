@@ -120,7 +120,7 @@ export default function PromptHunterPage() {
 
       <div className="max-w-7xl mx-auto px-6 mt-12">
         {isLoading && prompts.length === 0 && (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center py-16" role="status">
             <Loader2 size={32} className="animate-spin text-[var(--accent-purple)]" />
             <span className="ml-3 text-[var(--text-tertiary)]">Cargando prompts...</span>
           </div>

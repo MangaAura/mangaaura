@@ -98,7 +98,7 @@ export function ReaderToolbar({
           title="Previous page (←)"
           aria-label="Página anterior"
         >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           
           {/* Page Counter */}
@@ -121,7 +121,7 @@ export function ReaderToolbar({
           title="Next page (→)"
           aria-label="Página siguiente"
         >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -178,7 +178,7 @@ export function ReaderToolbar({
             title="Light theme"
             aria-label="Tema claro"
           >
-              <Sun className="w-4 h-4" />
+              <Sun className="w-4 h-4" aria-hidden="true" />
             </button>
           <button
             onClick={() => onThemeChange('dark')}
@@ -189,7 +189,7 @@ export function ReaderToolbar({
             title="Dark theme"
             aria-label="Tema oscuro"
           >
-              <Moon className="w-4 h-4" />
+              <Moon className="w-4 h-4" aria-hidden="true" />
             </button>
           <button
             onClick={() => onThemeChange('sepia')}
@@ -200,7 +200,7 @@ export function ReaderToolbar({
             title="Sepia theme"
             aria-label="Tema sepia"
           >
-              <Type className="w-4 h-4" />
+              <Type className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 
@@ -217,9 +217,9 @@ export function ReaderToolbar({
           aria-label="Doble página"
         >
             {isDoublePage ? (
-              <LayoutGrid className="w-5 h-5" />
+              <LayoutGrid className="w-5 h-5" aria-hidden="true" />
             ) : (
-              <BookOpen className="w-5 h-5" />
+              <BookOpen className="w-5 h-5" aria-hidden="true" />
             )}
           </button>
 
@@ -235,7 +235,7 @@ export function ReaderToolbar({
           title="Toggle reading direction (R)"
           aria-label="Dirección de lectura"
         >
-            <ArrowRightLeft className={cn('w-5 h-5', isRTL && 'rotate-180')} />
+            <ArrowRightLeft className={cn('w-5 h-5', isRTL && 'rotate-180')} aria-hidden="true" />
           </button>
 
           {/* Comments Toggle */}
@@ -250,7 +250,7 @@ export function ReaderToolbar({
           title="Toggle comments (C)"
           aria-label="Comentarios"
         >
-            <MessageSquare className="w-5 h-5" />
+            <MessageSquare className="w-5 h-5" aria-hidden="true" />
           </button>
 
           {/* Fullscreen Toggle */}
@@ -261,9 +261,9 @@ export function ReaderToolbar({
           aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
         >
             {isFullscreen ? (
-              <Minimize className="w-5 h-5" />
+              <Minimize className="w-5 h-5" aria-hidden="true" />
             ) : (
-              <Maximize className="w-5 h-5" />
+              <Maximize className="w-5 h-5" aria-hidden="true" />
             )}
           </button>
 
@@ -279,7 +279,7 @@ export function ReaderToolbar({
           title="Settings (S)"
           aria-label="Configuración"
         >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       </div>

@@ -74,7 +74,7 @@ export const MangaCard = memo(function MangaCard({
 
   return (
     <Link href={href} className="group block" prefetch={true}>
-      <div className={cn('relative', sizeClass)}>
+      <article className={cn('relative', sizeClass)}>
         <motion.div
           whileHover={{ scale: 1.02, y: -4 }}
           whileTap={{ scale: 0.98 }}
@@ -131,29 +131,25 @@ export const MangaCard = memo(function MangaCard({
         </motion.div>
 
         <div className="mt-2.5 px-0.5">
-          <h2
+          <h3
             className="font-semibold text-[var(--text-primary)] text-sm leading-tight line-clamp-2 group-hover:text-[var(--primary)] transition-colors duration-200"
             title={manga.title}
           >
             {manga.title}
-          </h2>
-          <span
-            onClick={(e) => {
-              e.stopPropagation();
-              if (manga.authorUsername) router.push(`/user/${manga.authorUsername}`);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && manga.authorUsername) {
-                e.stopPropagation();
-                router.push(`/user/${manga.authorUsername}`);
-              }
-            }}
-            role="link"
-            tabIndex={0}
-            className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block hover:text-[var(--primary)] transition-colors duration-200 cursor-pointer px-1 py-1 min-h-[24px] inline-flex items-center"
-          >
-            {manga.authorName || 'Autor desconocido'}
-          </span>
+          </h3>
+          {manga.authorUsername ? (
+            <Link
+              href={`/user/${manga.authorUsername}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block hover:text-[var(--primary)] transition-colors duration-200 px-1 py-1 min-h-[24px] inline-flex items-center"
+            >
+              {manga.authorName || 'Autor desconocido'}
+            </Link>
+          ) : (
+            <span className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block px-1 py-1 min-h-[24px] inline-flex items-center">
+              {manga.authorName || 'Autor desconocido'}
+            </span>
+          )}
 
           <div className="flex flex-wrap gap-1 mt-1.5">
             {displayedTags.map((tag, i) => (
@@ -164,7 +160,8 @@ export const MangaCard = memo(function MangaCard({
                   router.push(`/search?genres[]=${tag}`);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
                     e.stopPropagation();
                     router.push(`/search?genres[]=${tag}`);
                   }
@@ -184,7 +181,7 @@ export const MangaCard = memo(function MangaCard({
             </p>
           ) : null}
         </div>
-      </div>
+      </article>
     </Link>
   );
 });
