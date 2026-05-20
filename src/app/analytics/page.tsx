@@ -179,19 +179,27 @@ export default function AnalyticsPage() {
 
         <header className="flex flex-col md:flex-row justify-between items-center gap-4 mt-2 border-b border-custom pb-6">
           <div className="flex items-center gap-4 w-full md:w-auto">
-            <BarChart size={28} className="text-accent-blue" />
+            <BarChart size={28} className="text-accent-blue" aria-hidden="true" />
             <h1 className="text-3xl font-extrabold tracking-tight">{t('analytics.title')}</h1>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex bg-tertiary rounded-lg p-1">
+            <div role="tablist" aria-label="Tipo de analíticas" className="flex bg-tertiary rounded-lg p-1">
               <button
+                role="tab"
+                aria-selected={activeTab === 'creator'}
+                aria-controls="analytics-creator-panel"
+                tabIndex={activeTab === 'creator' ? 0 : -1}
                 onClick={() => setActiveTab('creator')}
                 className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'creator' ? 'bg-secondary shadow-sm text-accent-blue' : 'text-muted hover:text-fg-primary'}`}
               >
                 {t('analytics.creatorStudio')}
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'reader'}
+                aria-controls="analytics-reader-panel"
+                tabIndex={activeTab === 'reader' ? 0 : -1}
                 onClick={() => setActiveTab('reader')}
                 className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'reader' ? 'bg-secondary shadow-sm text-accent-orange' : 'text-muted hover:text-fg-primary'}`}
               >
@@ -203,7 +211,7 @@ export default function AnalyticsPage() {
         </header>
 
         {isLoading && (
-          <div className="space-y-6">
+          <div className="space-y-6" role="status" aria-label="Cargando analíticas">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="card p-5 rounded-xl">
@@ -220,8 +228,8 @@ export default function AnalyticsPage() {
         )}
 
         {error && (
-          <div className="card p-8 rounded-xl text-center">
-            <AlertTriangle size={32} className="text-accent-red mx-auto mb-3" />
+          <div className="card p-8 rounded-xl text-center" role="alert">
+            <AlertTriangle size={32} className="text-accent-red mx-auto mb-3" aria-hidden="true" />
             <p className="text-muted mb-4">{error}</p>
             <button onClick={() => window.location.reload()} className="px-6 py-2 bg-accent-blue text-[var(--text-inverse)] rounded-lg hover:opacity-90 transition-opacity font-bold text-sm">
               {t('analytics.retry')}
@@ -237,7 +245,7 @@ export default function AnalyticsPage() {
         )}
 
         {activeTab === 'creator' && session?.user?.id && !isLoading && !error && (
-          <div className="space-y-6 animate-fade-in-up">
+          <div id="analytics-creator-panel" role="tabpanel" aria-labelledby="analytics-creator-tab" className="space-y-6 animate-fade-in-up">
             {creatorMangas.length > 0 && (
               <div className="flex flex-col sm:flex-row gap-4">
                 <MangaSelector
@@ -268,7 +276,7 @@ export default function AnalyticsPage() {
         )}
 
         {activeTab === 'reader' && session?.user?.id && !isLoading && !error && (
-          <div className="space-y-6 animate-fade-in-up">
+          <div id="analytics-reader-panel" role="tabpanel" aria-labelledby="analytics-reader-tab" className="space-y-6 animate-fade-in-up">
             {readerData ? (
               <>
                 <div className="bg-gradient-to-r from-secondary to-tertiary p-8 rounded-2xl shadow-sm border border-custom flex flex-col md:flex-row items-center gap-8">
@@ -284,7 +292,7 @@ export default function AnalyticsPage() {
                     <div>
                       <h2 className="text-3xl font-bold flex items-center gap-2">
                         {readerData.user.displayName || readerData.user.username}
-                        <Shield size={24} className="text-accent-purple" />
+                        <Shield size={24} className="text-accent-purple" aria-hidden="true" />
                       </h2>
                       <p className="text-muted">
                         {readerData.clan ? `${t('analytics.memberOf')}: ${readerData.clan.name}` : t('analytics.noClanLabel')}
@@ -297,24 +305,24 @@ export default function AnalyticsPage() {
                         <span>Nivel {readerData.user.level}</span>
                         <span>{currentXp.toLocaleString('es')} / {xpForNextLevel.toLocaleString('es')} XP</span>
                       </div>
-                      <div className="w-full bg-secondary h-3 rounded-full border border-custom overflow-hidden">
+                      <div className="w-full bg-secondary h-3 rounded-full border border-custom overflow-hidden" role="progressbar" aria-valuenow={Math.round(levelProgress)} aria-valuemin={0} aria-valuemax={100} aria-label={`Progreso de nivel: ${Math.round(levelProgress)}%`}>
                         <div className="bg-gradient-to-r from-accent-orange to-accent-red h-full transition-all" style={{ width: `${levelProgress}%` }}></div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <BookOpen size={20} className="text-accent-blue mx-auto mb-1" />
+                        <BookOpen size={20} className="text-accent-blue mx-auto mb-1" aria-hidden="true" />
                         <p className="text-lg font-bold">{readerData.stats.totalChaptersRead.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.chapters')}</p>
                       </div>
                       <div className="text-center">
-                        <TrendingUp size={20} className="text-accent-green mx-auto mb-1" />
+                        <TrendingUp size={20} className="text-accent-green mx-auto mb-1" aria-hidden="true" />
                         <p className="text-lg font-bold">{readerData.stats.totalMangaInLibrary.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.inLibrary')}</p>
                       </div>
                       <div className="text-center">
-                        <Award size={20} className="text-accent-orange mx-auto mb-1" />
+                        <Award size={20} className="text-accent-orange mx-auto mb-1" aria-hidden="true" />
                         <p className="text-lg font-bold">{readerData.stats.totalAchievements.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.achievements')}</p>
                       </div>
@@ -324,7 +332,7 @@ export default function AnalyticsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="card p-6 rounded-xl">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" /> {t('analytics.unlockedAchievements')} ({readerData.stats.totalAchievements})</h3>
+                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" aria-hidden="true" /> {t('analytics.unlockedAchievements')} ({readerData.stats.totalAchievements})</h3>
                     {readerData.achievements.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {readerData.achievements.slice(0, 6).map((badge) => (
@@ -342,7 +350,7 @@ export default function AnalyticsPage() {
                     )}
                   </div>
 
-                  <div className="card p-6 rounded-xl border-t-4 border-t-accent-purple">
+                  <div className="card p-6 rounded-xl border-t-4 border-t-accent-purple" role="region" aria-label="Información del clan">
                     {readerData.clan ? (
                       <>
                         <h3 className="font-bold text-lg mb-4">{t('analytics.memberOf')}: {readerData.clan.name}</h3>
@@ -363,7 +371,7 @@ export default function AnalyticsPage() {
                       </>
                     ) : (
                       <div className="text-center py-8">
-                        <Users size={48} className="text-muted mx-auto mb-4" />
+                        <Users size={48} className="text-muted mx-auto mb-4" aria-hidden="true" />
                         <h3 className="font-bold text-lg mb-1">{t('analytics.noClan')}</h3>
                         <p className="text-muted text-sm mb-4">{t('analytics.joinClan')}</p>
                         <Link href="/community" className="px-4 py-2 bg-accent-purple text-[var(--text-inverse)] rounded-lg inline-block font-bold text-sm hover:bg-accent-purple/80 transition-colors">

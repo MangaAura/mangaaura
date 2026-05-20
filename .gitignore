@@ -41,3 +41,16 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# build and debug logs
+*.log
+*output*.txt
+
+# axe audit results
+*-axe.json
+
+# test results
+/test-results/
+/playwright-report/
+
+nul

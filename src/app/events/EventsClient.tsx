@@ -178,7 +178,7 @@ export function EventsClient({
         </div>
         <div className="max-w-6xl mx-auto px-6 py-14 relative z-10 text-center">
           <div className="inline-flex justify-center items-center gap-2 bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] border border-[var(--accent-purple)]/20 text-xs font-bold px-4 py-1.5 rounded-full mb-5">
-            <Flame size={14} /> {t('events.hero.badge')}
+            <Flame size={14} aria-hidden="true" /> {t('events.hero.badge')}
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
             {t('events.hero.title1')}{' '}
@@ -237,10 +237,14 @@ export function EventsClient({
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-[var(--surface-sunken)] border border-[var(--border)] rounded-xl p-1 shadow-sm mb-8 max-w-sm">
+        <div role="tablist" aria-label="Filtros de eventos" className="flex bg-[var(--surface-sunken)] border border-[var(--border)] rounded-xl p-1 shadow-sm mb-8 max-w-sm">
           {(['active', 'voting', 'past'] as const).map((tab) => (
             <button
               key={tab}
+              role="tab"
+              aria-selected={activeTab === tab}
+              aria-controls={`events-${tab}-panel`}
+              tabIndex={activeTab === tab ? 0 : -1}
               onClick={() => navigateTab(tab)}
               className={`flex-1 text-sm font-bold py-2.5 rounded-lg transition-all cursor-pointer ${
                 activeTab === tab
@@ -306,8 +310,8 @@ export function EventsClient({
         {activeTab === 'voting' && (
           <div>
             {voteError && (
-              <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)] rounded-xl p-3 mb-4 text-sm font-medium flex items-center gap-2">
-                <AlertTriangle size={16} /> {voteError}
+              <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)] rounded-xl p-3 mb-4 text-sm font-medium flex items-center gap-2" role="alert">
+                <AlertTriangle size={16} aria-hidden="true" /> {voteError}
               </div>
             )}
             {localVoting ? (
@@ -332,7 +336,7 @@ export function EventsClient({
                     </p>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)] font-semibold">
-                    <Star className="text-[var(--warning)] fill-current" />{' '}
+                    <Star className="text-[var(--warning)] fill-current" aria-hidden="true" />{' '}
                     <span>{t('events.voting.votePrompt')}</span>
                   </div>
                 </div>

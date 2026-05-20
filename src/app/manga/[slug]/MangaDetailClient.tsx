@@ -11,6 +11,7 @@ import { toggleLibrary } from './actions';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useT } from '@/i18n';
 import { cn, formatNumber, formatDate } from '@/lib/utils';
+import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 
 interface Props {
   manga: {
@@ -40,10 +41,10 @@ const STATUS_KEYS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  ONGOING: 'bg-[var(--success)]/80 text-[var(--text-inverse)] border-[var(--success)]/30',
-  COMPLETED: 'bg-[var(--info)]/80 text-[var(--text-inverse)] border-[var(--info)]/30',
-  HIATUS: 'bg-[var(--warning)]/80 text-[var(--text-inverse)] border-[var(--warning)]/30',
-  DROPPED: 'bg-[var(--error)]/80 text-[var(--text-inverse)] border-[var(--error)]/30',
+  ONGOING: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-800',
+  COMPLETED: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-800',
+  HIATUS: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-800',
+  DROPPED: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-800',
 };
 
 export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary, userId }: Props) {
@@ -57,6 +58,18 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
     : manga.chapters.slice(0, 20);
 
   const t = useT();
+  const displayTagGenre = (genre: string): string => {
+    let slug = ENGLISH_TO_SLUG[genre];
+    if (!slug) {
+      const normalized = normalizeGenreKey(genre);
+      slug = ENGLISH_TO_SLUG[normalized];
+      if (!slug) {
+        const englishTag = SLUG_TO_ENGLISH[normalized];
+        if (englishTag) slug = ENGLISH_TO_SLUG[englishTag];
+      }
+    }
+    return slug ? t(`genres.${slug}`) : genre.charAt(0).toUpperCase() + genre.slice(1);
+  };
   const statusKey = STATUS_KEYS[manga.status] || '';
   const statusInfo = {
     label: statusKey ? t(statusKey) : manga.status,
@@ -138,23 +151,23 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold text-[var(--text-inverse)]', statusInfo.color)}>
+              <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold', statusInfo.color)}>
                 {statusInfo.label}
               </span>
               {manga.rating && (
-                <span className="flex items-center gap-1 text-sm text-[var(--warning)] font-medium">
+                <span className="flex items-center gap-1 text-sm text-[var(--warning)] dark:text-yellow-300 font-medium">
                   <Star className="w-4 h-4 fill-current" /> {manga.rating.toFixed(1)}
                 </span>
               )}
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 text-[var(--text-primary)]">
               {manga.title}
             </h1>
 
             <Link
               href={`/profile`}
-              className="text-[var(--primary)] hover:underline font-medium flex items-center gap-1 mb-4"
+              className="text-[var(--primary)] dark:text-indigo-300 hover:underline font-medium flex items-center gap-1 mb-4"
             >
               <User className="w-4 h-4" /> {manga.authorName}
             </Link>
@@ -185,7 +198,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               {manga.chapters.length > 0 && (
                 <Link
                   href={`/manga/${manga.slug}/chapter/${manga.chapters[manga.chapters.length - 1]?.chapterNumber || 1}`}
-                  className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white dark:text-black font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
                 >
                   <BookOpen className="w-5 h-5" />
                   {t('manga.startReading')}
@@ -197,7 +210,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                 className={cn(
                   'px-6 py-2.5 font-bold rounded-xl border transition-all flex items-center gap-2',
                   isInLibrary
-                    ? 'bg-[var(--success)]/10 border-[var(--success)]/30 text-[var(--success)]'
+                    ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-800'
                     : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 )}
               >
@@ -220,9 +233,13 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                 {manga.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 rounded-full text-xs font-bold flex items-center gap-1"
+                    onClick={(e) => { e.stopPropagation(); router.push(`/explore?genres[]=${encodeURIComponent(tag)}`); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); router.push(`/explore?genres[]=${encodeURIComponent(tag)}`); } }}
+                    role="link"
+                    tabIndex={0}
+                    className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 rounded-full text-xs font-bold flex items-center gap-1 cursor-pointer hover:bg-[var(--primary)]/20 transition-colors"
                   >
-                    <Tag className="w-3 h-3" /> {tag}
+                    <Tag className="w-3 h-3" /> {displayTagGenre(tag)}
                   </span>
                 ))}
               </motion.div>

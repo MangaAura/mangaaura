@@ -112,7 +112,7 @@ export function SearchBar({
     if (onSearch) {
       onSearch(searchQuery);
     } else {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/explore?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -192,7 +192,7 @@ export function SearchBar({
   const showDropdown = isOpen && (suggestions.length > 0 || recentSearches.length > 0);
 
   return (
-    <div ref={containerRef} className={cn('relative', className)}>
+    <div ref={containerRef} className={cn('relative', className)} role="search">
       {/* Input */}
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -231,11 +231,11 @@ export function SearchBar({
 
       {/* Dropdown */}
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--background)] border border-[var(--border)] rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--background)] border border-[var(--border)] rounded-xl shadow-2xl z-50 overflow-hidden" role="listbox" aria-labelledby="search-suggestions-label">
           {/* Suggestions */}
           {suggestions.length > 0 && (
             <div className="py-2">
-              <div className="px-3 py-2 text-xs font-medium text-[var(--text-tertiary)] uppercase">
+              <div className="px-3 py-2 text-xs font-medium text-[var(--text-tertiary)] uppercase" id="search-suggestions-label">
                 Sugerencias
               </div>
               {suggestions.map((suggestion, index) => (
@@ -247,6 +247,8 @@ export function SearchBar({
                     'hover:bg-[var(--surface)] transition-colors',
                     index === selectedIndex && 'bg-[var(--surface)]'
                   )}
+                  role="option"
+                  aria-selected={index === selectedIndex}
                 >
                   {suggestion.coverUrl ? (
                     <OptimizedImage
@@ -273,8 +275,8 @@ export function SearchBar({
 
           {/* Loading */}
           {isLoading && (
-            <div className="py-4 flex justify-center">
-              <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" />
+            <div className="py-4 flex justify-center" role="status" aria-label="Buscando sugerencias">
+              <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" aria-hidden="true" />
             </div>
           )}
 
@@ -301,6 +303,8 @@ export function SearchBar({
                     'hover:bg-[var(--surface)] transition-colors',
                     index + suggestions.length === selectedIndex && 'bg-[var(--surface)]'
                   )}
+                  role="option"
+                  aria-selected={index + suggestions.length === selectedIndex}
                 >
                   <Clock className="w-4 h-4 text-[var(--text-tertiary)]" />
                   <span className="text-sm text-[var(--text-primary)]">{search}</span>

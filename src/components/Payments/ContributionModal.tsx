@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { cn } from '@/lib/utils';
 
 interface ContributionModalProps {
   isOpen: boolean;
@@ -242,15 +243,17 @@ export default function ContributionModal({
 
             {/* Custom Amount */}
             <div className="mb-4">
-<label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
+<label htmlFor="contribution-amount" className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
             O ingresa un monto personalizado
               </label>
               <div className="relative">
                 <Coins
                   size={18}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--warning)]"
+                  aria-hidden="true"
                 />
                 <Input
+                  id="contribution-amount"
                   type="text"
                   inputMode="numeric"
                   value={customAmount}
@@ -263,21 +266,22 @@ export default function ContributionModal({
 
             {/* Anonymous Checkbox */}
             <div className="mb-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <div
-                  onClick={() => setIsAnonymous(!isAnonymous)}
-                  className={`
-                    w-5 h-5 rounded border-2 flex items-center justify-center transition-all
-                    ${isAnonymous
-                      ? 'bg-[var(--primary)] border-[var(--primary)]'
-                      : 'border-[var(--border)] bg-[var(--surface-sunken)]'
-                    }
-                  `}
-                >
-                  {isAnonymous && <Check size={14} className="text-[var(--text-inverse)]" />}
+              <label htmlFor="contribution-anonymous" className="flex items-center gap-3 cursor-pointer">
+                <input
+                  id="contribution-anonymous"
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={cn(
+                  'w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
+                  isAnonymous ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-[var(--border)] bg-[var(--surface-sunken)]'
+                )}>
+                  {isAnonymous && <Check size={14} className="text-[var(--text-inverse)]" aria-hidden="true" />}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                  {isAnonymous ? <EyeOff size={16} /> : <Eye size={16} />}
+                  <span aria-hidden="true">{isAnonymous ? <EyeOff size={16} /> : <Eye size={16} />}</span>
                   <span>Contribución anónima</span>
                 </div>
               </label>
@@ -285,17 +289,19 @@ export default function ContributionModal({
 
             {/* Message */}
             <div className="mb-6">
-      <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
+      <label htmlFor="contribution-message" className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
             Mensaje para el autor (opcional)
               </label>
               <textarea
+                id="contribution-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Escribe un mensaje de apoyo..."
                 maxLength={500}
                 className="w-full h-20 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-primary)] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent placeholder:text-[var(--text-tertiary)]"
+                aria-describedby="contribution-message-count"
               />
-              <p className="text-xs text-[var(--text-tertiary)] text-right mt-1">
+              <p id="contribution-message-count" className="text-xs text-[var(--text-tertiary)] text-right mt-1">
                 {message.length}/500
               </p>
             </div>

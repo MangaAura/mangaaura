@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Home, Compass, Library, Bell, User } from 'lucide-react';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 const navItems: { href: string; labelKey: string; icon: typeof Home }[] = [
   { href: '/', labelKey: 'nav.home', icon: Home },
-  { href: '/browse', labelKey: 'nav.browse', icon: Compass },
+  { href: '/search_ia', labelKey: 'nav.browse', icon: Compass },
   { href: '/library', labelKey: 'nav.library', icon: Library },
   { href: '/notifications', labelKey: 'nav.notifications', icon: Bell },
   { href: '/profile', labelKey: 'nav.profile', icon: User },
@@ -25,7 +25,7 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[var(--surface)]/90 backdrop-blur-lg border-t border-[var(--border)]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <nav aria-label={t('nav.navigation')} className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[var(--surface)]/90 backdrop-blur-lg border-t border-[var(--border)]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map(({ href, labelKey, icon: Icon }) => {
           const active = isActive(href);

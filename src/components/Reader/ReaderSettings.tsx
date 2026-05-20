@@ -64,6 +64,9 @@ export function ReaderSettingsPanel({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reader-settings-title"
             className={cn(
               'fixed right-0 top-0 bottom-0 w-80 z-50',
               'bg-[var(--surface)] border-l border-[var(--border)]/50',
@@ -72,7 +75,7 @@ export function ReaderSettingsPanel({
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border)]/50">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Reader Settings</h2>
+              <h2 id="reader-settings-title" className="text-lg font-semibold text-[var(--text-primary)]">Reader Settings</h2>
               <div className="flex items-center gap-2">
           <button
             onClick={onReset}
@@ -123,19 +126,20 @@ export function ReaderSettingsPanel({
               {/* Brightness */}
               <section>
                 <div className="flex items-center justify-between mb-2">
-<h3 className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
-            <Sun className="w-4 h-4" />
+<label htmlFor="reader-brightness" className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
+            <Sun className="w-4 h-4" aria-hidden="true" />
             Brightness
-          </h3>
+          </label>
           <span className="text-xs text-[var(--text-muted)]">{settings.brightness}%</span>
                 </div>
         <input
+          id="reader-brightness"
           type="range"
           min={50}
           max={150}
           value={settings.brightness}
           onChange={(e) => onSettingsChange({ brightness: parseInt(e.target.value) })}
-          aria-label="Brillo"
+          aria-valuetext={`${settings.brightness}%`}
           className="w-full h-2 bg-[var(--border)] rounded-lg appearance-none cursor-pointer
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:w-4
@@ -154,19 +158,20 @@ export function ReaderSettingsPanel({
       {/* Contrast */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
-            <Contrast className="w-4 h-4" />
+          <label htmlFor="reader-contrast" className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
+            <Contrast className="w-4 h-4" aria-hidden="true" />
             Contrast
-          </h3>
+          </label>
           <span className="text-xs text-[var(--text-muted)]">{settings.contrast}%</span>
         </div>
         <input
+          id="reader-contrast"
           type="range"
           min={50}
           max={150}
           value={settings.contrast}
           onChange={(e) => onSettingsChange({ contrast: parseInt(e.target.value) })}
-          aria-label="Contraste"
+          aria-valuetext={`${settings.contrast}%`}
           className="w-full h-2 bg-[var(--border)] rounded-lg appearance-none cursor-pointer
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:w-4
@@ -185,19 +190,20 @@ export function ReaderSettingsPanel({
               {/* Sepia */}
               <section>
                 <div className="flex items-center justify-between mb-2">
-<h3 className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
-            <Coffee className="w-4 h-4" />
+<label htmlFor="reader-sepia" className="text-sm font-medium text-[var(--text-secondary)] flex items-center gap-2">
+            <Coffee className="w-4 h-4" aria-hidden="true" />
             Sepia
-          </h3>
+          </label>
           <span className="text-xs text-[var(--text-muted)]">{settings.sepia}%</span>
         </div>
         <input
+          id="reader-sepia"
           type="range"
           min={0}
           max={100}
           value={settings.sepia}
           onChange={(e) => onSettingsChange({ sepia: parseInt(e.target.value) })}
-          aria-label="Sepia"
+          aria-valuetext={`${settings.sepia}%`}
           className="w-full h-2 bg-[var(--border)] rounded-lg appearance-none cursor-pointer
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:w-4
@@ -219,18 +225,19 @@ export function ReaderSettingsPanel({
               {/* Page Gap */}
               <section>
                 <div className="flex items-center justify-between mb-2">
-<h3 className="text-sm font-medium text-[var(--text-secondary)]">
+<label htmlFor="reader-page-gap" className="text-sm font-medium text-[var(--text-secondary)]">
               Page Gap
-            </h3>
+            </label>
             <span className="text-xs text-[var(--text-muted)]">{settings.gap}px</span>
         </div>
         <input
+          id="reader-page-gap"
           type="range"
           min={0}
           max={50}
           value={settings.gap}
           onChange={(e) => onSettingsChange({ gap: parseInt(e.target.value) })}
-          aria-label="Espacio entre páginas"
+          aria-valuetext={`${settings.gap}px`}
           className="w-full h-2 bg-[var(--border)] rounded-lg appearance-none cursor-pointer
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:w-4

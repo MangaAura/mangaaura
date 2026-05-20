@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { Play, Compass, BookOpen, Users, BookMarked } from 'lucide-react';
@@ -143,7 +143,7 @@ export function AnimatedHero({
               </motion.span>
             </Link>
           ) : null}
-          <Link href="/browse">
+          <Link href="/search_ia">
             <motion.span
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

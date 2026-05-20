@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Bookmark, Trash2, BookOpen } from 'lucide-react';
 import Link from 'next/link';
@@ -67,8 +67,8 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
       <EmptyState
         icon={<Bookmark className="w-8 h-8" />}
         title="Sin marcadores"
-        description="Los mangas y capítulos que marques aparecerán aquí para que puedas retomarlos fácilmente."
-        action={{ label: 'Explorar mangas', href: '/browse' }}
+        description="Los mangas y capÃ­tulos que marques aparecerÃ¡n aquÃ­ para que puedas retomarlos fÃ¡cilmente."
+        action={{ label: 'Explorar mangas', href: '/search_ia' }}
       />
     );
   }
@@ -126,12 +126,12 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
                   href={`/manga/${bookmark.manga.slug}/chapter/${bookmark.chapter.chapterNumber}`}
                   className="block text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
                 >
-                  Capítulo {bookmark.chapter.chapterNumber}
+                  CapÃ­tulo {bookmark.chapter.chapterNumber}
                   {bookmark.chapter.title && ` - ${bookmark.chapter.title}`}
                 </Link>
               )}
               <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] pt-1">
-                <span>Página {bookmark.page || 1}</span>
+                <span>PÃ¡gina {bookmark.page || 1}</span>
                 <span>{formatDate(bookmark.createdAt)}</span>
               </div>
             </CardContent>

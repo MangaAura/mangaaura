@@ -28,8 +28,10 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     location: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
   const [isDirty, setIsDirty] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
+  const [avatarError, setAvatarError] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -69,7 +71,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       setAvatarPreview(url);
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      alert('Error al subir imagen');
+      setAvatarError('Error al subir imagen');
     } finally {
       setIsLoading(false);
     }
@@ -95,10 +97,11 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       if (!response.ok) throw new Error('Update failed');
 
       setIsDirty(false);
-      alert('Perfil actualizado');
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
+      setSaveStatus('error');
       console.error('Error updating profile:', error);
-      alert('Error al actualizar perfil');
     } finally {
       setIsLoading(false);
     }
@@ -114,12 +117,27 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {saveStatus === 'success' && (
+          <div role="status" className="p-3 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30">
+            <p className="text-sm text-[var(--success)]">Perfil actualizado correctamente</p>
+          </div>
+        )}
+        {saveStatus === 'error' && (
+          <div role="alert" className="p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30">
+            <p className="text-sm text-[var(--error)]">Error al actualizar perfil. Inténtalo de nuevo.</p>
+          </div>
+        )}
+        {avatarError && (
+          <div role="alert" className="p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30">
+            <p className="text-sm text-[var(--error)]">{avatarError}</p>
+          </div>
+        )}
         <div className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="w-24 h-24 cursor-pointer hover:opacity-90 transition-opacity">
               <AvatarImage src={avatarPreview || undefined} />
               <AvatarFallback className="text-2xl bg-[var(--primary)]">
-                <User className="w-10 h-10" />
+                <User className="w-10 h-10" aria-hidden="true" />
               </AvatarFallback>
             </Avatar>
         <button
@@ -135,7 +153,8 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="hidden"
+              className="sr-only"
+              id="avatar-upload-input"
             />
           </div>
           <div>
@@ -165,7 +184,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
           <div className="space-y-2">
             <Label htmlFor="username">Nombre de usuario</Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" aria-hidden="true">
                 @
               </span>
               <Input
@@ -206,9 +225,10 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
               placeholder="Cuéntanos sobre ti..."
               maxLength={500}
               rows={4}
+              aria-describedby="bio-charcount"
               className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
-            <p className="text-xs text-[var(--text-tertiary)] text-right">
+            <p id="bio-charcount" className="text-xs text-[var(--text-tertiary)] text-right">
               {formData.bio.length}/500 caracteres
             </p>
           </div>
@@ -251,6 +271,8 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 location: '',
               });
               setAvatarPreview(user.avatarUrl);
+              setAvatarError('');
+              setSaveStatus('idle');
               setIsDirty(false);
             }}
             disabled={!isDirty || isLoading}

@@ -35,6 +35,9 @@ export default function ReportPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [targetIdError, setTargetIdError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
+  const [evidenceUrlError, setEvidenceUrlError] = useState('');
 
   const reportTypes = [
     {
@@ -90,9 +93,20 @@ export default function ReportPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTargetIdError('');
+    setDescriptionError('');
+    setEvidenceUrlError('');
     const validationError = validateForm();
     if (validationError) {
-      setError(validationError);
+      if (validationError === t('report.form.targetRequired')) {
+        setTargetIdError(validationError);
+      } else if (validationError === t('report.form.maxLengthError')) {
+        setDescriptionError(validationError);
+      } else if (validationError === t('report.form.invalidUrl')) {
+        setEvidenceUrlError(validationError);
+      } else {
+        setError(validationError);
+      }
       return;
     }
 
@@ -187,7 +201,7 @@ export default function ReportPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 shadow-lg">
           {error && (
-            <div className="mb-6 p-4 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl text-sm text-[var(--error)]" role="alert">
+            <div id="report-global-error" className="mb-6 p-4 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl text-sm text-[var(--error)]" role="alert">
               {error}
             </div>
           )}
@@ -238,8 +252,13 @@ export default function ReportPage() {
                     reportTypes.find((rt) => rt.value === formData.targetType)?.placeholder || 'URL o ID'
                   }
                   aria-required
+                  aria-invalid={!!targetIdError}
+                  aria-describedby="target-id-error"
                   autoComplete="url"
                 />
+                {targetIdError && (
+                  <p id="target-id-error" className="mt-1 text-sm text-[var(--error)]" role="alert">{targetIdError}</p>
+                )}
               </div>
             )}
 
@@ -270,7 +289,7 @@ export default function ReportPage() {
               </div>
             </div>
 
-            <div>
+<div>
                 <label htmlFor="report-description" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                   {t('report.form.description')} <span className="text-[var(--text-tertiary)] font-normal">{t('report.form.descriptionOptional')}</span>
                 </label>
@@ -282,18 +301,23 @@ export default function ReportPage() {
                   maxLength={1000}
                   className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors resize-none"
                   placeholder={t('report.form.descriptionPlaceholder')}
+                  aria-invalid={!!descriptionError}
+                  aria-describedby="description-error"
                 />
-              <p className="mt-1 text-xs text-[var(--text-tertiary)] text-right">
-                {formData.description.length}/1000
-              </p>
-            </div>
+                {descriptionError && (
+                  <p id="description-error" className="mt-1 text-sm text-[var(--error)]" role="alert">{descriptionError}</p>
+                )}
+                <p className="mt-1 text-xs text-[var(--text-tertiary)] text-right">
+                  {formData.description.length}/1000
+                </p>
+              </div>
 
-            <div>
+<div>
                 <label htmlFor="report-evidence" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                   {t('report.form.evidence')} <span className="text-[var(--text-tertiary)] font-normal">{t('report.form.evidenceOptional')}</span>
                 </label>
                 <div className="relative">
-                  <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+                  <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
                     <input
                     id="report-evidence"
                     type="url"
@@ -302,9 +326,14 @@ export default function ReportPage() {
                     className="w-full pl-10 pr-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
                     placeholder={t('report.form.evidencePlaceholder')}
                     autoComplete="url"
+                    aria-invalid={!!evidenceUrlError}
+                    aria-describedby="evidence-url-error"
                   />
+                </div>
+                {evidenceUrlError && (
+                  <p id="evidence-url-error" className="mt-1 text-sm text-[var(--error)]" role="alert">{evidenceUrlError}</p>
+                )}
               </div>
-            </div>
 
             <div className="pt-2">
               <button

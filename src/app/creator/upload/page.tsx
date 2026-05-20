@@ -320,17 +320,17 @@ function CreatorUploadPageContent() {
 
         {/* Error */}
         {error && (
-          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[var(--error)] flex-shrink-0 mt-0.5" />
+          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 flex items-start gap-3" role="alert">
+            <AlertCircle className="w-5 h-5 text-[var(--error)] flex-shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-[var(--error)] text-sm">{error}</p>
           </div>
         )}
 
         {/* Success State */}
         {isSuccess ? (
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-12 text-center animate-fade-in">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-12 text-center animate-fade-in" role="alert">
             <div className="inline-flex justify-center items-center w-20 h-20 bg-[var(--success)]/10 text-[var(--success)] rounded-full mb-6">
-              <CheckCircle size={40} />
+              <CheckCircle size={40} aria-hidden="true" />
             </div>
             <h2 className="text-2xl font-bold mb-2 text-[var(--text-primary)]">¡Capítulo Publicado!</h2>
             <p className="text-[var(--text-secondary)] mb-8">El capítulo {chapterNumber} ya está disponible para tus lectores.</p>
@@ -451,11 +451,10 @@ function CreatorUploadPageContent() {
             {/* Columna de Upload */}
             <div className="col-span-2 space-y-4">
               {/* Drop Zone */}
-              <div
+              <label
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                   isDragging
                     ? 'border-[var(--primary)] bg-[var(--primary)]/5'
@@ -466,12 +465,13 @@ function CreatorUploadPageContent() {
                   type="file"
                   multiple
                   accept="image/*"
-                  className="hidden"
+                  className="sr-only"
                   ref={fileInputRef}
                   onChange={handleFileSelect}
+                  id="page-upload-input"
                 />
                 <div className={`p-4 rounded-full mb-4 ${isDragging ? 'bg-[var(--primary)] text-[var(--text-primary)]' : 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]'}`}>
-                  <UploadCloud size={32} />
+                  <UploadCloud size={32} aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-bold mb-1 text-[var(--text-primary)]">Arrastra tus páginas aquí</h3>
                 <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -479,7 +479,7 @@ function CreatorUploadPageContent() {
                 </p>
                 <button
                   type="button"
-                  className="bg-[var(--primary-hover)] hover:bg-[var(--primary-hover)] text-[var(--text-primary)] text-sm font-bold py-2 px-6 rounded-full transition-all"
+                  className="bg-[var(--primary-hover)] hover:bg-[var(--primary-hover)] text-[var(--text-primary)] text-sm font-bold py-2 px-6 rounded-full transition-all cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     fileInputRef.current?.click();
@@ -487,7 +487,7 @@ function CreatorUploadPageContent() {
                 >
                   Seleccionar Archivos
                 </button>
-              </div>
+              </label>
 
               {/* Lista de Imágenes */}
               {files.length > 0 && (
@@ -600,7 +600,7 @@ function CreatorUploadPageContent() {
 
                   {/* Barra de progreso total */}
                   {isUploading && (
-                    <div className="mt-6 space-y-2">
+                    <div className="mt-6 space-y-2" role="progressbar" aria-valuenow={Math.round(uploadProgress)} aria-valuemin={0} aria-valuemax={100} aria-label={`Progreso de subida: ${Math.round(uploadProgress)}%`}>
                       <div className="flex justify-between text-sm">
                         <span className="text-[var(--text-secondary)]">Progreso total</span>
                         <span className="text-[var(--text-primary)]">{Math.round(uploadProgress)}%</span>

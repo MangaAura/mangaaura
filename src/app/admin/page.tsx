@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="animate-pulse space-y-6">
+      <div className="animate-pulse space-y-6" role="status" aria-label="Cargando panel de administración">
         <div className="h-8 bg-[var(--surface-sunken)] rounded w-1/4"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
@@ -85,8 +85,8 @@ export default function AdminDashboardPage() {
 
   if (statsError) {
     return (
-      <div className="text-center py-12">
-        <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
+      <div className="text-center py-12" role="alert">
+        <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" aria-hidden="true" />
         <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.failedToLoad')}</h2>
         <p className="text-[var(--text-tertiary)] mt-2">{t('common.retry')}</p>
         <Button onClick={() => window.location.reload()} className="mt-4">
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
               <div className="p-3 bg-[var(--success)]/10 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-[var(--success)]" />
+                <TrendingUp className="w-6 h-6 text-[var(--success)]" aria-hidden="true" />
               </div>
             </div>
           </CardContent>
@@ -191,7 +191,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
               <div className="p-3 bg-[var(--primary)]/10 rounded-lg">
-                <BookOpen className="w-6 h-6 text-[var(--primary)]" />
+                <BookOpen className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
               </div>
             </div>
           </CardContent>
@@ -206,7 +206,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
               <div className="p-3 bg-[var(--warning)]/10 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-[var(--warning)]" />
+                <MessageSquare className="w-6 h-6 text-[var(--warning)]" aria-hidden="true" />
               </div>
             </div>
           </CardContent>
@@ -217,7 +217,7 @@ export default function AdminDashboardPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">              <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[var(--warning)]" />
+              <AlertTriangle className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
               {t('admin.moderationAlerts')}
               {alerts.length > 0 && (
                 <Badge variant="destructive" className="ml-2">
@@ -225,9 +225,9 @@ export default function AdminDashboardPage() {
                 </Badge>
               )}
             </CardTitle>
-            <Link href="/admin/moderation">
+            <Link href="/admin/moderation" aria-label="Ver todos los reportes de moderación">
               <Button variant="ghost" size="sm">
-                View All <ArrowRight className="w-4 h-4 ml-1" />
+                View All <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
               </Button>
             </Link>
           </div>
@@ -241,7 +241,7 @@ export default function AdminDashboardPage() {
             </div>
           ) : alerts.length === 0 ? (
             <div className="text-center py-8 text-[var(--text-tertiary)]">
-              <CheckCircle className="w-12 h-12 mx-auto mb-3 text-[var(--success)]" />
+              <CheckCircle className="w-12 h-12 mx-auto mb-3 text-[var(--success)]" aria-hidden="true" />
               <p>{t('admin.noPendingAlerts')}</p>
             </div>
           ) : (
@@ -259,11 +259,11 @@ export default function AdminDashboardPage() {
                 >
                   <div className="flex items-center gap-3">
                     {alert.severity === 'high' ? (
-                      <XCircle className="w-5 h-5 text-[var(--error)]" />
+                      <XCircle className="w-5 h-5 text-[var(--error)]" aria-hidden="true" />
                     ) : alert.severity === 'medium' ? (
-                      <AlertTriangle className="w-5 h-5 text-[var(--warning)]" />
+                      <AlertTriangle className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
                     ) : (
-                      <CheckCircle className="w-5 h-5 text-[var(--primary)]" />
+                      <CheckCircle className="w-5 h-5 text-[var(--primary)]" aria-hidden="true" />
                     )}
                     <div>
                       <p className="font-medium text-[var(--text-primary)]">{alert.message}</p>
@@ -289,45 +289,45 @@ export default function AdminDashboardPage() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link href="/admin/users">
+        <Link href="/admin/users" aria-label="Gestionar usuarios">
           <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
             <CardContent className="p-6 flex items-center gap-4">
               <div className="p-3 bg-[var(--primary)]/10 rounded-lg">
-                <Users className="w-6 h-6 text-[var(--primary)]" />
+                <Users className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.manageUsers')}</h3>
                 <p className="text-sm text-[var(--text-tertiary)]">{t('admin.manageUsersDesc')}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
+              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/moderation">
+        <Link href="/admin/moderation" aria-label="Panel de moderación">
           <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
             <CardContent className="p-6 flex items-center gap-4">
               <div className="p-3 bg-[var(--warning)]/10 rounded-lg">
-                <Shield className="w-6 h-6 text-[var(--warning)]" />
+                <Shield className="w-6 h-6 text-[var(--warning)]" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.moderation')}</h3>
                 <p className="text-sm text-[var(--text-tertiary)]">{t('admin.moderationDesc')}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
+              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/manga">
+        <Link href="/admin/manga" aria-label="Gestionar mangas">
           <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
             <CardContent className="p-6 flex items-center gap-4">
               <div className="p-3 bg-[var(--success)]/10 rounded-lg">
-                <BookOpen className="w-6 h-6 text-[var(--success)]" />
+                <BookOpen className="w-6 h-6 text-[var(--success)]" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.manageManga')}</h3>
                 <p className="text-sm text-[var(--text-tertiary)]">{t('admin.manageMangaDesc')}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" />
+              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
             </CardContent>
           </Card>
         </Link>

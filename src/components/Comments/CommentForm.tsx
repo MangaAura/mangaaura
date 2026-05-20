@@ -105,6 +105,8 @@ export function CommentForm({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="mb-2 p-3 rounded-lg bg-[var(--surface-elevated)]/30 border border-[var(--border)]"
+            role="status"
+            aria-label="Enviando comentario"
           >
             <p className="text-xs text-[var(--text-tertiary)] mb-1">Enviando...</p>
             <p className="text-sm text-[var(--text-secondary)]">{(optimisticState as Record<string, unknown>)?.optimisticContent as string}</p>
@@ -139,8 +141,11 @@ export function CommentForm({
             maxLength={MAX_CHARS + 100}
             rows={isCompact ? 2 : 3}
             aria-required
-            aria-invalid={!!((state as Record<string, unknown>)?.error) ? true : undefined}
-            aria-describedby={!!((state as Record<string, unknown>)?.error) ? 'comment-error' : undefined}
+            aria-invalid={isOverLimit || (!!((state as Record<string, unknown>)?.error) ? true : undefined)}
+            aria-describedby={cn(
+              !!((state as Record<string, unknown>)?.error) && 'comment-error',
+              'comment-charcount'
+            ) || undefined}
             className={cn(
 'w-full px-3 py-2 bg-[var(--surface-sunken)] border rounded-lg resize-none outline-none transition-all',
           'text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]',
@@ -153,6 +158,7 @@ export function CommentForm({
         />
 
         <div
+          id="comment-charcount"
           className={cn(
             'absolute bottom-2 right-2 text-xs',
             isOverLimit ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'

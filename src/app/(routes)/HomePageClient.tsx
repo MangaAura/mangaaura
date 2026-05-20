@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Trophy, TrendingUp, Clock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -115,7 +115,7 @@ export function HomePageClient({
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
                   </h2>
-                  <Link href="/browse">
+                  <Link href="/search_ia">
                     <Button variant="ghost" size="sm">
                       {t('common.viewAll')}
                     </Button>

@@ -66,7 +66,7 @@ export default function NotificationsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-[var(--primary)]/10 rounded-xl">
-                <Bell className="w-6 h-6 text-[var(--primary)]" />
+                <Bell className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -87,7 +87,7 @@ export default function NotificationsPage() {
                   onClick={markAllAsRead}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="w-4 h-4" aria-hidden="true" />
                   Marcar todas como leídas
                 </button>
               )}
@@ -100,7 +100,7 @@ export default function NotificationsPage() {
                     : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
                 )}
               >
-                <Filter className="w-4 h-4" />
+                <Filter className="w-4 h-4" aria-hidden="true" />
                 Filtros
               </button>
             </div>

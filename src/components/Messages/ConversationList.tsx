@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -79,7 +79,7 @@ export function ConversationList({ activeConversationId }: ConversationListProps
           Tus conversaciones aparecerán aquí
         </p>
         <Link
-          href="/browse"
+          href="/search_ia"
           className="text-[var(--primary)] hover:text-[var(--primary-hover)] text-sm font-medium"
         >
           Encontrar usuarios →

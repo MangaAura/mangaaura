@@ -54,7 +54,7 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
           }
         })
         .catch(() => {
-          // Usar fallback
+          console.error('Quiz: failed to load, using fallback');
         })
         .finally(() => setIsFetching(false));
     }

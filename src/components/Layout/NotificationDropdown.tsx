@@ -21,21 +21,24 @@ function NotificationItem({
   onMarkAsRead: (id: string) => void;
   onClose: () => void;
 }) {
+  const handleClick = () => {
+    if (!notification.isRead) onMarkAsRead(notification.id);
+    onClose();
+  };
+
   const content = (
-    <div
+    <button
+      type="button"
+      onClick={handleClick}
       className={
-        'flex items-start gap-3 p-3 hover:bg-[var(--surface-elevated)] transition-colors cursor-pointer' +
+        'w-full text-left flex items-start gap-3 p-3 hover:bg-[var(--surface-elevated)] transition-colors' +
         (!notification.isRead ? ' bg-[var(--primary-subtle)]/30' : '')
       }
-      onClick={() => {
-        if (!notification.isRead) onMarkAsRead(notification.id);
-        if (notification.link) onClose();
-      }}
     >
       <div className="w-8 h-8 rounded-full bg-[var(--surface)] flex items-center justify-center flex-shrink-0">
-        <Bell className="w-4 h-4 text-[var(--text-tertiary)]" />
+        <Bell className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 text-left">
         <p className={'text-sm' + (!notification.isRead ? ' font-medium text-[var(--text-primary)]' : '')}>
           {notification.title}
         </p>
@@ -43,12 +46,34 @@ function NotificationItem({
           {notification.message}
         </p>
       </div>
-    </div>
+    </button>
   );
 
   if (notification.link) {
-    return <Link href={notification.link}>{content}</Link>;
+    return (
+      <Link
+        href={notification.link}
+        onClick={handleClick}
+        className={
+          'flex items-start gap-3 p-3 hover:bg-[var(--surface-elevated)] transition-colors' +
+          (!notification.isRead ? ' bg-[var(--primary-subtle)]/30' : '')
+        }
+      >
+        <div className="w-8 h-8 rounded-full bg-[var(--surface)] flex items-center justify-center flex-shrink-0">
+          <Bell className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
+        </div>
+        <div className="flex-1 min-w-0 text-left">
+          <p className={'text-sm' + (!notification.isRead ? ' font-medium text-[var(--text-primary)]' : '')}>
+            {notification.title}
+          </p>
+          <p className="text-xs text-[var(--text-secondary)] line-clamp-1">
+            {notification.message}
+          </p>
+        </div>
+      </Link>
+    );
   }
+
   return content;
 }
 

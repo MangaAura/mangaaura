@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Library Page
  *
  * Página de biblioteca del usuario con filtros y organización.
@@ -104,8 +104,7 @@ if (status === 'loading') {
 if (status === 'unauthenticated') {
   return (
     <div className="min-h-[60vh] bg-[var(--background)] text-[var(--text-primary)] pt-20 pb-10 flex items-center justify-center">
-      <div className="text-center">
-        <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" />
+      <div className="text-center">          <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" aria-hidden="true" />
         <h1 className="text-2xl font-bold mb-2">Tu Biblioteca</h1>
         <p className="text-[var(--text-tertiary)] mb-6">Inicia sesión para ver tu biblioteca</p>
         <Link href="/auth/login">
@@ -122,7 +121,7 @@ if (status === 'unauthenticated') {
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <Library className="w-8 h-8 text-[var(--info)]" />
+              <Library className="w-8 h-8 text-[var(--info)]" aria-hidden="true" />
               <h1 className="text-3xl font-extrabold">Mi Biblioteca</h1>
             </div>
             <p className="text-[var(--text-tertiary)]">
@@ -151,7 +150,7 @@ if (status === 'unauthenticated') {
             )}
           >
                   <div className="flex items-center gap-3">
-                    <stat.icon className={cn('w-5 h-5', stat.color)} />
+                    <stat.icon className={cn('w-5 h-5', stat.color)} aria-hidden="true" />
                     <div>
                       <p className="text-2xl font-bold">{actualCount}</p>
                       <p className="text-sm text-[var(--text-tertiary)]">{stat.label}</p>
@@ -180,7 +179,7 @@ if (status === 'unauthenticated') {
                         : 'bg-[var(--surface)] text-[var(--text-tertiary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
                     )}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4" aria-hidden="true" />
                     {filter.label}
                   </button>
                 );
@@ -190,7 +189,7 @@ if (status === 'unauthenticated') {
                   onClick={() => setStatusFilter('')}
                   className="flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium bg-[var(--surface)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-all"
                 >
-                  <XCircle className="w-4 h-4" />
+                  <XCircle className="w-4 h-4" aria-hidden="true" />
                   Limpiar
                 </button>
               )}
@@ -200,6 +199,7 @@ if (status === 'unauthenticated') {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Ordenar por"
                 className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--info)]/30 focus:border-[var(--info)]"
               >
                 {SORT_OPTIONS.map(opt => (
@@ -265,7 +265,7 @@ if (status === 'unauthenticated') {
           {/* Empty State */}
           {!isLoading && entries.length === 0 && (
             <div className="text-center py-20">
-              <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" />
+              <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" aria-hidden="true" />
               <h3 className="text-xl font-bold mb-2">
                 Tu biblioteca está vacía
               </h3>
@@ -275,7 +275,7 @@ if (status === 'unauthenticated') {
                   : 'Agrega mangas a tu biblioteca para empezar a leer'
                 }
               </p>
-              <Link href="/browse">
+              <Link href="/search_ia">
                 <Button className="px-8 py-2.5">Explorar mangas</Button>
               </Link>
             </div>
@@ -309,7 +309,7 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
           <StatusIcon className="w-3 h-3" />
         </div>
         {entry.progress > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--surface)]">
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--surface)]" role="progressbar" aria-valuenow={Math.min(100, entry.progress)} aria-valuemin={0} aria-valuemax={100} aria-label={`Progreso: ${Math.min(100, entry.progress)}%`}>
             <div
               className="h-full bg-gradient-to-r from-[var(--info)] to-[var(--accent-purple)]"
               style={{ width: `${Math.min(100, entry.progress)}%` }}
@@ -328,7 +328,7 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
           </p>
           {entry.rating && (
             <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 text-[var(--warning)] fill-[var(--warning)]" />
+              <Star className="w-3 h-3 text-[var(--warning)] fill-[var(--warning)]" aria-hidden="true" />
               <span className="text-xs font-bold">{entry.rating}/10</span>
             </div>
           )}
@@ -378,7 +378,7 @@ function LibraryListItem({ entry }: { entry: import('@/hooks/useLibrary').Librar
               <span>Progreso</span>
               <span>{entry.progress}%</span>
             </div>
-            <div className="h-1.5 bg-[var(--surface-sunken)] rounded-full overflow-hidden">
+            <div className="h-1.5 bg-[var(--surface-sunken)] rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.min(100, entry.progress)} aria-valuemin={0} aria-valuemax={100} aria-label={`Progreso de lectura: ${Math.min(100, entry.progress)}%`}>
               <div
                 className="h-full bg-gradient-to-r from-[var(--info)] to-[var(--accent-purple)] rounded-full"
                 style={{ width: `${Math.min(100, entry.progress)}%` }}
@@ -390,7 +390,7 @@ function LibraryListItem({ entry }: { entry: import('@/hooks/useLibrary').Librar
           </span>
           {entry.rating && (
             <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-[var(--warning)] fill-[var(--warning)]" />
+              <Star className="w-4 h-4 text-[var(--warning)] fill-[var(--warning)]" aria-hidden="true" />
               <span className="text-sm font-bold">{entry.rating}</span>
             </div>
           )}

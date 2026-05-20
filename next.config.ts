@@ -67,8 +67,7 @@ const nextConfig: NextConfig = {
   compress: true,
 
   // Output configuration for optimized builds
-  // Temporarily disabled - causing chunk loading issues
-  // output: 'standalone',
+  output: 'standalone',
 
   // Headers for caching (skip _next/static to avoid warnings)
   async headers() {

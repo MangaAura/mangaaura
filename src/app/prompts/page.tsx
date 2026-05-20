@@ -97,7 +97,7 @@ export default function PromptHunterPage() {
       <div className="bg-[var(--surface)] border-b border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-6 py-12 text-center">
           <div className="inline-flex justify-center items-center bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] p-3 rounded-full mb-4">
-            <Terminal size={32} />
+            <Terminal size={32} aria-hidden="true" />
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Prompt <span className="text-[var(--accent-purple)]">Hunter</span></h1>
           <p className="text-[var(--text-tertiary)] text-lg max-w-2xl mx-auto mb-8">
@@ -127,7 +127,7 @@ export default function PromptHunterPage() {
         )}
 
         {error && (
-          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-6 text-center">
+          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-6 text-center" role="alert">
             <p className="text-[var(--error)]">{error}</p>
             <button onClick={() => fetchPrompts(search, 0)} className="mt-3 px-4 py-2 bg-[var(--error)] text-[var(--text-inverse)] rounded-lg hover:opacity-90 transition-opacity">
               Reintentar

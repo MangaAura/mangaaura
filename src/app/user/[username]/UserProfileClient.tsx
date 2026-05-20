@@ -234,6 +234,7 @@ function HeroGlowAvatar({ user, t, isSpecial }: { user: UserData; t: (key: strin
           className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center text-xs ring-2 ring-amber-600 dark:ring-yellow-600 z-20 shadow-lg"
           animate={shouldReduceMotion ? {} : { rotate: [0, 5, -5, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
+          role="img"
           aria-label={roleAriaLabel}
         >
           <Crown className="w-4 h-4" />
@@ -704,7 +705,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
                         {user.clanMemberships[0].clan.emblemUrl ? (
                           <Image
                             src={user.clanMemberships[0].clan.emblemUrl}
-                            alt=""
+                            alt={`Emblema de ${user.clanMemberships[0].clan.name}`}
                             width={12}
                             height={12}
                             className="w-3 h-3 rounded-full object-cover"
@@ -785,21 +786,21 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
             <TabsList className="mb-6">
               <TabsTrigger
                 value="activity"
-                className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
               >
                 <Activity className="w-4 h-4" />
                 {t('userProfile.tabs.activity')}
               </TabsTrigger>
               <TabsTrigger
                 value="reading"
-                className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
               >
                 <BookOpen className="w-4 h-4" />
                 {t('userProfile.tabs.reading')}
               </TabsTrigger>
               <TabsTrigger
                 value="achievements"
-                className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
               >
                 <Trophy className="w-4 h-4" />
                 {t('userProfile.tabs.achievements')}
@@ -812,7 +813,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
               {user._count.createdMangas > 0 && (
                 <TabsTrigger
                   value="created"
-                  className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <Star className="w-4 h-4" />
                   {t('userProfile.tabs.created')}
@@ -821,7 +822,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
               {user.collections && user.collections.length > 0 && (
                 <TabsTrigger
                   value="collections"
-                  className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <Bookmark className="w-4 h-4" />
                   {t('userProfile.tabs.collections')}

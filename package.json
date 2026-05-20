@@ -12,6 +12,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:a11y": "vitest run tests/**/*.a11y.*.tsx",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "prisma:migrate": "prisma migrate dev",
@@ -23,7 +24,8 @@
     "check:i18n": "tsx scripts/check-i18n.ts",
     "auto-translate": "tsx scripts/auto-translate.ts",
     "design:lint": "npx @google/design.md lint DESIGN.md",
-    "design:diff": "npx @google/design.md diff"
+    "design:diff": "npx @google/design.md diff",
+    "prepare": "husky"
   },
   "dependencies": {
     "@auth/core": "^0.41.2",
@@ -103,6 +105,8 @@
     "@vitest/ui": "^4.1.5",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "husky": "^9.1.7",
+    "jest-axe": "^10.0.0",
     "jsdom": "^29.0.2",
     "next-pwa": "^5.6.0",
     "tailwindcss": "^4",

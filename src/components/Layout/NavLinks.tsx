@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
-  Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles,
+  Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,7 +22,7 @@ export interface NavLinkDef {
 
 export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Inicio', path: '/', iconName: 'BookOpen', i18nKey: 'nav.home' },
-  { name: 'Explorar', path: '/browse', iconName: 'Compass', i18nKey: 'nav.explore' },
+  { name: 'Explorar', path: '/explore', iconName: 'Compass', i18nKey: 'nav.explore' },
   { name: 'Rankings', path: '/rankings', iconName: 'Trophy', i18nKey: 'nav.rankings' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
@@ -32,7 +32,7 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
 
 const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
-  MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles,
+  MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search,
 };
 
 export function getIcon(name: string) {

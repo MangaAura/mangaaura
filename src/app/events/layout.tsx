@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
+
 import { SkipToContent } from '@/components/Layout/SkipToContent';
 import { PageTransition } from '@/components/ui/PageTransition';
 import Navbar from '@/components/Layout/Navbar';
+
+export const metadata: Metadata = {
+  title: 'Eventos | Inkverse',
+  description: 'Participa en eventos especiales, sorteos y promociones en Inkverse.',
+};
 
 export default function EventsLayout({
   children,
@@ -9,7 +16,9 @@ export default function EventsLayout({
 }) {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col">
-      <SkipToContent />
+      <div role="region" aria-label="Skip navigation">
+        <SkipToContent />
+      </div>
       <Navbar />
       <main id="main-content" className="flex-1">
         <PageTransition>{children}</PageTransition>

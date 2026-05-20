@@ -86,7 +86,7 @@ export function ReportDialog({
       >
         <div className="flex justify-center py-4">
           <div className="w-16 h-16 bg-[var(--success)]/20 rounded-full flex items-center justify-center">
-            <Flag className="w-8 h-8 text-[var(--success)]" />
+            <Flag className="w-8 h-8 text-[var(--success)]" aria-hidden="true" />
           </div>
         </div>
       </AccessibleModal>
@@ -123,6 +123,7 @@ export function ReportDialog({
               <button
                 key={reason.id}
                 onClick={() => setSelectedReason(reason.id)}
+                aria-pressed={selectedReason === reason.id}
                 className={cn(
                   'flex items-center gap-3 p-3 rounded-lg border transition-all text-left cursor-pointer',
                   selectedReason === reason.id
@@ -135,6 +136,7 @@ export function ReportDialog({
                     'w-5 h-5',
                     selectedReason === reason.id ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'
                   )}
+                  aria-hidden="true"
                 />
                 <span
                   className={cn(
@@ -149,17 +151,19 @@ export function ReportDialog({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label htmlFor="report-description" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
             Descripción (opcional)
           </label>
           <textarea
+            id="report-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Proporciona más detalles..."
             className="w-full h-24 p-3 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             maxLength={500}
+            aria-describedby="report-description-count"
           />
-          <p className="text-xs text-[var(--text-tertiary)] mt-1">
+          <p id="report-description-count" className="text-xs text-[var(--text-tertiary)] mt-1">
             {description.length}/500 caracteres
           </p>
         </div>

@@ -68,9 +68,9 @@ export default function OfflinePage() {
             isOnline ? "bg-[var(--success)]/20" : "bg-[var(--warning)]/20"
           )}>
             {isOnline ? (
-              <RefreshCw className="w-12 h-12 text-[var(--success)] animate-spin" role="status" />
+              <RefreshCw className="w-12 h-12 text-[var(--success)] animate-spin" role="status" aria-label="Restaurando conexión" />
             ) : (
-              <WifiOff className="w-12 h-12 text-[var(--warning)]" />
+              <WifiOff className="w-12 h-12 text-[var(--warning)]" aria-hidden="true" />
             )}
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function OfflinePage() {
             onClick={handleRetry}
             className="min-w-[200px]"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
             {isOnline ? 'Continuar' : 'Reintentar'}
           </Button>
         </div>
@@ -101,7 +101,7 @@ export default function OfflinePage() {
         {!isOnline && savedMangas.length > 0 && (
           <div className="text-left">
             <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-6 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-accent-blue" />
+              <BookOpen className="w-5 h-5 text-accent-blue" aria-hidden="true" />
               Disponible offline
             </h2>
             
@@ -122,11 +122,11 @@ export default function OfflinePage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-[var(--surface-sunken)] flex items-center justify-center">
-                          <BookOpen className="w-8 h-8 text-[var(--text-tertiary)]" />
+                          <BookOpen className="w-8 h-8 text-[var(--text-tertiary)]" aria-hidden="true" />
                         </div>
                       )}
                       <div className="absolute top-2 right-2 bg-[var(--success)] text-[var(--text-inverse)] text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                        <Download className="w-3 h-3" />
+                        <Download className="w-3 h-3" aria-hidden="true" />
                         Offline
                       </div>
                     </div>
@@ -148,7 +148,7 @@ export default function OfflinePage() {
         {/* No Saved Content */}
         {!isOnline && savedMangas.length === 0 && !isLoading && (
           <div className="bg-[var(--surface-sunken)]/50 rounded-xl p-8 border border-[var(--border)]">
-            <AlertCircle className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+            <AlertCircle className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" aria-hidden="true" />
             <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
               No hay contenido guardado
             </h3>
@@ -161,14 +161,14 @@ export default function OfflinePage() {
         {/* Loading */}
         {isLoading && (
           <div className="flex justify-center py-8" role="status">
-            <RefreshCw className="w-8 h-8 text-[var(--text-tertiary)] animate-spin" />
+            <RefreshCw className="w-8 h-8 text-[var(--text-tertiary)] animate-spin" aria-hidden="true" />
           </div>
         )}
 
         {/* Tips */}
         <div className="mt-12 p-4 bg-[var(--surface-sunken)]/50 rounded-xl border border-[var(--border)] text-left">
           <h3 className="font-medium text-[var(--text-primary)] mb-2 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-accent-blue" />
+            <AlertCircle className="w-4 h-4 text-accent-blue" aria-hidden="true" />
             Consejos para modo offline
           </h3>
           <ul className="text-sm text-[var(--text-secondary)] space-y-1 list-disc list-inside">

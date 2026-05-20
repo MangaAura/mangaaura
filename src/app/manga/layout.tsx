@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
+
 import { SkipToContent } from '@/components/Layout/SkipToContent';
 import { PageTransition } from '@/components/ui/PageTransition';
 import Navbar from '@/components/Layout/Navbar';
+
+export const metadata: Metadata = {
+  title: 'Manga | Inkverse',
+  description: 'Lee manga en Inkverse. Miles de títulos de manga en español con capítulos actualizados daily.',
+};
 
 export default function MangaLayout({
   children,
@@ -9,7 +16,9 @@ export default function MangaLayout({
 }) {
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary flex flex-col">
-      <SkipToContent />
+      <div role="region" aria-label="Skip navigation">
+        <SkipToContent />
+      </div>
       <Navbar />
       <main id="main-content" className="flex-1">
         <PageTransition>{children}</PageTransition>

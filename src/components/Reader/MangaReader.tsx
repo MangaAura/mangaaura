@@ -569,8 +569,8 @@ export const MangaReader = memo(function MangaReader({
                       </div>
                     )}
                     {isLoading && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-[var(--text-inverse)]/20 border-t-[var(--text-inverse)] rounded-full animate-spin" />
+                      <div role="status" aria-label="Cargando páginas" className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-8 h-8 border-2 border-[var(--text-inverse)]/20 border-t-[var(--text-inverse)] rounded-full animate-spin" aria-hidden="true" />
                       </div>
                     )}
                   </div>
@@ -597,8 +597,8 @@ export const MangaReader = memo(function MangaReader({
                     />
                   </div>
                   {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-8 h-8 border-2 border-[var(--text-inverse)]/20 border-t-[var(--text-inverse)] rounded-full animate-spin" />
+                    <div role="status" aria-label="Cargando página" className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-8 h-8 border-2 border-[var(--text-inverse)]/20 border-t-[var(--text-inverse)] rounded-full animate-spin" aria-hidden="true" />
                     </div>
                   )}
                 </motion.div>
@@ -622,6 +622,7 @@ export const MangaReader = memo(function MangaReader({
       </main>
 
       <footer
+        role="contentinfo"
         className={cn(
           'fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface-sunken)]/90 backdrop-blur-sm border-t border-[var(--text-inverse)]/10',
           'transition-transform duration-300',
@@ -635,7 +636,14 @@ export const MangaReader = memo(function MangaReader({
               <span>{progress.current} / {progress.total}</span>
               <span>{progress.percentage}%</span>
             </div>
-            <div className="h-1 bg-[var(--text-inverse)]/10 rounded-full overflow-hidden">
+            <div
+              role="progressbar"
+              aria-valuenow={progress.percentage}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Progreso de lectura: ${progress.percentage}%`}
+              className="h-1 bg-[var(--text-inverse)]/10 rounded-full overflow-hidden"
+            >
               <div
                 className="h-full bg-[var(--primary)] rounded-full transition-all duration-300"
                 style={{ width: `${progress.percentage}%` }}
@@ -646,16 +654,16 @@ export const MangaReader = memo(function MangaReader({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={zoomOut} aria-label="Alejar">
-                <ZoomOut className="w-4 h-4" />
+                <ZoomOut className="w-4 h-4" aria-hidden="true" />
               </Button>
               <span className="text-sm text-[var(--text-secondary)] min-w-[3rem] text-center">
                 {Math.round(zoom * 100)}%
               </span>
               <Button variant="ghost" size="sm" onClick={zoomIn} aria-label="Acercar">
-                <ZoomIn className="w-4 h-4" />
+                <ZoomIn className="w-4 h-4" aria-hidden="true" />
               </Button>
               <Button variant="ghost" size="sm" onClick={resetZoom} aria-label="Restablecer zoom">
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
 
@@ -709,12 +717,25 @@ export const MangaReader = memo(function MangaReader({
       </footer>
 
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80">
-          <div className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80"
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reader-settings-title"
+            className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4"
+          >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Ajustes de lectura</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>
-                <X className="w-5 h-5" />
+              <h2 id="reader-settings-title" className="text-lg font-semibold text-[var(--text-primary)]">Ajustes de lectura</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)} aria-label="Cerrar ajustes">
+                <X className="w-5 h-5" aria-hidden="true" />
               </Button>
             </div>
 
@@ -785,17 +806,22 @@ export const MangaReader = memo(function MangaReader({
                 <p className="text-sm text-[var(--text-secondary)]">Capítulos disponibles: {totalChapters}</p>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {showHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80">
-          <div className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reader-help-title"
+            className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4"
+          >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Atajos de teclado</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowHelp(false)}>
-                <X className="w-5 h-5" />
+              <h2 id="reader-help-title" className="text-lg font-semibold text-[var(--text-primary)]">Atajos de teclado</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowHelp(false)} aria-label="Cerrar ayuda">
+                <X className="w-5 h-5" aria-hidden="true" />
               </Button>
             </div>
 

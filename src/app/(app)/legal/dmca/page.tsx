@@ -10,6 +10,13 @@ import { detectLocale } from '@/i18n/server';
 export const metadata: Metadata = {
   title: 'Política DMCA - InkVerse',
   description: 'Procedimiento para reportar contenido que infringe derechos de autor',
+  openGraph: {
+    title: 'Política DMCA - InkVerse',
+    description: 'Procedimiento para reportar contenido que infringe derechos de autor',
+    type: 'website',
+    siteName: 'InkVerse',
+    locale: 'es_ES',
+  },
 };
 
 export default async function DMCAPage() {
@@ -38,13 +45,13 @@ export default async function DMCAPage() {
       <PageHeader
         title={t('legal.dmca.title')}
         description={`${t('legal.dmca.lastUpdated')}: ${lastUpdated}`}
-        icon={<Scale className="w-8 h-8" />}
+        icon={<Scale className="w-8 h-8" aria-hidden="true" />}
       />
 
       <div className="max-w-3xl mx-auto space-y-8">
       <div className="bg-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-2xl p-6">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="w-6 h-6 text-[var(--warning)] flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-6 h-6 text-[var(--warning)] flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <h2 className="font-bold text-[var(--warning)] mb-2">{t('legal.dmca.important')}</h2>
               <p className="text-muted text-sm">
@@ -56,7 +63,7 @@ export default async function DMCAPage() {
 
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <FileCheck className="w-5 h-5 text-accent-blue" />
+            <FileCheck className="w-5 h-5 text-accent-blue" aria-hidden="true" />
             {t('legal.dmca.process')}
           </h2>
           <p className="text-muted mb-6">

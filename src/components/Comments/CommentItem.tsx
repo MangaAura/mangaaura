@@ -152,6 +152,8 @@ export function CommentItem({
               <motion.button
                 onClick={handleLike}
                 whileTap={{ scale: 0.85 }}
+                aria-label={comment.isLiked ? 'Quitar me gusta' : 'Me gusta'}
+                aria-pressed={comment.isLiked}
                 className={cn(
                   'flex items-center gap-1 text-sm transition-colors',
                   comment.isLiked
@@ -166,8 +168,7 @@ export function CommentItem({
                     animate={{ scale: 1 }}
                     exit={{ scale: 1.3 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                  >
-                    <Heart className={cn('w-4 h-4', comment.isLiked && 'fill-current')} />
+                  >                      <Heart className={cn('w-4 h-4', comment.isLiked && 'fill-current')} aria-hidden="true" />
                   </motion.div>
                 </AnimatePresence>
                 <span>{comment.likesCount}</span>
@@ -176,8 +177,9 @@ export function CommentItem({
               <button
                 onClick={() => onReply(comment.id)}
                 className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                aria-label="Responder"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4" aria-hidden="true" />
                 <span>Reply</span>
               </button>
             </div>
@@ -202,18 +204,20 @@ export function CommentItem({
             <div className="mt-3">
               <button
                 onClick={() => setShowReplies(!showReplies)}
+                aria-expanded={showReplies}
+                aria-controls={`replies-${comment.id}`}
                 className="flex items-center gap-1 text-sm text-[var(--info)] hover:text-[var(--primary)]"
               >
                 {showReplies ? (
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-4 h-4" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-4 h-4" aria-hidden="true" />
                 )}
                 <span>{comment.replies?.length} replies</span>
               </button>
 
               {showReplies && (
-                <div className="mt-3 space-y-3">
+                <div id={`replies-${comment.id}`} className="mt-3 space-y-3">
                   {comment.replies?.map((reply) => (
                     <CommentItem
                       key={reply.id}

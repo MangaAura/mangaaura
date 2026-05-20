@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
 
 import { SimpleGenreMarquee } from '@/components/SimpleGenreMarquee';
 import { MangaCard } from '@/components/MangaCard';
@@ -118,7 +118,7 @@ export default async function HomePage() {
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     <Clock className="w-6 h-6 text-[var(--primary)]" /> Últimas Actualizaciones
                   </h2>
-                  <Link href="/browse">
+                  <Link href="/search_ia">
                     <Button variant="ghost" size="sm">Ver todo →</Button>
                   </Link>
                 </div>

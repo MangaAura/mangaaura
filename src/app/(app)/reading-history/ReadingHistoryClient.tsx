@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { BookOpen, CheckCircle, Clock, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
@@ -56,7 +56,7 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
         <BookOpen size={48} className="mx-auto text-muted mb-4 opacity-50" />
         <h2 className="text-xl font-bold mb-2">Sin historial aún</h2>
         <p className="text-muted mb-6">Los capítulos que leas aparecerán aquí</p>
-        <Link href="/browse" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
+        <Link href="/search_ia" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
           Explorar mangas
         </Link>
       </div>
@@ -98,7 +98,7 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
         <div className="bg-secondary border border-custom rounded-xl overflow-hidden">
           <Link href={`/manga/${manga.slug}`} className="flex items-center gap-3 p-4 bg-tertiary/50 hover:bg-tertiary transition-colors border-b border-custom">
             {manga.coverUrl ? (
-              <img src={manga.coverUrl} alt="" className="w-10 h-14 rounded object-cover" />
+              <img src={manga.coverUrl} alt={manga.title} className="w-10 h-14 rounded object-cover" />
             ) : (
               <div className="w-10 h-14 rounded bg-background flex items-center justify-center"><BookOpen size={18} className="text-muted" /></div>
             )}

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -5,6 +6,12 @@ import { AIServiceDashboardClient } from './AIServiceDashboardClient';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
+
+export const metadata: Metadata = {
+  title: 'AI Dashboard | Inkverse',
+  description: 'Panel de administración de servicios de IA para Inkverse.',
+  robots: { index: false, follow: false },
+};
 
 // Server Component para verificación de autenticación
 export default async function AIServiceDashboardPage() {

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { MessageSquare, Heart, Reply, Pencil, Trash2, Loader2, Check, X, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
@@ -64,7 +64,7 @@ export function CommentsClient({ comments }: { comments: CommentData[] }) {
         <MessageSquare size={48} className="mx-auto text-muted mb-4 opacity-50" />
         <h2 className="text-xl font-bold mb-2">Sin comentarios aún</h2>
         <p className="text-muted mb-6">Tus comentarios en capítulos aparecerán aquí</p>
-        <Link href="/browse" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
+        <Link href="/search_ia" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
           Explorar mangas
         </Link>
       </div>

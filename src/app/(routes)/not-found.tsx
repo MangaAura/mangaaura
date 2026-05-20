@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { motion } from 'framer-motion';
 import { Home, BookOpen, Search } from 'lucide-react';
@@ -40,14 +40,14 @@ export default function MainNotFoundPage() {
             </Link>
           </Button>
           <Button variant="outline" size="lg" asChild className="border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]">
-            <Link href="/browse">
+            <Link href="/search_ia">
               <BookOpen className="w-4 h-4 mr-2" />
               Explorar mangas
             </Link>
           </Button>
         </div>
 
-        <Link href="/search" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors text-sm">
+        <Link href="/explore" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors text-sm">
           <Search className="w-4 h-4" />
           Buscar en InkVerse
         </Link>

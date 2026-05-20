@@ -43,7 +43,7 @@ export default function CreatorDashboardPage() {
           </div>
           <Link href="/creator/manga/new">
             <Button size="lg" className="w-full sm:w-auto">
-              <PlusIcon className="w-5 h-5 mr-2" />
+              <PlusIcon className="w-5 h-5 mr-2" aria-hidden="true" />
               {t('creatorDashboard.newManga')}
             </Button>
           </Link>
@@ -99,7 +99,7 @@ export default function CreatorDashboardPage() {
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 hover:border-[var(--primary)]/40 hover:shadow-md transition-all cursor-pointer group">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-[var(--primary)]/10 rounded-lg group-hover:bg-[var(--primary)]/20 transition-colors">
-                  <PlusIcon className="w-6 h-6 text-[var(--primary)]" />
+                  <PlusIcon className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)]">{t('creatorDashboard.uploadChapter')}</h3>
@@ -114,7 +114,7 @@ export default function CreatorDashboardPage() {
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 hover:border-[var(--secondary)]/40 hover:shadow-md transition-all cursor-pointer group">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-[var(--secondary)]/10 rounded-lg group-hover:bg-[var(--secondary)]/20 transition-colors">
-                  <BarChart3Icon className="w-6 h-6 text-[var(--secondary)]" />
+                  <BarChart3Icon className="w-6 h-6 text-[var(--secondary)]" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)]">{t('creatorDashboard.analytics')}</h3>
@@ -129,7 +129,7 @@ export default function CreatorDashboardPage() {
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 hover:border-[var(--warning)]/40 hover:shadow-md transition-all cursor-pointer group">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-[var(--warning)]/10 rounded-lg group-hover:bg-[var(--warning)]/20 transition-colors">
-                  <SparklesIcon className="w-6 h-6 text-[var(--warning)]" />
+                  <SparklesIcon className="w-6 h-6 text-[var(--warning)]" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)]">{t('creatorDashboard.aiPrompts')}</h3>
@@ -159,7 +159,7 @@ export default function CreatorDashboardPage() {
               <Skeletons.MangaCard />
             </div>
           ) : error ? (
-            <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl p-8 text-center">
+            <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl p-8 text-center" role="alert">
               <p className="text-[var(--error)]">{error instanceof Error ? error.message : String(error)}</p>
               <Button variant="outline" className="mt-4">
                 {t('creatorDashboard.retry')}
@@ -168,7 +168,7 @@ export default function CreatorDashboardPage() {
           ) : mangas.length === 0 ? (
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-12 text-center">
               <div className="w-16 h-16 bg-[var(--primary)]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpenIcon className="w-8 h-8 text-[var(--primary)]" />
+                <BookOpenIcon className="w-8 h-8 text-[var(--primary)]" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
                 {t('creatorDashboard.noMangaYet')}
@@ -178,7 +178,7 @@ export default function CreatorDashboardPage() {
               </p>
               <Link href="/creator/manga/new">
                 <Button>
-                  <PlusIcon className="w-5 h-5 mr-2" />
+                  <PlusIcon className="w-5 h-5 mr-2" aria-hidden="true" />
                   {t('creatorDashboard.createFirstManga')}
                 </Button>
               </Link>

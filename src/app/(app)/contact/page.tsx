@@ -72,7 +72,7 @@ export default function ContactPage() {
         <div className="max-w-2xl mx-auto text-center">
           <div className="bg-secondary border border-custom rounded-2xl p-12 shadow-lg">
         <div className="w-20 h-20 bg-[var(--success)]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-10 h-10 text-[var(--success)]" />
+          <CheckCircle2 className="w-10 h-10 text-[var(--success)]" aria-hidden="true" />
             </div>
             <h1 className="text-3xl font-bold mb-4">{t('contact.success.title')}</h1>
             <p className="text-muted mb-8">
@@ -98,15 +98,15 @@ export default function ContactPage() {
       <PageHeader
         title={t('contact.title')}
         description={t('contact.description')}
-        icon={<Mail className="w-8 h-8" />}
+        icon={<Mail className="w-8 h-8" aria-hidden="true" />}
       />
 
       <div className="max-w-3xl mx-auto">
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           {[
-            { icon: <HelpCircle className="w-6 h-6" />, title: t('contact.info.faq'), desc: t('contact.info.faqDesc') },
-            { icon: <MessageSquare className="w-6 h-6" />, title: t('contact.info.support'), desc: t('contact.info.supportDesc') },
-            { icon: <Mail className="w-6 h-6" />, title: t('contact.info.email'), desc: 'soporte@inkverse.app' }
+            { icon: <HelpCircle className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.faq'), desc: t('contact.info.faqDesc') },
+            { icon: <MessageSquare className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.support'), desc: t('contact.info.supportDesc') },
+            { icon: <Mail className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.email'), desc: 'soporte@inkverse.app' }
           ].map((item, index) => (
             <div key={item.title || `contact-card-${index}`} className="bg-secondary border border-custom rounded-xl p-6 text-center">
               <div className="w-12 h-12 bg-accent-blue/10 rounded-full flex items-center justify-center mx-auto mb-3 text-accent-blue">
@@ -131,6 +131,7 @@ export default function ContactPage() {
                   aria-invalid={!!errors.name}
                   aria-describedby={errors.name ? 'contact-name-error' : undefined}
                   aria-required
+                  autoComplete="name"
                   className={cn(
                     'w-full px-4 py-3 bg-tertiary border rounded-xl outline-none transition-all',
                     errors.name ? 'border-[var(--error)]' : 'border-custom focus:border-accent-blue'
@@ -168,6 +169,8 @@ export default function ContactPage() {
                     key={cat.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, category: cat.value })}
+                    aria-pressed={formData.category === cat.value}
+                    aria-label={cat.label}
                     className={cn(
                       'flex items-center justify-center gap-2 px-4 py-3 rounded-xl border transition-all',
                       formData.category === cat.value
@@ -175,7 +178,7 @@ export default function ContactPage() {
                         : 'bg-tertiary border-custom hover:border-accent-blue/50'
                     )}
                   >
-                    {cat.icon}
+                    <span aria-hidden="true">{cat.icon}</span>
                     <span className="text-sm font-medium">{cat.label}</span>
                   </button>
                 ))}
@@ -230,12 +233,12 @@ export default function ContactPage() {
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                   {t('contact.form.sending')}
                 </>
               ) : (
                 <>
-                  <Send className="w-5 h-5" />
+                  <Send className="w-5 h-5" aria-hidden="true" />
                   {t('contact.form.submit')}
                 </>
               )}

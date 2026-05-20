@@ -100,7 +100,7 @@ export default function CheckoutPage() {
           {/* Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--warning)]/20 to-[var(--warning)]/10 rounded-full border border-[var(--warning)]/30 mb-6">
-              <Coins className="w-5 h-5 text-[var(--warning)]" />
+              <Coins className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
               <span className="text-[var(--warning)] font-medium">{t('checkout.badge')}</span>
             </div>
             <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-4">
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-8 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 text-center">
+            <div className="mb-8 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 text-center" role="alert">
               <p className="text-[var(--error)]">{error}</p>
             </div>
           )}
@@ -145,10 +145,10 @@ export default function CheckoutPage() {
                   index === 2 && 'bg-[var(--accent-purple)]/20',
                   index === 3 && 'bg-[var(--warning)]/20'
                 )}>
-                  {index === 0 && <Coins className="w-6 h-6 text-[var(--text-secondary)]" />}
-                  {index === 1 && <Zap className="w-6 h-6 text-[var(--primary)]" />}
-                  {index === 2 && <Sparkles className="w-6 h-6 text-[var(--accent-purple)]" />}
-                  {index === 3 && <Crown className="w-6 h-6 text-[var(--warning)]" />}
+                  {index === 0 && <Coins className="w-6 h-6 text-[var(--text-secondary)]" aria-hidden="true" />}
+                  {index === 1 && <Zap className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />}
+                  {index === 2 && <Sparkles className="w-6 h-6 text-[var(--accent-purple)]" aria-hidden="true" />}
+                  {index === 3 && <Crown className="w-6 h-6 text-[var(--warning)]" aria-hidden="true" />}
                 </div>
 
                 {/* Amount */}
@@ -193,21 +193,21 @@ export default function CheckoutPage() {
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
-              <CheckCircle className="w-8 h-8 text-[var(--success)] mb-4" />
+              <CheckCircle className="w-8 h-8 text-[var(--success)] mb-4" aria-hidden="true" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.securePayment')}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 {t('checkout.securePaymentDesc')}
               </p>
             </div>
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
-              <Coins className="w-8 h-8 text-[var(--warning)] mb-4" />
+              <Coins className="w-8 h-8 text-[var(--warning)] mb-4" aria-hidden="true" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.instantDelivery')}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 {t('checkout.instantDeliveryDesc')}
               </p>
             </div>
             <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
-              <Sparkles className="w-8 h-8 text-[var(--accent-purple)] mb-4" />
+              <Sparkles className="w-8 h-8 text-[var(--accent-purple)] mb-4" aria-hidden="true" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.noExpiration')}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 {t('checkout.noExpirationDesc')}

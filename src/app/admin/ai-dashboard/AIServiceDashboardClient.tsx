@@ -64,7 +64,7 @@ function StatusBadge({ status }: { status: 'healthy' | 'degraded' | 'unhealthy' 
 
 function HealthIndicator({ status }: { status: 'up' | 'down' | string }) {
   return (
-    <div className={`w-2.5 h-2.5 rounded-full ${status === 'up' ? 'bg-[var(--success)]' : 'bg-[var(--error)]'} ${status === 'up' ? 'animate-pulse' : ''}`} />
+    <div className={`w-2.5 h-2.5 rounded-full ${status === 'up' ? 'bg-[var(--success)]' : 'bg-[var(--error)]'} ${status === 'up' ? 'animate-pulse' : ''}`} role="status" aria-label={status === 'up' ? 'Operativo' : 'No disponible'} />
   );
 }
 
@@ -78,7 +78,7 @@ function ModelHealthBadge({ status }: { status: string }) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-2.5 h-2.5 rounded-full ${colors[status as keyof typeof colors] || colors.unknown}`} />
+      <div className={`w-2.5 h-2.5 rounded-full ${colors[status as keyof typeof colors] || colors.unknown}`} role="status" aria-label={`Estado: ${status}`} />
       <span className="capitalize text-sm text-[var(--text-primary)]">{status}</span>
     </div>
   );
@@ -111,7 +111,7 @@ function ProgressBar({
         <span className="text-[var(--text-secondary)]">{label}</span>
         <span className="text-[var(--text-primary)]">{value}</span>
       </div>
-      <div className="h-2 bg-[var(--surface-sunken)] rounded-full overflow-hidden">
+      <div className="h-2 bg-[var(--surface-sunken)] rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`${label}: ${value} de ${total}`}>
         <div
           className={`h-full ${colors[color]} transition-all duration-300`}
           style={{ width: `${percentage}%` }}
@@ -210,7 +210,7 @@ export function AIServiceDashboardClient() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" aria-live="polite" aria-label="Panel de servicios de IA">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>

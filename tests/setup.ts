@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import { vi, afterEach } from 'vitest';
+import { afterEach } from 'vitest';
 
 // Mock global para fetch
 global.fetch = vi.fn();

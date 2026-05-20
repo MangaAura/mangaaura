@@ -8,6 +8,7 @@ import { memo } from 'react';
 
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 
 interface MangaCardProps {
   manga: {
@@ -65,11 +66,28 @@ export const MangaCard = memo(function MangaCard({
   const t = useT();
   const router = useRouter();
   const statusLabel = t(STATUS_KEYS[manga.status || ''] || '') || manga.status || '';
+  const displayGenreTag = (genre: string): string => {
+    let slug = ENGLISH_TO_SLUG[genre];
+    if (!slug) {
+      const normalized = normalizeGenreKey(genre);
+      slug = ENGLISH_TO_SLUG[normalized];
+      if (!slug) {
+        const englishTag = SLUG_TO_ENGLISH[normalized];
+        if (englishTag) slug = ENGLISH_TO_SLUG[englishTag];
+      }
+    }
+    return slug ? t(`genres.${slug}`) : genre.charAt(0).toUpperCase() + genre.slice(1);
+  };
   const imageSize = imageSizes[size];
   const sizeClass = sizeClasses[size];
   const href = `/manga/${manga.slug || manga.id}`;
   const imageSrc = manga.coverUrl || '';
-  const displayedTags = (manga.tags ?? []).slice(0, 3);
+  const tagMap = new Map<string, string>();
+  (manga.tags ?? []).forEach(t => {
+    const n = normalizeGenreKey(t);
+    if (!tagMap.has(n)) tagMap.set(n, t);
+  });
+  const displayedTags = [...tagMap.values()].slice(0, 3);
   const hasRating = manga.rating && manga.rating > 0;
 
   return (
@@ -138,13 +156,13 @@ export const MangaCard = memo(function MangaCard({
             {manga.title}
           </h3>
           {manga.authorUsername ? (
-            <Link
-              href={`/user/${manga.authorUsername}`}
-              onClick={(e) => e.stopPropagation()}
-              className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block hover:text-[var(--primary)] transition-colors duration-200 px-1 py-1 min-h-[24px] inline-flex items-center"
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); router.push(`/user/${manga.authorUsername}`); }}
+              className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block hover:text-[var(--primary)] transition-colors duration-200 px-1 py-1 min-h-[24px] inline-flex items-center cursor-pointer"
             >
               {manga.authorName || 'Autor desconocido'}
-            </Link>
+            </button>
           ) : (
             <span className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate block px-1 py-1 min-h-[24px] inline-flex items-center">
               {manga.authorName || 'Autor desconocido'}
@@ -157,20 +175,20 @@ export const MangaCard = memo(function MangaCard({
                 key={`tag-${i}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/search?genres[]=${tag}`);
+                  router.push(`/explore?genres[]=${encodeURIComponent(tag)}`);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     e.stopPropagation();
-                    router.push(`/search?genres[]=${tag}`);
+                    router.push(`/explore?genres[]=${encodeURIComponent(tag)}`);
                   }
                 }}
                 role="link"
                 tabIndex={0}
                 className="text-[10px] px-2 py-1 min-w-[24px] min-h-[24px] inline-flex items-center justify-center bg-[var(--surface-sunken)] text-[var(--text-muted)] rounded-md border border-[var(--border-subtle)] hover:bg-[var(--surface-elevated)] hover:text-[var(--primary)] transition-colors duration-200 cursor-pointer"
               >
-                {tag}
+                {displayGenreTag(tag)}
               </span>
             ))}
           </div>

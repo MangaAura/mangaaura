@@ -123,17 +123,22 @@ export function CommentDrawer({
     <FocusLock returnFocus>
     <>
       {/* Backdrop */}
-      <div
+      <button
         className={cn(
-          'fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300',
+          'fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 cursor-pointer',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
-        onClick={isMobile ? onClose : undefined}
+        onClick={onClose}
+        aria-label="Cerrar comentarios"
+        type="button"
       />
 
       {/* Drawer */}
       <div
         ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="comment-drawer-title"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -146,7 +151,7 @@ export function CommentDrawer({
         )}
       >
         {/* Drag Handle (Mobile Only) */}
-        <div className="md:hidden flex justify-center pt-3 pb-2">
+        <div className="md:hidden flex justify-center pt-3 pb-2" aria-hidden="true">
           <div className="w-12 h-1.5 bg-[var(--surface-sunken)] rounded-full" />
         </div>
 
@@ -154,7 +159,7 @@ export function CommentDrawer({
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-[var(--info)]" aria-hidden="true" />
-            <h2 className="text-lg font-semibold">
+            <h2 id="comment-drawer-title" className="text-lg font-semibold">
               Comentarios
               {commentCount > 0 && (
                 <span className="ml-2 text-sm text-muted-foreground">

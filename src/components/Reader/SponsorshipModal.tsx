@@ -31,14 +31,17 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [sponsorData, setSponsorData] = useState<SponsorData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
+  const [dataError, setDataError] = useState('');
   const overlayRef = useRef<HTMLDivElement>(null);
   const [titleId] = useState(() => `sponsor-title-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (!isOpen || !chapterId) return;
     setLoadingData(true);
+    setDataError('');
     fetch(`/api/chapters/${chapterId}/sponsor`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -47,7 +50,9 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
           setBidAmount(data.minNextBid || '');
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setDataError('No se pudo cargar la información de patrocinio.');
+      })
       .finally(() => setLoadingData(false));
   }, [isOpen, chapterId]);
 
@@ -74,6 +79,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
 
   const handleSponsor = async () => {
     if (!bidAmount || bidAmount <= 0 || !session?.user?.id) return;
+    setSubmitError('');
     setIsLoading(true);
 
     try {
@@ -93,9 +99,9 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
       }
 
       setIsSuccess(true);
-    } catch (error: any) {
-      alert(error.message || "Error en la transacción.");
-    } finally {
+} catch (error: any) {
+        setSubmitError(error.message || 'Error en la transacción.');
+      } finally {
       setIsLoading(false);
     }
   };
@@ -118,7 +124,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
           <>
             <div className="text-center mb-6 pt-2">
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--warning)]/10 text-[var(--warning)] mb-4 border border-[var(--warning)]/20">
-                <Crown size={28} />
+                <Crown size={28} aria-hidden="true" />
               </div>
               <h2 id={titleId} className="text-2xl font-bold mb-2">Patrocinar Próximo Capítulo</h2>
               <p className="text-sm text-muted px-4">
@@ -129,6 +135,8 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
             <div className="bg-tertiary rounded-xl p-5 mb-6 border border-custom">
               {loadingData ? (
                 <div className="flex justify-center py-4"><Loader2 size={20} className="animate-spin text-muted" /></div>
+              ) : dataError ? (
+                <p className="text-center text-sm text-[var(--error)] py-4" role="alert">{dataError}</p>
               ) : (
                 <>
                   {currentWinner ? (
@@ -142,7 +150,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                     </div>
                   ) : (
                     <div className="text-center mb-4">
-                      <Target size={24} className="mx-auto text-muted mb-2" />
+                      <Target size={24} className="mx-auto text-muted mb-2" aria-hidden="true" />
                       <p className="text-sm text-muted">Sé el primer patrocinador de este capítulo</p>
                     </div>
                   )}
@@ -171,13 +179,13 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                 <label htmlFor="sponsor-amount" className="block text-sm font-semibold mb-2">Tu Puja (InkCoins)</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--warning)]">
-                    <Coins size={18} />
+                    <Coins size={18} aria-hidden="true" />
                   </div>
                   <input
                     id="sponsor-amount"
                     type="number"
                     value={bidAmount}
-                    onChange={(e) => setBidAmount(Number(e.target.value))}
+                    onChange={(e) => { setBidAmount(Number(e.target.value)); setSubmitError(''); }}
                     placeholder={`Mín: ${minBid}`}
                     min={minBid}
                     className="w-full pl-10 pr-4 py-3 bg-background border border-custom focus:border-[var(--warning)] focus:ring-1 focus:ring-[var(--warning)] rounded-xl outline-none font-mono font-bold transition-all"
@@ -191,7 +199,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                   id="sponsor-name"
                   type="text"
                   value={sponsorName}
-                  onChange={(e) => setSponsorName(e.target.value)}
+                  onChange={(e) => { setSponsorName(e.target.value); setSubmitError(''); }}
                   placeholder="Tu nombre del patrocinio"
                   maxLength={50}
                   className="w-full px-4 py-3 bg-background border border-custom focus:border-[var(--warning)] focus:ring-1 focus:ring-[var(--warning)] rounded-xl outline-none transition-all"
@@ -202,12 +210,12 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                 <label htmlFor="sponsor-message" className="block text-sm font-semibold mb-2">Mensaje (opcional)</label>
                 <div className="relative">
                   <div className="absolute top-3 left-3 pointer-events-none text-muted">
-                    <MessageSquare size={16} />
+                    <MessageSquare size={16} aria-hidden="true" />
                   </div>
                   <textarea
                     id="sponsor-message"
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) => { setMessage(e.target.value); setSubmitError(''); }}
                     placeholder="Deja un mensaje al creador..."
                     maxLength={100}
                     rows={2}
@@ -215,6 +223,10 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                   />
                 </div>
               </div>
+
+              {submitError && (
+                <p className="text-center text-sm text-[var(--error)] py-2" role="alert">{submitError}</p>
+              )}
 
               <button
                 onClick={handleSponsor}

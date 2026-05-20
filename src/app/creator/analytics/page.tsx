@@ -186,7 +186,7 @@ const fetchMongoAnalytics = useCallback(async () => {
             {/* Title */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--primary)]/20 rounded-xl flex items-center justify-center">
-                <BarChart3Icon className="w-5 h-5 text-[var(--primary)]" />
+                <BarChart3Icon className="w-5 h-5 text-[var(--primary)]" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-[var(--text-primary)]">{t('creatorAnalytics.title')}</h1>
@@ -199,7 +199,7 @@ const fetchMongoAnalytics = useCallback(async () => {
             {/* Breadcrumb */}
             <nav className="flex items-center text-sm text-[var(--text-tertiary)]">
               <span className="hover:text-[var(--text-secondary)] cursor-pointer">Dashboard</span>
-              <ChevronRightIcon className="w-4 h-4 mx-2" />
+              <ChevronRightIcon className="w-4 h-4 mx-2" aria-hidden="true" />
               <span className="font-medium text-[var(--text-primary)]">Analytics</span>
             </nav>
           </div>
@@ -243,7 +243,7 @@ const fetchMongoAnalytics = useCallback(async () => {
               />
             ) : (
               <div className="w-12 h-16 bg-[var(--surface-sunken)] rounded-lg flex items-center justify-center">
-                <BarChart3Icon className="w-6 h-6 text-[var(--text-tertiary)]" />
+                <BarChart3Icon className="w-6 h-6 text-[var(--text-tertiary)]" aria-hidden="true" />
               </div>
             )}
             <div className="flex-1">
@@ -274,7 +274,7 @@ const fetchMongoAnalytics = useCallback(async () => {
 
         {/* Error State */}
         {error && (
-          <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl p-6 text-center">
+          <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl p-6 text-center" role="alert">
             <p className="text-[var(--error)]">{error}</p>
             <button
               onClick={fetchMongoAnalytics}
@@ -296,6 +296,7 @@ const fetchMongoAnalytics = useCallback(async () => {
 
         {/* MongoDB Analytics Cards */}
         {stats && (
+          <section aria-label="Estadísticas detalladas de lectura">
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Tiempo de lectura promedio */}
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
@@ -358,10 +359,12 @@ const fetchMongoAnalytics = useCallback(async () => {
               </p>
             </div>
           </div>
+          </section>
         )}
 
         {/* Páginas más vistas por capítulo */}
         {stats?.chapterStats && stats.chapterStats.length > 0 && (
+          <section aria-label="Capítulos más vistos">
           <div className="mt-8 bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
               {t('creatorAnalytics.mostViewedPages')}
@@ -421,6 +424,7 @@ const fetchMongoAnalytics = useCallback(async () => {
               </table>
             </div>
           </div>
+          </section>
         )}
       </main>
     </div>

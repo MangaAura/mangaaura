@@ -9,6 +9,13 @@ import { detectLocale } from '@/i18n/server';
 export const metadata: Metadata = {
   title: 'Política de Privacidad - InkVerse',
   description: 'Cómo InkVerse recopila, usa y protege tu información personal',
+  openGraph: {
+    title: 'Política de Privacidad - InkVerse',
+    description: 'Cómo InkVerse recopila, usa y protege tu información personal',
+    type: 'website',
+    siteName: 'InkVerse',
+    locale: 'es_ES',
+  },
 };
 
 export default async function PrivacyPage() {
@@ -18,17 +25,17 @@ export default async function PrivacyPage() {
 
   const dataTypes = [
     {
-      icon: <Eye className="w-5 h-5" />,
+      icon: <Eye className="w-5 h-5" aria-hidden="true" />,
       title: t('legal.privacy.accountInfo'),
       items: [t('legal.privacy.accountItem1'), t('legal.privacy.accountItem2'), t('legal.privacy.accountItem3'), t('legal.privacy.accountItem4')]
     },
     {
-      icon: <Server className="w-5 h-5" />,
+      icon: <Server className="w-5 h-5" aria-hidden="true" />,
       title: t('legal.privacy.usageData'),
       items: [t('legal.privacy.usageItem1'), t('legal.privacy.usageItem2'), t('legal.privacy.usageItem3'), t('legal.privacy.usageItem4')]
     },
     {
-      icon: <Lock className="w-5 h-5" />,
+      icon: <Lock className="w-5 h-5" aria-hidden="true" />,
       title: t('legal.privacy.technicalInfo'),
       items: [t('legal.privacy.technicalItem1'), t('legal.privacy.technicalItem2'), t('legal.privacy.technicalItem3'), t('legal.privacy.technicalItem4')]
     }
@@ -46,13 +53,13 @@ export default async function PrivacyPage() {
       <PageHeader
         title={t('legal.privacy.title')}
         description={`${t('legal.dmca.lastUpdated')}: ${lastUpdated}`}
-        icon={<Shield className="w-8 h-8" />}
+        icon={<Shield className="w-8 h-8" aria-hidden="true" />}
       />
 
       <div className="max-w-3xl mx-auto space-y-8">
         <div className="bg-secondary border border-custom rounded-2xl p-8 shadow-lg">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Lock className="w-5 h-5 text-accent-blue" />
+            <Lock className="w-5 h-5 text-accent-blue" aria-hidden="true" />
             {t('legal.privacy.infoCollect')}
           </h2>
           <p className="text-muted mb-6">
@@ -133,19 +140,19 @@ export default async function PrivacyPage() {
           </p>
           <ul className="space-y-2 text-muted">
             <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[var(--success)]" />
+              <Check className="w-4 h-4 text-[var(--success)]" aria-hidden="true" />
               {t('legal.privacy.security1')}
             </li>
             <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[var(--success)]" />
+              <Check className="w-4 h-4 text-[var(--success)]" aria-hidden="true" />
               {t('legal.privacy.security2')}
             </li>
             <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[var(--success)]" />
+              <Check className="w-4 h-4 text-[var(--success)]" aria-hidden="true" />
               {t('legal.privacy.security3')}
             </li>
             <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[var(--success)]" />
+              <Check className="w-4 h-4 text-[var(--success)]" aria-hidden="true" />
               {t('legal.privacy.security4')}
             </li>
           </ul>

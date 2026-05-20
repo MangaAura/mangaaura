@@ -170,7 +170,7 @@ export default function ChapterReaderPage() {
         <div className="text-center">
           <p className="text-[var(--text-secondary)]">{error || 'Error al cargar'}</p>
         <button
-          onClick={() => router.push('/browse')}
+          onClick={() => router.push('/search_ia')}
           className="mt-4 text-[var(--info)] hover:underline cursor-pointer"
         >
             Volver a explorar
@@ -248,7 +248,7 @@ export default function ChapterReaderPage() {
           <ZoomIn className="w-5 h-5" />
         </button>
         <button
-          onClick={() => router.push('/browse')}
+          onClick={() => router.push('/search_ia')}
           className="mt-4 text-[var(--info)] hover:underline cursor-pointer"
         >
           {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

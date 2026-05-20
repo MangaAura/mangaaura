@@ -5,6 +5,7 @@
  * Obtiene datos reales del capitulo desde la API.
  */
 
+import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 
@@ -16,6 +17,15 @@ const PartyReader = dynamic(() => import('@/components/Reader/PartyReader'), {
 
 interface PartyPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PartyPageProps): Promise<Metadata> {
+  const { slug: partyId } = await params;
+  const party = partyService.getParty(partyId);
+  return {
+    title: party ? `Lectura en Grupo | Inkverse` : 'Party no encontrado | Inkverse',
+    description: party ? 'Únete a la lectura en grupo de manga en Inkverse.' : 'Esta sesión de lectura en grupo no existe.',
+  };
 }
 
 const FALLBACK_PAGES = Array.from({ length: 10 }, () => `/placeholder-manga.svg`);

@@ -37,7 +37,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className={'relative' + (className ? ' ' + className : '')}>
+    <form onSubmit={handleSubmit} role="search" className={'relative' + (className ? ' ' + className : '')}>
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] pointer-events-none" aria-hidden="true" />
       <input
         ref={inputRef}

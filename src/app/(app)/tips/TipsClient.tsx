@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Coins, Send, Inbox, User, Search } from 'lucide-react';
 import Link from 'next/link';
@@ -33,7 +33,7 @@ export function TipsClient({ sent, received }: { sent: TipEntry[]; received: Tip
         <Coins size={48} className="mx-auto text-muted mb-4 opacity-50" />
         <h2 className="text-xl font-bold mb-2">Sin propinas aún</h2>
         <p className="text-muted mb-6">Podés dar propinas a los creadores de los capítulos que leas</p>
-        <Link href="/browse" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
+        <Link href="/search_ia" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
           Explorar mangas
         </Link>
       </div>
@@ -85,7 +85,7 @@ export function TipsClient({ sent, received }: { sent: TipEntry[]; received: Tip
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center shrink-0 overflow-hidden">
                     {other.avatarUrl ? (
-                      <img src={other.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      <img src={other.avatarUrl} alt={`Avatar de ${other.username}`} className="w-full h-full object-cover" />
                     ) : (
                       <User size={14} className="text-muted" />
                     )}

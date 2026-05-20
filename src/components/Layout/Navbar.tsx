@@ -48,7 +48,7 @@ export default function Navbar() {
   });
 
   const handleSearch = (query: string) => {
-    router.push(`/search?q=${encodeURIComponent(query)}`);
+    router.push(`/explore?q=${encodeURIComponent(query)}`);
   };
 
   return (
@@ -94,6 +94,7 @@ export default function Navbar() {
                         : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
                     }
                     title={t('nav.feed')}
+                    aria-current={isActive(pathname, '/feed') ? 'page' : undefined}
                   >
                     <Rss className="w-4 h-4" aria-hidden="true" />
                     <span className="hidden lg:inline">{t('nav.feed')}</span>
@@ -108,11 +109,12 @@ export default function Navbar() {
                         : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
                     }
                     title={t('nav.messages')}
+                    aria-current={isActive(pathname, '/messages') ? 'page' : undefined}
                   >
                     <MessageCircle className="w-4 h-4" aria-hidden="true" />
                     <span className="hidden lg:inline">{t('nav.messages')}</span>
                     {unreadMessages > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[var(--error)] rounded-full text-[10px] font-bold text-[var(--text-inverse)] flex items-center justify-center">
+                      <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[var(--error)] rounded-full text-[10px] font-bold text-[var(--text-inverse)] flex items-center justify-center" aria-label={t('a11y.unreadMessages', { count: unreadMessages > 9 ? '9+' : unreadMessages })}>
                         {unreadMessages > 9 ? '9+' : unreadMessages}
                       </span>
                     )}
@@ -127,6 +129,7 @@ export default function Navbar() {
                         : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
                     }
                     title={t('nav.collections')}
+                    aria-current={isActive(pathname, '/collections') ? 'page' : undefined}
                   >
                     <FolderOpen className="w-4 h-4" aria-hidden="true" />
                     <span className="hidden lg:inline">{t('nav.collections')}</span>
@@ -141,6 +144,7 @@ export default function Navbar() {
                         : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
                     }
                     title={t('nav.events')}
+                    aria-current={isActive(pathname, '/events') ? 'page' : undefined}
                   >
                     <Calendar className="w-4 h-4" aria-hidden="true" />
                     <span className="hidden lg:inline">{t('nav.events')}</span>
@@ -155,6 +159,7 @@ export default function Navbar() {
                         : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
                     }
                     title={t('creator.dashboard')}
+                    aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
                   >
                     <Sparkles className="w-4 h-4" aria-hidden="true" />
                     <span className="hidden lg:inline">{t('creator.dashboard')}</span>

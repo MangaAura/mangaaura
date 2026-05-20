@@ -1,0 +1,19 @@
+# Security Contact
+Contact: mailto:security@inkverse.app
+
+# Encryption
+Encryption: https://inkverse.app/.well-known/pgp-key.txt
+
+# Disclosures
+Preferred-Languages: en, es
+Policy: https://inkverse.app/legal/security-policy
+Hire: https://inkverse.app/hire
+
+# Hiring
+Acknowledgments: https://inkverse.app/security-acknowledgments
+
+# Timestamp
+Expires: 2027-05-20T00:00:00.000Z
+
+# Canonical URL
+Canonical: https://inkverse.app/.well-known/security.txt

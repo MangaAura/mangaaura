@@ -138,7 +138,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-[var(--surface)] w-full max-w-md rounded-2xl shadow-2xl p-6 border border-[var(--border)] relative">
+      <div className="bg-[var(--surface)] w-full max-w-md rounded-2xl shadow-2xl p-6 border border-[var(--border)] relative" role="dialog" aria-modal="true" aria-labelledby="tip-modal-title">
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 p-1 rounded-full hover:bg-[var(--surface-sunken)] text-[var(--text-tertiary)] transition-colors cursor-pointer"
@@ -153,7 +153,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] mb-4">
                 <Heart size={28} className="fill-current" />
               </div>
-              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
+              <h2 id="tip-modal-title" className="text-2xl font-bold text-[var(--text-primary)] mb-1">
                 Enviar Propina
               </h2>
               <p className="text-sm text-[var(--text-secondary)]">
@@ -197,15 +197,17 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+              <label htmlFor="custom-tip-amount" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                 O ingresa un monto personalizado
               </label>
               <div className="relative">
                 <Coins
                   size={18}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--warning)]"
+                  aria-hidden="true"
                 />
                 <Input
+                  id="custom-tip-amount"
                   type="text"
                   inputMode="numeric"
                   value={customAmount}
@@ -217,24 +219,26 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                <MessageSquare size={14} className="inline mr-1" />
+              <label htmlFor="tip-message" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                <MessageSquare size={14} className="inline mr-1" aria-hidden="true" />
                 Mensaje opcional
               </label>
               <textarea
+                id="tip-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Escribe un mensaje de apoyo..."
                 maxLength={200}
                 className="w-full h-20 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-primary)] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-purple)] focus:border-transparent placeholder:text-[var(--text-tertiary)]"
+                aria-describedby="tip-message-count"
               />
-              <p className="text-xs text-[var(--text-tertiary)] text-right mt-1">
+              <p id="tip-message-count" className="text-xs text-[var(--text-tertiary)] text-right mt-1">
                 {message.length}/200
               </p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg">
+              <div className="mb-4 p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg" role="alert">
                 <p className="text-sm text-[var(--error)] text-center">{error}</p>
               </div>
             )}

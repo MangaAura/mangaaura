@@ -9,6 +9,13 @@ import { detectLocale } from '@/i18n/server';
 export const metadata: Metadata = {
   title: 'Términos de Servicio - InkVerse',
   description: 'Términos y condiciones de uso de InkVerse',
+  openGraph: {
+    title: 'Términos de Servicio - InkVerse',
+    description: 'Términos y condiciones de uso de InkVerse',
+    type: 'website',
+    siteName: 'InkVerse',
+    locale: 'es_ES',
+  },
 };
 
 export default async function TermsPage() {
@@ -48,7 +55,7 @@ export default async function TermsPage() {
             {sections.map((section, _index) => (
               <section key={section.title} className="border-b border-custom pb-6 last:border-0">
                 <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
-                  <Check className="w-5 h-5 text-[var(--success)]" />
+                  <Check className="w-5 h-5 text-[var(--success)]" aria-hidden="true" />
                   {section.title}
                 </h2>
                 <div className="text-[var(--text-secondary)] whitespace-pre-line pl-7">

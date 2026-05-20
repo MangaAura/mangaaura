@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Repeat2, Loader2, BookOpen, MessageSquare, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
@@ -62,7 +62,7 @@ export default function RepostsPage() {
           <Repeat2 size={48} className="mx-auto text-muted mb-4 opacity-50" />
           <h2 className="text-xl font-bold mb-2">Sin reposts aún</h2>
           <p className="text-muted mb-6">Compartí mangas y capítulos que te gusten</p>
-          <Link href="/browse" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
+          <Link href="/search_ia" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
             Explorar mangas
           </Link>
         </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { TrendingUp, Clock, Star, Sparkles, Eye, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -67,7 +67,7 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
     <section className="mb-10">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold flex items-center gap-2">{icon} {title}</h2>
-        <Link href="/browse" className="text-sm text-accent-blue hover:underline font-semibold">Ver todo</Link>
+        <Link href="/search_ia" className="text-sm text-accent-blue hover:underline font-semibold">Ver todo</Link>
       </div>
       <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" staggerDelay={0.04}>
         {manga.map((m) => (

@@ -72,11 +72,11 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
       {/* Lista de comentarios */}
       <div className="px-6 py-4">
         {isLoading && comments.length === 0 ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
+          <div role="status" aria-label="Cargando comentarios" className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
           </div>
         ) : error ? (
-          <div className="text-center py-8">
+          <div className="text-center py-8" role="alert">
             <p className="text-[var(--error)]">{error}</p>
           </div>
         ) : comments.length === 0 ? (
@@ -107,7 +107,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
                 className="w-full py-3 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] text-sm transition-colors"
               >
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" aria-hidden="true" />
                 ) : (
                   'Cargar más comentarios'
                 )}

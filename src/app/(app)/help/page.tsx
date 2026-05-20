@@ -21,13 +21,18 @@ import { PageHeader } from '@/components/Layout/PageHeader';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
-function FAQItem({ question, answer }: { question: string; answer: string }) {
+function FAQItem({ question, answer, index }: { question: string; answer: string; index: number }) {
   const [isOpen, setIsOpen] = useState(false);
+  const answerId = `faq-answer-${index}`;
+  const buttonId = `faq-button-${index}`;
 
   return (
     <div className="border border-[var(--border)] rounded-xl overflow-hidden">
       <button
+        id={buttonId}
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={answerId}
         className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-[var(--surface-elevated)] transition-colors"
       >
         <span className="text-sm font-medium text-[var(--text-primary)] pr-4">{question}</span>
@@ -36,10 +41,11 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
             'w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0 transition-transform duration-200',
             isOpen && 'rotate-180'
           )}
+          aria-hidden="true"
         />
       </button>
       {isOpen && (
-        <div className="px-5 pb-4 pt-0">
+        <div id={answerId} className="px-5 pb-4 pt-0">
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{answer}</p>
         </div>
       )}
@@ -207,7 +213,7 @@ export default function HelpPage() {
             cat.questions.length > 0 ? (
               <div key={cat.id} className="space-y-3">
                 {cat.questions.map((faq, i) => (
-                  <FAQItem key={i} question={faq.q} answer={faq.a} />
+                  <FAQItem key={i} question={faq.q} answer={faq.a} index={i} />
                 ))}
               </div>
             ) : (

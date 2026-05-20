@@ -183,7 +183,9 @@ async function handleAppShellRequest(request) {
     
     // Fallback a página offline
     if (request.mode === 'navigate') {
-      return cache.match('/offline') || Response.redirect('/offline', 302);
+      const cachedOffline = await cache.match('/offline');
+      if (cachedOffline) return cachedOffline;
+      return fetch('/offline');
     }
     
     return new Response('Resource not available offline', { status: 404 });

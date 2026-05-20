@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
   BookOpen,
@@ -42,7 +42,7 @@ function InstagramIcon({ className }: { className?: string }) {
 
 const footerLinks = {
   platform: [
-    { labelKey: 'nav.explore', href: '/browse', icon: BookOpen },
+    { labelKey: 'nav.explore', href: '/search_ia', icon: BookOpen },
     { labelKey: 'nav.rankings', href: '/rankings', icon: Trophy },
     { labelKey: 'nav.community', href: '/community', icon: Users },
     { labelKey: 'nav.library', href: '/library', icon: Heart },
@@ -72,6 +72,7 @@ export function Footer({ className }: { className?: string }) {
 
   return (
     <footer
+      role="contentinfo"
       className={cn(
         'relative w-full bg-[var(--surface)]/50 backdrop-blur-xl',
         className

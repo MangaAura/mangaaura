@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { motion } from 'framer-motion';
 import { Home, Library, BookOpen, ArrowLeft } from 'lucide-react';
@@ -47,14 +47,14 @@ export default function AppNotFoundPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-md mx-auto">
-          <Link href="/browse" className="flex items-center gap-3 p-4 rounded-lg bg-[var(--surface)]/50 hover:bg-[var(--surface-sunken)] transition-colors border border-[var(--border)]">
+          <Link href="/search_ia" className="flex items-center gap-3 p-4 rounded-lg bg-[var(--surface)]/50 hover:bg-[var(--surface-sunken)] transition-colors border border-[var(--border)]">
             <BookOpen className="w-5 h-5 text-[var(--primary)]" />
             <div>
               <p className="text-[var(--text-primary)] font-medium text-sm">Explorar mangas</p>
               <p className="text-[var(--text-secondary)] text-xs">Descubre nuevas historias</p>
             </div>
           </Link>
-          <Link href="/browse" className="flex items-center gap-3 p-4 rounded-lg bg-[var(--surface)]/50 hover:bg-[var(--surface-sunken)] transition-colors border border-[var(--border)]">
+          <Link href="/search_ia" className="flex items-center gap-3 p-4 rounded-lg bg-[var(--surface)]/50 hover:bg-[var(--surface-sunken)] transition-colors border border-[var(--border)]">
             <ArrowLeft className="w-5 h-5 text-[var(--accent-purple)]" />
             <div>
               <p className="text-[var(--text-primary)] font-medium text-sm">Volver</p>

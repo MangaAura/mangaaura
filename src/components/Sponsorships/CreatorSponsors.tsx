@@ -52,7 +52,7 @@ export function CreatorSponsors({ mangas, recentBids }: SponsorData) {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-full bg-tertiary flex items-center justify-center shrink-0 overflow-hidden">
                       {bid.user.avatarUrl ? (
-                        <img src={bid.user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        <img src={bid.user.avatarUrl} alt={`Avatar de ${bid.user.username}`} className="w-full h-full object-cover" />
                       ) : (
                         <User size={18} className="text-muted" />
                       )}
