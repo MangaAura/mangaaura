@@ -11,6 +11,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { partyService } from '@/core/services/PartyService';
 import { sanitizeText } from '@/lib/sanitize';
 import { createRedisAdapter } from '@/lib/socket-redis-adapter';
+import { setRealtimeAnalytics } from '@/lib/analytics-store';
 import type {
   ServerToClientEvents,
   ClientToServerEvents,
@@ -18,6 +19,7 @@ import type {
   SocketData,
   JoinPartyUser,
   Notification,
+  RealtimeAnalytics,
 } from '@/types/socket';
 
 // Re-exportar tipos para compatibilidad
@@ -59,6 +61,22 @@ export const initIO = (httpServer: NetServer): IOServer => {
   }).catch((error) => {
     console.warn('[Socket] Redis adapter init failed (non-blocking):', error.message);
   });
+
+  // Mapa de sesiones activas para analiticas en tiempo real
+  const activeSessions = new Map<string, {
+    userId: string;
+    username: string;
+    avatarUrl: string | null;
+    mangaId?: string;
+    chapterId?: string;
+    page?: number;
+    chapterNumber?: number;
+    mangaTitle?: string;
+    slug?: string;
+    coverUrl?: string | null;
+    startedAt: Date;
+    lastHeartbeat: Date;
+  }>();
 
   // Middleware de autenticacion
   io.use(async (socket, next) => {
@@ -340,7 +358,7 @@ export const initIO = (httpServer: NetServer): IOServer => {
       }
     });
 
-    // =============== NOTIFICATION EVENTS ===============
+      // =============== NOTIFICATION EVENTS ===============
 
     // Unirse a rooms de mangas seguidos
     socket.on('user:join-room', (room) => {
@@ -369,9 +387,42 @@ export const initIO = (httpServer: NetServer): IOServer => {
     socket.emit('notification:new', { notification: null } as any);
   });
 
+    // =============== ANALYTICS EVENTS ===============
+
+    socket.on('analytics:heartbeat', (data) => {
+      const existing = activeSessions.get(userId);
+      if (existing) {
+        existing.lastHeartbeat = new Date();
+        if (data.mangaId) existing.mangaId = data.mangaId;
+        if (data.chapterId) existing.chapterId = data.chapterId;
+        if (data.page !== undefined) existing.page = data.page;
+      } else {
+        activeSessions.set(userId, {
+          userId,
+          username: username || 'Anonymous',
+          avatarUrl: avatarUrl || null,
+          mangaId: data.mangaId,
+          chapterId: data.chapterId,
+          page: data.page,
+          startedAt: new Date(),
+          lastHeartbeat: new Date(),
+        });
+      }
+    });
+
+    socket.on('analytics:subscribe', () => {
+      socket.join('admin:analytics');
+    });
+
+    socket.on('analytics:unsubscribe', () => {
+      socket.leave('admin:analytics');
+    });
+
     // Desconexion
     (socket.on as (event: string, handler: (...args: any[]) => void) => void)('disconnect', () => {
       console.info(`[Socket] User ${userId} disconnected`);
+
+      activeSessions.delete(userId);
 
       // Desconectar de todos los parties
       const userParty = partyService.getUserParty(userId);
@@ -387,6 +438,98 @@ export const initIO = (httpServer: NetServer): IOServer => {
         });
       }
     });
+  });
+
+  // =============== ANALYTICS BROADCAST INTERVAL ===============
+
+  let peakToday = 0;
+  let peakTime = '';
+  let lastMinuteReads = 0;
+  let lastMinuteCount = 0;
+  const ANALYTICS_INTERVAL = 5000;
+
+  const analyticsInterval = setInterval(() => {
+    const now = Date.now();
+    const activeThreshold = 60_000;
+    const staleThreshold = 120_000;
+
+    let activeCount = 0;
+    const sessionsList: RealtimeAnalytics['activeSessions'] = [];
+    const mangaReaders = new Map<string, { title: string; coverUrl: string | null; slug: string; readers: number }>();
+
+    for (const [sid, session] of activeSessions) {
+      const elapsed = now - session.lastHeartbeat.getTime();
+
+      if (elapsed > staleThreshold) {
+        activeSessions.delete(sid);
+        continue;
+      }
+
+      if (elapsed <= activeThreshold) {
+        activeCount++;
+        sessionsList.push({
+          userId: session.userId,
+          username: session.username,
+          avatarUrl: session.avatarUrl,
+          mangaId: session.mangaId,
+          mangaTitle: session.mangaTitle,
+          chapterNumber: session.chapterNumber,
+          currentPage: session.page,
+          startedAt: session.startedAt,
+          lastHeartbeat: session.lastHeartbeat,
+        });
+
+        if (session.mangaId && session.mangaTitle) {
+          const existing = mangaReaders.get(session.mangaId);
+          if (existing) {
+            existing.readers++;
+          } else {
+            mangaReaders.set(session.mangaId, {
+              title: session.mangaTitle,
+              coverUrl: session.coverUrl || null,
+              slug: session.slug || '',
+              readers: 1,
+            });
+          }
+        }
+      }
+    }
+
+    lastMinuteCount++;
+    if (lastMinuteCount >= 12) {
+      lastMinuteReads = activeCount;
+      lastMinuteCount = 0;
+    }
+
+    if (activeCount > peakToday) {
+      peakToday = activeCount;
+      peakTime = new Date().toLocaleTimeString();
+    }
+
+    const readersPerMinute = lastMinuteReads;
+
+    const popularNow = Array.from(mangaReaders.entries())
+      .map(([mangaId, data]) => ({ mangaId, ...data }))
+      .sort((a, b) => b.readers - a.readers)
+      .slice(0, 10);
+
+    const stats: RealtimeAnalytics = {
+      activeReaders: activeCount,
+      activeReadersChange: 0,
+      activeSessions: sessionsList,
+      popularNow,
+      readersPerMinute,
+      peakToday,
+      peakTime,
+    };
+
+    setRealtimeAnalytics(stats);
+    io?.to('admin:analytics').emit('analytics:stats', stats);
+  }, ANALYTICS_INTERVAL);
+
+  // Limpiar intervalo al apagar
+  (io as any).on('close', () => {
+    clearInterval(analyticsInterval);
   });
 
   return io;

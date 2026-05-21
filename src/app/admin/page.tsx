@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import {
+  LayoutDashboard,
   Users,
   BookOpen,
   FileText,
@@ -101,7 +102,10 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('admin.dashboard')}</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <LayoutDashboard className="w-6 h-6 text-[var(--primary)]" />
+            {t('admin.dashboard')}
+          </h1>
           <p className="text-[var(--text-muted)]">{t('admin.overview')}</p>
         </div>
         <div className="text-sm text-[var(--text-tertiary)]">

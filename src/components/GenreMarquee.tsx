@@ -1,5 +1,6 @@
 'use client';
 
+import { Hash } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
@@ -51,6 +52,7 @@ export function GenreMarquee() {
   const lastPointerX = useRef(0);
   const isDecelerating = useRef(false);
   const rafRef = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const allItems = [...GENRE_CATEGORIES, ...GENRE_CATEGORIES];
   const halfWidth = GENRE_CATEGORIES.length * CARD_FULL;
@@ -59,7 +61,42 @@ export function GenreMarquee() {
   useEffect(() => {
     if (prefersReducedMotionRef.current) return;
 
+    let isPageActive = document.visibilityState === 'visible' && document.hasFocus();
+    let inViewport = false;
+
+    const sync = () => {
+      const nowActive = isPageActive && inViewport;
+      if (nowActive) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+        }
+      }
+    };
+
+    const onVisibility = () => {
+      isPageActive = document.visibilityState === 'visible' && document.hasFocus();
+      sync();
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onVisibility);
+    window.addEventListener('focus', onVisibility);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inViewport = entry.isIntersecting;
+        sync();
+      },
+      { rootMargin: '100px' },
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
     const tick = () => {
+      if (!isPageActive || !inViewport) return;
+
       const prm = prefersReducedMotionRef.current;
       if (prm) return;
 
@@ -89,8 +126,15 @@ export function GenreMarquee() {
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    rafRef.current = requestAnimationFrame(tick);
+    if (isPageActive && inViewport) {
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
     return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('blur', onVisibility);
+      window.removeEventListener('focus', onVisibility);
+      observer.disconnect();
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
@@ -167,7 +211,7 @@ export function GenreMarquee() {
   };
 
   return (
-    <section className="relative">
+    <section ref={sectionRef} className="relative">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -176,7 +220,7 @@ export function GenreMarquee() {
         className="mb-6"
       >
         <h2 className="text-2xl font-bold flex items-center gap-2">
-          <span className="w-1.5 h-6 rounded-full bg-gradient-to-b from-accent-blue to-accent-purple inline-block" />
+          <Hash className="w-6 h-6 text-[var(--primary)]" />
           {t('home.exploreByGenre')}
         </h2>
       </motion.div>

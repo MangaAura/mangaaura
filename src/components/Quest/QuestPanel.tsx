@@ -7,6 +7,7 @@ import useSWR from 'swr';
 
 import { QuestCard } from './QuestCard';
 import type { ActiveQuest } from '@/core/services/QuestService';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface QuestPanelProps {
@@ -32,6 +33,7 @@ const fetcher = async (url: string) => {
 };
 
 export function QuestPanel({ className, compact = false }: QuestPanelProps) {
+  const t = useT();
   const { data, error, mutate } = useSWR<QuestsResponse>(
     '/api/gamification/quests',
     fetcher,
@@ -53,17 +55,17 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
         });
         if (res.ok) {
           const data = await res.json();
-          toast.success(data.label || 'Misión reclamada', {
+          toast.success(t('quests.rewardClaimed'), {
             description: `+${data.xpAwarded ?? 0} XP${data.inkcoinsAwarded > 0 ? ` + ${data.inkcoinsAwarded} 🪙` : ''}`,
           });
           await mutate();
         } else {
           const errorData = await res.json().catch(() => null);
-          toast.error(errorData?.error || 'Error al reclamar la misión');
+          toast.error(errorData?.error || t('quests.claimError'));
         }
       } catch (err) {
         console.error('Error claiming quest:', err);
-        toast.error('Error de conexión al reclamar');
+        toast.error(t('quests.connectionError'));
       } finally {
         setClaimingQuestId(null);
       }
@@ -80,14 +82,14 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
         )}
       >
         <p className="text-sm text-[var(--text-tertiary)]">
-          No se pudieron cargar las misiones
+          {t('quests.errorLoading')}
         </p>
         <button
           onClick={() => mutate()}
           className="mt-2 inline-flex items-center gap-1.5 text-xs text-[var(--primary)] hover:underline"
         >
           <RotateCw className="w-3 h-3" />
-          Reintentar
+          {t('quests.retry')}
         </button>
       </div>
     );
@@ -128,11 +130,11 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-[var(--primary)]" />
             <span className="text-xs font-semibold text-[var(--text-primary)]">
-              Misiones
+              {t('quests.title')}
             </span>
           </div>
           <div className="flex items-center gap-2 text-[10px] text-[var(--text-tertiary)]">
-            <span>+{todayXP} XP hoy</span>
+            <span>{t('quests.xpToday', { xp: todayXP })}</span>
           </div>
         </div>
 
@@ -170,10 +172,10 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
           </div>
           <div>
             <h3 className="font-semibold text-[var(--text-primary)] text-sm">
-              Misiones
+              {t('quests.title')}
             </h3>
             <p className="text-xs text-[var(--text-tertiary)]">
-              Completa misiones para ganar XP y monedas
+              {t('quests.subtitle')}
             </p>
           </div>
         </div>
@@ -182,7 +184,7 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-[var(--surface-sunken)] p-3 text-center">
             <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
-              Diario
+              {t('quests.dailyLabel')}
             </p>
             <div className="mt-1 flex items-center justify-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-[var(--accent-red)]" />
@@ -205,7 +207,7 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
 
           <div className="rounded-lg bg-[var(--surface-sunken)] p-3 text-center">
             <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
-              Semanal
+              {t('quests.weeklyLabel')}
             </p>
             <div className="mt-1 flex items-center justify-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-[var(--accent-purple)]" />
@@ -233,7 +235,7 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-[var(--text-primary)]">
-              Diarias
+              {t('quests.daily')}
             </h4>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] font-medium">
               {dailyCompleted}/{dailyQuests.length}
@@ -260,12 +262,12 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
                 {showCompletedDaily ? (
                   <>
                     <ChevronUp className="w-3 h-3" />
-                    Ocultar completadas
+                    {t('quests.hideCompleted')}
                   </>
                 ) : (
                   <>
                     <ChevronDown className="w-3 h-3" />
-                    {completedDailyQuests.length} completada{completedDailyQuests.length > 1 ? 's' : ''}
+                    {t('quests.showCompleted', { count: completedDailyQuests.length })}
                   </>
                 )}
               </button>
@@ -284,7 +286,7 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-[var(--text-primary)]">
-              Semanales
+              {t('quests.weekly')}
             </h4>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] font-medium">
               {weeklyCompleted}/{weeklyQuests.length}
@@ -311,12 +313,12 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
                 {showCompletedWeekly ? (
                   <>
                     <ChevronUp className="w-3 h-3" />
-                    Ocultar completadas
+                    {t('quests.hideCompleted')}
                   </>
                 ) : (
                   <>
                     <ChevronDown className="w-3 h-3" />
-                    {completedWeeklyQuests.length} completada{completedWeeklyQuests.length > 1 ? 's' : ''}
+                    {t('quests.showCompleted', { count: completedWeeklyQuests.length })}
                   </>
                 )}
               </button>

@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ unread: 0 });
     }
 
     const getUnreadCountUseCase = new GetUnreadCountUseCase(await getNotificationService());

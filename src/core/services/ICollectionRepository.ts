@@ -67,5 +67,10 @@ export interface ICollectionRepository {
   updateCover(collectionId: string, coverUrl: string): Promise<void>;
   getLikesCount(collectionId: string): Promise<number>;
   updateLikesCount(collectionId: string, count: number): Promise<void>;
+  findCollaborators(collectionId: string): Promise<Array<{ id: string; userId: string; role: string; addedAt: Date; user: { id: string; username: string; displayName: string | null; avatarUrl: string | null } }>>;
+  addCollaborator(collectionId: string, userId: string, role: string, addedById: string): Promise<void>;
+  removeCollaborator(collectionId: string, userId: string): Promise<void>;
+  isCollaborator(collectionId: string, userId: string): Promise<boolean>;
+  findByCollaborator(collectionId: string, userId: string): Promise<{ id: string; role: string } | null>;
   logSecurityEvent(userId: string, action: string, targetId: string, severity: string): Promise<void>;
 }

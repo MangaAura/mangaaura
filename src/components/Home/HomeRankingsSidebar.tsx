@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useT } from '@/i18n';
@@ -222,9 +223,9 @@ export function HomeRankingsSidebar({ topMangas = [] }: HomeRankingsSidebarProps
         </AnimatePresence>
 
         <Link href="/rankings">
-          <button className="w-full mt-4 py-2 border border-custom text-xs font-bold rounded-lg hover:bg-tertiary transition-colors">
+          <Button variant="outline" className="w-full mt-4">
             {t('home.viewFullRankings')}
-          </button>
+          </Button>
         </Link>
       </CardContent>
     </Card>

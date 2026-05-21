@@ -1,3 +1,4 @@
+import { Shield } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -65,7 +66,10 @@ export default async function ModerationPage({
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{t('admin.moderation')}</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2 mb-2">
+          <Shield className="w-6 h-6 text-[var(--primary)]" />
+          {t('admin.moderation')}
+        </h1>
         <p className="text-[var(--text-secondary)]">
           {t('admin.moderationDesc')}
         </p>

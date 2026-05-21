@@ -5,11 +5,11 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Cpu,
   Zap,
   Layers,
   AlertCircle,
   TrendingUp,
-  Cpu,
   Database,
   BarChart3,
   RefreshCw,
@@ -214,7 +214,10 @@ export function AIServiceDashboardClient() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-[var(--text-primary)]">AI Service Dashboard</h1>
+            <h1 className="text-3xl font-bold text-[var(--text-primary)] flex items-center gap-3">
+              <Cpu className="w-8 h-8 text-[var(--primary)]" />
+              AI Service Dashboard
+            </h1>
             <p className="text-[var(--text-secondary)] mt-1">
               Monitor AI service health, performance, and queue metrics
             </p>

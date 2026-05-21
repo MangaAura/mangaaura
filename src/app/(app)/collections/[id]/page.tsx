@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Clock,
   Share2,
+  Users,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -42,6 +43,18 @@ async function getCollectionData(id: string) {
       items: {
         orderBy: { addedAt: 'desc' },
         take: 30,
+      },
+      collaborators: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
+          },
+        },
       },
       _count: {
         select: { items: true },
@@ -105,6 +118,10 @@ export default async function CollectionDetailPage({ params }: CollectionDetailP
   }
 
   const isOwner = session?.user?.id === collection.userId;
+  const isCollaborator = !isOwner && session?.user?.id
+    ? collection.collaborators.some((c) => c.userId === session.user.id)
+    : false;
+  const canEdit = isOwner || isCollaborator;
 
   const mangas = collection.mangaItems.map((item) => ({
     id: item.manga!.id,
@@ -180,7 +197,7 @@ export default async function CollectionDetailPage({ params }: CollectionDetailP
             </div>
 
             <div className="flex gap-2">
-              {isOwner && (
+              {canEdit && (
                 <Link href={`/collections/${collection.id}/edit`}>
                   <Button variant="outline" size="sm">
                     Editar
@@ -204,6 +221,34 @@ export default async function CollectionDetailPage({ params }: CollectionDetailP
             </div>
           </div>
         </Card>
+
+        {collection.collaborators.length > 0 && (
+          <Card className="p-4 mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-4 h-4 text-[var(--text-secondary)]" />
+              <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+                Colaboradores
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {collection.collaborators.map((collaborator) => (
+                <Link
+                  key={collaborator.id}
+                  href={`/user/${collaborator.user.username}`}
+                  className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+                >
+                  <Avatar className="w-7 h-7">
+                    <AvatarImage src={collaborator.user.avatarUrl || undefined} />
+                    <AvatarFallback className="text-xs bg-[var(--surface-sunken)]">
+                      {collaborator.user.displayName?.[0] || collaborator.user.username[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>{collaborator.user.displayName || collaborator.user.username}</span>
+                </Link>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {mangas.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">

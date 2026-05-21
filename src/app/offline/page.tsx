@@ -2,6 +2,7 @@
 
 import { WifiOff, RefreshCw, BookOpen, Download, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
@@ -18,6 +19,7 @@ interface SavedManga {
 }
 
 export default function OfflinePage() {
+  const router = useRouter();
   const [isOnline, setIsOnline] = useState(false);
   const [savedMangas, setSavedMangas] = useState<SavedManga[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +40,20 @@ export default function OfflinePage() {
       window.removeEventListener('offline', checkConnection);
     };
   }, []);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (isOnline) {
+      timeout = setTimeout(() => {
+        router.push('/');
+      }, 1000);
+    }
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [isOnline, router]);
 
   const loadSavedMangas = async () => {
     try {

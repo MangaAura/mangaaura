@@ -1,6 +1,8 @@
 ﻿'use client';
 
 import {
+  BarChart3,
+  Cpu,
   LayoutDashboard,
   Shield,
   Users,
@@ -10,6 +12,8 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Webhook,
+  Newspaper,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -25,9 +29,13 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { label: 'Analytics', href: '/admin/analytics/realtime', icon: BarChart3 },
   { label: 'Moderation', href: '/admin/moderation', icon: Shield },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Manga', href: '/admin/manga', icon: BookOpen },
+  { label: 'Noticias', href: '/admin/news', icon: Newspaper },
+  { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: Cpu },
+  { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

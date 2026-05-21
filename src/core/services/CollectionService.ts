@@ -7,6 +7,14 @@ import type {
 export class CollectionService {
   constructor(private readonly repo: ICollectionRepository) {}
 
+  async canUserEdit(collectionId: string, userId: string): Promise<boolean> {
+    const collection = await this.repo.findById(collectionId);
+    if (!collection) return false;
+    if (collection.userId === userId) return true;
+    const collaborator = await this.repo.findByCollaborator(collectionId, userId);
+    return collaborator?.role === 'EDITOR';
+  }
+
   async create(params: {
     userId: string;
     title: string;
@@ -81,8 +89,8 @@ export class CollectionService {
     error?: string;
   }> {
     try {
-      const existing = await this.repo.findByUser(params.collectionId, params.userId);
-      if (!existing) {
+      const canEdit = await this.canUserEdit(params.collectionId, params.userId);
+      if (!canEdit) {
         return { success: false, error: 'Colección no encontrada' };
       }
 
@@ -138,7 +146,12 @@ export class CollectionService {
     mangaId: string;
   }): Promise<{ success: boolean; error?: string }> {
     try {
-      const collection = await this.repo.findByUser(params.collectionId, params.userId);
+      const canEdit = await this.canUserEdit(params.collectionId, params.userId);
+      if (!canEdit) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      const collection = await this.repo.findById(params.collectionId);
       if (!collection) {
         return { success: false, error: 'Colección no encontrada' };
       }
@@ -172,8 +185,8 @@ export class CollectionService {
     mangaId: string;
   }): Promise<{ success: boolean; error?: string }> {
     try {
-      const collection = await this.repo.findByUser(params.collectionId, params.userId);
-      if (!collection) {
+      const canEdit = await this.canUserEdit(params.collectionId, params.userId);
+      if (!canEdit) {
         return { success: false, error: 'Colección no encontrada' };
       }
 
@@ -334,6 +347,98 @@ export class CollectionService {
       return { success: false, error: 'Error al dar like' };
     }
   }
+
+  async getCollaborators(params: {
+    collectionId: string;
+    userId: string;
+  }): Promise<{
+    success: boolean;
+    collaborators?: Array<{
+      id: string;
+      userId: string;
+      role: string;
+      addedAt: Date;
+      user: { id: string; username: string; displayName: string | null; avatarUrl: string | null };
+    }>;
+    error?: string;
+  }> {
+    try {
+      const collection = await this.repo.findById(params.collectionId);
+      if (!collection || collection.userId !== params.userId) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      const collaborators = await this.repo.findCollaborators(params.collectionId);
+      return { success: true, collaborators };
+    } catch (error) {
+      console.error('Error getting collaborators:', error);
+      return { success: false, error: 'Error al obtener colaboradores' };
+    }
+  }
+
+  async addCollaborator(params: {
+    collectionId: string;
+    userId: string;
+    collaboratorUserId: string;
+    role: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const collection = await this.repo.findById(params.collectionId);
+      if (!collection || collection.userId !== params.userId) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      if (collection.userId === params.collaboratorUserId) {
+        return { success: false, error: 'No puedes agregarte como colaborador a tu propia colección' };
+      }
+
+      const existing = await this.repo.findByCollaborator(params.collectionId, params.collaboratorUserId);
+      if (existing) {
+        return { success: false, error: 'El usuario ya es colaborador' };
+      }
+
+      await this.repo.addCollaborator(
+        params.collectionId,
+        params.collaboratorUserId,
+        params.role || 'EDITOR',
+        params.userId
+      );
+
+      await this.repo.logSecurityEvent(params.userId, 'ADDED_COLLABORATOR', params.collectionId, 'INFO');
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding collaborator:', error);
+      return { success: false, error: 'Error al agregar colaborador' };
+    }
+  }
+
+  async removeCollaborator(params: {
+    collectionId: string;
+    userId: string;
+    collaboratorUserId: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const collection = await this.repo.findById(params.collectionId);
+      if (!collection || collection.userId !== params.userId) {
+        return { success: false, error: 'Colección no encontrada' };
+      }
+
+      const existing = await this.repo.findByCollaborator(params.collectionId, params.collaboratorUserId);
+      if (!existing) {
+        return { success: false, error: 'El usuario no es colaborador' };
+      }
+
+      await this.repo.removeCollaborator(params.collectionId, params.collaboratorUserId);
+
+      await this.repo.logSecurityEvent(params.userId, 'REMOVED_COLLABORATOR', params.collectionId, 'INFO');
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing collaborator:', error);
+      return { success: false, error: 'Error al eliminar colaborador' };
+    }
+  }
 }
 
 export let collectionService: CollectionService | undefined;
@@ -489,6 +594,40 @@ export async function toggleLikeCollection(params: {
   isLiked?: boolean;
 }): Promise<{ success: boolean; isLiked?: boolean; error?: string }> {
   return getService().toggleLike(params);
+}
+
+export async function getCollectionCollaborators(params: {
+  collectionId: string;
+  userId: string;
+}): Promise<{
+  success: boolean;
+  collaborators?: Array<{
+    id: string;
+    userId: string;
+    role: string;
+    addedAt: Date;
+    user: { id: string; username: string; displayName: string | null; avatarUrl: string | null };
+  }>;
+  error?: string;
+}> {
+  return getService().getCollaborators(params);
+}
+
+export async function addCollectionCollaborator(params: {
+  collectionId: string;
+  userId: string;
+  collaboratorUserId: string;
+  role: string;
+}): Promise<{ success: boolean; error?: string }> {
+  return getService().addCollaborator(params);
+}
+
+export async function removeCollectionCollaborator(params: {
+  collectionId: string;
+  userId: string;
+  collaboratorUserId: string;
+}): Promise<{ success: boolean; error?: string }> {
+  return getService().removeCollaborator(params);
 }
 
 export default CollectionService;

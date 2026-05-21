@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, AlertTriangle, Compass } from 'lucide-react';
+import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, AlertTriangle, Compass, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
@@ -181,11 +181,11 @@ export default function AdvancedSearchPage() {
             {t('nav.explore')}
           </Link>
           <Link href="/search_ia" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
-            <Search size={16} />
+            <Sparkles size={16} />
             {t('search.iaTitle')}
           </Link>
           <Link href="/search_advanced" aria-current="page" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white shadow-sm shadow-[var(--primary)]/20">
-            <SlidersHorizontal size={16} />
+            <Search size={16} />
             {t('search.advancedTitle')}
           </Link>
         </div>

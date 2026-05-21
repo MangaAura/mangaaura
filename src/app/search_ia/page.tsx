@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { Sparkles, Search, Hash, BookOpen, Eye, Star, AlertTriangle, TrendingUp, Award, Clock, ArrowUp, Compass, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, Search, Hash, BookOpen, Eye, Star, AlertTriangle, TrendingUp, Award, Clock, ArrowUp, Compass } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState, useEffect, useCallback } from 'react';
 
@@ -129,11 +129,11 @@ export default function BrowsePage() {
             {t('nav.explore')}
           </Link>
           <Link href="/search_ia" aria-current="page" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white shadow-sm shadow-[var(--primary)]/20">
-            <Search size={16} />
+            <Sparkles size={16} />
             {t('search.iaTitle')}
           </Link>
           <Link href="/search_advanced" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
-            <SlidersHorizontal size={16} />
+            <Search size={16} />
             {t('search.advancedTitle')}
           </Link>
         </motion.div>

@@ -136,6 +136,7 @@ export interface ServerToClientEvents extends PartyServerToClientEvents {
   'notification:count': (count: number) => void;
   'user:online': (userId: string) => void;
   'user:offline': (userId: string) => void;
+  'analytics:stats': (stats: RealtimeAnalytics) => void;
 }
 
 export interface ClientToServerEvents extends PartyClientToServerEvents {
@@ -144,6 +145,9 @@ export interface ClientToServerEvents extends PartyClientToServerEvents {
   'user:join-room': (room: string) => void;
   'user:leave-room': (room: string) => void;
   'ping': () => void;
+  'analytics:heartbeat': (data: { mangaId?: string; chapterId?: string; page?: number }) => void;
+  'analytics:subscribe': () => void;
+  'analytics:unsubscribe': () => void;
 }
 
 export interface InterServerEvents {
@@ -154,4 +158,30 @@ export interface SocketData {
   userId?: string;
   username?: string;
   avatarUrl?: string;
+}
+
+export interface RealtimeAnalytics {
+  activeReaders: number;
+  activeReadersChange: number;
+  activeSessions: Array<{
+    userId: string;
+    username: string;
+    avatarUrl: string | null;
+    mangaId?: string;
+    mangaTitle?: string;
+    chapterNumber?: number;
+    currentPage?: number;
+    startedAt: Date;
+    lastHeartbeat: Date;
+  }>;
+  popularNow: Array<{
+    mangaId: string;
+    title: string;
+    coverUrl: string | null;
+    readers: number;
+    slug: string;
+  }>;
+  readersPerMinute: number;
+  peakToday: number;
+  peakTime: string;
 }

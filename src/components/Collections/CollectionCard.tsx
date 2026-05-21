@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Lock, Globe, MoreVertical, Edit, Trash2, Share2 } from 'lucide-react';
+import { Lock, Globe, MoreVertical, Edit, Trash2, Share2, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTransition } from 'react';
@@ -34,16 +34,19 @@ interface CollectionCardProps {
     }>;
   };
   currentUserId?: string;
+  isCollaborator?: boolean;
   onDelete?: (id: string) => void;
 }
 
 export function CollectionCard({
   collection,
   currentUserId,
+  isCollaborator,
   onDelete,
 }: CollectionCardProps) {
   const [isPending, startTransition] = useTransition();
   const isOwner = currentUserId === collection.user.id;
+  const canEdit = isOwner || isCollaborator;
 
   const handleDelete = () => {
     if (!confirm('¿Eliminar esta colección?')) return;
@@ -137,7 +140,7 @@ export function CollectionCard({
           </div>
 
           {/* Actions */}
-          {isOwner && (
+          {canEdit && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="-mr-2" aria-label="Más opciones">
@@ -155,16 +158,24 @@ export function CollectionCard({
                   <Share2 className="w-4 h-4 mr-2" />
                   Compartir
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleDelete}
-                  className="text-[var(--error)]"
-                  disabled={isPending}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  {isPending ? 'Eliminando...' : 'Eliminar'}
-                </DropdownMenuItem>
+                {isOwner && (
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    className="text-[var(--error)]"
+                    disabled={isPending}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {isPending ? 'Eliminando...' : 'Eliminar'}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
+          )}
+          {isCollaborator && !isOwner && (
+            <Badge variant="secondary" className="mr-2">
+              <Users className="w-3 h-3 mr-1" />
+              Colaborador
+            </Badge>
           )}
         </div>
 

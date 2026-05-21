@@ -3,6 +3,7 @@
 import {
   Globe,
   Shield,
+  Settings,
   Coins,
   Save,
   Loader2,
@@ -119,7 +120,10 @@ export default function AdminSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('admin.configuracion')}</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <Settings className="w-6 h-6 text-[var(--primary)]" />
+            {t('admin.configuracion')}
+          </h1>
           <p className="text-[var(--text-secondary)] mt-1">{t('admin.adminSettingsDesc')}</p>
         </div>
         <Button onClick={handleSave} disabled={saving}>

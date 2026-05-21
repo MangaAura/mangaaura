@@ -182,6 +182,45 @@ export class PrismaCollectionRepository implements ICollectionRepository {
     });
   }
 
+  async findCollaborators(collectionId: string): Promise<Array<{ id: string; userId: string; role: string; addedAt: Date; user: { id: string; username: string; displayName: string | null; avatarUrl: string | null } }>> {
+    return this.prisma.collectionCollaborator.findMany({
+      where: { collectionId },
+      include: {
+        user: {
+          select: { id: true, username: true, displayName: true, avatarUrl: true },
+        },
+      },
+      orderBy: { addedAt: 'asc' },
+    });
+  }
+
+  async addCollaborator(collectionId: string, userId: string, role: string, addedById: string): Promise<void> {
+    await this.prisma.collectionCollaborator.create({
+      data: { collectionId, userId, role, addedById },
+    });
+  }
+
+  async removeCollaborator(collectionId: string, userId: string): Promise<void> {
+    await this.prisma.collectionCollaborator.delete({
+      where: { collectionId_userId: { collectionId, userId } },
+    });
+  }
+
+  async isCollaborator(collectionId: string, userId: string): Promise<boolean> {
+    const count = await this.prisma.collectionCollaborator.count({
+      where: { collectionId, userId },
+    });
+    return count > 0;
+  }
+
+  async findByCollaborator(collectionId: string, userId: string): Promise<{ id: string; role: string } | null> {
+    const collaborator = await this.prisma.collectionCollaborator.findUnique({
+      where: { collectionId_userId: { collectionId, userId } },
+      select: { id: true, role: true },
+    });
+    return collaborator;
+  }
+
   async logSecurityEvent(userId: string, action: string, targetId: string, severity: string): Promise<void> {
     await logSecurityEvent({ userId, action: action as SecurityAction, targetId, severity: severity as Severity });
   }

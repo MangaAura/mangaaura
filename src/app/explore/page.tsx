@@ -6,7 +6,8 @@
 
 'use client';
 
-import { Search, Filter, Grid3X3, Hash, List, Loader2, X, BookOpen, ChevronDown, Compass, SlidersHorizontal } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Search, Filter, Grid3X3, Hash, List, Loader2, X, BookOpen, ChevronDown, Compass, Eye, Star, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, Suspense } from 'react';
@@ -17,7 +18,7 @@ import { SearchBar } from '@/components/Search/SearchBar';
 import { Button } from '@/components/ui/Button';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { useT } from '@/i18n/index';
-import { CANONICAL_TAGS, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, KNOWN_GENRE_KEYS, normalizeGenreKey } from '@/constants/genres';
+import { CANONICAL_TAGS, CANONICAL_TAG_SET, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, KNOWN_GENRE_KEYS, normalizeGenreKey } from '@/constants/genres';
 import { cn } from '@/lib/utils';
 
 
@@ -30,6 +31,7 @@ interface MangaResult {
   description?: string;
   coverUrl?: string;
   authorName?: string;
+  authorUsername?: string;
   status: string;
   tags: string[];
   totalViews: number;
@@ -60,8 +62,9 @@ function SkeletonGrid() {
   );
 }
 
-function MangaListItem({ manga }: { manga: MangaResult }) {
+function MangaListItem({ manga, onGenreClick }: { manga: MangaResult; onGenreClick: (genre: string) => void }) {
   const t = useT();
+  const router = useRouter();
   const displayGenre = (genre: string): string => {
     let slug = ENGLISH_TO_SLUG[genre];
     if (!slug) {
@@ -74,58 +77,137 @@ function MangaListItem({ manga }: { manga: MangaResult }) {
     }
     return slug ? t(`genres.${slug}`) : genre.charAt(0).toUpperCase() + genre.slice(1);
   };
+
+  const statusStyle = cn(
+    'px-2 py-0.5 text-[11px] font-bold rounded-md shrink-0',
+    manga.status === 'ONGOING' ? 'bg-emerald-500/15 text-emerald-400' :
+    manga.status === 'COMPLETED' ? 'bg-blue-500/15 text-blue-400' :
+    'bg-amber-500/15 text-amber-400'
+  );
+
+  const statusLabel = manga.status === 'ONGOING' ? t('manga.ongoing') : manga.status === 'COMPLETED' ? t('manga.completed') : t('search.statusHiatus');
+
+  const resolveCanonicalTag = (tag: string): string => {
+    if (CANONICAL_TAG_SET.has(tag)) return tag;
+    const found = CANONICAL_TAGS.find(t => normalizeGenreKey(t) === normalizeGenreKey(tag));
+    return found || tag;
+  };
+
+  const formatViews = (n: number): string => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+    return n.toLocaleString();
+  };
+
   return (
-    <Link
-      href={`/manga/${manga.slug}`}
-      className="flex gap-4 p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 transition-all group"
+    <motion.div
+      whileHover={{ scale: 1.01, y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+      style={{ willChange: 'transform' }}
     >
-      <div className="w-16 h-24 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative">
-        {manga.coverUrl ? (
-          <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading="lazy" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-[var(--text-tertiary)]" />
-          </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-sm group-hover:text-[var(--info)] transition-colors truncate">
-          {manga.title}
-        </h3>
-        {manga.authorName && (
-          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{manga.authorName}</p>
-        )}
-        <div className="flex flex-wrap gap-1 mt-2">
-          {[...new Set(manga.tags.map(t => normalizeGenreKey(t)))].slice(0, 3).map(tag => (
-            <span key={tag} className="px-2.5 py-1 text-xs bg-[var(--surface-sunken)] rounded text-[var(--text-tertiary)]">
-              {displayGenre(tag)}
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center gap-3 mt-2">
-          {manga.rating && (
-            <span className="text-xs text-[var(--warning)] font-bold">
-              {'\u2605'} {manga.rating.toFixed(1)}
-            </span>
+      <Link
+        href={`/manga/${manga.slug}`}
+        className="flex gap-4 sm:gap-5 p-3 sm:p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 transition-colors group"
+      >
+        {/* Cover */}
+        <div className="w-[72px] h-[108px] sm:w-24 sm:h-36 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative shadow-sm">
+          {manga.coverUrl ? (
+            <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading="lazy" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-[var(--text-tertiary)]" />
+            </div>
           )}
-          <span className="text-xs text-[var(--text-tertiary)]">{t('search.chapterCount', { count: manga.chapterCount })}</span>
-          <span className="text-xs text-[var(--text-tertiary)]">{t('search.viewCount', { count: manga.totalViews })}</span>
-          <span className={cn(
-            'px-1.5 py-0.5 text-[10px] rounded font-bold',
-            manga.status === 'ONGOING' ? 'bg-[var(--success)]/20 text-[var(--success)]' :
-            manga.status === 'COMPLETED' ? 'bg-[var(--info)]/20 text-[var(--info)]' :
-            'bg-[var(--warning)]/20 text-[var(--warning)]'
-          )}>
-            {manga.status === 'ONGOING' ? t('manga.ongoing') : manga.status === 'COMPLETED' ? t('manga.completed') : t('search.statusHiatus')}
+          {/* Status badge on cover (mobile) */}
+          <span className={cn(statusStyle, 'absolute top-1 left-1 text-[10px] px-1.5 py-0.5 sm:hidden')}>
+            {statusLabel}
           </span>
         </div>
-        {manga.highlights && manga.highlights.length > 0 && (
-          <p className="text-xs mt-2 text-[var(--text-tertiary)] line-clamp-1">
-            {manga.highlights[0].snippet.replace(/<\/?mark>/g, '')}
-          </p>
-        )}
-      </div>
-    </Link>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+          {/* Top section */}
+          <div>
+            <div className="flex items-start gap-2 mb-1">
+              <h3 className="font-bold text-sm sm:text-base group-hover:text-[var(--info)] transition-colors truncate">
+                {manga.title}
+              </h3>
+              {/* Status badge (desktop) */}
+              <span className={cn(statusStyle, 'hidden sm:inline-block')}>
+                {statusLabel}
+              </span>
+            </div>
+
+            {manga.authorName && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (manga.authorUsername) {
+                    router.push(`/user/${manga.authorUsername}`);
+                  }
+                }}
+                className={`text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors text-left ${manga.authorUsername ? 'cursor-pointer' : 'cursor-default'}`}
+              >
+                {manga.authorName}
+              </button>
+            )}
+
+            {manga.description && (
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 mb-2 leading-relaxed">
+                {manga.description}
+              </p>
+            )}
+
+            {/* Genre tags */}
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {[...new Set(manga.tags.map(t => normalizeGenreKey(t)))].slice(0, 4).map(tag => {
+                return (                    <button
+                      key={tag}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onGenreClick(resolveCanonicalTag(tag));
+                      }}
+                      className="px-2.5 py-1 text-[11px] bg-[var(--surface-sunken)] hover:bg-[var(--surface-elevated)] hover:text-[var(--primary)] rounded-full text-[var(--text-tertiary)] font-medium transition-colors cursor-pointer"
+                    >
+                      {displayGenre(tag)}
+                    </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom stats row */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1">
+            {manga.rating && manga.rating > 0 && (
+              <span className="flex items-center gap-1 text-xs text-[var(--warning)] font-bold">
+                <Star size={13} className="fill-[var(--warning)]" />
+                {manga.rating.toFixed(1)}
+              </span>
+            )}
+            <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+              <BookOpen size={13} className="shrink-0" />
+              {t('search.chapterCount', { count: manga.chapterCount })}
+            </span>
+            <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+              <Eye size={13} className="shrink-0" />
+              {formatViews(manga.totalViews)}
+            </span>
+          </div>
+
+          {/* Highlights */}
+          {manga.highlights && manga.highlights.length > 0 && (
+            <p className="text-[11px] mt-2 text-[var(--text-tertiary)] italic line-clamp-1 border-l-2 border-[var(--primary)]/30 pl-2">
+              &ldquo;{manga.highlights[0].snippet.replace(/<\/?mark>/g, '')}&rdquo;
+            </p>
+          )}
+        </div>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -242,14 +324,15 @@ function SearchPageContent() {
     router.replace(`/explore?${params.toString()}`, { scroll: false });
   }, [query, selectedGenres, selectedStatus, selectedSort, router]);
 
-  const toggleGenre = (genre: string) => {
+  const toggleGenre = useCallback((genre: string) => {
     setSelectedGenres(prev =>
       prev.includes(genre)
         ? prev.filter(g => g !== genre)
         : [...prev, genre]
     );
     setPage(1);
-  };
+    setShowFilters(true);
+  }, []);
 
   const clearFilters = () => {
     setSelectedGenres([]);
@@ -285,11 +368,11 @@ function SearchPageContent() {
                 {t('nav.explore')}
               </Link>
               <Link href="/search_ia" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
-                <Search size={16} />
+                <Sparkles size={16} />
                 {t('search.iaTitle')}
               </Link>
               <Link href="/search_advanced" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
-                <SlidersHorizontal size={16} />
+                <Search size={16} />
                 {t('search.advancedTitle')}
               </Link>
             </div>
@@ -368,7 +451,7 @@ function SearchPageContent() {
             <div className="mb-8 p-6 bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] shadow-sm">
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <Hash className="w-4 h-4 text-[var(--primary)]" />
+                  <Hash className="w-4 h-4 text-[var(--text-primary)]" />
                   <h2 className="text-sm font-bold text-[var(--text-primary)]">{t('manga.genres')}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -405,7 +488,7 @@ function SearchPageContent() {
 
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <Filter className="w-4 h-4 text-[var(--primary)]" />
+                  <Filter className="w-4 h-4 text-[var(--text-primary)]" />
                   <h2 className="text-sm font-bold text-[var(--text-primary)]">{t('manga.status')}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -479,7 +562,7 @@ function SearchPageContent() {
                 <StaggerContainer className="flex flex-col gap-3" staggerDelay={0.03}>
                   {results.map(manga => (
                     <StaggerItem key={manga.id}>
-                      <MangaListItem manga={manga} />
+                      <MangaListItem manga={manga} onGenreClick={toggleGenre} />
                     </StaggerItem>
                   ))}
                 </StaggerContainer>

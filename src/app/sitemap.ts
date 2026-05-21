@@ -17,6 +17,7 @@ const staticRoutes = [
   { path: '/profile', priority: 0.5, changefreq: 'weekly' },
   { path: '/creator/dashboard', priority: 0.5, changefreq: 'weekly' },
   { path: '/achievements', priority: 0.6, changefreq: 'weekly' },
+  { path: '/news', priority: 0.7, changefreq: 'weekly' },
   { path: '/feed', priority: 0.6, changefreq: 'always' },
 ];
 

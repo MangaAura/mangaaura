@@ -3,6 +3,7 @@
 import { BookOpen, Zap, MessageSquare, Heart, BookOpenCheck, CheckCircle, MessagesSquare, Flame, Loader2 } from 'lucide-react';
 
 import type { ActiveQuest } from '@/core/services/QuestService';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -64,6 +65,7 @@ export function QuestCard({
   compact = false,
   className,
 }: QuestCardProps) {
+  const t = useT();
   const Icon = ICON_MAP[quest.iconName] || BookOpen;
   const styles = CATEGORY_STYLES[quest.category] || CATEGORY_STYLES.DAILY;
 
@@ -108,7 +110,7 @@ export function QuestCard({
               {quest.label}
             </p>
             <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full font-medium', styles.bg, styles.text)}>
-              {quest.category === 'DAILY' ? 'Diaria' : 'Semanal'}
+              {quest.category === 'DAILY' ? t('quests.dailyBadge') : t('quests.weeklyBadge')}
             </span>
           </div>
           <div className="mt-1 flex items-center gap-2">
@@ -198,7 +200,7 @@ export function QuestCard({
             styles.text,
           )}
         >
-          {quest.category === 'DAILY' ? 'Diaria' : 'Semanal'}
+          {quest.category === 'DAILY' ? t('quests.dailyBadge') : t('quests.weeklyBadge')}
         </span>
       </div>
 
@@ -230,7 +232,7 @@ export function QuestCard({
           {quest.completed && quest.claimed && (
             <span className="text-[var(--accent-green)] flex items-center gap-1">
               <CheckCircle className="w-3 h-3" />
-              Reclamado
+              {t('quests.claimed')}
             </span>
           )}
         </div>
@@ -241,7 +243,7 @@ export function QuestCard({
             'text-[var(--text-tertiary)]',
             quest.timeRemaining < 3600000 && 'text-[var(--accent-red)]',
           )}>
-            {quest.timeRemaining > 0 ? formatTime(quest.timeRemaining) : 'Expirado'}
+            {quest.timeRemaining > 0 ? formatTime(quest.timeRemaining) : t('quests.expired')}
           </span>
 
           {/* Rewards */}
@@ -268,10 +270,10 @@ export function QuestCard({
           {isClaiming ? (
             <span className="inline-flex items-center justify-center gap-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Reclamando...
+              {t('quests.claiming')}
             </span>
           ) : (
-            <>Reclamar +{quest.xpReward} XP{quest.inkcoinsReward > 0 ? ` + ${quest.inkcoinsReward} 🪙` : ''}</>
+            <>{t('quests.claim', { xp: quest.xpReward, coins: quest.inkcoinsReward > 0 ? ` + ${quest.inkcoinsReward} 🪙` : '' })}</>
           )}
         </button>
       )}
