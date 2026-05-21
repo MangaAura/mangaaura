@@ -5,7 +5,6 @@ import {
   Trophy,
   Star,
   ThumbsUp,
-  Flame,
   Search,
   ChevronLeft,
   ChevronRight,
@@ -158,41 +157,10 @@ export function EventsClient({
   };
 
   return (
-    <>
-      {/* Hero */}
-      <div className="relative bg-gradient-to-br from-[var(--accent-purple)]/10 via-[var(--surface)] to-[var(--accent-purple)]/10 border-b border-[var(--border)] overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03]">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-6xl select-none"
-              style={{
-                left: `${(i * 7) % 100}%`,
-                top: `${(i * 13) % 100}%`,
-                opacity: 0.3,
-              }}
-            >
-              🎨
-            </div>
-          ))}
-        </div>
-        <div className="max-w-6xl mx-auto px-6 py-14 relative z-10 text-center">
-          <div className="inline-flex justify-center items-center gap-2 bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] border border-[var(--accent-purple)]/20 text-xs font-bold px-4 py-1.5 rounded-full mb-5">
-            <Flame size={14} aria-hidden="true" /> {t('events.hero.badge')}
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
-            {t('events.hero.title1')}{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-purple)] to-[var(--warning)]">
-              {t('events.hero.title2')}
-            </span>
-          </h1>
-          <p className="text-[var(--text-secondary)] text-xl max-w-2xl mx-auto">
-            {t('events.hero.desc')}
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 mt-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
+      <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 mb-8">
+        <Trophy className="text-[var(--primary)]" size={30} /> Eventos
+      </h1>
         {/* Filters row */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start sm:items-center justify-between">
           {/* Type filter */}
@@ -426,6 +394,5 @@ export function EventsClient({
           </div>
         )}
       </div>
-    </>
   );
 }

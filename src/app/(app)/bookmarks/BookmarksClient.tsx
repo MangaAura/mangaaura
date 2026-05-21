@@ -68,7 +68,7 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
         icon={<Bookmark className="w-8 h-8" />}
         title="Sin marcadores"
         description="Los mangas y capÃ­tulos que marques aparecerÃ¡n aquÃ­ para que puedas retomarlos fÃ¡cilmente."
-        action={{ label: 'Explorar mangas', href: '/search_ia' }}
+        action={{ label: 'Explorar mangas', href: '/explore' }}
       />
     );
   }
@@ -77,7 +77,9 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">Marcadores</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+            <Bookmark className="text-[var(--primary)]" size={30} /> Marcadores
+          </h1>
           <p className="text-[var(--text-secondary)]">
             {bookmarks.length} {bookmarks.length === 1 ? 'marcador guardado' : 'marcadores guardados'}
           </p>

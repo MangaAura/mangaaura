@@ -167,7 +167,7 @@ function EventsPageInner() {
   const types = ['ART_CHALLENGE', 'SPEEDREADING', 'COMMUNITY'] as const;
 
   return (
-    <div className="text-[var(--text-primary)] pb-12">
+    <div className="text-[var(--text-primary)]">
       <EventsClient
         initialTab={tab}
         events={serializedEvents}

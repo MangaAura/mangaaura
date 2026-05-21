@@ -143,7 +143,7 @@ export function AnimatedHero({
               </motion.span>
             </Link>
           ) : null}
-          <Link href="/search_ia">
+          <Link href="/explore">
             <motion.span
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

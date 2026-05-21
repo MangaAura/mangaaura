@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { DynamicErrorBoundary } from './DynamicErrorBoundary';
 
 const InstallPrompt = dynamic(() => import('./InstallPrompt').then((m) => m.InstallPrompt), { ssr: false });
 const OfflineIndicator = dynamic(() => import('./OfflineIndicator').then((m) => m.OfflineIndicator), { ssr: false });
@@ -10,10 +11,10 @@ const PushNotificationManager = dynamic(() => import('./PushNotificationManager'
 export function PwaComponents() {
   return (
     <>
-      <InstallPrompt />
-      <OfflineIndicator />
-      <ServiceWorkerRegistration />
-      <PushNotificationManager />
+      <DynamicErrorBoundary><InstallPrompt /></DynamicErrorBoundary>
+      <DynamicErrorBoundary><OfflineIndicator /></DynamicErrorBoundary>
+      <DynamicErrorBoundary><ServiceWorkerRegistration /></DynamicErrorBoundary>
+      <DynamicErrorBoundary><PushNotificationManager /></DynamicErrorBoundary>
     </>
   );
 }

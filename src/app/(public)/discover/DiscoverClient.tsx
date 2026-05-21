@@ -25,10 +25,10 @@ interface DiscoverClientProps {
 
 export function DiscoverClient({ trending, recent, topRated, featuredManga }: DiscoverClientProps) {
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 pt-20 pb-10">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-          <Sparkles size={28} /> Descubrir
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Sparkles className="text-[var(--primary)]" size={30} /> Descubrir
         </h1>
         <p className="text-muted">Explora nuevos mangas, tendencias y recomendaciones</p>
       </div>
@@ -67,7 +67,7 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
     <section className="mb-10">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold flex items-center gap-2">{icon} {title}</h2>
-        <Link href="/search_ia" className="text-sm text-accent-blue hover:underline font-semibold">Ver todo</Link>
+        <Link href="/explore" className="text-sm text-accent-blue hover:underline font-semibold">Ver todo</Link>
       </div>
       <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" staggerDelay={0.04}>
         {manga.map((m) => (

@@ -152,7 +152,7 @@ export default function ReaderContent() {
       <main id="main-content" className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <p className="text-[var(--text-secondary)] mb-4">Error al cargar el capítulo</p>
-          <Link href="/search_ia">
+          <Link href="/explore">
             <button className="px-4 py-2 bg-[var(--primary-hover)] text-white rounded-lg hover:opacity-90 transition-opacity cursor-pointer">
               Volver al explorar
             </button>

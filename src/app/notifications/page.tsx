@@ -60,26 +60,21 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="pt-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="pt-20 pb-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-[var(--primary)]/10 rounded-xl">
-                <Bell className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                  Notificaciones
-                </h1>
-                <p className="text-[var(--text-secondary)]">
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+                <Bell className="text-[var(--primary)]" size={30} /> Notificaciones
+              </h1>
+              <p className="text-[var(--text-secondary)] mt-1">
                   {unreadCount > 0
                     ? `Tienes ${unreadCount} notificación${unreadCount !== 1 ? 'es' : ''} sin leer`
                     : 'No tienes notificaciones pendientes'
                   }
                 </p>
               </div>
-            </div>
 
             <div className="flex items-center gap-3">
               {unreadCount > 0 && (

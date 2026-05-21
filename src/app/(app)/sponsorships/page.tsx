@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { SponsorshipsList } from '@/components/Sponsorships/SponsorshipsList';
+import { Gem } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -48,9 +49,11 @@ export default async function SponsorshipsPage() {
   const { activeBids, wonBids, history } = await getSponsorships(session.user.id);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 pt-20 pb-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Mis Patrocinios</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Gem className="text-[var(--primary)]" size={30} /> Mis Patrocinios
+        </h1>
         <p className="text-muted">Gestiona tus pujas y patrocinios en capítulos</p>
       </div>
       <SponsorshipsList activeBids={activeBids as any} wonBids={wonBids as any} history={history as any} />

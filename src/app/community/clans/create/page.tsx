@@ -82,11 +82,11 @@ export default function CreateClanPage() {
   };
 
   return (
-    <div className="bg-background font-sans text-fg-primary pb-12">
+    <div className="bg-background font-sans text-fg-primary pt-20 pb-10">
 
     {/* Header */}
       <div className="bg-secondary border-b border-custom">
-        <div className="max-w-3xl mx-auto px-6 py-8">
+        <div className="max-w-3xl mx-auto px-6 pb-8">
           <Link
             href="/community/clans"
             className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors mb-4"
@@ -95,7 +95,7 @@ export default function CreateClanPage() {
           Volver a Clanes
         </Link>
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Users className="text-accent-purple" size={32} aria-hidden="true" />
+          <Users className="text-[var(--primary)]" size={30} aria-hidden="true" />
             Crear Nuevo Clan
           </h1>
           <p className="text-muted mt-2">

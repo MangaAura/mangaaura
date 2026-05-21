@@ -137,7 +137,7 @@ export function EmptyLibrary() {
       icon={<Library className="w-8 h-8" />}
       title="Tu biblioteca estÃ¡ vacÃ­a"
       description="Comienza a seguir mangas para verlos aquÃ­. Tu biblioteca se sincronizarÃ¡ automÃ¡ticamente."
-      action={{ label: 'Explorar mangas', href: '/search_ia' }}
+      action={{ label: 'Explorar mangas', href: '/explore' }}
       secondaryAction={{ label: 'Ver rankings', href: '/rankings' }}
     />
   );
@@ -149,8 +149,8 @@ export function EmptySearch({ query }: { query: string }) {
       icon={<Search className="w-8 h-8" />}
       title="No se encontraron resultados"
       description={`No encontramos mangas que coincidan con "${query}". Intenta con otros tÃ©rminos.`}
-      action={{ label: 'Ver todos los mangas', href: '/search_ia' }}
-      secondaryAction={{ label: 'Borrar bÃºsqueda', href: '/search_ia' }}
+      action={{ label: 'Ver todos los mangas', href: '/explore' }}
+      secondaryAction={{ label: 'Borrar bÃºsqueda', href: '/explore' }}
     />
   );
 }
@@ -172,7 +172,7 @@ export function EmptyFollowing() {
       icon={<Users className="w-8 h-8" />}
       title="No sigues a nadie"
       description="Sigue a tus creadores favoritos para ver sus actualizaciones en tu feed."
-      action={{ label: 'Descubrir creadores', href: '/search_ia' }}
+      action={{ label: 'Descubrir creadores', href: '/explore' }}
     />
   );
 }

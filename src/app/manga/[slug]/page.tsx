@@ -124,7 +124,7 @@ export default async function MangaDetailPage({ params }: MangaPageProps) {
       <BreadcrumbStructuredData
         items={[
           { name: 'Inicio', item: '/' },
-          { name: 'Manga', item: '/browse' },
+          { name: 'Manga', item: '/explore' },
           { name: manga.title, item: `/manga/${manga.slug}` },
         ]}
       />

@@ -40,7 +40,7 @@ export default function MainNotFoundPage() {
             </Link>
           </Button>
           <Button variant="outline" size="lg" asChild className="border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]">
-            <Link href="/search_ia">
+            <Link href="/explore">
               <BookOpen className="w-4 h-4 mr-2" />
               Explorar mangas
             </Link>

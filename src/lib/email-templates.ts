@@ -170,7 +170,7 @@ export function welcomeEmail(username: string): { html: string; text: string; su
       <p style="margin-top: 15px;">Completa tu perfil y empieza a explorar ahora mismo.</p>
     `,
     ctaText: 'Explorar mangas',
-    ctaUrl: 'https://inkverse.app/browse',
+    ctaUrl: 'https://inkverse.app/explore',
   });
 
   return { html, text, subject: '¡Bienvenido a InkVerse!' };
@@ -314,7 +314,7 @@ export function weeklyDigestEmail(
       </ul>
     `,
     ctaText: 'Ver novedades',
-    ctaUrl: 'https://inkverse.app/browse',
+    ctaUrl: 'https://inkverse.app/explore',
     footerText: 'Este es tu resumen semanal. Puedes cambiar la frecuencia en tu configuración.',
   });
 

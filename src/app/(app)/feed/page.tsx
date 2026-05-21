@@ -16,11 +16,11 @@ export default async function FeedPage() {
   const session = await auth();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-10 p-6">
+    <div className="max-w-3xl mx-auto px-4 pt-20 pb-10">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 mt-4">
-          Actividad <Activity className="text-accent-purple" size={24} />
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Activity className="text-[var(--primary)]" size={30} /> Actividad
         </h1>
         <p className="text-[var(--text-secondary)] mt-2">
           Mira lo que está pasando en la comunidad

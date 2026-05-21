@@ -118,7 +118,7 @@ export default async function HomePage() {
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     <Clock className="w-6 h-6 text-[var(--primary)]" /> Últimas Actualizaciones
                   </h2>
-                  <Link href="/search_ia">
+                  <Link href="/explore">
                     <Button variant="ghost" size="sm">Ver todo →</Button>
                   </Link>
                 </div>

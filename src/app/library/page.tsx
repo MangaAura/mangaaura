@@ -105,7 +105,7 @@ if (status === 'unauthenticated') {
   return (
     <div className="min-h-[60vh] bg-[var(--background)] text-[var(--text-primary)] pt-20 pb-10 flex items-center justify-center">
       <div className="text-center">          <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" aria-hidden="true" />
-        <h1 className="text-2xl font-bold mb-2">Tu Biblioteca</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">Tu Biblioteca</h1>
         <p className="text-[var(--text-tertiary)] mb-6">Inicia sesión para ver tu biblioteca</p>
         <Link href="/auth/login">
           <Button className="px-8 py-2.5">Iniciar sesión</Button>
@@ -120,10 +120,9 @@ if (status === 'unauthenticated') {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <Library className="w-8 h-8 text-[var(--info)]" aria-hidden="true" />
-              <h1 className="text-3xl font-extrabold">Mi Biblioteca</h1>
-            </div>
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+                <Library className="text-[var(--primary)]" size={30} /> Mi Biblioteca
+              </h1>
             <p className="text-[var(--text-tertiary)]">
               {pagination?.total || 0} {pagination?.total === 1 ? 'manga' : 'mangas'} en tu biblioteca
             </p>
@@ -275,7 +274,7 @@ if (status === 'unauthenticated') {
                   : 'Agrega mangas a tu biblioteca para empezar a leer'
                 }
               </p>
-              <Link href="/search_ia">
+              <Link href="/explore">
                 <Button className="px-8 py-2.5">Explorar mangas</Button>
               </Link>
             </div>

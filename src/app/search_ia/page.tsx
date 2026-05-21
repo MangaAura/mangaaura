@@ -110,9 +110,7 @@ export default function BrowsePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-10 px-4 sm:px-6 lg:px-8 pt-20 pb-10">
-      {/* Header */}
-      <div className="mb-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
           <Sparkles className="text-[var(--primary)]" size={30} />
           {t('browse.title')}
@@ -140,14 +138,13 @@ export default function BrowsePage() {
           </Link>
         </motion.div>
         </nav>
-      </div>
 
       {/* Hero Search */}
       <motion.section
         initial={shouldReduceMotion ? {} : { opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-        className="relative rounded-2xl p-[2px] overflow-hidden"
+        className="relative rounded-2xl p-[2px] overflow-hidden mt-6"
         style={{ background: 'linear-gradient(135deg, var(--primary), var(--accent-purple), var(--primary))' }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/20 via-transparent to-[var(--accent-purple)]/20 animate-pulse" />
@@ -200,7 +197,7 @@ export default function BrowsePage() {
         initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.25 }}
-        className="flex flex-wrap items-center gap-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-1.5 shadow-sm"
+        className="flex flex-wrap items-center gap-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-1.5 shadow-sm mt-6"
       >
         <span className="text-xs font-bold text-[var(--text-tertiary)] uppercase tracking-wider px-3 mr-1">{t('browse.sortBy')}</span>
         <div className="h-5 w-px bg-[var(--border)] mr-1" />
@@ -240,7 +237,7 @@ export default function BrowsePage() {
       </motion.div>
 
       {/* Manga Grid */}
-      <section className="space-y-6">
+      <section className="space-y-6 mt-6">
         {error ? (
           <motion.div
             initial={{ opacity: 0 }}

@@ -100,21 +100,17 @@ async function DynamicProviders({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await detectLocale();
-
   return (
     <div className="flex flex-col flex-1 noise">
-      <Providers locale={locale}>
-        <Suspense fallback={null}>
-          {children}
-        </Suspense>
-        <Suspense fallback={null}>
-          <PwaComponents />
-        </Suspense>
-        <Suspense fallback={null}>
-          <AppFooter />
-        </Suspense>
-      </Providers>
+      <Suspense fallback={null}>
+        {children}
+      </Suspense>
+      <Suspense fallback={null}>
+        <PwaComponents />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AppFooter />
+      </Suspense>
     </div>
   );
 }
@@ -143,9 +139,11 @@ export default async function RootLayout({
             __html: `(function(){try{var e=localStorage.getItem("inkverse-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
           }}
         />
-        <Suspense fallback={<div className="flex flex-col flex-1 noise" />}>
-          <DynamicProviders>{children}</DynamicProviders>
-        </Suspense>
+        <Providers locale={htmlLang}>
+          <Suspense fallback={<div className="flex flex-col flex-1 noise" />}>
+            <DynamicProviders>{children}</DynamicProviders>
+          </Suspense>
+        </Providers>
       </body>
     </html>
   );

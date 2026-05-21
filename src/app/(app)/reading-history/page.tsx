@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { ReadingHistoryClient } from './ReadingHistoryClient';
+import { BookOpen } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -43,9 +44,11 @@ export default async function ReadingHistoryPage() {
   const { progress, totalReadingTime, totalSessions, mangaCount, completedCount } = await getReadingHistory(session.user.id);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 pt-20 pb-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Historial de Lectura</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <BookOpen className="text-[var(--primary)]" size={30} /> Historial de Lectura
+        </h1>
         <p className="text-muted">Todos los capítulos que has leído</p>
       </div>
 

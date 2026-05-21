@@ -115,7 +115,7 @@ export function HomePageClient({
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
                   </h2>
-                  <Link href="/search_ia">
+                  <Link href="/explore">
                     <Button variant="ghost" size="sm">
                       {t('common.viewAll')}
                     </Button>

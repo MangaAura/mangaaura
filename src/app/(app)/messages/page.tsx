@@ -1,3 +1,4 @@
+import { MessageSquare } from 'lucide-react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
@@ -18,9 +19,11 @@ export default async function MessagesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pt-20 pb-10">
       <div className="max-w-4xl mx-auto">
-    <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-6">Mensajes</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 mb-6">
+          <MessageSquare className="text-[var(--primary)]" size={30} /> Mensajes
+        </h1>
 
     <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] min-h-[500px]">
           <ConversationList />

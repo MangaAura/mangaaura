@@ -28,6 +28,7 @@ import { OptimizedImage } from '@/components/Image';
 import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { useChapterComments } from '@/hooks/useChapterComments';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/components/ThemeProvider';
 
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });
@@ -57,7 +58,8 @@ export default function ChapterReaderPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const [isDarkMode] = useState(false);
+  const { setTheme, resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === 'dark';
 
   const { comments } = useChapterComments(chapterId);
   void useChapterAnalytics(chapterId, chapter?.manga.id ?? '');
@@ -170,7 +172,7 @@ export default function ChapterReaderPage() {
         <div className="text-center">
           <p className="text-[var(--text-secondary)]">{error || 'Error al cargar'}</p>
         <button
-          onClick={() => router.push('/search_ia')}
+          onClick={() => router.push('/explore')}
           className="mt-4 text-[var(--info)] hover:underline cursor-pointer"
         >
             Volver a explorar
@@ -248,7 +250,7 @@ export default function ChapterReaderPage() {
           <ZoomIn className="w-5 h-5" />
         </button>
         <button
-          onClick={() => router.push('/search_ia')}
+          onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
           className="mt-4 text-[var(--info)] hover:underline cursor-pointer"
         >
           {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

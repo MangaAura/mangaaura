@@ -25,7 +25,11 @@ interface QuestsResponse {
   totalWeeklyXP: number;
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch quests');
+  return res.json();
+};
 
 export function QuestPanel({ className, compact = false }: QuestPanelProps) {
   const { data, error, mutate } = useSWR<QuestsResponse>(
@@ -102,7 +106,7 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
     );
   }
 
-  const { quests: questsList, todayXP, weekXP, totalDailyXP, totalWeeklyXP } = data;
+  const { quests: questsList = [], todayXP = 0, weekXP = 0, totalDailyXP = 0, totalWeeklyXP = 0 } = data;
 
   const dailyQuests = questsList.filter((q) => q.category === 'DAILY');
   const weeklyQuests = questsList.filter((q) => q.category === 'WEEKLY');

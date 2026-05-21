@@ -33,10 +33,10 @@ export default function RepostsPage() {
   const types = [...new Set(reposts.map((r: any) => r.originalType))] as string[];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 pt-20 pb-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-          <Repeat2 size={28} /> Reposts
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Repeat2 className="text-[var(--primary)]" size={30} /> Reposts
         </h1>
         <p className="text-muted">Contenido que has compartido</p>
       </div>
@@ -62,7 +62,7 @@ export default function RepostsPage() {
           <Repeat2 size={48} className="mx-auto text-muted mb-4 opacity-50" />
           <h2 className="text-xl font-bold mb-2">Sin reposts aún</h2>
           <p className="text-muted mb-6">Compartí mangas y capítulos que te gusten</p>
-          <Link href="/search_ia" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
+          <Link href="/explore" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
             Explorar mangas
           </Link>
         </div>

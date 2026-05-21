@@ -13,9 +13,9 @@ export function FollowingClient({ following, followers }: { following: any[]; fo
   const userKey = tab === 'following' ? 'following' : 'follower';
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold flex items-center gap-2">
-        <Users className="w-6 h-6" /> {t('following.title')}
+    <div className="max-w-2xl mx-auto px-4 pt-20 pb-10">
+      <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 mb-6">
+        <Users className="text-[var(--primary)]" size={30} /> {t('following.title')}
       </h1>
 
       <div className="flex gap-2 border-b border-[var(--border)] pb-2">

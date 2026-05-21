@@ -54,7 +54,7 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
   const t = useT();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 p-6">
+    <div className="max-w-6xl mx-auto space-y-10 px-4 sm:px-6 lg:px-8 pt-20 pb-10">
       {/* Header */}
       <motion.div
         className="mb-8"
@@ -62,8 +62,8 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
-        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 mt-4 text-[var(--text-primary)]">
-          {t('rankings.title')} <Trophy className="text-[var(--accent-purple)]" size={24} />
+        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Trophy className="text-[var(--primary)]" size={30} /> {t('rankings.title')}
         </h1>
         <p className="text-[var(--text-secondary)] mt-2">
           {t('rankings.description')}

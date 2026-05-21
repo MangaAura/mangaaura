@@ -56,7 +56,7 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
         <BookOpen size={48} className="mx-auto text-muted mb-4 opacity-50" />
         <h2 className="text-xl font-bold mb-2">Sin historial aún</h2>
         <p className="text-muted mb-6">Los capítulos que leas aparecerán aquí</p>
-        <Link href="/search_ia" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
+        <Link href="/explore" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
           Explorar mangas
         </Link>
       </div>

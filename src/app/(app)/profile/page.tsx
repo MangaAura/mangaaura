@@ -255,7 +255,7 @@ export default async function ProfilePage() {
 <EmptyState
               title="Tu biblioteca está vacía"
               description="Comienza a agregar mangas para verlos aquí"
-              action={{ label: 'Explorar mangas', href: '/search_ia' }}
+              action={{ label: 'Explorar mangas', href: '/explore' }}
             />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

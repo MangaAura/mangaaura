@@ -112,7 +112,7 @@ function CheckoutSuccessContent() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push('/search_ia')}
+                  onClick={() => router.push('/explore')}
                 >
                   {t('checkout.success.exploreManga')}
                 </Button>

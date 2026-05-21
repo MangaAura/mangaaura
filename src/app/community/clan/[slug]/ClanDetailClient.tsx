@@ -596,7 +596,7 @@ export default function ClanDetailClient({
                 <div className="text-center">
                   <p className="text-xs text-[var(--text-muted)] mb-2">{t('clanDetail.loginToJoin')}</p>
                   <Link
-                    href="/login"
+                    href="/auth/login"
                     className="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-white hover:shadow-xl hover:shadow-[var(--accent-purple)]/25 transition-all inline-flex items-center gap-2 text-sm"
                   >
                     <Plus size={18} />

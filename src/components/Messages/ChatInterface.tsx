@@ -164,7 +164,7 @@ export function ChatInterface({
             title="Sin mensajes"
             action={{
               label: 'Explorar manga',
-              href: '/search_ia',
+              href: '/explore',
             }}
           />
         ) : (

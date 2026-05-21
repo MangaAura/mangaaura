@@ -53,11 +53,11 @@ export default function CommunityTabs({
     }`;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 px-6 pb-12">
+    <div className="max-w-6xl mx-auto space-y-8 px-6 pt-20 pb-10">
       {/* Header */}
-      <header className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6">
-        <div>            <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-primary)] flex items-center gap-3">
-            <Users className="text-[var(--primary)]" size={32} aria-hidden="true" />
+      <header className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>            <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+            <Users className="text-[var(--primary)]" size={30} aria-hidden="true" />
             {t('community.title')}
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">

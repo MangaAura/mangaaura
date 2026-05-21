@@ -99,46 +99,36 @@ export default async function ClansPage({ searchParams }: ClansPageProps) {
     return `/community/clans${qs ? '?' + qs : ''}`;
   };
 
-  return (
-    <div className="pb-12">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[var(--primary)]/10 to-[var(--accent-purple)]/10 border-b border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--text-primary)] flex items-center gap-3">
-                <Users className="text-[var(--primary)]" size={36} />
-                Clanes
-              </h1>
-              <p className="text-[var(--text-secondary)] mt-2 text-lg">
-                Únete a un clan y compite con otros lectores en las temporadas
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {!userClanId && (
-                <Link
-                  href="/community/clans/create"
-                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] px-5 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20"
-                >
-                  <Plus size={20} />
-                  Crear Clan
-                </Link>
-              )}
-              {userClanId && (
-                <Link
-                  href={`/community/clan/${userClanId}`}
-                  className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--primary)]/50 text-[var(--text-primary)] px-5 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
-                >
-                  <Crown size={20} className="text-[var(--warning)]" />
-                  Mi Clan
-                </Link>
-              )}
-            </div>
+      return (
+    <div className="pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+            <Users className="text-[var(--primary)]" size={30} />
+            Clanes
+          </h1>
+          <div className="flex items-center gap-3">
+            {!userClanId && (
+              <Link
+                href="/community/clans/create"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] px-5 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20"
+              >
+                <Plus size={20} />
+                Crear Clan
+              </Link>
+            )}
+            {userClanId && (
+              <Link
+                href={`/community/clan/${userClanId}`}
+                className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--primary)]/50 text-[var(--text-primary)] px-5 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
+              >
+                <Crown size={20} className="text-[var(--warning)]" />
+                Mi Clan
+              </Link>
+            )}
           </div>
         </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 mt-8">
         {/* Season Info Banner */}
         <div className="bg-gradient-to-r from-[var(--warning)]/10 to-[var(--accent-purple)]/10 border border-[var(--warning)]/30 rounded-2xl p-6 mb-8">
           <div className="flex items-center gap-3 mb-3">

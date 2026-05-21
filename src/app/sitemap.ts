@@ -7,8 +7,8 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'https://inkverse.app';
 // Static routes with priorities
 const staticRoutes = [
   { path: '', priority: 1.0, changefreq: 'daily' },
-  { path: '/browse', priority: 0.9, changefreq: 'daily' },
-  { path: '/search', priority: 0.9, changefreq: 'daily' },
+  { path: '/explore', priority: 0.9, changefreq: 'daily' },
+  { path: '/search_ia', priority: 0.9, changefreq: 'daily' },
   { path: '/rankings', priority: 0.8, changefreq: 'daily' },
   { path: '/library', priority: 0.8, changefreq: 'weekly' },
   { path: '/community/clans', priority: 0.7, changefreq: 'daily' },

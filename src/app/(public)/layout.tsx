@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 
 import type { Metadata } from 'next';
 
-import { AuthGuard } from '@/components/AuthGuard';
+import { MobileBottomNav } from '@/components/Layout/MobileBottomNav';
 import { SkipToContent } from '@/components/Layout/SkipToContent';
 import { PageTransition } from '@/components/ui/PageTransition';
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   description: 'Plataforma de manga para creadores y lectores.',
 };
 
-export default async function AppLayout({
+export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -27,13 +27,12 @@ export default async function AppLayout({
         <SkipToContent />
       </div>
       <Navbar />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className="flex-1 pb-16 md:pb-0">
         <Suspense fallback={<div className="h-screen animate-pulse bg-[var(--background)]" />}>
-          <PageTransition>
-            <AuthGuard>{children}</AuthGuard>
-          </PageTransition>
+          <PageTransition>{children}</PageTransition>
         </Suspense>
       </main>
+      <MobileBottomNav />
     </div>
   );
 }

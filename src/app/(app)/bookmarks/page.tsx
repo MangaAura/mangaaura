@@ -38,7 +38,7 @@ export default async function BookmarksPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pt-20 pb-10">
       <div className="max-w-7xl mx-auto">
         <BookmarksClient bookmarks={bookmarks} />
       </div>

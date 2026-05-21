@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
         // Genre filter (using tags as genres)
         if (genres.length > 0) {
           where.AND = genres.map((genre: any) => ({
-            tags: { contains: `"${genre.toLowerCase()}"` },
+            tags: { contains: `"${genre}"` },
           }));
         }
 
@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
         // Tags filter
         if (tags.length > 0) {
           const tagsFilter = tags.map((tag) => ({
-            tags: { contains: `"${tag.toLowerCase().trim()}"` },
+            tags: { contains: `"${tag.trim()}"` },
           }));
           if (where.AND) {
             where.AND = [...(Array.isArray(where.AND) ? where.AND : [where.AND]), ...tagsFilter];
@@ -233,6 +233,9 @@ export async function GET(request: NextRequest) {
               coverUrl: true,
               authorId: true,
               authorName: true,
+              author: {
+                select: { username: true },
+              },
               status: true,
               tags: true,
               totalViews: true,
@@ -279,6 +282,7 @@ export async function GET(request: NextRequest) {
           coverUrl: manga.coverUrl,
           authorId: manga.authorId,
           authorName: manga.authorName,
+          authorUsername: manga.author?.username || null,
           status: manga.status,
           tags: manga.tags ? JSON.parse(manga.tags) : [],
           totalViews: manga.totalViews,

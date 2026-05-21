@@ -50,7 +50,7 @@ function CheckoutCancelContent() {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => router.push('/search_ia')}
+                onClick={() => router.push('/explore')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 {t('checkout.cancel.backToBrowse')}

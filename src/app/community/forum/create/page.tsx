@@ -34,7 +34,7 @@ export default async function NewThreadPage() {
   const categories = await getCategories();
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pt-20 pb-10">
       <div className="max-w-2xl mx-auto">
         <Link
           href="/community/forum"
@@ -45,17 +45,12 @@ export default async function NewThreadPage() {
         </Link>
 
         <Card className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-[var(--primary-subtle)] flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-[var(--primary)]" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Nuevo Hilo</h1>
-              <p className="text-sm text-[var(--text-secondary)]">
+          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 mb-2">
+            <MessageSquare className="text-[var(--primary)]" size={30} /> Nuevo Hilo
+          </h1>
+          <p className="text-sm text-[var(--text-secondary)] mb-6">
                 Crea un nuevo tema de discusión en el foro
               </p>
-            </div>
-          </div>
 
           <NewThreadForm categories={categories} />
         </Card>

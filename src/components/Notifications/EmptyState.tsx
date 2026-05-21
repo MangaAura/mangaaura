@@ -123,7 +123,7 @@ export function EmptyState({
               <Button
                 variant="default"
                 size="lg"
-                onClick={() => router.push('/search_ia')}
+                onClick={() => router.push('/explore')}
                 className="group w-full sm:w-auto"
               >
                 <Compass className="mr-2 h-4 w-4" />
@@ -134,7 +134,7 @@ export function EmptyState({
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => router.push('/search_ia')}
+                onClick={() => router.push('/explore')}
                 className="w-full sm:w-auto"
               >
                 <Search className="mr-2 h-4 w-4" />

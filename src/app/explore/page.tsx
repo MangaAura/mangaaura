@@ -295,7 +295,7 @@ function SearchPageContent() {
             </div>
             </nav>
 
-            <div className="max-w-2xl">
+            <div className="max-w-2xl mb-6">
               <SearchBar
                 placeholder={t('search.searchPlaceholder')}
                 showSuggestions={false}

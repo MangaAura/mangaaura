@@ -86,8 +86,7 @@ export default function NotFoundPage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
             <Link
-              href="/search_ia"
-              className="flex items-start gap-3 p-4 rounded-lg bg-[var(--surface-sunken)]/50 hover:bg-[var(--surface-sunken)] transition-colors group"
+              href="/explore"
             >
               <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--primary)]/30 transition-colors">
                 <BookOpen className="w-5 h-5 text-[var(--primary)]" />
@@ -132,7 +131,7 @@ export default function NotFoundPage() {
             asChild
             className="border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]"
           >
-            <Link href="/search_ia">
+            <Link href="/explore">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Explorar mangas
             </Link>

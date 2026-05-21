@@ -80,7 +80,7 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pt-20 pb-10">
       <div className="max-w-5xl mx-auto">
         <motion.div
           className="mb-8"
@@ -90,8 +90,8 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2 text-[var(--text-primary)]">
-                {t('forum.title')} <MessageSquare className="text-[var(--primary)]" />
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+                <MessageSquare className="text-[var(--primary)]" size={30} /> {t('forum.title')}
               </h1>
               <p className="text-[var(--text-secondary)] mt-2">
                 {t('forum.description')}

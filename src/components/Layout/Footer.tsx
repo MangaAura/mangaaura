@@ -42,7 +42,7 @@ function InstagramIcon({ className }: { className?: string }) {
 
 const footerLinks = {
   platform: [
-    { labelKey: 'nav.explore', href: '/search_ia', icon: BookOpen },
+    { labelKey: 'nav.explore', href: '/explore', icon: BookOpen },
     { labelKey: 'nav.rankings', href: '/rankings', icon: Trophy },
     { labelKey: 'nav.community', href: '/community', icon: Users },
     { labelKey: 'nav.library', href: '/library', icon: Heart },

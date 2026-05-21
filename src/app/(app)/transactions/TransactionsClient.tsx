@@ -25,8 +25,10 @@ export function TransactionsClient({ transactions, balance }: {
   const t = useT();
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">{t('transactions.title')}</h1>
+    <div className="max-w-4xl mx-auto px-4 pt-20 pb-10">
+      <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 mb-6">
+        <Coins className="text-[var(--primary)]" size={30} /> {t('transactions.title')}
+      </h1>
 
       {balance && (
         <div className="grid grid-cols-2 gap-4">

@@ -9,8 +9,8 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: [
           '/',
-          '/browse',
-          '/search',
+          '/explore',
+          '/search_ia',
           '/rankings',
           '/library',
           '/manga',
