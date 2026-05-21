@@ -6,7 +6,7 @@
 
 'use client';
 
-import { Search, Filter, Grid3X3, List, Loader2, X, BookOpen, ChevronDown, Compass, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, Grid3X3, Hash, List, Loader2, X, BookOpen, ChevronDown, Compass, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, Suspense } from 'react';
@@ -368,7 +368,7 @@ function SearchPageContent() {
             <div className="mb-8 p-6 bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] shadow-sm">
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 rounded-full bg-gradient-to-b from-[var(--primary)] to-[var(--accent-purple)]" />
+                  <Hash className="w-4 h-4 text-[var(--primary)]" />
                   <h2 className="text-sm font-bold text-[var(--text-primary)]">{t('manga.genres')}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -405,7 +405,7 @@ function SearchPageContent() {
 
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 rounded-full bg-gradient-to-b from-[var(--accent-purple)] to-[var(--accent-blue)]" />
+                  <Filter className="w-4 h-4 text-[var(--primary)]" />
                   <h2 className="text-sm font-bold text-[var(--text-primary)]">{t('manga.status')}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">

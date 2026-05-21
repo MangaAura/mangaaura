@@ -1,6 +1,6 @@
 ﻿import { prisma } from '@/lib/prisma';
 
-import { SimpleGenreMarquee } from '@/components/SimpleGenreMarquee';
+import { GenreMarquee } from '@/components/GenreMarquee';
 import { MangaCard } from '@/components/MangaCard';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
@@ -77,7 +77,7 @@ export default async function HomePage() {
       />
 
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-        <SimpleGenreMarquee />
+        <GenreMarquee />
 
         <AnimatedContainer viewport>
           <div className="flex items-center justify-between mb-4">

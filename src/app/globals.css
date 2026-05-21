@@ -501,6 +501,15 @@ h1, h2, h3, h4, h5, h6 {
   animation: glow-pulse 2.5s ease-in-out infinite;
 }
 
+@keyframes gm-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-gm-marquee {
+  animation: gm-marquee 60s linear infinite;
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }

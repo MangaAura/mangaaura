@@ -396,7 +396,7 @@ export default function BrowsePage() {
         >
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-[var(--primary)] to-[var(--accent-purple)]" />
+              <Hash className="w-5 h-5 text-[var(--primary)]" />
               <h2 className="text-xl font-bold">{t('browse.exploreByGenre')}</h2>
             </div>
             <div className="h-px flex-1 bg-gradient-to-r from-[var(--border)] to-transparent" />

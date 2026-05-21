@@ -1,5 +1,6 @@
 'use client';
 
+import { Hash } from 'lucide-react';
 import Link from 'next/link';
 import { GENRE_CATEGORIES } from '@/constants/genres';
 import { useT } from '@/i18n';
@@ -9,7 +10,7 @@ export function SimpleGenreMarquee() {
   return (
     <section className="relative">
       <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
-        <span className="w-1.5 h-6 rounded-full bg-gradient-to-b from-accent-blue to-accent-purple inline-block" />
+        <Hash className="w-5 h-5 text-[var(--primary)]" />
         {t('home.exploreByGenre')}
       </h2>
       <div className="flex gap-3 py-2 overflow-x-auto">
