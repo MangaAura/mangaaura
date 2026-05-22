@@ -136,6 +136,20 @@ Estas variables tienen valores por defecto y son opcionales:
 | `AI_PROVIDER` | `in-memory` | Proveedor de IA |
 | `AI_RATE_LIMIT` | `40` | Límite de requests/min |
 | `ENABLE_AI_ANALYSIS` | `true` | Habilitar análisis IA |
+| `CSP_REPORT_URL` | - | Endpoint para recibir reportes de violaciones CSP |
+
+### Monitoreo CSP (Content Security Policy)
+
+Para recibir reportes de violaciones CSP en producción, configura:
+
+```env
+CSP_REPORT_URL="https://mangaaura.es/api/csp-report"
+```
+
+Esto aña de `report-uri` al header `Content-Security-Policy` y habilita
+el endpoint `/api/csp-report` para recibir y registrar violaciones.
+Los reportes de extensiones de navegador (chrome-extension://, moz-extension://, etc.)
+se filtran automáticamente como ruido.
 
 ## Solución de Problemas
 

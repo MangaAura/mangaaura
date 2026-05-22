@@ -27,6 +27,8 @@ const envSchema = z.object({
   ENABLE_AI_ANALYSIS: z.string().optional(),
   AI_PROVIDER: z.string().optional(),
   AI_RATE_LIMIT: z.string().optional(),
+
+  CSP_REPORT_URL: z.string().url().optional(),
 });
 
 export function validateEnv() {

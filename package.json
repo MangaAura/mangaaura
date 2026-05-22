@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "dev:socket": "tsx src/server/socket-server.ts",
     "dev:all": "npm-run-all --parallel dev dev:socket",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
