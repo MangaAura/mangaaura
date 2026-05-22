@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { syncGenresFromTags } from '@/lib/genres';
+import { invalidateCache } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
@@ -182,6 +184,14 @@ export async function POST(request: NextRequest) {
       authorName = session.user.name || 'Admin';
     }
 
+    const processedTags = tags && Array.isArray(tags) ? tags.map((t: string) => t.toLowerCase().trim()) : [];
+
+    // Sync genres from tags — auto-create any new genres in the DB
+    await syncGenresFromTags(processedTags);
+
+    // Invalidate genres list cache since new genres may have been added
+    await invalidateCache('genres:list');
+
     const manga = await prisma.mangaSeries.create({
       data: {
         title: title.trim(),
@@ -191,7 +201,7 @@ export async function POST(request: NextRequest) {
         authorId: finalAuthorId,
         authorName,
         status: status || 'ONGOING',
-        tags: tags && Array.isArray(tags) ? JSON.stringify(tags) : '[]',
+        tags: JSON.stringify(processedTags),
       },
     });
 

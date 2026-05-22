@@ -12,6 +12,9 @@ import { IMangaRepository } from '../../ports/IMangaRepository';
 import { IUserRepository } from '../../ports/IUserRepository';
 import { IEventBus } from '../../services/IEventBus';
 
+// Import syncGenresFromTags directly — this use case runs in the backend
+import { syncGenresFromTags } from '../../../lib/genres';
+
 export interface CreateMangaInputDTO extends CreateMangaDTO {
   authorId: string;
 }
@@ -48,6 +51,11 @@ export class CreateMangaUseCase {
       tags: input.tags,
       status: input.status ?? 'ONGOING',
     });
+
+    // Sync genres from tags — auto-create any new genres in the DB
+    if (input.tags && input.tags.length > 0) {
+      await syncGenresFromTags(input.tags.map(t => t.toLowerCase().trim()));
+    }
 
     manga.clearDomainEvents();
     await this.mangaRepo.create({

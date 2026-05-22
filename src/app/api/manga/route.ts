@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
+import { syncGenresFromTags } from '@/lib/genres';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
@@ -155,6 +156,11 @@ export async function POST(request: NextRequest) {
 
     const authorName = user?.displayName || user?.username || 'Unknown';
 
+    const processedTags = tags && Array.isArray(tags) ? tags.map((t: string) => t.toLowerCase().trim()) : [];
+
+    // Sync genres from tags — auto-create any new genres in the DB
+    await syncGenresFromTags(processedTags);
+
     // Crear el manga
     const manga = await prisma.mangaSeries.create({
       data: {
@@ -164,7 +170,7 @@ export async function POST(request: NextRequest) {
         coverUrl: coverUrl || null,
         authorId: session.user.id,
         authorName,
-        tags: tags && Array.isArray(tags) ? JSON.stringify(tags.map((t: string) => t.toLowerCase().trim())) : '[]',
+        tags: JSON.stringify(processedTags),
         status: 'ONGOING',
       },
     });
@@ -172,6 +178,7 @@ export async function POST(request: NextRequest) {
     // Invalidar cache de listas
     await invalidateCache('user:mangas:list');
     await invalidateCache('manga:list');
+    await invalidateCache('genres:list');
 
     return NextResponse.json(
       {

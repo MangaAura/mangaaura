@@ -639,6 +639,21 @@ model ReaderRetention {
   @@index([date])
 }
 
+// ──────────────────────────────────────────────
+// Genres
+// ──────────────────────────────────────────────
+
+model Genre {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([name])
+}
+
 model RateLimit {
   id         String   @id @default(uuid())
   identifier String   @unique
