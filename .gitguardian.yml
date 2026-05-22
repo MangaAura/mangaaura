@@ -1,0 +1,12 @@
+version: 2
+secret:
+  ignored_matches:
+    - match: MangaAura.es@gmail.com
+      name: "Project public contact email"
+      comment: "This is the official public email of the MangaAura project, used across the codebase for contact purposes. Not a secret."
+    - match: noreply@mangaaura.es
+      name: "Project noreply email"
+      comment: "Official noreply email used in email templates and config."
+    - match: admin@mangaaura.es
+      name: "Project admin email"
+      comment: "Official admin email used in VAPID config and docs."
