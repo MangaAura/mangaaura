@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/Layout/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Autenticación | Inkverse',
-  description: 'Inicia sesión o regístrate en Inkverse.',
+  title: 'Autenticación | MangaAura',
+  description: 'Inicia sesión o regístrate en MangaAura.',
 };
 
 export default function AuthLayout({

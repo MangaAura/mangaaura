@@ -18,7 +18,7 @@ const eslintConfig = defineConfig([
     "*.config.*",
   ]),
   {
-    name: "inkverse-custom-rules",
+    name: "mangaaura-custom-rules",
     files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
     rules: {
       "import/no-anonymous-default-export": "warn",

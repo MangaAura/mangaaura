@@ -6,8 +6,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: 'Historial de Lectura | InkVerse',
-  description: 'Revisa todo tu historial de lectura en InkVerse',
+  title: 'Historial de Lectura | MangaAura',
+  description: 'Revisa todo tu historial de lectura en MangaAura',
 };
 
 async function getReadingHistory(userId: string) {

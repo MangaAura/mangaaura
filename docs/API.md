@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-https://inkverse.app/api
+https://mangaaura.es/api
 ```
 
 ## Authentication

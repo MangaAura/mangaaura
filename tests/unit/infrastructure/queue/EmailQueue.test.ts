@@ -45,7 +45,7 @@ describe('EmailQueue', () => {
         userId: 'user-2',
         username: 'resetuser',
         resetToken: 'token-123',
-        resetLink: 'https://inkverse.app/reset/token-123',
+        resetLink: 'https://mangaaura.es/reset/token-123',
       });
 
       expect(job).toBeDefined();

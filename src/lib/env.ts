@@ -4,7 +4,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
   DATABASE_URL: z.string().min(1),
-  MONGODB_URI: z.string().optional().default('mongodb://localhost:27017/inkverse_dev'),
+  MONGODB_URI: z.string().optional().default('mongodb://localhost:27017/mangaaura_dev'),
   REDIS_URL: z.string().optional().default('redis://localhost:6379'),
 
   NEXTAUTH_SECRET: z.string().min(16).optional().default('dev-secret-key-not-for-production-!!'),
@@ -21,7 +21,7 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   CRON_SECRET: z.string().optional(),
 
-  APP_NAME: z.string().default('InkVerse'),
+  APP_NAME: z.string().default('MangaAura'),
   APP_URL: z.string().url().optional(),
 
   ENABLE_AI_ANALYSIS: z.string().optional(),

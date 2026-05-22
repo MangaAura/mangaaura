@@ -9,7 +9,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
-  title: 'Configuración | Inkverse',
+  title: 'Configuración | MangaAura',
   description: 'Configura tu cuenta y preferencias',
 };
 

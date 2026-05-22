@@ -3,6 +3,7 @@ import {
   CommentAnalysis,
   ChapterSummary,
   QualityAssessment,
+  EmailIntentResult,
 } from '@/core/services/IAProvider';
 
 // Implementación en memoria para testing y desarrollo
@@ -135,6 +136,53 @@ export class InMemoryAIProvider implements IAProvider {
       score: 75,
       issues: [],
       overallQuality: 'good',
+    };
+  }
+
+  async classifyEmailIntent(params: {
+    subject: string
+    body: string
+    fromEmail: string
+  }): Promise<EmailIntentResult> {
+    this.requestCount++;
+
+    const lowerSubject = params.subject.toLowerCase()
+    const lowerBody = params.body.toLowerCase()
+
+    const unsubscribeWords = ['unsubscribe', 'baja', 'cancelar', 'dejar de recibir', 'spam', 'no más correos']
+    const reportWords = ['report', 'reportar', 'abus', 'spam', 'denunci', 'inappropriate', 'acoso']
+    const supportWords = ['help', 'ayuda', 'problema', 'error', 'bug', 'no funciona', 'cómo', 'tutorial', 'soporte']
+    const replyWords = ['comment', 'comentario', 'reply', 'responder', 'chapter', 'capítulo']
+
+    let intent: EmailIntentResult['intent'] = 'unknown'
+    let confidence = 0.3
+    let requiresHuman = true
+
+    if (unsubscribeWords.some(w => lowerSubject.includes(w) || lowerBody.includes(w))) {
+      intent = 'unsubscribe'
+      confidence = 0.7
+      requiresHuman = false
+    } else if (reportWords.some(w => lowerSubject.includes(w) || lowerBody.includes(w))) {
+      intent = 'report'
+      confidence = 0.6
+    } else if (supportWords.some(w => lowerSubject.includes(w) || lowerBody.includes(w))) {
+      intent = 'support'
+      confidence = 0.6
+    } else if (replyWords.some(w => lowerSubject.includes(w) || lowerBody.includes(w))) {
+      intent = 'comment_reply'
+      confidence = 0.5
+    }
+
+    return {
+      intent,
+      confidence,
+      requiresHuman,
+      suggestedResponse: null,
+      extractedEntities: {
+        userId: null,
+        mangaSlug: null,
+        commentId: null,
+      },
     };
   }
 

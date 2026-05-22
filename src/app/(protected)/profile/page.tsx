@@ -25,7 +25,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export const metadata: Metadata = {
-  title: 'Mi Perfil | Inkverse',
+  title: 'Mi Perfil | MangaAura',
   description: 'Tu perfil y estadísticas',
 };
 

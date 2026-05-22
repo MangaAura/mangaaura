@@ -18,7 +18,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export const metadata: Metadata = {
-  title: 'Clanes | Inkverse',
+  title: 'Clanes | MangaAura',
   description: 'Únete a un clan y compite con otros lectores en las temporadas',
 };
 

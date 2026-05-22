@@ -5,7 +5,7 @@ import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from './locales';
 
 export async function getLocaleFromCookies(): Promise<Locale | null> {
   const cookieStore = await cookies();
-  const stored = cookieStore.get('inkverse-locale')?.value;
+  const stored = cookieStore.get('mangaaura-locale')?.value;
   if (stored && SUPPORTED_LOCALES.includes(stored as Locale)) {
     return stored as Locale;
   }

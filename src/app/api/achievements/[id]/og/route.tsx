@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { id: achievementId } = await params;
     const { searchParams } = new URL(request.url);
-    const userName = searchParams.get('user') || 'InkVerse';
+    const userName = searchParams.get('user') || 'MangaAura';
     const achievementName = searchParams.get('name') || 'Logro';
     const rarity = (searchParams.get('rarity') || 'EASY').toUpperCase();
     const xpReward = parseInt(searchParams.get('xp') || '0', 10);
@@ -61,7 +61,7 @@ export async function GET(
             }}
           />
 
-          {/* InkVerse branding */}
+          {/* MangaAura branding */}
           <div
             style={{
               position: 'absolute',
@@ -95,7 +95,7 @@ export async function GET(
                 color: '#e2e8f0',
               }}
             >
-              InkVerse
+              MangaAura
             </span>
           </div>
 

@@ -472,7 +472,7 @@ export function WebhooksClient() {
               Nuevo Webhook
             </DialogTitle>
             <DialogDescription>
-              Configura un nuevo endpoint para recibir eventos de InkVerse.
+              Configura un nuevo endpoint para recibir eventos de MangaAura.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

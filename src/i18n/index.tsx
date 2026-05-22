@@ -41,7 +41,7 @@ function interpolate(template: string, params?: TranslationParams): string {
 }
 
 function setLocaleCookie(locale: Locale) {
-  document.cookie = `inkverse-locale=${locale};path=/;max-age=31536000;SameSite=Lax`;
+  document.cookie = `mangaaura-locale=${locale};path=/;max-age=31536000;SameSite=Lax`;
 }
 
 export function I18nProvider({ children, defaultLocale }: { children: React.ReactNode; defaultLocale?: Locale }) {

@@ -76,8 +76,8 @@ export class ResendEmailRepository implements IEmailRepository, IEmailTemplateSe
 
   async sendEmail(to: string, subject: string, htmlContent: string, textContent?: string): Promise<SendEmailResult> {
     try {
-      const fromEmail = process.env.EMAIL_FROM || 'noreply@inkverse.app';
-      const fromName = process.env.EMAIL_FROM_NAME || 'InkVerse';
+      const fromEmail = process.env.EMAIL_FROM || 'noreply@mangaaura.es';
+      const fromName = process.env.EMAIL_FROM_NAME || 'MangaAura';
       const from = `${fromName} <${fromEmail}>`;
 
       const template: EmailTemplate = {
@@ -336,7 +336,7 @@ export class ResendEmailRepository implements IEmailRepository, IEmailTemplateSe
         <p style="margin-top: 15px;">Sigue leyendo y participando para desbloquear más logros.</p>
       `,
       ctaText: 'Ver mi perfil',
-      ctaUrl: 'https://inkverse.app/profile',
+      ctaUrl: 'https://mangaaura.es/profile',
     });
     return { subject, html, text };
   }
@@ -355,7 +355,7 @@ export class ResendEmailRepository implements IEmailRepository, IEmailTemplateSe
         <p style="margin-top: 15px;">¡Gracias por crear contenido increíble para la comunidad!</p>
       `,
       ctaText: 'Ver transacciones',
-      ctaUrl: 'https://inkverse.app/profile/transactions',
+      ctaUrl: 'https://mangaaura.es/profile/transactions',
     });
     return { subject, html, text };
   }

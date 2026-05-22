@@ -212,7 +212,7 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
             {filteredAchievements.length === 0 ? (
               <EmptyState
                 title="Sin logros"
-                description="Los logros se desbloquearán a medida que uses InkVerse"
+                description="Los logros se desbloquearán a medida que uses MangaAura"
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -49,7 +49,7 @@ export function MangaStructuredData({
       name: author,
     },
     image: coverUrl,
-    url: `https://inkverse.app/manga/${slug}`,
+    url: `https://mangaaura.es/manga/${slug}`,
     bookFormat: 'GraphicNovel',
     genre: tags?.join(', ') || 'Manga',
     totalChapters,
@@ -90,14 +90,14 @@ export function ChapterStructuredData({
     isPartOf: {
       '@type': 'Book',
       name: mangaTitle,
-      url: `https://inkverse.app/manga/${mangaSlug}`,
+      url: `https://mangaaura.es/manga/${mangaSlug}`,
     },
     author: {
       '@type': 'Person',
       name: author,
     },
     image: coverUrl,
-    url: `https://inkverse.app/manga/${mangaSlug}/chapter/${chapterNumber}`,
+    url: `https://mangaaura.es/manga/${mangaSlug}/chapter/${chapterNumber}`,
     datePublished: publishedAt,
     pageStart: 1,
     pageEnd: pageCount,
@@ -121,7 +121,7 @@ export function BreadcrumbStructuredData({ items }: BreadcrumbStructuredDataProp
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `https://inkverse.app${item.item}`,
+      item: `https://mangaaura.es${item.item}`,
     })),
   };
 
@@ -138,21 +138,21 @@ export function WebsiteStructuredData() {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'InkVerse',
-    url: 'https://inkverse.app',
+    name: 'MangaAura',
+    url: 'https://mangaaura.es',
     description: 'Lee, descubre y crea mangas. La mejor plataforma para creadores y lectores de manga.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://inkverse.app/search?q={search_term_string}',
+        urlTemplate: 'https://mangaaura.es/search?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },
     sameAs: [
-      'https://twitter.com/inkverse',
-      'https://discord.gg/inkverse',
-      'https://github.com/inkverse',
+      'https://twitter.com/mangaaura',
+      'https://discord.gg/mangaaura',
+      'https://github.com/mangaaura',
     ],
   };
 
@@ -169,19 +169,19 @@ export function OrganizationStructuredData() {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'InkVerse',
-    url: 'https://inkverse.app',
-    logo: 'https://inkverse.app/icons/icon-512x512.png',
+    name: 'MangaAura',
+    url: 'https://mangaaura.es',
+    logo: 'https://mangaaura.es/icons/icon-512x512.png',
     description: 'Plataforma de manga para creadores y lectores',
     foundingDate: '2024',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Support',
-      email: 'support@inkverse.app',
+      email: 'support@mangaaura.es',
     },
     sameAs: [
-      'https://twitter.com/inkverse',
-      'https://discord.gg/inkverse',
+      'https://twitter.com/mangaaura',
+      'https://discord.gg/mangaaura',
     ],
   };
 

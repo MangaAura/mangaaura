@@ -1,6 +1,6 @@
-# InkVerse Deployment Guide
+# MangaAura Deployment Guide
 
-Guia completa para desplegar InkVerse en produccion.
+Guia completa para desplegar MangaAura en produccion.
 
 ## Tabla de Contenidos
 
@@ -38,7 +38,7 @@ Antes de comenzar el despliegue, asegurate de tener:
 1. Ve a [Vercel Dashboard](https://vercel.com/dashboard)
 2. Click en "Add New..." → "Project"
 3. Importa tu repositorio de Git
-4. Selecciona el proyecto InkVerse
+4. Selecciona el proyecto MangaAura
 
 ### Paso 2: Configurar Build
 
@@ -225,7 +225,7 @@ Para mayor capacidad:
    ```
    RESEND_API_KEY=re_tu_api_key
    EMAIL_FROM=noreply@tu-dominio.com
-   EMAIL_FROM_NAME="InkVerse"
+   EMAIL_FROM_NAME="MangaAura"
    ```
 
 **Verificacion de dominio:**
@@ -306,7 +306,7 @@ Configura todas estas variables en Vercel Dashboard → Settings → Environment
 | Variable | Default | Descripcion |
 |----------|---------|-------------|
 | `NODE_ENV` | `production` | Entorno |
-| `APP_NAME` | `InkVerse` | Nombre de la app |
+| `APP_NAME` | `MangaAura` | Nombre de la app |
 | `APP_URL` | - | URL de la app |
 | `ENABLE_AI_ANALYSIS` | `true` | Habilitar IA |
 | `AI_RATE_LIMIT` | `40` | RPM de NVIDIA |

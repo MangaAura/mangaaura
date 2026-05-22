@@ -1,4 +1,4 @@
-# Implementación Completa - InkVerse
+# Implementación Completa - MangaAura
 
 Sistema completo de manga con IA paralela, subida de mangas, WebSocket, comentarios y analytics.
 

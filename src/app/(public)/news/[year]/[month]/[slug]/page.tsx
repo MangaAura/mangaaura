@@ -21,14 +21,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const pubDate = dbArticle.publishedAt?.toISOString().split('T')[0] || '';
     const [y, m] = pubDate.split('-');
     return {
-      title: `${dbArticle.title} | InkVerse`,
+      title: `${dbArticle.title} | MangaAura`,
       alternates: {
         canonical: y && m ? `/news/${y}/${m}/${dbArticle.slug}` : `/news/${dbArticle.slug}`,
       },
     };
   }
 
-  return { title: 'Noticia no encontrada | InkVerse' };
+  return { title: 'Noticia no encontrada | MangaAura' };
 }
 
 export default async function NewsArticlePage({ params }: Props) {

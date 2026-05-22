@@ -1,8 +1,8 @@
-# InkVerse - Arquitectura Técnica
+# MangaAura - Arquitectura Técnica
 
 ## 🏗️ Arquitectura General
 
-InkVerse utiliza **Arquitectura Hexagonal** (Clean Architecture) con **Domain-Driven Design** para garantizar extensibilidad y testabilidad.
+MangaAura utiliza **Arquitectura Hexagonal** (Clean Architecture) con **Domain-Driven Design** para garantizar extensibilidad y testabilidad.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -325,4 +325,4 @@ npm start
 
 ## 📄 Licencia
 
-MIT - InkVerse Team
+MIT - MangaAura Team

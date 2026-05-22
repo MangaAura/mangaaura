@@ -19,7 +19,7 @@ const rl = readline.createInterface({
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 async function setup() {
-  console.log('🚀 Configuración de InkVerse\n');
+  console.log('🚀 Configuración de MangaAura\n');
   console.log('Este script te ayudará a configurar las variables de entorno.\n');
 
   const env = {};
@@ -47,7 +47,7 @@ async function setup() {
 
   env.MONGODB_URI = await question('MONGODB_URI (deja vacío para usar en memoria): ');
   if (!env.MONGODB_URI) {
-    env.MONGODB_URI = 'mongodb://localhost:27017/inkverse_dev';
+    env.MONGODB_URI = 'mongodb://localhost:27017/mangaaura_dev';
   }
 
   env.REDIS_URL = await question('REDIS_URL (deja vacío para omitir): ');
@@ -61,7 +61,7 @@ async function setup() {
   console.log(`✅ NEXTAUTH_SECRET generado automáticamente`);
   
   env.NEXTAUTH_URL = isProduction 
-    ? await question('NEXTAUTH_URL (ej: https://inkverse.app): ')
+    ? await question('NEXTAUTH_URL (ej: https://mangaaura.es): ')
     : 'http://localhost:3000';
 
   console.log('\n--- OAuth (Opcional) ---\n');
@@ -84,7 +84,7 @@ async function setup() {
   console.log('\n--- Configuración Adicional ---\n');
   
   env.NODE_ENV = isProduction ? 'production' : 'development';
-  env.APP_NAME = 'InkVerse';
+  env.APP_NAME = 'MangaAura';
   env.APP_URL = env.NEXTAUTH_URL;
   env.CRON_SECRET = generateSecret();
 

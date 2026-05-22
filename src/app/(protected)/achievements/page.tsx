@@ -10,7 +10,7 @@ import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Logros | Inkverse',
+  title: 'Logros | MangaAura',
   description: 'Descubre y desbloquea logros mientras lees manga',
 };
 

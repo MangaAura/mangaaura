@@ -4,17 +4,15 @@
  * Run: npx tsx scripts/deploy/migrate-to-postgres.ts
  */
 
-import { PrismaClient as PrismaSQLite , PrismaClient as PrismaPostgres } from '@prisma/client';
+import { PrismaClient } from '../../src/generated/prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const sqlitePrisma = new PrismaSQLite({
-  datasources: {
-    db: {
-      url: 'file:./prisma/dev.db',
-    },
-  },
-});
+const sqliteAdapter = new PrismaBetterSqlite3({ url: process.env.SQLITE_URL || 'file:./prisma/dev.db' });
+const sqlitePrisma = new PrismaClient({ adapter: sqliteAdapter });
 
-const postgresPrisma = new PrismaPostgres();
+const pgAdapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const postgresPrisma = new PrismaClient({ adapter: pgAdapter });
 
 async function migrateUsers() {
   console.log('Migrating users...');

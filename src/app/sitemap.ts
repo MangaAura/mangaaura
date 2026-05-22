@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 import { prisma } from '@/lib/prisma';
 
-const BASE_URL = process.env.NEXTAUTH_URL || 'https://inkverse.app';
+const BASE_URL = process.env.NEXTAUTH_URL || 'https://mangaaura.es';
 
 // Static routes with priorities
 const staticRoutes = [

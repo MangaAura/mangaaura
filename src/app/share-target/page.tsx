@@ -45,12 +45,12 @@ export default function ShareTargetPage() {
     setError(null);
 
     try {
-      const sharedItems = JSON.parse(localStorage.getItem('inkverse_shared') || '[]');
+      const sharedItems = JSON.parse(localStorage.getItem('mangaaura_shared') || '[]');
       sharedItems.push({
         ...sharedData,
         savedAt: new Date().toISOString(),
       });
-      localStorage.setItem('inkverse_shared', JSON.stringify(sharedItems));
+      localStorage.setItem('mangaaura_shared', JSON.stringify(sharedItems));
 
       setSaved(true);
     } catch (err: any) {
@@ -66,7 +66,7 @@ export default function ShareTargetPage() {
         <div className="text-center">
           <Share2 className="w-16 h-16 text-muted mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">
-            {saved ? '¡Guardado!' : 'Compartir en InkVerse'}
+            {saved ? '¡Guardado!' : 'Compartir en MangaAura'}
           </h1>
           <p className="text-muted">
             {saved ? 'El contenido fue guardado en tu biblioteca' : 'No se recibió contenido para compartir'}

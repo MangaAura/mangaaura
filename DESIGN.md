@@ -1,5 +1,5 @@
 ---
-name: InkVerse
+name: MangaAura
 version: 1.0.0
 
 colors:
@@ -115,7 +115,7 @@ breakpoints:
 
 ## Overview
 
-InkVerse is a manga reading and creation platform with a modern, clean aesthetic centered on readability and immersion. The design prioritizes content — manga pages — above all else, using neutral surfaces, subtle shadows, and a distinctive indigo primary palette with violet accents.
+MangaAura is a manga reading and creation platform with a modern, clean aesthetic centered on readability and immersion. The design prioritizes content — manga pages — above all else, using neutral surfaces, subtle shadows, and a distinctive indigo primary palette with violet accents.
 
 The visual identity combines **editorial clarity** (clean typography, generous whitespace, structured grids) with **gaming dynamism** (gradient accents, XP/level badges, glowing interactions). It aims to feel premium but approachable, like a high-end manga anthology app.
 

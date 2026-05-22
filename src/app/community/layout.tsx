@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/Layout/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Comunidad | Inkverse',
-  description: 'Únete a la comunidad de Inkverse. Participa en foros, crea clans y más.',
+  title: 'Comunidad | MangaAura',
+  description: 'Únete a la comunidad de MangaAura. Participa en foros, crea clans y más.',
 };
 
 export default function CommunityLayout({

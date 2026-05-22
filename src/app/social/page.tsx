@@ -9,7 +9,7 @@ import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Social | Inkverse',
+  title: 'Social | MangaAura',
   description: 'Descubre nuevos usuarios, creadores y contenido popular en la comunidad',
 };
 

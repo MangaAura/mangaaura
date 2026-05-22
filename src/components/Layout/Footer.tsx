@@ -60,9 +60,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { name: 'GitHub', href: 'https://github.com/inkverse', icon: GithubIcon },
-  { name: 'Twitter', href: 'https://twitter.com/inkverse', icon: TwitterIcon },
-  { name: 'Instagram', href: 'https://instagram.com/inkverse', icon: InstagramIcon },
+  { name: 'GitHub', href: 'https://github.com/mangaaura', icon: GithubIcon },
+  { name: 'Twitter', href: 'https://twitter.com/mangaaura', icon: TwitterIcon },
+  { name: 'Instagram', href: 'https://instagram.com/mangaaura', icon: InstagramIcon },
 ];
 
 export function Footer({ className }: { className?: string }) {
@@ -87,7 +87,7 @@ export function Footer({ className }: { className?: string }) {
               <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] rounded-lg flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-[var(--text-inverse)]" />
               </div>
-              <span className="text-xl font-bold text-[var(--text-primary)]">Inkverse</span>
+              <span className="text-xl font-bold text-[var(--text-primary)]">MangaAura</span>
             </Link>
             <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm">
               {t('footer.tagline')}

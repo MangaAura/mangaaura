@@ -69,7 +69,7 @@ describe('GET /api/progress', () => {
     mockAuth.mockResolvedValue(mockSession);
     mockGetCache.mockResolvedValue(null);
     mockSetCache.mockResolvedValue(undefined);
-    mockGenerateCacheKey.mockReturnValue('inkverse:progress:user-1');
+    mockGenerateCacheKey.mockReturnValue('mangaaura:progress:user-1');
     mockFindMany.mockResolvedValue([progressFixture]);
   });
 

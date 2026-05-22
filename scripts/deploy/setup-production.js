@@ -9,7 +9,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
-console.log('🚀 InkVerse Production Setup\n');
+console.log('🚀 MangaAura Production Setup\n');
 
 // Generate secure random strings
 function generateSecret(length = 32) {
@@ -24,7 +24,7 @@ if (fs.existsSync(envPath)) {
   console.log('⚠️  .env.production already exists. Skipping creation.');
 } else {
   // Generate production environment variables
-  const envContent = `# Production Environment Variables for InkVerse
+  const envContent = `# Production Environment Variables for MangaAura
 # Generated: ${new Date().toISOString()}
 
 # ============================================================================
@@ -56,7 +56,7 @@ GITHUB_CLIENT_SECRET=""
 # Email Service (Resend recommended)
 RESEND_API_KEY="re_..."
 EMAIL_FROM="noreply@your-domain.com"
-EMAIL_FROM_NAME="InkVerse"
+EMAIL_FROM_NAME="MangaAura"
 
 # SMTP Alternative (if not using Resend)
 # SMTP_HOST="smtp.gmail.com"

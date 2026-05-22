@@ -47,7 +47,7 @@ async function exportToPDF(
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`inkverse-realtime-analytics-${new Date().toISOString().slice(0, 10)}.pdf`);
+    pdf.save(`mangaaura-realtime-analytics-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (err) {
     console.error('Error exporting PDF:', err);
     setExportError('Failed to generate PDF. Please try again.');

@@ -5,8 +5,8 @@ import { WebhooksClient } from './WebhooksClient';
 import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Webhooks | Admin | Inkverse',
-  description: 'Gestiona los webhooks salientes de InkVerse.',
+  title: 'Webhooks | Admin | MangaAura',
+  description: 'Gestiona los webhooks salientes de MangaAura.',
   robots: { index: false, follow: false },
 };
 

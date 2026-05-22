@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { QuestsPageClient } from './QuestsPageClient';
 
 export const metadata: Metadata = {
-  title: 'Misiones | Inkverse',
+  title: 'Misiones | MangaAura',
   description: 'Completa misiones diarias y semanales para ganar XP y monedas',
 };
 

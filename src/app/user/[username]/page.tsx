@@ -88,12 +88,12 @@ export async function generateMetadata({ params }: UserProfilePageProps): Promis
   const user = await getUserData(username);
 
   if (!user) {
-    return { title: 'Usuario no encontrado | InkVerse' };
+    return { title: 'Usuario no encontrado | MangaAura' };
   }
 
   const displayName = user.displayName || user.username;
-  const title = `${displayName} | InkVerse`;
-  const description = `Perfil de ${displayName} en InkVerse · Nivel ${user.level} · ${user._count.createdMangas} mangas creados`;
+  const title = `${displayName} | MangaAura`;
+  const description = `Perfil de ${displayName} en MangaAura · Nivel ${user.level} · ${user._count.createdMangas} mangas creados`;
   const ogImage = user.avatarUrl || undefined;
 
   return {

@@ -50,7 +50,7 @@ export function generateCacheKey(prefix: string, identifier: string | Record<str
       .map(([key, value]) => `${key}:${value}`)
       .join(':');
 
-  return `inkverse:${prefix}:${suffix}`;
+  return `mangaaura:${prefix}:${suffix}`;
 }
 
 /**
@@ -226,9 +226,9 @@ export const cacheTTL = {
  */
 export async function invalidateMangaCache(mangaId?: string): Promise<void> {
   if (mangaId) {
-    await invalidatePattern(`inkverse:${CACHE_PREFIXES.MANGA}:*${mangaId}*`);
+    await invalidatePattern(`mangaaura:${CACHE_PREFIXES.MANGA}:*${mangaId}*`);
   } else {
-    await invalidatePattern(`inkverse:${CACHE_PREFIXES.MANGA}:*`);
+    await invalidatePattern(`mangaaura:${CACHE_PREFIXES.MANGA}:*`);
   }
 }
 
@@ -237,9 +237,9 @@ export async function invalidateMangaCache(mangaId?: string): Promise<void> {
  */
 export async function invalidateChapterCache(chapterId?: string): Promise<void> {
   if (chapterId) {
-    await invalidatePattern(`inkverse:${CACHE_PREFIXES.CHAPTER}:*${chapterId}*`);
+    await invalidatePattern(`mangaaura:${CACHE_PREFIXES.CHAPTER}:*${chapterId}*`);
   } else {
-    await invalidatePattern(`inkverse:${CACHE_PREFIXES.CHAPTER}:*`);
+    await invalidatePattern(`mangaaura:${CACHE_PREFIXES.CHAPTER}:*`);
   }
 }
 
@@ -248,9 +248,9 @@ export async function invalidateChapterCache(chapterId?: string): Promise<void> 
  */
 export async function invalidateUserCache(userId?: string): Promise<void> {
   if (userId) {
-    await invalidatePattern(`inkverse:${CACHE_PREFIXES.USER}:*${userId}*`);
+    await invalidatePattern(`mangaaura:${CACHE_PREFIXES.USER}:*${userId}*`);
   } else {
-    await invalidatePattern(`inkverse:${CACHE_PREFIXES.USER}:*`);
+    await invalidatePattern(`mangaaura:${CACHE_PREFIXES.USER}:*`);
   }
 }
 

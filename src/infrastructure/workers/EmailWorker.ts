@@ -1,5 +1,5 @@
 /**
- * Email Worker para InkVerse
+ * Email Worker para MangaAura
  * Procesa jobs de la cola de emails usando BullMQ
  * @packageDocumentation
  */

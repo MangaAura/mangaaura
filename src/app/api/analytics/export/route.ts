@@ -187,11 +187,11 @@ export async function POST(request: NextRequest) {
       const headers = HEADERS[type] ?? undefined;
       output = toCSV(data, headers);
       contentType = 'text/csv; charset=utf-8';
-      filename = `inkverse-${type}-${new Date().toISOString().split('T')[0]}.csv`;
+      filename = `mangaaura-${type}-${new Date().toISOString().split('T')[0]}.csv`;
     } else if (format === 'json') {
       output = JSON.stringify(data, null, 2);
       contentType = 'application/json';
-      filename = `inkverse-${type}-${new Date().toISOString().split('T')[0]}.json`;
+      filename = `mangaaura-${type}-${new Date().toISOString().split('T')[0]}.json`;
     } else {
       return NextResponse.json(
         { error: 'Formato no soportado. Use csv o json' },

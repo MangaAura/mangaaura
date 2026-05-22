@@ -7,7 +7,7 @@ import { auth } from '@/lib/auth';
 
 
 export const metadata: Metadata = {
-  title: 'Mensajes | Inkverse',
+  title: 'Mensajes | MangaAura',
   description: 'Tus conversaciones y mensajes directos',
 };
 

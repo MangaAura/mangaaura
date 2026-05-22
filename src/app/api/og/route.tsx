@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Get parameters
-    const title = searchParams.get('title') || 'InkVerse';
+    const title = searchParams.get('title') || 'MangaAura';
     const author = searchParams.get('author') || '';
     const coverUrl = searchParams.get('cover') || '';
     const rating = searchParams.get('rating') || '';
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
                 fontFamily: 'system-ui, sans-serif',
               }}
             >
-              InkVerse
+              MangaAura
             </span>
           </div>
 
@@ -237,7 +237,7 @@ export async function GET(request: NextRequest) {
                     fontFamily: 'system-ui, sans-serif',
                   }}
                 >
-                  inkverse.app
+                  mangaaura.es
                 </span>
               </div>
             </div>

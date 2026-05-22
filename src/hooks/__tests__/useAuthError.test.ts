@@ -214,7 +214,7 @@ describe('useAuthError', () => {
 
     expect(mockToast).toHaveBeenCalledWith({
       title: '¡Cuenta creada!',
-      description: 'Tu cuenta ha sido creada exitosamente. ¡Bienvenido a InkVerse!',
+      description: 'Tu cuenta ha sido creada exitosamente. ¡Bienvenido a MangaAura!',
       variant: 'default',
     });
   });

@@ -1,4 +1,4 @@
-# Deploy InkVerse to Vercel
+# Deploy MangaAura to Vercel
 
 ## Prerequisites
 
@@ -287,4 +287,4 @@ vercel --prod
 - Vercel Docs: https://vercel.com/docs
 - Next.js Docs: https://nextjs.org/docs
 - Prisma Docs: https://www.prisma.io/docs
-- InkVerse Issues: GitHub Issues
+- MangaAura Issues: GitHub Issues

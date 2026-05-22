@@ -55,7 +55,7 @@ const notificationTypes = [
   {
     id: 'marketing',
     label: 'Ofertas y promociones',
-    description: 'Ofertas especiales y promociones de Inkverse',
+    description: 'Ofertas especiales y promociones de MangaAura',
     icon: Bell,
   },
 ];

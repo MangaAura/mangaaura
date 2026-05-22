@@ -22,6 +22,8 @@ const updateSchema = z.object({
   coverUrl: z.string().url('URL de portada inválida').nullable().optional(),
   category: z.enum(['platform', 'community', 'tools', 'mobile', 'contest']).optional(),
   isPublished: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  scheduledAt: z.string().nullable().optional(),
 });
 
 export async function GET(
@@ -149,6 +151,10 @@ export async function PATCH(
     if (data.contentEn !== undefined) updateData.contentEn = data.contentEn;
     if (data.coverUrl !== undefined) updateData.coverUrl = data.coverUrl;
     if (data.category !== undefined) updateData.category = data.category;
+    if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
+    if (data.scheduledAt !== undefined) {
+      updateData.scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
+    }
 
     // Handle publishing/unpublishing
     if (data.isPublished !== undefined) {

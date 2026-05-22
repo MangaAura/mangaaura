@@ -64,7 +64,7 @@ export default function HelpPage() {
       title: t('help.categories.general'),
       icon: HelpCircle,
       questions: [
-        { q: t('help.faq.general.whatIsInkverse.q'), a: t('help.faq.general.whatIsInkverse.a') },
+        { q: t('help.faq.general.whatIsMangaAura.q'), a: t('help.faq.general.whatIsMangaAura.a') },
         { q: t('help.faq.general.isItFree.q'), a: t('help.faq.general.isItFree.a') },
         { q: t('help.faq.general.howToCreateAccount.q'), a: t('help.faq.general.howToCreateAccount.a') },
       ],

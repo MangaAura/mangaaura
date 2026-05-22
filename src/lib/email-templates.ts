@@ -1,5 +1,5 @@
 /**
- * Email Templates for InkVerse
+ * Email Templates for MangaAura
  * Beautiful, responsive HTML email templates
  */
 
@@ -23,11 +23,11 @@ interface EmailTemplateProps {
 
 export function baseEmailTemplate({
   title,
-  preview = 'InkVerse - Plataforma de Manga',
+  preview = 'MangaAura - Plataforma de Manga',
   content,
   ctaText,
   ctaUrl,
-  footerText = 'Gracias por usar InkVerse',
+  footerText = 'Gracias por usar MangaAura',
 }: EmailTemplateProps): { html: string; text: string } {
   const html = `
 <!DOCTYPE html>
@@ -74,12 +74,12 @@ export function baseEmailTemplate({
             <!-- Header with logo -->
             <tr>
               <td align="center" style="padding-bottom: 30px;">
-                <a href="https://inkverse.app" style="text-decoration: none;">
+                <a href="https://mangaaura.es" style="text-decoration: none;">
                   <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); width: 60px; height: 60px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;">
                     <span style="color: white; font-size: 32px; font-weight: bold;">I</span>
                   </div>
                 </a>
-                <h1 style="margin: 15px 0 0 0; font-size: 28px; font-weight: 700; color: #1e293b;" class="heading">InkVerse</h1>
+                <h1 style="margin: 15px 0 0 0; font-size: 28px; font-weight: 700; color: #1e293b;" class="heading">MangaAura</h1>
               </td>
             </tr>
             
@@ -115,14 +115,14 @@ export function baseEmailTemplate({
                   ${footerText}
                 </p>
                 <p style="margin: 15px 0 0 0; color: #94a3b8; font-size: 12px;">
-                  © ${new Date().getFullYear()} InkVerse. Todos los derechos reservados.
+                  © ${new Date().getFullYear()} MangaAura. Todos los derechos reservados.
                 </p>
                 <p style="margin: 10px 0 0 0; font-size: 12px;">
-      <a href="https://inkverse.app/legal/privacy" style="color: #64748b; text-decoration: underline;">Privacidad</a>
+      <a href="https://mangaaura.es/legal/privacy" style="color: #64748b; text-decoration: underline;">Privacidad</a>
       <span style="color: #cbd5e1; margin: 0 10px;">|</span>
-      <a href="https://inkverse.app/legal/terms" style="color: #64748b; text-decoration: underline;">Términos</a>
+      <a href="https://mangaaura.es/legal/terms" style="color: #64748b; text-decoration: underline;">Términos</a>
       <span style="color: #cbd5e1; margin: 0 10px;">|</span>
-      <a href="https://inkverse.app/contact" style="color: #64748b; text-decoration: underline;">Soporte</a>
+      <a href="https://mangaaura.es/contact" style="color: #64748b; text-decoration: underline;">Soporte</a>
                 </p>
               </td>
             </tr>
@@ -144,8 +144,8 @@ ${ctaText && ctaUrl ? `${ctaText}: ${ctaUrl}` : ''}
 
 ---
 ${footerText}
-© ${new Date().getFullYear()} InkVerse
-https://inkverse.app
+© ${new Date().getFullYear()} MangaAura
+https://mangaaura.es
   `.trim();
 
   return { html, text };
@@ -156,11 +156,11 @@ https://inkverse.app
 export function welcomeEmail(username: string): { html: string; text: string; subject: string } {
   const safeUsername = escapeHtml(username);
   const { html, text } = baseEmailTemplate({
-    title: `¡Bienvenido a InkVerse, ${safeUsername}!`,
+    title: `¡Bienvenido a MangaAura, ${safeUsername}!`,
     preview: 'Descubre, lee y comparte manga de calidad',
     content: `
       <p>¡Nos alegra tenerte con nosotros!</p>
-      <p style="margin-top: 15px;">InkVerse es tu nuevo hogar para:</p>
+      <p style="margin-top: 15px;">MangaAura es tu nuevo hogar para:</p>
       <ul style="margin: 15px 0; padding-left: 20px; color: #475569;">
         <li>📚 Descubrir mangas increíbles</li>
         <li>✍️ Publicar tus propias historias</li>
@@ -170,10 +170,10 @@ export function welcomeEmail(username: string): { html: string; text: string; su
       <p style="margin-top: 15px;">Completa tu perfil y empieza a explorar ahora mismo.</p>
     `,
     ctaText: 'Explorar mangas',
-    ctaUrl: 'https://inkverse.app/explore',
+    ctaUrl: 'https://mangaaura.es/explore',
   });
 
-  return { html, text, subject: '¡Bienvenido a InkVerse!' };
+  return { html, text, subject: '¡Bienvenido a MangaAura!' };
 }
 
 export function passwordResetEmail(resetUrl: string): { html: string; text: string; subject: string } {
@@ -190,7 +190,7 @@ export function passwordResetEmail(resetUrl: string): { html: string; text: stri
     footerText: 'Si no solicitaste este cambio, contacta con soporte inmediatamente.',
   });
 
-  return { html, text, subject: 'Restablecer contraseña - InkVerse' };
+  return { html, text, subject: 'Restablecer contraseña - MangaAura' };
 }
 
 export function newChapterEmail(
@@ -244,7 +244,7 @@ export function achievementUnlockedEmail(
       <p style="margin-top: 15px;">¡Sigue leyendo para desbloquear más logros!</p>
     `,
     ctaText: 'Ver mi perfil',
-    ctaUrl: 'https://inkverse.app/profile',
+    ctaUrl: 'https://mangaaura.es/profile',
   });
 
   return { html, text, subject: `🏆 Logro desbloqueado: ${safeName}` };
@@ -272,7 +272,7 @@ export function tipReceivedEmail(
       </p>
     `,
     ctaText: 'Ver dashboard',
-    ctaUrl: 'https://inkverse.app/creator/dashboard',
+    ctaUrl: 'https://mangaaura.es/creator/dashboard',
   });
 
   return { html, text, subject: `💰 ¡${tipAmount} InkCoins recibidos!` };
@@ -288,7 +288,7 @@ export function weeklyDigestEmail(
     .join('');
 
   const { html, text } = baseEmailTemplate({
-    title: 'Tu resumen semanal de InkVerse',
+    title: 'Tu resumen semanal de MangaAura',
     preview: `${newChaptersCount} nuevos capítulos esta semana`,
     content: `
       <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px; padding: 20px; color: white; margin-bottom: 20px;">
@@ -314,7 +314,7 @@ export function weeklyDigestEmail(
       </ul>
     `,
     ctaText: 'Ver novedades',
-    ctaUrl: 'https://inkverse.app/explore',
+    ctaUrl: 'https://mangaaura.es/explore',
     footerText: 'Este es tu resumen semanal. Puedes cambiar la frecuencia en tu configuración.',
   });
 
@@ -326,7 +326,7 @@ export function verificationEmail(verificationUrl: string): { html: string; text
     title: 'Verifica tu cuenta',
     preview: 'Confirma tu email para activar tu cuenta',
     content: `
-      <p>Gracias por registrarte en InkVerse.</p>
+      <p>Gracias por registrarte en MangaAura.</p>
       <p style="margin-top: 15px;">Para completar tu registro y activar todas las funciones de tu cuenta, por favor verifica tu dirección de email haciendo clic en el botón de abajo.</p>
       <p style="margin-top: 15px;">Este enlace expirará en 24 horas.</p>
     `,
@@ -335,7 +335,7 @@ export function verificationEmail(verificationUrl: string): { html: string; text
     footerText: 'Si no creaste esta cuenta, puedes ignorar este email.',
   });
 
-  return { html, text, subject: 'Verifica tu cuenta - InkVerse' };
+  return { html, text, subject: 'Verifica tu cuenta - MangaAura' };
 }
 
 export function securityAlertEmail(
@@ -350,7 +350,7 @@ export function securityAlertEmail(
     },
     password_change: {
       title: '🔐 Tu contraseña ha sido cambiada',
-      content: `<p>Tu contraseña de InkVerse fue cambiada recientemente.</p>`,
+      content: `<p>Tu contraseña de MangaAura fue cambiada recientemente.</p>`,
     },
     email_change: {
       title: '📧 Tu email ha sido actualizado',
@@ -378,8 +378,8 @@ export function securityAlertEmail(
       <p style="margin-top: 15px;">Si fuiste tú, no necesitas hacer nada. Si no reconoces esta actividad, por favor cambia tu contraseña inmediatamente.</p>
     `,
     ctaText: 'Ver actividad de la cuenta',
-    ctaUrl: 'https://inkverse.app/settings',
-    footerText: 'Alerta de seguridad automática de InkVerse.',
+    ctaUrl: 'https://mangaaura.es/settings',
+    footerText: 'Alerta de seguridad automática de MangaAura.',
   });
 
   return { html, text, subject: alert.title };

@@ -68,13 +68,13 @@ export default function ReaderContent() {
   const [viewMode] = useState<'scroll' | 'paged'>('scroll');
   const [continuousReading, setContinuousReading] = useState(() => {
     if (typeof window === 'undefined') return false;
-    try { return localStorage.getItem('inkverse-continuous-reading') === 'true'; } catch { return false; }
+    try { return localStorage.getItem('mangaaura-continuous-reading') === 'true'; } catch { return false; }
   });
   const continuousNavPending = useRef(false);
 
   // Persist continuous reading preference
   useEffect(() => {
-    try { localStorage.setItem('inkverse-continuous-reading', String(continuousReading)); } catch { /* noop */ }
+    try { localStorage.setItem('mangaaura-continuous-reading', String(continuousReading)); } catch { /* noop */ }
   }, [continuousReading]);
 
   // Fetch chapter data

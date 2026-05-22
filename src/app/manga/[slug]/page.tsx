@@ -60,11 +60,11 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
   const manga = await getMangaData(slug);
 
   if (!manga) {
-    return { title: 'Manga no encontrado | InkVerse' };
+    return { title: 'Manga no encontrado | MangaAura' };
   }
 
-  const title = `${manga.title} | InkVerse`;
-  const description = manga.description?.slice(0, 160) || `Lee ${manga.title} en InkVerse. ${manga.chapters.length} capítulos disponibles.`;
+  const title = `${manga.title} | MangaAura`;
+  const description = manga.description?.slice(0, 160) || `Lee ${manga.title} en MangaAura. ${manga.chapters.length} capítulos disponibles.`;
   const ogImage = manga.coverUrl
     ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}`
     : undefined;

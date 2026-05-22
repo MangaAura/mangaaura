@@ -10,7 +10,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export const metadata: Metadata = {
-  title: 'Nuevo Hilo | Foro | Inkverse',
+  title: 'Nuevo Hilo | Foro | MangaAura',
   description: 'Crear un nuevo hilo en el foro',
 };
 

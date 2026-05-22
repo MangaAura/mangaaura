@@ -78,7 +78,7 @@ export const MangaReader = memo(function MangaReader({
   const [scrollMode, setScrollMode] = useState<'single' | 'continuous'>('single');
   const [continuousReading, setContinuousReading] = useState(() => {
     if (typeof window === 'undefined') return false;
-    try { return localStorage.getItem('inkverse-continuous-reading') === 'true'; } catch { return false; }
+    try { return localStorage.getItem('mangaaura-continuous-reading') === 'true'; } catch { return false; }
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -100,7 +100,7 @@ export const MangaReader = memo(function MangaReader({
 
   // Persist continuous reading preference
   useEffect(() => {
-    try { localStorage.setItem('inkverse-continuous-reading', String(continuousReading)); } catch { /* noop */ }
+    try { localStorage.setItem('mangaaura-continuous-reading', String(continuousReading)); } catch { /* noop */ }
   }, [continuousReading]);
 
   const scrollToTop = useCallback(() => {

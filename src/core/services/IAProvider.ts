@@ -21,6 +21,18 @@ export interface SearchResult {
   explanation: string;
 }
 
+export interface EmailIntentResult {
+  intent: 'comment_reply' | 'support' | 'report' | 'unsubscribe' | 'spam' | 'unknown'
+  confidence: number
+  requiresHuman: boolean
+  suggestedResponse: string | null
+  extractedEntities: {
+    userId: string | null
+    mangaSlug: string | null
+    commentId: string | null
+  }
+}
+
 export interface IAProvider {
   // Análisis de contenido
   analyzeComment(content: string, context?: string): Promise<CommentAnalysis>;
@@ -37,6 +49,13 @@ export interface IAProvider {
   // Clasificación
   classifyGenre(prompt: string): Promise<string[]>;
   classifyQuality(imageUrl: string): Promise<QualityAssessment>;
+
+  // Email entrante
+  classifyEmailIntent(params: {
+    subject: string
+    body: string
+    fromEmail: string
+  }): Promise<EmailIntentResult>;
 }
 
 export interface QualityAssessment {

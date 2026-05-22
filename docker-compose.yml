@@ -4,7 +4,7 @@ services:
   # PostgreSQL - Database Core
   postgres:
     image: postgres:16-alpine
-    container_name: inkverse-postgres
+    container_name: mangaaura-postgres
     environment:
       POSTGRES_USER: ${DOCKER_POSTGRES_USER:-inkverse}
       POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD:?Error: DOCKER_POSTGRES_PASSWORD no configurada en .env}
@@ -19,16 +19,16 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - inkverse-network
+      - mangaaura-network
 
   # MongoDB - Analytics & Big Data
   mongodb:
     image: mongo:7-jammy
-    container_name: inkverse-mongodb
+    container_name: mangaaura-mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DOCKER_MONGO_USER:-inkverse}
       MONGO_INITDB_ROOT_PASSWORD: ${DOCKER_MONGO_PASSWORD:?Error: DOCKER_MONGO_PASSWORD no configurada en .env}
-      MONGO_INITDB_DATABASE: inkverse_analytics
+      MONGO_INITDB_DATABASE: mangaaura_analytics
     ports:
       - "27017:27017"
     volumes:
@@ -39,12 +39,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - inkverse-network
+      - mangaaura-network
 
   # Redis - Cache & Queue
   redis:
     image: redis:7-alpine
-    container_name: inkverse-redis
+    container_name: mangaaura-redis
     ports:
       - "6379:6379"
     volumes:
@@ -56,14 +56,14 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - inkverse-network
+      - mangaaura-network
 
   # pgAdmin - PostgreSQL Admin (opcional)
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: inkverse-pgadmin
+    container_name: mangaaura-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${DOCKER_PGADMIN_EMAIL:-admin@inkverse.com}
+      PGADMIN_DEFAULT_EMAIL: ${DOCKER_PGADMIN_EMAIL:-admin@mangaaura.es}
       PGADMIN_DEFAULT_PASSWORD: ${DOCKER_PGADMIN_PASSWORD:?Error: DOCKER_PGADMIN_PASSWORD no configurada en .env}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
@@ -71,7 +71,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - inkverse-network
+      - mangaaura-network
 
 volumes:
   postgres_data:
@@ -79,5 +79,5 @@ volumes:
   redis_data:
 
 networks:
-  inkverse-network:
+  mangaaura-network:
     driver: bridge

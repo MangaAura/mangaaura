@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: 'Siguiendo | InkVerse',
+  title: 'Siguiendo | MangaAura',
   description: 'Gestiona las cuentas que sigues',
 };
 

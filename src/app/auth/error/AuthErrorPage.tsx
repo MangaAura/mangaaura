@@ -200,7 +200,7 @@ export default function AuthErrorPage() {
           <p className="text-center text-sm text-[var(--text-tertiary)] mt-6">
             Sigues teniendo problemas?{' '}
             <a
-              href="mailto:support@inkverse.app"
+              href="mailto:support@mangaaura.es"
               className="text-accent-blue hover:underline font-medium"
             >
               Contacta al soporte
@@ -212,7 +212,7 @@ export default function AuthErrorPage() {
         <div className="text-center mt-8">
           <Link href="/" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             <span className="text-xl font-bold text-accent-blue">
-              InkVerse
+              MangaAura
             </span>
           </Link>
         </div>

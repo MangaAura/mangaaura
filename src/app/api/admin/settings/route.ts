@@ -19,7 +19,7 @@ export async function GET() {
 
     return NextResponse.json({
       settings: {
-        siteName: 'InkVerse',
+        siteName: 'MangaAura',
         siteDescription: 'Plataforma de Manga con IA',
         maintenanceMode: false,
         maxUploadSize: 10 * 1024 * 1024,

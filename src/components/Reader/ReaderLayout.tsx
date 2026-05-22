@@ -79,7 +79,7 @@ export default function ReaderLayout({
     const errorUrl = `${window.location.origin}/manga/${manga.slug}/chapter/${chapter.chapterNumber}`;
     const subject = `Reporte: ${manga.title} Cap. ${chapter.chapterNumber}`;
     const body = `Reporte de error en ${errorUrl}`;
-    window.location.href = `mailto:soporte@inkverse.app?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:soporte@mangaaura.es?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (

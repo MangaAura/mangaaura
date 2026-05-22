@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth';
 
 
 export const metadata: Metadata = {
-  title: 'Actividad | Inkverse',
+  title: 'Actividad | MangaAura',
   description: 'Mira lo que está pasando en la comunidad',
 };
 

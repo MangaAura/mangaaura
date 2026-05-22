@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
-  title: 'Comunidad | Inkverse',
+  title: 'Comunidad | MangaAura',
   description:
     'Conecta con otros lectores de manga. Únete a clanes, participa en eventos y compite en el ranking.',
 };

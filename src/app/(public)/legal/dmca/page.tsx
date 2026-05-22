@@ -8,13 +8,13 @@ import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 
 export const metadata: Metadata = {
-  title: 'Política DMCA - InkVerse',
+  title: 'Política DMCA - MangaAura',
   description: 'Procedimiento para reportar contenido que infringe derechos de autor',
   openGraph: {
-    title: 'Política DMCA - InkVerse',
+    title: 'Política DMCA - MangaAura',
     description: 'Procedimiento para reportar contenido que infringe derechos de autor',
     type: 'website',
-    siteName: 'InkVerse',
+    siteName: 'MangaAura',
     locale: 'es_ES',
   },
 };

@@ -6,7 +6,10 @@ export async function GET() {
   try {
     const articles = await prisma.newsArticle.findMany({
       where: { isPublished: true },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: [
+        { isFeatured: 'desc' },
+        { publishedAt: 'desc' },
+      ],
       select: {
         id: true,
         title: true,
@@ -16,6 +19,7 @@ export async function GET() {
         excerptEn: true,
         coverUrl: true,
         category: true,
+        isFeatured: true,
         publishedAt: true,
         createdAt: true,
         author: {

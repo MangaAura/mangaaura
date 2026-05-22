@@ -4,8 +4,8 @@ import { AdminSidebar } from '@/components/Admin/AdminSidebar';
 import { AppShell } from '@/components/Layout/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Administración | Inkverse',
-  description: 'Panel de administración de Inkverse',
+  title: 'Administración | MangaAura',
+  description: 'Panel de administración de MangaAura',
   robots: { index: false, follow: false },
 };
 

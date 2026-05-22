@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import ReaderContent from './ReaderContent';
 
 export const metadata: Metadata = {
-  title: 'Lector | Inkverse',
+  title: 'Lector | MangaAura',
   description: 'Disfruta de la lectura de tus mangas favoritos',
 };
 

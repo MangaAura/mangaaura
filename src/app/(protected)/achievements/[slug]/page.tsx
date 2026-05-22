@@ -30,13 +30,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const achievement = await getAchievementBySlug(slug);
   if (!achievement) {
-    return { title: 'Logro no encontrado | Inkverse' };
+    return { title: 'Logro no encontrado | MangaAura' };
   }
   return {
-    title: `${achievement.name} | Logros | Inkverse`,
+    title: `${achievement.name} | Logros | MangaAura`,
     description: achievement.description,
     openGraph: {
-      title: `${achievement.name} | Logros Inkverse`,
+      title: `${achievement.name} | Logros MangaAura`,
       description: achievement.description,
       images: [
         {

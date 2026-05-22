@@ -49,7 +49,7 @@ export default function MainNotFoundPage() {
 
         <Link href="/explore" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors text-sm">
           <Search className="w-4 h-4" />
-          Buscar en InkVerse
+          Buscar en MangaAura
         </Link>
       </motion.div>
     </div>

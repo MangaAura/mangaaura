@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export const metadata: Metadata = {
-  title: 'Rankings | Inkverse',
+  title: 'Rankings | MangaAura',
   description: 'Los lectores y creadores más activos de la comunidad',
 };
 

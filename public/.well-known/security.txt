@@ -1,19 +1,19 @@
 # Security Contact
-Contact: mailto:security@inkverse.app
+Contact: mailto:security@mangaaura.es
 
 # Encryption
-Encryption: https://inkverse.app/.well-known/pgp-key.txt
+Encryption: https://mangaaura.es/.well-known/pgp-key.txt
 
 # Disclosures
 Preferred-Languages: en, es
-Policy: https://inkverse.app/legal/security-policy
-Hire: https://inkverse.app/hire
+Policy: https://mangaaura.es/legal/security-policy
+Hire: https://mangaaura.es/hire
 
 # Hiring
-Acknowledgments: https://inkverse.app/security-acknowledgments
+Acknowledgments: https://mangaaura.es/security-acknowledgments
 
 # Timestamp
 Expires: 2027-05-20T00:00:00.000Z
 
 # Canonical URL
-Canonical: https://inkverse.app/.well-known/security.txt
+Canonical: https://mangaaura.es/.well-known/security.txt

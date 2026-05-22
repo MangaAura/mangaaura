@@ -1,6 +1,22 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// Mock next/navigation useRouter
+const mockRouter = vi.hoisted(() => ({
+  push: vi.fn(),
+  back: vi.fn(),
+  forward: vi.fn(),
+  refresh: vi.fn(),
+  replace: vi.fn(),
+  prefetch: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => mockRouter,
+  usePathname: () => '/test-manga/1',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 // Mock native Image constructor used for preloading in MangaReader
 class MockImage {
   src: string = '';

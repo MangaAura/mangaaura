@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXTAUTH_URL || 'https://inkverse.app';
+const BASE_URL = process.env.NEXTAUTH_URL || 'https://mangaaura.es';
 
 export default function robots(): MetadataRoute.Robots {
   return {

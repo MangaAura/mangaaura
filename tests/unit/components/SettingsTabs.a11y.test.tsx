@@ -42,7 +42,7 @@ const mockUser = {
   id: 'user-1',
   username: 'testuser',
   displayName: 'Test User',
-  email: 'test@inkverse.app',
+  email: 'test@mangaaura.es',
   avatarUrl: null,
   emailPreferences: {
     newsletter: true,

@@ -101,7 +101,7 @@ export async function generateMetadata({ params }: CollectionDetailPageProps): P
     select: { title: true, description: true },
   });
   return {
-    title: collection ? `${collection.title} | Colecciones | Inkverse` : 'Colección | Inkverse',
+    title: collection ? `${collection.title} | Colecciones | MangaAura` : 'Colección | MangaAura',
     description: collection?.description || 'Colección de manga',
   };
 }

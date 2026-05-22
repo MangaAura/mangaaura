@@ -77,7 +77,7 @@ function register(): void {
       if (userId) {
         await notificationService!.notifyMultiple([userId], {
           type: 'SYSTEM',
-          title: '¡Bienvenido a InkVerse!',
+          title: '¡Bienvenido a MangaAura!',
           message: `¡Hola ${username}! Comienza tu aventura leyendo mangas y ganando XP.`,
           data: { userId },
         } as { type: 'SYSTEM'; title: string; message: string; data: Record<string, unknown> }).catch(err =>

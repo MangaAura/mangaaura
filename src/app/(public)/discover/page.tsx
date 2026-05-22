@@ -4,7 +4,7 @@ import { DiscoverClient } from './DiscoverClient';
 import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
-  title: 'Descubrir | Inkverse',
+  title: 'Descubrir | MangaAura',
   description: 'Descubre nuevos mangas, tendencias y recomendaciones',
 };
 

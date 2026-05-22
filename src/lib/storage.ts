@@ -1,6 +1,6 @@
 /**
  * Vercel Blob Storage Service
- * Centralized storage configuration and operations for InkVerse
+ * Centralized storage configuration and operations for MangaAura
  * @module storage
  */
 

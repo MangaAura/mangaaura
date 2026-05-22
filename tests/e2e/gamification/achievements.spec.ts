@@ -50,7 +50,7 @@ test.describe('Achievements Page', () => {
       // Sign in with test credentials
       await page.goto('/auth/login');
 
-      await page.fill('#login-email', 'user@inkverse.com');
+      await page.fill('#login-email', 'user@mangaaura.es');
       await page.fill('#login-password', 'SecurePass123!');
 
       await page.locator('button[type="submit"]').click();
@@ -137,7 +137,7 @@ test.describe('Achievements Page', () => {
     test.beforeEach(async ({ page }) => {
       // Sign in
       await page.goto('/auth/login');
-      await page.fill('#login-email', 'user@inkverse.com');
+      await page.fill('#login-email', 'user@mangaaura.es');
       await page.fill('#login-password', 'SecurePass123!');
       await page.locator('button[type="submit"]').click();
       await page.waitForURL((url) => !url.pathname.startsWith('/auth/login'), {

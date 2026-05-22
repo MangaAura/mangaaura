@@ -8,8 +8,8 @@ import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'AI Dashboard | Inkverse',
-  description: 'Panel de administración de servicios de IA para Inkverse.',
+  title: 'AI Dashboard | MangaAura',
+  description: 'Panel de administración de servicios de IA para MangaAura.',
   robots: { index: false, follow: false },
 };
 

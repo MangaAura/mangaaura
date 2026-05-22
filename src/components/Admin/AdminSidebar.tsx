@@ -83,7 +83,7 @@ export function AdminSidebar() {
               </div>
               <div>
                 <h1 className="text-lg font-bold">Admin</h1>
-                <p className="text-xs text-[var(--text-secondary)]">InkVerse</p>
+                <p className="text-xs text-[var(--text-secondary)]">MangaAura</p>
               </div>
             </Link>
           </div>

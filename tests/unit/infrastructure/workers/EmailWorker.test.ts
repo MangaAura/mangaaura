@@ -87,7 +87,7 @@ describe('EmailWorker', () => {
         userId: 'user-1',
         username: 'testuser',
         resetToken: 'token-123',
-        resetLink: 'https://inkverse.app/reset/token-123',
+        resetLink: 'https://mangaaura.es/reset/token-123',
       });
 
       await worker.processJob(job);

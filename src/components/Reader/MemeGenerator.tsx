@@ -103,7 +103,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
     try {
       // Añadir watermark
       const watermark = document.createElement('div');
-      watermark.innerText = '📖 InkVerse.app';
+      watermark.innerText = '📖 MangaAura.app';
       watermark.style.cssText = `
         position: absolute;
         bottom: 5px;
@@ -129,7 +129,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
 
       // Descargar
       const link = document.createElement('a');
-      link.download = `inkverse-meme-${Date.now()}.png`;
+      link.download = `mangaaura-meme-${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
 
@@ -162,11 +162,11 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
         canvas.toBlob((b) => resolve(b!), 'image/png')
       );
       
-      const file = new File([blob], 'inkverse-meme.png', { type: 'image/png' });
+      const file = new File([blob], 'mangaaura-meme.png', { type: 'image/png' });
       
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'Meme de InkVerse',
+          title: 'Meme de MangaAura',
           text: `¡Mira este meme de ${mangaTitle} Cap. ${chapterNumber}!`,
           files: [file],
         });

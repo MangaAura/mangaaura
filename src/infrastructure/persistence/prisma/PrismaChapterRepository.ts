@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/generated/prisma/client';
 
 import { Chapter } from '@/core/entities/Chapter';
 import type { ChapterRepository, ChapterFilters } from '@/core/repositories/ChapterRepository';

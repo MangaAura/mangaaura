@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -86,6 +86,9 @@ model User {
   eventVotes       EventVote[]
   createdEvents    Event[]
 
+  @@index([email])
+  @@index([username])
+  @@index([role])
   @@index([xpPoints])
 }
 
@@ -146,6 +149,7 @@ model Chapter {
 
   @@unique([mangaId, chapterNumber])
   @@index([mangaId])
+  @@index([createdAt])
 }
 
 model UserLibrary {
@@ -163,6 +167,7 @@ model UserLibrary {
 
   @@unique([userId, mangaId])
   @@index([userId])
+  @@index([mangaId])
 }
 
 model ReadingProgress {
@@ -185,6 +190,8 @@ model ReadingProgress {
   @@unique([userId, mangaId, chapterId])
   @@index([userId])
   @@index([userId, mangaId])
+  @@index([chapterId])
+  @@index([completed])
 }
 
 model Comment {
@@ -210,6 +217,7 @@ model Comment {
   @@index([chapterId])
   @@index([userId])
   @@index([parentId])
+  @@index([createdAt])
 }
 
 model CommentLike {
@@ -222,6 +230,8 @@ model CommentLike {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
 }
 
 model CommentMention {
@@ -233,6 +243,9 @@ model CommentMention {
 
   comment       Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   mentionedUser User    @relation("Mentions", fields: [mentionedUserId], references: [id], onDelete: Cascade)
+
+  @@index([commentId])
+  @@index([mentionedUserId])
 }
 
 model Notification {
@@ -250,6 +263,7 @@ model Notification {
 
   @@index([userId])
   @@index([userId, isRead])
+  @@index([createdAt])
 }
 
 model Transaction {
@@ -264,6 +278,8 @@ model Transaction {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([type])
+  @@index([timestamp])
 }
 
 model Tip {
@@ -281,6 +297,8 @@ model Tip {
 
   @@index([chapterId])
   @@index([toUserId])
+  @@index([fromUserId])
+  @@index([createdAt])
 }
 
 model CrowdfundingContribution {
@@ -297,6 +315,7 @@ model CrowdfundingContribution {
 
   @@unique([chapterId, userId])
   @@index([chapterId])
+  @@index([userId])
 }
 
 model Clan {
@@ -351,6 +370,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -360,6 +380,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model RefreshToken {
@@ -396,6 +418,7 @@ model UserAchievement {
 
   @@unique([userId, achievementId])
   @@index([userId])
+  @@index([achievementId])
 }
 
 model UserManga {
@@ -481,6 +504,7 @@ model UserActivity {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([activityType])
   @@index([createdAt])
 }
 
@@ -562,7 +586,9 @@ model NewsArticle {
   category    String    @default("platform")
   authorId    String
   isPublished Boolean   @default(false)
+  isFeatured  Boolean   @default(false)
   publishedAt DateTime?
+  scheduledAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -570,7 +596,9 @@ model NewsArticle {
 
   @@index([slug])
   @@index([isPublished])
+  @@index([isFeatured])
   @@index([publishedAt])
+  @@index([scheduledAt])
   @@index([category])
   @@index([createdAt])
 }
@@ -583,6 +611,8 @@ model DailyStats {
   reads     Int      @default(0)
   newUsers  Int      @default(0)
   createdAt DateTime @default(now())
+
+  @@index([date])
 }
 
 model HourlyStats {
@@ -605,6 +635,8 @@ model ReaderRetention {
   createdAt    DateTime @default(now())
 
   @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
 }
 
 model RateLimit {
@@ -846,6 +878,7 @@ model Bookmark {
 
   @@unique([userId, mangaId, chapterId])
   @@index([userId])
+  @@index([mangaId])
 }
 
 model WebhookEndpoint {
@@ -1035,4 +1068,31 @@ model EventVote {
   @@unique([submissionId, userId])
   @@index([submissionId])
   @@index([userId])
+}
+
+// Inbound Email Processing
+model InboundEmail {
+  id              String    @id @default(uuid())
+  messageId       String    @unique
+  fromEmail       String
+  fromName        String?
+  toEmail         String
+  subject         String
+  textBody        String
+  htmlBody        String?
+  intent          String    @default("unknown") // comment_reply, support, report, unsubscribe, spam, unknown
+  confidence      Float?
+  action          String    @default("pending") // replied, forwarded, processed, ignored, pending
+  userId          String?   // identified user
+  metadata        String?   // JSON with extracted entities (commentId, mangaSlug, etc.)
+  internalNotes   String?
+  processedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([fromEmail])
+  @@index([intent])
+  @@index([action])
+  @@index([createdAt])
+  @@index([processedAt])
 }

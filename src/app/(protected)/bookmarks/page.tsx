@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export const metadata: Metadata = {
-  title: 'Marcadores | Inkverse',
+  title: 'Marcadores | MangaAura',
   description: 'Tus mangas y capítulos marcados',
 };
 

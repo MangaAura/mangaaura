@@ -71,7 +71,7 @@ export function HomeContent({
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary">
       <AnimatedHero
-        title={featuredManga?.title ?? 'InkVerse'}
+        title={featuredManga?.title ?? 'MangaAura'}
         description={featuredManga?.description ?? t('home.description')}
         coverUrl={featuredManga?.coverUrl ?? null}
         mangaSlug={featuredManga?.slug ?? ''}

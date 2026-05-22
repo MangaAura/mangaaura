@@ -142,8 +142,8 @@ const nextConfig: NextConfig = {
 // Wrap with Sentry if SENTRY_DSN is configured
 const withSentry = process.env.SENTRY_DSN
   ? withSentryConfig(nextConfig, {
-      org: process.env.SENTRY_ORG || "inkverse",
-      project: process.env.SENTRY_PROJECT || "inkverse-web",
+      org: process.env.SENTRY_ORG || "mangaaura",
+      project: process.env.SENTRY_PROJECT || "mangaaura-web",
       silent: !process.env.CI,
       widenClientFileUpload: true,
       sourcemaps: { disable: false, deleteSourcemapsAfterUpload: true },

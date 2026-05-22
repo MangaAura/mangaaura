@@ -16,7 +16,7 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('@/lib/apiCache', () => ({
   withCache: mockWithCache,
-  generateCacheKey: vi.fn(() => 'inkverse:rankings:test'),
+  generateCacheKey: vi.fn(() => 'mangaaura:rankings:test'),
   cacheConfig: { manga: { list: { ttl: 60 } } },
 }));
 

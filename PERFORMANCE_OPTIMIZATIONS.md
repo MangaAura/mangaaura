@@ -1,8 +1,8 @@
-# InkVerse Performance Optimizations
+# MangaAura Performance Optimizations
 
 ## Summary
 
-This document details all the performance optimizations implemented in the InkVerse Next.js project to improve loading times, reduce bundle sizes, and enhance user experience.
+This document details all the performance optimizations implemented in the MangaAura Next.js project to improve loading times, reduce bundle sizes, and enhance user experience.
 
 ---
 

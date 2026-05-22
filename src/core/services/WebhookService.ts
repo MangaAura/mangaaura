@@ -227,7 +227,7 @@ export class WebhookService {
 
     const { WebhookDeliveryService } = await import('@/infrastructure/adapters/WebhookDeliveryService');
     const deliveryService = new WebhookDeliveryService(this.repo);
-    const testPayload = { message: 'This is a test webhook from InkVerse' };
+    const testPayload = { message: 'This is a test webhook from MangaAura' };
     const delivery = await deliveryService.deliver(endpoint, 'TEST', testPayload);
     return toDeliveryDTO(delivery);
   }

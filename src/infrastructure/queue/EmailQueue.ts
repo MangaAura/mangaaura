@@ -1,5 +1,5 @@
 /**
- * Cola de Emails para InkVerse
+ * Cola de Emails para MangaAura
  * Gestiona el envío asíncrono de emails usando BullMQ
  * @packageDocumentation
  */

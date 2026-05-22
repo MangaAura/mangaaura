@@ -1,6 +1,6 @@
-# InkVerse Components Documentation
+# MangaAura Components Documentation
 
-Documentacion de los componentes React principales de InkVerse.
+Documentacion de los componentes React principales de MangaAura.
 
 ## Tabla de Contenidos
 

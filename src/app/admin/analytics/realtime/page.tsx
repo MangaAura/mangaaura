@@ -8,8 +8,8 @@ import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Real-time Analytics | Inkverse',
-  description: 'Panel de analíticas en tiempo real para administradores de Inkverse.',
+  title: 'Real-time Analytics | MangaAura',
+  description: 'Panel de analíticas en tiempo real para administradores de MangaAura.',
   robots: { index: false, follow: false },
 };
 

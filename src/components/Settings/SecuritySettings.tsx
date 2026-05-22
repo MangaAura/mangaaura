@@ -439,7 +439,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 const blob = new Blob([backupCodes.join('\n')], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url; a.download = 'inkverse-backup-codes.txt'; a.click();
+                a.href = url; a.download = 'mangaaura-backup-codes.txt'; a.click();
                 URL.revokeObjectURL(url);
               }}>
                 <Download className="w-4 h-4 mr-1" /> Descargar

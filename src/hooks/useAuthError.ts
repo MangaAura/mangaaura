@@ -185,7 +185,7 @@ export const authSuccessMessages = {
   },
   REGISTER_SUCCESS: {
     title: '¡Cuenta creada!',
-    message: 'Tu cuenta ha sido creada exitosamente. ¡Bienvenido a InkVerse!',
+    message: 'Tu cuenta ha sido creada exitosamente. ¡Bienvenido a MangaAura!',
   },
   LOGOUT_SUCCESS: {
     title: 'Sesión cerrada',

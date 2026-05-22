@@ -7,7 +7,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
-  title: 'Mis Patrocinios | Inkverse',
+  title: 'Mis Patrocinios | MangaAura',
   description: 'Gestiona tus patrocinios y pujas en capítulos',
 };
 

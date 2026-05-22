@@ -25,7 +25,7 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
     // Title
     doc.setFontSize(18);
     doc.setTextColor(30, 41, 59);
-    doc.text(`InkVerse Analytics - ${type}`, margin, yPos);
+    doc.text(`MangaAura Analytics - ${type}`, margin, yPos);
     yPos += 8;
 
     // Date
@@ -43,7 +43,7 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
       doc.setFontSize(12);
       doc.setTextColor(100, 116, 139);
       doc.text('No data to export', margin, yPos);
-      doc.save(`inkverse-${type}-${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`mangaaura-${type}-${new Date().toISOString().split('T')[0]}.pdf`);
       return;
     }
 
@@ -108,10 +108,10 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
     // Footer
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
-    doc.text('InkVerse Analytics Export', margin, pageHeight - 10);
+    doc.text('MangaAura Analytics Export', margin, pageHeight - 10);
     doc.text(`Generated ${new Date().toISOString().split('T')[0]}`, pageWidth - margin - 40, pageHeight - 10);
 
-    doc.save(`inkverse-${type}-${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`mangaaura-${type}-${new Date().toISOString().split('T')[0]}.pdf`);
   }, []);
 
   const handleExport = useCallback(async () => {
@@ -157,7 +157,7 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
 
         const disposition = res.headers.get('Content-Disposition') || '';
         const match = disposition.match(/filename="?(.+?)"?$/);
-        const filename = match?.[1] || `inkverse-${type}.${format}`;
+        const filename = match?.[1] || `mangaaura-${type}.${format}`;
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

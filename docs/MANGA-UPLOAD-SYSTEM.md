@@ -1,4 +1,4 @@
-# Sistema de Subida de Mangas - InkVerse
+# Sistema de Subida de Mangas - MangaAura
 
 Sistema completo para creadores de subir mangas y capítulos con Vercel Blob.
 

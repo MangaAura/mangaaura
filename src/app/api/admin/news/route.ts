@@ -21,6 +21,8 @@ const createSchema = z.object({
   coverUrl: z.string().url('URL de portada inválida').nullable().optional(),
   category: z.enum(['platform', 'community', 'tools', 'mobile', 'contest']).default('platform'),
   isPublished: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
+  scheduledAt: z.string().nullable().optional(),
 });
 
 export async function GET() {
@@ -117,6 +119,7 @@ export async function POST(request: NextRequest) {
         authorId: userId,
         isPublished: data.isPublished,
         publishedAt: data.isPublished ? new Date() : null,
+        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
       },
       include: {
         author: {

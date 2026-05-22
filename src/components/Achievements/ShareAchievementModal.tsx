@@ -34,7 +34,7 @@ interface ShareAchievementProps {
 
 const BASE_URL = typeof window !== 'undefined'
   ? `${window.location.protocol}//${window.location.host}`
-  : 'https://inkverse.app';
+  : 'https://mangaaura.es';
 
 export function ShareAchievementModal({
   open,
@@ -46,7 +46,7 @@ export function ShareAchievementModal({
   userName,
 }: ShareAchievementProps) {
   const { data: session } = useSession();
-  const displayName = userName || session?.user?.name || 'InkVerse';
+  const displayName = userName || session?.user?.name || 'MangaAura';
   const [copied, setCopied] = useState(false);
   const [ogLoading, setOgLoading] = useState(true);
   const [ogFailed, setOgFailed] = useState(false);
@@ -55,7 +55,7 @@ export function ShareAchievementModal({
 
   const shareUrl = `${BASE_URL}/achievements?share=${encodeURIComponent(badgeId)}`;
 
-  const shareText = `¡He desbloqueado el logro "${achievementName}" (+${xpReward} XP) en InkVerse! 🏆`;
+  const shareText = `¡He desbloqueado el logro "${achievementName}" (+${xpReward} XP) en MangaAura! 🏆`;
 
   const handleCopyLink = useCallback(async () => {
     try {
@@ -89,7 +89,7 @@ export function ShareAchievementModal({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Logro Desbloqueado en InkVerse',
+          title: 'Logro Desbloqueado en MangaAura',
           text: shareText,
           url: shareUrl,
         });

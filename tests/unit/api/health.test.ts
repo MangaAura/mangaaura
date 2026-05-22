@@ -4,12 +4,13 @@ const mockPrisma = vi.hoisted(() => ({
   prisma: { $queryRaw: vi.fn() },
 }));
 
-const mockRedis = vi.hoisted(() => ({
-  redis: { ping: vi.fn() },
+const mockRedisStatus = vi.hoisted(() => ({
+  getRedisStatus: vi.fn(),
+  isMockRedis: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => mockPrisma);
-vi.mock('@/lib/cache', () => mockRedis);
+vi.mock('@/lib/redis', () => mockRedisStatus);
 
 import { GET } from '@/app/api/health/route';
 
@@ -20,7 +21,8 @@ describe('GET /api/health', () => {
 
   it('returns 200 with healthy status when db and redis are up', async () => {
     mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
-    mockRedis.redis.ping.mockResolvedValue('PONG');
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
 
     const response = await GET();
     const data = await response.json();
@@ -33,7 +35,8 @@ describe('GET /api/health', () => {
 
   it('returns 503 degraded when database fails', async () => {
     mockPrisma.prisma.$queryRaw.mockRejectedValue(new Error('DB down'));
-    mockRedis.redis.ping.mockResolvedValue('PONG');
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
 
     const response = await GET();
     const data = await response.json();
@@ -46,7 +49,8 @@ describe('GET /api/health', () => {
 
   it('returns 503 degraded when redis fails', async () => {
     mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
-    mockRedis.redis.ping.mockRejectedValue(new Error('Redis down'));
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: false, isMock: false, mode: 'disconnected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
 
     const response = await GET();
     const data = await response.json();
@@ -59,7 +63,8 @@ describe('GET /api/health', () => {
 
   it('includes timestamp, version, and environment', async () => {
     mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
-    mockRedis.redis.ping.mockResolvedValue('PONG');
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
 
     const response = await GET();
     const data = await response.json();
@@ -71,7 +76,8 @@ describe('GET /api/health', () => {
 
   it('sets Cache-Control: no-store header', async () => {
     mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
-    mockRedis.redis.ping.mockResolvedValue('PONG');
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
 
     const response = await GET();
 

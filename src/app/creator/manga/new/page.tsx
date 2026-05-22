@@ -7,13 +7,14 @@ import {
   PlusIcon,
   AlertCircleIcon,
   CheckIcon,
+  CropIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useCallback, useRef } from 'react';
 
-
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -26,7 +27,7 @@ export default function NewMangaPage() {
   const router = useRouter();
   const t = useT();
   const { createManga, isCreating, validateField } = useCreateManga();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cropperRef = useRef<ImageCropperUploaderHandle>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -38,6 +39,7 @@ export default function NewMangaPage() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [tagList, setTagList] = useState<string[]>([]);
+
 
   const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {};
@@ -69,34 +71,19 @@ export default function NewMangaPage() {
     }
   };
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        setErrors((prev) => ({ ...prev, cover: t('creatorMangaNew.errorImageType') }));
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, cover: t('creatorMangaNew.errorImageSize') }));
-        return;
-      }
-      
-      setCoverFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      setErrors((prev) => ({ ...prev, cover: '' }));
-    }
+  const handleCropConfirm = (croppedBlob: Blob) => {
+    // Create a File from the cropped blob
+    const croppedFile = new File([croppedBlob], 'cover.webp', { type: 'image/webp' });
+    setCoverFile(croppedFile);
+
+    // Show local preview immediately
+    const previewUrl = URL.createObjectURL(croppedBlob);
+    setCoverPreview(previewUrl);
   };
 
   const removeCover = () => {
     setCoverPreview(null);
     setCoverFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   const addTag = () => {
@@ -301,7 +288,7 @@ export default function NewMangaPage() {
                 </CardHeader>
                 <CardContent>
                   <div
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => cropperRef.current?.open()}
                     className={cn(
                       'relative aspect-[3/4] rounded-lg border-2 border-dashed cursor-pointer overflow-hidden transition-colors',
                       coverPreview
@@ -339,14 +326,13 @@ export default function NewMangaPage() {
                         </p>
                       </div>
                     )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleCoverChange}
-                      className="hidden"
-                    />
                   </div>
+                  {coverPreview && (
+                    <div className="flex items-center gap-1.5 mt-2 text-xs text-[var(--text-tertiary)]">
+                      <CropIcon className="w-3 h-3" />
+                      <span>Recortada a formato 3:4</span>
+                    </div>
+                  )}
         {errors.cover && (
           <p className="mt-2 text-xs text-red-500 flex items-center gap-1" role="alert">
             <AlertCircleIcon className="w-3 h-3" aria-hidden="true" />
@@ -355,6 +341,16 @@ export default function NewMangaPage() {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Image Cropper — handles file select + crop lifecycle */}
+              <ImageCropperUploader
+                ref={cropperRef}
+                aspect={3 / 4}
+                cropperTitle="Ajustar portada del manga"
+                cropperSubtitle="Arrastra para encuadrar · Ratio 3:4 (vertical)"
+                onCropComplete={handleCropConfirm}
+                onError={(error: string) => setErrors((prev) => ({ ...prev, cover: error }))}
+              />
 
               {/* Preview Card */}
               <Card>

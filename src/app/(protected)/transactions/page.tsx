@@ -5,8 +5,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: 'Historial de Transacciones | InkVerse',
-  description: 'Revisa tu historial de transacciones en InkVerse',
+  title: 'Historial de Transacciones | MangaAura',
+  description: 'Revisa tu historial de transacciones en MangaAura',
 };
 
 async function getTransactions(userId: string) {

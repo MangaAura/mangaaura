@@ -75,7 +75,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
       ctx.font = `bold ${Math.max(fontSize / 3, 12)}px monospace`;
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.textAlign = 'right';
-      ctx.fillText('INKVERSE', canvas.width - 10, canvas.height - 10);
+      ctx.fillText('MANGA AURA', canvas.width - 10, canvas.height - 10);
     };
     img.src = imageUrl;
   }, [imageUrl, topText, bottomText]);
@@ -88,7 +88,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
       const canvas = canvasRef.current;
       if (!canvas) return;
       const link = document.createElement('a');
-      link.download = `meme-inkverse-${Date.now()}.png`;
+      link.download = `meme-mangaaura-${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     });
@@ -161,7 +161,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
             </div>
 
             <div className="absolute bottom-2 right-2 text-[var(--text-inverse)]/50 text-xs font-bold font-mono">
-              INKVERSE
+              MANGA AURA
             </div>
           </div>
 

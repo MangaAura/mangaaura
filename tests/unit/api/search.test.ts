@@ -22,7 +22,7 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('@/lib/apiCache', () => ({
   withCache: mockWithCache,
-  generateCacheKey: vi.fn(() => 'inkverse:search:mangas:test'),
+  generateCacheKey: vi.fn(() => 'mangaaura:search:mangas:test'),
   cacheConfig: { manga: { list: { ttl: 300 } } },
 }));
 

@@ -7,8 +7,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: 'Mis Comentarios | InkVerse',
-  description: 'Administra todos tus comentarios en InkVerse',
+  title: 'Mis Comentarios | MangaAura',
+  description: 'Administra todos tus comentarios en MangaAura',
 };
 
 interface CommentWithRelations {

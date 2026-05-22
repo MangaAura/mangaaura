@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: 'Correcciones | InkVerse',
+  title: 'Correcciones | MangaAura',
   description: 'Revisa y envía correcciones de capítulos',
 };
 

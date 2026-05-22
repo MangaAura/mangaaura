@@ -1,6 +1,6 @@
 # Sistema de IA en Paralelo - Fase 5
 
-Sistema unificado de inferencia paralela para Inkverse, diseñado para escalar el procesamiento de IA con múltiples modelos simultáneamente.
+Sistema unificado de inferencia paralela para MangaAura, diseñado para escalar el procesamiento de IA con múltiples modelos simultáneamente.
 
 ## Arquitectura
 

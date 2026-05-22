@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./prisma/dev.db' });
+const prisma = new PrismaClient({ adapter });
 
 // Type definitions for string enums
 const UserRole = {
@@ -34,10 +36,10 @@ async function main() {
   const users = await Promise.all([
     // Admin
     prisma.user.upsert({
-      where: { email: 'admin@inkverse.com' },
+      where: { email: 'admin@mangaaura.es' },
       update: {},
       create: {
-        email: 'admin@inkverse.com',
+        email: 'admin@mangaaura.es',
         username: 'admin',
         passwordHash: hashedPassword,
         emailVerified: new Date(),
@@ -50,10 +52,10 @@ async function main() {
     }),
     // Creador
     prisma.user.upsert({
-      where: { email: 'creator@inkverse.com' },
+      where: { email: 'creator@mangaaura.es' },
       update: {},
       create: {
-        email: 'creator@inkverse.com',
+        email: 'creator@mangaaura.es',
         username: 'aiartist',
         displayName: 'AI Artist Pro',
         passwordHash: hashedPassword,
@@ -67,10 +69,10 @@ async function main() {
     }),
     // Usuario normal
     prisma.user.upsert({
-      where: { email: 'user@inkverse.com' },
+      where: { email: 'user@mangaaura.es' },
       update: {},
       create: {
-        email: 'user@inkverse.com',
+        email: 'user@mangaaura.es',
         username: 'otakulvl99',
         displayName: 'Lector Experto',
         passwordHash: hashedPassword,
@@ -84,10 +86,10 @@ async function main() {
     }),
     // Novato
     prisma.user.upsert({
-      where: { email: 'newbie@inkverse.com' },
+      where: { email: 'newbie@mangaaura.es' },
       update: {},
       create: {
-        email: 'newbie@inkverse.com',
+        email: 'newbie@mangaaura.es',
         username: 'manganoob',
         passwordHash: hashedPassword,
         emailVerified: new Date(),
@@ -353,13 +355,21 @@ async function main() {
   // Crear algunos logros desbloqueados
   // Use achievement.id (UUID) instead of badgeId
   if (createdAchievements.length >= 6) {
-    await prisma.userAchievement.createMany({
-      data: [
-        { userId: users[2].id, achievementId: createdAchievements[0].id },
-        { userId: users[2].id, achievementId: createdAchievements[4].id },
-        { userId: users[2].id, achievementId: createdAchievements[5].id },
-      ],
-    });
+    for (const achievement of [createdAchievements[0], createdAchievements[4], createdAchievements[5]]) {
+      await prisma.userAchievement.upsert({
+        where: {
+          userId_achievementId: {
+            userId: users[2].id,
+            achievementId: achievement.id,
+          },
+        },
+        update: {},
+        create: {
+          userId: users[2].id,
+          achievementId: achievement.id,
+        },
+      });
+    }
   }
 
   console.log('✅ Logros desbloqueados asignados');
@@ -406,7 +416,7 @@ async function main() {
     prisma.forumCategory.upsert({
       where: { slug: 'announcements' },
       update: {},
-      create: { name: 'Anuncios', slug: 'announcements', description: 'Novedades y anuncios oficiales de InkVerse', icon: 'Megaphone', order: 5 },
+      create: { name: 'Anuncios', slug: 'announcements', description: 'Novedades y anuncios oficiales de MangaAura', icon: 'Megaphone', order: 5 },
     }),
   ]);
 
@@ -562,10 +572,10 @@ async function main() {
 
   console.log('\n🎉 Seed completado exitosamente!');
   console.log('\nCredenciales de prueba:');
-  console.log('  Admin: admin@inkverse.com / SecurePass123!');
-  console.log('  Creador: creator@inkverse.com / SecurePass123!');
-  console.log('  Usuario: user@inkverse.com / SecurePass123!');
-  console.log('  Novato: newbie@inkverse.com / SecurePass123!');
+  console.log('  Admin: admin@mangaaura.es / SecurePass123!');
+  console.log('  Creador: creator@mangaaura.es / SecurePass123!');
+  console.log('  Usuario: user@mangaaura.es / SecurePass123!');
+  console.log('  Novato: newbie@mangaaura.es / SecurePass123!');
 }
 
 main()

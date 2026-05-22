@@ -30,10 +30,10 @@ const displayFont = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: "InkVerse - Plataforma de Manga",
-  description: "Descubre, lee y comparte manga de calidad en InkVerse. La mejor plataforma para creadores y lectores de manga.",
-  keywords: ["manga", "lector", "anime", "comics", "inkverse", "lectura", "subtitulos"],
-  authors: [{ name: "InkVerse" }],
+  title: "MangaAura - Plataforma de Manga",
+  description: "Descubre, lee y comparte manga de calidad en MangaAura. La mejor plataforma para creadores y lectores de manga.",
+  keywords: ["manga", "lector", "anime", "comics", "mangaaura", "lectura", "subtitulos"],
+  authors: [{ name: "MangaAura" }],
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -46,15 +46,15 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "InkVerse - Plataforma de Manga",
-    description: "Descubre, lee y comparte manga de calidad en InkVerse",
-    siteName: "InkVerse",
+    title: "MangaAura - Plataforma de Manga",
+    description: "Descubre, lee y comparte manga de calidad en MangaAura",
+    siteName: "MangaAura",
     locale: "es_ES",
   },
   twitter: {
     card: "summary_large_image",
-    title: "InkVerse - Plataforma de Manga",
-    description: "Descubre, lee y comparte manga de calidad en InkVerse",
+    title: "MangaAura - Plataforma de Manga",
+    description: "Descubre, lee y comparte manga de calidad en MangaAura",
   },
   robots: {
     index: true,
@@ -66,10 +66,10 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "InkVerse",
+    title: "MangaAura",
     statusBarStyle: "black-translucent",
   },
-  applicationName: "InkVerse",
+  applicationName: "MangaAura",
   formatDetection: {
     telephone: false,
   },
@@ -173,7 +173,7 @@ export default async function RootLayout({
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var e=localStorage.getItem("inkverse-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
+            __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
           }}
         />
         <Providers locale={htmlLang}>

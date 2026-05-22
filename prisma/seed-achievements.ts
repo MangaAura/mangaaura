@@ -1,14 +1,16 @@
 /**
- * Seed de logros (achievements) para InkVerse
+ * Seed de logros (achievements) para MangaAura
  * Define los logros iniciales con sus condiciones y recompensas
  * @packageDocumentation
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 
 import type { AchievementCondition } from '@/core/services/IAchievementRepository';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./prisma/dev.db' });
+const prisma = new PrismaClient({ adapter });
 
 export type { AchievementCondition };
 
@@ -27,14 +29,14 @@ interface AchievementDefinition {
 }
 
 /**
- * Logros iniciales de InkVerse
+ * Logros iniciales de MangaAura
  */
 export const achievements: AchievementDefinition[] = [
   // Logros de lectura
   {
     badgeId: 'PRIMEROS_PASOS',
     name: 'Primeros Pasos',
-    description: 'Lee tu primer capítulo en InkVerse',
+    description: 'Lee tu primer capítulo en MangaAura',
     xpReward: 100,
     iconUrl: '/badges/primeros-pasos.svg',
     condition: { type: 'CHAPTERS_READ', count: 1 },

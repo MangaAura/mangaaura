@@ -7,13 +7,13 @@ import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidad - InkVerse',
-  description: 'Cómo InkVerse recopila, usa y protege tu información personal',
+  title: 'Política de Privacidad - MangaAura',
+  description: 'Cómo MangaAura recopila, usa y protege tu información personal',
   openGraph: {
-    title: 'Política de Privacidad - InkVerse',
-    description: 'Cómo InkVerse recopila, usa y protege tu información personal',
+    title: 'Política de Privacidad - MangaAura',
+    description: 'Cómo MangaAura recopila, usa y protege tu información personal',
     type: 'website',
-    siteName: 'InkVerse',
+    siteName: 'MangaAura',
     locale: 'es_ES',
   },
 };
@@ -178,11 +178,11 @@ export default async function PrivacyPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
-              href="mailto:privacy@inkverse.app"
+              href="mailto:privacy@mangaaura.es"
               className="inline-flex items-center justify-center gap-2 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-medium px-6 py-3 rounded-xl transition-colors"
             >
               <Mail className="w-4 h-4" />
-              privacy@inkverse.app
+              privacy@mangaaura.es
             </a>
           </div>
         </div>

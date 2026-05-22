@@ -27,7 +27,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/inkverse?schema=publ
 #### MongoDB (Opcional en desarrollo)
 
 ```env
-MONGODB_URI="mongodb://localhost:27017/inkverse_dev"
+MONGODB_URI="mongodb://localhost:27017/mangaaura_dev"
 ```
 
 #### Redis (Opcional en desarrollo)
@@ -74,7 +74,7 @@ Agrega cada variable:
 | `MONGODB_URI` | `mongodb+srv://...` | Production |
 | `REDIS_URL` | `rediss://...` | Production |
 | `NEXTAUTH_SECRET` | `abc123...` | Production |
-| `NEXTAUTH_URL` | `https://inkverse.app` | Production |
+| `NEXTAUTH_URL` | `https://mangaaura.es` | Production |
 | `NVIDIA_API_KEY` | `nvapi-...` | Production |
 | `GOOGLE_CLIENT_ID` | `...apps.googleusercontent.com` | Production |
 | `GOOGLE_CLIENT_SECRET` | `...` | Production |
@@ -131,7 +131,7 @@ Estas variables tienen valores por defecto y son opcionales:
 | Variable | Default | Descripción |
 |----------|---------|-------------|
 | `NODE_ENV` | `development` | Entorno de ejecución |
-| `APP_NAME` | `InkVerse` | Nombre de la app |
+| `APP_NAME` | `MangaAura` | Nombre de la app |
 | `APP_URL` | `http://localhost:3000` | URL base |
 | `AI_PROVIDER` | `in-memory` | Proveedor de IA |
 | `AI_RATE_LIMIT` | `40` | Límite de requests/min |

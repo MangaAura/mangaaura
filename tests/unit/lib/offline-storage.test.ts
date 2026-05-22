@@ -81,7 +81,7 @@ describe('OfflineStorage', () => {
   it('initializes IndexedDB on first call', async () => {
     const { offlineStorage } = await import('@/lib/offline-storage');
     await offlineStorage.init();
-    expect(mockIndexedDB.open).toHaveBeenCalledWith('inkverse-offline', 1);
+    expect(mockIndexedDB.open).toHaveBeenCalledWith('mangaaura-offline', 1);
   });
 
   it('does not reinitialize after first init', async () => {

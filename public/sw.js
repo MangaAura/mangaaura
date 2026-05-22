@@ -1,5 +1,5 @@
 /**
- * Service Worker para InkVerse PWA
+ * Service Worker para MangaAura PWA
  * 
  * Estrategias de cache:
  * - App Shell: CacheFirst
@@ -9,11 +9,11 @@
  */
 
 const CACHE_VERSION = 'v2.0.0';
-const STATIC_CACHE = `inkverse-static-${CACHE_VERSION}`;
-const IMAGE_CACHE = `inkverse-images-${CACHE_VERSION}`;
-const API_CACHE = `inkverse-api-${CACHE_VERSION}`;
-const FONT_CACHE = `inkverse-fonts-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `inkverse-runtime-${CACHE_VERSION}`;
+const STATIC_CACHE = `mangaaura-static-${CACHE_VERSION}`;
+const IMAGE_CACHE = `mangaaura-images-${CACHE_VERSION}`;
+const API_CACHE = `mangaaura-api-${CACHE_VERSION}`;
+const FONT_CACHE = `mangaaura-fonts-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `mangaaura-runtime-${CACHE_VERSION}`;
 
 // App Shell - Recursos críticos para la app
 const APP_SHELL = [
@@ -86,8 +86,8 @@ function isTrustedOrigin(url) {
     self.location.origin,
     'https://fonts.googleapis.com',
     'https://fonts.gstatic.com',
-    'https://images.inkverse.com',
-    'https://cdn.inkverse.com',
+    'https://images.mangaaura.es',
+    'https://cdn.mangaaura.es',
   ];
   return trustedOrigins.some(origin => url.startsWith(origin));
 }
@@ -287,7 +287,7 @@ async function handleAppShellRequest(request) {
         return await fetch('/offline');
       } catch {
         return new Response(
-          '<!DOCTYPE html><html><head><title>Offline</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:20px}div{max-width:400px}h1{font-size:1.5rem;margin-bottom:1rem}p{color:#94a3b8;line-height:1.5}</style></head><body><div><h1>Sin conexión</h1><p>Parece que no tienes conexión a internet. Conéctate para seguir usando InkVerse.</p></div></body></html>',
+          '<!DOCTYPE html><html><head><title>Offline</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:20px}div{max-width:400px}h1{font-size:1.5rem;margin-bottom:1rem}p{color:#94a3b8;line-height:1.5}</style></head><body><div><h1>Sin conexión</h1><p>Parece que no tienes conexión a internet. Conéctate para seguir usando MangaAura.</p></div></body></html>',
           { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
         );
       }

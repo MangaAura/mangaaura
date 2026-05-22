@@ -32,6 +32,7 @@ const postCommentUseCase = new PostCommentUseCase(
     generateNotificationHook: async () => '',
     classifyGenre: async () => [],
     classifyQuality: async () => ({ score: 0, issues: [], overallQuality: 'fair' }),
+    classifyEmailIntent: async () => ({ intent: 'unknown', confidence: 0, requiresHuman: true, suggestedResponse: null, extractedEntities: { userId: null, mangaSlug: null, commentId: null } }),
   },
   new AchievementServiceAdapter()
 );

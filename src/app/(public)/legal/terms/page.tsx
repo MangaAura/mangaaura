@@ -7,13 +7,13 @@ import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 
 export const metadata: Metadata = {
-  title: 'Términos de Servicio - InkVerse',
-  description: 'Términos y condiciones de uso de InkVerse',
+  title: 'Términos de Servicio - MangaAura',
+  description: 'Términos y condiciones de uso de MangaAura',
   openGraph: {
-    title: 'Términos de Servicio - InkVerse',
-    description: 'Términos y condiciones de uso de InkVerse',
+    title: 'Términos de Servicio - MangaAura',
+    description: 'Términos y condiciones de uso de MangaAura',
     type: 'website',
-    siteName: 'InkVerse',
+    siteName: 'MangaAura',
     locale: 'es_ES',
   },
 };

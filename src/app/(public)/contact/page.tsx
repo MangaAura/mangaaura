@@ -106,7 +106,7 @@ export default function ContactPage() {
           {[
             { icon: <HelpCircle className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.faq'), desc: t('contact.info.faqDesc') },
             { icon: <MessageSquare className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.support'), desc: t('contact.info.supportDesc') },
-            { icon: <Mail className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.email'), desc: 'soporte@inkverse.app' }
+            { icon: <Mail className="w-6 h-6" aria-hidden="true" />, title: t('contact.info.email'), desc: 'soporte@mangaaura.es' }
           ].map((item, index) => (
             <div key={item.title || `contact-card-${index}`} className="bg-secondary border border-custom rounded-xl p-6 text-center">
               <div className="w-12 h-12 bg-accent-blue/10 rounded-full flex items-center justify-center mx-auto mb-3 text-accent-blue">

@@ -1,12 +1,12 @@
 /**
- * Templates de Email para InkVerse
+ * Templates de Email para MangaAura
  * Todos los templates incluyen versión HTML y texto plano
  * @packageDocumentation
  */
 
 import { EmailTemplate } from '../EmailService';
 
-// Colores y branding de InkVerse
+// Colores y branding de MangaAura
 const COLORS = {
   primary: '#6366f1', // Indigo 500
   primaryDark: '#4f46e5', // Indigo 600
@@ -19,7 +19,7 @@ const COLORS = {
   warning: '#f59e0b', // Amber 500
 };
 
-const APP_URL = process.env.NEXTAUTH_URL || 'https://inkverse.app';
+const APP_URL = process.env.NEXTAUTH_URL || 'https://mangaaura.es';
 
 // ============================================================================
 // Layout Base
@@ -32,7 +32,7 @@ function baseTemplate(content: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkVerse</title>
+  <title>MangaAura</title>
   <style>
     body {
       margin: 0;
@@ -145,7 +145,7 @@ function baseTemplate(content: string): string {
 function baseHeader(): string {
   return `
     <div class="header">
-      <h1>🌌 InkVerse</h1>
+      <h1>🌌 MangaAura</h1>
       <p>Tu universo de manga comienza aquí</p>
     </div>
 `;
@@ -154,7 +154,7 @@ function baseHeader(): string {
 function baseFooter(): string {
   return `
     <div class="footer">
-      <p>InkVerse © ${new Date().getFullYear()} - Todos los derechos reservados</p>
+      <p>MangaAura © ${new Date().getFullYear()} - Todos los derechos reservados</p>
       <p style="margin-top: 8px;">
         <a href="${APP_URL}/settings/notifications">Gestionar preferencias de email</a> |
         <a href="${APP_URL}/privacy">Política de privacidad</a>
@@ -168,7 +168,7 @@ function baseFooter(): string {
 // ============================================================================
 
 export function getWelcomeTemplate(username: string): EmailTemplate {
-  const subject = `¡Bienvenido a InkVerse, ${username}! 🎉`;
+  const subject = `¡Bienvenido a MangaAura, ${username}! 🎉`;
 
   const html = baseTemplate(`
     ${baseHeader()}
@@ -176,7 +176,7 @@ export function getWelcomeTemplate(username: string): EmailTemplate {
       <h2 style="color: ${COLORS.text}; margin-top: 0;">¡Hola ${username}! 👋</h2>
       
       <p style="color: ${COLORS.textMuted}; font-size: 16px; line-height: 1.6;">
-        Bienvenido a <span class="highlight">InkVerse</span>, tu nuevo hogar para descubrir, leer y crear mangas increíbles.
+        Bienvenido a <span class="highlight">MangaAura</span>, tu nuevo hogar para descubrir, leer y crear mangas increíbles.
       </p>
 
       <div class="card">
@@ -187,7 +187,7 @@ export function getWelcomeTemplate(username: string): EmailTemplate {
       </div>
 
       <p style="color: ${COLORS.textMuted}; font-size: 16px; line-height: 1.6;">
-        Con InkVerse puedes:
+        Con MangaAura puedes:
       </p>
       
       <ul style="color: ${COLORS.textMuted}; line-height: 1.8;">
@@ -210,16 +210,16 @@ export function getWelcomeTemplate(username: string): EmailTemplate {
   `);
 
   const text = `
-¡Bienvenido a InkVerse, ${username}!
+¡Bienvenido a MangaAura, ${username}!
 
 Hola ${username}! 👋
 
-Bienvenido a InkVerse, tu nuevo hogar para descubrir, leer y crear mangas increíbles.
+Bienvenido a MangaAura, tu nuevo hogar para descubrir, leer y crear mangas increíbles.
 
 🎁 BONUS DE BIENVENIDA
 Hemos agregado 50 InkCoins a tu cuenta para que empieces a disfrutar.
 
-CON INKVERSE PUEDES:
+CON MANGA AURA PUEDES:
 📚 Descubrir miles de mangas únicos
 ⭐ Crear tu lista personalizada
 🏆 Desbloquear logros y subir de nivel
@@ -231,7 +231,7 @@ EMPIEZA AHORA: ${APP_URL}/explore
 ¿Tienes preguntas? Visita: ${APP_URL}/help
 
 ---
-InkVerse © ${new Date().getFullYear()}
+MangaAura © ${new Date().getFullYear()}
 Gestionar preferencias: ${APP_URL}/settings/notifications
   `;
 
@@ -243,7 +243,7 @@ Gestionar preferencias: ${APP_URL}/settings/notifications
 // ============================================================================
 
 export function getPasswordResetTemplate(username: string, resetLink: string): EmailTemplate {
-  const subject = '🔐 Recuperación de contraseña - InkVerse';
+  const subject = '🔐 Recuperación de contraseña - MangaAura';
 
   const html = baseTemplate(`
     ${baseHeader()}
@@ -280,7 +280,7 @@ export function getPasswordResetTemplate(username: string, resetLink: string): E
   `);
 
   const text = `
-Recuperación de contraseña - InkVerse
+Recuperación de contraseña - MangaAura
 
 Hola ${username},
 
@@ -292,7 +292,7 @@ ${resetLink}
 Si no solicitaste este cambio, puedes ignorar este email.
 
 ---
-InkVerse © ${new Date().getFullYear()}
+MangaAura © ${new Date().getFullYear()}
   `;
 
   return { subject, html, text };
@@ -355,7 +355,7 @@ ${chapterTitle}
 LEER AHORA: ${chapterLink}
 
 ---
-InkVerse © ${new Date().getFullYear()}
+MangaAura © ${new Date().getFullYear()}
 Gestionar preferencias: ${APP_URL}/settings/notifications
   `;
 
@@ -427,7 +427,7 @@ Ver todos mis logros: ${APP_URL}/profile/achievements
 Sigue leyendo y participando para desbloquear más logros. ¡Hay muchos más esperándote!
 
 ---
-InkVerse © ${new Date().getFullYear()}
+MangaAura © ${new Date().getFullYear()}
   `;
 
   return { subject, html, text };
@@ -506,7 +506,7 @@ Ver transacciones: ${APP_URL}/profile/transactions
 ¡Gracias por crear contenido increíble! Tus lectores aprecian tu trabajo.
 
 ---
-InkVerse © ${new Date().getFullYear()}
+MangaAura © ${new Date().getFullYear()}
   `;
 
   return { subject, html, text };
@@ -584,7 +584,7 @@ Ver capítulo: ${chapterLink}
 ¡Comparte el logro con tus amigos!
 
 ---
-InkVerse © ${new Date().getFullYear()}
+MangaAura © ${new Date().getFullYear()}
   `;
 
   return { subject, html, text };

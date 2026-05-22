@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/generated/prisma/client';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 
 // ── Shared Prisma query (deduplicated across metadata and page) ──
 
-const clanInclude = Prisma.validator<Prisma.ClanInclude>()({
+const clanInclude = {
   members: {
     include: {
       user: {
@@ -28,7 +28,7 @@ const clanInclude = Prisma.validator<Prisma.ClanInclude>()({
       { contributedScore: 'desc' },
     ],
   },
-});
+} satisfies Prisma.ClanInclude;
 
 const getClan = cache(async (slug: string) => {
   // Try by name first
@@ -59,15 +59,15 @@ export async function generateMetadata({
   const clan = await getClan(slug);
 
   if (!clan) {
-    return { title: 'Clan no encontrado - InkVerse' };
+    return { title: 'Clan no encontrado - MangaAura' };
   }
 
   return {
-    title: `${clan.name} - InkVerse`,
+    title: `${clan.name} - MangaAura`,
     description:
-      clan.description?.slice(0, 160) || `Clan ${clan.name} en InkVerse`,
+      clan.description?.slice(0, 160) || `Clan ${clan.name} en MangaAura`,
     openGraph: {
-      title: `${clan.name} - Clan en InkVerse`,
+      title: `${clan.name} - Clan en MangaAura`,
       description: clan.description?.slice(0, 160) || undefined,
     },
   };
@@ -87,8 +87,8 @@ export default async function ClanDetailPage({
     notFound();
   }
 
-  const session = await auth();
-  const userId = session?.user?.id || null;    const members = (clan.members || []).map((m) => ({
+  const session = await auth();    const userId = session?.user?.id || null;
+    const members = (clan.members || []).map((m) => ({
       ...m,
       joinedAt: m.joinedAt.toISOString(),
     }));
@@ -104,8 +104,8 @@ export default async function ClanDetailPage({
           members,
           memberCount: members.length,
         }}
-      userMembership={userMembership as { role: 'MEMBER' | 'LEADER' | 'OFFICER' } | null}
-      userId={userId}
-    />
-  );
+        userMembership={userMembership as { role: 'MEMBER' | 'LEADER' | 'OFFICER' } | null}
+        userId={userId}
+      />
+    );
 }

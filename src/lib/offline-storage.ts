@@ -7,7 +7,7 @@
  * para permitir lectura offline de capítulos de manga.
  */
 
-const DB_NAME = 'inkverse-offline';
+const DB_NAME = 'mangaaura-offline';
 const DB_VERSION = 1;
 
 interface OfflineChapter {

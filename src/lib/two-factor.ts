@@ -22,7 +22,7 @@ export async function generateTwoFactorSecret(userId: string, email: string) {
   const secret = new Secret({ size: 20 });
   const totp = new TOTP({
     secret,
-    issuer: 'InkVerse',
+    issuer: 'MangaAura',
     label: email,
   });
 
@@ -42,7 +42,7 @@ export function verifyTOTP(secretBase32: string, token: string): boolean {
     const secret = Secret.fromBase32(secretBase32);
     const totp = new TOTP({
       secret,
-      issuer: 'InkVerse',
+      issuer: 'MangaAura',
       label: 'user',
     });
     const delta = totp.validate({ token, window: 1 });

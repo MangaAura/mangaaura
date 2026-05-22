@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/Layout/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Inkverse',
+  title: 'MangaAura',
   description: 'Plataforma de manga para creadores y lectores.',
 };
 

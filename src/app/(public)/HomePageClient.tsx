@@ -165,7 +165,7 @@ export function HomePageClient({
               </section>
             </AnimatedContainer>
 
-            {/* Noticias de InkVerse */}
+            {/* Noticias de MangaAura */}
             <AnimatedContainer viewport>
               <HomeNewsSection />
             </AnimatedContainer>

@@ -1,6 +1,6 @@
-# Contribuyendo a InkVerse
+# Contribuyendo a MangaAura
 
-¡Gracias por tu interés en contribuir a InkVerse! Este documento te guiará en el proceso de contribución.
+¡Gracias por tu interés en contribuir a MangaAura! Este documento te guiará en el proceso de contribución.
 
 ## Código de Conducta
 

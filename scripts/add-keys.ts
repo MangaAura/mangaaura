@@ -13,12 +13,12 @@ const en = JSON.parse(readFileSync(enPath, 'utf-8'));
 // ─── help.faq ──────────────────────────────────────────────────────────
 en.help.faq = {
   general: {
-    whatIsInkverse: {
-      q: "What is InkVerse?",
-      a: "InkVerse is a platform to discover, read and share manga. We offer an extensive manga library with online reading, achievement system, active community and creator tools."
+    whatIsMangaAura: {
+      q: "What is MangaAura?",
+      a: "MangaAura is a platform to discover, read and share manga. We offer an extensive manga library with online reading, achievement system, active community and creator tools."
     },
     isItFree: {
-      q: "Is InkVerse free?",
+      q: "Is MangaAura free?",
       a: "Yes, most content is free. Some premium manga or exclusive features may require a subscription or Ink Coins, our virtual currency."
     },
     howToCreateAccount: {
@@ -56,7 +56,7 @@ en.help.faq = {
   },
   creators: {
     publishManga: {
-      q: "How do I publish my manga on InkVerse?",
+      q: "How do I publish my manga on MangaAura?",
       a: "Go to \"Creator Dashboard\" from your profile menu and click \"Publish manga\". You can upload chapters, add covers and manage your entire work."
     },
     monetize: {
@@ -75,7 +75,7 @@ en.help.faq = {
     },
     whatAreInkCoins: {
       q: "What are Ink Coins?",
-      a: "They're InkVerse's virtual currency. You can use them to unlock premium chapters, support creators and buy special features."
+      a: "They're MangaAura's virtual currency. You can use them to unlock premium chapters, support creators and buy special features."
     },
     deleteAccount: {
       q: "How do I delete my account?",

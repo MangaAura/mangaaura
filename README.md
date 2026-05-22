@@ -1,7 +1,7 @@
-# InkVerse - Plataforma de Manga
+# MangaAura - Plataforma de Manga
 
 <p align="center">
-  <img src="public/icons/icon-192x192.svg" alt="InkVerse Logo" width="120">
+  <img src="public/icons/icon-192x192.svg" alt="MangaAura Logo" width="120">
 </p>
 
 <p align="center">
@@ -223,7 +223,7 @@ SENTRY_DSN="https://..."
 
 ## 📱 PWA
 
-InkVerse es una Progressive Web App completa:
+MangaAura es una Progressive Web App completa:
 
 - **Instalación**: Añade a pantalla de inicio
 - **Offline**: Funciona sin conexión
@@ -296,7 +296,7 @@ Configurar `SENTRY_DSN` para:
 
 ## 📝 Licencia
 
-[MIT](LICENSE) © InkVerse
+[MIT](LICENSE) © MangaAura
 
 ## 🙏 Agradecimientos
 
@@ -309,11 +309,11 @@ Configurar `SENTRY_DSN` para:
 ## 📞 Soporte
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/inkverse/issues)
-- **Email**: support@inkverse.app
-- **Discord**: [Unirse](https://discord.gg/inkverse)
+- **Email**: support@mangaaura.es
+- **Discord**: [Unirse](https://discord.gg/mangaaura)
 
 ---
 
 <p align="center">
-  Hecho con ❤️ por el equipo de InkVerse
+  Hecho con ❤️ por el equipo de MangaAura
 </p>

@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: ForumThreadPageProps): Promis
     select: { title: true },
   });
   return {
-    title: thread ? `${thread.title} | Foro | Inkverse` : 'Foro | Inkverse',
+    title: thread ? `${thread.title} | Foro | MangaAura` : 'Foro | MangaAura',
     description: thread?.title || 'Hilo del foro',
   };
 }

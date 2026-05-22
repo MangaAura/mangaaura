@@ -6,6 +6,7 @@ import {
   ChapterSummary,
   AIServiceError,
   QualityAssessment,
+  EmailIntentResult,
 } from '@/core/services/IAProvider';
 
 interface NVIDIAConfig {
@@ -321,6 +322,76 @@ Responde en JSON con array de géneros (máximo 3):
       return Array.isArray(parsed.genres) ? parsed.genres.slice(0, 3) : [];
     } catch {
       return [];
+    }
+  }
+
+  async classifyEmailIntent(params: {
+    subject: string
+    body: string
+    fromEmail: string
+  }): Promise<EmailIntentResult> {
+    const prompt = `Clasifica la intención de este email recibido en la plataforma de manga MangaAura.
+
+Asunto: """${params.subject}"""
+Cuerpo: """${params.body.slice(0, 2000)}"""
+Remitente: ${params.fromEmail}
+
+Determina la intención entre estas opciones:
+- "comment_reply": El usuario responde a una notificación de comentario
+- "support": El usuario necesita ayuda técnica o tiene un problema
+- "report": El usuario reporta a otro usuario o contenido
+- "unsubscribe": El usuario quiere dejar de recibir emails
+- "spam": Es correo no deseado, promocional o fraudulento
+- "unknown": No se puede determinar la intención
+
+Responde en JSON exactamente con este formato:
+{
+  "intent": "comment_reply | support | report | unsubscribe | spam | unknown",
+  "confidence": number (0-1),
+  "requiresHuman": boolean,
+  "suggestedResponse": string | null,
+  "extractedEntities": {
+    "userId": string | null,
+    "mangaSlug": string | null,
+    "commentId": string | null
+  }
+}`
+
+    try {
+      const response = await this.makeRequest<{
+        choices: Array<{ message: { content: string } }>
+      }>('/chat/completions', {
+        model: 'nvidia/llama-3.1-nemotron-70b-instruct',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.2,
+        max_tokens: 256,
+        response_format: { type: 'json_object' },
+      })
+
+      const content = response.choices[0]?.message?.content || '{}'
+      const parsed = JSON.parse(content)
+
+      const validIntents = ['comment_reply', 'support', 'report', 'unsubscribe', 'spam', 'unknown']
+      return {
+        intent: validIntents.includes(parsed.intent) ? parsed.intent : 'unknown',
+        confidence: Math.min(1, Math.max(0, parsed.confidence ?? 0)),
+        requiresHuman: parsed.requiresHuman ?? true,
+        suggestedResponse: parsed.suggestedResponse ?? null,
+        extractedEntities: {
+          userId: parsed.extractedEntities?.userId ?? null,
+          mangaSlug: parsed.extractedEntities?.mangaSlug ?? null,
+          commentId: parsed.extractedEntities?.commentId ?? null,
+        },
+      }
+    } catch (error) {
+      console.error('[NVIDIA] Error classifying email intent:', error)
+      return {
+        intent: 'unknown',
+        confidence: 0,
+        requiresHuman: true,
+        suggestedResponse: null,
+        extractedEntities: { userId: null, mangaSlug: null, commentId: null },
+      }
     }
   }
 

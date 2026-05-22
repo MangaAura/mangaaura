@@ -29,7 +29,7 @@ export function generateCacheKey(prefix: string, params: Record<string, unknown>
       return `${key}:${serialized}`;
     })
     .join(':');
-  return `inkverse:${prefix}:${sortedParams}`;
+  return `mangaaura:${prefix}:${sortedParams}`;
 }
 
 // Memory cache helper for ultra-fast access
@@ -100,7 +100,7 @@ export async function invalidateCacheBatch(prefixes: string[]): Promise<void> {
 
 // Invalidate cache by pattern
 export async function invalidateCache(prefix: string): Promise<void> {
-  await invalidatePattern(`inkverse:${prefix}:*`);
+  await invalidatePattern(`mangaaura:${prefix}:*`);
 }
 
 // Cache configuration for different endpoints

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: ConversationPageProps): Promi
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { title: 'Conversación | Inkverse' };
+    return { title: 'Conversación | MangaAura' };
   }
 
   const conversation = await prisma.conversation.findFirst({
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: ConversationPageProps): Promi
   });
 
   if (!conversation) {
-    return { title: 'Conversación | Inkverse' };
+    return { title: 'Conversación | MangaAura' };
   }
 
   const participant = conversation.participant1Id === session.user.id
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: ConversationPageProps): Promi
     : conversation.participant1;
 
   return {
-    title: `${participant.displayName || participant.username} | Inkverse`,
+    title: `${participant.displayName || participant.username} | MangaAura`,
     description: `Chat con ${participant.displayName || participant.username}`,
   };
 }

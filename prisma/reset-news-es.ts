@@ -7,10 +7,12 @@
  * Uso: npx tsx prisma/reset-news-es.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { translateText } from '../src/lib/translate';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./prisma/dev.db' });
+const prisma = new PrismaClient({ adapter });
 
 interface ArticleEs {
   title: string;
@@ -53,7 +55,7 @@ const articulos: ArticleEs[] = [
     excerpt:
       'Potentes nuevas herramientas de generación y edición para creadores. Lleva tu manga al siguiente nivel.',
     content:
-      '¡Nos emociona anunciar una gran actualización de nuestras herramientas de creación con IA! El nuevo conjunto incluye generación de personajes mejorada con mayor consistencia, creación de escenas de fondo mejoradas y una herramienta avanzada de retoque para afinar tus viñetas. Nuestra IA ahora comprende mejor los estilos de arte manga y puede ayudarte con patrones de tramas, líneas de velocidad y fondos de efectos. Estas herramientas están disponibles para todos los creadores en InkVerse. ¡Mejora tu flujo de trabajo y da vida a tus historias!',
+      '¡Nos emociona anunciar una gran actualización de nuestras herramientas de creación con IA! El nuevo conjunto incluye generación de personajes mejorada con mayor consistencia, creación de escenas de fondo mejoradas y una herramienta avanzada de retoque para afinar tus viñetas. Nuestra IA ahora comprende mejor los estilos de arte manga y puede ayudarte con patrones de tramas, líneas de velocidad y fondos de efectos. Estas herramientas están disponibles para todos los creadores en MangaAura. ¡Mejora tu flujo de trabajo y da vida a tus historias!',
     category: 'platform',
     date: '2026-05-05',
     coverUrl:
@@ -63,16 +65,16 @@ const articulos: ArticleEs[] = [
     title: 'App Móvil en Beta Cerrada',
     slug: 'mobile-beta',
     excerpt:
-      'La beta cerrada de InkVerse para iOS y Android ya está disponible. Experiencia móvil optimizada.',
+      'La beta cerrada de MangaAura para iOS y Android ya está disponible. Experiencia móvil optimizada.',
     content:
-      '¡La beta cerrada de nuestra aplicación móvil ya está disponible para usuarios de iOS y Android! Disfruta de InkVerse optimizado para tu teléfono con una interfaz nativa, desplazamiento fluido y soporte de lectura sin conexión. La beta incluye acceso a tu biblioteca, el lector y las funciones de la comunidad. Para unirte a la beta, revisa tu bandeja de entrada para ver si tienes una invitación o regístrate en la lista de espera. ¡Esperamos tus comentarios para hacer que la experiencia móvil sea aún mejor antes del lanzamiento público!',
+      '¡La beta cerrada de nuestra aplicación móvil ya está disponible para usuarios de iOS y Android! Disfruta de MangaAura optimizado para tu teléfono con una interfaz nativa, desplazamiento fluido y soporte de lectura sin conexión. La beta incluye acceso a tu biblioteca, el lector y las funciones de la comunidad. Para unirte a la beta, revisa tu bandeja de entrada para ver si tienes una invitación o regístrate en la lista de espera. ¡Esperamos tus comentarios para hacer que la experiencia móvil sea aún mejor antes del lanzamiento público!',
     category: 'platform',
     date: '2026-04-28',
     coverUrl:
       'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=225&fit=crop&auto=format',
   },
   {
-    title: 'Concurso de Manga InkVerse',
+    title: 'Concurso de Manga MangaAura',
     slug: 'manga-contest',
     excerpt:
       'Participa en nuestro concurso mensual de manga y gana InkCoins, visibilidad e insignias exclusivas.',
@@ -101,7 +103,7 @@ const articulos: ArticleEs[] = [
     excerpt:
       'Conoce a los creadores que han conquistado el corazón de la comunidad este mes con sus historias y arte excepcionales.',
     content:
-      'Cada mes destacamos a los talentosos creadores que hacen especial a InkVerse. Este mayo, presentamos a tres estrellas emergentes cuyo trabajo ha generado una participación excepcional de la comunidad.\n\nEn primer lugar, SakuraManga con "Susurros de la Luna", un romance inquietantemente hermoso ambientado en el Japón feudal que tiene a los lectores enganchados con su intrincada composición de viñetas y profundidad emocional. Con más de 50,000 lecturas en su primer mes, esta serie es una a seguir.\n\nA continuación, tenemos a PixelNinja cuya épica de acción "Dragones de Neón" combina estética cyberpunk con narrativa clásica de artes marciales. La dinámica coreografía de combate y la vibrante paleta de colores le han ganado una base de fans dedicada que crece a diario.\n\nFinalmente, conoce a ArtWanderer, un creador que se unió a InkVerse hace solo tres meses y ya ha publicado 4 capítulos completos de "El Jardín Mecánico", una aventura de fantasía steampunk con un hermoso arte lineal y un mundo ricamente imaginado.\n\n¡Felicidades a todos nuestros creadores destacados! ¿Quieres aparecer el próximo mes? Sigue creando, interactuando con tus lectores y superando los límites de tu arte.',
+      'Cada mes destacamos a los talentosos creadores que hacen especial a MangaAura. Este mayo, presentamos a tres estrellas emergentes cuyo trabajo ha generado una participación excepcional de la comunidad.\n\nEn primer lugar, SakuraManga con "Susurros de la Luna", un romance inquietantemente hermoso ambientado en el Japón feudal que tiene a los lectores enganchados con su intrincada composición de viñetas y profundidad emocional. Con más de 50,000 lecturas en su primer mes, esta serie es una a seguir.\n\nA continuación, tenemos a PixelNinja cuya épica de acción "Dragones de Neón" combina estética cyberpunk con narrativa clásica de artes marciales. La dinámica coreografía de combate y la vibrante paleta de colores le han ganado una base de fans dedicada que crece a diario.\n\nFinalmente, conoce a ArtWanderer, un creador que se unió a MangaAura hace solo tres meses y ya ha publicado 4 capítulos completos de "El Jardín Mecánico", una aventura de fantasía steampunk con un hermoso arte lineal y un mundo ricamente imaginado.\n\n¡Felicidades a todos nuestros creadores destacados! ¿Quieres aparecer el próximo mes? Sigue creando, interactuando con tus lectores y superando los límites de tu arte.',
     category: 'community',
     date: '2026-04-08',
     coverUrl:
@@ -111,9 +113,9 @@ const articulos: ArticleEs[] = [
     title: 'API para Desarrolladores Ya Disponible',
     slug: 'developer-api',
     excerpt:
-      'Crea integraciones, bots y extiende InkVerse con nuestra API REST oficial ahora en beta abierta para todos los creadores verificados.',
+      'Crea integraciones, bots y extiende MangaAura con nuestra API REST oficial ahora en beta abierta para todos los creadores verificados.',
     content:
-      '¡Nos emociona anunciar la beta abierta de la API para Desarrolladores de InkVerse, tu puerta de entrada para crear integraciones personalizadas y ampliar las capacidades de la plataforma!\n\nLa API proporciona acceso programático a metadatos de manga, listados de capítulos, perfiles de usuario (con consentimiento) y funciones de la comunidad. Crea un bot de Discord que notifique a tu servidor sobre nuevos lanzamientos de capítulos, crea un widget de seguimiento de lectura para tu sitio web personal o desarrolla un cliente de terceros con tu propia interfaz de lectura.\n\nLas claves de API están disponibles para todos los creadores verificados a través de la página de Configuración de Desarrollador. Proporcionamos documentación completa con ejemplos de código en JavaScript, Python y curl. Cada clave incluye límites de tasa generosos y análisis detallados de uso.\n\nEstamos iterando activamente la API basándonos en los comentarios de los desarrolladores, así que únete a nuestro canal de Discord para Desarrolladores para compartir tus casos de uso y sugerencias. La API es gratuita durante la beta, con niveles de precios que se anunciarán en el lanzamiento completo.',
+      '¡Nos emociona anunciar la beta abierta de la API para Desarrolladores de MangaAura, tu puerta de entrada para crear integraciones personalizadas y ampliar las capacidades de la plataforma!\n\nLa API proporciona acceso programático a metadatos de manga, listados de capítulos, perfiles de usuario (con consentimiento) y funciones de la comunidad. Crea un bot de Discord que notifique a tu servidor sobre nuevos lanzamientos de capítulos, crea un widget de seguimiento de lectura para tu sitio web personal o desarrolla un cliente de terceros con tu propia interfaz de lectura.\n\nLas claves de API están disponibles para todos los creadores verificados a través de la página de Configuración de Desarrollador. Proporcionamos documentación completa con ejemplos de código en JavaScript, Python y curl. Cada clave incluye límites de tasa generosos y análisis detallados de uso.\n\nEstamos iterando activamente la API basándonos en los comentarios de los desarrolladores, así que únete a nuestro canal de Discord para Desarrolladores para compartir tus casos de uso y sugerencias. La API es gratuita durante la beta, con niveles de precios que se anunciarán en el lanzamiento completo.',
     category: 'platform',
     date: '2026-03-25',
     coverUrl:
@@ -125,7 +127,7 @@ const articulos: ArticleEs[] = [
     excerpt:
       'Una experiencia visual más pulida, rápida y consistente en toda la plataforma. Esto es lo que cambió y por qué.',
     content:
-      '¡Puede que hayas notado que las cosas se ven un poco diferentes! Hemos implementado una renovación visual integral en todo InkVerse para hacer la plataforma más intuitiva, visualmente cohesiva y con mejor rendimiento.\n\nLa renovación incluye tipografía actualizada con mejor legibilidad, paletas de colores refinadas para mejorar el contraste y la accesibilidad, transiciones y micro-interacciones más suaves, y un sistema de navegación rediseñado que muestra tus funciones más usadas más rápido.\n\nEstandarizamos los componentes de tarjetas en todo el sitio para consistencia visual, redujimos el desorden visual en la interfaz del lector y añadimos animaciones sutiles que hacen que la navegación se sienta más receptiva. La experiencia móvil también se ha mejorado significativamente con áreas táctiles más grandes y diseños optimizados.\n\nEsta actualización es el resultado de meses de comentarios de usuarios y pruebas de usabilidad. Seguiremos refinando basándonos en tus opiniones. ¡Envíanos un mensaje a través del formulario de comentarios si ves algo que podría mejorarse!',
+      '¡Puede que hayas notado que las cosas se ven un poco diferentes! Hemos implementado una renovación visual integral en todo MangaAura para hacer la plataforma más intuitiva, visualmente cohesiva y con mejor rendimiento.\n\nLa renovación incluye tipografía actualizada con mejor legibilidad, paletas de colores refinadas para mejorar el contraste y la accesibilidad, transiciones y micro-interacciones más suaves, y un sistema de navegación rediseñado que muestra tus funciones más usadas más rápido.\n\nEstandarizamos los componentes de tarjetas en todo el sitio para consistencia visual, redujimos el desorden visual en la interfaz del lector y añadimos animaciones sutiles que hacen que la navegación se sienta más receptiva. La experiencia móvil también se ha mejorado significativamente con áreas táctiles más grandes y diseños optimizados.\n\nEsta actualización es el resultado de meses de comentarios de usuarios y pruebas de usabilidad. Seguiremos refinando basándonos en tus opiniones. ¡Envíanos un mensaje a través del formulario de comentarios si ves algo que podría mejorarse!',
     category: 'platform',
     date: '2026-03-15',
     coverUrl:
@@ -149,7 +151,7 @@ const articulos: ArticleEs[] = [
     excerpt:
       '¡Únete al Festival de Lectura de Verano con insignias exclusivas, fines de semana de XP doble y un gran premio de 10,000 InkCoins!',
     content:
-      '¡El verano está aquí y también nuestro evento comunitario más grande del año: el Festival de Lectura de Verano de InkVerse! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga de toda una temporada.\n\n¿Qué hay preparado? Fines de semana de XP doble cada mes, insignias exclusivas del Festival de Verano para los participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo InkCoins gratis y artículos cosméticos, y un gran premio de 10,000 InkCoins otorgado al lector con más capítulos completados para el final del verano.\n\nLos creadores tampoco se quedan fuera: organizamos un concurso de one-shot "Especial de Verano" con premios separados. Publica un capítulo con temática veraniega entre junio y agosto y podrías ganar 5,000 InkCoins más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Consulta la página de Eventos para ver el calendario completo y ¡comienza tu viaje de lectura veraniego hoy! Haz una captura de tus estadísticas de lectura y compártela con #InkVerseVerano para tener la oportunidad de aparecer en nuestras redes sociales.',
+      '¡El verano está aquí y también nuestro evento comunitario más grande del año: el Festival de Lectura de Verano de MangaAura! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga de toda una temporada.\n\n¿Qué hay preparado? Fines de semana de XP doble cada mes, insignias exclusivas del Festival de Verano para los participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo InkCoins gratis y artículos cosméticos, y un gran premio de 10,000 InkCoins otorgado al lector con más capítulos completados para el final del verano.\n\nLos creadores tampoco se quedan fuera: organizamos un concurso de one-shot "Especial de Verano" con premios separados. Publica un capítulo con temática veraniega entre junio y agosto y podrías ganar 5,000 InkCoins más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Consulta la página de Eventos para ver el calendario completo y ¡comienza tu viaje de lectura veraniego hoy! Haz una captura de tus estadísticas de lectura y compártela con #MangaAuraVerano para tener la oportunidad de aparecer en nuestras redes sociales.',
     category: 'community',
     date: '2026-02-20',
     coverUrl:

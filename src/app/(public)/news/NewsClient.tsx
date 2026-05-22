@@ -206,6 +206,11 @@ export function NewsClient() {
                     <span className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--primary-subtle)] shrink-0">
                       {iconMap[item.iconType] || iconMap.platform}
                     </span>
+                    {item.isFeatured && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px] font-bold mr-1">
+                        <Star className="w-2.5 h-2.5 fill-amber-300" />
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={(e) => {

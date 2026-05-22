@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: 'Propinas | InkVerse',
+  title: 'Propinas | MangaAura',
   description: 'Historial de propinas enviadas y recibidas',
 };
 

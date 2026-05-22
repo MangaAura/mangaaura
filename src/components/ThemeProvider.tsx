@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true);
     // Check for saved theme preference
-    const savedTheme = localStorage.getItem('inkverse-theme') as Theme | null;
+    const savedTheme = localStorage.getItem('mangaaura-theme') as Theme | null;
     if (savedTheme) {
       setThemeState(savedTheme);
     }
@@ -65,7 +65,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('inkverse-theme', newTheme);
+    localStorage.setItem('mangaaura-theme', newTheme);
   };
 
   // Prevent hydration mismatch by providing default values during SSR/initial mount

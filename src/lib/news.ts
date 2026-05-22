@@ -15,6 +15,7 @@ export interface DisplayNewsItem {
   iconType: string;
   date: string;
   coverUrl: string | null;
+  isFeatured: boolean;
 }
 
 /** Predefined mapping from category → iconType */
@@ -46,6 +47,7 @@ export function dbArticleToDisplayItem(
     category: string;
     publishedAt: Date | string | null;
     createdAt: Date | string;
+    isFeatured?: boolean;
   },
 ): DisplayNewsItem {
   const fmtDate = (d: Date | string) =>
@@ -68,6 +70,7 @@ export function dbArticleToDisplayItem(
     iconType: resolveIconType(dbArticle.category),
     date: dateStr,
     coverUrl: dbArticle.coverUrl,
+    isFeatured: dbArticle.isFeatured ?? false,
   };
 }
 

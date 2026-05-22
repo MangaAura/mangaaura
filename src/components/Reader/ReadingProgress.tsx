@@ -29,7 +29,7 @@ interface SavedProgress {
   timestamp: number;
 }
 
-const STORAGE_KEY = 'inkverse-reading-progress';
+const STORAGE_KEY = 'mangaaura-reading-progress';
 
 export function ReadingProgress({
   currentChapter,

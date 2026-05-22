@@ -5,7 +5,7 @@ import { DeliveriesClient } from './DeliveriesClient';
 import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Entregas de Webhooks | Admin | Inkverse',
+  title: 'Entregas de Webhooks | Admin | MangaAura',
   description: 'Historial de entregas de webhooks salientes.',
   robots: { index: false, follow: false },
 };

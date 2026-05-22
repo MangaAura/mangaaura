@@ -1,6 +1,6 @@
-# InkVerse Database Documentation
+# MangaAura Database Documentation
 
-Documentacion completa de la base de datos de InkVerse usando Prisma ORM.
+Documentacion completa de la base de datos de MangaAura usando Prisma ORM.
 
 ## Tabla de Contenidos
 
@@ -613,7 +613,7 @@ async function main() {
   // Crear usuario admin
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@inkverse.app',
+      email: 'admin@mangaaura.es',
       username: 'admin',
       passwordHash: '...',
       role: 'ADMIN',

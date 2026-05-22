@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/Layout/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Eventos | Inkverse',
-  description: 'Participa en eventos especiales, sorteos y promociones en Inkverse.',
+  title: 'Eventos | MangaAura',
+  description: 'Participa en eventos especiales, sorteos y promociones en MangaAura.',
 };
 
 export default function EventsLayout({
