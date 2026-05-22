@@ -97,7 +97,7 @@ Las demas variables se configuran despues (ver [Variables de Entorno](#variables
 
 1. Crea cuenta en [neon.tech](https://neon.tech)
 2. Crea un nuevo proyecto
-3. Crea una base de datos llamada `inkverse`
+3. Crea una base de datos llamada `mangaaura`
 4. Ve a "Connection Details" → "Prisma"
 5. Copia el "Connection String"
 6. En Vercel Dashboard → Settings → Environment Variables:

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Renombra MangaAura → MangaAura en todo el proyecto
+ * Renombra inkverse → mangaaura en todo el proyecto
  * Uso: node scripts/rename-to-mangaaura.mjs
  */
 import fs from 'fs';

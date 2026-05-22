@@ -21,7 +21,7 @@ DATABASE_URL="file:./dev.db"
 Para usar PostgreSQL en desarrollo:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/inkverse?schema=public"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/mangaaura?schema=public"
 ```
 
 #### MongoDB (Opcional en desarrollo)

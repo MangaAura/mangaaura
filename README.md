@@ -82,8 +82,8 @@
 
 ```bash
 # Clonar repositorio
-git clone https://github.com/yourusername/inkverse.git
-cd inkverse
+git clone https://github.com/yourusername/mangaaura.git
+cd mangaaura
 
 # Instalar dependencias
 npm install
@@ -110,7 +110,7 @@ npm run dev
 ## 🏗️ Estructura del Proyecto
 
 ```
-inkverse/
+mangaaura/
 ├── prisma/                 # Esquema de base de datos
 ├── public/                 # Assets estáticos
 │   ├── icons/             # Iconos PWA
@@ -308,7 +308,7 @@ Configurar `SENTRY_DSN` para:
 
 ## 📞 Soporte
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/inkverse/issues)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/mangaaura/issues)
 - **Email**: support@mangaaura.es
 - **Discord**: [Unirse](https://discord.gg/mangaaura)
 

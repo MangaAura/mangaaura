@@ -42,8 +42,8 @@ Antes de crear un issue:
 
 ```bash
 # Clonar tu fork
-git clone https://github.com/YOUR_USERNAME/inkverse.git
-cd inkverse
+git clone https://github.com/YOUR_USERNAME/mangaaura.git
+cd mangaaura
 
 # Instalar dependencias
 npm install

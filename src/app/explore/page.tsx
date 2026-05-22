@@ -17,7 +17,8 @@ import { MangaCard } from '@/components/MangaCard';
 import { SearchBar } from '@/components/Search/SearchBar';
 import { Button } from '@/components/ui/Button';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
-import { CANONICAL_TAGS, CANONICAL_TAG_SET, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, KNOWN_GENRE_KEYS, normalizeGenreKey } from '@/constants/genres';
+import { normalizeGenreKey } from '@/constants/genres';
+import { useGenres } from '@/hooks/useGenres';
 import { useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
@@ -62,20 +63,22 @@ function SkeletonGrid() {
   );
 }
 
-function MangaListItem({ manga, onGenreClick }: { manga: MangaResult; onGenreClick: (genre: string) => void }) {
+function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
+  manga: MangaResult;
+  onGenreClick: (genre: string) => void;
+  genreSlugs: string[];
+  genreSlugSet: Set<string>;
+}) {
   const t = useT();
   const router = useRouter();
   const displayGenre = (genre: string): string => {
-    let slug = ENGLISH_TO_SLUG[genre];
-    if (!slug) {
-      const normalized = normalizeGenreKey(genre);
-      slug = ENGLISH_TO_SLUG[normalized];
-      if (!slug) {
-        const englishTag = SLUG_TO_ENGLISH[normalized];
-        if (englishTag) slug = ENGLISH_TO_SLUG[englishTag];
-      }
+    const normalized = normalizeGenreKey(genre);
+    const slug = genreSlugSet.has(normalized) ? normalized : genreSlugs.find(s => normalizeGenreKey(s) === normalized);
+    if (slug) {
+      const label = t(`genres.${slug}`);
+      return label.startsWith('genres.') ? genre.charAt(0).toUpperCase() + genre.slice(1) : label;
     }
-    return slug ? t(`genres.${slug}`) : genre.charAt(0).toUpperCase() + genre.slice(1);
+    return genre.charAt(0).toUpperCase() + genre.slice(1);
   };
 
   const statusStyle = cn(
@@ -88,8 +91,9 @@ function MangaListItem({ manga, onGenreClick }: { manga: MangaResult; onGenreCli
   const statusLabel = manga.status === 'ONGOING' ? t('manga.ongoing') : manga.status === 'COMPLETED' ? t('manga.completed') : t('search.statusHiatus');
 
   const resolveCanonicalTag = (tag: string): string => {
-    if (CANONICAL_TAG_SET.has(tag)) return tag;
-    const found = CANONICAL_TAGS.find(t => normalizeGenreKey(t) === normalizeGenreKey(tag));
+    const normalized = normalizeGenreKey(tag);
+    if (genreSlugSet.has(normalized)) return normalized;
+    const found = genreSlugs.find(s => normalizeGenreKey(s) === normalized);
     return found || tag;
   };
 
@@ -216,6 +220,10 @@ function SearchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const { genres: dbGenres } = useGenres();
+  const dbGenreSlugs = dbGenres.map(g => g.slug);
+  const dbGenreSlugSet = new Set(dbGenreSlugs);
+
   const query = searchParams.get('q') || '';
   const initialGenres = searchParams.getAll('genres[]');
   const initialStatus = searchParams.get('status') || '';
@@ -236,16 +244,13 @@ function SearchPageContent() {
   ];
 
   const displayGenre = (genre: string): string => {
-    let slug = ENGLISH_TO_SLUG[genre];
-    if (!slug) {
-      const normalized = normalizeGenreKey(genre);
-      slug = ENGLISH_TO_SLUG[normalized];
-      if (!slug) {
-        const englishTag = SLUG_TO_ENGLISH[normalized];
-        if (englishTag) slug = ENGLISH_TO_SLUG[englishTag];
-      }
+    const normalized = normalizeGenreKey(genre);
+    const slug = dbGenreSlugSet.has(normalized) ? normalized : dbGenreSlugs.find(s => normalizeGenreKey(s) === normalized);
+    if (slug) {
+      const label = t(`genres.${slug}`);
+      return label.startsWith('genres.') ? genre.charAt(0).toUpperCase() + genre.slice(1) : label;
     }
-    return slug ? t(`genres.${slug}`) : genre.charAt(0).toUpperCase() + genre.slice(1);
+    return genre.charAt(0).toUpperCase() + genre.slice(1);
   };
 
   const [results, setResults] = useState<MangaResult[]>([]);
@@ -261,7 +266,10 @@ function SearchPageContent() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [extraTags, setExtraTags] = useState<string[]>([]);
 
+  // Fetch extra tags from browse API (tags not in the DB genres)
   useEffect(() => {
+    if (dbGenres.length === 0) return;
+    const slugSet = new Set(dbGenres.map(g => g.slug));
     fetch('/api/browse')
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -269,14 +277,14 @@ function SearchPageContent() {
           const seen = new Set<string>();
           setExtraTags(data.tags.filter((t: string) => {
             const n = normalizeGenreKey(t);
-            if (KNOWN_GENRE_KEYS.has(n) || seen.has(n)) return false;
+            if (slugSet.has(n) || seen.has(n)) return false;
             seen.add(n);
             return true;
           }));
         }
       })
       .catch(() => {});
-  }, []);
+  }, [dbGenres]);
 
   const fetchResults = useCallback(async (currentPage: number = 1) => {
     setIsLoading(true);
@@ -455,7 +463,7 @@ function SearchPageContent() {
                   <h2 className="text-sm font-bold text-[var(--text-primary)]">{t('manga.genres')}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {[...CANONICAL_TAGS, ...extraTags].sort((a, b) => a.localeCompare(b)).map(genre => (
+                  {[...dbGenreSlugs, ...extraTags].sort((a, b) => a.localeCompare(b)).map(genre => (
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
@@ -467,20 +475,6 @@ function SearchPageContent() {
                       )}
                     >
                       {displayGenre(genre)}
-                    </button>
-                  ))}
-                  {extraTags.map(genre => (
-                    <button
-                      key={genre}
-                      onClick={() => toggleGenre(genre)}
-                      className={cn(
-                        'px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200',
-                        selectedGenres.includes(genre)
-                          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white shadow-md shadow-[var(--primary)]/20 scale-105'
-                          : 'bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] hover:border-[var(--primary)]/30 border border-transparent hover:shadow-sm'
-                      )}
-                    >
-                      {genre.charAt(0).toUpperCase() + genre.slice(1)}
                     </button>
                   ))}
                 </div>
@@ -562,7 +556,7 @@ function SearchPageContent() {
                 <StaggerContainer className="flex flex-col gap-3" staggerDelay={0.03}>
                   {results.map(manga => (
                     <StaggerItem key={manga.id}>
-                      <MangaListItem manga={manga} onGenreClick={toggleGenre} />
+                      <MangaListItem manga={manga} onGenreClick={toggleGenre} genreSlugs={dbGenreSlugs} genreSlugSet={dbGenreSlugSet} />
                     </StaggerItem>
                   ))}
                 </StaggerContainer>

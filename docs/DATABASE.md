@@ -48,7 +48,7 @@ datasource db {
 DATABASE_URL="file:./dev.db"
 
 # Produccion PostgreSQL
-DATABASE_URL="postgresql://user:password@host:5432/inkverse?schema=public"
+DATABASE_URL="postgresql://user:password@host:5432/mangaaura?schema=public"
 ```
 
 ---

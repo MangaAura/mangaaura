@@ -33,9 +33,9 @@ if (fs.existsSync(envPath)) {
 
 # Database (PostgreSQL required for production)
 # Format: postgresql://user:password@host:port/database?schema=public
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/inkverse?schema=public"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/mangaaura?schema=public"
 # For connection pooling with PgBouncer
-DIRECT_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/inkverse?schema=public"
+DIRECT_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/mangaaura?schema=public"
 
 # Authentication
 NEXTAUTH_SECRET="${generateSecret(32)}"
