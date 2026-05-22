@@ -10,3 +10,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Repeated characters
 When rendering text where **two identical characters appear consecutively** (same letter and same case, e.g. `aa` or `AA` but NOT `aA`), the **second character** should be rendered in **italic** to visually distinguish them.
 <!-- END:design-conventions -->
+
+<!-- BEGIN:project-info -->
+# Project Info
+
+- **Project name**: MangaAura (NOT "inkverse" - the folder name is misleading)
+- **Full name**: mangaaura
+<!-- END:project-info -->
