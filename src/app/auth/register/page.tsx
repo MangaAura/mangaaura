@@ -82,7 +82,7 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [acceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [idPrefix] = useState(() => `register-${Math.random().toString(36).substr(2, 6)}`);
   const usernameErrorId = `${idPrefix}-username-error`;
   const emailErrorId = `${idPrefix}-email-error`;
@@ -406,6 +406,28 @@ errors.email
                 )}
               </div>
 
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center mt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="peer w-5 h-5 rounded border-2 border-custom bg-tertiary appearance-none cursor-pointer transition-all checked:bg-accent-blue checked:border-accent-blue"
+                    disabled={isLoading}
+                  />
+                  <CheckCircle2
+                    size={20}
+                    className="absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-[var(--text-inverse)] transition-opacity"
+                  />
+                </div>
+                <span className="text-sm text-muted leading-relaxed">
+                  {t('auth.acceptTerms')}{' '}
+                  <Link href="/legal/terms" className="text-accent-blue hover:underline">{t('footer.terms')}</Link>
+                  {' '}{t('common.and')}{' '}
+                  <Link href="/legal/privacy" className="text-accent-blue hover:underline">{t('footer.privacy')}</Link>
+                </span>
+              </label>
+
               <button
                 type="submit"
                 disabled={isLoading || !acceptedTerms}
@@ -455,13 +477,6 @@ errors.email
               <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
                 {t('auth.signIn')}
               </Link>
-            </p>
-
-            <p className="text-center text-xs text-muted mt-6">
-              {t('auth.acceptTerms')}{' '}
-              <Link href="/legal/terms" className="text-accent-blue underline underline-offset-2">{t('footer.terms')}</Link>
-              {' '}{t('common.and')}{' '}
-              <Link href="/legal/privacy" className="text-accent-blue underline underline-offset-2">{t('footer.privacy')}</Link>.
             </p>
           </div>
         </div>

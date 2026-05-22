@@ -1,13 +1,11 @@
-import { Redis } from 'ioredis';
-
-// ============================================================================
-// Redis Configuration with Graceful Fallback
-// ============================================================================
+import { Redis as IoRedis } from 'ioredis';
+import { Redis as UpstashRedis } from '@upstash/redis';
 
 const REDIS_URL = process.env.REDIS_URL;
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const isDevelopment = process.env.NODE_ENV !== 'production';
-// Suppress ioredis unhandled error warnings globally in development
-// Guard: only run in Node.js runtime (not Edge or browser)
+
 if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (globalThis.process as any).emit === 'function') {
   try {
     const nodeProcess = globalThis.process as any;
@@ -22,24 +20,19 @@ if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (global
       return originalEmit.call(this, event, ...args);
     };
   } catch {
-    // Silently fail if process.emit manipulation is not allowed
   }
 }
 
-// Track if Redis is available
 let redisAvailable = false;
-let redisInstance: Redis | null = null;
+let redisInstance: IoRedis | null = null;
+let upstashInstance: UpstashRedis | null = null;
 let mockRedisInstance: MockRedis | null = null;
 
-// Global reference for hot reload (defined early for use in getRedisInstance)
 const globalForRedis = global as unknown as {
-  redis?: Redis;
+  redis?: IoRedis;
+  upstash?: UpstashRedis;
   mockRedis?: MockRedis;
 };
-
-// ============================================================================
-// Mock Redis Implementation (for development without Redis)
-// ============================================================================
 
 class MockRedis {
   private store = new Map<string, { value: string; expiry?: number }>();
@@ -187,7 +180,6 @@ class MockRedis {
     this.store.clear();
   }
 
-  // Event emitter compatible methods (no-op)
   on(_event: string, _listener: (...args: unknown[]) => void): this {
     return this;
   }
@@ -205,27 +197,20 @@ class MockRedis {
   }
 }
 
-// ============================================================================
-// Redis Connection Factory
-// ============================================================================
-
-function createRealRedis(): Redis {
-  const client = new Redis(REDIS_URL || 'redis://localhost:6379', {
+function createIoRedis(): IoRedis {
+  const client = new IoRedis(REDIS_URL || 'redis://localhost:6379', {
     retryStrategy: (times) => {
       const delay = Math.min(times * 50, 2000);
       return delay;
     },
     maxRetriesPerRequest: 3,
-    lazyConnect: true, // Don't connect immediately
-    enableOfflineQueue: false, // Don't queue commands when offline
-    // Suppress connection errors in development
+    lazyConnect: true,
+    enableOfflineQueue: false,
     showFriendlyErrorStack: isDevelopment,
   });
 
-  // Suppress all error output in development
   const silentError = () => {};
 
-  // Handle connection events silently in dev, with logging in production
   client.on('connect', () => {
     redisAvailable = true;
     if (!isDevelopment) {
@@ -237,20 +222,14 @@ function createRealRedis(): Redis {
     redisAvailable = true;
   });
 
-  // Primary error handler - silently swallow errors in development
   client.on('error', (error: Error & { code?: string }) => {
     redisAvailable = false;
-    // Completely suppress connection errors in development
-    if (isDevelopment) {
-      return;
-    }
-    // Only log in production if DEBUG_REDIS is set
+    if (isDevelopment) return;
     if (process.env.DEBUG_REDIS) {
       console.error('[Redis] Connection error:', error.message);
     }
   });
 
-  // Additional error event handlers to prevent unhandled warnings
   client.on('close', () => {
     redisAvailable = false;
     if (!isDevelopment && process.env.DEBUG_REDIS) {
@@ -266,101 +245,87 @@ function createRealRedis(): Redis {
 
   client.on('end', silentError);
   client.on('wait', silentError);
-
-  // Catch-all for any other events that might emit errors
   client.on('node error', silentError);
 
   return client;
 }
 
-function getRedisInstance(): Redis | MockRedis {
-  // Clear any cached real Redis instance in development without REDIS_URL
-  if (isDevelopment && !process.env.REDIS_URL && redisInstance) {
-    redisInstance.disconnect?.();
-    redisInstance = null;
-    globalForRedis.redis = undefined;
-  }
-
-  if (mockRedisInstance) return mockRedisInstance;
-  if (redisInstance) return redisInstance;
-
-  // In development, default to mock Redis unless explicitly configured
-  if (isDevelopment && !process.env.REDIS_URL) {
-    mockRedisInstance = new MockRedis();
-    if (process.env.DEBUG_REDIS) {
-      console.log('[Redis] Using MockRedis for development');
-    }
-    return mockRedisInstance;
-  }
-
-  // Try to create real Redis connection
-  try {
-    redisInstance = createRealRedis();
-    return redisInstance;
-  } catch (error) {
-    // Fallback to mock if creation fails
-    mockRedisInstance = new MockRedis();
-    if (!isDevelopment) {
-      console.warn('[Redis] Failed to create Redis client, using mock fallback');
-    }
-    return mockRedisInstance;
-  }
+function createUpstashRedis(): UpstashRedis {
+  return new UpstashRedis({
+    url: UPSTASH_URL || 'https://profound-python-134342.upstash.io',
+    token: UPSTASH_TOKEN || '',
+  });
 }
 
-// ============================================================================
-// Exported Redis Client (singleton)
-// ============================================================================
+type RedisClient = IoRedis | UpstashRedis | MockRedis;
+
+function getRedisInstance(): RedisClient {
+  if (isDevelopment && !process.env.REDIS_URL && mockRedisInstance) {
+    return mockRedisInstance;
+  }
+  if (upstashInstance) return upstashInstance;
+  if (redisInstance) return redisInstance;
+  if (mockRedisInstance) return mockRedisInstance;
+
+  // Production: use Upstash REST SDK (serverless-friendly)
+  if (!isDevelopment && UPSTASH_URL && UPSTASH_TOKEN) {
+    upstashInstance = createUpstashRedis();
+    redisAvailable = true;
+    return upstashInstance;
+  }
+
+  // Development with REDIS_URL: use ioredis
+  if (isDevelopment && REDIS_URL) {
+    try {
+      redisInstance = createIoRedis();
+      return redisInstance;
+    } catch (error) {
+      console.warn('[Redis] Failed to create ioredis client, using mock fallback');
+    }
+  }
+
+  // Fallback to mock
+  mockRedisInstance = new MockRedis();
+  return mockRedisInstance;
+}
 
 export const redis =
   globalForRedis.redis ||
+  globalForRedis.upstash ||
   globalForRedis.mockRedis ||
   getRedisInstance();
 
-// Store in global for hot reload in development
 if (isDevelopment) {
-  if (redis instanceof Redis) {
-    globalForRedis.redis = redis as Redis;
+  if (redis instanceof IoRedis) {
+    globalForRedis.redis = redis as IoRedis;
+  } else if (redis instanceof UpstashRedis) {
+    globalForRedis.upstash = redis as UpstashRedis;
   } else {
     globalForRedis.mockRedis = redis as MockRedis;
   }
 }
 
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Check if Redis is available and connected
- */
 export function isRedisConnected(): boolean {
   return redisAvailable;
 }
 
-/**
- * Check if using mock Redis (development fallback)
- */
 export function isMockRedis(): boolean {
   return redis instanceof MockRedis;
 }
 
-/**
- * Get Redis connection status for health checks
- */
 export async function getRedisStatus(): Promise<{
   connected: boolean;
   isMock: boolean;
   mode: string;
 }> {
+  const isMock = isMockRedis();
+  const isUpstash = !isMock && !(redis instanceof IoRedis);
   return {
-    connected: redisAvailable,
-    isMock: isMockRedis(),
-    mode: isMockRedis() ? 'mock' : redisAvailable ? 'connected' : 'disconnected',
+    connected: isMock || redisAvailable || isUpstash,
+    isMock,
+    mode: isMock ? 'mock' : isUpstash ? 'connected' : redisAvailable ? 'connected' : 'disconnected',
   };
 }
-
-// ============================================================================
-// Cleanup Function for Graceful Shutdown
-// ============================================================================
 
 export async function closeRedisConnection(): Promise<void> {
   if (redisInstance) {
@@ -371,5 +336,6 @@ export async function closeRedisConnection(): Promise<void> {
     await mockRedisInstance.quit();
     mockRedisInstance = null;
   }
+  upstashInstance = null;
   redisAvailable = false;
 }

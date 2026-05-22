@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const tokenKey = `password-reset:${token}`;
 
     // Buscar el token en Redis
-    const tokenData = await redis.get(tokenKey);
+    const tokenData = await redis.get<string>(tokenKey);
 
     if (!tokenData) {
       return NextResponse.json(
