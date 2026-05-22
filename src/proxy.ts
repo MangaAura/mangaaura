@@ -68,16 +68,17 @@ const CSP_SUFFIX = process.env.NODE_ENV === 'development'
   ? `' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`
   : `' https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
 
-function buildCSP(nonce: string): string {
-  return CSP_PREFIX + nonce + CSP_SUFFIX;
+function buildCSP(nonce: string, reportUrl?: string): string {
+  const base = CSP_PREFIX + nonce + CSP_SUFFIX;
+  if (reportUrl) {
+    return `${base}; report-uri ${reportUrl}`;
+  }
+  return base;
 }
 
 function applySecurityHeaders(response: NextResponse, nonce: string) {
   const reportUrl = process.env.CSP_REPORT_URL;
-  const csp = buildCSP(nonce);
-  const cspWithReport = reportUrl
-    ? `${csp}; report-uri ${reportUrl}; report-to csp-endpoint`
-    : csp;
+  const csp = buildCSP(nonce, reportUrl);
 
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -93,9 +94,9 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
   );
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
-  response.headers.set('Content-Security-Policy', cspWithReport);
+  response.headers.set('Content-Security-Policy', csp);
   if (reportUrl) {
-    response.headers.set('Content-Security-Policy-Report-Only', cspWithReport);
+    response.headers.set('Content-Security-Policy-Report-Only', csp);
   }
 }
 
@@ -180,11 +181,7 @@ export async function proxy(request: NextRequest) {
     nonce = generateNonce();
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-nonce', nonce);
-    const reportUrl = process.env.CSP_REPORT_URL;
-    const cspWithReport = reportUrl
-      ? `${buildCSP(nonce)}; report-uri ${reportUrl}; report-to csp-endpoint`
-      : buildCSP(nonce);
-    requestHeaders.set('Content-Security-Policy', cspWithReport);
+    requestHeaders.set('Content-Security-Policy', buildCSP(nonce, process.env.CSP_REPORT_URL));
 
     response = NextResponse.next({
       request: { headers: requestHeaders },

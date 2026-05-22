@@ -6,15 +6,15 @@ services:
     image: postgres:16-alpine
     container_name: mangaaura-postgres
     environment:
-      POSTGRES_USER: ${DOCKER_POSTGRES_USER:-inkverse}
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER:-mangaaura}
       POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD:?Error: DOCKER_POSTGRES_PASSWORD no configurada en .env}
-      POSTGRES_DB: inkverse
+      POSTGRES_DB: mangaaura
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U inkverse"]
+      test: ["CMD-SHELL", "pg_isready -U mangaaura"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,7 +26,7 @@ services:
     image: mongo:7-jammy
     container_name: mangaaura-mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DOCKER_MONGO_USER:-inkverse}
+      MONGO_INITDB_ROOT_USERNAME: ${DOCKER_MONGO_USER:-mangaaura}
       MONGO_INITDB_ROOT_PASSWORD: ${DOCKER_MONGO_PASSWORD:?Error: DOCKER_MONGO_PASSWORD no configurada en .env}
       MONGO_INITDB_DATABASE: mangaaura_analytics
     ports:

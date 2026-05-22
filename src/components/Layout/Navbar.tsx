@@ -69,7 +69,7 @@ export default function Navbar() {
                   <BookOpen className="w-4 h-4 text-[var(--text-inverse)]" aria-hidden="true" />
                 </div>
                 <span className="text-lg font-semibold tracking-tight">
-                  Ink<span className="text-[var(--primary)]">Verse</span>
+                  Manga<span className="text-[var(--primary)]">Aura</span>
                 </span>
               </Link>
 

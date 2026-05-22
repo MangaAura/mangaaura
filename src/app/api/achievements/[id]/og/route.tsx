@@ -254,7 +254,7 @@ export async function GET(
               fontSize: '18px',
             }}
           >
-            <span>inkverse.app/achievements</span>
+            <span>mangaaura.es/achievements</span>
           </div>
         </div>
       ),
