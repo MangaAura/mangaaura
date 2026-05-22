@@ -1,7 +1,6 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import Image from 'next/image';
 import {
   Newspaper,
   Star,
@@ -12,8 +11,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import useSWR from 'swr';
 
 import { Container } from '@/components/Layout/Container';
 import { useT, useLocale } from '@/i18n';
@@ -22,7 +23,6 @@ import {
   getArticlePath,
   type DisplayNewsItem,
 } from '@/lib/news';
-import useSWR from 'swr';
 
 const ARTICLES_PER_PAGE = 6;
 

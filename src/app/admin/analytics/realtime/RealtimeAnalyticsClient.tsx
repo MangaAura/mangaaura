@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import {
@@ -6,6 +7,7 @@ import {
   Users,
   BookOpen,
   TrendingUp,
+  Download,
   Eye,
   RefreshCw,
   Wifi,
@@ -15,6 +17,44 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 import type { RealtimeAnalytics } from '@/types/socket';
+
+async function exportToPDF(
+  setExporting: (v: boolean) => void,
+  setExportError: (v: string | null) => void,
+) {
+  try {
+    setExporting(true);
+    setExportError(null);
+
+    const { default: html2canvas } = await import('html2canvas');
+    const { default: jsPDF } = await import('jspdf');
+
+    const el = document.getElementById('realtime-analytics-content');
+    if (!el) {
+      setExportError('Content not found for export.');
+      return;
+    }
+
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#0f172a',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('l', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`inkverse-realtime-analytics-${new Date().toISOString().slice(0, 10)}.pdf`);
+  } catch (err) {
+    console.error('Error exporting PDF:', err);
+    setExportError('Failed to generate PDF. Please try again.');
+  } finally {
+    setExporting(false);
+  }
+}
 
 const POLL_INTERVAL = 10000;
 
@@ -164,6 +204,8 @@ export function RealtimeAnalyticsClient() {
   });
   const [connected, setConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const fallbackIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -242,7 +284,7 @@ export function RealtimeAnalyticsClient() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" aria-live="polite" aria-label="Real-time analytics dashboard">
+      <div id="realtime-analytics-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" aria-live="polite" aria-label="Real-time analytics dashboard">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
@@ -255,6 +297,23 @@ export function RealtimeAnalyticsClient() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={() => exportToPDF(setExporting, setExportError)}
+                disabled={exporting}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {exporting ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                {exporting ? 'Exporting...' : 'Export PDF'}
+              </button>
+              {exportError && (
+                <p className="text-xs text-[var(--error)]">{exportError}</p>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               {connected ? (
                 <span className="flex items-center gap-1.5 text-sm text-[var(--success)]">

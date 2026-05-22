@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { auth } from '@/lib/auth';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { WebhookService } from '@/core/services/WebhookService';
 import { PrismaWebhookRepository } from '@/infrastructure/adapters/PrismaWebhookRepository';
+import { auth } from '@/lib/auth';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const repo = new PrismaWebhookRepository();
 const webhookService = new WebhookService(repo);

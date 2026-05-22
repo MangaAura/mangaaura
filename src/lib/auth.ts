@@ -6,6 +6,7 @@ import Google from 'next-auth/providers/google';
 
 import { prisma } from './prisma';
 import { rateLimit, getRateLimitKey } from './rate-limit';
+import { redis } from './redis';
 
 // Configuración compatible con NextAuth 5 beta
 export const authConfig = {
@@ -116,7 +117,7 @@ export const authConfig = {
     },
   ],
   callbacks: {
-    async signIn({ user, account, profile }: any) {
+    async signIn({ user, account, profile }: { user?: { id?: string; email?: string; name?: string; image?: string; xpPoints?: number; level?: number; role?: string }; account?: { provider?: string; type?: string }; profile?: { avatar_url?: string } }) {
       if (account?.provider === 'google' || account?.provider === 'github') {
         if (!user?.email) return true;
         try {
@@ -180,22 +181,39 @@ export const authConfig = {
       }
       return true;
     },
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user, account, trigger, session: updateData }: { token: Record<string, unknown>; user?: { id: string; xpPoints?: number; level?: number; role?: string }; account?: { provider?: string }; trigger?: string; session?: { twoFactorEnabled?: boolean } }) {
+      // ── Initial sign-in: populate token ──────────────────────────
       if (user) {
         token.id = user.id as string;
         token.xpPoints = (user.xpPoints as number) || 0;
         token.level = (user.level as number) || 1;
         token.role = (user.role as string) || 'USER';
+
+        // Check 2FA status from DB so we can set twoFactorPending
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { twoFactorEnabled: true },
+          });
+          token.twoFactorEnabled = dbUser?.twoFactorEnabled ?? false;
+          if (token.twoFactorEnabled) {
+            token.twoFactorPending = true;
+          }
+        } catch {
+          token.twoFactorEnabled = false;
+        }
       }
 
+      // ── OAuth refresh: sync DB fields ────────────────────────────
       if (account && (account.provider === 'google' || account.provider === 'github')) {
         const dbUser = await prisma.user.findUnique({
-          where: { email: token.email! },
+          where: { email: token.email as string },
           select: {
             id: true,
             xpPoints: true,
             level: true,
             role: true,
+            twoFactorEnabled: true,
           },
         });
 
@@ -204,21 +222,44 @@ export const authConfig = {
           token.xpPoints = dbUser.xpPoints;
           token.level = dbUser.level;
           token.role = dbUser.role;
+          token.twoFactorEnabled = dbUser.twoFactorEnabled;
+        }
+      }
+
+      // ── Session update (e.g. after enabling/disabling 2FA) ───────
+      if (trigger === 'update' && updateData) {
+        if (typeof updateData.twoFactorEnabled === 'boolean') {
+          token.twoFactorEnabled = updateData.twoFactorEnabled;
+        }
+      }
+
+      // ── Login 2FA: check if user confirmed via Redis ─────────────
+      if (token.twoFactorPending && token.id) {
+        try {
+          const confirmed = await redis.get(`2fa:confirmed:${token.id}`);
+          if (confirmed === 'true') {
+            token.twoFactorPending = false;
+            await redis.del(`2fa:confirmed:${token.id}`);
+          }
+        } catch {
+          // Redis unavailable – keep pending state
         }
       }
 
       return token;
     },
-    async session({ session, token }: any) {
+    async session({ session, token }: { session: { user?: Record<string, unknown> }; token: Record<string, unknown> }) {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.xpPoints = token.xpPoints as number;
         session.user.level = token.level as number;
         session.user.role = token.role as string;
+        session.user.twoFactorEnabled = token.twoFactorEnabled as boolean;
+        session.user.twoFactorPending = token.twoFactorPending as boolean | undefined;
       }
       return session;
     },
-  } as any,
+  } as Record<string, unknown>,
   events: {
     async signIn({
       user: _user,
@@ -231,8 +272,8 @@ export const authConfig = {
     },
   },
   debug: process.env.NODE_ENV === 'development',
-};
+} as const;
 
 // Export for NextAuth 5 beta
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig as any) as any;
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig as any);
 export default authConfig;

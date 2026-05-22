@@ -211,8 +211,8 @@ export async function POST(request: NextRequest) {
 
     return Response.json(entry, { status: 201 });
   } catch (error) {
-if (error instanceof z.ZodError) {
-return Response.json({ error: 'Invalid input', details: error.issues }, { status: 400 });
+if (error && typeof error === 'object' && 'issues' in error) {
+return Response.json({ error: 'Invalid input', details: (error as { issues: unknown[] }).issues }, { status: 400 });
     }
     console.error('Error adding to library:', error);
     return Response.json({ error: 'Failed to add to library' }, { status: 500 });

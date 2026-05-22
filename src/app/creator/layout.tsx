@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 
 import { Sidebar } from '@/components/Creator/Sidebar';
-import { AuthGuard } from '@/components/AuthGuard';
-import { SkipToContent } from '@/components/Layout/SkipToContent';
-import { PageTransition } from '@/components/ui/PageTransition';
+import { AppShell } from '@/components/Layout/AppShell';
 
 export const metadata: Metadata = {
   title: 'Panel de Creador | Inkverse',
@@ -11,22 +9,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function CreatorLayout({
+export default function CreatorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard>
-      <div className="flex min-h-screen bg-[var(--surface)]">
-        <div role="region" aria-label="Skip navigation">
-          <SkipToContent />
-        </div>
-        <Sidebar className="hidden lg:flex fixed left-0 top-0 h-screen z-50" />
-        <main id="main-content" className="flex-1 lg:ml-64">
-          <PageTransition>{children}</PageTransition>
-        </main>
-      </div>
-    </AuthGuard>
+    <AppShell
+      requireAuth
+      sidebar={<Sidebar className="hidden lg:flex fixed left-0 top-0 h-screen z-50" />}
+      sidebarContentClass="lg:ml-64"
+    >
+      {children}
+    </AppShell>
   );
 }

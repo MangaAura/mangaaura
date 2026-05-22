@@ -1,7 +1,33 @@
+import { getToken } from '@auth/core/jwt';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { logRequest, generateRequestId } from '@/lib/request-logger';
+
+// ─── Auth: protected routes ────────────────────────────────────────
+
+const PROTECTED_ROUTES = [
+  '/profile', '/settings', '/library', '/notifications',
+  '/feed', '/bookmarks', '/following', '/achievements',
+  '/transactions', '/tips', '/collections', '/corrections',
+  '/sponsorships', '/reposts', '/messages',
+  '/checkout', '/analytics', '/prompts',
+  '/quests', '/reading-history', '/share-target',
+  '/comments',
+  '/admin', '/creator',
+];
+
+const PUBLIC_PREFIXES = ['/auth', '/api', '/_next', '/_rsc', '/static', '/favicon'];
+
+function isProtectedRoute(pathname: string): boolean {
+  if (pathname === '/') return false;
+  if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return false;
+  return PROTECTED_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
+// ─── Security constants ─────────────────────────────────────────────
 
 const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health', '/_rsc/'];
 const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health'];
@@ -99,7 +125,9 @@ function setCSRFCookie(response: NextResponse) {
   });
 }
 
-export function proxy(request: NextRequest) {
+// ─── Main handler (replaces middleware.ts + proxy.ts) ───────────────
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
   const startTime = Date.now();
@@ -107,10 +135,31 @@ export function proxy(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
 
+  // -- Skip processing for truly static assets (no auth, no headers) --
   if (STATIC_SKIP_PATHS.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  // RSC payload requests carry an 'RSC: 1' header — skip proxy to avoid
-  // CSP/security headers interfering with serialized RSC payload delivery.
+  // -- Auth check for protected page routes --
+  if (isProtectedRoute(pathname)) {
+    // RSC payload requests carry auth state internally — skip redirects
+    if (request.headers.get('RSC') !== '1') {
+      try {
+        const secret = process.env.NEXTAUTH_SECRET;
+        if (secret) {
+          const token = await getToken({ req: request, secret });
+          if (!token) {
+            const loginUrl = new URL('/auth/login', request.url);
+            loginUrl.searchParams.set('callbackUrl', pathname);
+            return NextResponse.redirect(loginUrl);
+          }
+        }
+      } catch {
+        // Si falla la verificación (ej. sin secret), continuamos silenciosamente
+      }
+    }
+  }
+
+  // RSC payload requests — skip proxy to avoid CSP/security headers
+  // interfering with serialized RSC payload delivery.
   if (request.headers.get('RSC') === '1') return NextResponse.next();
 
   // API routes return JSON, not HTML — skip nonce/CSP generation overhead.
@@ -120,7 +169,7 @@ export function proxy(request: NextRequest) {
   let nonce = '';
 
   if (isApiRoute) {
-    // API routes: no SSP HTML → no nonce/CSP needed.
+    // API routes: no SSR HTML → no nonce/CSP needed.
     response = NextResponse.next();
   } else {
     // Page routes: generate nonce and inject CSP for SSR inline scripts.

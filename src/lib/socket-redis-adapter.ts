@@ -52,21 +52,26 @@ export async function createRedisAdapter(io: SocketIOServer): Promise<boolean> {
   }
 }
 
+// NOTE: Usa KEYS en vez de SCAN por simplicidad. En producción con muchas
+// rooms (>1000), considera migrar a redis.scan() con cursor para no bloquear Redis.
 export async function getOnlineClientsCount(): Promise<number> {
   if (isMockRedis()) return 0;
 
   try {
     const keys = await redis.keys('socket.io#*');
-    let total = 0;
+    const uniqueSockets = new Set<string>();
 
     for (const key of keys) {
+      // Solo contar rooms del namespace por defecto ("/")
       if (key.includes('#/#')) {
-        const count = await redis.scard(key);
-        total += count;
+        const members = await redis.smembers(key);
+        for (const member of members) {
+          uniqueSockets.add(member);
+        }
       }
     }
 
-    return total;
+    return uniqueSockets.size;
   } catch {
     return 0;
   }

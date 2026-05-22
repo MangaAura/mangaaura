@@ -4,7 +4,50 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-// POST /api/analytics/export - Export analytics data
+// ─── CSV helpers ────────────────────────────────────────────────────
+
+/** Escape a CSV field per RFC 4180 */
+function csvEscape(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  const str = typeof value === 'object' ? JSON.stringify(value) : String(value);
+  // Fields containing commas, quotes, or newlines must be quoted
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+/** Generate a CSV string with UTF-8 BOM for Excel compatibility */
+function toCSV(rows: Record<string, unknown>[], headers?: string[]): string {
+  if (!rows.length) return '\uFEFF' + (headers ? headers.join(',') : '');
+  const keys = headers ?? Object.keys(rows[0]);
+  const headerLine = keys.map(csvEscape).join(',');
+  const dataLines = rows.map((row) =>
+    keys.map((key) => csvEscape(row[key])).join(',')
+  );
+  // BOM prefix ensures Excel interprets UTF-8 correctly (e.g. Spanish accents)
+  return '\uFEFF' + [headerLine, ...dataLines].join('\n');
+}
+
+// ─── Friendly headers per export type ───────────────────────────────
+
+const HEADERS: Record<string, string[]> = {
+  reading: [
+    'mangaTitle', 'mangaSlug', 'chapterNumber', 'chapterTitle',
+    'currentPage', 'totalPages', 'progressPercent', 'completed',
+    'startedAt', 'updatedAt',
+  ],
+  manga: [
+    'title', 'slug', 'status', 'totalChapters', 'uniqueReaders',
+    'createdAt', 'updatedAt',
+  ],
+  activity: [
+    'type', 'description', 'metadata', 'createdAt',
+  ],
+};
+
+// ─── POST /api/analytics/export ─────────────────────────────────────
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -19,102 +62,131 @@ export async function POST(request: NextRequest) {
       3600
     );
     if (!allowed) {
-      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Intenta más tarde.' },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();
-    const { format = 'csv', type = 'reading' } = body;
+    const { format = 'csv', type = 'reading', dateRange } = body;
 
-    // Only allow users to export their own data or manga they created
     const userId = session.user.id;
     const isCreator = session.user.role === 'CREATOR' || session.user.role === 'ADMIN';
 
-    let data: any[] = [];
+    // Build date filter if dateRange provided
+    const dateFilter: Record<string, Date> = {};
+    if (dateRange?.from) dateFilter.gte = new Date(dateRange.from);
+    if (dateRange?.to) dateFilter.lte = new Date(dateRange.to);
+
+    let data: Record<string, unknown>[] = [];
 
     switch (type) {
-      case 'reading':
-        // Reading history
-        data = await prisma.readingProgress.findMany({
-          where: { userId },
+      case 'reading': {
+        const whereDate: Record<string, unknown> = {};
+        if (Object.keys(dateFilter).length > 0) {
+          whereDate.updatedAt = dateFilter;
+        }
+
+        const raw = await prisma.readingProgress.findMany({
+          where: { userId, ...whereDate },
           include: {
-            manga: {
-              select: {
-                title: true,
-                slug: true,
-              },
-            },
-            chapter: {
-              select: {
-                chapterNumber: true,
-                title: true,
-              },
-            },
+            manga: { select: { title: true, slug: true } },
+            chapter: { select: { chapterNumber: true, title: true, totalPages: true } },
           },
           orderBy: { updatedAt: 'desc' },
         });
-        break;
 
-      case 'manga':
+        data = raw.map((r) => ({
+          mangaTitle: r.manga?.title ?? '',
+          mangaSlug: r.manga?.slug ?? '',
+          chapterNumber: r.chapter?.chapterNumber ?? 0,
+          chapterTitle: r.chapter?.title ?? '',
+          currentPage: r.currentPage,
+          totalPages: r.chapter?.totalPages ?? 0,
+          progressPercent: (r.chapter?.totalPages ?? 0) > 0 ? Math.round((r.currentPage / (r.chapter?.totalPages ?? 1)) * 100) : 0,
+          completed: r.completed,
+          startedAt: r.createdAt.toISOString(),
+          updatedAt: r.updatedAt.toISOString(),
+        }));
+        break;
+      }
+
+      case 'manga': {
         if (!isCreator) {
           return NextResponse.json(
             { error: 'Solo creadores pueden exportar datos de manga' },
             { status: 403 }
           );
         }
-        // Manga created by user with stats
-        data = await prisma.mangaSeries.findMany({
-          where: { authorId: userId },
+
+        const whereMangaDate: Record<string, unknown> = {};
+        if (Object.keys(dateFilter).length > 0) {
+          whereMangaDate.createdAt = dateFilter;
+        }
+
+        const raw = await prisma.mangaSeries.findMany({
+          where: { authorId: userId, ...whereMangaDate },
           include: {
-            _count: {
-              select: { chapters: true },
-            },
+            _count: { select: { chapters: true } },
             readingProgress: {
-              select: {
-                userId: true,
-              },
+              select: { userId: true },
               distinct: ['userId'],
             },
           },
           orderBy: { createdAt: 'desc' },
         });
-        break;
 
-      case 'activity':
-        // User activity log
-        data = await prisma.userActivity.findMany({
-          where: { userId },
+        data = raw.map((r: any) => ({
+          title: r.title,
+          slug: r.slug,
+          status: r.status,
+          totalChapters: r._count?.chapters ?? 0,
+          uniqueReaders: r.readingProgress?.length ?? 0,
+          createdAt: r.createdAt?.toISOString?.() ?? String(r.createdAt ?? ''),
+          updatedAt: r.updatedAt?.toISOString?.() ?? String(r.updatedAt ?? ''),
+        }));
+        break;
+      }
+
+      case 'activity': {
+        const whereActivityDate: Record<string, unknown> = {};
+        if (Object.keys(dateFilter).length > 0) {
+          whereActivityDate.createdAt = dateFilter;
+        }
+
+        const raw = await prisma.userActivity.findMany({
+          where: { userId, ...whereActivityDate },
           orderBy: { createdAt: 'desc' },
           take: 1000,
         });
+
+        data = raw.map((r: any) => ({
+          type: r.type ?? '',
+          description: r.description ?? '',
+          metadata: r.metadata ? JSON.stringify(r.metadata) : '',
+          createdAt: r.createdAt?.toISOString?.() ?? String(r.createdAt ?? ''),
+        }));
         break;
+      }
 
       default:
         return NextResponse.json(
-          { error: 'Tipo de exportación no válido' },
+          { error: 'Tipo de exportación no válido. Use: reading, manga, activity' },
           { status: 400 }
         );
     }
 
-    // Format data
+    // ── Format output ────────────────────────────────────────────
+
     let output: string;
     let contentType: string;
     let filename: string;
 
     if (format === 'csv') {
-      // Convert to CSV
-      const headers = Object.keys(data[0] || {}).join(',');
-      const rows = data.map((row) => {
-        return Object.values(row)
-          .map((val) => {
-            if (val === null || val === undefined) return '';
-            if (typeof val === 'object') return JSON.stringify(val);
-            if (typeof val === 'string' && val.includes(',')) return `"${val}"`;
-            return String(val);
-          })
-          .join(',');
-      });
-      output = [headers, ...rows].join('\n');
-      contentType = 'text/csv';
+      const headers = HEADERS[type] ?? undefined;
+      output = toCSV(data, headers);
+      contentType = 'text/csv; charset=utf-8';
       filename = `inkverse-${type}-${new Date().toISOString().split('T')[0]}.csv`;
     } else if (format === 'json') {
       output = JSON.stringify(data, null, 2);
@@ -127,7 +199,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create response with file download
     return new NextResponse(output, {
       headers: {
         'Content-Type': contentType,

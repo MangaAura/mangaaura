@@ -113,7 +113,7 @@ export default function AnalyticsPage() {
         const data = await res.json();
         setCreatorMangas(data.mangas || data || []);
       }
-    } catch {        // eslint-disable-next-line react-hooks/set-state-in-effect
+    } catch {         
         setError(t('analytics.errorLoadingMangas'));
     }
   }, []);

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { auth } from '@/lib/auth';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { WebhookService } from '@/core/services/WebhookService';
 import { PrismaWebhookRepository } from '@/infrastructure/adapters/PrismaWebhookRepository';
+import { auth } from '@/lib/auth';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const createSchema = z.object({
   url: z.string().url(),

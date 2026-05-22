@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion } from 'framer-motion';
 import { Search, Bell, Users, MessageSquare, AlertTriangle, Library } from 'lucide-react';
@@ -31,7 +31,7 @@ export function EmptyState({
   icon,
   preset: _preset,
   title = 'Sin contenido',
-  description = 'No hay nada que mostrar aquÃ­',
+  description = 'No hay nada que mostrar aquí',
   action,
   secondaryAction,
   className,
@@ -81,9 +81,10 @@ export function EmptyState({
         >
           {icon}
         </motion.div>
-      )}          <h2 className={cn('font-semibold text-[var(--text-primary)] mb-2', sizes[size].title)}>
-            {title}
-          </h2>
+      )}
+      <h2 className={cn('font-semibold text-[var(--text-primary)] mb-2', sizes[size].title)}>
+        {title}
+      </h2>
 
       {description && (
         <p className={cn('text-[var(--text-secondary)] max-w-md mb-6', sizes[size].description)}>
@@ -135,8 +136,8 @@ export function EmptyLibrary() {
   return (
     <EmptyState
       icon={<Library className="w-8 h-8" />}
-      title="Tu biblioteca estÃ¡ vacÃ­a"
-      description="Comienza a seguir mangas para verlos aquÃ­. Tu biblioteca se sincronizarÃ¡ automÃ¡ticamente."
+      title="Tu biblioteca está vacía"
+      description="Comienza a seguir mangas para verlos aquí. Tu biblioteca se sincronizará automáticamente."
       action={{ label: 'Explorar mangas', href: '/explore' }}
       secondaryAction={{ label: 'Ver rankings', href: '/rankings' }}
     />
@@ -148,9 +149,9 @@ export function EmptySearch({ query }: { query: string }) {
     <EmptyState
       icon={<Search className="w-8 h-8" />}
       title="No se encontraron resultados"
-      description={`No encontramos mangas que coincidan con "${query}". Intenta con otros tÃ©rminos.`}
+      description={`No encontramos mangas que coincidan con "${query}". Intenta con otros términos.`}
       action={{ label: 'Ver todos los mangas', href: '/explore' }}
-      secondaryAction={{ label: 'Borrar bÃºsqueda', href: '/explore' }}
+      secondaryAction={{ label: 'Borrar búsqueda', href: '/explore' }}
     />
   );
 }
@@ -182,7 +183,7 @@ export function EmptyMessages() {
     <EmptyState
       icon={<MessageSquare className="w-8 h-8" />}
       title="Sin mensajes"
-      description="Tus conversaciones aparecerÃ¡n aquÃ­. Inicia una conversaciÃ³n con alguien."
+      description="Tus conversaciones aparecerán aquí. Inicia una conversación con alguien."
       action={{ label: 'Nuevo mensaje', href: '/messages/new' }}
     />
   );
@@ -198,7 +199,7 @@ export function ErrorState({
   return (
     <EmptyState
       icon={<AlertTriangle className="w-8 h-8 text-red-500" />}
-      title="Algo saliÃ³ mal"
+      title="Algo salió mal"
       description={message}
       action={
         onRetry

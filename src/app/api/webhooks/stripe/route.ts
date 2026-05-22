@@ -36,13 +36,14 @@ export async function POST(request: NextRequest) {
         // Handle subscription checkout
         if (type === 'subscription' && userId && planId) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          const subData = subscription as unknown as { current_period_end: number };
           await prisma.user.update({
             where: { id: userId },
             data: {
               subscriptionId: subscription.id,
               subscriptionStatus: subscription.status,
               subscriptionTier: planId,
-              subscriptionEndsAt: new Date((subscription as any).current_period_end * 1000),
+              subscriptionEndsAt: new Date(subData.current_period_end * 1000),
               stripeCustomerId: session.customer as string,
             },
           });
@@ -91,9 +92,9 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as any;
-        const customerId = subscription.customer as string;
-        const status = subscription.status as string;
+        const subscription = event.data.object;
+        const customerId = (subscription as unknown as { customer: string }).customer;
+        const status = (subscription as unknown as { status: string }).status;
 
         const user = await prisma.user.findFirst({
           where: { stripeCustomerId: customerId },
@@ -105,10 +106,11 @@ export async function POST(request: NextRequest) {
           break;
         }
 
-        const updateData: any = {
-          subscriptionId: subscription.id,
+        const sub = subscription as unknown as { id: string; current_period_end: number; items?: { data: Array<{ price: { id: string } }> } };
+        const updateData: Record<string, unknown> = {
+          subscriptionId: sub.id,
           subscriptionStatus: status,
-          subscriptionEndsAt: new Date((subscription as any).current_period_end * 1000),
+          subscriptionEndsAt: new Date(sub.current_period_end * 1000),
         };
 
         // Only update tier on creation or if it hasn't been set
@@ -131,8 +133,8 @@ export async function POST(request: NextRequest) {
       }
 
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as any;
-        const customerId = subscription.customer as string;
+        const subscription = event.data.object as unknown as { customer: string };
+        const customerId = subscription.customer;
 
         const user = await prisma.user.findFirst({
           where: { stripeCustomerId: customerId },
@@ -159,8 +161,8 @@ export async function POST(request: NextRequest) {
       }
 
       case 'invoice.payment_succeeded': {
-        const invoice = event.data.object as any;
-        const subscriptionId = invoice.subscription as string;
+        const invoice = event.data.object as unknown as { subscription: string };
+        const subscriptionId = invoice.subscription;
 
         if (!subscriptionId) break;
 
@@ -174,21 +176,20 @@ export async function POST(request: NextRequest) {
 
         if (!user) break;
 
+        const subData = sub as unknown as { current_period_end: number };
         await prisma.user.update({
           where: { id: user.id },
           data: {
             subscriptionStatus: sub.status,
-            subscriptionEndsAt: new Date((sub as any).current_period_end * 1000),
+            subscriptionEndsAt: new Date(subData.current_period_end * 1000),
           },
         });
-
-        // console.log(`[Stripe Webhook] Invoice paid for user ${user.id}, renewed until ${new Date((sub as any).current_period_end * 1000).toISOString()}`);
         break;
       }
 
       case 'invoice.payment_failed': {
-        const failedInvoice = event.data.object as any;
-        const failedSubId = failedInvoice.subscription as string;
+        const failedInvoice = event.data.object as unknown as { subscription: string };
+        const failedSubId = failedInvoice.subscription;
 
         if (!failedSubId) break;
 

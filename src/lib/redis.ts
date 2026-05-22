@@ -12,7 +12,7 @@ if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (global
   try {
     const nodeProcess = globalThis.process as any;
     const originalEmit = nodeProcess.emit;
-    nodeProcess.emit = function (event: string | symbol, ...args: unknown[]): boolean {
+    nodeProcess.emit = function (this: typeof nodeProcess, event: string | symbol, ...args: unknown[]): boolean {
       if (event === 'warning' && args[0] instanceof Error) {
         const warning = args[0] as Error;
         if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event')) {
@@ -116,6 +116,19 @@ class MockRedis {
       return Array.isArray(arr) ? arr.length : 0;
     } catch {
       return 0;
+    }
+  }
+
+  async smembers(key: string): Promise<string[]> {
+    const set = this.sortedSets.get(key);
+    if (set) return set.map((item) => item.member);
+    const item = this.store.get(key);
+    if (!item) return [];
+    try {
+      const arr = JSON.parse(item.value);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
     }
   }
 

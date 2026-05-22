@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-      const [mangas, total]: [any[], number] = await Promise.all([
+      const [mangas, total] = await Promise.all([
       prisma.mangaSeries.findMany({
         where,
         select: {
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         ]);
 
     // Obtener información de capítulos para todos los mangas - use select para evitar over-fetching
-    const mangaIds = mangas.map((m: any) => m.id);
+    const mangaIds = mangas.map((m) => m.id);
     const chapters = await prisma.chapter.findMany({
       where: { mangaId: { in: mangaIds } },
       orderBy: { createdAt: 'desc' },
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
         // Agrupar capítulos por manga
         const chaptersByManga = new Map<string, typeof chapters>();
-        chapters.forEach((ch: any) => {
+        chapters.forEach((ch) => {
           if (!chaptersByManga.has(ch.mangaId)) {
             chaptersByManga.set(ch.mangaId, []);
           }
@@ -101,10 +101,10 @@ export async function GET(request: NextRequest) {
         });
 
         // Calcular estadísticas para cada manga
-        const mangasWithStats = mangas.map((manga: any) => {
+        const mangasWithStats = mangas.map((manga) => {
           const mangaChapters = chaptersByManga.get(manga.id) || [];
           const totalChapterViews = mangaChapters.reduce(
-            (sum: any, ch: any) => sum + ch.viewCount,
+            (sum: number, ch) => sum + ch.viewCount,
             0
           );
           const lastUpdate =
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
               totalChapterViews,
               lastUpdate,
             },
-            recentChapters: mangaChapters.slice(0, 5).map((ch: any) => ({
+            recentChapters: mangaChapters.slice(0, 5).map((ch) => ({
               id: ch.id,
               chapterNumber: ch.chapterNumber,
               title: ch.title,

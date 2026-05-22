@@ -48,7 +48,7 @@ function Content() {
       .regex(/[a-z]/, t('auth.validation.passwordLowercase'))
       .regex(/[0-9]/, t('auth.validation.passwordNumber')),
     confirmPassword: z.string(),
-  }).refine((data: any) => data.password === data.confirmPassword, {
+  }).refine((data: { password: string; confirmPassword: string }) => data.password === data.confirmPassword, {
     message: t('auth.validation.passwordMismatch'),
     path: ['confirmPassword'],
   });
@@ -60,16 +60,16 @@ function Content() {
         fieldSchema.parse(value);
       } else {
         if (value !== password) {
-          setValidationErrors((prev: any) => ({ ...prev, confirmPassword: t('auth.validation.passwordMismatch') }));
+          setValidationErrors((prev) => ({ ...prev, confirmPassword: t('auth.validation.passwordMismatch') }));
           return false;
         }
       }
-      setValidationErrors((prev: any) => ({ ...prev, [field]: undefined }));
+      setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof z.ZodError) {
-        const message = (err as any).errors[0]?.message || t('auth.validation.passwordMin');
-        setValidationErrors((prev: any) => ({ ...prev, [field]: message }));
+        const message = err.issues[0]?.message || t('auth.validation.passwordMin');
+        setValidationErrors((prev) => ({ ...prev, [field]: message }));
         return false;
       }
       return false;
@@ -137,12 +137,12 @@ function Content() {
 
     try {
       resetPasswordSchema.parse({ password, confirmPassword });
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof z.ZodError) {
         const errors: { password?: string; confirmPassword?: string } = {};
-        (err as any).errors.forEach((error: any) => {
-          const field = error.path[0] as 'password' | 'confirmPassword';
-          errors[field] = error.message;
+        err.issues.forEach((issue) => {
+          const field = issue.path[0] as 'password' | 'confirmPassword';
+          errors[field] = issue.message;
         });
         setValidationErrors(errors);
         setFormState('error');

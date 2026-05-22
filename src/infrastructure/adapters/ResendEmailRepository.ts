@@ -104,10 +104,69 @@ export class ResendEmailRepository implements IEmailRepository, IEmailTemplateSe
   }
 
   async sendTemplate(template: string, to: string, data: Record<string, unknown>): Promise<void> {
-    console.warn(`[EmailRepository] sendTemplate not fully implemented for: ${template}`);
-    const subject = `Template: ${template}`;
-    const html = `<p>Template: ${template}</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
-    await this.sendEmail(to, subject, html);
+    // Map template name to renderer
+    const renderers: Record<string, () => { subject: string; html: string; text: string }> = {
+      'welcome': () => {
+        const username = (data.username || data.displayName || data.name || 'Usuario') as string;
+        const tpl = this.renderWelcomeEmail(username);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+      'password-reset': () => {
+        const username = (data.username || data.displayName || '') as string;
+        const resetLink = (data.resetLink || data.url || data.resetUrl || '#') as string;
+        const tpl = this.renderPasswordResetEmail(username, resetLink);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+      'new-chapter': () => {
+        const username = (data.username || '') as string;
+        const mangaTitle = (data.mangaTitle || data.title || 'Manga') as string;
+        const chapterNumber = (data.chapterNumber || data.chapter || 1) as number;
+        const link = (data.link || data.url || '#') as string;
+        const tpl = this.renderNewChapterNotification(username, mangaTitle, chapterNumber, link);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+      'achievement': () => {
+        const username = (data.username || '') as string;
+        const achievementName = (data.achievementName || data.name || data.achievement || 'Logro') as string;
+        const tpl = this.renderAchievementEmail(username, achievementName);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+      'tip-received': () => {
+        const username = (data.username || '') as string;
+        const senderName = (data.senderName || data.from || 'Usuario') as string;
+        const amount = (data.amount || data.tipAmount || 0) as number;
+        const link = (data.link || data.url || '#') as string;
+        const tpl = this.renderTipReceivedEmail(username, senderName, amount, link);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+      'crowdfunding-goal': () => {
+        const username = (data.username || '') as string;
+        const mangaTitle = (data.mangaTitle || data.title || 'Manga') as string;
+        const goal = (data.goal || data.target || 0) as number;
+        const link = (data.link || data.url || '#') as string;
+        const tpl = this.renderCrowdfundingGoalEmail(username, mangaTitle, goal, link);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+      'comment-reply': () => {
+        const username = (data.username || '') as string;
+        const replierName = (data.replierName || data.from || 'Usuario') as string;
+        const chapterTitle = (data.chapterTitle || data.title || 'Capítulo') as string;
+        const link = (data.link || data.url || '#') as string;
+        const tpl = this.renderCommentReplyEmail(username, replierName, chapterTitle, link);
+        return { subject: tpl.subject, html: tpl.html, text: tpl.text };
+      },
+    };
+
+    const renderer = renderers[template];
+    if (renderer) {
+      const tpl = renderer();
+      await this.sendEmail(to, tpl.subject, tpl.html, tpl.text);
+    } else {
+      console.warn(`[EmailRepository] Unknown template: ${template}, using fallback`);
+      const subject = (data.subject || `Notification: ${template}`) as string;
+      const body = (data.body || data.message || `<p>Template: ${template}</p>`) as string;
+      await this.sendEmail(to, subject, body);
+    }
   }
 
   private async sendWithResend(to: string, from: string, template: EmailTemplate): Promise<SendEmailResult> {

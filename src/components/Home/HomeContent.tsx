@@ -3,16 +3,16 @@
 import { Trophy, Clock, TrendingUp, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
-import { useT } from '@/i18n';
 import { GenreMarquee } from '@/components/GenreMarquee';
-import { MangaCard } from '@/components/MangaCard';
+import { AnimatedHero } from '@/components/Home/AnimatedHero';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
-import { AnimatedHero } from '@/components/Home/AnimatedHero';
-import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { QuestPanelWrapper } from '@/components/Home/QuestPanelWrapper';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
+import { MangaCard } from '@/components/MangaCard';
+import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 
 interface MangaData {
   id: string;
@@ -180,6 +180,7 @@ export function HomeContent({
                     >
                       <div className="w-12 h-16 bg-tertiary rounded overflow-hidden flex-shrink-0 relative">
                         {manga.coverUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={manga.coverUrl} alt={manga.title} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-primary to-accent-purple" />

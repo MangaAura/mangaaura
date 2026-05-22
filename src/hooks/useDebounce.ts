@@ -106,7 +106,7 @@ export function useDebouncedSearch(
   const [debouncedQuery, setDebouncedQuery] = useState(initialValue);
   const [isSearching, setIsSearching] = useState(false);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   // setIsSearching is unavoidable for debounce pattern with loading state
   useEffect(() => {
     setIsSearching(true);
@@ -204,13 +204,13 @@ export function useRateLimit<T extends (...args: any[]) => any>(
 
   // eslint-disable-next-line react-hooks/refs
   Object.defineProperty(rateLimitedFn, 'canCall', {
-    // eslint-disable-next-line react-hooks/refs
+     
     get: () => canCall,  // canCall is state, not ref
   });
 
   // eslint-disable-next-line react-hooks/refs
   Object.defineProperty(rateLimitedFn, 'remainingCalls', {
-    // eslint-disable-next-line react-hooks/refs
+     
     get: () => remainingCallsCount,  // remainingCallsCount is state, not ref
   });
 

@@ -75,6 +75,7 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
             <Link href={`/manga/${m.slug}`} className="group">
               <div className="aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
                 {m.coverUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={m.coverUrl} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

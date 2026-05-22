@@ -30,7 +30,8 @@
     "theme": "Tema",
     "menu": "Menú",
     "and": "y",
-    "all": "Todos"
+    "all": "Todos",
+    "breadcrumb": "Navegación"
   },
   "a11y": {
     "skipToContent": "Saltar al contenido",
@@ -118,7 +119,14 @@
     "exitFullscreen": "Salir de pantalla completa",
     "pageView": "Vista de página",
     "scrollView": "Vista continua",
-    "doublePageView": "Vista de doble página"
+    "doublePageView": "Vista de doble página",
+    "continuousReading": "Lectura continua",
+    "continuousReadingOn": "Lectura continua activada",
+    "continuousReadingOff": "Lectura continua desactivada",
+    "continuousReadingDesc": "Al llegar al final del capítulo, avanzarás automáticamente al siguiente sin necesidad de hacer clic.",
+    "continuousReadingScrollHint": "En modo desplazamiento, haz scroll hasta la última página para activar el cambio automático.",
+    "autoNextChapter": "Auto-siguiente capítulo",
+    "noNextChapter": "Este es el último capítulo disponible"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",
@@ -566,7 +574,8 @@
       "allTypes": "Todos los tipos",
       "searchPlaceholder": "Buscar eventos...",
       "searchAria": "Buscar eventos",
-      "searchButton": "Buscar"
+      "searchButton": "Buscar",
+      "typeAria": "Filtrar por tipo de evento"
     },
     "tabs": {
       "active": "Activo",
@@ -1231,7 +1240,8 @@
     "chapterNumber": "Cap.",
     "reads": "Lecturas",
     "completed": "Completados",
-    "rate": "Tasa"
+    "rate": "Tasa",
+    "exportPDF": "Exportar PDF"
   },
   "creatorMangaNew": {
     "title": "Nuevo Manga",
@@ -1256,7 +1266,8 @@
     "creating": "Creando...",
     "create": "Crear Manga",
     "errorImageType": "El archivo debe ser una imagen",
-    "errorImageSize": "La imagen no debe superar 5MB"
+    "errorImageSize": "La imagen no debe superar 5MB",
+    "removeTag": "Eliminar etiqueta"
   },
   "creatorMangaEdit": {
     "notFound": "Manga no encontrado",
@@ -1495,7 +1506,8 @@
     "searchLabel": "Buscar clanes",
     "sortMonthly": "Puntuación Mensual",
     "sortTotal": "Puntuación Total",
-    "sortName": "Nombre"
+    "sortName": "Nombre",
+    "sortLabel": "Ordenar clanes"
   },
   "clanDetail": {
     "leader": "Líder",
@@ -1526,7 +1538,10 @@
     "leaveClan": "Salir del Clan",
     "joinClan": "Unirse al Clan",
     "loginToJoin": "Inicia sesión para unirte",
-    "closeError": "Cerrar error"
+    "closeError": "Cerrar error",
+    "emblemOf": "Emblema de",
+    "errorLeave": "Error al salir del clan",
+    "errorJoin": "Error al unirse al clan"
   },
   "newThread": {
     "category": "Categoría",
@@ -1559,5 +1574,45 @@
     "replyToThread": "Responder al hilo",
     "placeholder": "Escribe tu respuesta...",
     "reply": "Responder"
+  },
+  "social": {
+    "title": "Social",
+    "subtitle": "Descubre nuevos usuarios, creadores y contenido popular en la comunidad",
+    "discover": "Descubrir",
+    "trending": "Tendencia",
+    "globalActivity": "Actividad Global",
+    "recommendedUsers": "Usuarios recomendados",
+    "trendingContent": "Contenido en tendencia",
+    "loginPrompt": "Inicia sesión para interactuar con la comunidad"
+  },
+  "offline": {
+    "title": "Sin conexión",
+    "reconnecting": "¡Conexión restaurada!",
+    "noConnection": "Sin conexión a internet",
+    "reconnectingDesc": "Tu conexión ha vuelto. Puedes continuar navegando normalmente.",
+    "noConnectionDesc": "Parece que has perdido la conexión. Puedes seguir leyendo los capítulos que hayas guardado para modo offline.",
+    "continue": "Continuar",
+    "retry": "Reintentar",
+    "savedContent": "Disponible offline",
+    "noSavedContent": "No hay contenido guardado",
+    "noSavedContentDesc": "Cuando tengas conexión, guarda tus mangas favoritos para leerlos sin internet.",
+    "cacheInfo": "Información de caché",
+    "staticCache": "App Shell",
+    "imageCache": "Imágenes",
+    "apiCache": "API",
+    "totalCached": "Total en caché",
+    "loadingCache": "Cargando info de caché...",
+    "clearCache": "Limpiar caché",
+    "clearCacheDesc": "Elimina todos los recursos cacheados. La app se recargará al reconectar.",
+    "cacheCleared": "Caché limpiada",
+    "storageTitle": "Almacenamiento offline",
+    "storageMangas": "Mangas guardados",
+    "storageChapters": "Capítulos guardados",
+    "storageActions": "Acciones pendientes",
+    "tips": "Consejos para modo offline",
+    "tip1": "Guarda capítulos desde el lector para leerlos sin conexión",
+    "tip2": "Los capítulos guardados expiran después de 7 días",
+    "tip3": "Tu progreso se sincronizará cuando vuelvas a tener conexión",
+    "tip4": "Usa WiFi para guardar capítulos y ahorrar datos móviles"
   }
 }

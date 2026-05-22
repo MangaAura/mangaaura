@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { prisma } from '@/lib/prisma';
-import { dbArticleToDisplayItem } from '@/lib/news';
 import { NewsArticleClient } from './NewsArticleClient';
+import { dbArticleToDisplayItem } from '@/lib/news';
+import { prisma } from '@/lib/prisma';
 
 interface Props {
   params: Promise<{ year: string; month: string; slug: string }>;

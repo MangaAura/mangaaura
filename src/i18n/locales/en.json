@@ -30,7 +30,8 @@
     "theme": "Theme",
     "menu": "Menu",
     "and": "and",
-    "all": "All"
+    "all": "All",
+    "breadcrumb": "Navigation"
   },
   "a11y": {
     "skipToContent": "Skip to content",
@@ -118,7 +119,14 @@
     "exitFullscreen": "Exit fullscreen",
     "pageView": "Page view",
     "scrollView": "Scroll view",
-    "doublePageView": "Double page view"
+    "doublePageView": "Double page view",
+    "continuousReading": "Continuous reading",
+    "continuousReadingOn": "Continuous reading on",
+    "continuousReadingOff": "Continuous reading off",
+    "continuousReadingDesc": "When you reach the end of the chapter, you'll automatically advance to the next one without clicking.",
+    "continuousReadingScrollHint": "In scroll mode, scroll to the last page to trigger auto-advance.",
+    "autoNextChapter": "Auto-next chapter",
+    "noNextChapter": "This is the last available chapter"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -566,7 +574,8 @@
       "allTypes": "All types",
       "searchPlaceholder": "Search events...",
       "searchAria": "Search events",
-      "searchButton": "Search"
+      "searchButton": "Search",
+      "typeAria": "Filter by event type"
     },
     "tabs": {
       "active": "Active",
@@ -1231,7 +1240,8 @@
     "chapterNumber": "Ch.",
     "reads": "Reads",
     "completed": "Completed",
-    "rate": "Rate"
+    "rate": "Rate",
+    "exportPDF": "Export PDF"
   },
   "creatorMangaNew": {
     "title": "New Manga",
@@ -1256,7 +1266,8 @@
     "creating": "Creating...",
     "create": "Create Manga",
     "errorImageType": "File must be an image",
-    "errorImageSize": "Image must not exceed 5MB"
+    "errorImageSize": "Image must not exceed 5MB",
+    "removeTag": "Remove tag"
   },
   "creatorMangaEdit": {
     "notFound": "Manga not found",
@@ -1495,7 +1506,8 @@
     "searchLabel": "Search clans",
     "sortMonthly": "Monthly Score",
     "sortTotal": "Total Score",
-    "sortName": "Name"
+    "sortName": "Name",
+    "sortLabel": "Sort clans"
   },
   "clanDetail": {
     "leader": "Leader",
@@ -1526,7 +1538,10 @@
     "leaveClan": "Leave Clan",
     "joinClan": "Join Clan",
     "loginToJoin": "Log in to join",
-    "closeError": "Close error"
+    "closeError": "Close error",
+    "emblemOf": "Emblem of",
+    "errorLeave": "Error leaving clan",
+    "errorJoin": "Error joining clan"
   },
   "newThread": {
     "category": "Category",
@@ -1559,5 +1574,45 @@
     "replyToThread": "Reply to thread",
     "placeholder": "Write your reply...",
     "reply": "Reply"
+  },
+  "social": {
+    "title": "Social",
+    "subtitle": "Discover new users, creators and popular community content",
+    "discover": "Discover",
+    "trending": "Trending",
+    "globalActivity": "Global Activity",
+    "recommendedUsers": "Recommended users",
+    "trendingContent": "Trending content",
+    "loginPrompt": "Sign in to interact with the community"
+  },
+  "offline": {
+    "title": "Offline",
+    "reconnecting": "Connection restored!",
+    "noConnection": "No internet connection",
+    "reconnectingDesc": "Your connection is back. You can continue browsing normally.",
+    "noConnectionDesc": "It looks like you've lost connection. You can still read chapters you've saved for offline mode.",
+    "continue": "Continue",
+    "retry": "Retry",
+    "savedContent": "Available offline",
+    "noSavedContent": "No saved content",
+    "noSavedContentDesc": "When you have a connection, save your favorite manga to read them without internet.",
+    "cacheInfo": "Cache info",
+    "staticCache": "App Shell",
+    "imageCache": "Images",
+    "apiCache": "API",
+    "totalCached": "Total cached",
+    "loadingCache": "Loading cache info...",
+    "clearCache": "Clear cache",
+    "clearCacheDesc": "Remove all cached resources. The app will reload when reconnected.",
+    "cacheCleared": "Cache cleared",
+    "storageTitle": "Offline storage",
+    "storageMangas": "Saved manga",
+    "storageChapters": "Saved chapters",
+    "storageActions": "Pending actions",
+    "tips": "Offline mode tips",
+    "tip1": "Save chapters from the reader to read them offline",
+    "tip2": "Saved chapters expire after 7 days",
+    "tip3": "Your progress will sync when you reconnect",
+    "tip4": "Use WiFi to save chapters and save mobile data"
   }
 }

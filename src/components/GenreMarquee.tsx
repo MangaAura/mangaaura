@@ -1,7 +1,7 @@
 'use client';
 
-import { Hash } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { Hash } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 

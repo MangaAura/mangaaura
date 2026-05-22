@@ -1,6 +1,6 @@
 declare module 'zod' {
 export const z: typeof import('zod/v4').z;
-export class ZodError<T = unknown> {
+export class ZodError<_T = unknown> {
 issues: Array<{ message: string; path: (string | number)[]; code: string }>;
 errors: Array<{ message: string; path: (string | number)[]; code: string }>;
 message: string;

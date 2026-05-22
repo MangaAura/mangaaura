@@ -51,7 +51,7 @@ function createRegisterSchemas(t: (key: string) => string) {
       .regex(/[0-9]/, t('auth.validation.passwordNumber')),
     confirmPassword: z.string(),
   });
-  const register = base.refine((data: any) => data.password === data.confirmPassword, {
+  const register = base.refine((data: { password: string; confirmPassword: string }) => data.password === data.confirmPassword, {
     message: t('auth.validation.passwordMismatch'),
     path: ['confirmPassword'],
   });
@@ -130,9 +130,10 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
 
       if (!validated.success) {
         const fieldErrors: Partial<Record<keyof FormData, string>> = {};
-        (validated.error as any).errors.forEach((err: any) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as keyof FormData] = err.message;
+        const zodError = validated.error;
+        zodError.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0] as keyof FormData] = issue.message;
           }
         });
         setErrors(fieldErrors);
@@ -171,8 +172,9 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
       } else {
         router.push('/auth/login?registered=true');
       }
-    } catch (err: any) {
-      handleRegisterAuthError(err);
+    } catch (err: unknown) {
+      if (err instanceof Error) handleRegisterAuthError(err.message);
+      else handleRegisterAuthError(String(err));
       setIsLoading(false);
     }
   };
@@ -193,7 +195,7 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
     const result = fieldSchema.safeParse(value);
 
     if (!result.success) {
-      setErrors((prev) => ({ ...prev, [field]: (result.error as any).issues[0].message }));
+      setErrors((prev) => ({ ...prev, [field]: result.error!.issues[0].message }));
     } else {
       setErrors((prev) => ({ ...prev, [field]: '' }));
     }
@@ -236,7 +238,7 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
                     type="text"
                     value={formData.username}
                     onChange={(e) => {
-                      setFormData((prev: any) => ({ ...prev, username: e.target.value }));
+                      setFormData((prev: FormData) => ({ ...prev, username: e.target.value }));
                       validateField('username', e.target.value);
                     }}
                     className={cn(
@@ -275,7 +277,7 @@ errors.username
                     type="email"
                     value={formData.email}
                     onChange={(e) => {
-                      setFormData((prev: any) => ({ ...prev, email: e.target.value }));
+                      setFormData((prev: FormData) => ({ ...prev, email: e.target.value }));
                       validateField('email', e.target.value);
                     }}
                     className={cn(
@@ -314,7 +316,7 @@ errors.email
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => {
-                      setFormData((prev: any) => ({ ...prev, password: e.target.value }));
+                      setFormData((prev: FormData) => ({ ...prev, password: e.target.value }));
                       validateField('password', e.target.value);
                     }}
                     className={cn(
@@ -373,7 +375,7 @@ errors.email
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={(e) => {
-                      setFormData((prev: any) => ({ ...prev, confirmPassword: e.target.value }));
+                      setFormData((prev: FormData) => ({ ...prev, confirmPassword: e.target.value }));
                       validateField('confirmPassword', e.target.value);
                     }}
                     className={cn(

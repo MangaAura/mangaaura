@@ -116,7 +116,7 @@ function setupAuth(userId: string | null = null) {
 
 // Lazy import to work around hoisted vi.mock
 async function getFn() {
-  const mod = await import('@/app/(app)/achievements/[slug]/getAchievementBySlug');
+  const mod = await import('@/app/(protected)/achievements/[slug]/getAchievementBySlug');
   return mod.getAchievementBySlug;
 }
 

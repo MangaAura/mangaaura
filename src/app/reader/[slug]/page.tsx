@@ -25,10 +25,10 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { CommentSection } from '@/components/Comments/CommentSection';
 import { OptimizedImage } from '@/components/Image';
+import { useTheme } from '@/components/ThemeProvider';
 import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { useChapterComments } from '@/hooks/useChapterComments';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/components/ThemeProvider';
 
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });

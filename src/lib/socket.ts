@@ -4,14 +4,14 @@
  * WebSocket para notificaciones en tiempo real y Party Reading.
  */
 
+import { getToken } from '@auth/core/jwt';
 import { Server as NetServer } from 'http';
-import { getToken } from 'next-auth/jwt';
 import { Server as SocketIOServer } from 'socket.io';
 
 import { partyService } from '@/core/services/PartyService';
+import { setRealtimeAnalytics } from '@/lib/analytics-store';
 import { sanitizeText } from '@/lib/sanitize';
 import { createRedisAdapter } from '@/lib/socket-redis-adapter';
-import { setRealtimeAnalytics } from '@/lib/analytics-store';
 import type {
   ServerToClientEvents,
   ClientToServerEvents,

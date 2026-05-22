@@ -101,6 +101,7 @@ export function AchievementBadgeDisplay({
             'transition-transform duration-300',
           )}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={badgePath}
             alt={name}

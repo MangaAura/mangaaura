@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { auth } from '@/lib/auth';
 import { WebhookService } from '@/core/services/WebhookService';
 import { PrismaWebhookRepository } from '@/infrastructure/adapters/PrismaWebhookRepository';
+import { auth } from '@/lib/auth';
 
 const repo = new PrismaWebhookRepository();
 const webhookService = new WebhookService(repo);

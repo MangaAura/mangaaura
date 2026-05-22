@@ -24,7 +24,7 @@ const navItems: { labelKey: string; href: string; icon: typeof HomeIcon }[] = [
   { labelKey: 'creator.myManga', href: '/creator/dashboard', icon: BookOpenIcon },
   { labelKey: 'creator.uploadChapter', href: '/creator/upload', icon: UploadIcon },
   { labelKey: 'nav.sponsorships', href: '/creator/sponsors', icon: Medal },
-  { labelKey: 'creator.analytics', href: '/creator/analytics', icon: ChartBarIcon },
+  { labelKey: 'creator.analytics', href: '/analytics?tab=creator', icon: ChartBarIcon },
   { labelKey: 'creator.community', href: '/creator/community', icon: UsersIcon },
   { labelKey: 'common.settings', href: '/creator/settings', icon: SettingsIcon },
 ];

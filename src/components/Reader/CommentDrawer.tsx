@@ -1,8 +1,8 @@
 'use client';
 
 import { X, MessageSquare, ChevronLeft } from 'lucide-react';
-import FocusLock from 'react-focus-lock';
 import React, { useEffect, useRef, useState } from 'react';
+import FocusLock from 'react-focus-lock';
 
 import CommentSection from '@/components/Comments/CommentSection';
 import { cn } from '@/lib/utils';

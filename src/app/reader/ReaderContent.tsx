@@ -2,17 +2,13 @@
 
 import { ArrowLeft, MessageSquare, Maximize, Minimize, Sun, Moon, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useState, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 
-
-// Components
 import CommentDrawer from '@/components/Reader/CommentDrawer';
 import PageViewer from '@/components/Reader/PageViewer';
 import ReadingProgress from '@/components/Reader/ReadingProgress';
-
-// Hooks
 import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 import { cn } from '@/lib/utils';
 
@@ -60,6 +56,7 @@ function LoadingSpinner() {
 }
 
 export default function ReaderContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const mangaId = searchParams.get('mangaId');
   const chapterNumber = searchParams.get('chapterNumber');
@@ -69,6 +66,16 @@ export default function ReaderContent() {
   const [showComments, setShowComments] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [viewMode] = useState<'scroll' | 'paged'>('scroll');
+  const [continuousReading, setContinuousReading] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try { return localStorage.getItem('inkverse-continuous-reading') === 'true'; } catch { return false; }
+  });
+  const continuousNavPending = useRef(false);
+
+  // Persist continuous reading preference
+  useEffect(() => {
+    try { localStorage.setItem('inkverse-continuous-reading', String(continuousReading)); } catch { /* noop */ }
+  }, [continuousReading]);
 
   // Fetch chapter data
   const { data: chapterData, error: chapterError, isLoading: isLoadingChapter } = useSWR<ChapterData>(
@@ -90,12 +97,27 @@ export default function ReaderContent() {
     totalPages: chapterData?.totalPages ?? 0,
   });
 
+  // Compute chapter navigation (must be before callbacks that use them)
+  const currentChapterNumber = parseInt(chapterNumber || '1');
+  const prevChapter = chaptersList?.chapters.find(c => c.chapterNumber === currentChapterNumber - 1);
+  const nextChapter = chaptersList?.chapters.find(c => c.chapterNumber === currentChapterNumber + 1);
+
   // Callbacks declared before effects that use them
   const nextPage = useCallback(() => {
-    if (chapterData && currentPage < chapterData.totalPages - 1) {
+    if (!chapterData) return;
+    const isLastPage = currentPage >= chapterData.totalPages - 1;
+    
+    // Continuous reading: auto-advance to next chapter
+    if (isLastPage && continuousReading && nextChapter && mangaId && !continuousNavPending.current) {
+      continuousNavPending.current = true;
+      router.push(`/reader?mangaId=${mangaId}&chapterNumber=${nextChapter.chapterNumber}`);
+      return;
+    }
+    
+    if (currentPage < chapterData.totalPages - 1) {
       setCurrentPage(p => p + 1);
     }
-  }, [currentPage, chapterData]);
+  }, [currentPage, chapterData, continuousReading, nextChapter, mangaId, router]);
 
   const prevPage = useCallback(() => {
     if (currentPage > 0) {
@@ -131,6 +153,9 @@ export default function ReaderContent() {
         prevPage();
       } else if (e.key === 'f' || e.key === 'F') {
         toggleFullscreen();
+      } else if (e.key === 'i' || e.key === 'I') {
+        e.preventDefault();
+        setContinuousReading(v => !v);
       }
     };
 
@@ -161,10 +186,6 @@ export default function ReaderContent() {
       </main>
     );
   }
-
-  const currentChapterNumber = parseInt(chapterNumber || '1');
-  const prevChapter = chaptersList?.chapters.find(c => c.chapterNumber === currentChapterNumber - 1);
-  const nextChapter = chaptersList?.chapters.find(c => c.chapterNumber === currentChapterNumber + 1);
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[var(--background)]' : 'bg-[var(--surface-elevated)]'}`}>

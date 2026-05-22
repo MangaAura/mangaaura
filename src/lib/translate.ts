@@ -42,7 +42,7 @@ export async function translateText(
       }
 
       return translated;
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (attempt < retries) {
         const wait = 2000 * (attempt + 1);
         await sleep(wait);

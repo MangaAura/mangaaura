@@ -1,31 +1,56 @@
 'use client';
 
-import type { Editor } from '@tiptap/react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import LinkExtension from '@tiptap/extension-link';
+import Color from '@tiptap/extension-color';
+import HighlightExtension from '@tiptap/extension-highlight';
 import ImageExtension from '@tiptap/extension-image';
+import LinkExtension from '@tiptap/extension-link';
 import PlaceholderExtension from '@tiptap/extension-placeholder';
-import UnderlineExtension from '@tiptap/extension-underline';
+import { Table } from '@tiptap/extension-table';
+import TableCellExtension from '@tiptap/extension-table-cell';
+import TableHeaderExtension from '@tiptap/extension-table-header';
+import TableRowExtension from '@tiptap/extension-table-row';
 import TextAlignExtension from '@tiptap/extension-text-align';
+import { TextStyle } from '@tiptap/extension-text-style';
+import UnderlineExtension from '@tiptap/extension-underline';
+import { useEditor, EditorContent } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import {
   Bold,
   Italic,
   Underline,
+  Strikethrough,
+  Highlighter,
   Heading2,
   Heading3,
   List,
   ListOrdered,
   Link,
   Image,
+  Table2,
   AlignLeft,
   AlignCenter,
   AlignRight,
   Pilcrow,
   Quote,
   Code,
+  Combine,
+  Split,
+  Trash2,
+  Palette,
+  SeparatorHorizontal,
+  ArrowUpToLine,
+  ArrowDownToLine,
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  ChevronDown,
+  Upload,
+  X,
+  Loader2,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -132,16 +157,180 @@ function LinkInput({ editor }: { editor: Editor }) {
   );
 }
 
+function HighlightInput({ editor }: { editor: Editor }) {
+  const [show, setShow] = useState(false);
+
+  const COLORS = [
+    { label: 'Amarillo', value: '#fef08a' },
+    { label: 'Verde', value: '#bbf7d0' },
+    { label: 'Azul', value: '#bfdbfe' },
+    { label: 'Rosa', value: '#fbcfe8' },
+    { label: 'Rojo', value: '#fecaca' },
+    { label: 'Púrpura', value: '#e9d5ff' },
+    { label: 'Naranja', value: '#fed7aa' },
+  ];
+
+  const currentColor = editor.getAttributes('highlight').color || null;
+
+  return (
+    <div className="relative">
+      <ToolbarButton
+        onClick={() => setShow(!show)}
+        active={editor.isActive('highlight')}
+        title="Resaltar texto"
+      >
+        <Highlighter className="w-4 h-4" />
+      </ToolbarButton>
+      {show && (
+        <div className="absolute top-full left-0 mt-1 z-50 p-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[180px]">
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {COLORS.map((color) => (
+              <button
+                key={color.value}
+                type="button"
+                onClick={() => {
+                  editor.chain().focus().setHighlight({ color: color.value }).run();
+                  setShow(false);
+                }}
+                title={color.label}
+                className={cn(
+                  'w-7 h-7 rounded-md border-2 transition-all',
+                  currentColor === color.value
+                    ? 'border-[var(--primary)] scale-110'
+                    : 'border-transparent hover:scale-110'
+                )}
+                style={{ backgroundColor: color.value }}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              editor.chain().focus().unsetHighlight().run();
+              setShow(false);
+            }}
+            className="w-full px-2 py-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] rounded transition-colors"
+          >
+            Eliminar resaltado
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ImageInput({ editor }: { editor: Editor }) {
   const [show, setShow] = useState(false);
+  const [mode, setMode] = useState<'url' | 'upload'>('url');
   const [url, setUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSetImage = () => {
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+
+  const handleSetImageUrl = () => {
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
+    closePopover();
+  };
+
+  const closePopover = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setShow(false);
+    setMode('url');
     setUrl('');
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setUploadError(null);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError(null);
+
+    // Validate type
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError('Formato no soportado. Usa JPEG, PNG, WebP, GIF o AVIF.');
+      return;
+    }
+
+    // Validate size
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError(`Archivo demasiado grande. Máximo: 10MB (${(file.size / 1024 / 1024).toFixed(1)}MB seleccionado).`);
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Error al subir la imagen' }));
+        throw new Error(err.error || `Error ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.url) {
+        editor.chain().focus().setImage({ src: data.url }).run();
+        closePopover();
+      } else {
+        throw new Error(data.error || 'Respuesta inválida del servidor');
+      }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Error desconocido al subir la imagen');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      // Trigger validation via the file input change handler
+      const input = fileInputRef.current;
+      if (input) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        handleFileSelect({ target: { files: dt.files } } as React.ChangeEvent<HTMLInputElement>);
+      }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const clearSelectedFile = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -153,26 +342,399 @@ function ImageInput({ editor }: { editor: Editor }) {
         <Image className="w-4 h-4" />
       </ToolbarButton>
       {show && (
-        <div className="absolute top-full left-0 mt-1 z-50 flex items-center gap-2 p-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[300px]">
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://ejemplo.com/imagen.jpg"
-            className="flex-1 px-2 py-1.5 text-sm bg-[var(--surface-sunken)] border border-[var(--border)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSetImage();
-              if (e.key === 'Escape') setShow(false);
-            }}
-            autoFocus
-          />
+        <div className="absolute top-full left-0 mt-1 z-50 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[340px] overflow-hidden">
+          {/* Tabs */}
+          <div className="flex border-b border-[var(--border)]">
+            <button
+              type="button"
+              onClick={() => { setMode('url'); setUploadError(null); }}
+              className={cn(
+                'flex-1 px-3 py-2 text-xs font-medium transition-colors',
+                mode === 'url'
+                  ? 'text-[var(--primary)] border-b-2 border-[var(--primary)]'
+                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+              )}
+            >
+              URL
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('upload'); setUploadError(null); }}
+              className={cn(
+                'flex-1 px-3 py-2 text-xs font-medium transition-colors',
+                mode === 'upload'
+                  ? 'text-[var(--primary)] border-b-2 border-[var(--primary)]'
+                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+              )}
+            >
+              <Upload className="w-3 h-3 inline mr-1" />
+              Subir
+            </button>
+          </div>
+
+          <div className="p-3">
+            {mode === 'url' ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                    className="flex-1 px-2 py-1.5 text-sm bg-[var(--surface-sunken)] border border-[var(--border)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSetImageUrl();
+                      if (e.key === 'Escape') closePopover();
+                    }}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSetImageUrl}
+                    className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90 shrink-0"
+                  >
+                    Insertar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Drop zone */}
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    'relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
+                    previewUrl
+                      ? 'border-[var(--primary)]/40 bg-[var(--primary)]/5'
+                      : 'border-[var(--border)] hover:border-[var(--primary)]/40 hover:bg-[var(--surface-sunken)]',
+                    uploading && 'pointer-events-none opacity-60'
+                  )}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+
+                  {previewUrl ? (
+                    <div className="relative inline-block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="max-h-32 rounded object-contain mx-auto"
+                      />
+                      {!uploading && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); clearSelectedFile(); }}
+                          className="absolute -top-2 -right-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-full p-0.5 hover:bg-[var(--surface-sunken)] transition-colors shadow-sm"
+                          title="Quitar archivo"
+                        >
+                          <X className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                        </button>
+                      )}
+                      {selectedFile && (
+                        <p className="text-xs text-[var(--text-tertiary)] mt-1.5">
+                          {(selectedFile.size / 1024).toFixed(0)} KB
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1.5">
+                      <Upload className="w-6 h-6 text-[var(--text-tertiary)]" />
+                      <p className="text-xs text-[var(--text-secondary)] font-medium">
+                        Haz clic o arrastra una imagen aquí
+                      </p>
+                      <p className="text-[10px] text-[var(--text-tertiary)]">
+                        JPEG, PNG, WebP, GIF o AVIF · Max 10MB
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload error */}
+                {uploadError && (
+                  <p className="mt-2 text-xs text-red-500">{uploadError}</p>
+                )}
+
+                {/* Upload button */}
+                {selectedFile && !uploading && (
+                  <button
+                    type="button"
+                    onClick={handleUpload}
+                    className="mt-3 w-full px-3 py-2 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    Subir imagen optimizada
+                  </button>
+                )}
+
+                {/* Uploading state */}
+                {uploading && (
+                  <div className="mt-3 flex items-center justify-center gap-2 py-2 text-xs text-[var(--text-secondary)]">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Subiendo y optimizando...
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ColorInput({ editor }: { editor: Editor }) {
+  const [show, setShow] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!show) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [show]);
+
+  const COLORS = [
+    { label: 'Negro', value: '#000000' },
+    { label: 'Gris oscuro', value: '#4a4a4a' },
+    { label: 'Gris', value: '#808080' },
+    { label: 'Rojo', value: '#dc2626' },
+    { label: 'Naranja', value: '#ea580c' },
+    { label: 'Ámbar', value: '#d97706' },
+    { label: 'Amarillo', value: '#ca8a04' },
+    { label: 'Verde', value: '#16a34a' },
+    { label: 'Esmeralda', value: '#059669' },
+    { label: 'Cian', value: '#0891b2' },
+    { label: 'Azul', value: '#2563eb' },
+    { label: 'Índigo', value: '#4f46e5' },
+    { label: 'Púrpura', value: '#7c3aed' },
+    { label: 'Rosa', value: '#db2777' },
+  ];
+
+  const currentColor = editor.getAttributes('textStyle').color || null;
+
+  return (
+    <div className="relative" ref={popoverRef}>
+      <ToolbarButton
+        onClick={() => setShow(!show)}
+        active={!!currentColor}
+        title="Color de texto"
+      >
+        <Palette className="w-4 h-4" />
+      </ToolbarButton>
+      {show && (
+        <div className="absolute top-full left-0 mt-1 z-50 p-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[220px]">
+          <div className="text-xs text-[var(--text-tertiary)] mb-2 font-medium">Color de texto</div>
+          <div className="grid grid-cols-7 gap-1.5 mb-2">
+            {COLORS.map((color) => (
+              <button
+                key={color.value}
+                type="button"
+                onClick={() => {
+                  editor.chain().focus().setColor(color.value).run();
+                  setShow(false);
+                }}
+                title={color.label}
+                className={cn(
+                  'w-6 h-6 rounded-md border-2 transition-all',
+                  currentColor === color.value
+                    ? 'border-[var(--primary)] scale-110 ring-1 ring-[var(--primary)]/30'
+                    : 'border-transparent hover:scale-110'
+                )}
+                style={{ backgroundColor: color.value }}
+              />
+            ))}
+          </div>
           <button
             type="button"
-            onClick={handleSetImage}
-            className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90"
+            onClick={() => {
+              editor.chain().focus().unsetColor().run();
+              setShow(false);
+            }}
+            className="w-full px-2 py-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] rounded transition-colors"
           >
-            Insertar
+            Restablecer color
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EditorFooter({ editor }: { editor: Editor }) {
+  const text = editor.getText();
+
+  const charCount = text.length;
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+  return (
+    <div className="flex items-center gap-4 px-4 py-1.5 border-t border-[var(--border)] bg-[var(--surface)]/50 text-xs text-[var(--text-tertiary)]">
+      <span className="flex items-center gap-1.5">
+        <span className="font-medium text-[var(--text-secondary)]">{charCount}</span>
+        {charCount === 1 ? 'caracter' : 'caracteres'}
+      </span>
+      <span className="w-px h-3 bg-[var(--border)]" />
+      <span className="flex items-center gap-1.5">
+        <span className="font-medium text-[var(--text-secondary)]">{wordCount}</span>
+        {wordCount === 1 ? 'palabra' : 'palabras'}
+      </span>
+      {wordCount > 0 && (
+        <>
+          <span className="w-px h-3 bg-[var(--border)]" />
+          <span className="flex items-center gap-1.5">
+            ~{readingTime} {readingTime === 1 ? 'minuto' : 'minutos'} de lectura
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function TableInput({ editor }: { editor: Editor }) {
+  const [show, setShow] = useState(false);
+  const [hoveredRows, setHoveredRows] = useState(0);
+  const [hoveredCols, setHoveredCols] = useState(0);
+
+  const isInTable = editor.isActive('table');
+
+  const insertTable = (rows: number, cols: number) => {
+    editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+    setShow(false);
+  };
+
+  const cellClass = (row: number, col: number) => {
+    if (row < hoveredRows && col < hoveredCols) {
+      return 'bg-[var(--primary)]/30 border-[var(--primary)]';
+    }
+    return 'bg-[var(--surface-sunken)] border-[var(--border)]';
+  };
+
+  return (
+    <div className="relative">
+      <ToolbarButton
+        onClick={() => setShow(!show)}
+        active={isInTable}
+        title="Insertar tabla"
+      >
+        <div className="flex items-center gap-0.5">
+          <Table2 className="w-4 h-4" />
+          <ChevronDown className="w-2.5 h-2.5" />
+        </div>
+      </ToolbarButton>
+      {show && (
+        <div className="absolute top-full left-0 mt-1 z-50 p-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[260px]">
+          {!isInTable ? (
+            <>
+              <div className="text-xs text-[var(--text-tertiary)] mb-2 font-medium">Insertar tabla</div>
+              <div
+                className="grid gap-0.5 mb-2"
+                style={{ gridTemplateColumns: 'repeat(7, 20px)' }}
+                onMouseLeave={() => { setHoveredRows(0); setHoveredCols(0); }}
+              >
+                {Array.from({ length: 49 }, (_, i) => {
+                  const row = Math.floor(i / 7) + 1;
+                  const col = (i % 7) + 1;
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        'w-5 h-5 rounded-sm border cursor-pointer transition-colors',
+                        cellClass(row, col)
+                      )}
+                      onMouseEnter={() => { setHoveredRows(row); setHoveredCols(col); }}
+                      onClick={() => insertTable(row, col)}
+                    />
+                  );
+                })}
+              </div>
+              {hoveredRows > 0 && hoveredCols > 0 && (
+                <div className="text-xs text-[var(--text-secondary)] text-center">
+                  {hoveredRows} × {hoveredCols}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="text-xs text-[var(--text-tertiary)] mb-2 font-medium">Editar tabla</div>
+              <div className="grid grid-cols-3 gap-1">
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addRowBefore().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded hover:bg-[var(--surface-sunken)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Fila arriba"
+                >
+                  <ArrowUpToLine className="w-3.5 h-3.5" />
+                  Fila ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded hover:bg-[var(--surface-sunken)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Fila abajo"
+                >
+                  <ArrowDownToLine className="w-3.5 h-3.5" />
+                  Fila ↓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addColumnBefore().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded hover:bg-[var(--surface-sunken)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Columna izquierda"
+                >
+                  <ArrowLeftToLine className="w-3.5 h-3.5" />
+                  Col ←
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded hover:bg-[var(--surface-sunken)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Columna derecha"
+                >
+                  <ArrowRightToLine className="w-3.5 h-3.5" />
+                  Col →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().mergeCells().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded hover:bg-[var(--surface-sunken)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Combinar celdas"
+                >
+                  <Combine className="w-3.5 h-3.5" />
+                  Unir
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().splitCell().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded hover:bg-[var(--surface-sunken)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Dividir celda"
+                >
+                  <Split className="w-3.5 h-3.5" />
+                  Div.
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  title="Eliminar tabla"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Elim.
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -197,6 +759,17 @@ export function RichTextEditor({
       TextAlignExtension.configure({
         types: ['heading', 'paragraph'],
       }),
+      TextStyle,
+      Color,
+      HighlightExtension.configure({
+        multicolor: true,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRowExtension,
+      TableCellExtension,
+      TableHeaderExtension,
       LinkExtension.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -229,25 +802,11 @@ export function RichTextEditor({
     editable: !disabled,
   });
 
-  // Update content when value prop changes externally
-  // (e.g., when loading article for edit)
-  const prevValueRef = useCallback(
-    (val: string) => {
-      if (editor && val !== editor.getHTML()) {
-        editor.commands.setContent(val || '', false);
-      }
-    },
-    [editor]
-  );
-
-  // We need to synchronize external value changes
-  // This is a workaround using a useEffect-like pattern inside the render
-  // Since we can't use hooks conditionally, we use the editor's built-in commands
+  // Sync external value changes via microtask to avoid hook ordering issues
   if (editor && value !== editor.getHTML() && !editor.isDestroyed) {
-    // This will run on re-render when value changes externally
     queueMicrotask(() => {
       if (!editor.isDestroyed) {
-        editor.commands.setContent(value || '', false);
+        editor.commands.setContent(value || '', { emitUpdate: false });
       }
     });
   }
@@ -271,6 +830,23 @@ export function RichTextEditor({
     >
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-2 border-b border-[var(--border)] bg-[var(--surface)]">
+        {/* Undo / Redo */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().undo().run()}
+          title="Deshacer (Ctrl+Z)"
+        >
+          <Undo2 className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().redo().run()}
+          title="Rehacer (Ctrl+Shift+Z)"
+        >
+          <Redo2 className="w-4 h-4" />
+        </ToolbarButton>
+
+        <Divider />
+
+        {/* Text formatting */}
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
@@ -292,9 +868,17 @@ export function RichTextEditor({
         >
           <Underline className="w-4 h-4" />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          active={editor.isActive('strike')}
+          title="Tachado (Ctrl+Shift+X)"
+        >
+          <Strikethrough className="w-4 h-4" />
+        </ToolbarButton>
 
         <Divider />
 
+        {/* Headings */}
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           active={editor.isActive('heading', { level: 2 })}
@@ -319,6 +903,7 @@ export function RichTextEditor({
 
         <Divider />
 
+        {/* Lists & blocks */}
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive('bulletList')}
@@ -347,9 +932,22 @@ export function RichTextEditor({
         >
           <Code className="w-4 h-4" />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          title="Línea horizontal"
+        >
+          <SeparatorHorizontal className="w-4 h-4" />
+        </ToolbarButton>
 
         <Divider />
 
+        {/* Highlight & Color */}
+        <HighlightInput editor={editor} />
+        <ColorInput editor={editor} />
+
+        <Divider />
+
+        {/* Text alignment */}
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           active={editor.isActive({ textAlign: 'left' })}
@@ -374,12 +972,17 @@ export function RichTextEditor({
 
         <Divider />
 
+        {/* Media & inserts */}
         <LinkInput editor={editor} />
         <ImageInput editor={editor} />
+        <TableInput editor={editor} />
       </div>
 
       {/* Editor Content */}
       <EditorContent editor={editor} />
+
+      {/* Footer stats */}
+      <EditorFooter editor={editor} />
     </div>
   );
 }

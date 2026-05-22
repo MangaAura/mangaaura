@@ -9,9 +9,9 @@ import { toast } from 'sonner';
 
 import { toggleLibrary } from './actions';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useT } from '@/i18n';
 import { cn, formatNumber, formatDate } from '@/lib/utils';
-import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 
 interface Props {
   manga: {

@@ -2,6 +2,7 @@
 
 import { Star } from 'lucide-react';
 import Link from 'next/link';
+import useSWR from 'swr';
 
 import { Button } from '@/components/ui/Button';
 import { useT, useLocale } from '@/i18n';
@@ -10,7 +11,6 @@ import {
   getArticlePath,
   type DisplayNewsItem,
 } from '@/lib/news';
-import useSWR from 'swr';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 

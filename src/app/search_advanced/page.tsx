@@ -1,15 +1,15 @@
 ﻿'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, AlertTriangle, Compass, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 
-import { motion, AnimatePresence } from 'framer-motion';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { useT } from '@/i18n';
 import { CANONICAL_TAGS, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, normalizeGenreKey } from '@/constants/genres';
+import { useT } from '@/i18n';
 
 const SORT_MAP: Record<string, string> = {
   popularity: 'popularity',

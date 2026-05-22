@@ -2,6 +2,7 @@
 
 import { Hash } from 'lucide-react';
 import Link from 'next/link';
+
 import { GENRE_CATEGORIES } from '@/constants/genres';
 import { useT } from '@/i18n';
 

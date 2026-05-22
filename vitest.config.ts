@@ -16,6 +16,7 @@ exclude: [
 'node_modules/',
 '.next/',
 'dist/',
+'tests/e2e/',
 ],
 coverage: {
     provider: 'v8',

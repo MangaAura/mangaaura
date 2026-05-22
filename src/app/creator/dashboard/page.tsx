@@ -110,7 +110,7 @@ export default function CreatorDashboardPage() {
               </div>
             </div>
           </Link>
-          <Link href="/creator/analytics">
+          <Link href="/analytics?tab=creator">
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 hover:border-[var(--secondary)]/40 hover:shadow-md transition-all cursor-pointer group">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-[var(--secondary)]/10 rounded-lg group-hover:bg-[var(--secondary)]/20 transition-colors">

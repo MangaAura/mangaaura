@@ -1,9 +1,10 @@
 'use client';
 
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowLeft, Calendar, Star, Palette, Smartphone, Trophy, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Star, Palette, Smartphone, Trophy, Sparkles } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+
 import { Container } from '@/components/Layout/Container';
 import { useT, useLocale } from '@/i18n';
 import { type DisplayNewsItem } from '@/lib/news';

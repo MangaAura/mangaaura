@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   try {

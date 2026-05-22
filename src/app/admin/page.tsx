@@ -17,13 +17,13 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import useSWR from 'swr';
 
+import { useT } from '@/i18n';
 import { StatCard } from '@/components/Admin/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 const ChartsSection = dynamic(() => import('@/components/Admin/ChartsSection').then(m => ({ default: m.ChartsSection })), { ssr: false });
-import { useT } from '@/i18n';
 
 interface DashboardStats {
   totalUsers: number;

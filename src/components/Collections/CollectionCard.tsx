@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useTransition } from 'react';
 
-import { deleteCollection } from '@/app/(app)/collections/actions';
+import { deleteCollection } from '@/app/(protected)/collections/actions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

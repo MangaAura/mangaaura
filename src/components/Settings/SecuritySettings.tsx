@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download } from 'lucide-react';
+import { Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download, RefreshCw } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 
@@ -37,6 +37,9 @@ export function SecuritySettings({}: SecuritySettingsProps) {
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
   const [showDisableConfirm, setShowDisableConfirm] = useState(false);
   const [disablePassword, setDisablePassword] = useState('');
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
+  const [isRegeneratingCodes, setIsRegeneratingCodes] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -89,6 +92,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
 
   const handle2FASetup = async () => {
     setIsLoading(true);
+    setIsGeneratingQR(true);
     setMessage(null);
     try {
       const response = await fetch('/api/auth/2fa/setup', { method: 'POST' });
@@ -97,10 +101,25 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       setTwoFactorSecret(data.secret);
       setOtpauthUrl(data.otpauthUrl);
       setShow2FASetup(true);
+
+      // Generate QR code locally
+      try {
+        const QRCode = (await import('qrcode')).default;
+        const url = await QRCode.toDataURL(data.otpauthUrl, {
+          width: 200,
+          margin: 2,
+          color: { dark: '#000000', light: '#ffffff' },
+        });
+        setQrDataUrl(url);
+      } catch {
+        // Fallback: will render inline SVG
+        setQrDataUrl('');
+      }
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
     } finally {
       setIsLoading(false);
+      setIsGeneratingQR(false);
     }
   };
 
@@ -122,7 +141,9 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       setBackupCodes(data.backupCodes);
       setTwoFactorEnabled(true);
       setShow2FASetup(false);
-      update();
+      setVerificationToken('');
+      await update({ twoFactorEnabled: true });
+      setMessage({ type: 'success', text: '2FA activado correctamente. ¡Guarda tus códigos de respaldo!' });
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
     } finally {
@@ -148,7 +169,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       setShowDisableConfirm(false);
       setDisablePassword('');
       setBackupCodes(null);
-      update();
+      await update({ twoFactorEnabled: false });
       setMessage({ type: 'success', text: '2FA deshabilitado correctamente' });
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
@@ -161,6 +182,25 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     if (backupCodes) {
       navigator.clipboard.writeText(backupCodes.join('\n'));
       setMessage({ type: 'success', text: 'Códigos copiados al portapapeles' });
+    }
+  };
+
+  const handleRegenerateBackupCodes = async () => {
+    setIsRegeneratingCodes(true);
+    setMessage(null);
+    try {
+      const response = await fetch('/api/auth/2fa/backup-codes', { method: 'POST' });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Error al regenerar códigos');
+      }
+      const data = await response.json();
+      setBackupCodes(data.backupCodes);
+      setMessage({ type: 'success', text: 'Códigos de respaldo regenerados correctamente' });
+    } catch (error) {
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
+    } finally {
+      setIsRegeneratingCodes(false);
     }
   };
 
@@ -306,37 +346,72 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           <Card className="mt-4 p-6">
             <h3 className="text-lg font-semibold mb-4">Configurar 2FA</h3>
 
-            <div className="mb-4">
-              <p className="text-sm text-[var(--text-tertiary)] mb-2">
-                Escanea el código QR con tu aplicación de autenticación (Google Authenticator, Authy, etc.)
+            {/* Step 1: Scan QR code */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs font-bold flex items-center justify-center">1</span>
+                <span className="font-medium text-sm">Escanea el código QR</span>
+              </div>
+              <p className="text-sm text-[var(--text-tertiary)] mb-4 pl-8">
+                Abre tu aplicación de autenticación (Google Authenticator, Authy, etc.) y escanea este código:
               </p>
               <div className="flex justify-center mb-4">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUrl)}`}
-                  alt="Código QR para 2FA"
-                  className="rounded-lg"
-                />
+                {isGeneratingQR ? (
+                  <div className="w-[200px] h-[200px] bg-[var(--surface-sunken)] rounded-lg animate-pulse flex items-center justify-center">
+                    <RefreshCw className="w-6 h-6 text-[var(--text-tertiary)] animate-spin" />
+                  </div>
+                ) : qrDataUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={qrDataUrl}
+                    alt="Código QR para 2FA"
+                    className="rounded-lg border border-[var(--border)]"
+                    width={200}
+                    height={200}
+                  />
+                ) : (
+                  <div className="p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
+                    <p className="text-xs text-[var(--text-tertiary)] mb-2 text-center">No se pudo generar el QR</p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUrl)}`}
+                      alt="Código QR para 2FA"
+                      className="rounded-lg"
+                    />
+                  </div>
+                )}
               </div>
               <p className="text-xs text-center text-[var(--text-tertiary)]">
-                O ingresa manualmente: <code className="text-[var(--primary)]">{twoFactorSecret}</code>
+                O ingresa manualmente:{' '}
+                <code className="text-[var(--primary)] font-mono text-xs break-all select-all">{twoFactorSecret}</code>
               </p>
             </div>
 
-            <div className="space-y-3">
-              <Label htmlFor="2fa-code">Código de verificación</Label>
-              <Input
-                id="2fa-code"
-                type="text"
-                inputMode="numeric"
-                placeholder="000000"
-                maxLength={6}
-                value={verificationToken}
-                onChange={(e) => setVerificationToken(e.target.value.replace(/\D/g, ''))}
-                autoComplete="one-time-code"
-              />
-              <Button onClick={handle2FAVerify} disabled={verificationToken.length < 6} isLoading={isLoading}>
-                Verificar y activar
-              </Button>
+            {/* Step 2: Verify code */}
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs font-bold flex items-center justify-center">2</span>
+                <span className="font-medium text-sm">Verifica el código</span>
+              </div>
+              <p className="text-sm text-[var(--text-tertiary)] mb-4 pl-8">
+                Ingresa el código de 6 dígitos que aparece en tu aplicación:
+              </p>
+              <div className="pl-8 space-y-3">
+                <Input
+                  id="2fa-code"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="000000"
+                  maxLength={6}
+                  value={verificationToken}
+                  onChange={(e) => setVerificationToken(e.target.value.replace(/\D/g, ''))}
+                  autoComplete="one-time-code"
+                  className="text-center text-lg tracking-[0.3em]"
+                />
+                <Button onClick={handle2FAVerify} disabled={verificationToken.length < 6} isLoading={isLoading}>
+                  Verificar y activar
+                </Button>
+              </div>
             </div>
           </Card>
         )}
@@ -348,14 +423,15 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               <h3 className="text-lg font-semibold">Códigos de respaldo</h3>
             </div>
             <p className="text-sm text-[var(--text-tertiary)] mb-3">
-              Guarda estos códigos en un lugar seguro. Cada código solo puede usarse una vez.
+              Guarda estos códigos en un lugar seguro. Cada código solo puede usarse una vez y
+              perderás acceso a tu cuenta si pierdes el acceso a tu aplicación de autenticación.
             </p>
-            <div className="bg-[var(--surface-sunken)] p-4 rounded-lg font-mono text-sm mb-3">
+            <div className="bg-[var(--surface-sunken)] p-4 rounded-lg font-mono text-sm mb-3 border border-[var(--border)]">
               {backupCodes.map((code, i) => (
-                <div key={i} className="py-0.5">{code}</div>
+                <div key={i} className="py-0.5 tracking-wider">{code}</div>
               ))}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={copyBackupCodes}>
                 <Copy className="w-4 h-4 mr-1" /> Copiar
               </Button>
@@ -367,6 +443,15 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 URL.revokeObjectURL(url);
               }}>
                 <Download className="w-4 h-4 mr-1" /> Descargar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRegenerateBackupCodes}
+                isLoading={isRegeneratingCodes}
+                className="ml-auto"
+              >
+                <RefreshCw className="w-4 h-4 mr-1" /> Regenerar
               </Button>
             </div>
           </Card>

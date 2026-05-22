@@ -96,15 +96,15 @@ async function getLeaderboards() {
   ]);
 
   // Process creators data
-  const processedCreators = topCreators.map((creator: any) => ({
+  const processedCreators = topCreators.map((creator) => ({
     ...creator,
-    totalViews: creator.createdMangas.reduce((sum: any, m: any) => sum + m.totalViews, 0),
-    totalChapters: creator.createdMangas.reduce((sum: any, m: any) => sum + m._count.chapters, 0),
+    totalViews: creator.createdMangas.reduce((sum, m) => sum + m.totalViews, 0),
+    totalChapters: creator.createdMangas.reduce((sum, m) => sum + m._count.chapters, 0),
   }));
 
   return {
     readers: topReaders,
-    creators: processedCreators.sort((a: any, b: any) => b.totalViews - a.totalViews),
+    creators: processedCreators.sort((a, b) => b.totalViews - a.totalViews),
     clans: topClans,
     manga: trendingManga,
   };

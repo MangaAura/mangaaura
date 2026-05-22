@@ -1,15 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { headers } from 'next/headers';
-
 import { Suspense } from 'react';
 
 import { AppFooter } from "@/components/Layout/AppFooter";
 import { Providers } from "@/components/Providers";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
 import { detectLocale } from "@/i18n/server";
-import { validateEnv } from "@/lib/env";
 import { ensureInfrastructure } from "@/infrastructure/init";
+import { validateEnv } from "@/lib/env";
 import "./globals.css";
 
 validateEnv();
@@ -86,13 +85,51 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
-export function reportWebVitals(_metric: {
+export function reportWebVitals(metric: {
   id: string;
   name: string;
   startTime: number;
   value: number;
   label: string;
 }) {
+  // Send Core Web Vitals to analytics
+  if (typeof window !== 'undefined') {
+    const body = {
+      id: metric.id,
+      name: metric.name, // LCP, CLS, INP, FCP, TTFB
+      value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+      label: metric.label,
+      page: window.location.pathname,
+      timestamp: Date.now(),
+    };
+
+    // Use sendBeacon for reliable delivery on page unload
+    try {
+      navigator.sendBeacon('/api/analytics/web-vitals', JSON.stringify(body));
+    } catch {
+      // Fallback: silent (analytics are best-effort)
+    }
+
+    // Also report poor Web Vitals to Sentry for debugging
+    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      const thresholds: Record<string, number> = {
+        LCP: 2500, // 2.5s
+        INP: 200,  // 200ms
+        CLS: 0.1,  // 0.1
+        FCP: 1800, // 1.8s
+        TTFB: 800, // 800ms
+      };
+      const threshold = thresholds[metric.name];
+      if (threshold && metric.value > threshold) {
+        import('@sentry/nextjs').then((Sentry) => {
+          Sentry.captureMessage(
+            `Poor ${metric.name}: ${metric.value}`,
+            { level: 'warning', tags: { metric: metric.name, page: window.location.pathname } }
+          );
+        }).catch(() => {});
+      }
+    }
+  }
 }
 
 async function DynamicProviders({

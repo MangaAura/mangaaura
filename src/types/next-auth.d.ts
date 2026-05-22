@@ -1,20 +1,10 @@
-import NextAuth from 'next-auth';
-
-declare module 'next-auth' {
+declare module '@auth/core/types' {
   interface User {
-    id: string;
     role: string;
     xpPoints: number;
     level: number;
-    email: string;
-    name?: string | null;
-    image?: string | null;
-    twoFactorPending?: boolean;
     twoFactorEnabled?: boolean;
-  }
-
-  interface Session {
-    user: User;
+    twoFactorPending?: boolean;
   }
 }
 

@@ -6,8 +6,8 @@ import Link from 'next/link';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { useT } from '@/i18n';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
+import { useT } from '@/i18n';
 
 
 interface MangaItem {

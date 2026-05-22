@@ -61,7 +61,7 @@ function extractHighlights(manga: {
   // Check description match
   if (manga.description?.toLowerCase().includes(queryLower)) {
     const words = manga.description.split(/\s+/);
-    const queryIndex = words.findIndex((w: any) =>
+    const queryIndex = words.findIndex((w: string) =>
       w.toLowerCase().includes(queryLower)
     );
     const start = Math.max(0, queryIndex - 5);
@@ -85,13 +85,13 @@ function extractHighlights(manga: {
   if (manga.tags) {
     try {
       const tags = JSON.parse(manga.tags) as string[];
-      const matchingTags = tags.filter((tag: any) =>
+      const matchingTags = tags.filter((tag: string) =>
         tag.toLowerCase().includes(queryLower)
       );
       if (matchingTags.length > 0) {
         highlights.push({
           field: 'tags',
-          snippet: matchingTags.map((t: any) => highlightText(t, query)).join(', '),
+          snippet: matchingTags.map((t: string) => highlightText(t, query)).join(', '),
         });
       }
     } catch {
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
 
         // Genre filter (using tags as genres)
         if (genres.length > 0) {
-          where.AND = genres.map((genre: any) => ({
+          where.AND = genres.map((genre: string) => ({
             tags: { contains: `"${genre}"` },
           }));
         }
@@ -274,7 +274,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Transform results with highlights
-        const transformedResults = results.map((manga: any) => ({
+        const transformedResults = results.map((manga) => ({
           id: manga.id,
           title: manga.title,
           slug: manga.slug,

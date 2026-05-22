@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       select: { id: true },
     });
 
-    const authorizedIds = userMangas.map((m: any) => m.id);
+    const authorizedIds = userMangas.map((m) => m.id);
     const unauthorizedIds = mangaIds.filter((id) => !authorizedIds.includes(id));
 
     if (unauthorizedIds.length > 0) {
@@ -77,34 +77,34 @@ where: { ...whereBase, eventType: 'chapter_complete' },
     select: { id: true, mangaId: true, chapterNumber: true, title: true },
   });
 
-const chapterReads = await prisma.analyticsEvent.groupBy({
-by: ['chapterId' as any],
+const chapterReads = await (prisma.analyticsEvent as any).groupBy({
+by: ['chapterId'],
 where: {
 ...whereBase,
 eventType: 'chapter_read',
 },
 _count: { id: true },
-} as any);
+});
 
-const chapterCompletions = await prisma.analyticsEvent.groupBy({
-by: ['chapterId' as any],
+const chapterCompletions = await (prisma.analyticsEvent as any).groupBy({
+by: ['chapterId'],
 where: {
 ...whereBase,
 eventType: 'chapter_complete',
 },
 _count: { id: true },
-} as any);
+});
 
     const readsMap = new Map(
-      (chapterReads as any[]).map((r: any) => [r.chapterId, r._count.id])
+      chapterReads.map((r: any) => [r.chapterId, r._count?.id ?? 0])
     );
     const completionsMap = new Map(
-      (chapterCompletions as any[]).map((r: any) => [r.chapterId, r._count.id])
+      chapterCompletions.map((r: any) => [r.chapterId, r._count?.id ?? 0])
     );
 
-  const chapterStats = chapters.map((ch: any) => {
-    const chReads = readsMap.get(ch.id) || 0;
-    const chCompletions = completionsMap.get(ch.id) || 0;
+  const chapterStats = chapters.map((ch) => {
+    const chReads = Number(readsMap.get(ch.id)) || 0;
+    const chCompletions = Number(completionsMap.get(ch.id)) || 0;
     return {
       chapterId: ch.id,
       mangaId: ch.mangaId,

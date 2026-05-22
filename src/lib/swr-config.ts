@@ -64,6 +64,60 @@ export const swrConfig: SWRConfiguration = {
   suspense: false,
 };
 
+// Infinite scroll pagination helpers
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+// SWR infinite key generator for paginated endpoints
+export function getPaginatedKey(
+  baseUrl: string,
+  page: number,
+  filters?: Record<string, string | undefined>
+): string {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        params.set(key, value);
+      }
+    });
+  }
+  
+  return `${baseUrl}?${params.toString()}`;
+}
+
+// SWR fetcher with pagination support (for infinite scroll)
+export const paginatedFetcher = async <T>(url: string): Promise<{ data: T[]; pagination: PaginationMeta }> => {
+  const response = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  
+  // Support both { data, pagination } and direct { items, pagination } formats
+  if (result.pagination) {
+    return {
+      data: result.data || result.items || result.entries || result.mangas || result,
+      pagination: result.pagination,
+    };
+  }
+  
+  return result;
+};
+
 // Specific configurations for different data types
 export const swrConfigs = {
   // Manga list - revalidate every 5 minutes
@@ -71,6 +125,7 @@ export const swrConfigs = {
     ...swrConfig,
     refreshInterval: 5 * 60 * 1000,
     revalidateOnFocus: true,
+    revalidateFirstPage: false,
   },
   
   // Manga detail - revalidate every 10 minutes
@@ -102,11 +157,13 @@ export const swrConfigs = {
     revalidateOnFocus: false,
   },
   
-  // Comments - frequent updates
+  // Comments - frequent updates with pagination
   comments: {
     ...swrConfig,
     refreshInterval: 30 * 1000, // 30 seconds
     revalidateOnFocus: true,
+    revalidateFirstPage: false,
+    keepPreviousData: true,
   },
   
   // Analytics - moderate updates
@@ -121,6 +178,23 @@ export const swrConfigs = {
     ...swrConfig,
     refreshInterval: 30 * 1000, // 30 seconds
     revalidateOnFocus: true,
+  },
+  
+  // Library with pagination - for infinite scroll
+  libraryPaginated: {
+    ...swrConfig,
+    refreshInterval: 3 * 60 * 1000,
+    revalidateOnFocus: true,
+    keepPreviousData: true,
+    revalidateFirstPage: false,
+  },
+  
+  // Notifications - poll for updates
+  notifications: {
+    ...swrConfig,
+    refreshInterval: 60 * 1000, // 1 minute
+    revalidateOnFocus: true,
+    dedupingInterval: 10000, // 10 seconds
   },
   
   // Static content - minimal updates

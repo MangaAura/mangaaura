@@ -56,7 +56,9 @@ export function useParty(options: UsePartyOptions) {
       try {
         if (typeof window === 'undefined') return;
 
-        const token = session.user?.id;
+        if (!session.user) return;
+
+        const token = session.user.id ?? '';
 
         const socket: PartySocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
           path: '/api/socket',
@@ -84,9 +86,9 @@ export function useParty(options: UsePartyOptions) {
             socket.emit('party:join', {
               partyId,
               user: {
-                userId: session.user.id,
-                username: session.user.name || 'Anonymous',
-                avatarUrl: session.user.image || undefined,
+                userId: session.user!.id,
+                username: session.user!.name || 'Anonymous',
+                avatarUrl: session.user!.image || undefined,
               },
             });
           }
@@ -188,7 +190,7 @@ export function useParty(options: UsePartyOptions) {
         });
 
         socket.on('party:host-changed', ({ newHostId, newHostName: _newHostName }) => {
-          setIsHost(newHostId === session.user.id);
+          setIsHost(newHostId === session!.user!.id);
           setMembers((prev) =>
             prev.map((m) => ({
               ...m,
@@ -230,9 +232,9 @@ export function useParty(options: UsePartyOptions) {
     socketRef.current.emit('party:join', {
       partyId,
       user: {
-        userId: session.user.id,
-        username: session.user.name || 'Anonymous',
-        avatarUrl: session.user.image || undefined,
+        userId: session.user!.id,
+        username: session.user!.name || 'Anonymous',
+        avatarUrl: session.user!.image || undefined,
       },
     });
   }, [partyId, session]);

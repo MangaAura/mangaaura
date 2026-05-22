@@ -17,8 +17,8 @@ import { MangaCard } from '@/components/MangaCard';
 import { SearchBar } from '@/components/Search/SearchBar';
 import { Button } from '@/components/ui/Button';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
-import { useT } from '@/i18n/index';
 import { CANONICAL_TAGS, CANONICAL_TAG_SET, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, KNOWN_GENRE_KEYS, normalizeGenreKey } from '@/constants/genres';
+import { useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
 

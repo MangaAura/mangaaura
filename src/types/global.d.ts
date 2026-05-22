@@ -15,7 +15,7 @@ declare module 'web-push' {
 
 // Extend ZodError
 declare module 'zod' {
-  interface ZodError<T = unknown> {
+  interface ZodError<_T = unknown> {
     errors: Array<{
       message: string;
       path: (string | number)[];

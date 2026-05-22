@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 
 import { initIO } from '@/lib/socket';
+import { closeRedisConnection } from '@/lib/redis';
 
 const PORT = parseInt(process.env.SOCKET_PORT || '3001', 10);
 
@@ -17,12 +18,29 @@ httpServer.listen(PORT, () => {
   console.info(`[Socket.IO] Transports: websocket, polling`);
 });
 
-process.on('SIGTERM', () => {
-  console.info('[Socket.IO] Shutting down...');
-  io.close(() => process.exit(0));
-});
+// Graceful shutdown con limpieza de Redis adapter
+// Nota: io.close() ya cierra el HTTP server subyacente
+const gracefulShutdown = async (signal: string) => {
+  console.info(`[Socket.IO] Received ${signal}, shutting down...`);
 
-process.on('SIGINT', () => {
-  console.info('[Socket.IO] Shutting down...');
-  io.close(() => process.exit(0));
-});
+  // 1. Cerrar Socket.IO (desconecta clients, cierra adapter y HTTP server)
+  await new Promise<void>((resolve) => {
+    io.close(() => {
+      console.info('[Socket.IO] Server closed');
+      resolve();
+    });
+  });
+
+  // 2. Cerrar conexiones Redis (pub/sub clients del adapter)
+  try {
+    await closeRedisConnection();
+    console.info('[Socket.IO] Redis connections closed');
+  } catch (err) {
+    console.error('[Socket.IO] Error closing Redis:', err);
+  }
+
+  process.exit(0);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

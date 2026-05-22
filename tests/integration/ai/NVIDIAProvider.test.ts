@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { InMemoryAIProvider } from '@/infrastructure/ai/InMemoryAIProvider';
 import { NVIDIAProvider } from '@/infrastructure/ai/NVIDIAProvider';
@@ -73,7 +73,10 @@ describe('AI Provider Integration', () => {
 
   describe('NVIDIAProvider (con rate limiting)', () => {
     it('debe requerir API key', () => {
+      // Limpiar env var para que el constructor detecte la falta de API key
+      vi.stubEnv('NVIDIA_API_KEY', '');
       expect(() => new NVIDIAProvider({ apiKey: '' })).toThrow();
+      vi.unstubAllEnvs();
     });
 
     it('debe inicializar con config personalizada', () => {

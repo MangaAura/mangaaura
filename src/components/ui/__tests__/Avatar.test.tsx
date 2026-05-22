@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../Avatar';
 vi.mock('next/image', () => ({
   default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean }) => {
     const { fill, ...rest } = props;
+    // eslint-disable-next-line @next/next/no-img-element
     return <img {...rest} />;
   },
 }));

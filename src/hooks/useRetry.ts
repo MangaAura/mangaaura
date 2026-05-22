@@ -152,13 +152,13 @@ export function useAutoRetry<T>(
   const { error, retryCount, execute: _execute } = retryHook;
   const [hasRetried, setHasRetried] = useState(false);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   // auto-retry pattern requires setState in effect when error occurs
   useEffect(() => {
     if (error && autoRetry && retryCount < (options.maxRetries || 3) && !hasRetried) {
       setHasRetried(true);
       retryHook.retry();
-    }  // eslint-disable-next-line react-hooks/set-state-in-effect
+    }   
     // retryHook.retry() intentionally triggers state changes for auto-retry
   }, [error, autoRetry, retryCount, options.maxRetries, hasRetried, retryHook]);
 

@@ -85,7 +85,7 @@ function checkModeration(content: string): { isClean: boolean; flaggedWords: str
 function extractMentions(content: string): string[] {
   const mentionRegex = /@([a-zA-Z0-9_]+)/g;
   const mentions = content.match(mentionRegex) || [];
-  return mentions.map((m: any) => m.substring(1)); // Remover el @
+  return mentions.map((m) => m.substring(1)); // Remover el @
 }
 
 // GET /api/chapters/[id]/comments - Listar comentarios
@@ -185,15 +185,15 @@ export async function GET(
       const likes = await prisma.commentLike.findMany({
         where: {
           userId: session.user.id,
-          commentId: { in: comments.flatMap((c: any) => [c.id, ...c.replies.map((r: any) => r.id)]) },
+          commentId: { in: comments.flatMap((c) => [c.id, ...c.replies.map((r) => r.id)]) },
         },
         select: { commentId: true },
       });
-      userLikes = likes.map((l: any) => l.commentId);
+      userLikes = likes.map((l) => l.commentId);
     }
 
     // Transformar respuesta
-    const transformedComments = comments.map((comment: any) => ({
+    const transformedComments = comments.map((comment) => ({
       id: comment.id,
       content: comment.isHidden ? '[Contenido oculto por moderación]' : comment.content,
       isHidden: comment.isHidden,
@@ -209,7 +209,7 @@ export async function GET(
         avatarUrl: comment.user.avatarUrl,
         level: comment.user.level,
       },
-      replies: comment.replies.map((reply: any) => ({
+      replies: comment.replies.map((reply) => ({
         id: reply.id,
         content: reply.isHidden ? '[Contenido oculto por moderación]' : reply.content,
         isHidden: reply.isHidden,
@@ -399,9 +399,9 @@ export async function POST(
 
       // Crear registros de mención
       await prisma.commentMention.createMany({
-        data: mentionedUsers.map((user: any) => ({
+        data: mentionedUsers.map((u) => ({
           commentId: comment.id,
-          mentionedUserId: user.id,
+          mentionedUserId: u.id,
         })),
       });
 
@@ -409,7 +409,7 @@ export async function POST(
       const ns = await getNotificationService();
       const mentionNotifications = mentionedUsers
         .filter((u: { id: string }) => u.id !== session.user.id)
-        .map((mentionedUser: { id: string; username: string }) =>
+        .map((mentionedUser) =>
           ns.notifyMention(
             mentionedUser.id,
             comment,

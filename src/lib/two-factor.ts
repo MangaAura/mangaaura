@@ -3,7 +3,7 @@ import { TOTP, Secret } from 'otpauth';
 
 import { prisma } from './prisma';
 
-function generateBackupCodes(): string[] {
+export function generateBackupCodes(): string[] {
   const codes: string[] = [];
   for (let i = 0; i < 8; i++) {
     const code = Array.from({ length: 10 }, () =>
@@ -14,7 +14,7 @@ function generateBackupCodes(): string[] {
   return codes;
 }
 
-function hashBackupCode(code: string): string {
+export function hashBackupCode(code: string): string {
   return bcrypt.hashSync(code, 8);
 }
 

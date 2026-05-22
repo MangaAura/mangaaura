@@ -10,6 +10,7 @@
 import webpush from 'web-push';
 
 import { prisma } from '@/lib/prisma';
+import type { WebPushSubscription, PushNotificationPayload } from '@/types/push';
 
 // Configurar VAPID
 const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -23,8 +24,6 @@ if (vapidPublicKey && vapidPrivateKey) {
     vapidPrivateKey
   );
 }
-
-import type { WebPushSubscription, PushNotificationPayload } from '@/types/push';
 
 /**
  * Guardar o actualizar suscripción de push

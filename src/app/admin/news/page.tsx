@@ -30,7 +30,6 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
-import { Textarea } from '@/components/ui/Textarea';
 import {
   Select,
   SelectContent,
@@ -39,6 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface NewsArticle {
   id: string;

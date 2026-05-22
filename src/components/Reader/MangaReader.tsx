@@ -20,12 +20,14 @@ import {
   MousePointerClick,
   Crown,
   Type,
+  Infinity,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 
+import { PageJumpInput } from './PageJumpInput';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import EditorModeOverlay from '@/components/Reader/EditorModeOverlay';
 import { Button } from '@/components/ui/Button';
@@ -64,6 +66,7 @@ export const MangaReader = memo(function MangaReader({
   nextChapter,
   initialPage = 0,
 }: MangaReaderProps) {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [zoom, setZoom] = useState(1);
   const [showControls, setShowControls] = useState(true);
@@ -73,28 +76,48 @@ export const MangaReader = memo(function MangaReader({
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'single' | 'double'>('single');
   const [scrollMode, setScrollMode] = useState<'single' | 'continuous'>('single');
+  const [continuousReading, setContinuousReading] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try { return localStorage.getItem('inkverse-continuous-reading') === 'true'; } catch { return false; }
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showSponsor, setShowSponsor] = useState(false);
   const [showMeme, setShowMeme] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastPageRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
   const touchStartY = useRef<number>(0);
   const lastPinchDistance = useRef<number>(0);
   const preloadedPages = useRef<Set<number>>(new Set());
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapRef = useRef(0);
+  const continuousNavPending = useRef(false);
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useAutoSaveProgress(mangaId, chapterId, currentPage, pages.length);
 
+  // Persist continuous reading preference
+  useEffect(() => {
+    try { localStorage.setItem('inkverse-continuous-reading', String(continuousReading)); } catch { /* noop */ }
+  }, [continuousReading]);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const navigateToChapter = useCallback((chapterNum: number) => {
+    router.push(`/manga/${mangaSlug}/${chapterNum}`);
+  }, [router, mangaSlug]);
+
+  // Preload adjacent pages
   const preloadAdjacentPages = useCallback(() => {
     const pagesToPreload = [currentPage - 1, currentPage + 1].filter(
       p => p >= 0 && p < pages.length && !preloadedPages.current.has(p)
     );
-
     pagesToPreload.forEach(p => {
-      const img = new (Image as unknown as { new (): HTMLImageElement })();
+      const img = document.createElement('img');
       img.src = pages[p];
       preloadedPages.current.add(p);
     });
@@ -104,29 +127,72 @@ export const MangaReader = memo(function MangaReader({
     preloadAdjacentPages();
   }, [preloadAdjacentPages]);
 
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  // IntersectionObserver for continuous reading in scroll mode
+  useEffect(() => {
+    if (scrollMode !== 'continuous' || !continuousReading || !nextChapter) return;
+    
+    const lastPageEl = lastPageRef.current;
+    if (!lastPageEl) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !continuousNavPending.current) {
+          // Last page visible for 800ms → auto-advance
+          autoAdvanceTimer.current = setTimeout(() => {
+            if (continuousReading && nextChapter && !continuousNavPending.current) {
+              continuousNavPending.current = true;
+              navigateToChapter(nextChapter.chapterNumber);
+            }
+          }, 800);
+        } else {
+          // User scrolled away — cancel pending auto-advance
+          if (autoAdvanceTimer.current) {
+            clearTimeout(autoAdvanceTimer.current);
+            autoAdvanceTimer.current = undefined;
+          }
+        }
+      },
+      { threshold: 0.5 }
+    );
+    
+    observer.observe(lastPageEl);
+    return () => {
+      if (autoAdvanceTimer.current) {
+        clearTimeout(autoAdvanceTimer.current);
+        autoAdvanceTimer.current = undefined;
+      }
+      observer.disconnect();
+    };
+  }, [scrollMode, continuousReading, nextChapter, navigateToChapter]);
 
   const nextPage = useCallback(() => {
     const step = viewMode === 'double' ? 2 : 1;
+    const isLastPage = currentPage >= pages.length - step;
+    
+    // Continuous reading: auto-advance to next chapter
+    if (isLastPage && continuousReading && nextChapter && !continuousNavPending.current) {
+      continuousNavPending.current = true;
+      navigateToChapter(nextChapter.chapterNumber);
+      return;
+    }
+    
     if (scrollMode === 'continuous') {
       const next = currentPage + 1;
       if (next < pages.length) {
         const el = containerRef.current?.children[next] as HTMLElement | undefined;
         el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurrentPage(next);
-      } else if (nextChapter) {
+      } else if (nextChapter && !continuousReading) {
         window.location.href = `/manga/${mangaSlug}/${nextChapter.chapterNumber}`;
       }
     } else if (currentPage < pages.length - step) {
       setCurrentPage(p => p + step);
       scrollToTop();
       setIsLoading(true);
-    } else if (nextChapter) {
+    } else if (nextChapter && !continuousReading) {
       window.location.href = `/manga/${mangaSlug}/${nextChapter.chapterNumber}`;
     }
-  }, [currentPage, pages.length, nextChapter, mangaSlug, scrollToTop, viewMode, scrollMode]);
+  }, [currentPage, pages.length, nextChapter, mangaSlug, scrollToTop, viewMode, scrollMode, continuousReading, navigateToChapter]);
 
   const prevPage = useCallback(() => {
     const step = viewMode === 'double' ? 2 : 1;
@@ -232,6 +298,11 @@ export const MangaReader = memo(function MangaReader({
       case 'C':
         e.preventDefault();
         setScrollMode(m => m === 'single' ? 'continuous' : 'single');
+        break;
+      case 'i':
+      case 'I':
+        e.preventDefault();
+        setContinuousReading(v => !v);
         break;
       case '?':
         e.preventDefault();
@@ -358,7 +429,10 @@ export const MangaReader = memo(function MangaReader({
     const startTimer = () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       setShowControls(true);
-      hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+      hideTimerRef.current = setTimeout(() => {
+        setShowControls(false);
+        hideTimerRef.current = null;
+      }, 3000);
     };
 
     const handleActivity = () => startTimer();
@@ -371,6 +445,7 @@ export const MangaReader = memo(function MangaReader({
 
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
       window.removeEventListener('mousemove', handleActivity);
       window.removeEventListener('touchstart', handleActivity);
       window.removeEventListener('click', handleActivity);
@@ -441,6 +516,9 @@ export const MangaReader = memo(function MangaReader({
                 {scrollMode === 'continuous' && (
                   <span className="ml-2 text-[var(--info)] text-xs">· Continuo</span>
                 )}
+                {continuousReading && nextChapter && (
+                  <span className="ml-2 text-[var(--success)] text-xs">· Auto-siguiente</span>
+                )}
               </p>
             </div>
           </div>
@@ -464,6 +542,14 @@ export const MangaReader = memo(function MangaReader({
             </ControlButton>
             <ControlButton onClick={() => setViewMode(v => v === 'single' ? 'double' : 'single')} title="Modo de vista (W)" aria-label="Modo de vista">
               {viewMode === 'single' ? <Columns className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+            </ControlButton>
+            <ControlButton
+              onClick={() => setContinuousReading(v => !v)}
+              disabled={!nextChapter}
+              title={nextChapter ? `Lectura continua (I): ${continuousReading ? 'Activada' : 'Desactivada'}` : 'No hay siguiente capítulo'}
+              aria-label={continuousReading ? 'Desactivar lectura continua' : 'Activar lectura continua'}
+            >
+              <Infinity className={cn('w-5 h-5', continuousReading && 'text-[var(--success)]')} />
             </ControlButton>
             <div className="w-px h-6 bg-[var(--text-inverse)]/10 mx-2" />
             <ControlButton onClick={() => setShowQuiz(true)} title="Pop Quiz" aria-label="Pop Quiz">
@@ -506,6 +592,7 @@ export const MangaReader = memo(function MangaReader({
             {pages.map((page, index) => (
               <motion.div
                 key={`continuous-${index}`}
+                ref={index === pages.length - 1 ? lastPageRef : undefined}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.5) }}
@@ -683,9 +770,15 @@ export const MangaReader = memo(function MangaReader({
               >
                 <ChevronLeft className="w-5 h-5" />
               </ControlButton>
-              <span className="text-[var(--text-secondary)] text-sm min-w-[4rem] text-center">
-                {progress.current} / {progress.total}
-              </span>
+              <PageJumpInput
+                currentPage={currentPage + 1}
+                totalPages={pages.length}
+                onJump={(page) => {
+                  setCurrentPage(page - 1);
+                  setIsLoading(true);
+                  scrollToTop();
+                }}
+              />
               <ControlButton
                 onClick={nextPage}
                 disabled={currentPage === pages.length - 1 && !nextChapter}
@@ -803,6 +896,41 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
+                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                  Lectura continua
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    variant={continuousReading ? 'default' : 'outline'}
+                    onClick={() => setContinuousReading(true)}
+                    disabled={!nextChapter}
+                    className="flex-1"
+                    title={!nextChapter ? 'No hay siguiente capítulo disponible' : undefined}
+                  >
+                    <Infinity className="w-4 h-4 mr-1" /> Auto-siguiente
+                  </Button>
+                  <Button
+                    variant={!continuousReading ? 'default' : 'outline'}
+                    onClick={() => setContinuousReading(false)}
+                    className="flex-1"
+                  >
+                    Manual
+                  </Button>
+                </div>
+                {continuousReading && (
+                  <p className="text-xs text-[var(--text-tertiary)] mt-2">
+                    Al llegar al final del capítulo, avanzarás automáticamente al siguiente.
+                    {scrollMode === 'continuous' && ' En modo desplazamiento, la transición ocurre al hacer scroll hasta la última página.'}
+                  </p>
+                )}
+                {!nextChapter && (
+                  <p className="text-xs text-[var(--text-muted)] mt-2">
+                    Este es el último capítulo disponible.
+                  </p>
+                )}
+              </div>
+
+              <div>
                 <p className="text-sm text-[var(--text-secondary)]">Capítulos disponibles: {totalChapters}</p>
               </div>
             </div>
@@ -865,6 +993,10 @@ export const MangaReader = memo(function MangaReader({
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">?</span>
                 <span className="text-[var(--text-primary)]">Mostrar ayuda</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--text-secondary)]">I</span>
+                <span className="text-[var(--text-primary)]">Lectura continua (auto-siguiente capítulo)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Esc</span>
