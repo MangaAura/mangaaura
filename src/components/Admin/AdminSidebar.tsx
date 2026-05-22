@@ -34,6 +34,7 @@ const navItems: NavItem[] = [
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Manga', href: '/admin/manga', icon: BookOpen },
   { label: 'Noticias', href: '/admin/news', icon: Newspaper },
+  { label: 'CSP Reports', href: '/admin/csp-reports', icon: Shield },
   { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: Cpu },
   { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
   { label: 'Settings', href: '/admin/settings', icon: Settings },

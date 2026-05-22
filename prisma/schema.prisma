@@ -1096,3 +1096,25 @@ model InboundEmail {
   @@index([createdAt])
   @@index([processedAt])
 }
+
+// CSP Violation Reports — received via report-uri directive
+model CspReport {
+  id                String   @id @default(uuid())
+  blockedUri        String
+  violatedDirective String
+  documentUri       String
+  effectiveDirective String?
+  originalPolicy    String?
+  scriptSample      String?
+  sourceFile        String?
+  lineNumber        Int?
+  columnNumber      Int?
+  disposition       String   @default("enforce")
+  isExtensionNoise  Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@index([violatedDirective])
+  @@index([isExtensionNoise])
+  @@index([createdAt])
+  @@index([disposition])
+}

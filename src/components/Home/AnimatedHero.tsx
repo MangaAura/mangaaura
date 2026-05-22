@@ -8,6 +8,21 @@ import { useEffect, useState } from 'react';
 
 import { useT } from '@/i18n';
 
+function WelcomeLabel({ text }: { text: string }) {
+  const idx = text.indexOf('MangaAura');
+  if (idx === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <span className="inline-flex items-center">
+        Manga
+        <span className="mx-[0.1em] text-[var(--text-muted)]/40 select-none" aria-hidden="true">✦</span>
+        Aura
+      </span>
+      {text.slice(idx + 9)}
+    </>
+  );
+}
 
 function CountUp({ value }: { value: number }) {
   const [count, setCount] = useState(0);
@@ -119,7 +134,7 @@ export function AnimatedHero({
         className="relative z-20 max-w-2xl px-6 md:px-12 py-16 md:py-24 w-full"
       >
         <motion.p variants={itemVariants} className="text-sm uppercase tracking-widest text-[var(--primary)] mb-3 font-medium">
-          {coverUrl ? t('home.featured') : t('home.welcome')}
+          {coverUrl ? t('home.featured') : <WelcomeLabel text={t('home.welcome')} />}
         </motion.p>
 
         <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight">
