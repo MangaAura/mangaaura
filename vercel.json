@@ -29,7 +29,7 @@
     },
     {
       "path": "/api/cron/cleanup-expired-bids",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
