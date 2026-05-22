@@ -1,74 +1,38 @@
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtmlLib from 'sanitize-html';
 
-// Configure DOMPurify for safe HTML content
-const purifyConfig = {
-  ALLOWED_TAGS: [
-    'b',
-    'i',
-    'em',
-    'strong',
-    'p',
-    'br',
-    'a',
-    'ul',
-    'ol',
-    'li',
-    'blockquote',
-    'code',
-    'pre',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'span',
-    'div',
-    'img',
+const purifyConfig: sanitizeHtmlLib.IOptions = {
+  allowedTags: [
+    'b', 'i', 'em', 'strong', 'p', 'br', 'a', 'ul', 'ol', 'li',
+    'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'span', 'div', 'img',
   ],
-  ALLOWED_ATTR: [
-    'href',
-    'target',
-    'rel',
-    'title',
-    'alt',
-    'src',
-    'width',
-    'height',
-    'class',
-    'id',
-  ],
-  ALLOW_DATA_ATTR: false,
-  SANITIZE_DOM: true,
-  KEEP_CONTENT: true,
-  // Force all links to open in new tab with security attributes
-  FORCE_BODY: true,
+  allowedAttributes: {
+    a: ['href', 'target', 'rel', 'title'],
+    img: ['src', 'alt', 'title', 'width', 'height'],
+    '*': ['class', 'id'],
+  },
+  allowVulnerableTags: false,
+  allowedSchemes: ['http', 'https', 'mailto'],
+  allowedSchemesByTag: { img: ['http', 'https', 'data'] },
+  transformTags: {
+    a: (tagName, attribs) => ({
+      tagName,
+      attribs: {
+        ...attribs,
+        target: '_blank',
+        rel: 'noopener noreferrer nofollow',
+      },
+    }),
+  },
 };
 
-/**
- * Sanitize HTML content to prevent XSS attacks
- * Allows basic formatting but strips dangerous content
- */
 export function sanitizeHtml(dirty: string | null | undefined): string {
   if (!dirty) return '';
 
-  // First pass: Clean with DOMPurify
-  let clean = DOMPurify.sanitize(dirty, purifyConfig);
+  let clean = sanitizeHtmlLib(dirty, purifyConfig);
 
-  // Second pass: Additional security measures
-  // Force all links to have security attributes
-  clean = clean.replace(
-    /<a\s+([^>]*)href="([^"]*)"([^>]*)>/gi,
-    '<a $1href="$2"$3 target="_blank" rel="noopener noreferrer nofollow">'
-  );
-
-  // Remove any javascript: URLs
   clean = clean.replace(/javascript:/gi, '');
-
-  // Remove event handlers
   clean = clean.replace(/\son\w+\s*=\s*"[^"]*"/gi, '');
-
-  // Remove data: URLs (except for images)
   clean = clean.replace(/data:(?!image\/)/gi, '');
 
   return clean;

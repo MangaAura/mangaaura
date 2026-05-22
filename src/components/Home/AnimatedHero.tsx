@@ -9,19 +9,21 @@ import { useEffect, useState } from 'react';
 import { useT } from '@/i18n';
 
 function WelcomeLabel({ text }: { text: string }) {
-  const idx = text.indexOf('MangaAura');
-  if (idx === -1) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <span className="inline-flex items-center">
-        Manga
-        <span className="mx-[0.1em] text-[var(--text-muted)]/40 select-none" aria-hidden="true">✦</span>
-        Aura
-      </span>
-      {text.slice(idx + 9)}
-    </>
-  );
+  const nodes: React.ReactNode[] = [];
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    const n = text[i + 1];
+    if (n && c === n && c.toLowerCase() === 'a') {
+      nodes.push(c);
+      nodes.push(<i key={i}>{n}</i>);
+      i += 2;
+    } else {
+      nodes.push(c);
+      i += 1;
+    }
+  }
+  return <>{nodes}</>;
 }
 
 function CountUp({ value }: { value: number }) {
