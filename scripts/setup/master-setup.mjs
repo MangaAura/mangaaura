@@ -9,9 +9,16 @@
  *   1. Enable 2FA on MangaAura.es@gmail.com
  *   2. Generate Google App Password at https://myaccount.google.com/apppasswords
  *   3. Create GitHub account at https://github.com/signup
- *   4. Generate GitHub PAT at https://github.com/settings/tokens (scopes: user, repo, admin:oauth_app)
+ *   4. Generate GitHub PAT at https://github.com/settings/tokens (scopes: user, repo)
+ *
+ * Pre-configured (from setup May 22, 2026):
+ *   - GitHub repo: https://github.com/MangaAura/mangaaura
+ *   - SMTP: MangaAura.es@gmail.com (App Password verified)
+ *   - NVIDIA API Key: configured
+ *   - Web Push VAPID: configured
  */
 
+// MangaAura - Master Setup Script (v2 - preconfigured)
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
