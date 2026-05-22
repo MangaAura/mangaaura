@@ -6,23 +6,22 @@
  * Usage: node scripts/setup/master-setup.mjs
  * 
  * Prerequisites (do these first, takes 5 min):
- *   1. Enable 2FA on MangaAura.es@gmail.com
+ *   1. Enable 2FA on the project Gmail account
  *   2. Generate Google App Password at https://myaccount.google.com/apppasswords
  *   3. Create GitHub account at https://github.com/signup
  *   4. Generate GitHub PAT at https://github.com/settings/tokens (scopes: user, repo)
  *
  * Pre-configured (from setup May 22, 2026):
- *   - GitHub repo: https://github.com/MangaAura/mangaaura
- *   - SMTP: MangaAura.es@gmail.com (App Password verified)
  *   - NVIDIA API Key: configured
  *   - Web Push VAPID: configured
  */
 
-// MangaAura - Master Setup Script (v2 - preconfigured)
+import 'dotenv/config';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import os from 'os';
 import { fileURLToPath } from 'url';
 import readline from 'readline';
 
@@ -32,7 +31,6 @@ const ENV_PATH = path.join(ROOT, '.env.local');
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const ask = (q) => new Promise((r) => rl.question(q, r));
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function log(emoji, msg) {
   console.log(`${emoji} ${msg}`);
@@ -72,38 +70,51 @@ function saveEnv(updates) {
   log('💾', `.env.local actualizado`);
 }
 
+function smtpUser() {
+  const env = loadEnv();
+  return env.SMTP_USER || process.env.SMTP_USER || 'MangaAura.es@gmail.com';
+}
+
+async function testSmtp(host, port, user, pass) {
+  const script = path.join(os.tmpdir(), `smtp-test-${Date.now()}.mjs`);
+  fs.writeFileSync(script, `
+import nodemailer from 'nodemailer';
+const t = nodemailer.createTransport({
+  host: '${host}', port: ${port}, secure: false,
+  auth: { user: '${user}', pass: process.env.SMTP_PASSWORD }
+});
+t.verify().then(() => process.exit(0)).catch(e => { console.error(e.message); process.exit(1); });
+`);
+  try {
+    execSync(`node "${script}"`, { stdio: 'pipe', timeout: 15000, env: { ...process.env, SMTP_PASSWORD: pass } });
+  } finally {
+    try { fs.unlinkSync(script); } catch {}
+  }
+}
+
 async function checkPrerequisites() {
   log('\n🔍', '=== Verificando Prerrequisitos ===\n');
 
   const env = loadEnv();
 
-  // Check App Password
   const appPassword = await ask('1. Pasame el App Password de Gmail (16 letras, ej: abcd efgh ijkl mnop): ');
   if (appPassword.length < 10) {
     warn('App Password muy corto. Genéralo en: https://myaccount.google.com/apppasswords');
     log('📖', 'Pasos: Activar 2FA → App Passwords → Seleccionar "Correo" → Generar');
     return false;
   }
-  saveEnv({ SMTP_PASSWORD: appPassword, SMTP_HOST: 'smtp.gmail.com', SMTP_PORT: '587', SMTP_USER: 'MangaAura.es@gmail.com' });
+  const user = smtpUser();
+  saveEnv({ SMTP_PASSWORD: appPassword, SMTP_HOST: 'smtp.gmail.com', SMTP_PORT: '587', SMTP_USER: user });
 
-  // Test SMTP
   log('📧', 'Probando SMTP...');
   try {
-    execSync(`node -e "
-      const nodemailer = require('nodemailer');
-      const t = nodemailer.createTransport({
-        host: 'smtp.gmail.com', port: 587, secure: false,
-        auth: { user: 'MangaAura.es@gmail.com', pass: '${appPassword.replace(/'/g, "\\'")}' }
-      });
-      t.verify().then(() => { process.exit(0); }).catch(e => { console.error(e.message); process.exit(1); });
-    "`, { stdio: 'pipe', timeout: 15000 });
+    await testSmtp('smtp.gmail.com', 587, user, appPassword);
     log('✅', 'SMTP Gmail funciona');
   } catch {
     warn('SMTP no funciona. Verifica el App Password.');
     return false;
   }
 
-  // Check GitHub
   const githubToken = await ask('\n2. Pasame tu GitHub Personal Access Token: ');
   if (githubToken.length < 20) {
     warn('Token inválido. Crea uno en: https://github.com/settings/tokens');
@@ -111,20 +122,20 @@ async function checkPrerequisites() {
     return false;
   }
 
-  // Test GitHub token
+  let githubUser;
   try {
-    const result = execSync(`curl -s -H "Authorization: token ${githubToken}" https://api.github.com/user`, { stdio: 'pipe', timeout: 10000 });
-    const user = JSON.parse(result.toString());
-    if (user.login) {
-      log('✅', `GitHub: @${user.login}`);
-      saveEnv({ GITHUB_TOKEN: githubToken });
-    }
+    const res = await fetch('https://api.github.com/user', { headers: { Authorization: `token ${githubToken}`, Accept: 'application/vnd.github.v3+json' } });
+    const data = await res.json();
+    if (!data.login) throw new Error('Invalid token');
+    githubUser = data.login;
+    log('✅', `GitHub: @${githubUser}`);
+    saveEnv({ GITHUB_TOKEN: githubToken });
   } catch {
     warn('Token de GitHub no válido');
     return false;
   }
 
-  return { appPassword, githubToken, githubUser: JSON.parse(execSync(`curl -s -H "Authorization: token ${githubToken}" https://api.github.com/user`).toString()).login };
+  return { appPassword, githubToken, githubUser };
 }
 
 async function createGitHubOAuthApp(githubToken, githubUser) {
@@ -133,24 +144,21 @@ async function createGitHubOAuthApp(githubToken, githubUser) {
   const callbackUrl = await ask('Callback URL (dev): ') || 'http://localhost:3000/api/auth/callback/github';
 
   try {
-    const result = execSync(`curl -s -X POST https://api.github.com/applications \
-      -H "Authorization: token ${githubToken}" \
-      -H "Accept: application/vnd.github.v3+json" \
-      -d '${JSON.stringify({
+    const res = await fetch('https://api.github.com/applications', {
+      method: 'POST',
+      headers: { Authorization: `token ${githubToken}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         name: 'MangaAura',
         url: 'https://mangaaura.es',
         callback_url: callbackUrl,
-        description: 'Manga platform - MangaAura authentication',
+        description: 'Manga platform authentication',
         public: true,
-      })}'`, { stdio: 'pipe', timeout: 15000 });
-    
-    const app = JSON.parse(result.toString());
+      }),
+    });
+    const app = await res.json();
     if (app.client_id) {
       log('✅', `GitHub OAuth App creada: ${app.client_id}`);
-      saveEnv({
-        GITHUB_CLIENT_ID: app.client_id,
-        GITHUB_CLIENT_SECRET: app.client_secret,
-      });
+      saveEnv({ GITHUB_CLIENT_ID: app.client_id, GITHUB_CLIENT_SECRET: app.client_secret });
       return app;
     }
   } catch (e) {
@@ -159,13 +167,11 @@ async function createGitHubOAuthApp(githubToken, githubUser) {
   return null;
 }
 
-async function createResendAccount(imapPassword) {
+async function createResendAccount() {
   log('\n✉️', '=== Configurando Resend ===\n');
   
-  // Resend doesn't have a public signup API, but we can try their invite system
   warn('Resend requiere registro manual en https://resend.com');
-  log('📋', 'Usa MangaAura.es@gmail.com y verifica el email');
-  log('📋', 'Después agrega el dominio MangaAura.es');
+  log('📋', 'Verifica el email y agrega el dominio MangaAura.es');
   
   const apiKey = await ask('\nUna vez registrado, pega tu RESEND_API_KEY: ');
   if (apiKey && apiKey.startsWith('re_')) {
@@ -191,13 +197,13 @@ async function createUpstashRedis() {
   return false;
 }
 
-async function setupVercel(githubToken) {
+async function setupVercel() {
   log('\n▲', '=== Configurando Vercel ===\n');
   warn('Vercel requiere registro manual en https://vercel.com con GitHub');
   
   log('📋', 'Pasos:');
   log('  1. Ve a https://vercel.com/login → "Continue with GitHub"');
-  log('  2. Importa el repositorio de MangaAura');
+  log('  2. Importa el repositorio');
   log('  3. En Project Settings → Environment Variables, agrega:');
   
   const env = loadEnv();
@@ -262,7 +268,7 @@ async function main() {
   await createUpstashRedis();
 
   // 4. Vercel
-  await setupVercel(githubToken);
+  await setupVercel();
 
   // 5. Sentry
   await setupSentry();
