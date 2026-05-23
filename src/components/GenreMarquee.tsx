@@ -1,9 +1,9 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { Hash, Gauge } from 'lucide-react';
+import { Hash } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { GENRE_DISPLAY, DEFAULT_GENRE_DISPLAY } from '@/constants/genres';
 import { useGenres } from '@/hooks/useGenres';
@@ -62,19 +62,8 @@ export function GenreMarquee() {
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
   prefersReducedMotionRef.current = prefersReducedMotion;
 
-  const [speed, setSpeed] = useState(() => {
-    if (typeof window === 'undefined') return 0.08;
-    try {
-      const saved = localStorage.getItem('genreMarqueeSpeed');
-      if (saved === null) return 0.08;
-      const parsed = parseFloat(saved);
-      return isNaN(parsed) ? 0.08 : Math.min(0.5, Math.max(0, parsed));
-    } catch {
-      return 0.08;
-    }
-  });
-  const speedRef = useRef(speed);
-  speedRef.current = speed;
+  const SPEED = 0.03;
+  const speedRef = useRef(SPEED);
 
   const isHovering = useRef(false);
   const isDragging = useRef(false);
@@ -267,26 +256,7 @@ export function GenreMarquee() {
             <Hash className="w-6 h-6 text-[var(--primary)]" />
             {t('home.exploreByGenre')}
           </h2>
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full border bg-[var(--surface)] transition-all duration-200 hover:border-[var(--border-strong)]">
-            <Gauge className="w-3.5 h-3.5 text-[var(--text-tertiary)]" aria-hidden="true" />
-            <input
-              type="range"
-              min="0"
-              max="0.5"
-              step="0.01"
-              value={speed}
-              onChange={(e) => {
-                const v = parseFloat(e.target.value);
-                setSpeed(v);
-                localStorage.setItem('genreMarqueeSpeed', v.toString());
-              }}
-              aria-label="Velocidad del carrusel"
-              className="w-20 h-1 appearance-none cursor-pointer rounded-full bg-[var(--border)] accent-[var(--primary)] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125"
-            />
-            <span className="tabular-nums text-xs font-medium text-[var(--text-tertiary)] min-w-[2ch] text-right">
-              {speed === 0 ? '0' : (speed * 100).toFixed(0)}
-            </span>
-          </div>
+
         </div>
       </motion.div>
 
