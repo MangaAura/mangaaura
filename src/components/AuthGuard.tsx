@@ -2,13 +2,15 @@ import { LogIn, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/permissions';
 
 interface AuthGuardProps {
   children: React.ReactNode;
   allowedRoles?: string[];
+  requiredPermission?: string;
 }
 
-export async function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
+export async function AuthGuard({ children, allowedRoles, requiredPermission }: AuthGuardProps) {
   const session = await auth();
 
   if (!session?.user) {
