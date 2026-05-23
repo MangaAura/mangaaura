@@ -1,7 +1,11 @@
 // ─── Thin wrapper ───────────────────────────────────────────────────
 // All middleware logic is centralized in src/proxy.ts.
 // Next.js auto-detects this file at the project root.
-export { proxy as middleware } from './src/proxy';
+import { proxy } from './src/proxy';
+
+export async function middleware(request: Request) {
+  return proxy(request as any);
+}
 
 // Next.js requires the config to be exported directly (cannot be re-exported).
 export const config = {
