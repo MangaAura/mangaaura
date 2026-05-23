@@ -66,9 +66,6 @@ const nextConfig: NextConfig = {
   // Compression
   compress: true,
 
-  // Output configuration for optimized builds
-  output: 'standalone',
-
   // Headers for caching (skip _next/static to avoid warnings)
   async headers() {
     return [
@@ -147,8 +144,8 @@ const withSentry = process.env.SENTRY_DSN
       silent: !process.env.CI,
       widenClientFileUpload: true,
       sourcemaps: { disable: false, deleteSourcemapsAfterUpload: true },
-      disableLogger: true,
-      automaticVercelMonitors: true,
+      // disableLogger is deprecated and unsupported with Turbopack
+      // automaticVercelMonitors is deprecated and unsupported with Turbopack
     })
   : nextConfig;
 
