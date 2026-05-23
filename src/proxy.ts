@@ -191,6 +191,15 @@ export async function proxy(request: NextRequest) {
     });
   }
 
+  // -- Redirect GET /api/auth/signin/:provider → /auth/login --
+  // Auth.js v5 only accepts POST for provider sign-in (requires CSRF token).
+  // Bots hitting GET /api/auth/signin/google trigger "UnknownAction" errors.
+  // Redirect them to the login page instead of letting Auth.js choke.
+  if (method === 'GET' && /^\/api\/auth\/signin\/[^/]+$/.test(pathname)) {
+    logRequest({ method, path: pathname, statusCode: 302, duration: Date.now() - startTime, ip, userAgent, requestId });
+    return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+
   // -- Auth check for protected page routes --
   if (isProtectedRoute(pathname)) {
     // RSC payload requests carry auth state internally — skip redirects
