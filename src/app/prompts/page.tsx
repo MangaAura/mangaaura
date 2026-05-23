@@ -108,6 +108,7 @@ export default function PromptHunterPage() {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--text-tertiary)]" size={20} />
             <input
               type="text"
+              name="prompts-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por estilo, autor o palabra clave... (ej. 'cyberpunk', 'niji 6')"

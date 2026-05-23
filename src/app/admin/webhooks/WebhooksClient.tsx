@@ -520,6 +520,7 @@ export function WebhooksClient() {
                   >
                     <input
                       type="checkbox"
+                      name={`webhook-event-create-${event}`}
                       checked={formEvents.includes(event)}
                       onChange={() => toggleEvent(event)}
                       className="sr-only"
@@ -623,6 +624,7 @@ export function WebhooksClient() {
                   >
                     <input
                       type="checkbox"
+                      name={`webhook-event-edit-${event}`}
                       checked={formEvents.includes(event)}
                       onChange={() => toggleEvent(event)}
                       className="sr-only"

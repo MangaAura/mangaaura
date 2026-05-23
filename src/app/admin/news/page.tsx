@@ -571,6 +571,7 @@ function NewsForm({
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
+                    name="news-lang-toggle"
                     checked={langTab === 'en'}
                     onChange={(e) => setLangTab(e.target.checked ? 'en' : 'es')}
                     className="sr-only peer"

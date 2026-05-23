@@ -268,6 +268,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                 >
                   <input
                     type="text"
+                    name={`meme-text-${text.id}`}
                     value={text.text}
                     onChange={(e) => updateText(text.id, { text: e.target.value })}
                     aria-label="Texto del meme"
@@ -281,6 +282,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                         <label className="text-xs text-[var(--text-secondary)]">Tamaño:</label>
                         <input
                           type="range"
+                          name={`meme-font-size-${text.id}`}
                           min="16"
                           max="72"
                           value={text.fontSize}
@@ -295,6 +297,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
                         <label className="text-xs text-[var(--text-secondary)]">Color:</label>
                         <input
                           type="color"
+                          name={`meme-text-color-${text.id}`}
                           value={text.color}
                           onChange={(e) => updateText(text.id, { color: e.target.value })}
                           aria-label="Color de texto"

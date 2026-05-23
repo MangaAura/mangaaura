@@ -183,6 +183,7 @@ export default function ImageCropper({
         <input
           ref={zoomRef}
           type="range"
+          name="cropper-zoom"
           min={1}
           max={3}
           step={0.01}

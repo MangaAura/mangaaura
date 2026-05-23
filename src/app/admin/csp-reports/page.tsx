@@ -181,6 +181,7 @@ export default function CspReportsPage() {
         <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
           <input
             type="checkbox"
+            name="include-noise"
             checked={includeNoise}
             onChange={(e) => {
               setIncludeNoise(e.target.checked);

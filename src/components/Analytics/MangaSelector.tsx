@@ -133,6 +133,7 @@ export function MangaSelector({
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
                   <input
                     type="text"
+                    name="manga-search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar manga..."
