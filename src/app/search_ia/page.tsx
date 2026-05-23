@@ -170,6 +170,7 @@ export default function BrowsePage() {
               </div>
               <input
                 type="text"
+                name="search-ia"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('browse.searchPlaceholder')}

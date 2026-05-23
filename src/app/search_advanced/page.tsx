@@ -195,6 +195,7 @@ export default function AdvancedSearchPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
             <input
                 type="text"
+                name="search-advanced"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder={t('search.searchPlaceholder')}
@@ -255,6 +256,7 @@ export default function AdvancedSearchPage() {
                 <h3 className="font-bold text-sm text-[var(--text-muted)] uppercase tracking-wider mb-3">{t('search.sortByLabel')}</h3>
                 <div className="relative">
                   <select
+                    name="sort-by"
                     value={sortBy}
                     onChange={e => setSortBy(e.target.value)}
                     className="w-full appearance-none bg-[var(--surface-sunken)] border border-[var(--border)] text-sm font-semibold py-2.5 pl-3 pr-8 rounded-xl outline-none focus:border-[var(--accent-blue)] transition-colors"
