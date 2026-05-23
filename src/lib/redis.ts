@@ -260,15 +260,8 @@ function createUpstashRedis(): UpstashRedis {
 type RedisClient = IoRedis | UpstashRedis | MockRedis;
 
 function getRedisInstance(): RedisClient {
-  if (isDevelopment && !process.env.REDIS_URL && mockRedisInstance) {
-    return mockRedisInstance;
-  }
-  if (upstashInstance) return upstashInstance;
-  if (redisInstance) return redisInstance;
-  if (mockRedisInstance) return mockRedisInstance;
-
-  // Production: use Upstash REST SDK (serverless-friendly)
-  if (!isDevelopment && UPSTASH_URL && UPSTASH_TOKEN) {
+  // Upstash: always use if credentials available (works in dev and prod)
+  if (UPSTASH_URL && UPSTASH_TOKEN) {
     upstashInstance = createUpstashRedis();
     redisAvailable = true;
     return upstashInstance;
@@ -284,14 +277,19 @@ function getRedisInstance(): RedisClient {
     }
   }
 
+  // Development without Redis: use mock
+  if (isDevelopment && !process.env.REDIS_URL && mockRedisInstance) {
+    return mockRedisInstance;
+  }
+
   // Fallback to mock
   mockRedisInstance = new MockRedis();
   return mockRedisInstance;
 }
 
 export const redis =
-  globalForRedis.redis ||
   globalForRedis.upstash ||
+  globalForRedis.redis ||
   globalForRedis.mockRedis ||
   getRedisInstance();
 

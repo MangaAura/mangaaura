@@ -1,0 +1,14 @@
+{
+  "url": "http://localhost:3000/auth/login?callbackUrl=%2Fcheckout",
+  "registered": true,
+  "authenticated": false,
+  "cspViolations": [],
+  "consoleErrors": [
+    "[SW] Error caching App Shell: TypeError: Failed to execute 'addAll' on 'Cache': Request failed"
+  ],
+  "user": {
+    "username": "csp_1779545482459",
+    "email": "csp_1779545482459@test.com",
+    "password": "TestPass123!"
+  }
+}

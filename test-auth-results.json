@@ -1,0 +1,67 @@
+{
+  "homepage": {
+    "status": "http://localhost:3000/",
+    "title": "MangaAura"
+  },
+  "registerPage": {
+    "status": "http://localhost:3000/auth/register"
+  },
+  "registerSubmit": {
+    "url": "http://localhost:3000/"
+  },
+  "registerAutoLogin": true,
+  "session": {
+    "authenticated": true,
+    "user": {
+      "name": "test_auth_1779546779579",
+      "email": "test_auth_1779546779579@test.com",
+      "image": null,
+      "id": "ea5daced-5386-4511-a319-c5b41faaaa46",
+      "xpPoints": 0,
+      "level": 1,
+      "role": "USER",
+      "twoFactorEnabled": false
+    }
+  },
+  "cookies": [
+    {
+      "name": "__csrf_mw",
+      "domain": "localhost",
+      "path": "/",
+      "httpOnly": true,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "next-auth.csrf-token",
+      "domain": "localhost",
+      "path": "/",
+      "httpOnly": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "next-auth.callback-url",
+      "domain": "localhost",
+      "path": "/",
+      "httpOnly": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "next-auth.session-token",
+      "domain": "localhost",
+      "path": "/",
+      "httpOnly": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "checkoutAccess": {
+    "status": "redirected_to_login",
+    "url": "http://localhost:3000/auth/login?callbackUrl=%2Fcheckout"
+  },
+  "consoleErrors": [],
+  "cspErrors": [],
+  "consoleLogsSummary": {
+    "total": 71,
+    "errors": 0,
+    "warnings": 1
+  }
+}

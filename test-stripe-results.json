@@ -1,0 +1,37 @@
+{
+  "url": "http://localhost:3000/auth/login?callbackUrl=%2Fcheckout",
+  "consoleErrors": [
+    "[SW] Error caching App Shell: TypeError: Failed to execute 'addAll' on 'Cache': Request failed"
+  ],
+  "cspViolations": [],
+  "allConsoleLogs": [
+    "[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold",
+    "[log] [HMR] connected",
+    "[log] [SW] Installing...",
+    "[info] [SW] Registered",
+    "[info] [SW] Registered",
+    "[log] [SW] Caching App Shell",
+    "[info] [SW] Registered",
+    "[log] [Fast Refresh] rebuilding",
+    "[log] [Fast Refresh] done in 130ms",
+    "[error] [SW] Error caching App Shell: TypeError: Failed to execute 'addAll' on 'Cache': Request failed",
+    "[log] [SW] Activating...",
+    "[log] [Fast Refresh] rebuilding",
+    "[log] [Fast Refresh] done in 105ms",
+    "[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold",
+    "[log] [HMR] connected",
+    "[info] [SW] Registered",
+    "[info] [SW] Registered",
+    "[info] [SW] Registered",
+    "[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold",
+    "[log] [HMR] connected",
+    "[info] [SW] Registered",
+    "[info] [SW] Registered",
+    "[info] [SW] Registered"
+  ],
+  "user": {
+    "username": "testuser_csp9238",
+    "email": "testuser_csp9238@test.com",
+    "password": "TestPass123!"
+  }
+}
