@@ -10,7 +10,8 @@ import {
   Loader2,
   UserPlus,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -84,6 +85,8 @@ function Content() {
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [oauthProviders, setOauthProviders] = useState<string[]>([]);
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [idPrefix] = useState(() => `register-${Math.random().toString(36).substr(2, 6)}`);
   const usernameErrorId = `${idPrefix}-username-error`;
   const emailErrorId = `${idPrefix}-email-error`;
@@ -92,6 +95,61 @@ function Content() {
   const t = useT();
   const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { baseSchema, registerSchema } = useMemo(() => createRegisterSchemas(t), [t]);
+  const usernameCheckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Debounced async check for username availability
+  const checkUsername = (value: string) => {
+    if (usernameCheckTimerRef.current) {
+      clearTimeout(usernameCheckTimerRef.current);
+    }
+
+    // Abort any in-flight request to prevent race conditions on rapid typing
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    // Reset to unknown if value is empty or invalid
+    if (!value || value.length < 3) {
+      setUsernameAvailable(null);
+      setUsernameChecking(false);
+      return;
+    }
+
+    usernameCheckTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      setUsernameChecking(true);
+      try {
+        const res = await fetch(
+          `/api/auth/check-username?username=${encodeURIComponent(value)}`,
+          { signal: controller.signal }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          // Only update state if this request wasn't aborted
+          if (!controller.signal.aborted) {
+            setUsernameAvailable(data.available);
+            if (!data.available) {
+              setErrors((prev) => ({ ...prev, username: t('auth.validation.usernameTaken') }));
+            }
+          }
+        }
+      } catch (err: unknown) {
+        // Silently ignore aborted requests; fail gracefully on network errors
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setUsernameAvailable(null);
+      } finally {
+        if (!controller.signal.aborted) {
+          setUsernameChecking(false);
+        }
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+      }
+    }, 500);
+  };
 
   // Fetch available OAuth providers from NextAuth so buttons are only shown
   // when the provider is actually configured server-side.
@@ -209,16 +267,38 @@ function Content() {
     }
   };
 
-  // Cleanup redirect timer on unmount
+  // Cleanup timers and abort controller on unmount
   useEffect(() => {
     return () => {
       if (redirectTimerRef.current) {
         clearTimeout(redirectTimerRef.current);
       }
+      if (usernameCheckTimerRef.current) {
+        clearTimeout(usernameCheckTimerRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
     };
   }, []);
 
   const validateField = (field: keyof FormData, value: string) => {
+    if (field === 'username') {
+      // Run sync validation first
+      const fieldSchema = baseSchema.shape.username;
+      const result = fieldSchema.safeParse(value);
+      if (!result.success) {
+        setErrors((prev) => ({ ...prev, username: result.error!.issues[0].message }));
+        setUsernameAvailable(null);
+      } else {
+        setErrors((prev) => ({ ...prev, username: '' }));
+        // Trigger async availability check
+        checkUsername(value);
+      }
+      return;
+    }
+
     if (field === 'confirmPassword') {
       if (!value) {
         setErrors((prev) => ({ ...prev, confirmPassword: t('auth.validation.confirmPasswordRequired') }));
@@ -287,8 +367,10 @@ function Content() {
                     }}
                     className={cn(
                       inputBase,
+                      'pr-10',
                       errors.username ? inputBorderError
-                        : formData.username && !errors.username ? inputBorderSuccess
+                        : usernameAvailable === true && !errors.username ? inputBorderSuccess
+                        : formData.username && !errors.username ? inputBorderNormal
                         : inputBorderNormal
                     )}
                     placeholder="usuario123"
@@ -298,10 +380,27 @@ function Content() {
                     aria-required="true"
                     autoComplete="username"
                   />
-                  {formData.username && !errors.username && (
-<CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]" size={18} />
-)}
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                    {usernameChecking && (
+                      <>
+                        <span className="text-xs text-muted">{t('auth.validation.usernameChecking')}</span>
+                        <Loader2 size={18} className="animate-spin text-muted" />
+                      </>
+                    )}
+                    {!usernameChecking && usernameAvailable === true && !errors.username && (
+                      <CheckCircle2 size={18} className="text-[var(--success)]" />
+                    )}
+                    {!usernameChecking && usernameAvailable === false && (
+                      <XCircle size={18} className="text-[var(--error)]" />
+                    )}
+                  </span>
 </div>
+{usernameAvailable === true && !errors.username && formData.username.length >= 3 && (
+  <div className="mt-2 flex items-start gap-2 p-2 bg-[var(--success)]/10 rounded-lg">
+    <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5" />
+    <p className="text-sm font-medium text-[var(--success)]">{t('auth.validation.usernameAvailable')}</p>
+  </div>
+)}
 {errors.username && (
 <div id={usernameErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 rounded-lg" role="alert">
 <AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
