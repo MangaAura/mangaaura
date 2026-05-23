@@ -1,1 +1,5 @@
-npx vitest run tests/**/*.a11y.*.tsx 2>&1
+# Run a11y tests on staged files
+A11Y_FILES=$(git ls-files 'tests/**/*.a11y.*.tsx')
+if [ -n "$A11Y_FILES" ]; then
+  npx vitest run $A11Y_FILES 2>&1
+fi
