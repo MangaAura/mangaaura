@@ -8,7 +8,6 @@ export class PrismaAchievementRepository implements IAchievementRepository {
   async findAll(): Promise<Achievement[]> {
     const achievements = await this.prisma.achievementDefinition.findMany({
       orderBy: [
-        { category: 'asc' },
         { xpReward: 'asc' },
       ],
     });

@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import { Email , InvalidEmailError } from '@/core/value-objects/Email';
 import { Password , WeakPasswordError } from '@/core/value-objects/Password';
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
