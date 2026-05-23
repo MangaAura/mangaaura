@@ -56,6 +56,7 @@ export function PageJumpInput({ currentPage, totalPages, onJump }: PageJumpInput
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
+          name="page-jump"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value.replace(/\D/g, ''))}
           onBlur={handleSubmit}

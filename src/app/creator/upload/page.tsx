@@ -388,6 +388,7 @@ function CreatorUploadPageContent() {
                       </div>
                     ) : (
                       <select
+                        name="manga-id"
                         value={selectedMangaId}
                         onChange={(e) => setSelectedMangaId(e.target.value)}
                         className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"

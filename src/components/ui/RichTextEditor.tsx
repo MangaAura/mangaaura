@@ -134,6 +134,7 @@ function LinkInput({ editor }: { editor: Editor }) {
         <div className="absolute top-full left-0 mt-1 z-50 flex items-center gap-2 p-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[300px]">
           <input
             type="url"
+            name="link-url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://..."
@@ -378,6 +379,7 @@ function ImageInput({ editor }: { editor: Editor }) {
                 <div className="flex items-center gap-2">
                   <input
                     type="url"
+                    name="image-url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://ejemplo.com/imagen.jpg"
@@ -415,6 +417,7 @@ function ImageInput({ editor }: { editor: Editor }) {
                   <input
                     ref={fileInputRef}
                     type="file"
+                    name="image-file"
                     accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
                     onChange={handleFileSelect}
                     className="hidden"

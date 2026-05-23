@@ -212,6 +212,7 @@ export function PanelTextOverlay({
               <textarea
                 value={text.text}
                 onChange={(e) => handleTextChange(text.id, e.target.value)}
+                name="panel-text"
                 className="bg-transparent w-full min-h-[60px] resize-none text-center focus:outline-none"
                 style={{ color: text.color }}
                 autoFocus
@@ -288,6 +289,7 @@ export function PanelTextOverlay({
                 <div className="flex items-center gap-2">
                   <input
                     type="range"
+                    name="font-size"
                     min="10"
                     max="48"
                     value={activeText.fontSize}
@@ -305,6 +307,7 @@ export function PanelTextOverlay({
                 <div className="flex items-center gap-2">
                   <input
                     type="range"
+                    name="rotation"
                     min="-45"
                     max="45"
                     value={activeText.rotation}
@@ -324,6 +327,7 @@ export function PanelTextOverlay({
                     <span className="text-xs text-[var(--text-inverse)]/50">T</span>
                     <input
                       type="color"
+                      name="text-color"
                       value={activeText.color}
                       onChange={(e) => handleUpdate(activeText.id, { color: e.target.value })}
                       aria-label="Color de texto"
@@ -334,6 +338,7 @@ export function PanelTextOverlay({
                     <span className="text-xs text-[var(--text-inverse)]/50">F</span>
                     <input
                       type="color"
+                      name="bg-color"
                       value={activeText.backgroundColor.startsWith('rgba') ? '#ffffff' : activeText.backgroundColor}
                       onChange={(e) => {
                         const color = e.target.value;
@@ -359,6 +364,7 @@ export function PanelTextOverlay({
                   <label className="text-xs text-[var(--text-inverse)]/50">Redondez</label>
                   <input
                     type="range"
+                    name="border-radius"
                     min="0"
                     max="50"
                     value={activeText.borderRadius}

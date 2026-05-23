@@ -166,6 +166,7 @@ export function EventsClient({
           {/* Type filter */}
           <div className="flex gap-2">
             <select
+              name="type-filter"
               value={typeFilter}
               onChange={handleTypeChange}
               aria-label={t('events.filter.typeAria')}

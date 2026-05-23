@@ -202,6 +202,7 @@ export function SearchBar({
         <input
           ref={inputRef}
           type="text"
+          name="search"
           value={query}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}

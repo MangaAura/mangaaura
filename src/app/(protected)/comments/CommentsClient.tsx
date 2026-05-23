@@ -75,6 +75,7 @@ export function CommentsClient({ comments }: { comments: CommentData[] }) {
     <div className="space-y-4">
       <input
         type="text"
+        name="search-comments"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Buscar en comentarios..."
@@ -109,7 +110,7 @@ export function CommentsClient({ comments }: { comments: CommentData[] }) {
 
             {editingId === comment.id ? (
               <div className="space-y-2">
-                <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} maxLength={2000} rows={3} className="w-full px-3 py-2 bg-background border border-custom rounded-lg text-sm outline-none focus:border-accent-blue transition-colors resize-none" />
+                <textarea name="edit-comment" value={editContent} onChange={(e) => setEditContent(e.target.value)} maxLength={2000} rows={3} className="w-full px-3 py-2 bg-background border border-custom rounded-lg text-sm outline-none focus:border-accent-blue transition-colors resize-none" />
                 <div className="flex gap-2">
                   <button onClick={() => handleEdit(comment.id)} disabled={saving || !editContent.trim()} className="flex items-center gap-1 px-3 py-1.5 bg-accent-green text-white rounded-lg text-xs font-semibold hover:brightness-110 transition-colors disabled:opacity-50 cursor-pointer">
                     {saving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Guardar

@@ -42,6 +42,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
       <input
         ref={inputRef}
         type="search"
+        name="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}

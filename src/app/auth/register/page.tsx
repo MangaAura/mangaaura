@@ -411,6 +411,7 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
                 <div className="relative flex items-center justify-center mt-0.5">
                   <input
                     type="checkbox"
+                    name="accept-terms"
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
                     className="peer w-[18px] h-[18px] rounded-[4px] border-2 border-custom bg-tertiary appearance-none cursor-pointer transition-all checked:bg-accent-blue checked:border-accent-blue focus-visible:ring-[3px] focus-visible:ring-[var(--accent-blue)]/20"

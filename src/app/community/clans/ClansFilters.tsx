@@ -47,6 +47,7 @@ export default function ClansFilters() {
         />
       </form>
       <select
+        name="sort-by"
         value={sortBy}
         onChange={(e) => updateParams({ sortBy: e.target.value === 'monthlyScore' ? null : e.target.value })}
         aria-label={t('clansFilter.sortLabel')}
