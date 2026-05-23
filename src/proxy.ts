@@ -262,6 +262,4 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|sitemap.xml|robots.txt|icons|offline|.*\\.svg$).*)'],
-};
+// Config is defined in middleware.ts (Next.js requires it to be exported directly from middleware file).
