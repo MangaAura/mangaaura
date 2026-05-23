@@ -15,13 +15,13 @@ import {
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import React, { useState, Suspense, useMemo } from 'react';
+import React, { useState, Suspense, useMemo, useEffect, useRef } from 'react';
 import { z } from 'zod';
 
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
-import { useAuthError } from '@/hooks/useAuthError';
 import { useT } from '@/i18n';
+import { getAuthErrorMessage, getRegisterApiErrorMessage } from '@/lib/auth-errors';
 import { cn } from '@/lib/utils';
 
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
@@ -70,7 +70,6 @@ function Content() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get('callbackUrl') || '/';
   const { toast } = useToast();
-const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthError();
 
   const [formData, setFormData] = useState<FormData>({
     username: '',
@@ -79,6 +78,7 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [authError, setAuthError] = useState<{ title: string; message: string; severity: 'error' | 'warning' } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -89,11 +89,12 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
   const passwordErrorId = `${idPrefix}-password-error`;
   const confirmPasswordErrorId = `${idPrefix}-confirm-password-error`;
   const t = useT();
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { baseSchema, registerSchema } = useMemo(() => createRegisterSchemas(t), [t]);
 
   const handleOAuthSignIn = (provider: 'google' | 'github') => {
     setIsLoading(true);
-    clearError();
+    setAuthError(null);
     signIn(provider, { callbackUrl });
   };
 
@@ -123,7 +124,7 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    clearError();
+    setAuthError(null);
 
     try {
       const validated = registerSchema.safeParse(formData);
@@ -154,7 +155,11 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || t('errors.createAccount'));
+        // Show specific API error
+        const apiError = getRegisterApiErrorMessage(data.error || '', t);
+        setAuthError(apiError);
+        setIsLoading(false);
+        return;
       }
 
       toast({ title: t('auth.accountCreated'), variant: 'default' });
@@ -166,18 +171,42 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
         callbackUrl,
       });
 
+      // Auth.js v5: signIn returns SignInResponse object, ok=true on success
       if (result?.ok) {
         router.push(callbackUrl);
         router.refresh();
+      } else if (result?.error) {
+        // Show specific signIn error (e.g. CredentialsSignin, Configuration)
+        const signInError = getAuthErrorMessage(result.error, t);
+        setAuthError({
+          ...signInError,
+          message: t('auth.accountCreatedWarning') || signInError.message,
+        });
+        setIsLoading(false);
+        // Redirect to login after short delay since account was created
+        if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+        redirectTimerRef.current = setTimeout(() => router.push('/auth/login?registered=true'), 3000);
       } else {
         router.push('/auth/login?registered=true');
       }
     } catch (err: unknown) {
-      if (err instanceof Error) handleRegisterAuthError(err.message);
-      else handleRegisterAuthError(String(err));
+      setAuthError({
+        title: t('errors.networkError'),
+        message: err instanceof Error ? err.message : t('errors.connectionFailed'),
+        severity: 'error',
+      });
       setIsLoading(false);
     }
   };
+
+  // Cleanup redirect timer on unmount
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
 
   const validateField = (field: keyof FormData, value: string) => {
     if (field === 'confirmPassword') {
@@ -222,13 +251,13 @@ const { error, clearError, handleAuthError: handleRegisterAuthError } = useAuthE
           </div>
 
           <div className="bg-[var(--surface-elevated)] rounded-[16px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border border-[var(--border-subtle)] [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.2s_both]">
-            {error && (
+            {authError && (
               <div className="mb-6 [animation:fadeSlideUp_0.3s_ease]">
                 <ErrorMessage
-                  title={error.title}
-                  message={error.message}
-                  severity={error.severity}
-                  onDismiss={clearError}
+                  title={authError.title}
+                  message={authError.message}
+                  severity={authError.severity}
+                  onDismiss={() => setAuthError(null)}
                 />
               </div>
             )}

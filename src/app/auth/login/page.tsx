@@ -8,6 +8,7 @@ import React, { useState, Suspense } from 'react';
 
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
+import { getAuthErrorMessage } from '@/lib/auth-errors';
 import { cn } from '@/lib/utils';
 
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
@@ -19,26 +20,6 @@ function LoadingSpinner({ t }: { t: (key: string) => string }) {
       </div>
     </div>
   );
-}
-
-function getErrorMessage(errorCode: string, t: (key: string) => string): { title: string; message: string; severity: 'error' | 'warning' } {
-  const severities: Record<string, 'error' | 'warning'> = {
-    OAuthCreateAccount: 'warning',
-    OAuthAccountNotLinked: 'warning',
-    SessionRequired: 'warning',
-  };
-  const titleKey = `auth.error.${errorCode}.title`;
-  const messageKey = `auth.error.${errorCode}.message`;
-  const title = t(titleKey);
-  const message = t(messageKey);
-  if (title !== titleKey) {
-    return { title, message, severity: severities[errorCode] || 'error' };
-  }
-  return {
-    title: t('auth.error.default.title'),
-    message: t('auth.error.default.message'),
-    severity: 'error',
-  };
 }
 
 function Content() {
@@ -60,13 +41,11 @@ function Content() {
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const authError = searchParams.get('error');
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
     if (authError) {
-      setError(getErrorMessage(authError, t));
+      setError(getAuthErrorMessage(authError, t));
     }
   }, [authError, t]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,24 +79,24 @@ function Content() {
         callbackUrl,
       });
 
+      // Auth.js v5: signIn returns SignInResponse object with error/ok fields
       if (result?.error) {
-        const errorInfo = getErrorMessage(result.error, t);
+        const errorInfo = getAuthErrorMessage(result.error, t);
         setError(errorInfo);
         setFieldErrors({});
         setIsLoading(false);
         return;
       }
 
-      if (result?.ok) {
-        const updatedSession = await fetch('/api/auth/session').then(r => r.json());
-        if (updatedSession?.user?.twoFactorPending) {
-          setShow2FA(true);
-          setIsLoading(false);
-          return;
-        }
-        router.push(callbackUrl);
-        router.refresh();
+      // Success: check 2FA and redirect
+      const updatedSession = await fetch('/api/auth/session').then(r => r.json());
+      if (updatedSession?.user?.twoFactorPending) {
+        setShow2FA(true);
+        setIsLoading(false);
+        return;
       }
+      router.push(callbackUrl);
+      router.refresh();
     } catch (err) {
       setError({
         title: t('errors.networkError'),

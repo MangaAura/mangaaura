@@ -203,6 +203,7 @@
     "orRegisterWith": "Or sign up with",
     "requiredField": "Required field",
     "accountCreated": "Account created successfully",
+    "accountCreatedWarning": "Your account was created, but there was a problem signing you in automatically. You'll be redirected to the login page.",
     "passwordStrengthLabel": "Strength:",
     "acceptTerms": "By creating an account, you accept our",
     "loginWithGoogle": "Sign in with Google",
@@ -264,6 +265,18 @@
       "sessionRequired": {
         "title": "Session required",
         "message": "You must sign in to access this page."
+      },
+      "verification": {
+        "title": "Link expired",
+        "message": "The verification link has expired or is invalid. Request a new verification email."
+      },
+      "accessDenied": {
+        "title": "Access denied",
+        "message": "You don't have permission to access this. Verify your credentials or contact the administrator."
+      },
+      "configuration": {
+        "title": "Configuration error",
+        "message": "There is a problem with the server configuration. Please contact support."
       },
       "default": {
         "title": "Authentication error",
@@ -336,6 +349,10 @@
     "forbidden": "Forbidden",
     "networkError": "Network error. Check your internet.",
     "createAccount": "Error creating account. Please try again.",
+    "emailExists": "An account already exists with this email address.",
+    "usernameExists": "This username is already taken.",
+    "weakPassword": "The password does not meet security requirements.",
+    "rateLimitExceeded": "Too many attempts. Please wait a moment and try again.",
     "serverError": "Server error",
     "sessionExpired": "Your session has expired",
     "validation": "Invalid data",

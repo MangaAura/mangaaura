@@ -203,6 +203,7 @@
     "orRegisterWith": "O regístrate con",
     "requiredField": "Campo requerido",
     "accountCreated": "Cuenta creada exitosamente",
+    "accountCreatedWarning": "Tu cuenta fue creada, pero hubo un problema al iniciar sesión automáticamente. Serás redirigido al login.",
     "passwordStrengthLabel": "Fortaleza:",
     "acceptTerms": "Al crear una cuenta, aceptas nuestros",
     "loginWithGoogle": "Iniciar con Google",
@@ -264,6 +265,18 @@
       "sessionRequired": {
         "title": "Sesión requerida",
         "message": "Debes iniciar sesión para acceder a esta página."
+      },
+      "verification": {
+        "title": "Enlace expirado",
+        "message": "El enlace de verificación ha expirado o no es válido. Solicita un nuevo correo de verificación."
+      },
+      "accessDenied": {
+        "title": "Acceso denegado",
+        "message": "No tienes permiso para acceder. Verifica tus credenciales o contacta al administrador."
+      },
+      "configuration": {
+        "title": "Error de configuración",
+        "message": "Hay un problema con la configuración del servidor. Por favor, contacta al soporte."
       },
       "default": {
         "title": "Error de autenticación",
@@ -336,6 +349,10 @@
     "forbidden": "Acceso denegado",
     "networkError": "Error de conexión. Verifica tu internet.",
     "createAccount": "Error al crear cuenta. Inténtalo de nuevo.",
+    "emailExists": "Ya existe una cuenta con este correo electrónico.",
+    "usernameExists": "Este nombre de usuario ya está en uso.",
+    "weakPassword": "La contraseña no cumple los requisitos de seguridad.",
+    "rateLimitExceeded": "Demasiados intentos. Por favor, espera un momento e inténtalo de nuevo.",
     "serverError": "Error del servidor",
     "sessionExpired": "Tu sesión expiró",
     "validation": "Datos inválidos",
