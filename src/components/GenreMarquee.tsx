@@ -86,7 +86,7 @@ export function GenreMarquee() {
     if (prefersReducedMotionRef.current) return;
 
     let isPageActive = document.visibilityState === 'visible' && document.hasFocus();
-    let inViewport = false;
+    let inViewport = true;
 
     const sync = () => {
       const nowActive = isPageActive && inViewport;
