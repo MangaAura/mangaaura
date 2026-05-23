@@ -145,7 +145,7 @@ export function GenreMarquee() {
           trackRef.current?.style.setProperty('transform', `translateX(${next}px)`);
         }
       } else if (!isDragging.current && !isHovering.current) {
-        let next = trackX.current - 0.3;
+        let next = trackX.current - 0.15;
         if (next <= -hw) next += hw;
         trackX.current = next;
         trackRef.current?.style.setProperty('transform', `translateX(${next}px)`);
