@@ -173,22 +173,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // -- Skip processing for truly static assets (no auth, no headers) --
   if (STATIC_SKIP_PATHS.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  // -- Rewrite HEAD to GET for /api/auth/* (Auth.js v5 only supports GET/POST) --
-  // Bots and health-checkers often use HEAD on provider endpoints, which causes
-  // "UnknownAction" errors in logs. We convert HEAD→GET transparently since the
-  // response body is discarded per HTTP HEAD semantics anyway.
+  // -- Handle HEAD for /api/auth/* (Auth.js v5 doesn't support HEAD) --
+  // Bots and health-checkers often use HEAD on auth endpoints, which causes
+  // "UnknownAction" errors in logs. Return 200 OK directly — HEAD has no body
+  // and only needs to signal the resource is alive.
   if (method === 'HEAD' && pathname.startsWith('/api/auth/')) {
-    const headers = new Headers(request.headers);
-    const rewritten = new NextRequest(request.url, { method: 'GET', headers });
-    for (const cookie of request.cookies.getAll()) {
-      rewritten.cookies.set(cookie.name, cookie.value);
-    }
-    const getResponse = await proxy(rewritten);
-    // HEAD must return no body — strip it while preserving headers and status
-    return new NextResponse(null, {
-      status: getResponse.status,
-      headers: getResponse.headers,
-    });
+    logRequest({ method, path: pathname, statusCode: 200, duration: Date.now() - startTime, ip, userAgent, requestId });
+    return new NextResponse(null, { status: 200 });
   }
 
   // -- Redirect GET /api/auth/signin/:provider → /auth/login --
