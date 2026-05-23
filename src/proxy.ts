@@ -1,6 +1,5 @@
 import { getToken } from '@auth/core/jwt';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import { logRequest, generateRequestId } from '@/lib/request-logger';
 import { SESSION_COOKIE_NAME } from '@/lib/auth';
@@ -173,6 +172,24 @@ export async function proxy(request: NextRequest) {
 
   // -- Skip processing for truly static assets (no auth, no headers) --
   if (STATIC_SKIP_PATHS.some((p) => pathname.startsWith(p))) return NextResponse.next();
+
+  // -- Rewrite HEAD to GET for /api/auth/* (Auth.js v5 only supports GET/POST) --
+  // Bots and health-checkers often use HEAD on provider endpoints, which causes
+  // "UnknownAction" errors in logs. We convert HEAD→GET transparently since the
+  // response body is discarded per HTTP HEAD semantics anyway.
+  if (method === 'HEAD' && pathname.startsWith('/api/auth/')) {
+    const headers = new Headers(request.headers);
+    const rewritten = new NextRequest(request.url, { method: 'GET', headers });
+    for (const cookie of request.cookies.getAll()) {
+      rewritten.cookies.set(cookie.name, cookie.value);
+    }
+    const getResponse = await proxy(rewritten);
+    // HEAD must return no body — strip it while preserving headers and status
+    return new NextResponse(null, {
+      status: getResponse.status,
+      headers: getResponse.headers,
+    });
+  }
 
   // -- Auth check for protected page routes --
   if (isProtectedRoute(pathname)) {
