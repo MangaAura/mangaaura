@@ -162,7 +162,7 @@ function setCSRFCookie(response: NextResponse) {
 
 // ─── Main handler (replaces middleware.ts + proxy.ts) ───────────────
 
-export async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const method = request.method;
   const startTime = Date.now();
