@@ -136,20 +136,31 @@ const nextConfig: NextConfig = {
 
 };
 
-// Wrap with Sentry if SENTRY_DSN is configured (runtime error tracking)
+// Wrap with Sentry if SENTRY_DSN is configured (runtime error tracking).
+// Sourcemap + release uploads require ALL of: SENTRY_AUTH_TOKEN + explicit SENTRY_ORG + SENTRY_PROJECT.
+// If any is missing, only runtime error tracking is active — no builds will fail.
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+const sentryOrg = process.env.SENTRY_ORG;
+// Sourcemap uploads are only enabled when the org is explicitly configured
+// (not just falling back to the default). This prevents build failures from
+// guessing the wrong org slug (e.g., using the project slug as the org slug).
+const enableSentryBuildOps = !!(sentryAuthToken && sentryOrg);
+
 const withSentry = process.env.SENTRY_DSN
   ? withSentryConfig(nextConfig, {
-      org: process.env.SENTRY_ORG || "mangaaura-web",
+      org: sentryOrg || "mangaaura",
       project: process.env.SENTRY_PROJECT || "mangaaura-web",
-      // Auth token is optional — needed only for release creation + sourcemap uploads.
-      // If missing, runtime error tracking still works; uploads just log a warning.
       authToken: sentryAuthToken || undefined,
       silent: true,
       widenClientFileUpload: true,
-      sourcemaps: { disable: false, deleteSourcemapsAfterUpload: true },
+      sourcemaps: {
+        // Disable sourcemap upload when required vars are missing.
+        // This prevents "Project not found" build failures from sentry-cli.
+        disable: !enableSentryBuildOps,
+        deleteSourcemapsAfterUpload: true,
+      },
       errorHandler: (err: Error) => {
-        console.warn('[Sentry] Sourcemap upload warning (non-fatal):', err.message);
+        console.warn('[Sentry] Build warning (non-fatal):', err.message);
       },
       // disableLogger is deprecated and unsupported with Turbopack
       // automaticVercelMonitors is deprecated and unsupported with Turbopack
