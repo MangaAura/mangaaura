@@ -2,7 +2,7 @@
 // All middleware logic is centralized in src/proxy.ts.
 // Next.js auto-detects this file at the project root.
 import type { NextRequest } from 'next/server';
-import { proxy } from './src/proxy';
+import { proxy } from '@/proxy';
 
 export async function middleware(request: NextRequest) {
   return proxy(request);
