@@ -18,7 +18,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "tsx prisma/seed.ts && tsx prisma/seed-genres.ts",
     "setup:env": "node scripts/setup-env.js",
     "verify:env": "node -e \"console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅' : '❌'); console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '✅' : '❌'); console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL ? '✅' : '❌');\"",
     "check:i18n": "tsx scripts/check-i18n.ts",

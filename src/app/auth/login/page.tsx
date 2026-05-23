@@ -171,23 +171,14 @@ function Content() {
   const inputBorderError = 'border-[var(--error)] focus:border-[var(--error)] focus:ring-[3px] focus:ring-[var(--error)]/20';
 
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-[var(--surface)]">
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, var(--text-primary) 1px, transparent 0)`,
-          backgroundSize: '24px 24px',
-        }}
-      />
-      <div className="fixed -top-40 -right-40 w-80 h-80 rounded-full bg-accent-blue/5 blur-3xl pointer-events-none" />
-      <div className="fixed -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent-purple/5 blur-3xl pointer-events-none" />
-
-      <header className="relative p-6">
+    <div className="flex flex-col">
+      <div className="p-6">
         <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
           <ArrowLeft size={20} /> {t('common.back')}
         </Link>
-      </header>
+      </div>
 
-      <main className="relative flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)]">
           <div className="text-center mb-8 [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.1s_both]">
             <h1 className="text-[2rem] font-bold leading-[2.5rem] tracking-[-0.02em] mb-2">{t('auth.welcomeBack')}</h1>
@@ -363,7 +354,7 @@ function Content() {
             </p>
           )}
         </div>
-      </main>
+      </div>
 
       <style jsx global>{`
         @keyframes fadeSlideUp {

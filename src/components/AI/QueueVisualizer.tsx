@@ -121,7 +121,7 @@ export function QueueVisualizer({
                   style={{
                     width: `${Math.max(20, 100 - index * 3)}%`,
                     animationDelay: `${delay}ms`,
-                    opacity: 1 - index * 0.03,
+                    opacity: Math.max(0, 1 - index * 0.03),
                   }}
                 />
               );

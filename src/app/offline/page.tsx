@@ -19,6 +19,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { offlineStorage } from '@/lib/offline-storage';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
 interface SavedManga {
   id: string;
@@ -42,7 +43,16 @@ interface StorageInfo {
   actions: number;
 }
 
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
 export default function OfflinePage() {
+  const t = useT();
   const router = useRouter();
   const [isOnline, setIsOnline] = useState(false);
   const [savedMangas, setSavedMangas] = useState<SavedManga[]>([]);
@@ -98,7 +108,7 @@ export default function OfflinePage() {
   };
 
   const loadCacheInfo = useCallback(() => {
-    setTimeout(() => setCacheLoading(false), 3000); // fallback timeout
+    setTimeout(() => setCacheLoading(false), 3000);
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       const channel = new MessageChannel();
       channel.port1.onmessage = (event) => {
@@ -153,166 +163,505 @@ export default function OfflinePage() {
     }
   };
 
+  const s = (token: string) => `var(${token})`;
+
   return (
-    <main id="main-content" className="min-h-screen bg-[var(--surface)] flex flex-col items-center justify-center p-4">
-      <div className="max-w-2xl w-full text-center">
-        {/* Offline Icon */}
-        <div className="mb-8">
+    <main
+      id="main-content"
+      className="min-h-screen"
+      style={{ background: s('--md-sys-color-surface-dim') }}
+    >
+      <div
+        className="mx-auto w-full px-4 py-16 md:py-24"
+        style={{
+          maxWidth: '840px',
+          paddingLeft: 'clamp(16px, 5vw, 24px)',
+          paddingRight: 'clamp(16px, 5vw, 24px)',
+        }}
+      >
+        {/* Status Section */}
+        <section className="flex flex-col items-center text-center mb-16 md:mb-24">
           <div
             className={cn(
-              'w-24 h-24 rounded-full flex items-center justify-center mx-auto transition-all duration-500',
-              isOnline ? 'bg-[var(--success)]/20' : 'bg-[var(--warning)]/20'
+              'w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-8',
+              'transition-all duration-500',
+              isOnline
+                ? '' : ''
             )}
+            style={{
+              background: isOnline
+                ? s('--md-sys-color-primary-container')
+                : s('--md-sys-color-surface-container-high'),
+              transitionTimingFunction: 'cubic-bezier(0.2, 0, 0, 1)',
+            }}
           >
             {isOnline ? (
-              <RefreshCw className="w-12 h-12 text-[var(--success)] animate-spin" role="status" aria-label="Restaurando conexión" />
+              <RefreshCw
+                className="w-14 h-14 md:w-16 md:h-16 animate-spin"
+                style={{ color: s('--md-sys-color-on-primary-container') }}
+                role="status"
+                aria-label={t('offline.reconnecting')}
+              />
             ) : (
-              <WifiOff className="w-12 h-12 text-[var(--warning)]" aria-hidden="true" />
+              <WifiOff
+                className="w-14 h-14 md:w-16 md:h-16"
+                style={{ color: s('--md-sys-color-on-surface-variant') }}
+                aria-hidden="true"
+              />
             )}
           </div>
-        </div>
 
-        {/* Status Message */}
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
-          {isOnline ? '¡Conexión restaurada!' : 'Sin conexión a internet'}
-        </h1>
-        <p className="text-[var(--text-secondary)] mb-8 max-w-md mx-auto">
-          {isOnline
-            ? 'Tu conexión ha vuelto. Puedes continuar navegando normalmente.'
-            : 'Parece que has perdido la conexión. Puedes seguir leyendo los capítulos que hayas guardado para modo offline.'}
-        </p>
+          <h1
+            className="mb-4"
+            style={{
+              fontSize: s('--md-sys-typescale-headline-medium-size'),
+              fontWeight: s('--md-sys-typescale-headline-medium-weight'),
+              lineHeight: 1.2,
+              color: s('--md-sys-color-on-surface'),
+            }}
+          >
+            {isOnline ? t('offline.reconnecting') : t('offline.noConnection')}
+          </h1>
 
-        {/* Retry Button */}
-        <div className="mb-8">
-          <Button onClick={handleRetry} className="min-w-[200px]">
+          <p
+            className="max-w-lg mx-auto mb-10"
+            style={{
+              fontSize: s('--md-sys-typescale-body-large-size'),
+              fontWeight: s('--md-sys-typescale-body-large-weight'),
+              lineHeight: s('--md-sys-typescale-body-large-line-height'),
+              color: s('--md-sys-color-on-surface-variant'),
+            }}
+          >
+            {isOnline ? t('offline.reconnectingDesc') : t('offline.noConnectionDesc')}
+          </p>
+
+          <Button
+            onClick={handleRetry}
+            className="min-w-[200px] h-12 px-6"
+            style={{ borderRadius: s('--md-sys-shape-corner-full') }}
+          >
             <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
-            {isOnline ? 'Continuar' : 'Reintentar'}
+            {isOnline ? t('offline.continue') : t('offline.retry')}
           </Button>
-        </div>
+        </section>
 
-        {/* Storage & Cache Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-left">
-          {/* IndexedDB Storage */}
-          <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <HardDrive className="w-5 h-5 text-accent-blue" />
-              <h2 className="font-semibold text-[var(--text-primary)] text-sm">Almacenamiento offline</h2>
+        {/* Info Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {/* IndexedDB Storage Card */}
+          <div
+            className="p-6"
+            style={{
+              background: s('--md-sys-color-surface-container'),
+              borderRadius: s('--md-sys-shape-corner-medium'),
+            }}
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: s('--md-sys-color-primary-container') }}
+              >
+                <HardDrive
+                  className="w-5 h-5"
+                  style={{ color: s('--md-sys-color-on-primary-container') }}
+                  aria-hidden="true"
+                />
+              </div>
+              <h2
+                style={{
+                  fontSize: s('--md-sys-typescale-title-small-size'),
+                  fontWeight: s('--md-sys-typescale-title-small-weight'),
+                  color: s('--md-sys-color-on-surface'),
+                }}
+              >
+                {t('offline.storageTitle')}
+              </h2>
             </div>
+
             {storageInfo ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-secondary)] flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5" /> Mangas guardados
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-1">
+                  <span
+                    className="flex items-center gap-2"
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      lineHeight: s('--md-sys-typescale-body-medium-line-height'),
+                      color: s('--md-sys-color-on-surface-variant'),
+                    }}
+                  >
+                    <BookOpen className="w-4 h-4" aria-hidden="true" />
+                    {t('offline.storageMangas')}
                   </span>
-                  <span className="font-medium text-[var(--text-primary)]">{storageInfo.mangas}</span>
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface'),
+                    }}
+                  >
+                    {storageInfo.mangas}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-secondary)] flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5" /> Capítulos guardados
+                <div className="flex items-center justify-between py-1">
+                  <span
+                    className="flex items-center gap-2"
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      lineHeight: s('--md-sys-typescale-body-medium-line-height'),
+                      color: s('--md-sys-color-on-surface-variant'),
+                    }}
+                  >
+                    <FileText className="w-4 h-4" aria-hidden="true" />
+                    {t('offline.storageChapters')}
                   </span>
-                  <span className="font-medium text-[var(--text-primary)]">{storageInfo.chapters}</span>
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface'),
+                    }}
+                  >
+                    {storageInfo.chapters}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-secondary)] flex items-center gap-1.5">
-                    <Database className="w-3.5 h-3.5" /> Acciones pendientes
+                <div className="flex items-center justify-between py-1">
+                  <span
+                    className="flex items-center gap-2"
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      lineHeight: s('--md-sys-typescale-body-medium-line-height'),
+                      color: s('--md-sys-color-on-surface-variant'),
+                    }}
+                  >
+                    <Database className="w-4 h-4" aria-hidden="true" />
+                    {t('offline.storageActions')}
                   </span>
-                  <span className="font-medium text-[var(--text-primary)]">{storageInfo.actions}</span>
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface'),
+                    }}
+                  >
+                    {storageInfo.actions}
+                  </span>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-[var(--text-tertiary)]">Cargando...</p>
+              <div
+                className="h-1 w-full rounded-full overflow-hidden"
+                style={{ background: s('--md-sys-color-surface-container-high') }}
+                role="progressbar"
+                aria-label="Loading storage info"
+              >
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    background: s('--md-sys-color-primary'),
+                    width: '30%',
+                    animation: 'loading-bar 2s ease-in-out infinite',
+                  }}
+                />
+              </div>
             )}
           </div>
 
-          {/* SW Cache */}
-          <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <ImageIcon className="w-5 h-5 text-accent-blue" />
-              <h2 className="font-semibold text-[var(--text-primary)] text-sm">Caché del navegador</h2>
+          {/* Browser Cache Card */}
+          <div
+            className="p-6"
+            style={{
+              background: s('--md-sys-color-surface-container'),
+              borderRadius: s('--md-sys-shape-corner-medium'),
+            }}
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: s('--md-sys-color-primary-container') }}
+              >
+                <ImageIcon
+                  className="w-5 h-5"
+                  style={{ color: s('--md-sys-color-on-primary-container') }}
+                  aria-hidden="true"
+                />
+              </div>
+              <h2
+                style={{
+                  fontSize: s('--md-sys-typescale-title-small-size'),
+                  fontWeight: s('--md-sys-typescale-title-small-weight'),
+                  color: s('--md-sys-color-on-surface'),
+                }}
+              >
+                {t('offline.cacheInfo')}
+              </h2>
             </div>
+
             {cacheLoading ? (
-              <p className="text-sm text-[var(--text-tertiary)]">Cargando info de caché...</p>
+              <div
+                className="h-1 w-full rounded-full overflow-hidden"
+                style={{ background: s('--md-sys-color-surface-container-high') }}
+                role="progressbar"
+                aria-label={t('offline.loadingCache')}
+              >
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    background: s('--md-sys-color-primary'),
+                    width: '30%',
+                    animation: 'loading-bar 2s ease-in-out infinite',
+                  }}
+                />
+              </div>
             ) : cacheInfo ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-secondary)]">App Shell</span>
-                  <span className="font-medium text-[var(--text-primary)]">{cacheInfo.static}</span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-1">
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface-variant'),
+                    }}
+                  >
+                    {t('offline.staticCache')}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface'),
+                    }}
+                  >
+                    {formatBytes(cacheInfo.static)}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-secondary)]">Imágenes</span>
-                  <span className="font-medium text-[var(--text-primary)]">{cacheInfo.images}</span>
+                <div className="flex items-center justify-between py-1">
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface-variant'),
+                    }}
+                  >
+                    {t('offline.imageCache')}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface'),
+                    }}
+                  >
+                    {formatBytes(cacheInfo.images)}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--text-secondary)]">API</span>
-                  <span className="font-medium text-[var(--text-primary)]">{cacheInfo.api}</span>
+                <div className="flex items-center justify-between py-1">
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface-variant'),
+                    }}
+                  >
+                    {t('offline.apiCache')}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: s('--md-sys-typescale-body-medium-size'),
+                      fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                      color: s('--md-sys-color-on-surface'),
+                    }}
+                  >
+                    {formatBytes(cacheInfo.api)}
+                  </span>
                 </div>
-                <div className="border-t border-[var(--border)] pt-2 mt-1 flex items-center justify-between text-sm font-semibold">
-                  <span className="text-[var(--text-primary)]">Total</span>
-                  <span className="text-[var(--primary)]">{cacheInfo.total}</span>
+                <div
+                  className="pt-3 mt-2"
+                  style={{ borderTop: `1px solid ${s('--md-sys-color-outline-variant')}` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      style={{
+                        fontSize: s('--md-sys-typescale-label-large-size'),
+                        fontWeight: s('--md-sys-typescale-label-large-weight'),
+                        color: s('--md-sys-color-on-surface'),
+                      }}
+                    >
+                      {t('offline.totalCached')}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: s('--md-sys-typescale-label-large-size'),
+                        fontWeight: s('--md-sys-typescale-label-large-weight'),
+                        color: s('--md-sys-color-primary'),
+                      }}
+                    >
+                      {formatBytes(cacheInfo.total)}
+                    </span>
+                  </div>
                 </div>
                 <button
                   onClick={handleClearCache}
                   disabled={clearingCache}
-                  className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--error)]/10 text-[var(--error)] hover:bg-[var(--error)]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background: s('--md-sys-color-error-container'),
+                    color: s('--md-sys-color-on-error-container'),
+                  }}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  {clearingCache ? 'Limpiando...' : cacheCleared ? 'Caché limpiada ✓' : 'Limpiar caché'}
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  {clearingCache ? `${t('offline.clearCache')}...` : cacheCleared ? `${t('offline.cacheCleared')} ✓` : t('offline.clearCache')}
                 </button>
               </div>
             ) : (
-              <p className="text-sm text-[var(--text-tertiary)]">Service Worker no disponible</p>
+              <p
+                style={{
+                  fontSize: s('--md-sys-typescale-body-medium-size'),
+                  fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                  color: s('--md-sys-color-on-surface-variant'),
+                }}
+              >
+                Service Worker no disponible
+              </p>
             )}
           </div>
         </div>
 
         {/* Saved Mangas Section */}
         {!isOnline && savedMangas.length > 0 && (
-          <div className="text-left mb-8">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-6 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-accent-blue" aria-hidden="true" />
-              Disponible offline
+          <section className="mb-12">
+            <h2
+              className="flex items-center gap-3 mb-6"
+              style={{
+                fontSize: s('--md-sys-typescale-title-medium-size'),
+                fontWeight: s('--md-sys-typescale-title-medium-weight'),
+                color: s('--md-sys-color-on-surface'),
+              }}
+            >
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ background: s('--md-sys-color-primary-container') }}
+              >
+                <BookOpen
+                  className="w-4 h-4"
+                  style={{ color: s('--md-sys-color-on-primary-container') }}
+                  aria-hidden="true"
+                />
+              </div>
+              {t('offline.savedContent')}
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {savedMangas.map((manga) => (
-                <Link key={manga.id} href={`/manga/${manga.slug}`} className="group">
-                  <div className="bg-[var(--surface-sunken)] rounded-xl overflow-hidden border border-[var(--border)] hover:border-accent-blue transition-colors">
+                <Link key={manga.id} href={`/manga/${manga.slug}`} className="group block">
+                  <div
+                    className="overflow-hidden transition-all duration-200"
+                    style={{
+                      background: s('--md-sys-color-surface-container-high'),
+                      borderRadius: s('--md-sys-shape-corner-medium'),
+                    }}
+                  >
                     <div className="aspect-[3/4] relative overflow-hidden">
                       {manga.coverUrl ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={manga.coverUrl}
                           alt={manga.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full bg-[var(--surface-sunken)] flex items-center justify-center">
-                          <BookOpen className="w-8 h-8 text-[var(--text-tertiary)]" aria-hidden="true" />
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{ background: s('--md-sys-color-surface-container-lowest') }}
+                        >
+                          <BookOpen
+                            className="w-8 h-8"
+                            style={{ color: s('--md-sys-color-on-surface-variant') }}
+                            aria-hidden="true"
+                          />
                         </div>
                       )}
-                      <div className="absolute top-2 right-2 bg-[var(--success)] text-[var(--text-inverse)] text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                      <div
+                        className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 text-xs font-medium"
+                        style={{
+                          background: s('--md-sys-color-primary'),
+                          color: s('--md-sys-color-on-primary'),
+                          borderRadius: s('--md-sys-shape-corner-extra-small'),
+                        }}
+                      >
                         <Download className="w-3 h-3" aria-hidden="true" />
                         Offline
                       </div>
                     </div>
                     <div className="p-3">
-                      <h3 className="font-medium text-[var(--text-primary)] text-sm truncate">{manga.title}</h3>
-                      <p className="text-xs text-[var(--text-secondary)] mt-1">Cap. {manga.lastChapter}</p>
+                      <h3
+                        className="truncate"
+                        style={{
+                          fontSize: s('--md-sys-typescale-body-medium-size'),
+                          fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                          lineHeight: 1.3,
+                          color: s('--md-sys-color-on-surface'),
+                        }}
+                      >
+                        {manga.title}
+                      </h3>
+                      <p
+                        className="mt-1"
+                        style={{
+                          fontSize: s('--md-sys-typescale-body-small-size'),
+                          fontWeight: s('--md-sys-typescale-body-small-weight'),
+                          color: s('--md-sys-color-on-surface-variant'),
+                        }}
+                      >
+                        Cap. {manga.lastChapter}
+                      </p>
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* No Saved Content */}
         {!isOnline && savedMangas.length === 0 && !isLoading && (
-          <div className="bg-[var(--surface-sunken)]/50 rounded-xl p-8 border border-[var(--border)] mb-8">
-            <AlertCircle className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" aria-hidden="true" />
-            <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">No hay contenido guardado</h3>
-            <p className="text-[var(--text-secondary)] text-sm">
-              Cuando tengas conexión, guarda tus mangas favoritos para leerlos sin internet.
+          <div
+            className="flex flex-col items-center text-center p-10 mb-12"
+            style={{
+              background: s('--md-sys-color-surface-container'),
+              borderRadius: s('--md-sys-shape-corner-medium'),
+            }}
+          >
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+              style={{ background: s('--md-sys-color-surface-container-high') }}
+            >
+              <AlertCircle
+                className="w-8 h-8"
+                style={{ color: s('--md-sys-color-on-surface-variant') }}
+              />
+            </div>
+            <h3
+              className="mb-2"
+              style={{
+                fontSize: s('--md-sys-typescale-title-medium-size'),
+                fontWeight: s('--md-sys-typescale-title-medium-weight'),
+                color: s('--md-sys-color-on-surface'),
+              }}
+            >
+              {t('offline.noSavedContent')}
+            </h3>
+            <p
+              className="max-w-sm"
+              style={{
+                fontSize: s('--md-sys-typescale-body-medium-size'),
+                fontWeight: s('--md-sys-typescale-body-medium-weight'),
+                lineHeight: s('--md-sys-typescale-body-medium-line-height'),
+                color: s('--md-sys-color-on-surface-variant'),
+              }}
+            >
+              {t('offline.noSavedContentDesc')}
             </p>
           </div>
         )}
@@ -320,21 +669,58 @@ export default function OfflinePage() {
         {/* Loading */}
         {isLoading && (
           <div className="flex justify-center py-8" role="status">
-            <RefreshCw className="w-8 h-8 text-[var(--text-tertiary)] animate-spin" aria-hidden="true" />
+            <div
+              className="w-8 h-8 rounded-full animate-spin"
+              style={{
+                border: `3px solid ${s('--md-sys-color-outline-variant')}`,
+                borderTopColor: s('--md-sys-color-primary'),
+              }}
+              aria-label="Loading"
+            />
           </div>
         )}
 
-        {/* Tips */}
-        <div className="p-4 bg-[var(--surface-sunken)]/50 rounded-xl border border-[var(--border)] text-left">
-          <h3 className="font-medium text-[var(--text-primary)] mb-2 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-accent-blue" aria-hidden="true" />
-            Consejos para modo offline
+        {/* Tips Section */}
+        <div
+          className="p-6"
+          style={{
+            background: s('--md-sys-color-surface-container'),
+            borderRadius: s('--md-sys-shape-corner-medium'),
+          }}
+        >
+          <h3
+            className="flex items-center gap-3 mb-4"
+            style={{
+              fontSize: s('--md-sys-typescale-title-small-size'),
+              fontWeight: s('--md-sys-typescale-title-small-weight'),
+              color: s('--md-sys-color-on-surface'),
+            }}
+          >
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: s('--md-sys-color-primary-container') }}
+            >
+              <AlertCircle
+                className="w-4 h-4"
+                style={{ color: s('--md-sys-color-on-primary-container') }}
+                aria-hidden="true"
+              />
+            </div>
+            {t('offline.tips')}
           </h3>
-          <ul className="text-sm text-[var(--text-secondary)] space-y-1 list-disc list-inside">
-            <li>Guarda capítulos desde el lector para leerlos sin conexión</li>
-            <li>Los capítulos guardados expiran después de 7 días</li>
-            <li>Tu progreso se sincronizará cuando vuelvas a tener conexión</li>
-            <li>Usa WiFi para guardar capítulos y ahorrar datos móviles</li>
+          <ul
+            className="space-y-2 list-disc list-inside"
+            style={{
+              fontSize: s('--md-sys-typescale-body-medium-size'),
+              fontWeight: s('--md-sys-typescale-body-medium-weight'),
+              lineHeight: s('--md-sys-typescale-body-medium-line-height'),
+              color: s('--md-sys-color-on-surface-variant'),
+            }}
+          >
+            <li>{t('offline.tip1')}</li>
+            <li>{t('offline.tip2')}</li>
+            <li>{t('offline.tip3')}</li>
+            <li>{t('offline.tip4')}</li>
           </ul>
         </div>
       </div>

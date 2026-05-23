@@ -78,6 +78,8 @@ export function GenreMarquee() {
   const genreCards = buildGenreCards(genres);
   const allItems = [...genreCards, ...genreCards];
   const halfWidth = genreCards.length * CARD_FULL;
+  const halfWidthRef = useRef(halfWidth);
+  halfWidthRef.current = halfWidth;
 
   // Bucle de animación con dependencias vacías — nunca se reinicia
   useEffect(() => {
@@ -117,10 +119,14 @@ export function GenreMarquee() {
     if (sectionRef.current) observer.observe(sectionRef.current);
 
     const tick = () => {
+      rafRef.current = requestAnimationFrame(tick);
+
+      const hw = halfWidthRef.current;
+      if (hw === 0) return;
+
       if (!isPageActive || !inViewport) return;
 
-      const prm = prefersReducedMotionRef.current;
-      if (prm) return;
+      if (prefersReducedMotionRef.current) return;
 
       if (isDecelerating.current) {
         const v = velocity.current;
@@ -132,20 +138,18 @@ export function GenreMarquee() {
           let next = trackX.current + v;
           velocity.current *= 0.95;
 
-          while (next <= -halfWidth) next += halfWidth;
-          while (next > 0) next -= halfWidth;
+          while (next <= -hw) next += hw;
+          while (next > 0) next -= hw;
 
           trackX.current = next;
           trackRef.current?.style.setProperty('transform', `translateX(${next}px)`);
         }
       } else if (!isDragging.current && !isHovering.current) {
         let next = trackX.current - 0.3;
-        if (next <= -halfWidth) next += halfWidth;
+        if (next <= -hw) next += hw;
         trackX.current = next;
         trackRef.current?.style.setProperty('transform', `translateX(${next}px)`);
       }
-
-      rafRef.current = requestAnimationFrame(tick);
     };
 
     if (isPageActive && inViewport) {
@@ -210,11 +214,14 @@ export function GenreMarquee() {
     }
 
     // Movimiento incremental con wrapping para scroll infinito
-    let next = trackX.current + dxFromLast;
-    while (next <= -halfWidth) next += halfWidth;
-    while (next > 0) next -= halfWidth;
-    trackX.current = next;
-    trackRef.current?.style.setProperty('transform', `translateX(${next}px)`);
+    const hw = halfWidthRef.current;
+    if (hw > 0) {
+      let next = trackX.current + dxFromLast;
+      while (next <= -hw) next += hw;
+      while (next > 0) next -= hw;
+      trackX.current = next;
+      trackRef.current?.style.setProperty('transform', `translateX(${next}px)`);
+    }
   };
 
   const pointerUp = () => {

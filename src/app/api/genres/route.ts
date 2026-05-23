@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { GENRE_CATEGORIES } from '@/constants/genres';
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 
@@ -15,6 +16,21 @@ export async function GET() {
         const genres = await prisma.genre.findMany({
           orderBy: { name: 'asc' },
         });
+
+        if (genres.length === 0) {
+          const fallbackNames: Record<string, string> = {
+            accion: 'acción', aventura: 'aventura', 'ciencia-ficcion': 'ciencia ficción',
+            comedia: 'comedia', escolar: 'escolar', fantasia: 'fantasía',
+            magia: 'magia', mecha: 'mecha', misterio: 'misterio',
+            oscuro: 'oscuro', policiaco: 'policíaco', robots: 'robots',
+            romance: 'romance', 'slice-of-life': 'slice of life', suspenso: 'suspenso',
+          };
+          return GENRE_CATEGORIES.map((g) => ({
+            id: g.slug,
+            name: fallbackNames[g.slug] || g.tag,
+            slug: g.slug,
+          }));
+        }
 
         return genres.map((g: { id: string; name: string; slug: string; createdAt: Date }) => ({
           id: g.id,

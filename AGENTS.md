@@ -14,6 +14,6 @@ When rendering text where **two identical characters appear consecutively** (sam
 <!-- BEGIN:project-info -->
 # Project Info
 
-- **Project name**: MangaAura (NOT "inkverse" - the folder name is misleading)
+- **Project name**: MangaAura
 - **Full name**: mangaaura
 <!-- END:project-info -->
