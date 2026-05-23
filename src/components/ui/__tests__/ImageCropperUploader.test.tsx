@@ -313,7 +313,7 @@ describe('ImageCropperUploader', () => {
 
       expect(onCropComplete).toHaveBeenCalledTimes(1);
 
-      const [blob, fileName] = onCropComplete.mock.calls[0];
+      const [blob, fileName] = (onCropComplete as ReturnType<typeof vi.fn>).mock.calls[0];
       expect(blob).toBeInstanceOf(Blob);
       expect(fileName).toBe('test.webp');
     });
@@ -356,7 +356,7 @@ describe('ImageCropperUploader', () => {
         fireEvent.click(screen.getByTestId('mock-confirm'));
       });
 
-      const [, fileName] = onCropComplete.mock.calls[0];
+      const [, fileName] = (onCropComplete as ReturnType<typeof vi.fn>).mock.calls[0];
       expect(fileName).toBe('noext.webp');
     });
   });

@@ -5,6 +5,7 @@ declare module '@auth/core/types' {
     level: number;
     twoFactorEnabled?: boolean;
     twoFactorPending?: boolean;
+    permissions?: string[];
   }
 }
 
@@ -15,5 +16,6 @@ declare module 'next-auth/jwt' {
     xpPoints: number;
     level: number;
     twoFactorPending?: boolean;
+    permissions?: string[];
   }
 }
