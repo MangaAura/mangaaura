@@ -17,6 +17,9 @@ export const SESSION_COOKIE_NAME =
 
 // Configuración compatible con NextAuth 5 beta
 export const authConfig = {
+  // NextAuth v5 requires AUTH_SECRET (ignores NEXTAUTH_SECRET).
+  // Explicit fallback so it works with either env var.
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: {
