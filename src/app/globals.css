@@ -250,12 +250,17 @@
 
 html {
   scroll-behavior: smooth;
+  /* Standard CSS scrollbar styling (replaces -webkit-scrollbar for Chrome 121+) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-tertiary) transparent;
 }
 
 body {
   background-color: var(--background);
   color: var(--text-primary);
   transition: background-color var(--transition-slow), color var(--transition-slow);
+  /* Override Tailwind preflight vendor-prefixed properties with valid values */
+  -webkit-text-size-adjust: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -264,23 +269,26 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.025em;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+/* Fallback for browsers without scrollbar-color support (Safari) */
+@supports not (scrollbar-color: red) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: var(--radius-full);
-  border: 2px solid var(--background);
-}
+  ::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border-radius: var(--radius-full);
+    border: 2px solid var(--background);
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+  }
 }
 
 @layer components {
