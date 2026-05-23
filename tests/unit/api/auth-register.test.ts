@@ -14,12 +14,22 @@ vi.mock('@/lib/prisma', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
     },
+    verificationToken: {
+      create: vi.fn(() => Promise.resolve()),
+    },
   },
 }));
 
 vi.mock('bcryptjs', () => ({
   hash: vi.fn(() => 'hashed_password'),
   default: { hash: vi.fn(() => 'hashed_password') },
+}));
+
+vi.mock('@/infrastructure/queue/EmailQueue', () => ({
+  getEmailQueue: vi.fn(() => ({
+    addWelcomeEmail: vi.fn(() => Promise.resolve()),
+    addVerificationEmail: vi.fn(() => Promise.resolve()),
+  })),
 }));
 
 import { POST } from '@/app/api/auth/register/route';

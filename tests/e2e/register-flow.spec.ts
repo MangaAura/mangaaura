@@ -50,10 +50,16 @@ test('register flow: debug signIn failure', async ({ page }) => {
   await page.locator('#register-confirm-password').fill(TEST_USER.password);
   await page.waitForTimeout(200);
 
-  // Check terms
-  const checkbox = page.locator('input[type="checkbox"]').first();
-  await checkbox.check({ force: true });
-  await page.waitForTimeout(500);
+  // Check terms — click the LABEL wrapping the checkbox, not the hidden input
+  // The checkbox has appearance-none CSS, so Playwright can't interact with it directly.
+  // Clicking the label toggles the React controlled checkbox reliably.
+  const termsLabel = page.locator('label').filter({ has: page.locator('input[name="accept-terms"]') });
+  await termsLabel.click();
+  // Verify React state update: the checkbox should now be checked
+  await page.waitForFunction(() => {
+    const cb = document.querySelector('input[name="accept-terms"]') as HTMLInputElement;
+    return cb?.checked === true;
+  }, { timeout: 5000 });
 
   // Submit
   const submitButton = page.locator('button[type="submit"]').first();
