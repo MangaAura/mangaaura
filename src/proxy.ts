@@ -6,6 +6,37 @@ import { logRequest, generateRequestId } from '@/lib/request-logger';
 
 // ─── Auth: protected routes ────────────────────────────────────────
 
+// ─── Route permissions (merged from middleware.ts) ────────────────
+const ROUTE_PERMISSIONS: Record<string, { permission?: string; roles?: string[]; requireAuth?: boolean }> = {
+  '/admin': { permission: 'admin:settings' },
+  '/admin/users': { permission: 'users:read' },
+  '/admin/bans': { permission: 'bans:view' },
+  '/admin/audit-log': { permission: 'audit:view' },
+  '/admin/impersonate': { permission: 'admin:impersonate' },
+  '/admin/restore': { permission: 'restore:accounts' },
+  '/admin/moderation': { permission: 'moderation:reports' },
+  '/admin/webhooks': { permission: 'webhooks:manage' },
+  '/admin/news': { permission: 'news:edit' },
+  '/admin/csp-reports': { permission: 'csp:view' },
+  '/admin/ai-dashboard': { permission: 'admin:settings' },
+  '/admin/settings': { permission: 'admin:settings' },
+  '/admin/manga': { permission: 'manga:edit' },
+  '/creator/dashboard': { permission: 'manga:create' },
+  '/creator/upload': { permission: 'chapters:create' },
+  '/settings': { requireAuth: true },
+  '/profile': { requireAuth: true },
+  '/library': { requireAuth: true },
+};
+
+function getRoutePermission(path: string): { permission?: string; roles?: string[]; requireAuth?: boolean } | null {
+  if (ROUTE_PERMISSIONS[path]) return ROUTE_PERMISSIONS[path];
+  const prefix = Object.keys(ROUTE_PERMISSIONS)
+    .filter((k) => k.endsWith('/'))
+    .sort((a, b) => b.length - a.length)
+    .find((k) => path.startsWith(k));
+  return prefix ? ROUTE_PERMISSIONS[prefix] : null;
+}
+
 const PROTECTED_ROUTES = [
   '/profile', '/settings', '/library', '/notifications',
   '/feed', '/bookmarks', '/following', '/achievements',
@@ -22,6 +53,7 @@ const PUBLIC_PREFIXES = ['/auth', '/api', '/_next', '/_rsc', '/static', '/favico
 function isProtectedRoute(pathname: string): boolean {
   if (pathname === '/') return false;
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return false;
+  if (getRoutePermission(pathname)) return true;
   return PROTECTED_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
@@ -146,13 +178,26 @@ export async function proxy(request: NextRequest) {
     // RSC payload requests carry auth state internally — skip redirects
     if (request.headers.get('RSC') !== '1') {
       try {
-        const secret = process.env.NEXTAUTH_SECRET;
+        const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
         if (secret) {
           const token = await getToken({ req: request, secret });
           if (!token) {
             const loginUrl = new URL('/auth/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
+          }
+          // Permission/role-based access control (from middleware.ts)
+          const routePerm = getRoutePermission(pathname);
+          if (routePerm) {
+            if (routePerm.permission) {
+              const perms = (token as any).permissions as string[] | undefined;
+              if (!perms?.includes(routePerm.permission)) {
+                return NextResponse.redirect(new URL('/', request.url));
+              }
+            }
+            if (routePerm.roles && !routePerm.roles.includes((token as any).role as string)) {
+              return NextResponse.redirect(new URL('/', request.url));
+            }
           }
         }
       } catch {
@@ -218,5 +263,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|.*\\.svg$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|sitemap.xml|robots.txt|icons|offline|.*\\.svg$).*)'],
 };
