@@ -8,6 +8,13 @@ import { prisma } from './prisma';
 import { rateLimit, getRateLimitKey } from './rate-limit';
 import { redis } from './redis';
 
+// Nombre de la cookie de sesión, compartido entre auth y proxy/socket
+// Debe coincidir con la cookie que establece NextAuth v5 beta
+export const SESSION_COOKIE_NAME =
+  process.env.NODE_ENV === 'production'
+    ? '__Secure-next-auth.session-token'
+    : 'next-auth.session-token';
+
 // Configuración compatible con NextAuth 5 beta
 export const authConfig = {
   trustHost: true,
@@ -18,7 +25,7 @@ export const authConfig = {
   },
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      name: SESSION_COOKIE_NAME,
       options: {
         httpOnly: true,
         sameSite: 'lax',

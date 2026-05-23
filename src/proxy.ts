@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { logRequest, generateRequestId } from '@/lib/request-logger';
+import { SESSION_COOKIE_NAME } from '@/lib/auth';
 
 // ─── Auth: protected routes ────────────────────────────────────────
 
@@ -96,7 +97,7 @@ function generateNonce(): string {
 
 // Pre-build CSP template parts — only the nonce changes per page request.
 const CSP_PREFIX = `default-src 'self'; script-src 'self' 'nonce-`;
-const CSP_SUFFIX = `' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
+const CSP_SUFFIX = `' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com 'report-sample'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co https://*.ingest.sentry.io; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; media-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
 
 function buildCSP(nonce: string, reportUrl?: string): string {
   const base = CSP_PREFIX + nonce + CSP_SUFFIX;
@@ -180,7 +181,7 @@ export async function proxy(request: NextRequest) {
       try {
         const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
         if (secret) {
-          const token = await getToken({ req: request, secret });
+          const token = await getToken({ req: request, secret, cookieName: SESSION_COOKIE_NAME });
           if (!token) {
             const loginUrl = new URL('/auth/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);

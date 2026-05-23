@@ -4,9 +4,9 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 
 function getEncryptionKey(): Buffer {
-  const secret = process.env.NEXTAUTH_SECRET;
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   if (!secret || secret.length < 16) {
-    throw new Error('NEXTAUTH_SECRET must be at least 16 characters for PII encryption');
+    throw new Error('AUTH_SECRET/NEXTAUTH_SECRET must be at least 16 characters for PII encryption');
   }
   return crypto.createHash('sha256').update(secret).digest();
 }

@@ -8,6 +8,7 @@ import { getToken } from '@auth/core/jwt';
 import { Server as NetServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
+import { SESSION_COOKIE_NAME } from '@/lib/auth';
 import { partyService } from '@/core/services/PartyService';
 import { setRealtimeAnalytics } from '@/lib/analytics-store';
 import { sanitizeText } from '@/lib/sanitize';
@@ -89,8 +90,9 @@ export const initIO = (httpServer: NetServer): IOServer => {
 
       // Verificar token con next-auth
       const decoded = await getToken({
-        req: { headers: { cookie: `next-auth.session-token=${token}` } },
-        secret: process.env.NEXTAUTH_SECRET,
+        req: { headers: { cookie: `${SESSION_COOKIE_NAME}=${token}` } },
+        secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+        cookieName: SESSION_COOKIE_NAME,
       });
 
       if (!decoded?.sub) {

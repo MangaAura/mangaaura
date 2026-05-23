@@ -38,10 +38,17 @@ export interface WelcomeEmailData extends EmailJobData {
   displayName?: string;
 }
 
-export interface PasswordResetData extends EmailJobData {
-  type: 'password-reset';
+export interface PasswordResetFields {
+  to: string;
+  userId: string;
+  username: string;
   resetToken: string;
   resetLink: string;
+  [key: string]: unknown;
+}
+
+export interface PasswordResetData extends EmailJobData, PasswordResetFields {
+  type: 'password-reset';
 }
 
 export interface NewChapterData extends EmailJobData {
@@ -307,29 +314,17 @@ export class EmailQueue {
       },
     };
 
-    try {
+try {
       const job = await this.queue.add(type, jobData, jobOptions);
 
       if (!this.useInMemory) {
         console.info(`[EmailQueue] Job added: ${type} for ${data.to} (Job ID: ${job.id})`);
       }
 
-return job as Job;
+      return job as Job;
     } catch (error) {
-      // If queue fails and we're in production, this is an error
-      if (process.env.NODE_ENV === 'production') {
-        console.error('[EmailQueue] Failed to add job:', error);
-        throw error;
-      }
-
-      // In development, just log and return a mock job
-      console.log(`[EmailQueue] Job would be added (queue unavailable): ${type} for ${data.to}`);
-      return {
-        id: 'mock-job',
-        name: type,
-        data: jobData,
-        opts: jobOptions,
-      } as unknown as Job;
+      console.error(`[EmailQueue] Failed to add job ${type}:`, error);
+      throw error;
     }
   }
 
@@ -345,10 +340,32 @@ return job as Job;
   /**
    * Agrega email de recuperación de contraseña a la cola
    */
-  async addPasswordResetEmail(data: Omit<PasswordResetData, 'type'>): Promise<Job> {
-    return this.addEmailJob('password-reset', data, {
-      priority: 1,
-    });
+  async addPasswordResetEmail(data: PasswordResetFields): Promise<Job> {
+    try {
+      return await this.addEmailJob('password-reset', data, {
+        priority: 1,
+      });
+    } catch (error) {
+      console.warn('[EmailQueue] Queue unavailable, sending email directly');
+      await this.sendPasswordResetEmailDirect(data);
+      return {
+        id: `direct-${Date.now()}`,
+        name: 'password-reset',
+        data: { ...data, type: 'password-reset' as const },
+      } as unknown as Job;
+    }
+  }
+
+  private async sendPasswordResetEmailDirect(data: PasswordResetFields): Promise<void> {
+    try {
+      const { emailService } = await import('@/infrastructure/adapters/emailService');
+      await emailService.sendPasswordResetEmail(
+        { id: data.userId, email: data.to, username: data.username },
+        data.resetToken
+      );
+    } catch (error) {
+      console.error('[EmailQueue] Failed to send password reset email directly:', error);
+    }
   }
 
   async addVerificationEmail(data: Omit<VerificationEmailData, 'type'>): Promise<Job> {

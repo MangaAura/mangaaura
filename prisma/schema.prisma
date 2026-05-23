@@ -33,6 +33,7 @@ model User {
   subscriptionTier    String?
   subscriptionEndsAt  DateTime?
   pushSubscription    String?
+  markedForDeletionAt DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -62,6 +63,11 @@ model User {
 
   // Roles & Permissions
   roles            UserRole[]         @relation("UserRoles")
+  issuedBans       BanRecord[]        @relation("IssuedBans")
+  liftedBans       BanRecord[]        @relation("LiftedBans")
+  bans             BanRecord[]
+  consentRecords   ConsentRecord[]
+  loginAttempts    LoginAttempt[]
 
   // Security & Social
   reportsMade      UserReport[]       @relation("ReportsMade")
@@ -137,6 +143,8 @@ model Chapter {
   crowdfundingCurrent Int      @default(0)
   isCrowdfunded       Boolean  @default(false)
   viewCount           Int      @default(0)
+  status              String   @default("PUBLISHED")
+  scheduledAt         DateTime?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -1165,6 +1173,69 @@ model Permission {
 
   @@index([codename])
   @@index([module])
+}
+
+enum BanType {
+  PERMANENT
+  SUSPENSION
+  IP_BAN
+}
+
+model BanRecord {
+  id           String    @id @default(uuid())
+  userId       String?
+  banType      BanType
+  reason       String
+  reasonDetail String?
+  ipAddress    String?
+  expiresAt    DateTime?
+  isActive     Boolean   @default(true)
+  issuedById   String
+  issuedAt     DateTime  @default(now())
+  liftedById   String?
+  liftedAt     DateTime?
+  liftReason   String?
+
+  user     User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  issuedBy User @relation("IssuedBans", fields: [issuedById], references: [id], onDelete: Cascade)
+  liftedBy User? @relation("LiftedBans", fields: [liftedById], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([issuedById])
+  @@index([liftedById])
+  @@index([isActive, expiresAt])
+  @@index([ipAddress, isActive])
+}
+
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  userId    String?
+  email     String?
+  ipAddress String
+  userAgent String?
+  success   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([ipAddress])
+  @@index([createdAt])
+  @@index([success, createdAt])
+}
+
+model ConsentRecord {
+  id        String   @id @default(uuid())
+  type      String
+  version   String
+  ipAddress String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([type, version])
 }
 
 model RolePermission {

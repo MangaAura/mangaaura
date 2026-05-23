@@ -136,14 +136,21 @@ const nextConfig: NextConfig = {
 
 };
 
-// Wrap with Sentry if SENTRY_DSN is configured
+// Wrap with Sentry if SENTRY_DSN is configured (runtime error tracking)
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const withSentry = process.env.SENTRY_DSN
   ? withSentryConfig(nextConfig, {
-      org: process.env.SENTRY_ORG || "mangaaura",
+      org: process.env.SENTRY_ORG || "mangaaura-web",
       project: process.env.SENTRY_PROJECT || "mangaaura-web",
-      silent: !process.env.CI,
+      // Auth token is optional — needed only for release creation + sourcemap uploads.
+      // If missing, runtime error tracking still works; uploads just log a warning.
+      authToken: sentryAuthToken || undefined,
+      silent: true,
       widenClientFileUpload: true,
       sourcemaps: { disable: false, deleteSourcemapsAfterUpload: true },
+      errorHandler: (err: Error) => {
+        console.warn('[Sentry] Sourcemap upload warning (non-fatal):', err.message);
+      },
       // disableLogger is deprecated and unsupported with Turbopack
       // automaticVercelMonitors is deprecated and unsupported with Turbopack
     })
