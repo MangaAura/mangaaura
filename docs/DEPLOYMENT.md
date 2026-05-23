@@ -466,9 +466,9 @@ Configura alertas en Vercel:
 **Solucion:**
 ```bash
 # Verificar formato
-postgresql://user:password@host:5432/dbname?schema=public&sslmode=require
+postgresql://user:password@host:5432/dbname?schema=public&sslmode=verify-full
 
-# Para Neon/Supabase, usa ?sslmode=require
+# Para Neon/Supabase, usa ?sslmode=verify-full
 ```
 
 ### Error: "Build failed"

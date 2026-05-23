@@ -13,7 +13,7 @@ if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (global
     nodeProcess.emit = function (this: typeof nodeProcess, event: string | symbol, ...args: unknown[]): boolean {
       if (event === 'warning' && args[0] instanceof Error) {
         const warning = args[0] as Error;
-        if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event')) {
+        if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event') || warning.message?.includes('SSL modes') || warning.message?.includes('pg-connection-string')) {
           return false;
         }
       }

@@ -235,7 +235,7 @@ Already configured in `next.config.ts`. Ensure `images.remotePatterns` includes 
 ## Security Checklist
 
 - [ ] `NEXTAUTH_SECRET` is a random 32+ character string
-- [ ] `DATABASE_URL` uses SSL (has `sslmode=require`)
+- [ ] `DATABASE_URL` uses SSL (has `sslmode=verify-full`)
 - [ ] Stripe webhook secret is set
 - [ ] No `.env` files committed to git
 - [ ] `NODE_ENV` is set to `production`
