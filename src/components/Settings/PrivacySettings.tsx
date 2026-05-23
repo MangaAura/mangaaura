@@ -57,15 +57,20 @@ export function PrivacySettings({}: PrivacySettingsProps) {
   const [blockedUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('privacySettings');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSettings((prev) => ({ ...prev, ...parsed }));
-    } catch {
-      console.error('Error parsing privacy settings from localStorage');
-    }
-    }
+    fetch('/api/me/preferences')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.preferences?.privacy) {
+          setSettings((prev) => ({ ...prev, ...data.preferences.privacy }));
+          localStorage.setItem('privacySettings', JSON.stringify(data.preferences.privacy));
+        }
+      })
+      .catch(() => {
+        const saved = localStorage.getItem('privacySettings');
+        if (saved) {
+          try { setSettings((prev) => ({ ...prev, ...JSON.parse(saved) })); } catch {}
+        }
+      });
   }, []);
 
   const handleToggle = (key: keyof typeof settings) => {
@@ -79,19 +84,19 @@ export function PrivacySettings({}: PrivacySettingsProps) {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      localStorage.setItem('privacySettings', JSON.stringify(settings));
-
-      await fetch('/api/me/preferences', {
+      const res = await fetch('/api/me/preferences', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ privacy: settings }),
       });
-
+      if (!res.ok) throw new Error('Error al guardar');
+      const data = await res.json();
+      if (data?.preferences?.privacy) {
+        localStorage.setItem('privacySettings', JSON.stringify(data.preferences.privacy));
+      }
       setIsDirty(false);
-      alert('Configuración de privacidad guardada');
     } catch (error) {
       console.error('Error saving privacy settings:', error);
-      alert('Error al guardar');
     } finally {
       setIsLoading(false);
     }

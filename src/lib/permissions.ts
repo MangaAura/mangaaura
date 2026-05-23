@@ -16,7 +16,7 @@ export interface RoleInfo {
 let permissionCache: Map<string, string[]> | null = null;
 let roleCache: Map<string, RoleInfo> | null = null;
 
-async function loadPermissions(): Promise<Map<string, string[]>> {
+export async function loadPermissions(): Promise<Map<string, string[]>> {
   if (permissionCache) return permissionCache;
   const roles = await prisma.role.findMany({
     include: { permissions: { include: { permission: true } } },
@@ -29,7 +29,7 @@ async function loadPermissions(): Promise<Map<string, string[]>> {
   return cache;
 }
 
-async function loadRoles(): Promise<Map<string, RoleInfo>> {
+export async function loadRoles(): Promise<Map<string, RoleInfo>> {
   if (roleCache) return roleCache;
   const roles = await prisma.role.findMany();
   const cache = new Map<string, RoleInfo>();

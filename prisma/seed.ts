@@ -1,6 +1,4 @@
-import { PrismaClient } from '../src/generated/prisma';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/lib/prisma';
 
 const ROLES = [
   { name: 'OWNER', description: 'Full system access', priority: 100, isSystem: true },
