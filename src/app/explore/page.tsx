@@ -414,6 +414,7 @@ function SearchPageContent() {
 
             <div className="relative">
               <select
+                name="sort"
                 value={selectedSort}
                 onChange={(e) => setSelectedSort(e.target.value)}
                 aria-label={t('search.sortByLabel')}
