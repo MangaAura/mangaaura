@@ -125,42 +125,40 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Enviar email de bienvenida (asincrono, no bloquea la respuesta)
-    try {
-      const { getEmailQueue } = await import('@/infrastructure/queue/EmailQueue');
-      const emailQueue = getEmailQueue();
-      await emailQueue.addWelcomeEmail({
-        to: user.email,
-        userId: user.id,
-        username: user.username,
-        displayName: user.displayName,
-      });
-    } catch (emailError) {
+    // Enviar email de bienvenida (fire-and-forget, no bloquea la respuesta)
+    const { getEmailQueue } = await import('@/infrastructure/queue/EmailQueue');
+    const emailQueue = getEmailQueue();
+    emailQueue.addWelcomeEmail({
+      to: user.email,
+      userId: user.id,
+      username: user.username,
+      displayName: user.displayName,
+    }).catch((emailError: unknown) => {
       console.error('[Register] Error sending welcome email:', emailError);
-    }
+    });
 
-    try {
-      const verifyToken = crypto.randomBytes(32).toString('hex');
-      await prisma.verificationToken.create({
-        data: {
-          identifier: user.email,
-          token: verifyToken,
-          expires: new Date(Date.now() + 24 * 3600 * 1000),
-        },
-      });
+    // Crear token de verificación (fire-and-forget, no bloquea la respuesta)
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    prisma.verificationToken.create({
+      data: {
+        identifier: user.email,
+        token: verifyToken,
+        expires: new Date(Date.now() + 24 * 3600 * 1000),
+      },
+    }).catch((verifyError: unknown) => {
+      console.error('[Register] Error creating verification token:', verifyError);
+    });
 
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-      const verificationUrl = `${baseUrl}/auth/verify?token=${verifyToken}`;
-      const emailQueue = getEmailQueue();
-      await emailQueue.addVerificationEmail({
-        to: user.email,
-        userId: user.id,
-        username: user.username,
-        verificationUrl,
-      });
-    } catch (verifyError) {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/auth/verify?token=${verifyToken}`;
+    emailQueue.addVerificationEmail({
+      to: user.email,
+      userId: user.id,
+      username: user.username,
+      verificationUrl,
+    }).catch((verifyError: unknown) => {
       console.error('[Register] Error sending verification email:', verifyError);
-    }
+    });
 
     return NextResponse.json(
       {
