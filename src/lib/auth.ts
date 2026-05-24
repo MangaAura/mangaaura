@@ -205,8 +205,8 @@ export const authConfig = {
                 await prisma.account.create({
                   data: {
                     userId: existingUser.id,
-                    type: account.type,
-                    provider: account.provider,
+                    type: account.type || 'oauth',
+                    provider: account.provider || 'unknown',
                     providerAccountId,
                   },
                 });
