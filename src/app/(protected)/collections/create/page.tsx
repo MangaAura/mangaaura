@@ -28,10 +28,14 @@ export default function CreateCollectionPage() {
 
     startTransition(async () => {
       try {
-        await createCollection(name.trim(), description.trim() || undefined, isPublic);
+        const result = await createCollection(name.trim(), description.trim() || undefined, isPublic);
+        if ('error' in result) {
+          setError(result.error || 'Error desconocido');
+          return;
+        }
         router.push('/collections');
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
+        setError('Error de conexión. Verifica tu internet e inténtalo de nuevo.');
       }
     });
   };

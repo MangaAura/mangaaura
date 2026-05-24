@@ -166,15 +166,17 @@ export function AuthSection({
                 </Link>
               </DropdownMenu.Item>
 
-              <DropdownMenu.Item asChild>
-                <Link
-                  href="/creator/dashboard"
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-colors outline-none md:hidden"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  {t('creator.dashboard')}
-                </Link>
-              </DropdownMenu.Item>
+              {session?.user?.role === 'CREATOR' && (
+                <DropdownMenu.Item asChild>
+                  <Link
+                    href="/creator/dashboard"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-colors outline-none md:hidden"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {t('creator.dashboard')}
+                  </Link>
+                </DropdownMenu.Item>
+              )}
 
               {isModerator && (
                 <DropdownMenu.Item asChild>

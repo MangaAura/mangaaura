@@ -212,15 +212,17 @@ export function MobileMenu({
                       </Link>
                     )}
 
-                    <Link
-                      href="/creator/manga/new"
-                      onClick={onClose}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] transition-colors"
-                      aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
-                    >
-                      <Plus className="w-5 h-5" aria-hidden="true" />
-                      {t('creator.newManga')}
-                    </Link>
+                    {isCreator && (
+                      <Link
+                        href="/creator/manga/new"
+                        onClick={onClose}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] transition-colors"
+                        aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
+                      >
+                        <Plus className="w-5 h-5" aria-hidden="true" />
+                        {t('creator.newManga')}
+                      </Link>
+                    )}
 
                     <Link
                       href="/settings"

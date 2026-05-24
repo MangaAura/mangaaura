@@ -69,7 +69,7 @@ describe('SettingsTabs — Accessibility', () => {
     render(<SettingsTabs user={mockUser} />);
 
     const tabs = screen.getAllByRole('tab');
-    expect(tabs).toHaveLength(5);
+    expect(tabs).toHaveLength(6);
 
     // First tab (profile) should be selected by default
     const profileTab = screen.getByRole('tab', { name: /perfil/i });
@@ -153,7 +153,7 @@ describe('SettingsTabs — Accessibility', () => {
       render(<SettingsTabs user={mockUser} />);
 
       // Go to last tab
-      const lastTab = screen.getByRole('tab', { name: /apariencia/i });
+      const lastTab = screen.getByRole('tab', { name: /accesibilidad/i });
       fireEvent.click(lastTab);
       lastTab.focus();
 
@@ -168,7 +168,7 @@ describe('SettingsTabs — Accessibility', () => {
       render(<SettingsTabs user={mockUser} />);
 
       // Go to last tab first
-      const lastTab = screen.getByRole('tab', { name: /apariencia/i });
+      const lastTab = screen.getByRole('tab', { name: /accesibilidad/i });
       fireEvent.click(lastTab);
       lastTab.focus();
 
@@ -186,7 +186,7 @@ describe('SettingsTabs — Accessibility', () => {
 
       fireEvent.keyDown(profileTab, { key: 'End' });
 
-      const lastTab = screen.getByRole('tab', { name: /apariencia/i });
+      const lastTab = screen.getByRole('tab', { name: /accesibilidad/i });
       expect(lastTab).toHaveAttribute('aria-selected', 'true');
     });
 

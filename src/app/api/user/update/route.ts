@@ -7,6 +7,7 @@ import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 const updateProfileSchema = z.object({
   displayName: z.string().max(50).optional(),
+  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/).optional(),
   avatarUrl: z.string().url().optional(),
   emailPreferences: z.string().optional(),
 });
@@ -24,9 +25,20 @@ export async function PATCH(request: NextRequest) {
     const parsed = updateProfileSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
 
+    const data = parsed.data;
+
+    if (data.username) {
+      const normalizedUsername = data.username.toLowerCase();
+      const existing = await prisma.user.findUnique({ where: { username: normalizedUsername } });
+      if (existing && existing.id !== session.user.id) {
+        return NextResponse.json({ error: 'Este nombre de usuario ya está en uso' }, { status: 409 });
+      }
+      data.username = normalizedUsername;
+    }
+
     const updated = await prisma.user.update({
       where: { id: session.user.id },
-      data: parsed.data,
+      data,
       select: { id: true, username: true, displayName: true, avatarUrl: true, emailPreferences: true },
     });
 

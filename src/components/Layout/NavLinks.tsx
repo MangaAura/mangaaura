@@ -30,6 +30,19 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Admin', path: '/admin', iconName: 'Shield', i18nKey: 'nav.admin', requiresModerator: true },
 ];
 
+export const MAIN_NAV_LINKS: NavLinkDef[] = [
+  { name: 'Inicio', path: '/', iconName: 'BookOpen', i18nKey: 'nav.home' },
+  { name: 'Explorar', path: '/explore', iconName: 'Compass', i18nKey: 'nav.explore' },
+  { name: 'Rankings', path: '/rankings', iconName: 'Trophy', i18nKey: 'nav.rankings' },
+];
+
+export const MORE_NAV_LINKS: NavLinkDef[] = [
+  { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
+  { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
+  { name: 'Biblioteca', path: '/library', iconName: 'Library', i18nKey: 'nav.library', hideWhenLoggedOut: true },
+  { name: 'Admin', path: '/admin', iconName: 'Shield', i18nKey: 'nav.admin', requiresModerator: true },
+];
+
 const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
   MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search,

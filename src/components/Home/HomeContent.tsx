@@ -2,6 +2,7 @@
 
 import { Trophy, Clock, TrendingUp, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 import { GenreMarquee } from '@/components/GenreMarquee';
 import { AnimatedHero } from '@/components/Home/AnimatedHero';
@@ -67,6 +68,12 @@ export function HomeContent({
   totalChapters,
 }: HomeContentProps) {
   const t = useT();
+  const { data: session } = useSession();
+  const isCreator = session?.user?.role === 'CREATOR';
+  const isLoggedIn = !!session?.user;
+
+  const ctaHref = !isLoggedIn ? '/auth/register' : isCreator ? '/creator/upload' : '/explore';
+  const ctaLabel = !isLoggedIn ? t('nav.register') : isCreator ? t('home.startCreating') : t('home.exploreMangas');
 
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary">
@@ -212,13 +219,13 @@ export function HomeContent({
                 <h2 className="text-2xl font-bold mb-2">{t('home.ctaCreatorTitle')}</h2>
                 <p className="text-muted">{t('home.ctaCreatorDesc')}</p>
               </div>
-              <a
-                href="/creator/upload"
+              <Link
+                href={ctaHref}
                 className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-white"
                 style={{ background: 'linear-gradient(to right, var(--accent-purple), var(--primary))' }}
               >
-                <Sparkles className="w-4 h-4" /> {t('home.startCreating')}
-              </a>
+                <Sparkles className="w-4 h-4" /> {ctaLabel}
+              </Link>
             </div>
           </section>
         </AnimatedContainer>

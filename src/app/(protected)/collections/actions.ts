@@ -6,14 +6,19 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function createCollection(name: string, description?: string, isPublic: boolean = true) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error('Unauthorized');
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return { error: 'Debes iniciar sesión para crear una colección' };
 
-  const collection = await prisma.collection.create({
-    data: { title: name, description, isPublic, userId: session.user.id },
-  });
-  revalidatePath('/collections');
-  return { success: true, collection: { id: collection.id, name: collection.title } };
+    const collection = await prisma.collection.create({
+      data: { title: name, description, isPublic, userId: session.user.id },
+    });
+    revalidatePath('/collections');
+    return { success: true, collection: { id: collection.id, name: collection.title } };
+  } catch (error) {
+    console.error('Error creating collection:', error);
+    return { error: 'Error al crear la colección. Inténtalo de nuevo.' };
+  }
 }
 
 export async function deleteCollection(collectionId: string) {

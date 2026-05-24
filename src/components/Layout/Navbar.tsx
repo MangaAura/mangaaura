@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  BookOpen, Rss, MessageCircle, FolderOpen, Calendar, Sparkles, Plus, Menu, X,
+  BookOpen, Rss, MessageCircle, FolderOpen, Calendar, Sparkles, Plus, Menu, X, ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -10,7 +10,7 @@ import { useState, useSyncExternalStore } from 'react';
 
 import { AuthSection } from './AuthSection';
 import { MobileMenu } from './MobileMenu';
-import { NavLinks, ALL_NAV_LINKS, isActive } from './NavLinks';
+import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -47,6 +47,14 @@ export default function Navbar() {
     return true;
   });
 
+  const moreLinks = MORE_NAV_LINKS.filter((link) => {
+    if (link.requiresModerator) return mounted ? isModerator : false;
+    if (link.hideWhenLoggedOut) return mounted ? isLoggedIn : false;
+    return true;
+  });
+
+  const [moreOpen, setMoreOpen] = useState(false);
+
   const handleSearch = (query: string) => {
     router.push(`/explore?q=${encodeURIComponent(query)}`);
   };
@@ -74,7 +82,32 @@ export default function Navbar() {
               </Link>
 
               <nav className="hidden md:flex items-center gap-1" aria-label={t('common.menu')}>
-                <NavLinks links={visibleLinks} mounted={mounted} />
+                <NavLinks links={MAIN_NAV_LINKS} mounted={mounted} />
+                {moreLinks.length > 0 && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setMoreOpen(!moreOpen)}
+                      className="flex items-center gap-1 px-3 py-2 rounded-md text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors cursor-pointer"
+                      aria-expanded={moreOpen}
+                      aria-haspopup="true"
+                    >
+                      Más
+                      <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                    {moreOpen && (
+                      <>
+                        <button
+                          className="fixed inset-0 z-10"
+                          onClick={() => setMoreOpen(false)}
+                          aria-label="Cerrar"
+                        />
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-xl py-2 z-20">
+                          <NavLinks links={moreLinks} mounted={mounted} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </nav>
             </div>
 
@@ -150,29 +183,33 @@ export default function Navbar() {
                     <span className="hidden lg:inline">{t('nav.events')}</span>
                   </Link>
 
-                  <Link
-                    href="/creator/dashboard"
-                    className={
-                      'hidden md:flex items-center gap-1.5 px-2.5 py-2 rounded-md text-sm transition-colors' +
-                      (isActive(pathname, '/creator/dashboard')
-                        ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
-                        : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
-                    }
-                    title={t('creator.dashboard')}
-                    aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
-                  >
-                    <Sparkles className="w-4 h-4" aria-hidden="true" />
-                    <span className="hidden lg:inline">{t('creator.dashboard')}</span>
-                  </Link>
+                  {isCreator && (
+                    <Link
+                      href="/creator/dashboard"
+                      className={
+                        'hidden md:flex items-center gap-1.5 px-2.5 py-2 rounded-md text-sm transition-colors' +
+                        (isActive(pathname, '/creator/dashboard')
+                          ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
+                          : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
+                      }
+                      title={t('creator.dashboard')}
+                      aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
+                    >
+                      <Sparkles className="w-4 h-4" aria-hidden="true" />
+                      <span className="hidden lg:inline">{t('creator.dashboard')}</span>
+                    </Link>
+                  )}
 
-                  <Link
-                    href="/creator/manga/new"
-                    className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] shadow-sm shadow-[var(--primary)]/20 transition-all"
-                    title={t('creator.newManga')}
-                  >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    <span className="hidden lg:inline">{t('common.create')}</span>
-                  </Link>
+                  {isCreator && (
+                    <Link
+                      href="/creator/manga/new"
+                      className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] shadow-sm shadow-[var(--primary)]/20 transition-all"
+                      title={t('creator.newManga')}
+                    >
+                      <Plus className="w-4 h-4" aria-hidden="true" />
+                      <span className="hidden lg:inline">{t('common.create')}</span>
+                    </Link>
+                  )}
                 </>
               )}
 

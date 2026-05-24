@@ -79,7 +79,7 @@ export function ConversationList({ activeConversationId }: ConversationListProps
           Tus conversaciones aparecerán aquí
         </p>
         <Link
-          href="/explore"
+          href="/rankings"
           className="text-[var(--primary)] hover:text-[var(--primary-hover)] text-sm font-medium"
         >
           Encontrar usuarios →

@@ -1,7 +1,7 @@
 ﻿'use client';
 
-import { Upload, X, Check, User, Crop as CropIcon } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { Upload, X, Check, User, Crop as CropIcon, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 
 import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 
@@ -25,17 +25,75 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     displayName: user.displayName || '',
     username: user.username,
     email: user.email,
-    bio: '',
-    website: '',
-    location: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
   const [avatarError, setAvatarError] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const cropperRef = useRef<ImageCropperUploaderHandle>(null);
+
+  // Username availability check
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const usernameCheckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (usernameCheckTimerRef.current) clearTimeout(usernameCheckTimerRef.current);
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+    };
+  }, []);
+
+  const handleUsernameChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, username: value }));
+    setIsDirty(true);
+
+    if (usernameCheckTimerRef.current) clearTimeout(usernameCheckTimerRef.current);
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    if (!value || value.length < 3) {
+      setUsernameAvailable(null);
+      setUsernameChecking(false);
+      return;
+    }
+
+    usernameCheckTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      setUsernameChecking(true);
+      try {
+        const res = await fetch(
+          `/api/auth/check-username?username=${encodeURIComponent(value)}`,
+          { signal: controller.signal }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (!controller.signal.aborted) {
+            setUsernameAvailable(data.available || value.toLowerCase() === user.username.toLowerCase());
+          }
+        }
+      } catch {
+        if (abortControllerRef.current === controller) {
+          setUsernameAvailable(null);
+          setUsernameChecking(false);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setUsernameChecking(false);
+        }
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+      }
+    }, 500);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -83,27 +141,32 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSaveError(null);
 
     try {
-      const response = await fetch('/api/me', {
+      const response = await fetch('/api/user/update', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           displayName: formData.displayName,
-          bio: formData.bio,
-          website: formData.website,
-          location: formData.location,
+          username: formData.username !== user.username ? formData.username : undefined,
           avatarUrl: avatarPreview,
         }),
       });
 
-      if (!response.ok) throw new Error('Update failed');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al actualizar el perfil');
+      }
 
       setIsDirty(false);
       setSaveStatus('success');
+      setFormData((prev) => ({ ...prev, username: data.user.username }));
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       setSaveStatus('error');
+      setSaveError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
       console.error('Error updating profile:', error);
     } finally {
       setIsLoading(false);
@@ -127,7 +190,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
         )}
         {saveStatus === 'error' && (
           <div role="alert" className="p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30">
-            <p className="text-sm text-[var(--error)]">Error al actualizar perfil. Inténtalo de nuevo.</p>
+            <p className="text-sm text-[var(--error)]">{saveError || 'Error al actualizar perfil. Inténtalo de nuevo.'}</p>
           </div>
         )}
         {avatarError && (
@@ -211,69 +274,36 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 id="username"
                 name="username"
                 value={formData.username}
-                disabled
-                className="pl-8 bg-[var(--surface-sunken)]"
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                className="pl-8"
+                maxLength={30}
+                minLength={3}
+                pattern="^[a-zA-Z0-9_]+$"
+                aria-describedby="username-status"
               />
+              {usernameChecking && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <Loader2 className="w-4 h-4 animate-spin text-[var(--text-tertiary)]" />
+                </span>
+              )}
+              {!usernameChecking && usernameAvailable === true && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--success)]">
+                  <Check className="w-4 h-4" />
+                </span>
+              )}
+              {!usernameChecking && usernameAvailable === false && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--error)]">
+                  <X className="w-4 h-4" />
+                </span>
+              )}
             </div>
-            <p className="text-xs text-[var(--text-tertiary)]">
-              Tu nombre de usuario no puede cambiarse
+            <p id="username-status" className="text-xs text-[var(--text-tertiary)]">
+              {usernameChecking
+                ? 'Verificando disponibilidad...'
+                : usernameAvailable === false
+                  ? 'Este nombre de usuario ya está en uso'
+                  : 'Mín. 3 caracteres. Solo letras, números y guión bajo.'}
             </p>
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="email">Correo electrónico</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              disabled
-              className="bg-[var(--surface-sunken)]"
-            />
-            <p className="text-xs text-[var(--text-tertiary)]">
-              Para cambiar tu email, ve a Configuración de Seguridad
-            </p>
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="bio">Biografía</Label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              placeholder="Cuéntanos sobre ti..."
-              maxLength={500}
-              rows={4}
-              aria-describedby="bio-charcount"
-              className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-            />
-            <p id="bio-charcount" className="text-xs text-[var(--text-tertiary)] text-right">
-              {formData.bio.length}/500 caracteres
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="website">Sitio web</Label>
-            <Input
-              id="website"
-              name="website"
-              type="url"
-              value={formData.website}
-              onChange={handleChange}
-              placeholder="https://..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="location">Ubicación</Label>
-            <Input
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Ciudad, País"
-            />
           </div>
         </div>
 
@@ -286,14 +316,14 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 displayName: user.displayName || '',
                 username: user.username,
                 email: user.email,
-                bio: '',
-                website: '',
-                location: '',
               });
               setAvatarPreview(user.avatarUrl);
               setAvatarError('');
               setSaveStatus('idle');
+              setSaveError(null);
               setIsDirty(false);
+              setUsernameAvailable(null);
+              setUsernameChecking(false);
             }}
             disabled={!isDirty || isLoading}
           >
