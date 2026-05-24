@@ -190,6 +190,28 @@ export const authConfig = {
                 data: { avatarUrl: user.image },
               });
             }
+
+            const providerAccountId = (account as Record<string, string | undefined>)?.providerAccountId;
+            if (providerAccountId) {
+              const existingAccount = await prisma.account.findUnique({
+                where: {
+                  provider_providerAccountId: {
+                    provider: account.provider,
+                    providerAccountId,
+                  },
+                },
+              });
+              if (!existingAccount) {
+                await prisma.account.create({
+                  data: {
+                    userId: existingUser.id,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId,
+                  },
+                });
+              }
+            }
           }
         } catch (error) {
           console.error('OAuth signIn error:', error);
