@@ -60,12 +60,33 @@ export default function ReaderContent() {
   const searchParams = useSearchParams();
   const mangaId = searchParams.get('mangaId');
   const chapterNumber = searchParams.get('chapterNumber');
+  const chapterId = searchParams.get('chapterId');
 
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [viewMode] = useState<'scroll' | 'paged'>('scroll');
+  const [resolvedMangaId, setResolvedMangaId] = useState<string | null>(mangaId);
+  const [resolvedChapterNumber, setResolvedChapterNumber] = useState<string | null>(chapterNumber);
+  const [isResolving, setIsResolving] = useState(false);
+
+  // Resolve chapterId to mangaId + chapterNumber if needed
+  useEffect(() => {
+    if (!chapterId || mangaId) return;
+    setIsResolving(true);
+    fetch(`/api/manga/chapters/${chapterId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.manga?.id && data?.chapterNumber != null) {
+          setResolvedMangaId(data.manga.id);
+          setResolvedChapterNumber(String(data.chapterNumber));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsResolving(false));
+  }, [chapterId, mangaId]);
+
   const [continuousReading, setContinuousReading] = useState(() => {
     if (typeof window === 'undefined') return false;
     try { return localStorage.getItem('mangaaura-continuous-reading') === 'true'; } catch { return false; }
@@ -79,13 +100,13 @@ export default function ReaderContent() {
 
   // Fetch chapter data
   const { data: chapterData, error: chapterError, isLoading: isLoadingChapter } = useSWR<ChapterData>(
-    mangaId && chapterNumber ? `/api/manga/${mangaId}/chapters/${chapterNumber}` : null,
+    resolvedMangaId && resolvedChapterNumber ? `/api/manga/${resolvedMangaId}/chapters/${resolvedChapterNumber}` : null,
     fetcher
   );
 
   // Fetch chapters list for navigation
   const { data: chaptersList } = useSWR<ChaptersListResponse>(
-    mangaId ? `/api/manga/${mangaId}/chapters` : null,
+    resolvedMangaId ? `/api/manga/${resolvedMangaId}/chapters` : null,
     fetcher
   );
 
@@ -98,7 +119,7 @@ export default function ReaderContent() {
   });
 
   // Compute chapter navigation (must be before callbacks that use them)
-  const currentChapterNumber = parseInt(chapterNumber || '1');
+  const currentChapterNumber = parseInt(resolvedChapterNumber || '1');
   const prevChapter = chaptersList?.chapters.find(c => c.chapterNumber === currentChapterNumber - 1);
   const nextChapter = chaptersList?.chapters.find(c => c.chapterNumber === currentChapterNumber + 1);
 
@@ -108,9 +129,9 @@ export default function ReaderContent() {
     const isLastPage = currentPage >= chapterData.totalPages - 1;
     
     // Continuous reading: auto-advance to next chapter
-    if (isLastPage && continuousReading && nextChapter && mangaId && !continuousNavPending.current) {
+    if (isLastPage && continuousReading && nextChapter && resolvedMangaId && !continuousNavPending.current) {
       continuousNavPending.current = true;
-      router.push(`/reader?mangaId=${mangaId}&chapterNumber=${nextChapter.chapterNumber}`);
+      router.push(`/reader?mangaId=${resolvedMangaId}&chapterNumber=${nextChapter.chapterNumber}`);
       return;
     }
     
@@ -168,7 +189,7 @@ export default function ReaderContent() {
   };
 
   // Handle loading and error states
-  if (isLoadingChapter) {
+  if (isLoadingChapter || isResolving) {
     return <LoadingSpinner />;
   }
 
@@ -259,7 +280,7 @@ export default function ReaderContent() {
           {/* Navigation Controls */}
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[var(--background)]/90 backdrop-blur px-4 py-2 rounded-full border border-[var(--border-strong)]">
             <Link
-              href={prevChapter ? `/reader?mangaId=${mangaId}&chapterNumber=${prevChapter.chapterNumber}` : '#'}
+              href={prevChapter && resolvedMangaId ? `/reader?mangaId=${resolvedMangaId}&chapterNumber=${prevChapter.chapterNumber}` : '#'}
               className={cn(
                 "p-2 rounded-full transition-colors",
                 prevChapter
@@ -275,7 +296,7 @@ export default function ReaderContent() {
             </span>
 
             <Link
-              href={nextChapter ? `/reader?mangaId=${mangaId}&chapterNumber=${nextChapter.chapterNumber}` : '#'}
+              href={nextChapter && resolvedMangaId ? `/reader?mangaId=${resolvedMangaId}&chapterNumber=${nextChapter.chapterNumber}` : '#'}
               className={cn(
                 "p-2 rounded-full transition-colors",
                 nextChapter
@@ -308,9 +329,9 @@ export default function ReaderContent() {
         currentPage={currentPage}
         totalPages={chapterData.totalPages}
         onChapterChange={(chapterNum) => {
-          const chapter = chaptersList?.chapters.find(c => c.chapterNumber === chapterNum);
-          if (chapter && mangaId) {
-            window.location.href = `/reader?mangaId=${mangaId}&chapterNumber=${chapterNum}`;
+            const chapter = chaptersList?.chapters.find(c => c.chapterNumber === chapterNum);
+            if (chapter && resolvedMangaId) {
+              window.location.href = `/reader?mangaId=${resolvedMangaId}&chapterNumber=${chapterNum}`;
           }
         }}
       />

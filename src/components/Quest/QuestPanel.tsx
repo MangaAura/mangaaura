@@ -1,6 +1,7 @@
 'use client';
 
 import { Flame, Target, Trophy, Loader2, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 interface QuestPanelProps {
   className?: string;
   compact?: boolean;
+  collapsible?: boolean;
 }
 
 interface QuestsResponse {
@@ -32,7 +34,7 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-export function QuestPanel({ className, compact = false }: QuestPanelProps) {
+export function QuestPanel({ className, compact = false, collapsible = false }: QuestPanelProps) {
   const t = useT();
   const { data, error, mutate } = useSWR<QuestsResponse>(
     '/api/gamification/quests',
@@ -40,6 +42,7 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
     { refreshInterval: 30000 }, // refresh every 30s
   );
 
+  const [isExpanded, setIsExpanded] = useState(true);
   const [showCompletedDaily, setShowCompletedDaily] = useState(false);
   const [showCompletedWeekly, setShowCompletedWeekly] = useState(false);
   const [claimingQuestId, setClaimingQuestId] = useState<string | null>(null);
@@ -162,8 +165,8 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
     );
   }
 
-  return (
-    <div className={cn('space-y-5', className)}>
+  const contentSections = (
+    <>
       {/* Header section */}
       <div className="rounded-xl bg-gradient-to-br from-[var(--surface-elevated)] to-[var(--surface-sunken)] border border-[var(--border)] p-4">
         <div className="flex items-center gap-3 mb-4">
@@ -331,6 +334,50 @@ export function QuestPanel({ className, compact = false }: QuestPanelProps) {
           )}
         </div>
       </div>
+    </>
+  );
+
+  if (collapsible) {
+    return (
+      <div className={cn('rounded-xl border border-[var(--border)] overflow-hidden bg-[var(--surface-elevated)]', className)}>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-between px-4 py-3 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          aria-expanded={isExpanded}
+        >
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-[var(--primary)]" />
+            <span className="text-sm font-semibold text-[var(--text-primary)]">
+              {t('quests.title')}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/quests"
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs text-[var(--primary)] hover:underline font-medium"
+            >
+              {t('common.viewAll')} →
+            </Link>
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
+            )}
+          </div>
+        </button>
+        {isExpanded && (
+          <div className="border-t border-[var(--border)] p-4 space-y-5">
+            {contentSections}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('space-y-5', className)}>
+      {contentSections}
     </div>
   );
 }

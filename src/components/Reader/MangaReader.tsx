@@ -731,6 +731,7 @@ export const MangaReader = memo(function MangaReader({
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label={`Progreso de lectura: ${progress.percentage}%`}
+              aria-live="polite"
               className="h-1 bg-[var(--text-inverse)]/10 rounded-full overflow-hidden"
             >
               <div

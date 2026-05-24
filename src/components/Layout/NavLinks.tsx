@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
-  Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search,
+  Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

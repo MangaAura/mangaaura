@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -87,7 +88,7 @@ export function Footer({ className }: { className?: string }) {
               <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] rounded-lg flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-[var(--text-inverse)]" />
               </div>
-              <span className="text-xl font-bold text-[var(--text-primary)]">MangaAura</span>
+              <RepeatedChar text="MangaAura" className="text-xl font-bold text-[var(--text-primary)]" />
             </Link>
             <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm">
               {t('footer.tagline')}

@@ -21,7 +21,6 @@ export { default as EditorModeOverlay } from './EditorModeOverlay';
 export { MemeGenerator } from './MemeGenerator';
 export { ReaderSettingsPanel } from './ReaderSettings';
 export { ReaderToolbar } from './ReaderToolbar';
-export { LazyImage, DoublePageImage } from './LazyImage';
 export { ProgressBar, FloatingProgressIndicator } from './ProgressBar';
 
 // Types

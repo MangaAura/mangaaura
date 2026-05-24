@@ -14,7 +14,7 @@ export function QuestPanelWrapper() {
 
   return (
     <AnimatedContainer viewport>
-      <QuestPanel />
+      <QuestPanel collapsible />
     </AnimatedContainer>
   );
 }

@@ -176,7 +176,7 @@ export function HomePageClient({
             {/* Misiones diarias y semanales (solo usuarios autenticados) */}
             {session?.user && (
               <AnimatedContainer viewport>
-                <QuestPanel />
+                <QuestPanel collapsible />
               </AnimatedContainer>
             )}
 

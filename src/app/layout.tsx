@@ -37,11 +37,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icons/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
-      { url: "/icons/icon-512x512.svg", sizes: "512x512", type: "image/svg+xml" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/icons/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   openGraph: {
@@ -50,6 +50,7 @@ export const metadata: Metadata = {
     description: "Descubre, lee y comparte manga de calidad en MangaAura",
     siteName: "MangaAura",
     locale: "es_ES",
+    images: [{ url: "/og-image.png", width: 1000, height: 1000, alt: "MangaAura" }],
   },
   twitter: {
     card: "summary_large_image",
