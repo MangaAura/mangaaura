@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 
 import { GenreMarquee } from '@/components/GenreMarquee';
 import { AnimatedHero } from '@/components/Home/AnimatedHero';
+import { ContinueReadingSection } from '@/components/Home/ContinueReadingSection';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
 import { QuestPanelWrapper } from '@/components/Home/QuestPanelWrapper';
@@ -134,6 +135,8 @@ export function HomeContent({
           </div>
 
           <div className="space-y-6">
+            <ContinueReadingSection />
+
             <QuestPanelWrapper />
 
             <AnimatedContainer viewport>

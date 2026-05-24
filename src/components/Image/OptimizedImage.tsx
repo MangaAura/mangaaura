@@ -153,8 +153,8 @@ export function OptimizedImage({
     onError?.();
   }, [fallbackOnError, hasError, onError]);
 
-  // Determine image source
-  const imageSrc = hasError ? src : src;
+  // Use original source directly
+  const imageSrc = src;
 
   // Style for object fit
   const objectFitClass = {

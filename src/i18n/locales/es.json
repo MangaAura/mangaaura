@@ -419,7 +419,9 @@
     "exploreMangas": "Explorar Mangas",
     "mangas": "Mangas",
     "readers": "Lectores",
-    "levelAndXp": "Nivel {level} • {xp} XP"
+    "levelAndXp": "Nivel {level} • {xp} XP",
+    "continueReading": "Continuar Leyendo",
+    "viewLibrary": "Ver Biblioteca"
   },
   "genres": {
     "accion": "Acción",

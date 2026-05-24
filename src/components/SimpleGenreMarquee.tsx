@@ -39,7 +39,7 @@ export function SimpleGenreMarquee() {
           return (
             <Link
               key={genre.slug}
-              href={`/explore?genres[]=${genre.name}&sort=popularity`}
+              href={`/explore?genres[]=${encodeURIComponent(genre.name)}&sort=popularity`}
               className={`flex-shrink-0 w-[132px] flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105 ${display.color}`}
             >
               <Icon className="w-6 h-6" />

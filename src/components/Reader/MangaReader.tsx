@@ -27,6 +27,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 
+import FocusLock from 'react-focus-lock';
+
 import { PageJumpInput } from './PageJumpInput';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import EditorModeOverlay from '@/components/Reader/EditorModeOverlay';
@@ -810,29 +812,30 @@ export const MangaReader = memo(function MangaReader({
       </footer>
 
       {showSettings && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80"
-        >
+        <FocusLock>
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="reader-settings-title"
-            className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 id="reader-settings-title" className="text-lg font-semibold text-[var(--text-primary)]">Ajustes de lectura</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)} aria-label="Cerrar ajustes">
-                <X className="w-5 h-5" aria-hidden="true" />
-              </Button>
-            </div>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="reader-settings-title"
+              className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 id="reader-settings-title" className="text-lg font-semibold text-[var(--text-primary)]">Ajustes de lectura</h2>
+                <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)} aria-label="Cerrar ajustes">
+                  <X className="w-5 h-5" aria-hidden="true" />
+                </Button>
+              </div>
 
-            <div className="space-y-6">
+              <div className="space-y-6">
               <div>
                 <label className="text-sm text-[var(--text-secondary)] mb-2 block">
                   Dirección de lectura
@@ -936,9 +939,11 @@ export const MangaReader = memo(function MangaReader({
             </div>
           </motion.div>
         </motion.div>
+      </FocusLock>
       )}
 
       {showHelp && (
+        <FocusLock>
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80">
           <div
             role="dialog"
@@ -1011,6 +1016,7 @@ export const MangaReader = memo(function MangaReader({
             </div>
           </div>
         </div>
+      </FocusLock>
       )}
 
       <QuizPopup

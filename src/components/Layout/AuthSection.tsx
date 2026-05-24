@@ -77,7 +77,7 @@ export function AuthSection({
         <DropdownMenu.Root key={pathname}>
           <DropdownMenu.Trigger asChild>
             <button
-              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-[var(--surface)] transition-colors cursor-pointer"
+              className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[var(--surface)] transition-all duration-200 cursor-pointer ring-1 ring-transparent hover:ring-[var(--border)]"
               aria-label={t('nav.settings')}
             >
               <OptimizedImage
@@ -85,7 +85,7 @@ export function AuthSection({
                 alt={session?.user?.name || 'User'}
                 width={32}
                 height={32}
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-[var(--border)]"
                 onError={() => setImgError(true)}
               />
               <ChevronDown className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -95,13 +95,13 @@ export function AuthSection({
             <DropdownMenu.Content
               align="end"
               sideOffset={8}
-              className="w-56 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-xl py-2 z-50"
+              className="w-56 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl shadow-black/10 py-2 z-50 origin-top-right"
             >
-              <DropdownMenu.Label className="px-4 py-2 border-b border-[var(--border)] mb-1">
-                <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+              <DropdownMenu.Label className="px-4 py-2.5 border-b border-[var(--border)] mb-1">
+                <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
                   {session?.user?.name || session?.user?.email}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)] truncate">
+                <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">
                   {session?.user?.email}
                 </p>
               </DropdownMenu.Label>
@@ -220,13 +220,13 @@ export function AuthSection({
     <div className="flex items-center gap-2">
       <Link
         href="/auth/login"
-        className="hidden sm:block px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface)] transition-colors"
+        className="hidden sm:block px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface)] transition-all duration-200"
       >
         {t('nav.login')}
       </Link>
       <Link
         href="/auth/register"
-        className="px-4 py-2 text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] rounded-lg shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all"
+        className="px-4 py-2 text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)]/90 rounded-lg shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-[1.02]"
       >
         {t('nav.register')}
       </Link>

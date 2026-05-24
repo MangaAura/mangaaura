@@ -15,6 +15,10 @@ const mockNotificationCreate = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/auth', () => ({ auth: mockAuth }));
 vi.mock('@/lib/sanitize', () => ({ sanitizeText: mockSanitizeText }));
+vi.mock('@/lib/rate-limit-middleware', () => ({
+  withRateLimit: vi.fn().mockResolvedValue(null),
+  RATE_LIMITS: {},
+}));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     dMCATakedown: {

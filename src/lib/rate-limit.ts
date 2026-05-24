@@ -25,7 +25,8 @@ export async function rateLimit(
       remaining: Math.max(0, limit - current),
       resetAt: now + ttl * 1000,
     };
-  } catch {
+  } catch (error) {
+    console.error('[rate-limit] CRITICAL: Redis unavailable, rate limiting disabled:', error);
     return { allowed: true, remaining: limit, resetAt };
   }
 }

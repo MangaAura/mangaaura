@@ -66,7 +66,7 @@ export function isActive(pathname: string | null, path: string): boolean {
 }
 
 const navLinkVariants = cva(
-  'flex items-center gap-2 font-medium transition-all duration-200',
+  'flex items-center gap-2 font-medium transition-all duration-200 relative',
   {
     variants: {
       active: {
@@ -75,11 +75,12 @@ const navLinkVariants = cva(
       },
       mobile: {
         true: 'px-3 py-2.5 rounded-lg text-sm',
-        false: 'px-3 py-2 rounded-md text-sm',
+        false: 'px-3 py-2 rounded-lg text-sm',
       },
     },
     compoundVariants: [
       { active: false, mobile: false, className: 'hover:text-[var(--text-primary)] hover:bg-[var(--surface)]' },
+      { active: true, mobile: false, className: 'shadow-sm' },
       { active: false, mobile: true, className: 'hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]' },
     ],
     defaultVariants: { active: false, mobile: false },

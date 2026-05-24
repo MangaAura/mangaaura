@@ -1,12 +1,10 @@
 'use client';
 
-import { ArrowLeft, Users, ImageIcon, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, AlertCircle, Loader2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import React, { useState, useEffect } from 'react';
-
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import React, { useState, useEffect, useRef } from 'react';
 
 
 export default function CreateClanPage() {
@@ -19,6 +17,8 @@ export default function CreateClanPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emblemUploading, setEmblemUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -79,6 +79,49 @@ export default function CreateClanPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEmblemUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Formato de imagen no soportado. Usa JPEG, PNG, WebP, GIF o AVIF.');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError(`La imagen es demasiado grande. Máximo 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB recibido).`);
+      return;
+    }
+
+    setEmblemUploading(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Error al subir la imagen');
+      }
+
+      const data = await res.json();
+      setFormData(prev => ({ ...prev, emblemUrl: data.url }));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setEmblemUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -157,27 +200,42 @@ export default function CreateClanPage() {
             </p>
           </div>
 
-          {/* Emblem URL */}
+          {/* Emblem */}
           <div className="mb-8">
-            <label htmlFor="emblemUrl" className="block text-sm font-bold mb-2">
-              URL del Emblema
+            <label className="block text-sm font-bold mb-2">
+              Emblema del Clan
             </label>
-            <div className="relative">
-              <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} aria-hidden="true" />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
+              className="relative flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed border-custom rounded-xl bg-tertiary hover:border-accent-purple hover:bg-accent-purple/5 transition-all cursor-pointer"
+            >
               <input
-                type="url"
-                id="emblemUrl"
-                name="emblemUrl"
-                value={formData.emblemUrl}
-                onChange={handleChange}
-                placeholder="https://ejemplo.com/emblema.png"
-                className="w-full bg-tertiary border border-custom rounded-xl pl-11 pr-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors"
-                autoComplete="url"
-                aria-describedby="emblem-hint"
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                onChange={handleEmblemUpload}
+                className="hidden"
               />
+              {emblemUploading ? (
+                <Loader2 className="w-8 h-8 animate-spin text-accent-purple" />
+              ) : formData.emblemUrl ? (
+                <img
+                  src={formData.emblemUrl}
+                  alt="Emblema"
+                  className="w-20 h-20 rounded-xl object-cover"
+                />
+              ) : (
+                <Upload className="w-8 h-8 text-muted" />
+              )}
+              <p className="text-sm text-muted">
+                {emblemUploading ? 'Subiendo...' : formData.emblemUrl ? 'Toca para cambiar imagen' : 'Subir emblema del clan'}
+              </p>
             </div>
-            <p id="emblem-hint" className="text-xs text-muted mt-2">
-              URL de una imagen para el emblema de tu clan (recomendado: 256x256px)
+            <p className="text-xs text-muted mt-2">
+              JPEG, PNG, WebP, GIF o AVIF. Máximo 5MB.
             </p>
           </div>
 
@@ -188,13 +246,10 @@ export default function CreateClanPage() {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-3xl shadow-lg">
                   {formData.emblemUrl ? (
-                    <OptimizedImage
+                    <img
                       src={formData.emblemUrl}
                       alt="Emblema"
-                      width={64}
-                      height={64}
-                      className="rounded-xl"
-                      objectFit="cover"
+                      className="w-16 h-16 rounded-xl object-cover"
                     />
                   ) : (
                     '👑'

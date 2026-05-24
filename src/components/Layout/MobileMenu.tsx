@@ -58,14 +58,14 @@ export function MobileMenu({
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-[60] md:hidden"
         >
-          <button className="absolute inset-0 bg-black/50 cursor-pointer" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} aria-label={t('common.close')} />
+          <button className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} aria-label={t('common.close')} />
 
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="absolute right-0 top-0 h-full w-full max-w-sm bg-[var(--surface)] shadow-xl overflow-y-auto"
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="absolute right-0 top-0 h-full w-full max-w-sm bg-[var(--surface)] shadow-2xl shadow-black/20 overflow-y-auto rounded-l-2xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -216,13 +216,15 @@ export function MobileMenu({
                       <Link
                         href="/creator/manga/new"
                         onClick={onClose}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
                         aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
                       >
                         <Plus className="w-5 h-5" aria-hidden="true" />
                         {t('creator.newManga')}
                       </Link>
                     )}
+
+                    <div className="my-2 border-t border-[var(--border)]" />
 
                     <Link
                       href="/settings"

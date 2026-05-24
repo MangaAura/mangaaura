@@ -41,7 +41,7 @@ function GenreCard({
   const Icon = genre.icon;
   return (
     <Link
-      href={`/explore?genres[]=${genre.name}&sort=popularity`}
+      href={`/explore?genres[]=${encodeURIComponent(genre.name)}&sort=popularity`}
       tabIndex={hidden ? -1 : 0}
       aria-hidden={hidden || undefined}
       className={`flex-shrink-0 w-[132px] snap-start flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-100 active:translate-y-0 ${genre.color}`}

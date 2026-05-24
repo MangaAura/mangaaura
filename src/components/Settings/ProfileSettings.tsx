@@ -1,9 +1,7 @@
 ﻿'use client';
 
-import { Upload, X, Check, User, Crop as CropIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Check, User, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-
-import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -33,7 +31,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const cropperRef = useRef<ImageCropperUploaderHandle>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Username availability check
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -102,39 +100,57 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   };
 
   const handleAvatarClick = () => {
-    cropperRef.current?.open();
+    avatarInputRef.current?.click();
   };
 
-  const handleCropConfirm = async (croppedBlob: Blob) => {
-    setUploadingAvatar(true);
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    // Show local preview immediately
-    const previewUrl = URL.createObjectURL(croppedBlob);
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setAvatarError('Formato no soportado. Usa JPEG, PNG, WebP o GIF.');
+      return;
+    }
+
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setAvatarError(`Archivo demasiado grande. Máximo 2MB (${(file.size / 1024 / 1024).toFixed(1)}MB).`);
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setAvatarError('');
+
+    // Show local preview
+    const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
     setIsDirty(true);
 
     try {
       const formData = new FormData();
-      formData.append('file', croppedBlob, 'avatar.webp');
+      formData.append('file', file);
 
       const response = await fetch('/api/upload/avatar', {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Error al subir la imagen');
+      }
 
       const { url } = await response.json();
-      // Revoke the local preview and set the real URL
       URL.revokeObjectURL(previewUrl);
       setAvatarPreview(url);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading avatar:', error);
-      setAvatarError('Error al subir la imagen recortada');
-      // Revert preview to original avatar
+      setAvatarError(error.message || 'Error al subir la imagen');
       setAvatarPreview(user.avatarUrl);
     } finally {
       setUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
     }
   };
 
@@ -211,6 +227,13 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               </div>
             )}
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleAvatarFile}
+              className="hidden"
+            />
             <button
               type="button"
               onClick={handleAvatarClick}
@@ -224,27 +247,12 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 <Upload className="w-4 h-4 text-[var(--text-inverse)]" />
               )}
             </button>
-            <ImageCropperUploader
-              ref={cropperRef}
-              aspect={1}
-              cropperTitle="Ajustar foto de perfil"
-              cropperSubtitle="Arrastra para encuadrar · Ratio 1:1 (cuadrado)"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              onCropComplete={handleCropConfirm}
-              onError={setAvatarError}
-            />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-[var(--text-primary)]">Foto de perfil</h3>
             <p className="text-sm text-[var(--text-tertiary)]">
-              JPEG, PNG, WebP o GIF. Recorte cuadrado 1:1 antes de subir.
+              JPEG, PNG, WebP o GIF. Se redimensiona automáticamente a 256x256.
             </p>
-            {avatarPreview && avatarPreview !== user.avatarUrl && !uploadingAvatar && (
-              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--text-tertiary)]">
-                <CropIcon className="w-3 h-3" />
-                <span>Imagen recortada al cuadrado</span>
-              </div>
-            )}
           </div>
         </div>
 
