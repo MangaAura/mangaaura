@@ -1,6 +1,6 @@
 /**
  * Caso de uso: Registrar usuario
- * Crea un nuevo usuario validando unicidad y asignando InkCoins iniciales
+ * Crea un nuevo usuario validando unicidad y asignando Aura inicial
  * @packageDocumentation
  */
 
@@ -32,7 +32,7 @@ export interface RegisterUserInputDTO {
 export interface RegisterUserOutputDTO {
   /** Usuario creado */
   user: UserResponseDTO;
-  /** InkCoins de registro otorgados */
+  /** Aura de registro otorgados */
   registrationBonus: number;
   /** Token de verificación (si aplica) */
   verificationToken?: string;
@@ -50,8 +50,8 @@ export interface IPasswordHasher {
  * Caso de uso para registrar un usuario
  */
 export class RegisterUserUseCase {
-  /** InkCoins iniciales para nuevos usuarios */
-  private readonly INITIAL_INKCOINS = 50;
+  /** Aura inicial para nuevos usuarios */
+  private readonly INITIAL_AURA = 50;
 
   constructor(
     private readonly userRepo: IUserRepository,
@@ -96,7 +96,7 @@ export class RegisterUserUseCase {
       username: input.username.toLowerCase().trim(),
       passwordHash,
       displayName: input.displayName,
-      inkcoinsBalance: this.INITIAL_INKCOINS,
+      auraBalance: this.INITIAL_AURA,
     });
 
     // Publicar evento de usuario registrado
@@ -106,13 +106,13 @@ export class RegisterUserUseCase {
         email: emailVO.value,
         username: user.username,
         provider: 'email',
-        registrationBonus: this.INITIAL_INKCOINS,
+        registrationBonus: this.INITIAL_AURA,
       })
     );
 
     return {
       user: mapUserToResponseDTO(user),
-      registrationBonus: this.INITIAL_INKCOINS,
+      registrationBonus: this.INITIAL_AURA,
     };
   }
 

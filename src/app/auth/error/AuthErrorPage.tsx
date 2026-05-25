@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { authErrorMap } from '@/hooks/useAuthError';
 import { cn } from '@/lib/utils';
 
@@ -211,9 +212,9 @@ export default function AuthErrorPage() {
         {/* Logo */}
         <div className="text-center mt-8">
           <Link href="/" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-            <span className="text-xl font-bold text-accent-blue">
-              MangaAura
-            </span>
+        <span className="text-xl font-bold text-accent-blue">
+          <RepeatedChar text="MangaAura" />
+        </span>
           </Link>
         </div>
       </div>

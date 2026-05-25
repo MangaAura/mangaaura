@@ -71,7 +71,7 @@ model User {
   passwordHash     String?
   emailVerified    DateTime?
   xpPoints         Int       @default(0)
-  inkcoinsBalance  Int       @default(0)
+  auraBalance  Int       @default(0)
   level            Int       @default(1)
   readingStreak    Int       @default(0)
   lastReadAt       DateTime?
@@ -511,6 +511,19 @@ model UserQuest {
   @@index([periodEnd])
 }
 
+model UserSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  query     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, query])
+  @@index([userId])
+  @@index([userId, createdAt])
+}
+
 // ──────────────────────────────────────────────
 // Clans
 // ──────────────────────────────────────────────
@@ -862,12 +875,14 @@ model Bookmark {
   chapter   Chapter?    @relation(fields: [chapterId], references: [id], onDelete: SetNull)
   page      Int         @default(0)
   note      String?
+  isPublic  Boolean     @default(false)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
   @@unique([userId, mangaId, chapterId])
   @@index([userId])
   @@index([mangaId])
+  @@index([isPublic])
 }
 
 model Repost {

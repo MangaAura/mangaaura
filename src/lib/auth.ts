@@ -169,7 +169,7 @@ export const authConfig = {
                 role: 'USER',
                 xpPoints: 0,
                 level: 1,
-                inkcoinsBalance: 50,
+                auraBalance: 50,
                 passwordHash: null,
               },
             });

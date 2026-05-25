@@ -142,7 +142,7 @@ export function NewsClient() {
       </div>
 
       <nav
-        aria-label="Categorías de noticias"
+        aria-label={t('home.newsCategoriesAria')}
         className="flex flex-wrap gap-2 mb-8"
       >
         <Link
@@ -243,7 +243,7 @@ export function NewsClient() {
 
       {filtered.length === 0 && (
         <p className="text-center text-muted py-16">
-          No hay noticias en esta categoría.
+          {t('home.newsEmpty')}
         </p>
       )}
 
@@ -257,7 +257,7 @@ export function NewsClient() {
             })}
           </p>
           <nav
-            aria-label="Paginación de noticias"
+            aria-label={t('home.newsPaginationAria')}
             className="flex items-center justify-center gap-3"
           >
           <Link

@@ -269,14 +269,14 @@ export async function POST(request: NextRequest) {
 
     // Auto-claim and award XP for newly completed quests
     let xpAwarded = 0;
-    let inkcoinsAwarded = 0;
+    let auraAwarded = 0;
 
     for (const completed of newlyCompleted) {
       const questDef = service.getQuestDefinition(completed.questId);
       if (!questDef) continue;
 
       xpAwarded += questDef.xpReward;
-      inkcoinsAwarded += questDef.inkcoinsReward;
+      auraAwarded += questDef.auraReward;
 
       // Mark as claimed
       const period =
@@ -295,13 +295,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Award XP and InkCoins
+    // Award XP and Aura
     if (xpAwarded > 0) {
       await prisma.user.update({
         where: { id: session.user.id },
         data: {
           xpPoints: { increment: xpAwarded },
-          inkcoinsBalance: { increment: inkcoinsAwarded },
+          auraBalance: { increment: auraAwarded },
         },
       });
     }
@@ -313,10 +313,10 @@ export async function POST(request: NextRequest) {
         questId: q.questId,
         label: q.label,
         xpReward: q.xpReward,
-        inkcoinsReward: q.inkcoinsReward,
+        auraReward: q.auraReward,
       })),
       xpAwarded,
-      inkcoinsAwarded,
+      auraAwarded,
     });
   } catch (error) {
     console.error('Error reporting quest progress:', error);

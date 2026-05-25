@@ -111,7 +111,7 @@ tests/
 ### PostgreSQL (Prisma)
 
 ```prisma
-- User (id, email, username, xpPoints, inkcoinsBalance, ...)
+- User (id, email, username, xpPoints, auraBalance, ...)
 - MangaSeries (id, title, slug, authorId, status, ...)
 - Chapter (id, mangaId, chapterNumber, crowdfundingGoal, ...)
 - Clan (id, name, totalScore, monthlyScore, ...)
@@ -150,7 +150,7 @@ tests/
 - Ranks: Novato → Lector Shonen → Otaku Experto → Maestro Otaku → Leyenda Manga
 - Fuentes: Capítulo (+2), Comentario (+5), Corrección (+20)
 
-### Money (InkCoins)
+### Money (Aura)
 - Operaciones seguras (no negativos)
 - Validación de moneda
 - Transacciones atómicas
@@ -233,7 +233,7 @@ user.addXP(XP.fromCorrection(), 'CORRECTION'); // +20 XP
 10000+      → Nivel 10+ (Leyenda Manga)
 ```
 
-### InkCoins
+### Aura
 
 ```typescript
 // Fuentes
@@ -254,14 +254,14 @@ user.addXP(XP.fromCorrection(), 'CORRECTION'); // +20 XP
 ### Eventos Emitidos
 
 ```typescript
-USER_REGISTERED           → Crear wallet InkCoins
+USER_REGISTERED           → Crear wallet Aura
 USER_REGISTERED_OAUTH   → Verificar email automáticamente
 CHAPTER_COMPLETED         → Agregar XP, actualizar streak
 COMMENT_POSTED            → Analizar con IA, agregar XP
 XP_EARNED                 → Verificar logros
 LEVEL_UP                  → Notificar usuario
-INKCOINS_EARNED           → Actualizar balance
-INKCOINS_SPENT            → Verificar transacción
+AURA_EARNED           → Actualizar balance
+AURA_SPENT            → Verificar transacción
 ```
 
 ### Bus de Eventos

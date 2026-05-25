@@ -44,6 +44,20 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
     callbackRef.current = callback;
   }, [callback]);
 
+  const cancel = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const flush = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
   const debouncedFn = useCallback(
     (...args: Parameters<T>) => {
       if (timeoutRef.current) {
@@ -55,39 +69,19 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
       }, delay);
     },
     [delay]
-  ) as {
-    (...args: Parameters<T>): void;
-    cancel: () => void;
-    flush: () => void;
-  };
+  );
 
-  // Cancel function
-  debouncedFn.cancel = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }, []);
-
-  // Flush function
-  debouncedFn.flush = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-      // Note: Can't call with previous args, would need to store them
-    }
-  }, []);
+  // Wrap to add cancel/flush without mutating the function
+  const wrapper = Object.assign(debouncedFn, { cancel, flush });
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      cancel();
     };
-  }, []);
+  }, [cancel]);
 
-  return debouncedFn;
+  return wrapper;
 }
 
 /**

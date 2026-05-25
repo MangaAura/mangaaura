@@ -3,10 +3,10 @@
  * @packageDocumentation
  */
 
-import { PrismaClient } from '@/generated/prisma/client';
 
 import { Chapter } from '@/core/entities/Chapter';
 import type { ChapterRepository, ChapterFilters } from '@/core/repositories/ChapterRepository';
+import { PrismaClient } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 
 type PrismaChapterRow = {

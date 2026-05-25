@@ -1,10 +1,10 @@
 import type { IClanRepository } from './IClanRepository';
 
 const REWARD_DISTRIBUTION = {
-  TOP_1: { banner: true, inkcoins: 10000, badge: 'season_champion' },
-  TOP_2: { banner: false, inkcoins: 5000, badge: 'season_runner_up' },
-  TOP_3: { banner: false, inkcoins: 3000, badge: 'season_third' },
-  TOP_10: { banner: false, inkcoins: 1000, badge: null },
+  TOP_1: { banner: true, aura: 10000, badge: 'season_champion' },
+  TOP_2: { banner: false, aura: 5000, badge: 'season_runner_up' },
+  TOP_3: { banner: false, aura: 3000, badge: 'season_third' },
+  TOP_10: { banner: false, aura: 1000, badge: null },
 };
 
 export interface ClanRanking {
@@ -70,10 +70,10 @@ export class ClanService {
 
       for (const member of members) {
         const share = member.contributedScore / totalContributed;
-        const memberReward = Math.floor(reward.inkcoins * share);
+        const memberReward = Math.floor(reward.aura * share);
 
         if (memberReward > 0) {
-          await this.repo.updateUserInkCoins(member.userId, memberReward);
+          await this.repo.updateUserAura(member.userId, memberReward);
           await this.repo.createTransaction(
             member.userId,
             memberReward,
@@ -161,9 +161,23 @@ export class ClanService {
 
   async checkAndEndSeason(): Promise<SeasonResult | null> {
     const currentSeason = await this.repo.findLatestSeason();
-    void currentSeason;
+    const seasonEndDate = await this.repo.findSeasonEndDate();
+    const now = new Date();
 
-    return null;
+    if (!seasonEndDate || now < seasonEndDate) {
+      return null;
+    }
+
+    const rankings = await this.calculateSeasonalRanking(currentSeason, 10);
+    
+    if (rankings.length === 0) {
+      await this.repo.resetSeasonalScores();
+      return null;
+    }
+
+    const seasonWinnerId = rankings[0].clanId;
+
+    return this.distributeSeasonRewards(currentSeason, seasonWinnerId);
   }
 }
 

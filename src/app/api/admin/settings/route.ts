@@ -29,7 +29,7 @@ export async function GET() {
         enableAI: true,
         enableCrowdfunding: true,
         enableClans: true,
-        inkcoinsRewardPerChapter: 10,
+        auraRewardPerChapter: 10,
         xpRewardPerChapter: 25,
         minimumPayoutAmount: 1000,
       },
@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest) {
       'siteName', 'siteDescription', 'maintenanceMode', 'maxUploadSize',
       'allowedImageTypes', 'defaultLanguage', 'enableRegistrations',
       'enableAI', 'enableCrowdfunding', 'enableClans',
-      'inkcoinsRewardPerChapter', 'xpRewardPerChapter', 'minimumPayoutAmount',
+      'auraRewardPerChapter', 'xpRewardPerChapter', 'minimumPayoutAmount',
     ];
 
     const updates: Record<string, any> = {};

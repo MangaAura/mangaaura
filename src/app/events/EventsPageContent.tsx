@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 
 import { EventsClient } from './EventsClient';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 
 const VALID_TABS = ['active', 'voting', 'past'] as const;
@@ -58,6 +60,7 @@ function EventsPageInner() {
   if (tab === 'voting') statusParam = 'VOTING';
   if (tab === 'past') statusParam = 'COMPLETED,CANCELLED';
 
+  const { handleError } = useErrorHandler();
   const [events, setEvents] = useState<EventData[]>([]);
   const [totalEvents, setTotalEvents] = useState(0);
   const [voting, setVoting] = useState<{ event: EventData; submissions: SubData[] } | null>(null);
@@ -100,7 +103,7 @@ function EventsPageInner() {
         setVoting(data.voting || null);
       } catch (err) {
         setError('Error al cargar eventos');
-        console.error('Error fetching events:', err);
+        handleError(err);
       } finally {
         setIsLoading(false);
       }
@@ -151,15 +154,10 @@ function EventsPageInner() {
   if (error) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[var(--text-secondary)] mb-4" role="alert">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Reintentar
-          </button>
-        </div>
+        <ErrorMessage
+          message={error}
+          action={{ label: 'Reintentar', onClick: () => window.location.reload() }}
+        />
       </div>
     );
   }

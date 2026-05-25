@@ -1,10 +1,11 @@
 'use client';
 
-import { ArrowLeft, Mail, Lock, LogIn, Loader2, Smartphone } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Mail, Lock, LogIn, Loader2, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
-import React, { useState, Suspense } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
+import { z } from 'zod';
 
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
@@ -35,6 +36,31 @@ function Content() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [oauthProviders, setOauthProviders] = useState<string[]>([]);
   const t = useT();
+
+  const loginSchema = useMemo(() => z.object({
+    email: z.string().min(1, t('auth.validation.emailRequired')).email(t('auth.validation.emailInvalid')),
+    password: z.string().min(1, t('auth.validation.passwordRequired')),
+  }), [t]);
+
+  const validateField = (field: 'email' | 'password', value: string) => {
+    if (field === 'email') {
+      const result = loginSchema.shape.email.safeParse(value);
+      if (!result.success) {
+        setFieldErrors(prev => ({ ...prev, email: result.error!.issues[0].message }));
+      } else {
+        setFieldErrors(prev => ({ ...prev, email: undefined }));
+      }
+    } else {
+      if (!value.trim()) {
+        setFieldErrors(prev => ({ ...prev, password: t('auth.validation.passwordRequired') }));
+      } else {
+        setFieldErrors(prev => ({ ...prev, password: undefined }));
+      }
+    }
+  };
+
+  const [touched, setTouched] = useState<{ email: boolean; password: boolean }>({ email: false, password: false });
+
   const emailErrorId = 'login-email-error';
   const passwordErrorId = 'login-password-error';
   const twoFAErrorId = 'login-2fa-error';
@@ -44,7 +70,8 @@ function Content() {
 
   React.useEffect(() => {
     if (authError) {
-      setError(getAuthErrorMessage(authError, t));
+      const timer = setTimeout(() => setError(getAuthErrorMessage(authError, t)), 0);
+      return () => clearTimeout(timer);
     }
   }, [authError, t]);
 
@@ -62,20 +89,16 @@ function Content() {
     setIsLoading(true);
     setError(null);
 
-    const newFieldErrors: { email?: string; password?: string } = {};
-    if (!email.trim()) {
-      newFieldErrors.email = t('auth.validation.emailRequired');
-    }
-    if (!password) {
-      newFieldErrors.password = t('auth.validation.passwordRequired');
-    }
-    if (Object.keys(newFieldErrors).length > 0) {
-      setFieldErrors(newFieldErrors);
-      setError({
-        title: t('auth.requiredField'),
-        message: Object.values(newFieldErrors).join('. '),
-        severity: 'warning',
+    const result = loginSchema.safeParse({ email: email.trim(), password });
+    if (!result.success) {
+      const newFieldErrors: { email?: string; password?: string } = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0] === 'email' || issue.path[0] === 'password') {
+          newFieldErrors[issue.path[0]] = issue.message;
+        }
       });
+      setFieldErrors(newFieldErrors);
+      setTouched({ email: true, password: true });
       setIsLoading(false);
       return;
     }
@@ -107,7 +130,7 @@ function Content() {
       }
       router.push(callbackUrl);
       router.refresh();
-    } catch (err) {
+    } catch {
       setError({
         title: t('errors.networkError'),
         message: t('errors.connectionFailed'),
@@ -158,6 +181,7 @@ function Content() {
   const inputBase = 'w-full pl-10 pr-4 py-3 bg-tertiary border-2 rounded-[8px] outline-none transition-all text-sm';
   const inputBorderNormal = 'border-custom focus:border-accent-blue focus:ring-[3px] focus:ring-[var(--accent-blue)]/20';
   const inputBorderError = 'border-[var(--error)] focus:border-[var(--error)] focus:ring-[3px] focus:ring-[var(--error)]/20';
+  const inputBorderSuccess = 'border-[var(--success)] focus:border-[var(--success)] focus:ring-[3px] focus:ring-[var(--success)]/20';
 
   return (
     <div className="flex flex-col">
@@ -243,8 +267,13 @@ function Content() {
                       id="login-email"
                       type="email"
                       value={email}
-                      onChange={(e) => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: undefined })); }}
-                      className={cn(inputBase, fieldErrors.email ? inputBorderError : inputBorderNormal)}
+                      onChange={(e) => { setEmail(e.target.value); validateField('email', e.target.value); setTouched(prev => ({ ...prev, email: true })); }}
+                      className={cn(
+                        inputBase,
+                        fieldErrors.email ? inputBorderError
+                          : touched.email && email && !fieldErrors.email ? inputBorderSuccess
+                          : inputBorderNormal
+                      )}
                       placeholder="tu@email.com"
                       disabled={isLoading}
                       aria-invalid={!!fieldErrors.email}
@@ -253,7 +282,15 @@ function Content() {
                       autoComplete="email"
                     />
                     {fieldErrors.email && (
-                      <span id={emailErrorId} className="text-xs text-[var(--error)] mt-1" role="alert">{fieldErrors.email}</span>
+                      <div id={emailErrorId} className="mt-2">
+                        <ErrorMessage message={fieldErrors.email} />
+                      </div>
+                    )}
+                    {touched.email && email && !fieldErrors.email && (
+                      <div className="mt-2 flex items-start gap-2 p-2 bg-[var(--success)]/10 rounded-lg">
+                        <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium text-[var(--success)]">{t('auth.validation.validEmail')}</p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -271,8 +308,13 @@ function Content() {
                       id="login-password"
                       type="password"
                       value={password}
-                      onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
-                      className={cn(inputBase, fieldErrors.password ? inputBorderError : inputBorderNormal)}
+                      onChange={(e) => { setPassword(e.target.value); validateField('password', e.target.value); setTouched(prev => ({ ...prev, password: true })); }}
+                      className={cn(
+                        inputBase,
+                        fieldErrors.password ? inputBorderError
+                          : touched.password && password && !fieldErrors.password ? inputBorderSuccess
+                          : inputBorderNormal
+                      )}
                       placeholder="••••••••"
                       disabled={isLoading}
                       aria-invalid={!!fieldErrors.password}
@@ -281,7 +323,15 @@ function Content() {
                       autoComplete="current-password"
                     />
                     {fieldErrors.password && (
-                      <span id={passwordErrorId} className="text-xs text-[var(--error)] mt-1" role="alert">{fieldErrors.password}</span>
+                      <div id={passwordErrorId} className="mt-2">
+                        <ErrorMessage message={fieldErrors.password} />
+                      </div>
+                    )}
+                    {touched.password && password && !fieldErrors.password && (
+                      <div className="mt-2 flex items-start gap-2 p-2 bg-[var(--success)]/10 rounded-lg">
+                        <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium text-[var(--success)]">{t('auth.validation.validPassword')}</p>
+                      </div>
                     )}
                   </div>
                 </div>

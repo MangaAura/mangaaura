@@ -1,6 +1,6 @@
+import type { IAchievementRepository, Achievement, AchievementCondition, UserStats } from '@/core/services/IAchievementRepository';
 import { PrismaClient, Prisma } from '@/generated/prisma/client';
 
-import type { IAchievementRepository, Achievement, AchievementCondition, UserStats } from '@/core/services/IAchievementRepository';
 
 export class PrismaAchievementRepository implements IAchievementRepository {
   constructor(private readonly prisma: PrismaClient) {}

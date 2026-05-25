@@ -30,9 +30,9 @@ const staticArticles: ArticleSeed[] = [
     title: 'Clan Season 3 is Here!',
     slug: 'clan-season-3',
     excerpt:
-      'Gather your guild and prepare for the new battle for InkCoins. New rewards added to the pool.',
+      'Gather your guild and prepare for the new battle for Aura. New rewards added to the pool.',
     content:
-      'Clan Season 3 has officially launched! Gather your guild members and prepare for epic battles. This season brings new InkCoins rewards, exclusive badges, and a revamped matchmaking system. Complete daily missions, climb the leaderboard, and prove your clan\'s worth. New rewards have been added to the prize pool including rare avatar frames and limited-time cosmetics. The season runs until August 15th, so start earning those points now!',
+      'Clan Season 3 has officially launched! Gather your guild members and prepare for epic battles. This season brings new Aura rewards, exclusive badges, and a revamped matchmaking system. Complete daily missions, climb the leaderboard, and prove your clan\'s worth. New rewards have been added to the prize pool including rare avatar frames and limited-time cosmetics. The season runs until August 15th, so start earning those points now!',
     category: 'community',
     date: '2026-05-15',
     coverUrl:
@@ -78,9 +78,9 @@ const staticArticles: ArticleSeed[] = [
     title: 'MangaAura Manga Contest',
     slug: 'manga-contest',
     excerpt:
-      'Join our monthly manga contest and win InkCoins, exposure, and exclusive badges.',
+      'Join our monthly manga contest and win Aura, exposure, and exclusive badges.',
     content:
-      'Our monthly manga contest is back with bigger prizes than ever! This month\'s theme is \'Parallel Worlds\' — create a one-shot manga exploring alternate dimensions. The winner receives 5000 InkCoins, a featured spot on the homepage, an exclusive \'Contest Winner\' badge, and direct feedback from our editorial team. Submissions are open until the end of the month. All genres and styles are welcome. Let your imagination run wild!',
+      'Our monthly manga contest is back with bigger prizes than ever! This month\'s theme is \'Parallel Worlds\' — create a one-shot manga exploring alternate dimensions. The winner receives 5000 Aura, a featured spot on the homepage, an exclusive \'Contest Winner\' badge, and direct feedback from our editorial team. Submissions are open until the end of the month. All genres and styles are welcome. Let your imagination run wild!',
     category: 'community',
     date: '2026-04-20',
     coverUrl:
@@ -150,9 +150,9 @@ const staticArticles: ArticleSeed[] = [
     title: 'Summer Reading Festival',
     slug: 'summer-event',
     excerpt:
-      'Join the Summer Reading Festival with exclusive badges, double XP weekends, and a grand prize of 10,000 InkCoins!',
+      'Join the Summer Reading Festival with exclusive badges, double XP weekends, and a grand prize of 10,000 Aura!',
     content:
-      'Summer is here and so is our biggest community event of the year — the MangaAura Summer Reading Festival! From June 1st to August 31st, readers and creators alike can participate in a season-long celebration of manga.\n\nWhat\'s in store? Double XP weekends every month, exclusive Summer Festival badges for participants who complete the reading challenges, daily login rewards including free InkCoins and cosmetic items, and a grand prize of 10,000 InkCoins awarded to the reader with the most chapters completed by the end of summer.\n\nCreators aren\'t left out either — we\'re hosting a \'Summer Special\' one-shot contest with separate prizes. Publish a summer-themed chapter between June and August and you could win 5,000 InkCoins plus a permanent featured spot on the homepage.\n\nThe festival also features weekly community events, creator Q&A sessions, and collaborative reading parties. Check the Events page for the full calendar and start your summer reading journey today! Screenshot your reading stats and share with #MangaAuraSummer for a chance to be featured on our social media.',
+      'Summer is here and so is our biggest community event of the year — the MangaAura Summer Reading Festival! From June 1st to August 31st, readers and creators alike can participate in a season-long celebration of manga.\n\nWhat\'s in store? Double XP weekends every month, exclusive Summer Festival badges for participants who complete the reading challenges, daily login rewards including free Aura and cosmetic items, and a grand prize of 10,000 Aura awarded to the reader with the most chapters completed by the end of summer.\n\nCreators aren\'t left out either — we\'re hosting a \'Summer Special\' one-shot contest with separate prizes. Publish a summer-themed chapter between June and August and you could win 5,000 Aura plus a permanent featured spot on the homepage.\n\nThe festival also features weekly community events, creator Q&A sessions, and collaborative reading parties. Check the Events page for the full calendar and start your summer reading journey today! Screenshot your reading stats and share with #MangaAuraSummer for a chance to be featured on our social media.',
     category: 'community',
     date: '2026-02-20',
     coverUrl:

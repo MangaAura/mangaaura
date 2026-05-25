@@ -8,9 +8,9 @@ import { getToken } from '@auth/core/jwt';
 import { Server as NetServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
-import { SESSION_COOKIE_NAME } from '@/lib/auth';
 import { partyService } from '@/core/services/PartyService';
 import { setRealtimeAnalytics } from '@/lib/analytics-store';
+import { SESSION_COOKIE_NAME } from '@/lib/auth';
 import { sanitizeText } from '@/lib/sanitize';
 import { createRedisAdapter } from '@/lib/socket-redis-adapter';
 import type {

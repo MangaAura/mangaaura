@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import ContributionModal from './ContributionModal';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 
 interface CrowdfundingWidgetProps {
   chapterId: string;
@@ -49,13 +51,11 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
   const [data, setData] = useState<CrowdfundingData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchCrowdfundingData();
-  }, [chapterId]);
+  const { handleError } = useErrorHandler();
 
   const fetchCrowdfundingData = async () => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(true);
       setError(null);
       const response = await fetch(`/api/crowdfunding/chapter/${chapterId}`);
@@ -66,18 +66,23 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
           setData(null);
           return;
         }
-        throw new Error('Error al cargar crowdfunding');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       
       const crowdfundingData: CrowdfundingData = await response.json();
       setData(crowdfundingData);
     } catch (err) {
-      console.error('Error fetching crowdfunding:', err);
+      handleError(err);
       setError('No se pudo cargar la información del crowdfunding');
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCrowdfundingData();
+  }, [chapterId]);
 
   const handleContributionSuccess = () => {
     fetchCrowdfundingData();

@@ -17,9 +17,9 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/i18n';
 import { offlineStorage } from '@/lib/offline-storage';
 import { cn } from '@/lib/utils';
-import { useT } from '@/i18n';
 
 interface SavedManga {
   id: string;
@@ -69,9 +69,11 @@ export default function OfflinePage() {
     };
 
     checkConnection();
+    /* eslint-disable react-hooks/immutability */
     loadSavedMangas();
     loadCacheInfo();
     loadStorageInfo();
+    /* eslint-enable react-hooks/immutability */
 
     window.addEventListener('online', checkConnection);
     window.addEventListener('offline', checkConnection);

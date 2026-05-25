@@ -1,10 +1,10 @@
-import { PrismaClient } from '@/generated/prisma/client';
 import bcrypt from 'bcryptjs';
 
 import { User, UserProps } from '@/core/entities/User';
 import { UserRepository } from '@/core/repositories/UserRepository';
 import { Email } from '@/core/value-objects/Email';
 import { Password } from '@/core/value-objects/Password';
+import { PrismaClient } from '@/generated/prisma/client';
 import { prisma as defaultPrisma } from '@/lib/prisma';
 
 export class PrismaUserRepository implements UserRepository {
@@ -55,7 +55,7 @@ export class PrismaUserRepository implements UserRepository {
         displayName: json.displayName as string | undefined,
         avatarUrl: json.avatarUrl as string | undefined,
         xpPoints: json.xpPoints as number,
-        inkcoinsBalance: json.inkcoinsBalance as number,
+        auraBalance: json.auraBalance as number,
         level: json.level as number,
         readingStreak: json.readingStreak as number,
         lastReadAt: json.lastReadAt ? new Date(json.lastReadAt as string) : undefined,
@@ -73,7 +73,7 @@ export class PrismaUserRepository implements UserRepository {
           : undefined,
         role: json.role as string,
         xpPoints: json.xpPoints as number,
-        inkcoinsBalance: json.inkcoinsBalance as number,
+        auraBalance: json.auraBalance as number,
         level: json.level as number,
         readingStreak: json.readingStreak as number,
         lastReadAt: json.lastReadAt ? new Date(json.lastReadAt as string) : undefined,
@@ -106,7 +106,7 @@ export class PrismaUserRepository implements UserRepository {
         username: user.username,
         passwordHash: hashedPassword,
         xpPoints: 0,
-        inkcoinsBalance: 50, // Bonus de registro
+        auraBalance: 50, // Bonus de registro
         level: 1,
         readingStreak: 0,
       },
@@ -133,10 +133,10 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
-  async updateInkCoins(userId: string, balance: number): Promise<void> {
+  async updateAura(userId: string, balance: number): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
-      data: { inkcoinsBalance: balance },
+      data: { auraBalance: balance },
     });
   }
 
@@ -186,7 +186,7 @@ export class PrismaUserRepository implements UserRepository {
     emailVerified: Date | null;
     role: string;
     xpPoints: number;
-    inkcoinsBalance: number;
+    auraBalance: number;
     level: number;
     readingStreak: number;
     lastReadAt: Date | null;
@@ -203,7 +203,7 @@ export class PrismaUserRepository implements UserRepository {
       emailVerified: dbUser.emailVerified || undefined,
       role: dbUser.role as UserProps['role'],
       xpPoints: dbUser.xpPoints,
-      inkcoinsBalance: dbUser.inkcoinsBalance,
+      auraBalance: dbUser.auraBalance,
       readingStreak: dbUser.readingStreak,
       lastReadAt: dbUser.lastReadAt || undefined,
       createdAt: dbUser.createdAt,

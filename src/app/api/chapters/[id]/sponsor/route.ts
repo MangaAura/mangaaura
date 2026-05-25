@@ -60,12 +60,12 @@ export async function POST(
     // Verificar fondos
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { inkcoinsBalance: true, username: true },
+      select: { auraBalance: true, username: true },
     });
 
-    if (!user || user.inkcoinsBalance < bidAmount) {
+    if (!user || user.auraBalance < bidAmount) {
       return NextResponse.json(
-        { error: 'Fondos insuficientes', balance: user?.inkcoinsBalance || 0 },
+        { error: 'Fondos insuficientes', balance: user?.auraBalance || 0 },
         { status: 400 }
       );
     }
@@ -80,7 +80,7 @@ export async function POST(
     const minBid = currentHighest ? currentHighest.bidAmount + 10 : 10;
     if (bidAmount < minBid) {
       return NextResponse.json(
-        { error: `Puja mínima: ${minBid} InkCoins`, minBid },
+        { error: `Puja mínima: ${minBid} Aura`, minBid },
         { status: 400 }
       );
     }
@@ -107,7 +107,7 @@ export async function POST(
     // Reservar fondos
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { inkcoinsBalance: { decrement: bidAmount } },
+      data: { auraBalance: { decrement: bidAmount } },
     });
 
     // Registrar transacción
@@ -130,7 +130,7 @@ export async function POST(
         sponsorName: bid.sponsorName,
         message: bid.message,
       },
-      newBalance: user.inkcoinsBalance - bidAmount,
+      newBalance: user.auraBalance - bidAmount,
       isLeading: true,
       message: '¡Puja registrada! Eres el patrocinador líder.',
     });

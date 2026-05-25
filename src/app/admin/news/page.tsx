@@ -38,6 +38,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
@@ -50,7 +51,7 @@ import {
 } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
-import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface NewsArticle {
   id: string;
@@ -904,6 +905,7 @@ export default function AdminNewsPage() {
   const [showDelete, setShowDelete] = useState<NewsArticle | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPublished, setFilterPublished] = useState<'all' | 'published' | 'draft'>('all');
+  const { handleError } = useErrorHandler();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleCreate = async (data: Record<string, unknown>) => {
@@ -971,7 +973,7 @@ export default function AdminNewsPage() {
 
       mutate('/api/admin/news');
     } catch (err: any) {
-      console.error('Error toggling publish:', err);
+      handleError(err);
     }
   };
 
@@ -990,7 +992,7 @@ export default function AdminNewsPage() {
 
       mutate('/api/admin/news');
     } catch (err: any) {
-      console.error('Error toggling featured:', err);
+      handleError(err);
     }
   };
 

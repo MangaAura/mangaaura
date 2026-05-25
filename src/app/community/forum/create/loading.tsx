@@ -1,7 +1,12 @@
+import { Skeleton } from '@/components/ui/Skeleton';
+
 export default function CreateThreadLoading() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]" role="status">
-      <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <Skeleton variant="heading" />
+      <Skeleton variant="text" className="h-10" />
+      <Skeleton variant="text" className="h-40" />
+      <Skeleton variant="button" />
     </div>
   );
 }

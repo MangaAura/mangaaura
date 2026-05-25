@@ -9,6 +9,8 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
 import { useThrottle } from '@/hooks/useDebounce';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 import { fetcher, getErrorMessage } from '@/lib/swr-config';
 
 export interface ReadingProgress {
@@ -72,8 +74,8 @@ export function useUpdateReadingProgress() {
       });
       
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to update progress');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       
       return response.json();
@@ -97,6 +99,7 @@ export function useAutoSaveProgress(
   totalPages: number
 ) {
   const { updateProgress, isLoading } = useUpdateReadingProgress();
+  const { handleError } = useErrorHandler();
   const lastSaved = useRef(0);
 
   const save = useCallback(async () => {
@@ -113,9 +116,9 @@ export function useAutoSaveProgress(
       });
       lastSaved.current = currentPage;
     } catch (error) {
-      console.error('Failed to save progress:', error);
+      handleError(error);
     }
-  }, [mangaId, chapterId, currentPage, totalPages, updateProgress]);
+  }, [mangaId, chapterId, currentPage, totalPages, updateProgress, handleError]);
 
   // Throttled save (every 5 seconds)
   const throttledSave = useThrottle(save, 5000);

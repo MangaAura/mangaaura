@@ -8,6 +8,7 @@ import { useState, useTransition } from 'react';
 import { createCollection } from '@/app/(protected)/collections/actions';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 
@@ -34,7 +35,7 @@ export default function CreateCollectionPage() {
           return;
         }
         router.push('/collections');
-      } catch (err) {
+      } catch {
         setError('Error de conexión. Verifica tu internet e inténtalo de nuevo.');
       }
     });
@@ -150,8 +151,8 @@ export default function CreateCollectionPage() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 rounded-lg bg-[var(--error)]/10 text-[var(--error)] text-sm" role="alert" id="collection-error">
-                {error}
+              <div id="collection-error">
+                <ErrorMessage message={error} />
               </div>
             )}
 

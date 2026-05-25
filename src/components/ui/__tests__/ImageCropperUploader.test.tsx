@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createRef, type RefObject } from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
   ImageCropperUploader,

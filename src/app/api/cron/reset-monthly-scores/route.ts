@@ -30,9 +30,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // console.log(`[CRON] Reset monthly scores for ${result.count} clans`);
-
-    return NextResponse.json({
+  return NextResponse.json({
       success: true,
       message: 'Monthly scores reset successfully',
       clansUpdated: result.count,

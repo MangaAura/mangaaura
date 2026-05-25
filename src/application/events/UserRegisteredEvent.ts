@@ -18,7 +18,7 @@ email: string;
 username: string;
 /** Proveedor de autenticación (email, google, etc) */
 provider: 'email' | 'google' | 'github' | 'discord';
-/** Bonus de registro en InkCoins */
+/** Bonus de registro en Aura */
 registrationBonus: number;
 /** Fecha de registro */
 registeredAt: string;

@@ -342,14 +342,14 @@ export class ResendEmailRepository implements IEmailRepository, IEmailTemplateSe
   }
 
   renderTipReceivedEmail(_username: string, senderName: string, amount: number, _link: string): EmailTemplate {
-    const subject = `💰 ¡Has recibido ${amount} InkCoins de ${senderName}!`;
+    const subject = `💰 ¡Has recibido ${amount} Aura de ${senderName}!`;
     const { html, text } = baseEmailTemplate({
       title: '💰 ¡Recibiste una propina!',
-      preview: `${senderName} te envió ${amount} InkCoins`,
+      preview: `${senderName} te envió ${amount} Aura`,
       content: `
         <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; margin-bottom: 20px;">
           <span style="font-size: 48px;">💰</span>
-          <h3 style="margin: 10px 0 0 0; color: white; font-size: 24px;">+${amount} InkCoins</h3>
+          <h3 style="margin: 10px 0 0 0; color: white; font-size: 24px;">+${amount} Aura</h3>
         </div>
         <p><strong>${senderName}</strong> te ha enviado una propina.</p>
         <p style="margin-top: 15px;">¡Gracias por crear contenido increíble para la comunidad!</p>

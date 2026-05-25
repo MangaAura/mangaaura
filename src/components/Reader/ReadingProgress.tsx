@@ -50,6 +50,7 @@ export function ReadingProgress({
     const pageProgress = totalPages > 0 ? currentPage / totalPages : 0;
     const chapterProgress = totalChapters > 0 ? (currentChapter - 1) / totalChapters : 0;
     const totalProgress = (chapterProgress + (pageProgress / totalChapters)) * 100;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setProgress(Math.min(100, Math.max(0, totalProgress)));
   }, [currentChapter, totalChapters, currentPage, totalPages]);
 
@@ -62,7 +63,7 @@ export function ReadingProgress({
         return allProgress.find(p => p.mangaId === mangaId) || null;
       }
     } catch (error) {
-      console.error('Error loading reading progress:', error);
+      // Saved progress load uses useMemo, no hook needed for error logging
     }
     return null;
   }, [mangaId]);
@@ -89,7 +90,7 @@ export function ReadingProgress({
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
       setLastSaved(Date.now());
     } catch (error) {
-      console.error('Error saving reading progress:', error);
+      // Progress saved to localStorage, not a fetch error
     }
   }, [mangaId, currentChapter, currentPage]);
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -7,7 +8,7 @@ function createPrismaClient(): PrismaClient {
   const isSQLite = url.startsWith("file:") || url.includes(".db");
 
   if (isSQLite) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3") as typeof import("@prisma/adapter-better-sqlite3");
     const adapter = new PrismaBetterSqlite3({
       url,
@@ -18,9 +19,7 @@ function createPrismaClient(): PrismaClient {
     });
   }
 
-  // PostgreSQL adapter (production)
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { PrismaPg } = require("@prisma/adapter-pg") as typeof import("@prisma/adapter-pg");
+  // PostgreSQL adapter (production)    const { PrismaPg } = require("@prisma/adapter-pg") as typeof import("@prisma/adapter-pg");
   const adapter = new PrismaPg({
     connectionString: url,
   });

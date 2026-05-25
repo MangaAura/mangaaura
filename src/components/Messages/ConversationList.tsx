@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { cn } from '@/lib/utils';
 
 
@@ -31,24 +32,26 @@ interface ConversationListProps {
 export function ConversationList({ activeConversationId }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchConversations();
-  }, []);
+  const { handleError } = useErrorHandler();
 
   const fetchConversations = async () => {
     try {
       const response = await fetch('/api/conversations');
       if (response.ok) {
         const data = await response.json();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setConversations(data.conversations || []);
       }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchConversations();
+  }, []);
 
   if (isLoading) {
     return (

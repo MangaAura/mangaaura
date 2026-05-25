@@ -23,7 +23,7 @@ async function main() {
       passwordHash,
       role: 'ADMIN',
       xpPoints: 0,
-      inkcoinsBalance: 0,
+      auraBalance: 0,
       level: 1,
     },
   });

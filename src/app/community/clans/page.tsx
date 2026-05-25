@@ -137,25 +137,25 @@ export default async function ClansPage({ searchParams }: ClansPageProps) {
           </div>
           <p className="text-[var(--text-secondary)]">
             Compite con otros clanes para ganar recompensas exclusivas. Los mejores clanes
-            recibirán InkCoins y badges especiales al final de la temporada.
+            recibirán Aura y badges especiales al final de la temporada.
           </p>
           <div className="flex flex-wrap gap-4 mt-4">
             <div className="bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg px-4 py-2">
               <span className="text-xs text-[var(--text-muted)] uppercase font-semibold">Top 1</span>
               <p className="font-bold text-[var(--warning)] flex items-center gap-1">
-                <Trophy size={14} /> 10,000 InkCoins
+                <Trophy size={14} /> 10,000 Aura
               </p>
             </div>
             <div className="bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg px-4 py-2">
               <span className="text-xs text-[var(--text-muted)] uppercase font-semibold">Top 2</span>
               <p className="font-bold text-[var(--text-secondary)] flex items-center gap-1">
-                <Trophy size={14} /> 5,000 InkCoins
+                <Trophy size={14} /> 5,000 Aura
               </p>
             </div>
             <div className="bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg px-4 py-2">
               <span className="text-xs text-[var(--text-muted)] uppercase font-semibold">Top 3</span>
               <p className="font-bold text-[var(--accent-orange)] flex items-center gap-1">
-                <Trophy size={14} /> 3,000 InkCoins
+                <Trophy size={14} /> 3,000 Aura
               </p>
             </div>
           </div>

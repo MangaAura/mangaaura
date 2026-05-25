@@ -6,12 +6,14 @@
 
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 import { CommentForm } from './CommentForm';
 import { CommentItem } from './CommentItem';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useChapterComments } from '@/hooks/useChapterComments';
 import { cn } from '@/lib/utils';
 
@@ -76,9 +78,15 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
             <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
           </div>
         ) : error ? (
-          <div className="text-center py-8" role="alert">
-            <p className="text-[var(--error)]">{error}</p>
-          </div>
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <ErrorMessage message={error} />
+            </motion.div>
+          </AnimatePresence>
         ) : comments.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-[var(--text-muted)]">Sé el primero en comentar</p>

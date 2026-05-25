@@ -24,7 +24,7 @@ function mockQuest(overrides: Partial<ActiveQuest> = {}): ActiveQuest {
     target: 1,
     progress: 0,
     xpReward: 10,
-    inkcoinsReward: 0,
+    auraReward: 0,
     completed: false,
     claimed: false,
     sortOrder: 1,
@@ -268,24 +268,24 @@ describe('QuestService', () => {
       expect(rewards.weeklyXP).toBe(530);
     });
 
-    it('debe retornar la suma correcta de InkCoins diarios (5)', () => {
+    it('debe retornar la suma correcta de Aura diarios (5)', () => {
       const rewards = service.getTotalPossibleRewards();
       // DAILY_READ_1=0 + DAILY_READ_3=5 + DAILY_COMMENT=0 + DAILY_LIKE_3=0 = 5
-      expect(rewards.dailyInkCoins).toBe(5);
+      expect(rewards.dailyAura).toBe(5);
     });
 
-    it('debe retornar la suma correcta de InkCoins semanales (65)', () => {
+    it('debe retornar la suma correcta de Aura semanales (65)', () => {
       const rewards = service.getTotalPossibleRewards();
       // WEEKLY_READ_10=10 + WEEKLY_COMPLETE_MANGA=20 + WEEKLY_COMMENT_5=10 + WEEKLY_STREAK_5=25 = 65
-      expect(rewards.weeklyInkCoins).toBe(65);
+      expect(rewards.weeklyAura).toBe(65);
     });
 
     it('todos los valores deben ser >= 0', () => {
       const rewards = service.getTotalPossibleRewards();
       expect(rewards.dailyXP).toBeGreaterThanOrEqual(0);
       expect(rewards.weeklyXP).toBeGreaterThanOrEqual(0);
-      expect(rewards.dailyInkCoins).toBeGreaterThanOrEqual(0);
-      expect(rewards.weeklyInkCoins).toBeGreaterThanOrEqual(0);
+      expect(rewards.dailyAura).toBeGreaterThanOrEqual(0);
+      expect(rewards.weeklyAura).toBeGreaterThanOrEqual(0);
     });
   });
 

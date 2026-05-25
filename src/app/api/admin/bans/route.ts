@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { requirePermission } from '@/lib/permissions';
 import { createBan } from '@/core/services/BanService';
+import { auth } from '@/lib/auth';
+import { requirePermission } from '@/lib/permissions';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {

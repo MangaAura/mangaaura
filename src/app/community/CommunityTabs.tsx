@@ -8,12 +8,14 @@ import {
   ArrowRight,
   ChevronRight,
   Plus,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import ClanCard from '@/components/Clan/ClanCard';
 import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
+import { PollsSection } from '@/components/polls/PollsSection';
 import type { EventData } from '@/components/Event/EventCard';
 import { useT } from '@/i18n';
 
@@ -34,7 +36,7 @@ interface CommunityTabsProps {
   userClanId: string | null;
 }
 
-type Tab = 'clans' | 'events';
+type Tab = 'clans' | 'events' | 'polls';
 
 export default function CommunityTabs({
   topClans,
@@ -71,6 +73,9 @@ export default function CommunityTabs({
           </button>
           <button role="tab" aria-selected={activeTab === 'events'} aria-controls="community-events-panel" tabIndex={activeTab === 'events' ? 0 : -1} onClick={() => setActiveTab('events')} className={tabCls('events', 'text-[var(--warning)]')}>
             <Calendar size={16} aria-hidden="true" /> {t('community.eventsTab')}
+          </button>
+          <button role="tab" aria-selected={activeTab === 'polls'} aria-controls="community-polls-panel" tabIndex={activeTab === 'polls' ? 0 : -1} onClick={() => setActiveTab('polls')} className={tabCls('polls', 'text-[var(--primary)]')}>
+            <BarChart3 size={16} aria-hidden="true" /> Encuestas
           </button>
                   </div>
       </header>
@@ -153,6 +158,13 @@ export default function CommunityTabs({
               {t('community.viewAllClansLink')} <ArrowRight size={14} />
             </Link>
           </div>
+        </div>
+      )}
+
+      {/* POLLS TAB */}
+      {activeTab === 'polls' && (
+        <div id="community-polls-panel" role="tabpanel" aria-labelledby="community-polls-tab" className="animate-fade-up">
+          <PollsSection limit={5} showCreateForm={true} title="Encuestas de la comunidad" />
         </div>
       )}
 

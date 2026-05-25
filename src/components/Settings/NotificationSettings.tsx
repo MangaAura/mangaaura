@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Label } from '@/components/ui/Label';
 import { Switch } from '@/components/ui/Switch';
+import { useToast } from '@/components/ui/Toast';
+import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
 interface NotificationSettingsProps {
@@ -62,6 +64,7 @@ const notificationTypes = [
 
 export function NotificationSettings({ preferences }: NotificationSettingsProps) {
   const [settings, setSettings] = useState(preferences);
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
@@ -79,13 +82,23 @@ export function NotificationSettings({ preferences }: NotificationSettingsProps)
         body: JSON.stringify({ emailPreferences: settings }),
       });
 
-      if (!response.ok) throw new Error('Failed to save');
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
 
       setIsDirty(false);
-      alert('Preferencias guardadas');
+      toast({
+        title: 'Guardado',
+        description: 'Preferencias guardadas correctamente',
+        variant: 'default',
+      });
     } catch (error) {
-      console.error('Error saving preferences:', error);
-      alert('Error al guardar');
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Error al guardar preferencias',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }

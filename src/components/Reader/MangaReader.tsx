@@ -26,7 +26,6 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
-
 import FocusLock from 'react-focus-lock';
 
 import { PageJumpInput } from './PageJumpInput';

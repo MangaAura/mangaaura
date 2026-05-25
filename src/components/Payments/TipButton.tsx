@@ -1,10 +1,13 @@
 ﻿'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Coins, Loader2, Check, X, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface TipButtonProps {
   chapterId: string;
@@ -28,14 +31,10 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
   const [error, setError] = useState<string | null>(null);
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && userBalance === null) {
-      fetchBalance();
-    }
-  }, [isOpen]);
+  const { handleError } = useErrorHandler();
 
   const fetchBalance = async () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoadingBalance(true);
     try {
       const response = await fetch('/api/economy/balance');
@@ -44,11 +43,17 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
         setUserBalance(data.balance);
       }
     } catch (error) {
-      console.error('Error fetching balance:', error);
+      handleError(error);
     } finally {
       setIsLoadingBalance(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && userBalance === null) {
+      fetchBalance();
+    }
+  }, [isOpen]);
 
   const getAmount = (): number => {
     if (selectedAmount !== null) return selectedAmount;
@@ -58,7 +63,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
 
   const validateTip = (): string | null => {
     const amount = getAmount();
-    if (amount < 1) return 'El monto mínimo es 1 InkCoin';
+    if (amount < 1) return 'El monto mínimo es 1 Aura';
     if (userBalance !== null && amount > userBalance) return 'Saldo insuficiente';
     return null;
   };
@@ -157,7 +162,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
                 Enviar Propina
               </h2>
               <p className="text-sm text-[var(--text-secondary)]">
-                Apoya a <span className="font-semibold text-[var(--text-primary)]">{authorName}</span> con InkCoins
+                Apoya a <span className="font-semibold text-[var(--text-primary)]">{authorName}</span> con Aura
               </p>
             </div>
 
@@ -237,11 +242,21 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               </p>
             </div>
 
-            {error && (
-              <div className="mb-4 p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg" role="alert">
-                <p className="text-sm text-[var(--error)] text-center">{error}</p>
-              </div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ErrorMessage
+                    message={error}
+                    onDismiss={() => setError(null)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <Button
               onClick={handleSendTip}
@@ -271,7 +286,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
             <p className="text-[var(--text-secondary)] mb-2">
               Has enviado{' '}
               <span className="font-bold text-[var(--accent-purple)]">
-                {getAmount().toLocaleString()} InkCoins
+                {getAmount().toLocaleString()} Aura
               </span>{' '}
               a {authorName}
             </p>

@@ -95,6 +95,7 @@ export default function PartyReader({
   // Sincronizar pagina local con host
   useEffect(() => {
     if (followHost && hostPage !== localPage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalPage(hostPage);
     }
   }, [hostPage, followHost, localPage]);
@@ -107,6 +108,7 @@ export default function PartyReader({
   // Manejar error de conexion
   useEffect(() => {
     if (error) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       toast({
         title: 'Connection Error',
         description: error,

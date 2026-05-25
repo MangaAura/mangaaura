@@ -259,23 +259,23 @@ export function tipReceivedEmail(
   const safeUser = escapeHtml(fromUsername);
   const { html, text } = baseEmailTemplate({
     title: '💰 ¡Recibiste una propina!',
-    preview: `${safeUser} te envió ${tipAmount} InkCoins`,
+    preview: `${safeUser} te envió ${tipAmount} Aura`,
     content: `
       <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; margin-bottom: 20px;">
         <span style="font-size: 48px;">💰</span>
-        <h3 style="margin: 10px 0 0 0; color: white; font-size: 24px;">+${tipAmount} InkCoins</h3>
+        <h3 style="margin: 10px 0 0 0; color: white; font-size: 24px;">+${tipAmount} Aura</h3>
       </div>
       <p><strong>${safeUser}</strong> te envió una propina por tu manga <strong>"${safeManga}"</strong>.</p>
       <p style="margin-top: 15px;">¡Gracias por crear contenido increíble para la comunidad!</p>
       <p style="margin-top: 15px; padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
-        Usa tus InkCoins para destacar tus mangas o canjearlos por recompensas exclusivas.
+        Usa tus Aura para destacar tus mangas o canjearlos por recompensas exclusivas.
       </p>
     `,
     ctaText: 'Ver dashboard',
     ctaUrl: 'https://mangaaura.es/creator/dashboard',
   });
 
-  return { html, text, subject: `💰 ¡${tipAmount} InkCoins recibidos!` };
+  return { html, text, subject: `💰 ¡${tipAmount} Aura recibidos!` };
 }
 
 export function weeklyDigestEmail(

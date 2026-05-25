@@ -8,6 +8,8 @@
 
 import useSWR from 'swr';
 
+import { extractApiError } from '@/lib/extract-api-error';
+
 type Difficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'LEGENDARY';
 
 interface AchievementCondition {
@@ -45,10 +47,14 @@ interface AchievementsResponse {
   stats: AchievementStats;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => {
-  if (!res.ok) throw new Error('Failed to fetch achievements');
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const { message } = await extractApiError(res);
+    throw new Error(message);
+  }
   return res.json();
-});
+};
 
 export function useAchievements() {
   const { data, error, isLoading, mutate } = useSWR<AchievementsResponse>(
@@ -96,11 +102,12 @@ export function useUnlockAchievement() {
       body: JSON.stringify({ badgeId }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.error || 'Error al desbloquear logro');
+      const { message } = await extractApiError(response);
+      throw new Error(message);
     }
+
+    const data = await response.json();
 
     await mutate();
     return data;

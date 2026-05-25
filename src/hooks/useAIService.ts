@@ -147,7 +147,7 @@ service.on('health:check-completed', handleHealthCheck);
       
       // Cancel all pending abort controllers
       abortControllersRef.current.forEach((controller) => {
-        try { controller.abort(); } catch { console.info('[useAIService] AbortController already aborted'); }
+        try { controller.abort(); } catch { /* ignore */ }
       });
       abortControllersRef.current.clear();
     };

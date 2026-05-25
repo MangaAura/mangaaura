@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type {
   PartyMember,
   PartyMessage,
@@ -33,6 +34,7 @@ interface UsePartyOptions {
 export function useParty(options: UsePartyOptions) {
   const { partyId, autoJoin = true, onConnect, onDisconnect, onError } = options;
   const { data: session, status } = useSession();
+  const { handleError } = useErrorHandler();
 
   const socketRef = useRef<PartySocket | null>(null);
   const [socket, setSocket] = useState<PartySocket | null>(null);
@@ -102,7 +104,7 @@ export function useParty(options: UsePartyOptions) {
         });
 
         socket.on('connect_error', (err) => {
-          console.error('[Party] Connection error:', err);
+          handleError(err);
           setError(err.message);
           onError?.(err.message);
         });
@@ -211,7 +213,7 @@ export function useParty(options: UsePartyOptions) {
 
         socket.connect();
       } catch (err) {
-        console.error('[Party] Init error:', err);
+        handleError(err);
         setError(err instanceof Error ? err.message : 'Unknown error');
       }
     };

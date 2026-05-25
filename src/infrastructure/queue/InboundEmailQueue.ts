@@ -1,8 +1,8 @@
 import { Queue, Job, type QueueOptions } from 'bullmq'
 import { Redis } from 'ioredis'
 
-import { redis, isMockRedis } from '@/lib/redis'
 import type { InboundEmailData, EmailClassification } from '@/core/services/IInboundEmailRepository'
+import { redis, isMockRedis } from '@/lib/redis'
 
 export type InboundJobType = 'classify' | 'process' | 'reply'
 

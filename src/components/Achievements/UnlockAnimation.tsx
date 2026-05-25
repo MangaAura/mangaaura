@@ -36,21 +36,31 @@ const rarityColors: Record<Difficulty, string[]> = {
   LEGENDARY: ['#f59e0b', '#ea580c', '#fbbf24', '#fcd34d'],
 };
 
+/** Deterministic pseudo-random number generator using a linear congruential generator */
+function lcg(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
 function generateParticles(count: number, rarity: Difficulty): Particle[] {
   const colors = rarityColors[rarity];
+  const rng = lcg(count * 9301 + 49297);
   const particles: Particle[] = [];
   for (let i = 0; i < count; i++) {
     particles.push({
       id: i,
-      x: 50 + (Math.random() - 0.5) * 10,
-      y: 50 + (Math.random() - 0.5) * 10,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: 4 + Math.random() * 8,
-      angle: Math.random() * Math.PI * 2,
-      velocity: 2 + Math.random() * 6,
-      rotation: Math.random() * 360,
-      rotationSpeed: (Math.random() - 0.5) * 20,
-      shape: (['circle', 'star', 'diamond'] as const)[Math.floor(Math.random() * 3)],
+      x: 50 + (rng() - 0.5) * 10,
+      y: 50 + (rng() - 0.5) * 10,
+      color: colors[Math.floor(rng() * colors.length)],
+      size: 4 + rng() * 8,
+      angle: rng() * Math.PI * 2,
+      velocity: 2 + rng() * 6,
+      rotation: rng() * 360,
+      rotationSpeed: (rng() - 0.5) * 20,
+      shape: (['circle', 'star', 'diamond'] as const)[Math.floor(rng() * 3)],
     });
   }
   return particles;
@@ -144,8 +154,6 @@ export function UnlockAnimation({
                 top: `${p.y}%`,
                 '--angle': `${p.angle}rad`,
                 '--velocity': p.velocity,
-                animationDelay: `${Math.random() * 0.5}s`,
-                animationDuration: `${1.5 + Math.random() * 1}s`,
               } as React.CSSProperties}
             >
               {p.shape === 'circle' ? (
@@ -156,7 +164,6 @@ export function UnlockAnimation({
                     height: `${p.size}px`,
                     backgroundColor: p.color,
                     opacity: 0.8,
-                    animationDuration: `${1 + Math.random()}s`,
                   }}
                 />
               ) : (
@@ -165,9 +172,7 @@ export function UnlockAnimation({
                   height={p.size}
                   viewBox={`0 0 ${p.size} ${p.size}`}
                   className="animate-spin"
-                  style={{
-                    animationDuration: `${1 + Math.random()}s`,
-                  }}
+                  style={{}}
                 >
                   <path
                     d={shapePath(p.shape, p.size)}

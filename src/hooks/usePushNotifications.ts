@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+
 
 interface PushNotificationState {
   isSupported: boolean;
@@ -18,10 +20,21 @@ export function usePushNotifications(): PushNotificationState & {
   unsubscribe: () => Promise<void>;
   requestPermission: () => Promise<NotificationPermission>;
 } {
+  const { handleError } = useErrorHandler();
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const checkSubscription = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      setIsSubscribed(!!subscription);
+    } catch (err) {
+      handleError(err);
+    }
+  };
 
   useEffect(() => {
     // Verificar soporte
@@ -30,22 +43,13 @@ export function usePushNotifications(): PushNotificationState & {
       'PushManager' in window &&
       'Notification' in window;
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsSupported(supported);
 
     if (supported) {
       checkSubscription();
     }
   }, []);
-
-  const checkSubscription = async () => {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      setIsSubscribed(!!subscription);
-    } catch (err) {
-      console.error('Error checking subscription:', err);
-    }
-  };
 
   const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
     if (!isSupported) {
@@ -98,7 +102,7 @@ export function usePushNotifications(): PushNotificationState & {
       setIsSubscribed(true);
     } catch (err: any) {
       setError(err.message || 'Failed to subscribe');
-      console.error('Push subscription error:', err);
+      handleError(err);
     } finally {
       setIsLoading(false);
     }

@@ -222,10 +222,15 @@ export const mutationOptions = {
 export const prefetchData = async <T>(url: string): Promise<T | null> => {
   try {
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Prefetch failed');
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error || `Error ${response.status}: ${response.statusText}`);
+    }
     return await response.json();
   } catch (error) {
-    console.error('Prefetch error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Prefetch]', error);
+    }
     return null;
   }
 };
@@ -238,7 +243,10 @@ export const getErrorMessage = (error: unknown): string => {
   if (typeof error === 'string') {
     return error;
   }
-  return 'An unknown error occurred';
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return 'Ha ocurrido un error inesperado.';
 };
 
 // Mutate with loading state helper

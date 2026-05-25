@@ -5,6 +5,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import FocusLock from 'react-focus-lock';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 
 interface MemeGeneratorModalProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
   const [bottomText, setBottomText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const { handleError } = useErrorHandler();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [titleId] = useState(() => `meme-title-${Math.random().toString(36).substr(2, 9)}`);
 
@@ -28,7 +31,7 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
     if (isOpen) {
       const trigger = document.activeElement as HTMLElement;
       const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') handleClose();
+        if (e.key === 'Escape') onClose();
       };
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
@@ -118,11 +121,13 @@ export default function MemeGeneratorModal({ isOpen, onClose, imageUrl, mangaTit
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Failed to save meme');
+      if (!res.ok) {
+        const { message } = await extractApiError(res);
+        throw new Error(message);
+      }
       setIsSaved(true);
     } catch (err) {
-      console.error('Error saving meme:', err);
-      alert('Error al guardar el meme');
+      handleError(err);
     } finally {
       setIsUploading(false);
     }

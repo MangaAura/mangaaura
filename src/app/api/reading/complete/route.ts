@@ -333,14 +333,14 @@ export async function POST(request: NextRequest) {
 
           // Auto-claim and award XP for newly completed quests
           let questXpAwarded = 0;
-          let questInkcoinsAwarded = 0;
+          let questAuraAwarded = 0;
 
           for (const completed of newlyCompleted) {
             const questDef = questService.getQuestDefinition(completed.questId);
             if (!questDef) continue;
 
             questXpAwarded += questDef.xpReward;
-            questInkcoinsAwarded += questDef.inkcoinsReward;
+            questAuraAwarded += questDef.auraReward;
 
             const period =
               completed.category === 'DAILY' ? questPeriods.daily : questPeriods.weekly;
@@ -365,7 +365,7 @@ export async function POST(request: NextRequest) {
               data: {
                 xpPoints: questNewXP.amount,
                 level: questNewXP.level,
-                inkcoinsBalance: { increment: questInkcoinsAwarded },
+                auraBalance: { increment: questAuraAwarded },
               },
             });
           }

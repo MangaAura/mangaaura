@@ -1,10 +1,9 @@
-import { PrismaClient } from '@/generated/prisma/client';
-
 import type {
   IMessageRepository,
   ConversationRecord,
   MessageRecord,
 } from '@/core/services/IMessageRepository';
+import { PrismaClient } from '@/generated/prisma/client';
 import { logSecurityEvent, SecurityAction, Severity } from '@/lib/security-audit';
 
 export class PrismaMessageRepository implements IMessageRepository {

@@ -12,11 +12,12 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use , useState, useCallback, useRef, useEffect } from 'react';
+import { use, useState, useCallback, useRef, useEffect } from 'react';
 
 
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { useManga } from '@/hooks/useManga';
 import { useT } from '@/i18n';
@@ -55,6 +56,7 @@ export default function EditMangaPage({ params }: PageProps) {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Initialize form when manga loads
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (manga) {
       setFormData({
@@ -219,8 +221,9 @@ export default function EditMangaPage({ params }: PageProps) {
       <div className="min-h-screen bg-[var(--surface-sunken)]">
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-              <p className="text-red-600" role="alert">{error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}</p>
+            <ErrorMessage
+              message={error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}
+            />
               <Link href="/creator/dashboard">
                 <Button variant="outline" className="mt-4">
                   <ArrowLeftIcon className="w-4 h-4 mr-2" aria-hidden="true" />
@@ -228,7 +231,6 @@ export default function EditMangaPage({ params }: PageProps) {
                 </Button>
               </Link>
             </div>
-          </div>
         </main>
       </div>
     );

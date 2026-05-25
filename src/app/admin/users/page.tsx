@@ -37,6 +37,7 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 interface UserData {
@@ -47,7 +48,7 @@ interface UserData {
   avatarUrl: string | null;
   role: string;
   xpPoints: number;
-  inkcoinsBalance: number;
+  auraBalance: number;
   level: number;
   readingStreak: number;
   createdAt: string;
@@ -62,6 +63,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function UsersPage() {
   // Always call useT first before any conditional logic
   const t = useT();
+  const { handleError } = useErrorHandler();
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -100,7 +102,7 @@ export default function UsersPage() {
         setSelectedUser(null);
       }
     } catch (error) {
-      console.error('Action failed:', error);
+      handleError(error);
     } finally {
       setIsActioning(false);
     }
@@ -425,9 +427,9 @@ export default function UsersPage() {
                 </div>
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">
-                    {selectedUser.inkcoinsBalance.toLocaleString()}
+                    {selectedUser.auraBalance.toLocaleString()}
                   </p>
-                  <p className="text-sm text-[var(--text-tertiary)]">{t('admin.inkCoins')}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{t('admin.aura')}</p>
                 </div>
                 <div className="bg-[var(--surface)] p-4 rounded-lg text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">

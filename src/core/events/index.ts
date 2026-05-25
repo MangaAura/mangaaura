@@ -31,12 +31,12 @@ export {
 } from './CommentPostedEvent';
 
 export {
-  InkCoinsSpentEvent,
-  InkCoinsReceivedEvent,
+  AuraSpentEvent,
+  AuraReceivedEvent,
   AuthorEarningsEvent,
   CrowdfundingContributionEvent,
   CrowdfundingGoalReachedEvent,
-} from './InkCoinsSpentEvent';
+} from './AuraSpentEvent';
 
 export {
   MangaCreatedEvent,

@@ -1,15 +1,15 @@
-﻿'use client';
+'use client';
 
-import { Bookmark, Trash2, BookOpen } from 'lucide-react';
+import { Bookmark, Globe, GlobeLock, Trash2, BookOpen, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
-
 
 interface BookmarkData {
   id: string;
@@ -17,6 +17,7 @@ interface BookmarkData {
   chapterId: string | null;
   page: number;
   note: string | null;
+  isPublic: boolean;
   createdAt: Date;
   manga: {
     id: string;
@@ -48,6 +49,7 @@ function formatDate(date: Date) {
 export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
   const [bookmarks, setBookmarks] = useState(initial);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -62,12 +64,36 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
     }
   };
 
+  const handleTogglePublic = async (id: string, currentPublic: boolean) => {
+    setTogglingId(id);
+    // Optimistic update
+    setBookmarks((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, isPublic: !currentPublic } : b))
+    );
+    try {
+      const res = await fetch(`/api/bookmarks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublic: !currentPublic }),
+      });
+      if (!res.ok) throw new Error('Failed to toggle visibility');
+    } catch {
+      // Rollback
+      setBookmarks((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, isPublic: currentPublic } : b))
+      );
+      alert('Error al cambiar visibilidad');
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   if (bookmarks.length === 0) {
     return (
       <EmptyState
         icon={<Bookmark className="w-8 h-8" />}
         title="Sin marcadores"
-        description="Los mangas y capÃ­tulos que marques aparecerÃ¡n aquÃ­ para que puedas retomarlos fÃ¡cilmente."
+        description="Los mangas y capítulos que marques aparecerán aquí para que puedas retomarlos fácilmente."
         action={{ label: 'Explorar mangas', href: '/explore' }}
       />
     );
@@ -89,55 +115,91 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" staggerDelay={0.04}>
         {bookmarks.map((bookmark) => (
           <StaggerItem key={bookmark.id}>
-          <Card className="group overflow-hidden">
-            <div className="relative aspect-[3/4] bg-[var(--surface-sunken)]">
-              {bookmark.manga.coverUrl ? (
-                <OptimizedImage
-                  src={bookmark.manga.coverUrl}
-                  alt={bookmark.manga.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <BookOpen className="w-12 h-12 text-[var(--text-muted)]" />
+            <Card className="group overflow-hidden">
+              <div className="relative aspect-[3/4] bg-[var(--surface-sunken)]">
+                {bookmark.manga.coverUrl ? (
+                  <OptimizedImage
+                    src={bookmark.manga.coverUrl}
+                    alt={bookmark.manga.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <BookOpen className="w-12 h-12 text-[var(--text-muted)]" />
+                  </div>
+                )}
+
+                {/* Visibility badge */}
+                <div className="absolute top-2 left-2">
+                  <Badge
+                    variant={bookmark.isPublic ? 'default' : 'secondary'}
+                    className="text-[10px] px-1.5 py-0.5 flex items-center gap-1"
+                  >
+                    {bookmark.isPublic ? (
+                      <>
+                        <Globe className="w-3 h-3" />
+                        Público
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-3 h-3" />
+                        Privado
+                      </>
+                    )}
+                  </Badge>
                 </div>
-              )}
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(bookmark.id)}
-                  disabled={deletingId === bookmark.id}
-                  className="h-8 w-8 p-0"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+
+                {/* Action buttons */}
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleTogglePublic(bookmark.id, bookmark.isPublic)}
+                    disabled={togglingId === bookmark.id}
+                    className="h-8 w-8 p-0"
+                    title={bookmark.isPublic ? 'Hacer privado' : 'Hacer público'}
+                  >
+                    {bookmark.isPublic ? (
+                      <GlobeLock className="w-4 h-4" />
+                    ) : (
+                      <Globe className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(bookmark.id)}
+                    disabled={deletingId === bookmark.id}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-            <CardContent className="p-4 space-y-2">
-              <Link
-                href={`/manga/${bookmark.manga.slug}`}
-                className="block font-semibold text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors line-clamp-2"
-              >
-                {bookmark.manga.title}
-              </Link>
-              {bookmark.chapter && (
+              <CardContent className="p-4 space-y-2">
                 <Link
-                  href={`/manga/${bookmark.manga.slug}/chapter/${bookmark.chapter.chapterNumber}`}
-                  className="block text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+                  href={`/manga/${bookmark.manga.slug}`}
+                  className="block font-semibold text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors line-clamp-2"
                 >
-                  CapÃ­tulo {bookmark.chapter.chapterNumber}
-                  {bookmark.chapter.title && ` - ${bookmark.chapter.title}`}
+                  {bookmark.manga.title}
                 </Link>
-              )}
-              <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] pt-1">
-                <span>PÃ¡gina {bookmark.page || 1}</span>
-                <span>{formatDate(bookmark.createdAt)}</span>
-              </div>
-            </CardContent>
-          </Card>
+                {bookmark.chapter && (
+                  <Link
+                    href={`/manga/${bookmark.manga.slug}/chapter/${bookmark.chapter.chapterNumber}`}
+                    className="block text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+                  >
+                    Capítulo {bookmark.chapter.chapterNumber}
+                    {bookmark.chapter.title && ` - ${bookmark.chapter.title}`}
+                  </Link>
+                )}
+                <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] pt-1">
+                  <span>Página {bookmark.page || 1}</span>
+                  <span>{formatDate(bookmark.createdAt)}</span>
+                </div>
+              </CardContent>
+            </Card>
           </StaggerItem>
         ))}
       </StaggerContainer>

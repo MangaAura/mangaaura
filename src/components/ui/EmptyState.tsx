@@ -29,14 +29,24 @@ interface EmptyStateProps {
 
 export function EmptyState({
   icon,
-  preset: _preset,
-  title = 'Sin contenido',
-  description = 'No hay nada que mostrar aquí',
+  preset,
+  title,
+  description,
   action,
   secondaryAction,
   className,
   size = 'md',
 }: EmptyStateProps) {
+  const presets: Record<string, { icon: ReactNode; title: string; description: string }> = {
+    empty: { icon: <Library className="w-8 h-8" />, title: 'Sin contenido', description: 'No hay nada que mostrar aquí' },
+    error: { icon: <AlertTriangle className="w-8 h-8 text-red-500" />, title: 'Algo salió mal', description: 'Hubo un error al cargar el contenido.' },
+    search: { icon: <Search className="w-8 h-8" />, title: 'No se encontraron resultados', description: 'Intenta con otros términos de búsqueda.' },
+    library: { icon: <Library className="w-8 h-8" />, title: 'Tu biblioteca está vacía', description: 'Comienza a seguir mangas para verlos aquí.' },
+  };
+  const resolved = preset ? presets[preset] : null;
+  const finalIcon = icon ?? resolved?.icon;
+  const finalTitle = title ?? resolved?.title ?? 'Sin contenido';
+  const finalDescription = description ?? resolved?.description ?? 'No hay nada que mostrar aquí';
   const sizes = {
     sm: {
       container: 'py-8',
@@ -69,7 +79,7 @@ export function EmptyState({
         className
       )}
     >
-      {icon && (
+      {finalIcon && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -79,16 +89,16 @@ export function EmptyState({
             sizes[size].icon
           )}
         >
-          {icon}
+          {finalIcon}
         </motion.div>
       )}
       <h2 className={cn('font-semibold text-[var(--text-primary)] mb-2', sizes[size].title)}>
-        {title}
+        {finalTitle}
       </h2>
 
-      {description && (
+      {finalDescription && (
         <p className={cn('text-[var(--text-secondary)] max-w-md mb-6', sizes[size].description)}>
-          {description}
+          {finalDescription}
         </p>
       )}
 

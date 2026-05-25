@@ -1,14 +1,16 @@
-import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function PartyReadingLoading() {
   return (
-    <div role="status" className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-      <div className="text-center">
-        <Loader2 className="w-12 h-12 animate-spin text-[var(--primary)] mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-          Cargando lectura en grupo
-        </h2>
-        <p className="text-[var(--text-secondary)]">Preparando la sala...</p>
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="max-w-3xl w-full mx-auto px-4 space-y-6">
+        <Skeleton variant="heading" className="mx-auto w-1/2" />
+        <div className="flex justify-center gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} variant="avatar" />
+          ))}
+        </div>
+        <Skeleton variant="hero" className="h-[60vh] rounded-xl" />
       </div>
     </div>
   );

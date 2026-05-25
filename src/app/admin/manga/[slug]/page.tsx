@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 interface Chapter {
@@ -80,6 +81,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function EditMangaPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const t = useT();
+  const { handleError } = useErrorHandler();
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -127,7 +129,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
         // Show success toast or notification
       }
     } catch (error) {
-      console.error('Failed to save:', error);
+      handleError(error);
     } finally {
       setIsSaving(false);
     }
@@ -144,7 +146,7 @@ export default function EditMangaPage({ params }: { params: { slug: string } }) 
         router.push('/admin/manga');
       }
     } catch (error) {
-      console.error('Failed to delete:', error);
+      handleError(error);
     } finally {
       setIsDeleting(false);
     }

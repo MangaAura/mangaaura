@@ -9,6 +9,7 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { CANONICAL_TAGS, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, normalizeGenreKey } from '@/constants/genres';
+import { EmptySearch } from '@/components/ui/EmptyState';
 import { useT } from '@/i18n';
 
 const SORT_MAP: Record<string, string> = {
@@ -48,15 +49,10 @@ export default function AdvancedSearchPage() {
   const [page, setPage] = useState(1);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queryRef = useRef(query);
-  queryRef.current = query;
   const genresRef = useRef(selectedGenres);
-  genresRef.current = selectedGenres;
   const statusRef = useRef(selectedStatus);
-  statusRef.current = selectedStatus;
   const sortRef = useRef(sortBy);
-  sortRef.current = sortBy;
   const pageRef = useRef(page);
-  pageRef.current = page;
 
   async function doSearch() {
     setLoading(true);
@@ -323,17 +319,13 @@ export default function AdvancedSearchPage() {
       </div>
               </motion.div>
     ) : results.length === 0 ? (
-              <motion.div key="empty"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
-              >
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-16 text-center">
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-xl font-bold mb-2">{t('common.noResults')}</h3>
-              <p className="text-[var(--text-muted)]">{t('search.noResultsHint')}</p>
-            </div>
-              </motion.div>
+        <motion.div key="empty"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        >
+          <EmptySearch query={query} />
+        </motion.div>
           ) : (
               <motion.div key="results"
                 initial={{ opacity: 0, y: 10 }}

@@ -3,6 +3,7 @@
 import {
   BarChart3,
   Cpu,
+  Hash,
   LayoutDashboard,
   Shield,
   Users,
@@ -20,6 +21,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 interface NavItem {
   label: string;
@@ -33,6 +35,7 @@ const navItems: NavItem[] = [
   { label: 'Moderation', href: '/admin/moderation', icon: Shield },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Manga', href: '/admin/manga', icon: BookOpen },
+  { label: 'Tags', href: '/admin/tags', icon: Hash },
   { label: 'Noticias', href: '/admin/news', icon: Newspaper },
   { label: 'CSP Reports', href: '/admin/csp-reports', icon: Shield },
   { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: Cpu },
@@ -84,7 +87,7 @@ export function AdminSidebar() {
               </div>
               <div>
                 <h1 className="text-lg font-bold">Admin</h1>
-                <p className="text-xs text-[var(--text-secondary)]">MangaAura</p>
+                <RepeatedChar text="MangaAura" className="text-xs text-[var(--text-secondary)]" />
               </div>
             </Link>
           </div>

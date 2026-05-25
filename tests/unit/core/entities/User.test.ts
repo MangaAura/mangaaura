@@ -18,7 +18,7 @@ describe('User Entity', () => {
       expect(user.username).toBe('testuser');
       expect(user.role).toBe('USER');
       expect(user.xp.amount).toBe(0);
-      expect(user.inkcoins.amount).toBe(0);
+      expect(user.aura.amount).toBe(0);
       expect(user.readingStreak).toBe(0);
     });
 
@@ -30,7 +30,7 @@ describe('User Entity', () => {
         displayName: 'Custom User',
         role: 'CREATOR',
         xpPoints: 1000,
-        inkcoinsBalance: 500,
+        auraBalance: 500,
       });
 
       expect(user.id).toBe('custom-id');
@@ -38,7 +38,7 @@ describe('User Entity', () => {
       expect(user.displayName).toBe('Custom User');
       expect(user.role).toBe('CREATOR');
       expect(user.xp.amount).toBe(1000);
-      expect(user.inkcoins.amount).toBe(500);
+      expect(user.aura.amount).toBe(500);
     });
   });
 
@@ -51,7 +51,7 @@ describe('User Entity', () => {
       );
 
       expect(user.username).toBe('newuser');
-      expect(user.inkcoins.amount).toBe(50); // Bonus de registro
+      expect(user.aura.amount).toBe(50); // Bonus de registro
       expect(user.passwordHash).toBeDefined();
 
       const regEvent = events.find((e) => e.type === 'USER_REGISTERED');
@@ -70,7 +70,7 @@ describe('User Entity', () => {
       );
 
       expect(user.emailVerified).toBeDefined();
-      expect(user.inkcoins.amount).toBe(50);
+      expect(user.aura.amount).toBe(50);
 
       const oauthEvent = events.find((e) => e.type === 'USER_REGISTERED_OAUTH');
       expect(oauthEvent).toBeDefined();
@@ -144,40 +144,40 @@ describe('User Entity', () => {
     });
   });
 
-  describe('gamificación - InkCoins', () => {
-    it('debe agregar InkCoins', () => {
+  describe('gamificación - Aura', () => {
+    it('debe agregar Aura', () => {
       const user = User.create({
         email: Email.create('coins@test.com'),
         username: 'coinstest',
       });
 
       user.clearDomainEvents();
-      user.addInkCoins(100, 'DAILY_BONUS');
+      user.addAura(100, 'DAILY_BONUS');
 
-      expect(user.inkcoins.amount).toBe(100);
-      expect(user.domainEvents[0].type).toBe('INKCOINS_EARNED');
+      expect(user.aura.amount).toBe(100);
+      expect(user.domainEvents[0].type).toBe('AURA_EARNED');
     });
 
-    it('debe gastar InkCoins', () => {
+    it('debe gastar Aura', () => {
       const user = User.create({
         email: Email.create('spend@test.com'),
         username: 'spendtest',
-        inkcoinsBalance: 200,
+        auraBalance: 200,
       });
 
-      user.spendInkCoins(50, 'TIP_TO_AUTHOR');
+      user.spendAura(50, 'TIP_TO_AUTHOR');
 
-      expect(user.inkcoins.amount).toBe(150);
+      expect(user.aura.amount).toBe(150);
     });
 
     it('debe lanzar error al gastar más de lo disponible', () => {
       const user = User.create({
         email: Email.create('poor@test.com'),
         username: 'poortest',
-        inkcoinsBalance: 10,
+        auraBalance: 10,
       });
 
-      expect(() => user.spendInkCoins(100, 'TIP')).toThrow();
+      expect(() => user.spendAura(100, 'TIP')).toThrow();
     });
   });
 
@@ -287,7 +287,7 @@ describe('User Entity', () => {
         username: 'eventstest',
       });
 
-      user.addInkCoins(100, 'TEST');
+      user.addAura(100, 'TEST');
       expect(user.domainEvents.length).toBeGreaterThan(0);
 
       user.clearDomainEvents();
@@ -302,7 +302,7 @@ describe('User Entity', () => {
         email: Email.create('json@test.com'),
         username: 'jsontest',
         xpPoints: 1500,
-        inkcoinsBalance: 300,
+        auraBalance: 300,
       });
 
       const json = user.toJSON();
@@ -311,7 +311,7 @@ describe('User Entity', () => {
       expect(json.email).toBe('json@test.com');
       expect(json.level).toBe(2);
       expect(json.rank).toBe('Lector Shonen');
-      expect(json.inkcoinsBalance).toBe(300);
+      expect(json.auraBalance).toBe(300);
     });
   });
 });

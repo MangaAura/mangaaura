@@ -24,12 +24,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ paid: false, status: checkoutSession.payment_status });
     }
 
-    const inkcoinsAmount = parseInt(checkoutSession.metadata?.inkcoinsAmount || '0');
+    const auraAmount = parseInt(checkoutSession.metadata?.auraAmount || '0');
 
     return NextResponse.json({
       paid: true,
-      inkcoinsAdded: inkcoinsAmount,
-      packageName: checkoutSession.metadata?.packageId || 'InkCoins',
+      auraAdded: auraAmount,
+      packageName: checkoutSession.metadata?.packageId || 'Aura',
     });
   } catch (error) {
     console.error('Error verifying checkout session:', error);

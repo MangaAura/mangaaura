@@ -1,14 +1,25 @@
 ﻿'use client';
 
-import { Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download, RefreshCw } from 'lucide-react';
+import { AlertCircle, Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
+
 
 import { Alert, AlertDescription } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { useT } from '@/i18n';
+import { extractApiError } from '@/lib/extract-api-error';
+
+
+const PATTERN_RULES = [
+  { key: 'minLength', esKey: 'auth.validation.passwordMin' },
+  { key: 'hasUpper', esKey: 'auth.validation.passwordUppercase' },
+  { key: 'hasLower', esKey: 'auth.validation.passwordLowercase' },
+  { key: 'hasNumber', esKey: 'auth.validation.passwordNumber' },
+] as const;
 
 
 interface SecuritySettingsProps {
@@ -28,6 +39,13 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     text: string;
   } | null>(null);
 
+  const [passwordPatterns, setPasswordPatterns] = useState({
+    minLength: false,
+    hasUpper: false,
+    hasLower: false,
+    hasNumber: false,
+  });
+
   // 2FA state
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [show2FASetup, setShow2FASetup] = useState(false);
@@ -41,8 +59,20 @@ export function SecuritySettings({}: SecuritySettingsProps) {
   const [isGeneratingQR, setIsGeneratingQR] = useState(false);
   const [isRegeneratingCodes, setIsRegeneratingCodes] = useState(false);
 
+  const t = useT();
+
+  const validatePasswordPatterns = (password: string) => {
+    setPasswordPatterns({
+      minLength: password.length >= 8,
+      hasUpper: /[A-Z]/.test(password),
+      hasLower: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+    });
+  };
+
   useEffect(() => {
     if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTwoFactorEnabled((session.user as any).twoFactorEnabled === true);
     }
   }, [session]);
@@ -55,8 +85,9 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       return;
     }
 
-    if (passwordData.newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'La contraseña debe tener al menos 8 caracteres' });
+    const allPatternsMet = Object.values(passwordPatterns).every(Boolean);
+    if (!allPatternsMet) {
+      setMessage({ type: 'error', text: 'La contraseña no cumple los requisitos de seguridad' });
       return;
     }
 
@@ -74,8 +105,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al cambiar contraseña');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       setMessage({ type: 'success', text: 'Contraseña actualizada correctamente' });
@@ -96,7 +127,10 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     setMessage(null);
     try {
       const response = await fetch('/api/auth/2fa/setup', { method: 'POST' });
-      if (!response.ok) throw new Error('Error al iniciar configuración 2FA');
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
       const data = await response.json();
       setTwoFactorSecret(data.secret);
       setOtpauthUrl(data.otpauthUrl);
@@ -134,8 +168,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
         body: JSON.stringify({ token: verificationToken }),
       });
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Código inválido');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       const data = await response.json();
       setBackupCodes(data.backupCodes);
@@ -162,8 +196,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
         body: JSON.stringify({ currentPassword: disablePassword }),
       });
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al deshabilitar 2FA');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       setTwoFactorEnabled(false);
       setShowDisableConfirm(false);
@@ -191,8 +225,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     try {
       const response = await fetch('/api/auth/2fa/backup-codes', { method: 'POST' });
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al regenerar códigos');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       const data = await response.json();
       setBackupCodes(data.backupCodes);
@@ -220,6 +254,9 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 : 'bg-[var(--success)]/10 border-[var(--success)]/20'
             }`}
           >
+            {message.type === 'error' && (
+              <AlertCircle className="w-4 h-4 text-[var(--error)] shrink-0" aria-hidden="true" />
+            )}
             <AlertDescription
               id="password-change-error"
               className={
@@ -253,16 +290,33 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               id="newPassword"
               type="password"
               value={passwordData.newPassword}
-              onChange={(e) =>
-                setPasswordData((p) => ({ ...p, newPassword: e.target.value }))
-              }
+              onChange={(e) => {
+                setPasswordData((p) => ({ ...p, newPassword: e.target.value }));
+                validatePasswordPatterns(e.target.value);
+              }}
               required
               autoComplete="new-password"
               aria-describedby={`new-password-hint${message?.type === 'error' ? ' password-change-error' : ''}`}
             />
-            <p id="new-password-hint" className="text-xs text-[var(--text-tertiary)]">
-              Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números
-            </p>
+            <ul id="new-password-hint" className="space-y-1" aria-label="Requisitos de contraseña">
+              {PATTERN_RULES.map((rule) => {
+                const met = passwordPatterns[rule.key as keyof typeof passwordPatterns];
+                const Icon = met ? CheckCircle2 : XCircle;
+                return (
+                  <li key={rule.key} className="flex items-center gap-1.5 text-xs">
+                    <Icon
+                      className={`w-3.5 h-3.5 shrink-0 ${
+                        met ? 'text-[var(--success)]' : 'text-[var(--text-tertiary)]'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span className={met ? 'text-[var(--success)]' : 'text-[var(--text-tertiary)]'}>
+                      {t(rule.esKey)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
 
           <div className="space-y-2">

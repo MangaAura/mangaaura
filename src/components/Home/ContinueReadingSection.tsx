@@ -4,15 +4,15 @@ import { BookOpen, ChevronRight, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
-import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { useT } from '@/i18n';
 
 export function ContinueReadingSection() {
   const { data: session } = useSession();
-  const { progress, isLoading } = useReadingProgress();
+  const { progress } = useReadingProgress();
   const t = useT();
 
   if (!session?.user) return null;
@@ -42,7 +42,7 @@ export function ContinueReadingSection() {
               >
                 <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 relative bg-[var(--surface-sunken)]">
                   {p.manga?.coverUrl ? (
-                    <img src={p.manga.coverUrl} alt="" className="w-full h-full object-cover" />
+                    <img src={p.manga.coverUrl} alt={p.manga.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <BookOpen className="w-5 h-5 text-[var(--text-tertiary)]" />

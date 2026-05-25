@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Save,
@@ -8,6 +9,8 @@ import {
   Loader2,
   AlertTriangle,
   BookOpen,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -34,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 interface UserManga {
@@ -51,7 +55,7 @@ interface UserData {
   avatarUrl: string | null;
   role: string;
   xpPoints: number;
-  inkcoinsBalance: number;
+  auraBalance: number;
   level: number;
   readingStreak: number;
   createdAt: string;
@@ -67,9 +71,65 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function EditUserPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const t = useT();
+  const { handleError } = useErrorHandler();
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [emailValid, setEmailValid] = useState(false);
+  const [levelTouched, setLevelTouched] = useState(false);
+  const [levelError, setLevelError] = useState('');
+  const [levelValid, setLevelValid] = useState(false);
+  const [xpTouched, setXpTouched] = useState(false);
+  const [xpError, setXpError] = useState('');
+  const [xpValid, setXpValid] = useState(false);
+  const [inkTouched, setInkTouched] = useState(false);
+  const [inkError, setInkError] = useState('');
+  const [inkValid, setInkValid] = useState(false);
+
+  const validateLevelField = (value: number) => {
+    if (value < 1) {
+      setLevelError('Minimum 1');
+      setLevelValid(false);
+    } else {
+      setLevelError('');
+      setLevelValid(true);
+    }
+  };
+
+  const validateXpField = (value: number) => {
+    if (value < 0) {
+      setXpError('Minimum 0');
+      setXpValid(false);
+    } else {
+      setXpError('');
+      setXpValid(true);
+    }
+  };
+
+  const validateInkField = (value: number) => {
+    if (value < 0) {
+      setInkError('Minimum 0');
+      setInkValid(false);
+    } else {
+      setInkError('');
+      setInkValid(true);
+    }
+  };
+
+  const validateEmailField = (value: string) => {
+    if (!value) {
+      setEmailError(t('admin.emailRequired'));
+      setEmailValid(false);
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setEmailError(t('admin.emailInvalid'));
+      setEmailValid(false);
+    } else {
+      setEmailError('');
+      setEmailValid(true);
+    }
+  };
 
   const { data, error, isLoading, mutate } = useSWR<{ user: UserData }>(
     `/api/admin/users/${params.slug}`,
@@ -84,7 +144,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
     email: user?.email || '',
     role: user?.role || 'USER',
     xpPoints: user?.xpPoints || 0,
-    inkcoinsBalance: user?.inkcoinsBalance || 0,
+    auraBalance: user?.auraBalance || 0,
     level: user?.level || 1,
   });
 
@@ -101,7 +161,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
         await mutate();
       }
     } catch (error) {
-      console.error('Failed to save:', error);
+      handleError(error);
     } finally {
       setIsSaving(false);
     }
@@ -120,7 +180,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
         router.push('/admin/users');
       }
     } catch (error) {
-      console.error('Failed to delete:', error);
+      handleError(error);
     } finally {
       setIsDeleting(false);
     }
@@ -139,7 +199,7 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
         await mutate();
       }
     } catch (error) {
-      console.error('Failed to ban/unban:', error);
+      handleError(error);
     } finally {
       setIsSaving(false);
     }
@@ -242,11 +302,41 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                 <Input
                   type="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (emailTouched) validateEmailField(e.target.value);
+                  }}
+                  onBlur={() => {
+                    setEmailTouched(true);
+                    validateEmailField(formData.email);
+                  }}
                   placeholder="Email address"
                 />
+                {emailTouched && (
+                  <AnimatePresence>
+                    {emailError ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="mt-1 flex items-start gap-1.5 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg"
+                        role="alert"
+                      >
+                        <XCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0 mt-0.5" />
+                        <p className="text-xs text-[var(--error)]">{emailError}</p>
+                      </motion.div>
+                    ) : emailValid ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 flex items-center gap-1"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                        <p className="text-xs text-[var(--success)]">{t('admin.validEmail')}</p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-[var(--text-secondary)]">Role</label>
@@ -281,10 +371,41 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                     type="number"
                     min={1}
                     value={formData.level}
-                    onChange={(e) =>
-                      setFormData({ ...formData, level: parseInt(e.target.value) || 1 })
-                    }
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setFormData({ ...formData, level: val });
+                      if (levelTouched) validateLevelField(val);
+                    }}
+                    onBlur={() => {
+                      setLevelTouched(true);
+                      validateLevelField(formData.level);
+                    }}
                   />
+                  {levelTouched && (
+                    <AnimatePresence>
+                      {levelError ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          className="mt-1 flex items-start gap-1.5 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg"
+                          role="alert"
+                        >
+                          <XCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0 mt-0.5" />
+                          <p className="text-xs text-[var(--error)]">{levelError}</p>
+                        </motion.div>
+                      ) : levelValid ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-1 flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                          <p className="text-xs text-[var(--success)]">Valid level</p>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium text-[var(--text-secondary)]">XP Points</label>
@@ -292,21 +413,83 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                     type="number"
                     min={0}
                     value={formData.xpPoints}
-                    onChange={(e) =>
-                      setFormData({ ...formData, xpPoints: parseInt(e.target.value) || 0 })
-                    }
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setFormData({ ...formData, xpPoints: val });
+                      if (xpTouched) validateXpField(val);
+                    }}
+                    onBlur={() => {
+                      setXpTouched(true);
+                      validateXpField(formData.xpPoints);
+                    }}
                   />
+                  {xpTouched && (
+                    <AnimatePresence>
+                      {xpError ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          className="mt-1 flex items-start gap-1.5 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg"
+                          role="alert"
+                        >
+                          <XCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0 mt-0.5" />
+                          <p className="text-xs text-[var(--error)]">{xpError}</p>
+                        </motion.div>
+                      ) : xpValid ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-1 flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                          <p className="text-xs text-[var(--success)]">Valid value</p>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  )}
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[var(--text-secondary)]">InkCoins</label>
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Aura</label>
                   <Input
                     type="number"
                     min={0}
-                    value={formData.inkcoinsBalance}
-                    onChange={(e) =>
-                      setFormData({ ...formData, inkcoinsBalance: parseInt(e.target.value) || 0 })
-                    }
+                    value={formData.auraBalance}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setFormData({ ...formData, auraBalance: val });
+                      if (inkTouched) validateInkField(val);
+                    }}
+                    onBlur={() => {
+                      setInkTouched(true);
+                      validateInkField(formData.auraBalance);
+                    }}
                   />
+                  {inkTouched && (
+                    <AnimatePresence>
+                      {inkError ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          className="mt-1 flex items-start gap-1.5 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg"
+                          role="alert"
+                        >
+                          <XCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0 mt-0.5" />
+                          <p className="text-xs text-[var(--error)]">{inkError}</p>
+                        </motion.div>
+                      ) : inkValid ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-1 flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                          <p className="text-xs text-[var(--success)]">Valid value</p>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -400,8 +583,8 @@ export default function EditUserPage({ params }: { params: { slug: string } }) {
                 <span className="font-medium">{user.xpPoints.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">{t('admin.inkCoins')}</span>
-                <span className="font-medium">{user.inkcoinsBalance.toLocaleString()}</span>
+                <span className="text-[var(--text-tertiary)]">{t('admin.aura')}</span>
+                <span className="font-medium">{user.auraBalance.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-tertiary)]">{t('admin.readingStreak')}</span>

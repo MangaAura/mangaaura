@@ -1,9 +1,9 @@
 'use client';
 
-import {
-  BookOpen, Rss, MessageCircle, FolderOpen, Calendar, Sparkles, Plus, Menu, X, ChevronDown,
-} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  BookOpen, Rss, MessageCircle, FolderOpen, Sparkles, Plus, Menu, X, ChevronDown,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -92,7 +92,7 @@ export default function Navbar() {
                       aria-expanded={moreOpen}
                       aria-haspopup="true"
                     >
-                      Más
+                      {t('common.more')}
                       <ChevronDown className={'w-3.5 h-3.5 transition-transform duration-200 ' + (moreOpen ? 'rotate-180' : '')} aria-hidden="true" />
                     </button>
                     <AnimatePresence>
@@ -101,7 +101,7 @@ export default function Navbar() {
                         <button
                           className="fixed inset-0 z-10"
                           onClick={() => setMoreOpen(false)}
-                          aria-label="Cerrar"
+                          aria-label={t('common.close')}
                         />
                         <motion.div
                           initial={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -121,110 +121,107 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="hidden sm:block w-48 lg:w-64">
-                <SearchBar onSearch={handleSearch} placeholder={t('common.search')} />
-              </div>
-
               {mounted && isLoggedIn && (
-                <>
+                <div className="hidden md:flex items-center gap-0.5 mx-1 px-1.5 py-1 rounded-xl bg-[var(--surface)]/50 border border-[var(--border)]/50">
                   <Link
                     href="/feed"
                     className={
-                      'relative hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200' +
+                      'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                       (isActive(pathname, '/feed')
                         ? ' text-[var(--primary)] bg-[var(--primary-subtle)] shadow-sm'
-                        : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
+                        : ' text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                     }
                     title={t('nav.feed')}
                     aria-current={isActive(pathname, '/feed') ? 'page' : undefined}
                   >
-                    <Rss className={'w-4 h-4 ' + (isActive(pathname, '/feed') ? 'text-[var(--primary)]' : '')} aria-hidden="true" />
-                    <span className="hidden lg:inline">{t('nav.feed')}</span>
+                    <Rss className={'w-4 h-4 ' + (isActive(pathname, '/feed') ? 'text-[var(--primary)]' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                    {isActive(pathname, '/feed') && (
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--primary)]" />
+                    )}
                   </Link>
 
                   <Link
                     href="/messages"
                     className={
-                      'relative hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200' +
+                      'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                       (isActive(pathname, '/messages')
                         ? ' text-[var(--primary)] bg-[var(--primary-subtle)] shadow-sm'
-                        : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
+                        : ' text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                     }
                     title={t('nav.messages')}
                     aria-current={isActive(pathname, '/messages') ? 'page' : undefined}
                   >
-                    <MessageCircle className={'w-4 h-4 ' + (isActive(pathname, '/messages') ? 'text-[var(--primary)]' : '')} aria-hidden="true" />
-                    <span className="hidden lg:inline">{t('nav.messages')}</span>
+                    <MessageCircle className={'w-4 h-4 ' + (isActive(pathname, '/messages') ? 'text-[var(--primary)]' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                    {isActive(pathname, '/messages') && (
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--primary)]" />
+                    )}
                     {unreadMessages > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-[var(--error)] rounded-full text-[10px] font-bold text-[var(--text-inverse)] flex items-center justify-center ring-2 ring-[var(--background)]" aria-label={t('a11y.unreadMessages', { count: unreadMessages > 9 ? '9+' : unreadMessages })}>
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-[var(--error)] to-rose-600 rounded-full text-[9px] font-bold text-[var(--text-inverse)] flex items-center justify-center ring-2 ring-[var(--background)] shadow-sm"
+                        aria-label={t('a11y.unreadMessages', { count: unreadMessages > 9 ? '9+' : unreadMessages })}
+                      >
                         {unreadMessages > 9 ? '9+' : unreadMessages}
-                      </span>
+                      </motion.span>
                     )}
                   </Link>
 
                   <Link
                     href="/collections"
                     className={
-                      'hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200' +
+                      'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                       (isActive(pathname, '/collections')
                         ? ' text-[var(--primary)] bg-[var(--primary-subtle)] shadow-sm'
-                        : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
+                        : ' text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
                     }
                     title={t('nav.collections')}
                     aria-current={isActive(pathname, '/collections') ? 'page' : undefined}
                   >
-                    <FolderOpen className={'w-4 h-4 ' + (isActive(pathname, '/collections') ? 'text-[var(--primary)]' : '')} aria-hidden="true" />
-                    <span className="hidden lg:inline">{t('nav.collections')}</span>
-                  </Link>
-
-                  <Link
-                    href="/events"
-                    className={
-                      'hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200' +
-                      (isActive(pathname, '/events')
-                        ? ' text-[var(--primary)] bg-[var(--primary-subtle)] shadow-sm'
-                        : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
-                    }
-                    title={t('nav.events')}
-                    aria-current={isActive(pathname, '/events') ? 'page' : undefined}
-                  >
-                    <Calendar className={'w-4 h-4 ' + (isActive(pathname, '/events') ? 'text-[var(--primary)]' : '')} aria-hidden="true" />
-                    <span className="hidden lg:inline">{t('nav.events')}</span>
+                    <FolderOpen className={'w-4 h-4 ' + (isActive(pathname, '/collections') ? 'text-[var(--primary)]' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                    {isActive(pathname, '/collections') && (
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--primary)]" />
+                    )}
                   </Link>
 
                   {isCreator && (
                     <Link
                       href="/creator/dashboard"
                       className={
-                        'hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200' +
+                        'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                         (isActive(pathname, '/creator/dashboard')
-                          ? ' text-[var(--primary)] bg-[var(--primary-subtle)] shadow-sm'
-                          : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]')
+                          ? ' text-amber-500 bg-amber-500/10 shadow-sm'
+                          : ' text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10')
                       }
                       title={t('creator.dashboard')}
                       aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
                     >
-                      <Sparkles className={'w-4 h-4 ' + (isActive(pathname, '/creator/dashboard') ? 'text-[var(--primary)]' : '')} aria-hidden="true" />
-                      <span className="hidden lg:inline">{t('creator.dashboard')}</span>
+                      <Sparkles className={'w-4 h-4 ' + (isActive(pathname, '/creator/dashboard') ? '' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                      {isActive(pathname, '/creator/dashboard') && (
+                        <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-amber-500" />
+                      )}
                     </Link>
                   )}
 
                   {isCreator && (
                     <Link
                       href="/creator/manga/new"
-                      className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)]/90 shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-[1.02]"
+                      className="group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
                       title={t('creator.newManga')}
                     >
                       <Plus className="w-4 h-4" aria-hidden="true" />
-                      <span className="hidden lg:inline">{t('common.create')}</span>
                     </Link>
                   )}
-                </>
+                </div>
               )}
 
-              <div className="flex items-center gap-1 ml-auto">
+              <div className="flex items-center gap-1">
                 <LanguageSwitcher className="hidden sm:flex" />
                 <ThemeToggle />
+              </div>
+
+              <div className="hidden sm:block w-48 lg:w-64">
+                <SearchBar onSearch={handleSearch} placeholder={t('common.search')} />
               </div>
 
               <AuthSection

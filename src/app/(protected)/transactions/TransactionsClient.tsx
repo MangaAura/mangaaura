@@ -9,7 +9,7 @@ const typeConfig: Record<string, { icon: typeof ArrowUp; color: string; labelKey
   TIP_SENT: { icon: ArrowUp, color: 'text-red-400', labelKey: 'transactions.tipSent' },
   TIP_RECEIVED: { icon: ArrowDown, color: 'text-green-400', labelKey: 'transactions.tipReceived' },
   CROWDFUND_CONTRIBUTION: { icon: ArrowUp, color: 'text-orange-400', labelKey: 'transactions.crowdfund' },
-  INKCOINS_PURCHASE: { icon: ArrowDown, color: 'text-blue-400', labelKey: 'transactions.purchase' },
+  AURA_PURCHASE: { icon: ArrowDown, color: 'text-blue-400', labelKey: 'transactions.purchase' },
   XP_EARNED: { icon: Trophy, color: 'text-purple-400', labelKey: 'transactions.xpEarned' },
 };
 
@@ -20,7 +20,7 @@ interface Transaction {
 
 export function TransactionsClient({ transactions, balance }: {
   transactions: Transaction[];
-  balance: { inkcoinsBalance: number; xpPoints: number } | null;
+  balance: { auraBalance: number; xpPoints: number } | null;
 }) {
   const t = useT();
 
@@ -33,8 +33,8 @@ export function TransactionsClient({ transactions, balance }: {
       {balance && (
         <div className="grid grid-cols-2 gap-4">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Coins className="w-5 h-5 text-yellow-400" /> InkCoins</CardTitle></CardHeader>
-            <CardContent><p className="text-3xl font-bold">{balance.inkcoinsBalance.toLocaleString()}</p></CardContent>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Coins className="w-5 h-5 text-yellow-400" /> Aura</CardTitle></CardHeader>
+            <CardContent><p className="text-3xl font-bold">{balance.auraBalance.toLocaleString()}</p></CardContent>
           </Card>
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Trophy className="w-5 h-5 text-purple-400" /> XP</CardTitle></CardHeader>

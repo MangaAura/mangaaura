@@ -8,6 +8,8 @@ import { CollectionCard } from './CollectionCard';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 
 
 interface Collection {
@@ -45,13 +47,11 @@ export function CollectionGrid({
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchCollections();
-  }, [userId, filter]);
+  const { handleError } = useErrorHandler();
 
   const fetchCollections = async () => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(true);
       setError(null);
 
@@ -60,17 +60,24 @@ export function CollectionGrid({
       if (filter !== 'all') params.append('filter', filter);
 
       const response = await fetch(`/api/collections?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch');
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
 
       const data = await response.json();
       setCollections(data.collections || []);
     } catch (err) {
+      handleError(err);
       setError('Error al cargar colecciones');
-      console.error('Error fetching collections:', err);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCollections();
+  }, [userId, filter]);
 
   const handleDelete = (deletedId: string) => {
     setCollections((prev) => prev.filter((c) => c.id !== deletedId));

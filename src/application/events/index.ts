@@ -8,5 +8,5 @@ export * from '@/core/events/UserRegisteredEvent';
 export * from '@/core/events/ChapterCompletedEvent';
 export * from '@/core/events/XPAddedEvent';
 export * from '@/core/events/CommentPostedEvent';
-export * from '@/core/events/InkCoinsSpentEvent';
+export * from '@/core/events/AuraSpentEvent';
 export * from '@/core/events/MangaEvents';

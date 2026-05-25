@@ -11,7 +11,7 @@ export type NotificationType =
   | 'COMMENT_REPLY'
   | 'SPONSORSHIP_WON'
   | 'LEVEL_UP'
-  | 'INK_COINS_RECEIVED'
+  | 'AURA_RECEIVED'
   | 'SYSTEM'
   | 'MENTION'
   | 'TIP_RECEIVED'
@@ -152,7 +152,7 @@ export class NotificationService {
       userId,
       type: 'SPONSORSHIP_WON',
       title: '🎉 ¡Patrocinio Ganado!',
-      message: `Has ganado el patrocinio del capítulo ${chapter.chapterNumber}${mangaTitle ? ` de ${mangaTitle}` : ''} con ${bidAmount} InkCoins`,
+      message: `Has ganado el patrocinio del capítulo ${chapter.chapterNumber}${mangaTitle ? ` de ${mangaTitle}` : ''} con ${bidAmount} Aura`,
       data: {
         chapterId: chapter.id,
         chapterNumber: chapter.chapterNumber,
@@ -181,16 +181,16 @@ export class NotificationService {
     });
   }
 
-  async notifyInkCoinsReceived(
+  async notifyAuraReceived(
     userId: string,
     amount: number,
     reason: string
   ): Promise<Notification> {
     return this.createNotification({
       userId,
-      type: 'INK_COINS_RECEIVED',
-      title: '💰 InkCoins Recibidos',
-      message: `Has recibido ${amount} InkCoins: ${reason}`,
+      type: 'AURA_RECEIVED',
+      title: '💰 Aura Recibidos',
+      message: `Has recibido ${amount} Aura: ${reason}`,
       data: {
         amount,
         reason,
@@ -211,7 +211,7 @@ export class NotificationService {
       userId,
       type: 'TIP_RECEIVED',
       title: '💝 ¡Propina Recibida!',
-      message: `${sender.displayName || sender.username} te envió ${amount} InkCoins por el Capítulo ${chapter.chapterNumber}${chapterTitle}`,
+      message: `${sender.displayName || sender.username} te envió ${amount} Aura por el Capítulo ${chapter.chapterNumber}${chapterTitle}`,
       data: {
         amount,
         chapterId: chapter.id,
@@ -245,8 +245,8 @@ export class NotificationService {
       type: 'CROWDFUNDING_CONTRIBUTION',
       title: goalReached ? '🎉 ¡Meta de Crowdfunding Alcanzada!' : '💰 Nueva Contribución al Crowdfunding',
       message: goalReached
-        ? `${contributorName} contribuyó ${amount} InkCoins y la meta fue alcanzada (${percentage}%) para el Capítulo ${chapter.chapterNumber}${chapterTitle}`
-        : `${contributorName} contribuyó ${amount} InkCoins al crowdfunding del Capítulo ${chapter.chapterNumber}${chapterTitle} (${percentage}%)`,
+        ? `${contributorName} contribuyó ${amount} Aura y la meta fue alcanzada (${percentage}%) para el Capítulo ${chapter.chapterNumber}${chapterTitle}`
+        : `${contributorName} contribuyó ${amount} Aura al crowdfunding del Capítulo ${chapter.chapterNumber}${chapterTitle} (${percentage}%)`,
       data: {
         amount,
         chapterId: chapter.id,

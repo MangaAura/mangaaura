@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   BookOpen,
@@ -14,6 +15,8 @@ import {
   Sparkles,
   Eye,
   ExternalLink,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import useSWR, { mutate } from 'swr';
@@ -32,6 +35,7 @@ import {
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 interface CreatorProfile {
   username: string;
@@ -53,7 +57,7 @@ interface PublishingPrefs {
 
 interface PaymentInfo {
   stripeConnected: boolean;
-  inkcoinsBalance: number;
+  auraBalance: number;
   totalTipsReceived: number;
   minimumPayout: number;
 }
@@ -91,7 +95,24 @@ export default function CreatorSettingsPage() {
   });
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [websiteTouched, setWebsiteTouched] = useState(false);
+  const [websiteValid, setWebsiteValid] = useState(false);
+  const [websiteError, setWebsiteError] = useState('');
 
+  const validateWebsite = (value: string) => {
+    if (!value) {
+      setWebsiteError('');
+      setWebsiteValid(false);
+    } else if (!/^https?:\/\/.+/.test(value)) {
+      setWebsiteError(t('creatorSettings.websiteInvalid'));
+      setWebsiteValid(false);
+    } else {
+      setWebsiteError('');
+      setWebsiteValid(true);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (data?.profile) setProfile(data.profile);
     if (data?.publishing) setPublishing(data.publishing);
@@ -223,8 +244,8 @@ export default function CreatorSettingsPage() {
               <Coins className="w-5 h-5 text-[var(--warning)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.payments.inkcoinsBalance.toLocaleString() || '0'}</p>
-              <p className="text-xs text-[var(--text-tertiary)]">{t('creatorSettings.inkCoins')}</p>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.payments.auraBalance.toLocaleString() || '0'}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{t('creatorSettings.aura')}</p>
             </div>
           </CardContent>
         </Card>
@@ -287,10 +308,49 @@ export default function CreatorSettingsPage() {
             <Input
               id="website"
               value={profile.website || ''}
-              onChange={(e) => handleProfileChange('website', e.target.value)}
-              className="mt-1"
+              onChange={(e) => {
+                handleProfileChange('website', e.target.value);
+                if (websiteTouched) validateWebsite(e.target.value);
+              }}
+              onBlur={() => {
+                setWebsiteTouched(true);
+                validateWebsite(profile.website || '');
+              }}
+              className={cn(
+                'mt-1',
+                websiteTouched && websiteValid && profile.website
+                  ? 'border-[var(--success)]'
+                  : websiteError
+                    ? 'border-[var(--error)]'
+                    : ''
+              )}
               placeholder="https://tu-sitio.com"
             />
+            {websiteTouched && (
+              <AnimatePresence>
+                {websiteError ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="mt-1 flex items-start gap-1.5 p-2 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg"
+                    role="alert"
+                  >
+                    <XCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0 mt-0.5" />
+                    <p className="text-xs text-[var(--error)]">{websiteError}</p>
+                  </motion.div>
+                ) : websiteValid && profile.website ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-1 flex items-center gap-1"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                    <p className="text-xs text-[var(--success)]">{t('creatorSettings.websiteValid')}</p>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -419,10 +479,10 @@ export default function CreatorSettingsPage() {
             <div className="p-4 bg-[var(--warning)]/5 rounded-lg border border-[var(--warning)]/20">
               <div className="flex items-center gap-2 mb-2">
                 <Coins className="w-5 h-5 text-[var(--warning)]" />
-                <p className="font-medium text-[var(--text-primary)]">InkCoins</p>
+                <p className="font-medium text-[var(--text-primary)]">Aura</p>
               </div>
               <p className="text-3xl font-bold text-[var(--text-primary)]">
-                {data?.payments.inkcoinsBalance.toLocaleString() || '0'}
+                {data?.payments.auraBalance.toLocaleString() || '0'}
               </p>
               <p className="text-sm text-[var(--text-tertiary)] mt-1">{t('creatorSettings.currentBalance')}</p>
             </div>
@@ -434,12 +494,12 @@ export default function CreatorSettingsPage() {
               <p className="text-3xl font-bold text-[var(--text-primary)]">
                 {data?.payments.totalTipsReceived.toLocaleString() || '0'}
               </p>
-              <p className="text-sm text-[var(--text-tertiary)] mt-1">{t('creatorSettings.inkCoinsInTips')}</p>
+              <p className="text-sm text-[var(--text-tertiary)] mt-1">{t('creatorSettings.auraInTips')}</p>
             </div>
           </div>
           <div className="p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
             <p className="text-sm text-[var(--text-tertiary)]">
-              {t('creatorSettings.minPayout')} <span className="font-medium text-[var(--text-primary)]">{data?.payments.minimumPayout.toLocaleString() || '1,000'} InkCoins</span>
+              {t('creatorSettings.minPayout')} <span className="font-medium text-[var(--text-primary)]">{data?.payments.minimumPayout.toLocaleString() || '1,000'} Aura</span>
             </p>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
               {t('creatorSettings.memberSince')} {data?.stats.memberSince ? new Date(data.stats.memberSince).toLocaleDateString('es') : '—'}

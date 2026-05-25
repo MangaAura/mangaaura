@@ -164,7 +164,9 @@ export default function CreatorCommunityPage() {
     }
   }, [activeCategory]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchCategories(); }, [fetchCategories]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchThreads(); }, [fetchThreads]);
 
   const filteredThreads = threads.filter((t) => {

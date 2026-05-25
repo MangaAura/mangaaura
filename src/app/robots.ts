@@ -45,6 +45,31 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api', '/admin'],
       },
       {
+        userAgent: 'GPTBot',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
+      {
+        userAgent: 'ClaudeBot',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
+      {
+        userAgent: 'anthropic-ai',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
+      {
         userAgent: 'AhrefsBot',
         crawlDelay: 10,
       },

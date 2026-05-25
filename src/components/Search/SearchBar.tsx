@@ -6,12 +6,17 @@
 
 'use client';
 
-import { Search, X, Clock, Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Search, X, Clock, Loader2, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useDebouncedCallback } from '@/hooks/useDebounce';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useRecentSearches } from '@/hooks/useRecentSearches';
+import { useT } from '@/i18n';
+import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
 interface SearchSuggestion {
@@ -36,30 +41,21 @@ export function SearchBar({
   showSuggestions = true,
 }: SearchBarProps) {
   const router = useRouter();
+  const t = useT();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const { handleError } = useErrorHandler();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Load recent searches from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('recentSearches');
-    if (saved) {
-      setRecentSearches(JSON.parse(saved));
-    }
-  }, []);
-
-  // Save recent search
-  const saveRecentSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) return;
-    const updated = [searchQuery, ...recentSearches.filter(s => s !== searchQuery)].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem('recentSearches', JSON.stringify(updated));
-  }, [recentSearches]);
+  const { recentSearches, addRecentSearch, clearRecentSearches } = useRecentSearches({
+    syncWithServer: false,
+    oldKey: 'recentSearches',
+  });
 
   // Fetch suggestions
   const fetchSuggestions = useDebouncedCallback(
@@ -72,7 +68,10 @@ export function SearchBar({
       setIsLoading(true);
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&limit=5`);
-        if (!response.ok) throw new Error('Failed to fetch');
+        if (!response.ok) {
+          const { message } = await extractApiError(response);
+          throw new Error(message);
+        }
         const data = await response.json();
         
         const mappedSuggestions: SearchSuggestion[] = data.results.map((manga: any) => ({
@@ -84,8 +83,9 @@ export function SearchBar({
         
         setSuggestions(mappedSuggestions);
       } catch (error) {
-        console.error('Error fetching suggestions:', error);
+        handleError(error);
         setSuggestions([]);
+        setValidationError(t('search.errorConnection'));
       } finally {
         setIsLoading(false);
       }
@@ -99,6 +99,7 @@ export function SearchBar({
     setQuery(value);
     setIsOpen(true);
     setSelectedIndex(-1);
+    setValidationError(null);
     fetchSuggestions(value);
   };
 
@@ -106,7 +107,7 @@ export function SearchBar({
   const handleSearch = (searchQuery: string = query) => {
     if (!searchQuery.trim()) return;
     
-    saveRecentSearch(searchQuery);
+    addRecentSearch(searchQuery);
     setIsOpen(false);
     
     if (onSearch) {
@@ -137,34 +138,34 @@ export function SearchBar({
     inputRef.current?.focus();
   };
 
-  // Clear recent searches
-  const clearRecent = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setRecentSearches([]);
-    localStorage.removeItem('recentSearches');
-  };
 
-  // Keyboard navigation
+
+  // Keyboard navigation — combines suggestions + recent searches into a single flat list
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const items = suggestions.length > 0 ? suggestions : recentSearches.map(s => ({ id: s, title: s, type: 'manga' as const }));
-    
+    const suggestionCount = suggestions.length;
+    const recentCount = recentSearches.length;
+    const totalCount = suggestionCount + recentCount;
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => (prev + 1) % items.length);
+        if (totalCount > 0) {
+          setSelectedIndex(prev => (prev + 1) % totalCount);
+        }
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + items.length) % items.length);
+        if (totalCount > 0) {
+          setSelectedIndex(prev => (prev - 1 + totalCount) % totalCount);
+        }
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0 && items[selectedIndex]) {
-          const selected = items[selectedIndex];
-          if ('type' in selected && selected.type === 'manga') {
-            handleSuggestionClick(selected as SearchSuggestion);
+        if (selectedIndex >= 0 && selectedIndex < totalCount) {
+          if (selectedIndex < suggestionCount) {
+            handleSuggestionClick(suggestions[selectedIndex]);
           } else {
-            handleRecentClick(selected.title);
+            handleRecentClick(recentSearches[selectedIndex - suggestionCount]);
           }
         } else {
           handleSearch();
@@ -209,6 +210,8 @@ export function SearchBar({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           aria-label="Buscar manga"
+          aria-autocomplete="list"
+          aria-activedescendant={selectedIndex >= 0 ? (selectedIndex < suggestions.length ? `search-suggestion-${selectedIndex}` : `search-recent-${selectedIndex - suggestions.length}`) : undefined}
           className={cn(
             'w-full pl-10 pr-10 py-2.5',
             'bg-[var(--surface)]/50 border border-[var(--border)]',
@@ -217,6 +220,23 @@ export function SearchBar({
             'transition-all duration-200'
           )}
         />
+
+        {/* Inline validation error */}
+        <AnimatePresence>
+          {validationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center gap-1.5 mt-1.5"
+              role="alert"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0" />
+              <span className="text-xs text-[var(--error)]">{validationError}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {/* Clear button */}
         {query && (
@@ -242,7 +262,9 @@ export function SearchBar({
               {suggestions.map((suggestion, index) => (
                 <button
                   key={suggestion.id}
+                  id={`search-suggestion-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
+                  onMouseEnter={() => setSelectedIndex(index)}
                   className={cn(
                     'w-full px-3 py-2 flex items-center gap-3',
                     'hover:bg-[var(--surface)] transition-colors',
@@ -289,28 +311,39 @@ export function SearchBar({
                   Búsquedas recientes
                 </span>
                 <button
-                  onClick={clearRecent}
+                  onClick={(e) => { e.stopPropagation(); clearRecentSearches(); }}
                   className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   Limpiar
                 </button>
               </div>
-              {recentSearches.map((search, index) => (
-                <button
+              <AnimatePresence initial={false}>
+              {recentSearches.map((search, index) => {
+                const combinedIndex = suggestions.length + index;
+                return (
+                <motion.button
                   key={search}
+                  id={`search-recent-${index}`}
+                  layout
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 12, transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                   onClick={() => handleRecentClick(search)}
+                  onMouseEnter={() => setSelectedIndex(combinedIndex)}
                   className={cn(
                     'w-full px-3 py-2 flex items-center gap-3',
                     'hover:bg-[var(--surface)] transition-colors',
-                    index + suggestions.length === selectedIndex && 'bg-[var(--surface)]'
+                    combinedIndex === selectedIndex && 'bg-[var(--surface)]'
                   )}
                   role="option"
-                  aria-selected={index + suggestions.length === selectedIndex}
+                  aria-selected={combinedIndex === selectedIndex}
                 >
                   <Clock className="w-4 h-4 text-[var(--text-tertiary)]" />
                   <span className="text-sm text-[var(--text-primary)]">{search}</span>
-                </button>
-              ))}
+      </motion.button>
+            )})}
+          </AnimatePresence>
             </div>
           )}
         </div>

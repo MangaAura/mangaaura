@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
         username: username.toLowerCase().trim(),
         passwordHash: hashedPassword,
         xpPoints: 0,
-        inkcoinsBalance: 50, // Bonus de registro
+        auraBalance: 50, // Bonus de registro
         level: 1,
         readingStreak: 0,
       emailPreferences: JSON.stringify({
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
         avatarUrl: true,
         xpPoints: true,
         level: true,
-        inkcoinsBalance: true,
+        auraBalance: true,
         createdAt: true,
       },
     });

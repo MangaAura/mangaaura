@@ -62,9 +62,9 @@ class PrismaTransactionQueryRepository implements ITransactionQueryRepository {
   async getBalance(userId: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { inkcoinsBalance: true },
+      select: { auraBalance: true },
     });
-    return user?.inkcoinsBalance || 0;
+    return user?.auraBalance || 0;
   }
 }
 

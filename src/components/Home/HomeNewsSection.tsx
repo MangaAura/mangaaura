@@ -65,10 +65,10 @@ export function HomeNewsSection() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
-                  <Sparkles className="w-3 h-3" />
-                  Destacado
-                </span>
+<span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3" />
+                    {t('home.featured')}
+                  </span>
                 <div className="bg-[var(--primary-subtle)] text-[var(--primary)] text-xs font-bold inline-block px-2 py-1 rounded">
                   {t(categoryLabelKey[featured.category] || featured.category) || featured.category}
                 </div>

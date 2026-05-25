@@ -251,9 +251,9 @@ export function QuestCard({
             <span className="text-[var(--accent-purple)] font-medium">
               +{quest.xpReward} XP
             </span>
-            {quest.inkcoinsReward > 0 && (
+            {quest.auraReward > 0 && (
               <span className="text-[var(--accent-blue)] font-medium">
-                +{quest.inkcoinsReward} 🪙
+                +{quest.auraReward} 🪙
               </span>
             )}
           </div>
@@ -273,7 +273,7 @@ export function QuestCard({
               {t('quests.claiming')}
             </span>
           ) : (
-            <>{t('quests.claim', { xp: quest.xpReward, coins: quest.inkcoinsReward > 0 ? ` + ${quest.inkcoinsReward} 🪙` : '' })}</>
+            <>{t('quests.claim', { xp: quest.xpReward, coins: quest.auraReward > 0 ? ` + ${quest.auraReward} 🪙` : '' })}</>
           )}
         </button>
       )}

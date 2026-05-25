@@ -65,7 +65,7 @@ export function NotificationCard({
         return <Trophy className="w-5 h-5" />;
       case 'LEVEL_UP':
         return <Star className="w-5 h-5" />;
-      case 'INK_COINS_RECEIVED':
+      case 'AURA_RECEIVED':
         return <Coins className="w-5 h-5" />;
       case 'SPONSORSHIP_WON':
         return <Gift className="w-5 h-5" />;
@@ -86,7 +86,7 @@ export function NotificationCard({
     case 'ACHIEVEMENT_UNLOCKED':
     case 'LEVEL_UP':
       return 'bg-[var(--warning)]/20 text-[var(--warning)]';
-    case 'INK_COINS_RECEIVED':
+    case 'AURA_RECEIVED':
     case 'SPONSORSHIP_WON':
       return 'bg-[var(--accent-purple)]/20 text-[var(--accent-purple)]';
     default:

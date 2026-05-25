@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react';
 
+import { extractApiError } from '@/lib/extract-api-error';
+
 interface CreateMangaData {
   title: string;
   description: string;
@@ -62,8 +64,8 @@ export function useCreateManga(): UseCreateMangaReturn {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al crear el manga');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       
       const result = await response.json();

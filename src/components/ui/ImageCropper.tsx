@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 
 import { Button } from '@/components/ui/Button';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 /**
  * Create a cropped image blob from a source URL and pixel crop area.
@@ -96,6 +97,7 @@ export default function ImageCropper({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [processing, setProcessing] = useState(false);
+  const { handleError } = useErrorHandler();
   const zoomRef = useRef<HTMLInputElement>(null);
 
   const onCropComplete = useCallback(
@@ -113,7 +115,7 @@ export default function ImageCropper({
       const blob = await createCroppedImage(imageSrc, croppedAreaPixels, 'image/webp', 0.92);
       onCropConfirm(blob);
     } catch (err) {
-      console.error('Error cropping image:', err);
+      handleError(err);
     } finally {
       setProcessing(false);
     }

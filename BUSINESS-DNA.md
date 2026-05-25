@@ -18,12 +18,12 @@
 
 ## 💎 Ventajas Competitivas Diferenciadoras
 
-### 1. Ecosistema de Economía Virtual (InkCoins)
+### 1. Ecosistema de Economía Virtual (Aura)
 
 A diferencia de plataformas pasivas de lectura, MangaAura posee una **moneda virtual propia** que:
 
 - **Incentiva la actividad**: XP por lectura, logros, rankings mensuales
-- **Genera Revenue Sharing**: creadores reciben InkCoins por contenido exitoso
+- **Genera Revenue Sharing**: creadores reciben Aura por contenido exitoso
 - **Crowdfunding**: lectores pueden financiar capítulos antes de publicarse
 - **Propinas directas**: apoyo económico inmediato a creadores favoritos
 
@@ -98,7 +98,7 @@ La barrera de entrada para crear es mínima:
 
 El usuario entiende exactamente cómo funciona el dinero:
 
-- Compra de InkCoins via Stripe con precios claros
+- Compra de Aura via Stripe con precios claros
 - Historial completo de transacciones en la wallet
 - Propinas con notificación al creador en tiempo real
 - Revenue sharing documentado (patrocinio = % para autor)
@@ -138,7 +138,7 @@ Los usuarios generan contenido que beneficia a otros:
 
 > **"Llega a una audiencia altamente comprometida de amantes del manga con mensajes nativos."**
 
-- InkCoins como vehículo de patrocinio
+- Aura como vehículo de patrocinio
 - Posibilidad de capítulos "sponsored"
 - Datos demográficos y de engagement disponibles
 
@@ -150,7 +150,7 @@ Los usuarios generan contenido que beneficia a otros:
 
 | Stream | Mecánica | Contribución Estimada |
 |--------|----------|----------------------|
-| Venta de InkCoins | % sobre cada compra | 60-70% |
+| Venta de Aura | % sobre cada compra | 60-70% |
 | Patrocinio de capítulos | Tarifa fija por capítulo | 15-20% |
 | Ads (futuro) | Banners no intrusivos | 5-10% |
 | Premium tiers | Funcionalidades exclusivas | 5-10% |
@@ -170,7 +170,7 @@ Los usuarios generan contenido que beneficia a otros:
 3. **Calidad del descubrimiento**: La IA de recomendaciones debe ser significativamente mejor que filtrar por género
 4. **Velocidad de carga**: < 2s para primer paint en mobile 3G
 5. **Moderación de comunidad**: Comments seguros sin convertir la plataforma en un jardín vallado
-6. **Trust en transacciones**: Los InkCoins deben sentirse tangibles, no como fichas de casino
+6. **Trust en transacciones**: Los Aura deben sentirse tangibles, no como fichas de casino
 
 ---
 
@@ -181,7 +181,7 @@ Los usuarios generan contenido que beneficia a otros:
 | Dependencia de NVIDIA NIM | Media | Alto | Fallback a OpenAI ya implementado |
 | Concurrencia con plataformas established (MangaPlus, Tappytoon) | Alta | Alto | Diferenciación en comunidad + IA |
 | Costos de GPU para IA | Media | Medio | Rate limiting + caché agresivo |
-| Regulación de monedas virtuales | Baja | Muy Alto | InkCoins son crédito, no dinero real |
+| Regulación de monedas virtuales | Baja | Muy Alto | Aura son crédito, no dinero real |
 | Abandono de creadores por falta de monetización | Media | Alto | Revenue sharing dès el día 1 |
 
 ---
@@ -251,7 +251,7 @@ Los usuarios generan contenido que beneficia a otros:
          ┌─────────────────────┐
          │   PATROCINADOR      │
          │                     │
-         │ • Compra InkCoins   │
+         │ • Compra Aura      │
          │ • Patrocina caps    │
          │ • Da propinas       │
          └─────────────────────┘
@@ -268,4 +268,4 @@ MangaAura no es solo una plataforma de lectura — es un **ecosistema de valor**
 - La **tecnología** (IA, real-time, offline) es invisible pero mejora cada interacción
 - La **comunidad** se autogestiona con moderación inteligente
 
-La diferenciación no está en una sola feature, sino en la **combinación sinérgica** de todas ellas: un lector activo que gana XP, puede convertirse en creador, que puede monetizar con InkCoins, que otros pueden comprar para patrocinar capítulos, generando un ciclo virtuoso de valor.
+La diferenciación no está en una sola feature, sino en la **combinación sinérgica** de todas ellas: un lector activo que gana XP, puede convertirse en creador, que puede monetizar con Aura, que otros pueden comprar para patrocinar capítulos, generando un ciclo virtuoso de valor.

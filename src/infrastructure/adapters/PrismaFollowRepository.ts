@@ -1,11 +1,10 @@
-import { PrismaClient } from '@/generated/prisma/client';
-
 import type {
   IFollowRepository,
   FollowRecord,
   FollowingType,
   FollowQuery,
 } from '@/core/services/IFollowRepository';
+import { PrismaClient } from '@/generated/prisma/client';
 import { logSecurityEvent, SecurityAction, Severity } from '@/lib/security-audit';
 
 export class PrismaFollowRepository implements IFollowRepository {

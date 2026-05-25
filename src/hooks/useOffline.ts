@@ -19,10 +19,16 @@ export function useOffline(): UseOfflineReturn {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [storageInfo, setStorageInfo] = useState<{ mangas: number; chapters: number; actions: number } | null>(null);
 
+  const refreshStorageInfo = useCallback(async (): Promise<void> => {
+    const info = await offlineStorage.getStorageInfo();
+    setStorageInfo(info);
+  }, []);
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOnline(navigator.onLine);
 
     window.addEventListener('online', handleOnline);
@@ -83,11 +89,6 @@ export function useOffline(): UseOfflineReturn {
   const clearExpiredCache = useCallback(async (): Promise<void> => {
     await offlineStorage.clearExpiredData();
     await refreshStorageInfo();
-  }, []);
-
-  const refreshStorageInfo = useCallback(async (): Promise<void> => {
-    const info = await offlineStorage.getStorageInfo();
-    setStorageInfo(info);
   }, []);
 
   return {

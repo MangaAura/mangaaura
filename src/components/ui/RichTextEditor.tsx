@@ -47,6 +47,9 @@ import {
   Upload,
   X,
   Loader2,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
   Undo2,
   Redo2,
 } from 'lucide-react';
@@ -101,18 +104,29 @@ function Divider() {
   );
 }
 
+const isValidUrl = (value: string): boolean => {
+  if (!value) return true; // empty is allowed (removes link)
+  return /^https?:\/\/.+/i.test(value);
+};
+
 function LinkInput({ editor }: { editor: Editor }) {
   const [show, setShow] = useState(false);
   const [url, setUrl] = useState('');
+  const [urlTouched, setUrlTouched] = useState(false);
+
+  const urlError = urlTouched && url !== '' && !isValidUrl(url) ? 'URL no válida' : null;
+  const urlValid = urlTouched && url !== '' && isValidUrl(url);
 
   const handleSetLink = () => {
-    if (!url) {
+    if (!url || !isValidUrl(url)) {
+      if (url && !isValidUrl(url)) return;
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
     } else {
       editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     }
     setShow(false);
     setUrl('');
+    setUrlTouched(false);
   };
 
   const handleOpen = () => {
@@ -131,27 +145,51 @@ function LinkInput({ editor }: { editor: Editor }) {
         <Link className="w-4 h-4" />
       </ToolbarButton>
       {show && (
-        <div className="absolute top-full left-0 mt-1 z-50 flex items-center gap-2 p-2 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[300px]">
-          <input
-            type="url"
-            name="link-url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://..."
-            className="flex-1 px-2 py-1.5 text-sm bg-[var(--surface-sunken)] border border-[var(--border)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSetLink();
-              if (e.key === 'Escape') setShow(false);
-            }}
-            autoFocus
-          />
-          <button
-            type="button"
-            onClick={handleSetLink}
-            className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90"
-          >
-            {url ? 'Aplicar' : 'Eliminar'}
-          </button>
+        <div className="absolute top-full left-0 mt-1 z-50 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg min-w-[300px]">
+          <div className="flex items-center gap-2 p-2">
+            <div className="flex-1 relative">
+              <input
+                type="url"
+                name="link-url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onBlur={() => setUrlTouched(true)}
+                placeholder="https://..."
+                className={cn(
+                  'w-full px-2 py-1.5 pr-8 text-sm bg-[var(--surface-sunken)] border rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]',
+                  urlError ? 'border-[var(--error)] focus:ring-[var(--error)]' : urlValid ? 'border-[var(--success)]' : 'border-[var(--border)]'
+                )}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSetLink();
+                  if (e.key === 'Escape') setShow(false);
+                }}
+                autoFocus
+              />
+              {urlTouched && url !== '' && (
+                <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                  {urlError ? (
+                    <XCircle className="w-3.5 h-3.5 text-[var(--error)]" />
+                  ) : urlValid ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                  ) : null}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleSetLink}
+              disabled={!!urlError}
+              className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {url ? 'Aplicar' : 'Eliminar'}
+            </button>
+          </div>
+          {urlError && (
+            <div className="px-3 pb-2 flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+              <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" aria-hidden="true" />
+              <span>La URL debe comenzar con http:// o https://</span>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -224,6 +262,7 @@ function ImageInput({ editor }: { editor: Editor }) {
   const [show, setShow] = useState(false);
   const [mode, setMode] = useState<'url' | 'upload'>('url');
   const [url, setUrl] = useState('');
+  const [urlTouched, setUrlTouched] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -377,27 +416,49 @@ function ImageInput({ editor }: { editor: Editor }) {
             {mode === 'url' ? (
               <>
                 <div className="flex items-center gap-2">
-                  <input
-                    type="url"
-                    name="image-url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://ejemplo.com/imagen.jpg"
-                    className="flex-1 px-2 py-1.5 text-sm bg-[var(--surface-sunken)] border border-[var(--border)] rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSetImageUrl();
-                      if (e.key === 'Escape') closePopover();
-                    }}
-                    autoFocus
-                  />
+                  <div className="flex-1 relative">
+                    <input
+                      type="url"
+                      name="image-url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      onBlur={() => setUrlTouched(true)}
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                      className={cn(
+                        'w-full px-2 py-1.5 pr-8 text-sm bg-[var(--surface-sunken)] border rounded-md text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]',
+                        urlTouched && url !== '' && !isValidUrl(url) ? 'border-[var(--error)] focus:ring-[var(--error)]' : urlTouched && url !== '' && isValidUrl(url) ? 'border-[var(--success)]' : 'border-[var(--border)]'
+                      )}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSetImageUrl();
+                        if (e.key === 'Escape') closePopover();
+                      }}
+                      autoFocus
+                    />
+                    {urlTouched && url !== '' && (
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                        {!isValidUrl(url) ? (
+                          <XCircle className="w-3.5 h-3.5 text-[var(--error)]" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                        )}
+                      </span>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={handleSetImageUrl}
-                    className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90 shrink-0"
+                    disabled={!!(url && !isValidUrl(url))}
+                    className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] text-white rounded-md hover:opacity-90 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Insertar
                   </button>
                 </div>
+                {urlTouched && url !== '' && !isValidUrl(url) && (
+                  <div className="mt-1.5 flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+                    <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    <span>La URL debe comenzar con http:// o https://</span>
+                  </div>
+                )}
               </>
             ) : (
               <>

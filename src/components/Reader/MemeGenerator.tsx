@@ -5,6 +5,7 @@ import React, { useState, useRef, useCallback } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 
 interface MemeGeneratorProps {
@@ -39,6 +40,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
   ]);
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const { handleError } = useErrorHandler();
   const canvasRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -146,7 +148,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
       });
 
     } catch (error) {
-      console.error('Error generating meme:', error);
+      handleError(error);
     } finally {
       setIsGenerating(false);
     }
@@ -177,7 +179,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
         alert('¡Enlace copiado al portapapeles!');
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      handleError(error);
     }
   }, [canvasRef, mangaTitle, chapterNumber]);
 

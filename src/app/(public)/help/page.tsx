@@ -105,7 +105,7 @@ export default function HelpPage() {
       icon: CreditCard,
       questions: [
         { q: t('help.faq.account.recoverPassword.q'), a: t('help.faq.account.recoverPassword.a') },
-        { q: t('help.faq.account.whatAreInkCoins.q'), a: t('help.faq.account.whatAreInkCoins.a') },
+        { q: t('help.faq.account.whatAreAura.q'), a: t('help.faq.account.whatAreAura.a') },
         { q: t('help.faq.account.deleteAccount.q'), a: t('help.faq.account.deleteAccount.a') },
       ],
     },

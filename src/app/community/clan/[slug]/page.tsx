@@ -1,9 +1,9 @@
-import { Prisma } from '@/generated/prisma/client';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
 import ClanDetailClient from './ClanDetailClient';
+import { Prisma } from '@/generated/prisma/client';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 

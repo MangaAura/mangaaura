@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       gamification: {
         xpPoints: user.xpPoints,
         level: user.level,
-        inkcoinsBalance: user.inkcoinsBalance,
+        auraBalance: user.auraBalance,
         readingStreak: user.readingStreak,
         streakFreezes: user.streakFreezes,
       },

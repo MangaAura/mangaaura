@@ -2,7 +2,7 @@
  * Stripe Webhook
  * 
  * Handle Stripe events:
- * - checkout.session.completed: Add InkCoins to user or activate subscription
+ * - checkout.session.completed: Add Aura to user or activate subscription
  * - checkout.session.expired: Log failed attempt
  * - customer.subscription.created/updated/deleted: Manage subscription status
  * - invoice.payment_succeeded/failed: Handle billing
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const { userId, inkcoinsAmount, type, planId } = session.metadata || {};
+        const { userId, auraAmount, type, planId } = session.metadata || {};
 
         // Handle subscription checkout
         if (type === 'subscription' && userId && planId) {
@@ -47,12 +47,11 @@ export async function POST(request: NextRequest) {
               stripeCustomerId: session.customer as string,
             },
           });
-          // console.log(`[Stripe Webhook] Subscription activated for user ${userId}: ${planId}`);
-          break;
+      break;
         }
 
-        // Handle InkCoins purchase (existing)
-        if (!userId || !inkcoinsAmount) {
+        // Handle Aura purchase (existing)
+        if (!userId || !auraAmount) {
           console.error('[Stripe Webhook] Missing metadata');
           return Response.json({ error: 'Missing metadata' }, { status: 400 });
         }
@@ -60,8 +59,8 @@ export async function POST(request: NextRequest) {
         await prisma.user.update({
           where: { id: userId },
           data: {
-            inkcoinsBalance: {
-              increment: parseInt(inkcoinsAmount),
+            auraBalance: {
+              increment: parseInt(auraAmount),
             },
           },
         });
@@ -69,25 +68,22 @@ export async function POST(request: NextRequest) {
         await prisma.transaction.create({
           data: {
             userId,
-            amount: parseInt(inkcoinsAmount),
-            type: 'INKCOIN_PURCHASE',
+            amount: parseInt(auraAmount),
+            type: 'AURA_PURCHASE',
             referenceId: session.id,
-            description: `Purchased ${inkcoinsAmount} InkCoins via Stripe`,
+            description: `Purchased ${auraAmount} Aura via Stripe`,
           },
         });
 
-        // console.log(`[Stripe Webhook] Added ${inkcoinsAmount} InkCoins to user ${userId}`);
-        break;
+    break;
+  }
+
+  case 'checkout.session.expired': {
+    break;
       }
 
-      case 'checkout.session.expired': {
-        // console.log('[Stripe Webhook] Checkout session expired');
-        break;
-      }
-
-      case 'payment_intent.payment_failed': {
-        // console.log('[Stripe Webhook] Payment failed');
-        break;
+  case 'payment_intent.payment_failed': {
+    break;
       }
 
       case 'customer.subscription.created':
@@ -128,11 +124,10 @@ export async function POST(request: NextRequest) {
           data: updateData,
         });
 
-        // console.log(`[Stripe Webhook] Subscription ${status} for user ${user.id}`);
-        break;
-      }
+    break;
+  }
 
-      case 'customer.subscription.deleted': {
+  case 'customer.subscription.deleted': {
         const subscription = event.data.object as unknown as { customer: string };
         const customerId = subscription.customer;
 
@@ -156,11 +151,10 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // console.log(`[Stripe Webhook] Subscription canceled for user ${user.id}`);
-        break;
-      }
+    break;
+  }
 
-      case 'invoice.payment_succeeded': {
+  case 'invoice.payment_succeeded': {
         const invoice = event.data.object as unknown as { subscription: string };
         const subscriptionId = invoice.subscription;
 
@@ -208,17 +202,14 @@ export async function POST(request: NextRequest) {
           data: { subscriptionStatus: 'past_due' },
         });
 
-        // console.log(`[Stripe Webhook] Invoice payment failed for user ${failedUser.id}`);
-        break;
-      }
+    break;
+  }
 
-      default:
-        // console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
+  default:
     }
 
     return Response.json({ received: true });
   } catch (error) {
-    // console.error('[Stripe Webhook] Error processing event:', error);
     return Response.json({ error: 'Failed to process webhook' }, { status: 500 });
   }
 }

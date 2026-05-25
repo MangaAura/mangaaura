@@ -3,11 +3,11 @@
  * @packageDocumentation
  */
 
-import { PrismaClient } from '@/generated/prisma/client';
 
 import { Manga, type MangaStatus } from '@/core/entities/Manga';
 import type { MangaRepository, MangaFilters } from '@/core/repositories/MangaRepository';
 import { Slug } from '@/core/value-objects/Slug';
+import { PrismaClient } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 
 

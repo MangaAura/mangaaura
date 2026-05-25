@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 
@@ -38,6 +40,8 @@ export function NotificationBell({}: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const { handleError } = useErrorHandler();
+  const t = useT();
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -47,7 +51,7 @@ export function NotificationBell({}: NotificationBellProps) {
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +72,7 @@ export function NotificationBell({}: NotificationBellProps) {
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      handleError(error);
     }
   };
 
@@ -78,7 +82,7 @@ export function NotificationBell({}: NotificationBellProps) {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      handleError(error);
     }
   };
 
@@ -140,7 +144,7 @@ export function NotificationBell({}: NotificationBellProps) {
         ) : notifications.length === 0 ? (
           <div className="p-8 text-center">
             <Bell className="w-8 h-8 mx-auto mb-3 text-[var(--text-muted)]" />
-            <p className="text-[var(--text-secondary)] text-sm">Sin notificaciones</p>
+            <p className="text-[var(--text-secondary)] text-sm">{t('notifications.empty')}</p>
           </div>
         ) : (
           <>
@@ -157,7 +161,7 @@ export function NotificationBell({}: NotificationBellProps) {
               className="block p-3 text-center text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] border-t border-[var(--border)]"
               onClick={() => setIsOpen(false)}
             >
-              Ver todas
+              {t('notifications.viewAll')}
             </Link>
           </>
         )}

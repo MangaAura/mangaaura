@@ -25,6 +25,24 @@ export function usePanelTexts(options: UsePanelTextsOptions = {}) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const saveTexts = useCallback(async () => {
+    if (!onSave || isSaving) return;
+    
+    setIsSaving(true);
+    setError(null);
+    
+    try {
+      await onSave(texts);
+      setIsDirty(false);
+      setLastSaved(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error saving texts');
+      throw err;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [texts, onSave, isSaving]);
+
   // Auto-save effect
   useEffect(() => {
     if (!autoSave || !isDirty || !onSave) return;
@@ -82,24 +100,6 @@ export function usePanelTexts(options: UsePanelTextsOptions = {}) {
     setTexts(initialTexts);
     setIsDirty(false);
   }, [initialTexts]);
-
-  const saveTexts = useCallback(async () => {
-    if (!onSave || isSaving) return;
-    
-    setIsSaving(true);
-    setError(null);
-    
-    try {
-      await onSave(texts);
-      setIsDirty(false);
-      setLastSaved(new Date());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error saving texts');
-      throw err;
-    } finally {
-      setIsSaving(false);
-    }
-  }, [texts, onSave, isSaving]);
 
   const exportAsJSON = useCallback(() => {
     return JSON.stringify(texts, null, 2);

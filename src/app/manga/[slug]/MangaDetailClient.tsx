@@ -5,11 +5,12 @@ import { BookOpen, Clock, Eye, Star, ChevronDown, Plus, Check, User, Library, Ta
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { toast } from 'sonner';
 
 import { toggleLibrary } from './actions';
+import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { cn, formatNumber, formatDate } from '@/lib/utils';
 
@@ -50,6 +51,7 @@ const STATUS_COLORS: Record<string, string> = {
 export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary, userId }: Props) {
   const router = useRouter();
   const [isInLibrary, setIsInLibrary] = useState(initialInLibrary);
+  const { handleError } = useErrorHandler();
   const [showAllChapters, setShowAllChapters] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -86,8 +88,8 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
       try {
         const result = await toggleLibrary(manga.id);
         setIsInLibrary(result.isInLibrary);
-      } catch {
-        toast.error('Error al cambiar estado');
+      } catch (error) {
+        handleError(error);
       }
     });
   };
@@ -222,10 +224,10 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               </button>
             </div>
 
-            {/* Tags */}
+            {/* Legacy Genre Tags */}
             {manga.tags.length > 0 && (
               <motion.div
-                className="flex flex-wrap gap-2 mb-6"
+                className="flex flex-wrap gap-2 mb-3"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35, duration: 0.5 }}
@@ -244,6 +246,9 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                 ))}
               </motion.div>
             )}
+
+            {/* New Tag System Tags */}
+            <MangaTagsDisplay mangaId={manga.id} className="mb-6" />
 
             {/* Description */}
             {manga.description && (

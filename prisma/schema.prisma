@@ -16,7 +16,7 @@ model User {
   passwordHash     String?
   emailVerified    DateTime?
   xpPoints         Int       @default(0)
-  inkcoinsBalance  Int       @default(0)
+  auraBalance  Int       @default(0)
   level            Int       @default(1)
   readingStreak    Int       @default(0)
   lastReadAt       DateTime?
@@ -93,7 +93,10 @@ model User {
   reposts          Repost[]           @relation("Reposts")
   eventSubmissions EventSubmission[]
   eventVotes       EventVote[]
-  createdEvents    Event[]
+  createdEvents Event[]
+  searches UserSearch[]
+  polls        Poll[]
+  pollVotes    PollVote[]
 
   @@index([email])
   @@index([username])
@@ -123,6 +126,7 @@ model MangaSeries {
   readingProgress ReadingProgress[]
   collectionItems CollectionItem[]
   bookmarks       Bookmark[]
+  mangaTags       MangaTag[]
 
   @@index([slug])
   @@index([authorId])
@@ -330,16 +334,18 @@ model CrowdfundingContribution {
 }
 
 model Clan {
-  id            String   @id @default(uuid())
-  name          String   @unique
+  id            String    @id @default(uuid())
+  name          String    @unique
   description   String?
   emblemUrl     String?
-  totalScore    Int      @default(0)
-  monthlyScore  Int      @default(0)
+  totalScore    Int       @default(0)
+  monthlyScore  Int       @default(0)
   currentSeason Int      @default(1)
-  leaderId      String?  @unique
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  seasonStartDate DateTime @default(now())
+  seasonEndDate   DateTime?
+  leaderId      String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   leader  User?            @relation("ClanLeader", fields: [leaderId], references: [id])
   members ClanMembership[]
@@ -555,6 +561,19 @@ model UserQuest {
   @@index([userId])
   @@index([userId, completed])
   @@index([periodEnd])
+}
+
+model UserSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  query     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, query])
+  @@index([userId])
+  @@index([userId, createdAt])
 }
 
 model PushSubscription {
@@ -899,12 +918,14 @@ model Bookmark {
   chapter   Chapter?    @relation(fields: [chapterId], references: [id], onDelete: SetNull)
   page      Int         @default(0)
   note      String?
+  isPublic  Boolean     @default(false)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
   @@unique([userId, mangaId, chapterId])
   @@index([userId])
   @@index([mangaId])
+  @@index([isPublic])
 }
 
 model WebhookEndpoint {
@@ -1258,4 +1279,89 @@ model UserRole {
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
+}
+
+// Advanced Tags System
+model Tag {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  type        String    @default("TAG")
+  parentId    String?
+  color       String?
+  isActive    Boolean   @default(true)
+  order       Int       @default(0)
+  parent      Tag?      @relation("TagHierarchy", fields: [parentId], references: [id])
+  children    Tag[]     @relation("TagHierarchy")
+  mangaTags   MangaTag[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([parentId])
+  @@index([type])
+  @@index([isActive])
+}
+
+model MangaTag {
+  id        String   @id @default(cuid())
+  mangaId   String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  manga   MangaSeries @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  tag     Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([mangaId, tagId])
+  @@index([tagId])
+  @@index([mangaId])
+}
+
+// Polls & Voting System
+model Poll {
+  id          String    @id @default(uuid())
+  question    String
+  description String?
+  type        String    @default("SINGLE")
+  status      String    @default("ACTIVE")
+  expiresAt   DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdBy User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  votes     PollVote[]
+
+  @@index([createdById])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model PollOption {
+  id     String   @id @default(uuid())
+  pollId String
+  text   String
+  order  Int      @default(0)
+
+  poll  Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String   @id @default(uuid())
+  pollId    String
+  optionId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@index([pollId])
+  @@index([userId])
 }

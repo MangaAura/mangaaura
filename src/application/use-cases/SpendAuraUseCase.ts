@@ -1,24 +1,24 @@
 /**
- * Caso de uso: Gastar InkCoins
+ * Caso de uso: Gastar Aura
  * Verifica balance, crea transacción y actualiza el balance del usuario
  * @packageDocumentation
  */
 
 import { DomainError } from '../../core/errors/DomainError';
-import { InkCoinsSpentEvent } from '../events/InkCoinsSpentEvent';
+import { AuraSpentEvent } from '../events/AuraSpentEvent';
 import { IEventBus } from '../services/IEventBus';
-import type { InkCoinsTransactionType } from '../types/transaction-types';
+import type { AuraTransactionType } from '../types/transaction-types';
 
 /**
- * DTO de entrada para gastar InkCoins
+ * DTO de entrada para gastar Aura
  */
-export interface SpendInkCoinsInputDTO {
+export interface SpendAuraInputDTO {
   /** ID del usuario */
   userId: string;
   /** Cantidad a gastar */
   amount: number;
   /** Tipo de transacción */
-  type: InkCoinsTransactionType;
+  type: AuraTransactionType;
   /** Descripción de la transacción */
   description: string;
   /** ID del manga relacionado (opcional) */
@@ -32,7 +32,7 @@ export interface SpendInkCoinsInputDTO {
 /**
  * DTO de salida con el resultado de la transacción
  */
-export interface SpendInkCoinsOutputDTO {
+export interface SpendAuraOutputDTO {
   /** Si la transacción fue exitosa */
   success: boolean;
   /** Mensaje de resultado */
@@ -54,7 +54,7 @@ export interface ITransactionRepository {
   create(data: {
     userId: string;
     amount: number;
-    type: InkCoinsTransactionType;
+    type: AuraTransactionType;
     description: string;
     mangaId?: string;
     chapterId?: string;
@@ -70,20 +70,20 @@ export interface ITransactionRepository {
 }
 
 /**
- * Puerto del repositorio de usuarios (versión mínima para InkCoins)
+ * Puerto del repositorio de usuarios (versión mínima para Aura)
  */
 export interface IUserCoinsRepository {
   findById(id: string): Promise<{
     id: string;
-    inkcoins: { amount: number };
+    aura: { amount: number };
   } | null>;
-  updateInkCoins(userId: string, amount: number): Promise<number>;
+  updateAura(userId: string, amount: number): Promise<number>;
 }
 
 /**
- * Caso de uso para gastar InkCoins
+ * Caso de uso para gastar Aura
  */
-export class SpendInkCoinsUseCase {
+export class SpendAuraUseCase {
   constructor(
     private readonly userRepo: IUserCoinsRepository,
     private readonly transactionRepo: ITransactionRepository,
@@ -96,7 +96,7 @@ export class SpendInkCoinsUseCase {
    * @returns Resultado de la operación
    * @throws DomainError si el balance es insuficiente o datos inválidos
    */
-  async execute(input: SpendInkCoinsInputDTO): Promise<SpendInkCoinsOutputDTO> {
+  async execute(input: SpendAuraInputDTO): Promise<SpendAuraOutputDTO> {
     // Validar datos de entrada
     this.validateInput(input);
 
@@ -107,7 +107,7 @@ export class SpendInkCoinsUseCase {
     }
 
     // Verificar balance suficiente
-    const currentBalance = user.inkcoins.amount;
+    const currentBalance = user.aura.amount;
     if (currentBalance < input.amount) {
       throw new InsufficientBalanceError(currentBalance, input.amount);
     }
@@ -124,14 +124,14 @@ export class SpendInkCoinsUseCase {
     });
 
     // Actualizar balance del usuario (negativo para restar)
-    const updatedBalance = await this.userRepo.updateInkCoins(
+    const updatedBalance = await this.userRepo.updateAura(
       input.userId,
       -input.amount
     );
 
-    // Publicar evento de InkCoins gastados
+    // Publicar evento de Aura gastados
     await this.eventBus.publish(
-      new InkCoinsSpentEvent({
+      new AuraSpentEvent({
         userId: input.userId,
         amount: input.amount,
         type: input.type,
@@ -159,7 +159,7 @@ export class SpendInkCoinsUseCase {
    * @param input - Datos a validar
    * @throws DomainError si los datos son inválidos
    */
-  private validateInput(input: SpendInkCoinsInputDTO): void {
+  private validateInput(input: SpendAuraInputDTO): void {
     if (!input.userId || input.userId.trim().length === 0) {
       throw new ValidationError('ID de usuario requerido');
     }
@@ -177,14 +177,14 @@ export class SpendInkCoinsUseCase {
     }
 
     if (input.amount > 1_000_000) {
-      throw new ValidationError('El monto no puede exceder 1,000,000 InkCoins');
+      throw new ValidationError('El monto no puede exceder 1,000,000 Aura');
     }
 
     if (!input.type) {
       throw new ValidationError('Tipo de transacción requerido');
     }
 
-    const validTypes: InkCoinsTransactionType[] = [
+    const validTypes: AuraTransactionType[] = [
       'TIP_AUTHOR',
       'CROWDFUND_CONTRIBUTION',
       'PREMIUM_CHAPTER',
@@ -246,8 +246,8 @@ class InsufficientBalanceError extends DomainError {
   readonly isOperational = true;
   constructor(currentBalance: number, requiredAmount: number) {
     super(
-      `Balance insuficiente. Tienes ${currentBalance} InkCoins, ` +
-      `se requieren ${requiredAmount} InkCoins`
+      `Balance insuficiente. Tienes ${currentBalance} Aura, ` +
+      `se requieren ${requiredAmount} Aura`
     );
   }
 }

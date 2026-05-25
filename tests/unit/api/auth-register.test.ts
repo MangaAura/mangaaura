@@ -51,7 +51,7 @@ describe('POST /api/auth/register', () => {
       avatarUrl: null,
       xpPoints: 0,
       level: 1,
-      inkcoinsBalance: 50,
+      auraBalance: 50,
       createdAt: new Date(),
     } as any);
 

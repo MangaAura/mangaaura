@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { extractApiError } from '@/lib/extract-api-error';
+
 export interface GenreFromApi {
   id: string;
   name: string;
@@ -29,7 +31,10 @@ export function useGenres(): UseGenresReturn {
       try {
         setIsLoading(true);
         const response = await fetch('/api/genres');
-        if (!response.ok) throw new Error('Failed to fetch genres');
+        if (!response.ok) {
+          const { message } = await extractApiError(response);
+          throw new Error(message);
+        }
         const data = await response.json();
         if (!cancelled) {
           setGenres(data.genres || []);

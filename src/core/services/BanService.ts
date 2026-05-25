@@ -1,6 +1,6 @@
+import type { BanType } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { logSecurityEvent } from '@/lib/security-audit';
-import type { BanType } from '@/generated/prisma/client';
 
 export type { BanType };
 

@@ -42,14 +42,14 @@ export async function POST(request: Request) {
     const result = await prisma.$transaction(async (tx: any) => {
       const user = await tx.user.findUnique({ where: { id: userId } });
       if (!user) throw new Error('User not found');
-      if (user.inkcoinsBalance < bidAmount) throw new Error('Insufficient InkCoins balance');
+      if (user.auraBalance < bidAmount) throw new Error('Insufficient Aura balance');
 
       const chapter = await tx.chapter.findUnique({ where: { id: chapterId } });
       if (!chapter) throw new Error('Chapter not found');
 
       const updatedUser = await tx.user.update({
         where: { id: userId },
-        data: { inkcoinsBalance: user.inkcoinsBalance - bidAmount }
+        data: { auraBalance: user.auraBalance - bidAmount }
       });
 
       const bid = await tx.sponsorshipBid.create({
@@ -60,12 +60,12 @@ export async function POST(request: Request) {
         data: { userId, amount: -bidAmount, type: 'bid', referenceId: bid.id }
       });
 
-      return { bid, remainingBalance: updatedUser.inkcoinsBalance };
+      return { bid, remainingBalance: updatedUser.auraBalance };
     });
 
     return NextResponse.json({ success: true, data: result });
   } catch (error: any) {
-    if (error.message === 'Insufficient InkCoins balance' || error.message === 'Chapter not found') {
+    if (error.message === 'Insufficient Aura balance' || error.message === 'Chapter not found') {
       return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }
     console.error('Error processing sponsor bid:', error);

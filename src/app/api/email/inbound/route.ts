@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
+import type { InboundEmailData } from '@/core/services/IInboundEmailRepository'
 import { ResendInboundRepository } from '@/infrastructure/adapters/ResendInboundRepository'
 import { getInboundEmailQueue } from '@/infrastructure/queue/InboundEmailQueue'
-import type { InboundEmailData } from '@/core/services/IInboundEmailRepository'
 
 const webhookSchema = z.object({
   type: z.literal('email.received'),

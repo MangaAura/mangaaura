@@ -15,7 +15,7 @@ describe('RegisterUser Use Case', () => {
       expect(user.email.value).toBe('newuser@test.com');
       expect(user.username).toBe('newuser');
       expect(user.passwordHash).toBeDefined();
-      expect(user.inkcoins.amount).toBe(50); // Bonus de registro
+      expect(user.aura.amount).toBe(50); // Bonus de registro
     });
 
     it('debe emitir evento USER_REGISTERED', () => {

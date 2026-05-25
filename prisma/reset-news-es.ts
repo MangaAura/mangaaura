@@ -29,9 +29,9 @@ const articulos: ArticleEs[] = [
     title: '¡Temporada 3 de Clanes!',
     slug: 'clan-season-3',
     excerpt:
-      'Reúne a tu gremio y prepárate para la nueva batalla por InkCoins. Nuevas recompensas añadidas al pozo.',
+      'Reúne a tu gremio y prepárate para la nueva batalla por Aura. Nuevas recompensas añadidas al pozo.',
     content:
-      '¡La Temporada 3 de Clanes ha comenzado oficialmente! Reúne a los miembros de tu gremio y prepárate para batallas épicas. Esta temporada trae nuevas recompensas en InkCoins, insignias exclusivas y un sistema de emparejamiento renovado. Completa misiones diarias, escala en la tabla de clasificación y demuestra el valor de tu clan. Se han añadido nuevas recompensas al pozo de premios, incluyendo marcos de avatar raros y cosméticos de tiempo limitado. ¡La temporada dura hasta el 15 de agosto, así que empieza a ganar puntos ahora!',
+      '¡La Temporada 3 de Clanes ha comenzado oficialmente! Reúne a los miembros de tu gremio y prepárate para batallas épicas. Esta temporada trae nuevas recompensas en Aura, insignias exclusivas y un sistema de emparejamiento renovado. Completa misiones diarias, escala en la tabla de clasificación y demuestra el valor de tu clan. Se han añadido nuevas recompensas al pozo de premios, incluyendo marcos de avatar raros y cosméticos de tiempo limitado. ¡La temporada dura hasta el 15 de agosto, así que empieza a ganar puntos ahora!',
     category: 'community',
     date: '2026-05-15',
     coverUrl:
@@ -77,9 +77,9 @@ const articulos: ArticleEs[] = [
     title: 'Concurso de Manga MangaAura',
     slug: 'manga-contest',
     excerpt:
-      'Participa en nuestro concurso mensual de manga y gana InkCoins, visibilidad e insignias exclusivas.',
+      'Participa en nuestro concurso mensual de manga y gana Aura, visibilidad e insignias exclusivas.',
     content:
-      '¡Nuestro concurso mensual de manga regresa con premios más grandes que nunca! El tema de este mes es "Mundos Paralelos": crea un one-shot de manga explorando dimensiones alternativas. El ganador recibe 5000 InkCoins, un lugar destacado en la página principal, una insignia exclusiva de "Ganador del Concurso" y comentarios directos de nuestro equipo editorial. Las inscripciones están abiertas hasta fin de mes. Todos los géneros y estilos son bienvenidos. ¡Deja volar tu imaginación!',
+      '¡Nuestro concurso mensual de manga regresa con premios más grandes que nunca! El tema de este mes es "Mundos Paralelos": crea un one-shot de manga explorando dimensiones alternativas. El ganador recibe 5000 Aura, un lugar destacado en la página principal, una insignia exclusiva de "Ganador del Concurso" y comentarios directos de nuestro equipo editorial. Las inscripciones están abiertas hasta fin de mes. Todos los géneros y estilos son bienvenidos. ¡Deja volar tu imaginación!',
     category: 'community',
     date: '2026-04-20',
     coverUrl:
@@ -149,9 +149,9 @@ const articulos: ArticleEs[] = [
     title: 'Festival de Lectura de Verano',
     slug: 'summer-event',
     excerpt:
-      '¡Únete al Festival de Lectura de Verano con insignias exclusivas, fines de semana de XP doble y un gran premio de 10,000 InkCoins!',
+      '¡Únete al Festival de Lectura de Verano con insignias exclusivas, fines de semana de XP doble y un gran premio de 10,000 Aura!',
     content:
-      '¡El verano está aquí y también nuestro evento comunitario más grande del año: el Festival de Lectura de Verano de MangaAura! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga de toda una temporada.\n\n¿Qué hay preparado? Fines de semana de XP doble cada mes, insignias exclusivas del Festival de Verano para los participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo InkCoins gratis y artículos cosméticos, y un gran premio de 10,000 InkCoins otorgado al lector con más capítulos completados para el final del verano.\n\nLos creadores tampoco se quedan fuera: organizamos un concurso de one-shot "Especial de Verano" con premios separados. Publica un capítulo con temática veraniega entre junio y agosto y podrías ganar 5,000 InkCoins más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Consulta la página de Eventos para ver el calendario completo y ¡comienza tu viaje de lectura veraniego hoy! Haz una captura de tus estadísticas de lectura y compártela con #MangaAuraVerano para tener la oportunidad de aparecer en nuestras redes sociales.',
+      '¡El verano está aquí y también nuestro evento comunitario más grande del año: el Festival de Lectura de Verano de MangaAura! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga de toda una temporada.\n\n¿Qué hay preparado? Fines de semana de XP doble cada mes, insignias exclusivas del Festival de Verano para los participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo Aura gratis y artículos cosméticos, y un gran premio de 10,000 Aura otorgado al lector con más capítulos completados para el final del verano.\n\nLos creadores tampoco se quedan fuera: organizamos un concurso de one-shot "Especial de Verano" con premios separados. Publica un capítulo con temática veraniega entre junio y agosto y podrías ganar 5,000 Aura más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Consulta la página de Eventos para ver el calendario completo y ¡comienza tu viaje de lectura veraniego hoy! Haz una captura de tus estadísticas de lectura y compártela con #MangaAuraVerano para tener la oportunidad de aparecer en nuestras redes sociales.',
     category: 'community',
     date: '2026-02-20',
     coverUrl:

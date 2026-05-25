@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback } from 'react';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 import { UploadResult, UploadError } from '@/types/storage';
 
 // Tipos exportados
@@ -106,6 +108,8 @@ export function useMangaUpload(): UseMangaUploadReturn {
   });
   const [error, setError] = useState<UploadError | null>(null);
   const [urls, setUrls] = useState<string[]>([]);
+
+  const { handleError } = useErrorHandler();
 
   // AbortController para cancelación
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -264,11 +268,11 @@ export function useMangaUpload(): UseMangaUploadReturn {
         clearInterval(progressInterval);
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
+          const extracted = await extractApiError(response);
           throw {
             code: 'UPLOAD_FAILED',
-            message: errorData.error || `Error ${response.status}: ${response.statusText}`,
-            details: errorData,
+            message: extracted.message,
+            details: extracted.details || {},
           } as UploadError;
         }
 
@@ -350,7 +354,8 @@ export function useMangaUpload(): UseMangaUploadReturn {
         });
 
         if (!chapterResponse.ok) {
-          throw new Error('Error al crear el capítulo');
+          const { message } = await extractApiError(chapterResponse);
+          throw new Error('Error al crear el capítulo: ' + message);
         }
 
         const chapterData = await chapterResponse.json();
@@ -403,7 +408,8 @@ export function useMangaUpload(): UseMangaUploadReturn {
           activeUploadsRef.current.delete(uploadId);
 
           if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+            const { message } = await extractApiError(response);
+            throw new Error(message);
           }
 
           const result: UploadResult = await response.json();
@@ -489,7 +495,7 @@ export function useMangaUpload(): UseMangaUploadReturn {
           }),
         });
       } catch (err) {
-        console.error('Error finalizando capítulo:', err);
+        handleError(err);
       }
 
       setIsUploading(false);
@@ -524,8 +530,8 @@ export function useMangaUpload(): UseMangaUploadReturn {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Error al eliminar imagen');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       // Remover de la lista local

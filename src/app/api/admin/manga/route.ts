@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { syncGenresFromTags } from '@/lib/genres';
-import { invalidateCache } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 

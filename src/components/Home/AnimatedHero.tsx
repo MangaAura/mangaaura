@@ -31,12 +31,13 @@ function CountUp({ value }: { value: number }) {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (shouldReduceMotion) { setCount(value); return; }
+    if (shouldReduceMotion) { /* eslint-disable-next-line react-hooks/set-state-in-effect */ setCount(value); return; }
     let start: number | null = null;
     const duration = 1500;
     const step = (ts: number) => {
       if (!start) start = ts;
       const p = Math.min((ts - start) / duration, 1);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCount(Math.floor(p * value));
       if (p < 1) requestAnimationFrame(step);
     };
@@ -99,6 +100,7 @@ export function AnimatedHero({
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] as const }}
               className="relative w-full h-full"
+              suppressHydrationWarning
             >
               <Image
                 src={coverUrl}
@@ -122,6 +124,7 @@ export function AnimatedHero({
               style={{ left: shape.x, top: shape.y }}
               animate={{ y: [0, -15, 0], opacity: [0.2, 0.5, 0.2] }}
               transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: shape.delay, ease: 'easeInOut' as const }}
+              suppressHydrationWarning
             />
           ))}
           <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent" />
@@ -134,20 +137,21 @@ export function AnimatedHero({
         initial="hidden"
         animate="visible"
         className="relative z-20 max-w-2xl px-6 md:px-12 py-16 md:py-24 w-full"
+        suppressHydrationWarning
       >
-        <motion.p variants={itemVariants} className="text-sm uppercase tracking-widest text-[var(--primary)] mb-3 font-medium">
+        <motion.p variants={itemVariants} className="text-sm uppercase tracking-widest text-[var(--primary)] mb-3 font-medium" suppressHydrationWarning>
           {coverUrl ? t('home.featured') : <WelcomeLabel text={t('home.welcome')} />}
         </motion.p>
 
-        <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight">
+        <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight" suppressHydrationWarning>
           {title}
         </motion.h1>
 
-        <motion.p variants={itemVariants} className="text-base md:text-lg text-[var(--text-secondary)] max-w-xl mb-8 leading-relaxed line-clamp-3">
+        <motion.p variants={itemVariants} className="text-base md:text-lg text-[var(--text-secondary)] max-w-xl mb-8 leading-relaxed line-clamp-3" suppressHydrationWarning>
           {description}
         </motion.p>
 
-        <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-10">
+        <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-10" suppressHydrationWarning>
           {coverUrl && mangaSlug ? (
             <Link href={`/manga/${mangaSlug}`}>
               <motion.span
@@ -172,7 +176,7 @@ export function AnimatedHero({
           </Link>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="flex flex-wrap gap-6 md:gap-10 pt-6 border-t border-[var(--border)]">
+        <motion.div variants={itemVariants} className="flex flex-wrap gap-6 md:gap-10 pt-6 border-t border-[var(--border)]" suppressHydrationWarning>
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-[var(--primary)]" />
             <div>

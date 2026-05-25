@@ -72,11 +72,11 @@ export class ContributeCrowdfundingUseCase {
     }
 
     if (input.amount < 1) {
-      throw new ValidationError('El monto mínimo es 1 InkCoin');
+      throw new ValidationError('El monto mínimo es 1 Aura');
     }
 
     if (input.amount > 100000) {
-      throw new ValidationError('El monto no puede exceder 100000 InkCoins');
+      throw new ValidationError('El monto no puede exceder 100000 Aura');
     }
 
     if (input.message && input.message.length > 500) {

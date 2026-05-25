@@ -17,7 +17,7 @@ export interface UserFilters {
   /** Solo usuarios verificados */
   emailVerified?: boolean;
   /** Ordenar por campo */
-  orderBy?: 'createdAt' | 'xpPoints' | 'inkcoinsBalance' | 'username';
+  orderBy?: 'createdAt' | 'xpPoints' | 'auraBalance' | 'username';
   /** Dirección del ordenamiento */
   orderDirection?: 'asc' | 'desc';
 }
@@ -60,7 +60,7 @@ export interface IUserRepository {
     passwordHash: string;
     displayName?: string;
     avatarUrl?: string;
-    inkcoinsBalance?: number;
+    auraBalance?: number;
   }): Promise<User>;
 
   /**
@@ -74,7 +74,7 @@ export interface IUserRepository {
     displayName?: string;
     avatarUrl?: string;
     xpPoints?: number;
-    inkcoinsBalance?: number;
+    auraBalance?: number;
     readingStreak?: number;
     lastReadAt?: Date;
     role?: string;
@@ -117,12 +117,12 @@ export interface IUserRepository {
   existsByUsername(username: string): Promise<boolean>;
 
   /**
-   * Actualiza el balance de InkCoins
+   * Actualiza el balance de Aura
    * @param userId - ID del usuario
    * @param amount - Monto a agregar (positivo) o restar (negativo)
    * @returns El nuevo balance
    */
-  updateInkCoins(userId: string, amount: number): Promise<number>;
+  updateAura(userId: string, amount: number): Promise<number>;
 
   /**
    * Actualiza los puntos de XP

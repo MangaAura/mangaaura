@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -33,6 +34,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   const [error, setError] = useState<string | null>(null);
   
   const { autoConnect = true, onConnect, onDisconnect, onError } = options;
+  const { handleError } = useErrorHandler();
 
   useEffect(() => {
     if (status === 'loading' || !session) return;
@@ -76,7 +78,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         });
 
         socket.on('connect_error', (err) => {
-          console.error('[Socket] Connection error:', err);
+          handleError(err);
           setError(err.message);
           onError?.(err);
         });
@@ -92,7 +94,7 @@ export function useSocket(options: UseSocketOptions = {}) {
           socket.connect();
         }
       } catch (err) {
-        console.error('[Socket] Init error:', err);
+        handleError(err);
         setError(err instanceof Error ? err.message : 'Unknown error');
       }
     };
@@ -106,7 +108,7 @@ export function useSocket(options: UseSocketOptions = {}) {
         socketRef.current = null;
       }
     };
-  }, [session, status, autoConnect, onConnect, onDisconnect, onError]);
+  }, [session, status, autoConnect, onConnect, onDisconnect, onError, handleError]);
 
   // Métodos expuestos
   const joinRoom = useCallback((room: string) => {

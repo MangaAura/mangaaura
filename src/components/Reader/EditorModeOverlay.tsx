@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface EditorModeOverlayProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export default function EditorModeOverlay({ isOpen, onClose, imageUrl, chapterId
   const [clickCoords, setClickCoords] = useState<{ x: number, y: number } | null>(null);
   const [reportType, setReportType] = useState('typo');
   const [isLoading, setIsLoading] = useState(false);
+  const { handleError } = useErrorHandler();
 
   if (!isOpen) return null;
 
@@ -46,7 +48,7 @@ export default function EditorModeOverlay({ isOpen, onClose, imageUrl, chapterId
       });
       alert(`Reporte enviado. Tipo: ${reportType}. Coordenadas: X:${clickCoords.x.toFixed(2)}% Y:${clickCoords.y.toFixed(2)}%`);
     } catch (error) {
-      console.error("Failed to submit report", error);
+      handleError(error);
       alert("Hubo un error al enviar el reporte.");
     } finally {
       setIsLoading(false);

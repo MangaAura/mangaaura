@@ -1,0 +1,24 @@
+# MangaAura
+> La plataforma de manga con IA para leer, crear y crowdfundear capítulos.
+
+## Explore
+- /explore: Discover manga by genre, popularity, and latest updates.
+- /rankings: Top ranked manga and readers.
+- /manga/[slug]: Individual manga series pages with chapters.
+- /reader/[slug]: Manga chapter reader.
+
+## Community
+- /community: Community hub with forums and clans.
+- /events: Seasonal events and competitions.
+- /news: Platform news and updates.
+
+## For Creators
+- /creator/dashboard: Creator analytics and management.
+- /creator/upload: Upload new manga chapters.
+
+## Key Features
+- AI-powered manga discovery and recommendations
+- Crowdfunding for chapters using Aura currency
+- Gamification with XP, achievements, and clans
+- Offline reading support
+- Creator revenue sharing

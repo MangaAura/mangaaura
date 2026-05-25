@@ -182,7 +182,7 @@ export function getWelcomeTemplate(username: string): EmailTemplate {
       <div class="card">
         <h3 style="color: ${COLORS.text}; margin-top: 0;">🎁 Bonus de bienvenida</h3>
         <p style="color: ${COLORS.textMuted}; margin: 0;">
-          Hemos agregado <span class="highlight">50 InkCoins</span> a tu cuenta para que empieces a disfrutar.
+          Hemos agregado <span class="highlight">50 Aura</span> a tu cuenta para que empieces a disfrutar.
         </p>
       </div>
 
@@ -194,7 +194,7 @@ export function getWelcomeTemplate(username: string): EmailTemplate {
         <li>📚 Descubrir miles de mangas únicos</li>
         <li>⭐ Crear tu lista personalizada</li>
         <li>🏆 Desbloquear logros y subir de nivel</li>
-        <li>💰 Ganar InkCoins leyendo y participando</li>
+        <li>💰 Ganar Aura leyendo y participando</li>
         <li>✍️ Crear y publicar tus propias historias</li>
       </ul>
 
@@ -217,13 +217,13 @@ Hola ${username}! 👋
 Bienvenido a MangaAura, tu nuevo hogar para descubrir, leer y crear mangas increíbles.
 
 🎁 BONUS DE BIENVENIDA
-Hemos agregado 50 InkCoins a tu cuenta para que empieces a disfrutar.
+Hemos agregado 50 Aura a tu cuenta para que empieces a disfrutar.
 
 CON MANGA AURA PUEDES:
 📚 Descubrir miles de mangas únicos
 ⭐ Crear tu lista personalizada
 🏆 Desbloquear logros y subir de nivel
-💰 Ganar InkCoins leyendo y participando
+💰 Ganar Aura leyendo y participando
 ✍️ Crear y publicar tus propias historias
 
 EMPIEZA AHORA: ${APP_URL}/explore
@@ -443,7 +443,7 @@ export function getTipReceivedTemplate(
   amount: number,
   message?: string | null
 ): EmailTemplate {
-  const subject = `💰 ¡Has recibido ${amount} InkCoins de ${fromUsername}!`;
+  const subject = `💰 ¡Has recibido ${amount} Aura de ${fromUsername}!`;
 
   const html = baseTemplate(`
     ${baseHeader()}
@@ -465,7 +465,7 @@ export function getTipReceivedTemplate(
         <div style="font-size: 48px; font-weight: bold; color: ${COLORS.success}; margin: 0;">
           ${amount}
         </div>
-        <div style="color: ${COLORS.textMuted}; font-size: 14px;">InkCoins</div>
+        <div style="color: ${COLORS.textMuted}; font-size: 14px;">Aura</div>
       </div>
 
       ${message ? `
@@ -491,13 +491,13 @@ export function getTipReceivedTemplate(
   `);
 
   const text = `
-💰 ¡Has recibido ${amount} InkCoins de ${fromUsername}!
+💰 ¡Has recibido ${amount} Aura de ${fromUsername}!
 
 ¡Hola ${username}!
 
 ${fromUsername} te ha enviado una propina:
 
-${amount} InkCoins
+${amount} Aura
 
 ${message ? `Mensaje: "${message}" - ${fromUsername}` : ''}
 

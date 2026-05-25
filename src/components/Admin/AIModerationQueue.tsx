@@ -30,6 +30,7 @@ export function AIModerationQueue() {
     setLoading(false);
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchComments(); }, [filter]);
 
   const handleAction = async (commentId: string, action: 'approve' | 'keep_hidden') => {

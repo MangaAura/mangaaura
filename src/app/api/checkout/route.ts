@@ -1,7 +1,7 @@
 /**
  * Checkout API
  * 
- * POST: Create Stripe checkout session for InkCoins purchase
+ * POST: Create Stripe checkout session for Aura purchase
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,7 +19,7 @@ const checkoutSchema = z.object({
 
 /**
  * POST /api/checkout
- * Create checkout session for InkCoins purchase
+ * Create checkout session for Aura purchase
  */
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Handle InkCoins purchase (existing)
+    // Handle Aura purchase (existing)
     const package_ = getPackageById(packageId!);
     if (!package_) {
       return Response.json({ error: 'Invalid package' }, { status: 400 });
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: user.id,
         packageId: package_.id,
-        inkcoinsAmount: package_.amount.toString(),
+        auraAmount: package_.amount.toString(),
       },
     });
 

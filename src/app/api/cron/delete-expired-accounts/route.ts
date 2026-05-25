@@ -70,8 +70,6 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    console.log(`[CRON] Deleted ${expiredUsers.length} expired accounts:`, expiredUsers.map((u) => u.email));
-
     return NextResponse.json({
       deleted: expiredUsers.length,
       users: expiredUsers.map((u) => ({ id: u.id, email: u.email, username: u.username })),

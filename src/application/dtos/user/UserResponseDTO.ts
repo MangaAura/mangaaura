@@ -27,8 +27,8 @@ export interface UserResponseDTO {
   role: UserRole;
   /** Rango calculado basado en nivel */
   rank?: string;
-  /** Balance de InkCoins */
-  inkcoinsBalance?: number;
+  /** Balance de Aura */
+  auraBalance?: number;
   /** Streak de lectura */
   readingStreak?: number;
   /** Fecha de última lectura */
@@ -50,7 +50,7 @@ export function mapUserToResponseDTO(user: {
   avatarUrl?: string;
   xp: { amount: number; level: number; rank: string };
   role: UserRole;
-  inkcoins?: { amount: number };
+  aura?: { amount: number };
   readingStreak?: number;
   lastReadAt?: Date;
   createdAt?: Date;
@@ -65,7 +65,7 @@ export function mapUserToResponseDTO(user: {
     level: user.xp.level,
     role: user.role,
     rank: user.xp.rank,
-    inkcoinsBalance: user.inkcoins?.amount ?? 0,
+    auraBalance: user.aura?.amount ?? 0,
     readingStreak: user.readingStreak ?? 0,
     lastReadAt: user.lastReadAt?.toISOString(),
     createdAt: user.createdAt?.toISOString(),
@@ -93,7 +93,7 @@ export function mapUserToPublicResponseDTO(user: {
   avatarUrl?: string;
   xp: { amount: number; level: number; rank: string };
   role: UserRole;
-}): Omit<UserResponseDTO, 'email' | 'inkcoinsBalance'> {
+}): Omit<UserResponseDTO, 'email' | 'auraBalance'> {
   return {
     id: user.id,
     username: user.username,

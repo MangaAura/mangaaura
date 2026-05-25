@@ -1,10 +1,13 @@
 ﻿'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { Flag, AlertTriangle, ShieldAlert, UserX, MessageSquareOff } from 'lucide-react';
 import { useState } from 'react';
 
 import { AccessibleModal } from '@/components/A11y/AccessibleModal';
 import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { cn } from '@/lib/utils';
 
 interface ReportDialogProps {
@@ -34,6 +37,8 @@ export function ReportDialog({
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { handleError } = useErrorHandler();
 
   const handleSubmit = async () => {
     if (!selectedReason) return;
@@ -58,7 +63,8 @@ export function ReportDialog({
         }, 2000);
       }
     } catch (error) {
-      console.error('Error submitting report:', error);
+      handleError(error);
+      setSubmitError('Error de conexión. Intenta de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -68,6 +74,7 @@ export function ReportDialog({
     setSelectedReason('');
     setDescription('');
     setSubmitted(false);
+    setSubmitError(null);
     onClose();
   };
 
@@ -149,6 +156,19 @@ export function ReportDialog({
             );
           })}
         </div>
+
+        <AnimatePresence>
+          {submitError && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ErrorMessage message={submitError} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div>
           <label htmlFor="report-description" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">

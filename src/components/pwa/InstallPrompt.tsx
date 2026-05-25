@@ -4,6 +4,7 @@ import { Download, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -70,7 +71,7 @@ export function InstallPrompt() {
       <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] rounded-xl shadow-2xl p-4 text-[var(--text-inverse)]">
         <div className="flex items-start gap-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-sm">Instalar MangaAura</h3>
+            <h3 className="font-semibold text-sm">Instalar <RepeatedChar text="MangaAura" /></h3>
             <p className="text-xs opacity-80 mt-1">
               Accede rápido desde tu pantalla de inicio. Sin descargas adicionales.
             </p>

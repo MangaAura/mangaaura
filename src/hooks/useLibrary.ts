@@ -7,6 +7,7 @@
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
+import { extractApiError } from '@/lib/extract-api-error';
 import { fetcher, getErrorMessage } from '@/lib/swr-config';
 
 export type LibraryStatus = 'READING' | 'COMPLETED' | 'ON_HOLD' | 'DROPPED' | 'PLAN_TO_READ';
@@ -101,8 +102,8 @@ export function useAddToLibrary() {
       });
       
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to add to library');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       
       return response.json();
@@ -130,8 +131,8 @@ export function useUpdateLibraryEntry(mangaId: string) {
       });
       
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to update entry');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       
       return response.json();
@@ -157,8 +158,8 @@ export function useRemoveFromLibrary(mangaId: string) {
       });
       
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to remove from library');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
       
       return response.json();

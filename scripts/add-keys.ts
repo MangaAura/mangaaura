@@ -73,9 +73,9 @@ en.help.faq = {
       q: "How do I recover my password?",
       a: "On the login page, click \"Forgot your password?\" and follow the instructions. You'll receive an email to reset it."
     },
-    whatAreInkCoins: {
-      q: "What are Ink Coins?",
-      a: "They're MangaAura's virtual currency. You can use them to unlock premium chapters, support creators and buy special features."
+    whatIsAura: {
+      q: "What is Aura?",
+      a: "It's MangaAura's virtual currency. You can use it to unlock premium chapters, support creators and buy special features."
     },
     deleteAccount: {
       q: "How do I delete my account?",

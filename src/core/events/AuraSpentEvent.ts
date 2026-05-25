@@ -1,6 +1,6 @@
 import { DomainEvent } from './DomainEvent';
 
-type InkCoinsTransactionType =
+type AuraTransactionType =
   | 'TIP_AUTHOR'
   | 'CROWDFUND_CONTRIBUTION'
   | 'PREMIUM_CHAPTER'
@@ -8,10 +8,10 @@ type InkCoinsTransactionType =
   | 'BOOST_MANGA'
   | 'OTHER';
 
-export interface InkCoinsSpentEventPayload {
+export interface AuraSpentEventPayload {
   userId: string;
   amount: number;
-  type: InkCoinsTransactionType;
+  type: AuraTransactionType;
   description: string;
   newBalance: number;
   transactionId: string;
@@ -22,14 +22,14 @@ export interface InkCoinsSpentEventPayload {
   [key: string]: unknown;
 }
 
-export class InkCoinsSpentEvent extends DomainEvent {
-  readonly name = 'INKCOINS_SPENT';
-  readonly payload: InkCoinsSpentEventPayload;
+export class AuraSpentEvent extends DomainEvent {
+  readonly name = 'AURA_SPENT';
+  readonly payload: AuraSpentEventPayload;
 
   constructor(payload: {
     userId: string;
     amount: number;
-    type: InkCoinsTransactionType;
+    type: AuraTransactionType;
     description: string;
     newBalance: number;
     transactionId: string;
@@ -53,7 +53,7 @@ export class InkCoinsSpentEvent extends DomainEvent {
   }
 }
 
-export interface InkCoinsReceivedEventPayload {
+export interface AuraReceivedEventPayload {
   userId: string;
   amount: number;
   source: 'TIP' | 'CROWDFUND' | 'DAILY_BONUS' | 'ACHIEVEMENT' | 'REFERRAL' | 'OTHER';
@@ -65,9 +65,9 @@ export interface InkCoinsReceivedEventPayload {
   [key: string]: unknown;
 }
 
-export class InkCoinsReceivedEvent extends DomainEvent {
-  readonly name = 'INKCOINS_RECEIVED';
-  readonly payload: InkCoinsReceivedEventPayload;
+export class AuraReceivedEvent extends DomainEvent {
+  readonly name = 'AURA_RECEIVED';
+  readonly payload: AuraReceivedEventPayload;
 
   constructor(payload: {
     userId: string;

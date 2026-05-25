@@ -9,6 +9,8 @@
 import { useSession } from 'next-auth/react';
 import { useState, useEffect, useCallback } from 'react';
 
+import { extractApiError } from '@/lib/extract-api-error';
+
 export interface Comment {
   id: string;
   chapterId: string;
@@ -51,11 +53,11 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
   // Cargar comentarios
   const fetchComments = useCallback(async (pageNum: number = 1) => {
     try {
-      setIsLoading(true);
       const response = await fetch(`/api/chapters/${chapterId}/comments?page=${pageNum}&limit=20`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch comments');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       const data = await response.json();
@@ -77,6 +79,7 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
   // Cargar más
   const loadMore = useCallback(async () => {
     const nextPage = page + 1;
+    setIsLoading(true);
     await fetchComments(nextPage);
     setPage(nextPage);
   }, [page, fetchComments]);
@@ -95,8 +98,8 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create comment');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       const newComment = await response.json();
@@ -130,7 +133,8 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update comment');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       const updatedComment = await response.json();
@@ -156,7 +160,8 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete comment');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       setComments((prev) =>
@@ -176,7 +181,8 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
       });
 
       if (!response.ok) {
-        throw new Error('Failed to like comment');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       setComments((prev) =>
@@ -200,7 +206,8 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
       });
 
       if (!response.ok) {
-        throw new Error('Failed to unlike comment');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       setComments((prev) =>
@@ -217,11 +224,13 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
   }, [chapterId]);
 
   // Cargar inicial
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (chapterId) {
       fetchComments(1);
     }
-  }, [chapterId, fetchComments]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapterId]);
 
   return {
     comments,

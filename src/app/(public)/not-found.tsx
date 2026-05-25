@@ -5,6 +5,7 @@ import { Home, BookOpen, Search } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/Button';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 
 export default function MainNotFoundPage() {
@@ -49,7 +50,7 @@ export default function MainNotFoundPage() {
 
         <Link href="/explore" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors text-sm">
           <Search className="w-4 h-4" />
-          Buscar en MangaAura
+          Buscar en <RepeatedChar text="MangaAura" />
         </Link>
       </motion.div>
     </div>

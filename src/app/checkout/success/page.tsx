@@ -1,7 +1,7 @@
 ﻿/**
  * Checkout Success Page
  * 
- * Página de éxito después de comprar InkCoins.
+ * Página de éxito después de comprar Aura.
  */
 
 'use client';
@@ -28,28 +28,33 @@ function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useT();
-  const [isVerifying, setIsVerifying] = useState(true);
-  const [inkcoinsAdded, setInkcointsAdded] = useState<number | null>(null);
+  const sessionId = searchParams.get('session_id');
+  const [isVerifying, setIsVerifying] = useState(!!sessionId);
+  const [auraAdded, setAuraAdded] = useState<number | null>(null);
   const [verifyError, setVerifyError] = useState(false);
 
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
+    if (!sessionId) return;
 
-    if (!sessionId) {
-      setIsVerifying(false);
-      return;
-    }
+    let cancelled = false;
 
     fetch(`/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data?.paid && data.inkcoinsAdded) {
-          setInkcointsAdded(data.inkcoinsAdded);
+        if (cancelled) return;
+        if (data?.paid && data.auraAdded) {
+          setAuraAdded(data.auraAdded);
         }
       })
-      .catch(() => setVerifyError(true))
-      .finally(() => setIsVerifying(false));
-  }, [searchParams]);
+      .catch(() => {
+        if (!cancelled) setVerifyError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsVerifying(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [sessionId, searchParams]);
 
   return (
     <div className="pt-20 pb-16 px-4">
@@ -94,12 +99,12 @@ function CheckoutSuccessContent() {
                 {t('checkout.success.desc')}
               </p>
 
-              {inkcoinsAdded && (
+              {auraAdded && (
                 <div className="bg-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-xl p-4 mb-8">
                   <div className="flex items-center justify-center gap-2">
                     <Coins className="w-5 h-5 text-[var(--warning)]" />
                     <span className="text-2xl font-bold text-[var(--warning)]">
-                      +{inkcoinsAdded.toLocaleString()}
+                      +{auraAdded.toLocaleString()}
                     </span>
                   </div>
                   <p className="text-[var(--warning)]/80 text-sm mt-1">{t('checkout.success.added')}</p>

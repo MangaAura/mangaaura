@@ -28,7 +28,7 @@ async function getTransactions(userId: string) {
 async function getBalance(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { inkcoinsBalance: true, xpPoints: true },
+    select: { auraBalance: true, xpPoints: true },
   });
   return user;
 }

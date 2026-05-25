@@ -1,13 +1,17 @@
 'use client';
 
-import { Tag, X, Plus, Send, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Tag, X, Plus, Send, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 interface Category {
   id: string;
@@ -24,6 +28,13 @@ interface NewThreadFormProps {
 export function NewThreadForm({ categories }: NewThreadFormProps) {
   const router = useRouter();
   const t = useT();
+
+  const threadSchema = useMemo(() => z.object({
+    title: z.string().min(1, t('newThread.errorTitleMin')).max(200, t('newThread.errorTitleMax')),
+    content: z.string().min(1, t('newThread.errorContentMin')).max(10000, t('newThread.errorContentMax')),
+    categoryId: z.string().min(1, t('newThread.errorCategoryRequired')),
+  }), [t]);
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState(categories[0]?.id || '');
@@ -31,6 +42,14 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const validateField = (field: string, value: string) => {
+    const shape = threadSchema.shape as Record<string, z.ZodString>;
+    const result = shape[field]?.safeParse(value);
+    setFieldErrors((prev) => ({ ...prev, [field]: result?.success ? null : (result?.error?.issues[0]?.message ?? null) }));
+  };
 
   const addTag = () => {
     const trimmed = tagInput.trim().toLowerCase();
@@ -53,7 +72,14 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim() || !categoryId) return;
+    const result = threadSchema.safeParse({ title, content, categoryId });
+    if (!result.success) {
+      const fieldErrors_: Record<string, string | null> = {};
+      result.error.issues.forEach((issue) => { fieldErrors_[issue.path[0] as string] = issue.message; });
+      setFieldErrors(fieldErrors_);
+      setTouched({ title: true, content: true, categoryId: true });
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -93,8 +119,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
         </label>
         <select
           id="thread-category"
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          value={categoryId}              onChange={(e) => { setCategoryId(e.target.value); setTouched((prev) => ({ ...prev, categoryId: true })); validateField('categoryId', e.target.value); }}
           className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]"
           required
           aria-required
@@ -114,16 +139,44 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
         <Input
           id="thread-title"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => { setTitle(e.target.value); setTouched((prev) => ({ ...prev, title: true })); validateField('title', e.target.value); }}
           placeholder={t('newThread.titlePlaceholder')}
           maxLength={200}
           required
           disabled={isSubmitting}
+          className={cn('w-full', touched.title && fieldErrors.title ? 'border-[var(--error)]' : '', touched.title && !fieldErrors.title && title ? 'border-[var(--success)]' : '')}
           aria-describedby={error ? 'thread-error title-char-count' : 'title-char-count'}
         />
         <p id="title-char-count" className="text-xs text-[var(--text-tertiary)] mt-1">
           {title.length}/200
         </p>
+        <AnimatePresence>
+          {touched.title && !fieldErrors.title && title && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="flex items-center gap-1 text-xs text-[var(--success)] mt-1"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+              {t('newThread.titleValid')}
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {touched.title && fieldErrors.title && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="flex items-center gap-1 text-xs text-[var(--error)] mt-1"
+              role="alert"
+            >
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+              {fieldErrors.title}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       <div>
@@ -133,18 +186,45 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
         <Textarea
           id="thread-content"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => { setContent(e.target.value); setTouched((prev) => ({ ...prev, content: true })); validateField('content', e.target.value); }}
           placeholder={t('newThread.contentPlaceholder')}
           rows={8}
           maxLength={10000}
           required
           disabled={isSubmitting}
-          className="resize-y"
+          className={cn('resize-y', touched.content && fieldErrors.content ? 'border-[var(--error)]' : '', touched.content && !fieldErrors.content && content ? 'border-[var(--success)]' : '')}
           aria-describedby={error ? 'thread-error content-char-count' : 'content-char-count'}
         />
         <p id="content-char-count" className="text-xs text-[var(--text-tertiary)] mt-1">
           {content.length}/10,000
         </p>
+        <AnimatePresence>
+          {touched.content && !fieldErrors.content && content && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="flex items-center gap-1 text-xs text-[var(--success)] mt-1"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+              {t('newThread.contentValid')}
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {touched.content && fieldErrors.content && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="flex items-center gap-1 text-xs text-[var(--error)] mt-1"
+              role="alert"
+            >
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+              {fieldErrors.content}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       <div>
@@ -193,11 +273,18 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
         )}
       </div>
 
-      {error && (
-        <div className="p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg" role="alert" id="thread-error">
-          <p className="text-sm text-[var(--error)]">{error}</p>
-        </div>
-      )}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            id="thread-error"
+          >
+            <ErrorMessage message={error} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex items-center justify-between pt-2">
         <p className="text-xs text-[var(--text-tertiary)]">

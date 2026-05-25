@@ -1,18 +1,20 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   UploadCloud,
   Image as ImageIcon,
   CheckCircle,
   FileText,
   LayoutDashboard,
-  AlertCircle,
   GripVertical,
   ChevronLeft,
   Loader2,
   ArrowUp,
   ArrowDown,
-  Trash2
+  Trash2,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -20,7 +22,11 @@ import React, { useState, useRef, useEffect, Suspense } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import Navbar from '@/components/Layout/Navbar';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { MAX_FILE_SIZE, ACCEPTED_FORMATS } from '@/lib/storage-config';
+import { cn } from '@/lib/utils';
 
 interface Manga {
   id: string;
@@ -51,6 +57,8 @@ function CreatorUploadPageContent() {
   const searchParams = useSearchParams();
   const { status } = useSession();
   const mangaIdFromUrl = searchParams.get('mangaId');
+  const { handleError } = useErrorHandler();
+  const t = useT();
 
   // Estados
   const [isDragging, setIsDragging] = useState(false);
@@ -58,6 +66,7 @@ function CreatorUploadPageContent() {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [selectedMangaId, setSelectedMangaId] = useState<string>(mangaIdFromUrl || '');
   const [chapterNumber, setChapterNumber] = useState('');
+  const [chapterNumberTouched, setChapterNumberTouched] = useState(false);
   const [chapterTitle, setChapterTitle] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -80,7 +89,7 @@ function CreatorUploadPageContent() {
         const data = await response.json();
         setMangas(data.mangas || []);
       } catch (err) {
-        console.error('Error fetching mangas:', err);
+        handleError(err);
       } finally {
         setIsLoadingMangas(false);
       }
@@ -91,6 +100,17 @@ function CreatorUploadPageContent() {
 
   // Generar ID único
   const generateId = () => Math.random().toString(36).substring(2, 9);
+
+  // Validar capítulo número
+  const validateChapterNumber = (value: string): string | null => {
+    if (!value || value.trim() === '') return t('creatorUpload.chapterNumberRequired');
+    const num = parseInt(value, 10);
+    if (isNaN(num) || num < 1 || !Number.isInteger(num)) return t('creatorUpload.chapterNumberInvalid');
+    return null;
+  };
+
+  const chapterNumberError = chapterNumberTouched ? validateChapterNumber(chapterNumber) : null;
+  const chapterNumberValid = chapterNumberTouched && chapterNumber !== '' && !chapterNumberError;
 
   // Validar archivo
   const validateFile = (file: File): string | null => {
@@ -320,10 +340,7 @@ function CreatorUploadPageContent() {
 
         {/* Error */}
         {error && (
-          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 flex items-start gap-3" role="alert">
-            <AlertCircle className="w-5 h-5 text-[var(--error)] flex-shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-[var(--error)] text-sm">{error}</p>
-          </div>
+          <ErrorMessage message={error} />
         )}
 
         {/* Success State */}
@@ -413,12 +430,46 @@ function CreatorUploadPageContent() {
                       id="chapter-number"
                       type="number"
                       value={chapterNumber}
-                      onChange={(e) => setChapterNumber(e.target.value)}
+                      onChange={(e) => {
+                        setChapterNumber(e.target.value);
+                        if (chapterNumberTouched) setChapterNumberTouched(true);
+                      }}
+                      onBlur={() => setChapterNumberTouched(true)}
                       placeholder="Ej: 15"
                       min="1"
-                      className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
+                      className={cn(
+                        'w-full px-3 py-2 bg-[var(--background)] border focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]',
+                        chapterNumberTouched && chapterNumberError
+                          ? 'border-[var(--error)]'
+                          : chapterNumberValid
+                          ? 'border-[var(--success)]'
+                          : 'border-[var(--border)]'
+                      )}
                       required
                     />
+                    <AnimatePresence>
+                      {chapterNumberTouched && chapterNumber !== '' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.15 }}
+                          className="mt-1"
+                        >
+                          {chapterNumberError ? (
+                            <div className="flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+                              <XCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                              <span>{chapterNumberError}</span>
+                            </div>
+                          ) : chapterNumberValid ? (
+                            <div className="flex items-start gap-1.5 text-xs text-[var(--success)]">
+                              <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                              <span>{t('creatorUpload.chapterNumberValid')}</span>
+                            </div>
+                          ) : null}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Título del Capítulo */}

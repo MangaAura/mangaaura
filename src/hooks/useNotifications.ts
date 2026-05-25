@@ -11,6 +11,8 @@ import { useSession } from 'next-auth/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 import type { Notification, NotificationType } from '@/core/services/NotificationService';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 
 interface NotificationFilter {
   types?: NotificationType[];
@@ -49,6 +51,7 @@ export function useMangaNotifications(
   } = options;
   
   const { data: session, status } = useSession();
+  const { handleError } = useErrorHandler();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -93,7 +96,8 @@ export function useMangaNotifications(
         const response = await fetch(`/api/notifications?${queryParams}`);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch notifications');
+          const { message } = await extractApiError(response);
+          throw new Error(message);
         }
 
         const data = await response.json();
@@ -138,7 +142,7 @@ export function useMangaNotifications(
         setUnreadCount(data.unread || 0);
       }
     } catch (err) {
-      console.error('Failed to fetch unread count:', err);
+      handleError(err);
     }
   }, [session?.user?.id]);
 
@@ -176,7 +180,8 @@ export function useMangaNotifications(
       });
 
       if (!response.ok) {
-        throw new Error('Failed to mark notification as read');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
     } catch (err) {
       // Rollback on error
@@ -210,7 +215,8 @@ export function useMangaNotifications(
       });
 
       if (!response.ok) {
-        throw new Error('Failed to mark all notifications as read');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
     } catch (err) {
       // Rollback on error
@@ -235,7 +241,8 @@ export function useMangaNotifications(
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete notification');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
     } catch (err) {
       // Rollback on error
@@ -268,7 +275,8 @@ export function useMangaNotifications(
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete read notifications');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
     } catch (err) {
       // Rollback on error
@@ -326,6 +334,7 @@ export function useMangaNotifications(
 // Hook para conteo de notificaciones (lightweight)
 export function useNotificationListener(pollingInterval: number = 30000) {
   const { data: session, status } = useSession();
+  const { handleError } = useErrorHandler();
   const [count, setCount] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -339,7 +348,7 @@ export function useNotificationListener(pollingInterval: number = 30000) {
         setCount(data.unread || 0);
       }
     } catch (err) {
-      console.error('Failed to fetch notification count:', err);
+      handleError(err);
     }
   }, [session?.user?.id]);
 

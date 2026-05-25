@@ -38,7 +38,7 @@ describe('PrismaUserRepository Integration', () => {
         emailVerified: null,
         role: 'USER',
         xpPoints: 100,
-        inkcoinsBalance: 50,
+        auraBalance: 50,
         level: 1,
         readingStreak: 5,
         lastReadAt: null,
@@ -86,7 +86,7 @@ describe('PrismaUserRepository Integration', () => {
         email: Email.create('new@test.com'),
         username: 'newuser',
         xpPoints: 0,
-        inkcoinsBalance: 50,
+        auraBalance: 50,
       });
 
       mockPrisma.user.upsert.mockResolvedValue({});
@@ -105,7 +105,7 @@ describe('PrismaUserRepository Integration', () => {
         email: Email.create('update@test.com'),
         username: 'updateuser',
         xpPoints: 500,
-        inkcoinsBalance: 100,
+        auraBalance: 100,
       });
 
       mockPrisma.user.upsert.mockResolvedValue({});
@@ -114,7 +114,7 @@ describe('PrismaUserRepository Integration', () => {
 
       const call = mockPrisma.user.upsert.mock.calls[0][0];
       expect(call.update.xpPoints).toBe(500);
-      expect(call.update.inkcoinsBalance).toBe(100);
+      expect(call.update.auraBalance).toBe(100);
     });
   });
 
@@ -149,7 +149,7 @@ describe('PrismaUserRepository Integration', () => {
           emailVerified: null,
           role: 'USER',
           xpPoints: 5000,
-          inkcoinsBalance: 100,
+          auraBalance: 100,
           level: 6,
           readingStreak: 10,
           lastReadAt: null,
@@ -166,7 +166,7 @@ describe('PrismaUserRepository Integration', () => {
           emailVerified: null,
           role: 'USER',
           xpPoints: 3000,
-          inkcoinsBalance: 50,
+          auraBalance: 50,
           level: 4,
           readingStreak: 5,
           lastReadAt: null,

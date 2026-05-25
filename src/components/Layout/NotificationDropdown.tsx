@@ -1,8 +1,12 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useT } from '@/i18n';
 
 interface Notification {
   id: string;
@@ -81,6 +85,7 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -92,7 +97,7 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
         const data = await res.json();
         if (!cancelled) setNotifications(data.notifications || []);
       } catch {
-        if (!cancelled) setFetchError('Error al cargar notificaciones');
+        if (!cancelled) setFetchError(t('notifications.fetchError'));
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -106,6 +111,7 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
       await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
       setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
     } catch {
+      console.info('[Navbar] Failed to mark notification as read');
       console.info('[Navbar] Failed to mark notification as read');
     }
   };
@@ -122,13 +128,14 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
   return (
     <div className="w-80 max-h-96 overflow-y-auto bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-xl animate-in fade-in-0 slide-in-from-top-1 duration-150">
       <div className="flex items-center justify-between p-3 border-b border-[var(--border)]">
-        <h3 className="font-semibold text-sm text-[var(--text-primary)]">Notificaciones</h3>
+        <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('notifications.title')}</h3>
         {notifications.some((n) => !n.isRead) && (
-          <button
-            onClick={markAllAsRead}
-            className="text-xs text-[var(--primary)] hover:underline cursor-pointer"
-          >
-            Marcar todas
+<button
+          onClick={markAllAsRead}
+          className="text-xs text-[var(--primary)] hover:underline cursor-pointer"
+          aria-label={t('notifications.markAllRead')}
+        >
+          {t('notifications.markAllRead')}
           </button>
         )}
       </div>
@@ -146,13 +153,23 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
           ))}
         </div>
       ) : fetchError ? (
-        <div className="p-4 text-center" role="alert">
-          <p className="text-sm text-[var(--error)]">{fetchError}</p>
-        </div>
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-4"
+          >
+            <ErrorMessage
+              message={fetchError}
+              onDismiss={() => setFetchError(null)}
+            />
+          </motion.div>
+        </AnimatePresence>
       ) : notifications.length === 0 ? (
         <div className="p-8 text-center">
           <Bell className="w-8 h-8 mx-auto mb-3 text-[var(--text-tertiary)]" />
-          <p className="text-sm text-[var(--text-secondary)]">Sin notificaciones</p>
+          <p className="text-sm text-[var(--text-secondary)]">{t('notifications.empty')}</p>
         </div>
       ) : (
         <>
@@ -168,8 +185,8 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
             href="/notifications"
             className="block p-3 text-center text-sm text-[var(--primary)] hover:underline border-t border-[var(--border)]"
             onClick={onClose}
-          >
-            Ver todas
+        >
+          {t('notifications.viewAll')}
           </Link>
         </>
       )}

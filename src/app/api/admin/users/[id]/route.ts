@@ -10,7 +10,7 @@ const updateUserSchema = z.object({
   email: z.string().email().max(254).optional(),
   role: z.enum(['USER', 'ADMIN', 'BANNED', 'CREATOR']).optional(),
   xpPoints: z.number().int().min(0).optional(),
-  inkcoinsBalance: z.number().int().min(0).optional(),
+  auraBalance: z.number().int().min(0).optional(),
   level: z.number().int().min(1).optional(),
 });
 
@@ -76,7 +76,7 @@ const totalChapters = chapterCounts.reduce((sum: any, c: any) => sum + c._count.
         avatarUrl: user.avatarUrl,
         role: user.role,
         xpPoints: user.xpPoints,
-        inkcoinsBalance: user.inkcoinsBalance,
+        auraBalance: user.auraBalance,
         level: user.level,
         readingStreak: user.readingStreak,
         createdAt: user.createdAt.toISOString(),
@@ -221,14 +221,14 @@ export async function PATCH(
       );
     }
 
-    const { displayName, email, role, xpPoints, inkcoinsBalance, level } = result.data;
+    const { displayName, email, role, xpPoints, auraBalance, level } = result.data;
 
     const updateData: Record<string, unknown> = {};
     if (displayName !== undefined) updateData.displayName = displayName;
     if (email !== undefined) updateData.email = email;
     if (role !== undefined) updateData.role = role;
     if (xpPoints !== undefined) updateData.xpPoints = xpPoints;
-    if (inkcoinsBalance !== undefined) updateData.inkcoinsBalance = inkcoinsBalance;
+    if (auraBalance !== undefined) updateData.auraBalance = auraBalance;
     if (level !== undefined) updateData.level = level;
 
     const user = await prisma.user.update({

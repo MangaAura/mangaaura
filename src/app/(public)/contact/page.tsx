@@ -1,10 +1,12 @@
 'use client';
 
-import { Mail, Send, HelpCircle, MessageSquare, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, Mail, Send, HelpCircle, MessageSquare, Loader2, CheckCircle2 } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +22,24 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [emailValid, setEmailValid] = useState(false);
+
+  const validateEmailField = (value: string) => {
+    if (!value) {
+      setErrors((prev) => ({ ...prev, email: t('contact.form.emailRequired') }));
+      setEmailValid(false);
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setErrors((prev) => ({ ...prev, email: t('contact.form.emailInvalid') }));
+      setEmailValid(false);
+    } else {
+      setErrors((prev) => {
+        const { email: _omitted, ...rest } = prev;
+        return rest;
+      });
+      setEmailValid(true);
+    }
+  };
 
   const categories = [
     { value: 'general', label: t('contact.categories.general'), icon: <HelpCircle className="w-4 h-4" /> },
@@ -146,7 +166,14 @@ export default function ContactPage() {
                   id="contact-email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (touched.email) validateEmailField(e.target.value);
+                  }}
+                  onBlur={() => {
+                    setTouched((prev) => ({ ...prev, email: true }));
+                    validateEmailField(formData.email);
+                  }}
                   aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? 'contact-email-error' : undefined}
                   aria-required
@@ -157,7 +184,29 @@ export default function ContactPage() {
                   )}
                   placeholder={t('contact.form.emailPlaceholder')}
                 />
-                {errors.email && <p id="contact-email-error" className="mt-1 text-sm text-[var(--error)]">{errors.email}</p>}
+                {touched.email && (
+                  <AnimatePresence>
+                    {errors.email ? (
+                      <motion.div
+                        id="contact-email-error"
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                      >
+                        <ErrorMessage message={errors.email} />
+                      </motion.div>
+                    ) : emailValid ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 flex items-center gap-1"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                        <p className="text-xs text-[var(--success)]">{t('contact.form.emailValid')}</p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                )}
               </div>
             </div>
 

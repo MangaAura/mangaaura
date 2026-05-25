@@ -1,10 +1,13 @@
 'use client';
 
-import { Send, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Textarea } from '@/components/ui/Textarea';
 import { useT } from '@/i18n';
 
@@ -14,15 +17,25 @@ interface ForumReplyFormProps {
 }
 
 export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
+  const router = useRouter();
+  const t = useT();
+  const replySchema = z.object({
+    content: z.string().min(1, t('forumReply.errorContentMin')).max(10000, t('forumReply.errorContentMax')),
+  });
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const t = useT();
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  const [touched, setTouched] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    const result = replySchema.safeParse({ content });
+    if (!result.success) {
+      setFieldError(result.error.issues[0]?.message ?? null);
+      setTouched(true);
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -54,18 +67,54 @@ export function ForumReplyForm({ threadSlug }: ForumReplyFormProps) {
       <h3 className="font-semibold text-[var(--text-primary)]">{t('forumReply.replyToThread')}</h3>
       <Textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}            placeholder={t('forumReply.placeholder')}
+        onChange={(e) => { setContent(e.target.value); setTouched(true); const r = replySchema.shape.content.safeParse(e.target.value); setFieldError(r.success ? null : (r.error?.issues[0]?.message ?? null)); }}            placeholder={t('forumReply.placeholder')}
         rows={4}
-        className="resize-none"
+        className={`resize-none ${touched && fieldError ? 'border-[var(--error)]' : ''} ${touched && !fieldError && content ? 'border-[var(--success)]' : ''}`}
         disabled={isSubmitting}
         minLength={1}
         maxLength={10000}
         aria-required
         aria-describedby={error ? 'forum-reply-error' : undefined}
       />
-      {error && (
-        <p id="forum-reply-error" className="text-sm text-[var(--error)]" role="alert">{error}</p>
-      )}
+      <AnimatePresence>
+        {touched && !fieldError && content && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="flex items-center gap-1 text-xs text-[var(--success)]"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+            {t('forumReply.contentValid')}
+          </motion.p>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {touched && fieldError && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="flex items-center gap-1 text-xs text-[var(--error)]"
+            role="alert"
+          >
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+            {fieldError}
+          </motion.p>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            id="forum-reply-error"
+          >
+            <ErrorMessage message={error} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex items-center justify-between">
         <span className="text-xs text-[var(--text-tertiary)]">
           {content.length}/10,000

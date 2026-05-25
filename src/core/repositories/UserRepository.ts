@@ -9,7 +9,7 @@ export interface UserRepository {
   createWithPassword(email: Email, username: string, password: string): Promise<User>;
   updatePassword(userId: string, newPassword: string): Promise<void>;
   updateXP(userId: string, xpPoints: number): Promise<void>;
-  updateInkCoins(userId: string, balance: number): Promise<void>;
+  updateAura(userId: string, balance: number): Promise<void>;
   existsByEmail(email: string): Promise<boolean>;
   existsByUsername(username: string): Promise<boolean>;
   getLeaderboard(limit?: number): Promise<User[]>;

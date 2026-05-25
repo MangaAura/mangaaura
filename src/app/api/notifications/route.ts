@@ -14,7 +14,7 @@ const createNotificationSchema = z.object({
     'COMMENT_REPLY',
     'SPONSORSHIP_WON',
     'LEVEL_UP',
-    'INK_COINS_RECEIVED',
+    'AURA_RECEIVED',
     'SYSTEM',
     'MENTION',
   ]),

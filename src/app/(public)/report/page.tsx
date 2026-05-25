@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
   AlertTriangle,
@@ -19,6 +20,7 @@ import React, { useState } from 'react';
 
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +40,8 @@ export default function ReportPage() {
   const [targetIdError, setTargetIdError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
   const [evidenceUrlError, setEvidenceUrlError] = useState('');
+  const [evidenceUrlTouched, setEvidenceUrlTouched] = useState(false);
+  const [evidenceUrlValid, setEvidenceUrlValid] = useState(false);
 
   const reportTypes = [
     {
@@ -79,6 +83,19 @@ export default function ReportPage() {
   ];
 
   const isLoggedIn = status === 'authenticated';
+
+  const validateUrlField = (value: string) => {
+    if (!value) {
+      setEvidenceUrlError('');
+      setEvidenceUrlValid(false);
+    } else if (!/^https?:\/\/.+/.test(value)) {
+      setEvidenceUrlError(t('report.form.invalidUrl'));
+      setEvidenceUrlValid(false);
+    } else {
+      setEvidenceUrlError('');
+      setEvidenceUrlValid(true);
+    }
+  };
 
   const validateForm = () => {
     if (!formData.targetType) return t('report.form.typeRequired');
@@ -201,8 +218,8 @@ export default function ReportPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 shadow-lg">
           {error && (
-            <div id="report-global-error" className="mb-6 p-4 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-xl text-sm text-[var(--error)]" role="alert">
-              {error}
+            <div id="report-global-error" className="mb-6">
+              <ErrorMessage message={error} />
             </div>
           )}
 
@@ -322,16 +339,50 @@ export default function ReportPage() {
                     id="report-evidence"
                     type="url"
                     value={formData.evidenceUrl}
-                    onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--primary)] transition-colors"
+                    onChange={(e) => {
+                      setFormData({ ...formData, evidenceUrl: e.target.value });
+                      if (evidenceUrlTouched) validateUrlField(e.target.value);
+                    }}
+                    onBlur={() => {
+                      setEvidenceUrlTouched(true);
+                      validateUrlField(formData.evidenceUrl);
+                    }}
+                    className={cn(
+                      'w-full pl-10 pr-4 py-3 bg-[var(--background)] border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none transition-colors',
+                      evidenceUrlTouched && evidenceUrlValid && formData.evidenceUrl
+                        ? 'border-[var(--success)]'
+                        : evidenceUrlError
+                          ? 'border-[var(--error)]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
+                    )}
                     placeholder={t('report.form.evidencePlaceholder')}
                     autoComplete="url"
                     aria-invalid={!!evidenceUrlError}
                     aria-describedby="evidence-url-error"
                   />
                 </div>
-                {evidenceUrlError && (
-                  <p id="evidence-url-error" className="mt-1 text-sm text-[var(--error)]" role="alert">{evidenceUrlError}</p>
+                {evidenceUrlTouched && (
+                  <AnimatePresence>
+                    {evidenceUrlError ? (
+                      <motion.div
+                        id="evidence-url-error"
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                      >
+                        <ErrorMessage message={evidenceUrlError} />
+                      </motion.div>
+                    ) : evidenceUrlValid && formData.evidenceUrl ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 flex items-center gap-1"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                        <p className="text-xs text-[var(--success)]">{t('report.form.validUrl')}</p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 )}
               </div>
 

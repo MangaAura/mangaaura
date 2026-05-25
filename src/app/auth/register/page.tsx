@@ -9,7 +9,6 @@ import {
   EyeOff,
   Loader2,
   UserPlus,
-  AlertCircle,
   CheckCircle2,
   XCircle
 } from 'lucide-react';
@@ -402,9 +401,8 @@ function Content() {
   </div>
 )}
 {errors.username && (
-<div id={usernameErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 rounded-lg" role="alert">
-<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
-<p className="text-sm font-medium text-[var(--error)]">{errors.username}</p>
+                  <div id={usernameErrorId} className="mt-2">
+                    <ErrorMessage message={errors.username} />
                   </div>
                 )}
               </div>
@@ -439,9 +437,8 @@ function Content() {
 )}
 </div>
 {errors.email && (
-<div id={emailErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 rounded-lg" role="alert">
-<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
-<p className="text-sm font-medium text-[var(--error)]">{errors.email}</p>
+                  <div id={emailErrorId} className="mt-2">
+                    <ErrorMessage message={errors.email} />
                   </div>
                 )}
               </div>
@@ -498,9 +495,8 @@ function Content() {
                   </div>
                 )}
                 {errors.password && (
-<div id={passwordErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 rounded-lg" role="alert">
-<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
-<p className="text-sm font-medium text-[var(--error)]">{errors.password}</p>
+                  <div id={passwordErrorId} className="mt-2">
+                    <ErrorMessage message={errors.password} />
                   </div>
                 )}
               </div>
@@ -538,9 +534,8 @@ function Content() {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-<div id={confirmPasswordErrorId} className="mt-2 flex items-start gap-2 p-2 bg-[var(--error)]/10 rounded-lg" role="alert">
-<AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0 mt-0.5" />
-<p className="text-sm font-medium text-[var(--error)]">{errors.confirmPassword}</p>
+                  <div id={confirmPasswordErrorId} className="mt-2">
+                    <ErrorMessage message={errors.confirmPassword} />
                   </div>
                 )}
               </div>

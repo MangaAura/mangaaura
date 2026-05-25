@@ -9,6 +9,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+import { extractApiError } from '@/lib/extract-api-error';
+
 interface ChapterStats {
   chapterId: string;
   mangaId: string;
@@ -59,8 +61,8 @@ export function useMongoAnalytics(options: UseMongoAnalyticsOptions = {}) {
       const response = await fetch(`/api/analytics/creator?${params.toString()}`);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error fetching analytics');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       const result = await response.json();

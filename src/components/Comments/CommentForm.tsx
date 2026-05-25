@@ -11,7 +11,12 @@ import { Send, X, Loader2 } from 'lucide-react';
 import { useState, useEffect, useRef, useActionState, useOptimistic } from 'react';
 
 import { createComment } from '@/app/api/comments/actions';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils';
+
+
+
 
 interface CommentFormProps {
   initialContent?: string;
@@ -53,6 +58,7 @@ export function CommentForm({
     })
   );
 
+  const { toast } = useToast();
   const charCount = content.length;
   const isOverLimit = charCount > MAX_CHARS;
   const loading = isSubmitting || isPending;
@@ -73,7 +79,11 @@ export function CommentForm({
         await onSubmit(content.trim());
         setContent('');
       } catch (error) {
-        console.error('Error submitting comment:', error);
+        toast({
+          title: 'Error',
+          description: error instanceof Error ? error.message : 'Error al publicar el comentario',
+          variant: 'destructive',
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -120,10 +130,11 @@ export function CommentForm({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="mb-2 p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30"
-            role="alert"
+            className="mb-2"
           >
-            <p id="comment-error" className="text-xs text-[var(--error)]">{(state as Record<string, unknown>)?.error as string}</p>
+            <div id="comment-error">
+              <ErrorMessage message={(state as Record<string, unknown>)?.error as string} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

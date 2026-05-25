@@ -8,6 +8,8 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+
 interface AnalyticsEvent {
   type: 'page_view' | 'chapter_read' | 'chapter_complete' | 'time_spent' | 'scroll_depth' | 'comment' | 'like';
   mangaId?: string;
@@ -42,11 +44,23 @@ export function trackEvent(event: AnalyticsEvent) {
   } catch {
     // Ignore errors
   }
-}
-
-// Hook para chapter reading
+}  // Hook para chapter reading
 export function useChapterAnalytics(chapterId: string, mangaId: string) {
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+    return () => {
+      const timeSpent = Date.now() - startTimeRef.current;
+      trackEvent({
+        type: 'time_spent',
+        mangaId,
+        chapterId,
+        metadata: { duration: timeSpent },
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const scrollDepthRef = useRef<number>(0);
   const hasTrackedReadRef = useRef<boolean>(false);
   const hasTrackedCompleteRef = useRef<boolean>(false);
@@ -73,14 +87,6 @@ export function useChapterAnalytics(chapterId: string, mangaId: string) {
 
     return () => {
       clearTimeout(readTimer);
-      // Track time spent on unmount
-      const timeSpent = Date.now() - startTimeRef.current;
-      trackEvent({
-        type: 'time_spent',
-        mangaId,
-        chapterId,
-        metadata: { duration: timeSpent },
-      });
     };
   }, [chapterId, mangaId]);
 
@@ -123,6 +129,7 @@ export function useChapterAnalytics(chapterId: string, mangaId: string) {
 
 // Hook para obtener analytics
 export function useAnalytics(mangaId?: string, dateRange?: { from: Date; to: Date }) {
+  const { handleError } = useErrorHandler();
   const fetchAnalytics = useCallback(async (): Promise<AnalyticsData | null> => {
     try {
       const params = new URLSearchParams();
@@ -138,10 +145,10 @@ export function useAnalytics(mangaId?: string, dateRange?: { from: Date; to: Dat
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      handleError(error);
       return null;
     }
-  }, [mangaId, dateRange]);
+  }, [mangaId, dateRange, handleError]);
 
   return { fetchAnalytics };
 }

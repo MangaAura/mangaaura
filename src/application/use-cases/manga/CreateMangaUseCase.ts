@@ -5,6 +5,7 @@
 
 import { Manga } from '../../../core/entities/Manga';
 import { DomainError } from '../../../core/errors/DomainError';
+import { syncGenresFromTags } from '../../../lib/genres';
 import { validateCreateMangaDTO, CreateMangaDTO, generateSlug } from '../../dtos/manga/CreateMangaDTO';
 import { MangaResponseDTO, mapMangaToResponseDTO } from '../../dtos/manga/MangaResponseDTO';
 import { MangaCreatedEvent } from '../../events/MangaEvents';
@@ -13,7 +14,6 @@ import { IUserRepository } from '../../ports/IUserRepository';
 import { IEventBus } from '../../services/IEventBus';
 
 // Import syncGenresFromTags directly — this use case runs in the backend
-import { syncGenresFromTags } from '../../../lib/genres';
 
 export interface CreateMangaInputDTO extends CreateMangaDTO {
   authorId: string;

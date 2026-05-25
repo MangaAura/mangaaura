@@ -114,6 +114,7 @@ export function usePanZoom({
   // Constrain pan within bounds
   useEffect(() => {
     if (zoom <= 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPosition({ x: 0, y: 0 });
     }
   }, [zoom]);

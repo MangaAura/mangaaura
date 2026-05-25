@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
+import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils';
 
 
@@ -44,6 +45,7 @@ export function CollectionCard({
   isCollaborator,
   onDelete,
 }: CollectionCardProps) {
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const isOwner = currentUserId === collection.user.id;
   const canEdit = isOwner || isCollaborator;
@@ -56,7 +58,11 @@ export function CollectionCard({
         await deleteCollection(collection.id);
         onDelete?.(collection.id);
       } catch (error) {
-        console.error('Error deleting collection:', error);
+        toast({
+          title: 'Error',
+          description: error instanceof Error ? error.message : 'Error al eliminar la colección',
+          variant: 'destructive',
+        });
       }
     });
   };

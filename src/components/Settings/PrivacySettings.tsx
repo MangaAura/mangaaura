@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Label } from '@/components/ui/Label';
 import { Switch } from '@/components/ui/Switch';
+import { useToast } from '@/components/ui/Toast';
+import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
 interface PrivacySettingsProps {
@@ -52,6 +54,7 @@ export function PrivacySettings({}: PrivacySettingsProps) {
     showReadingActivity: true,
     showCollections: true,
   });
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [blockedUsers] = useState<any[]>([]);
@@ -89,14 +92,21 @@ export function PrivacySettings({}: PrivacySettingsProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ privacy: settings }),
       });
-      if (!res.ok) throw new Error('Error al guardar');
+      if (!res.ok) {
+        const { message } = await extractApiError(res);
+        throw new Error(message);
+      }
       const data = await res.json();
       if (data?.preferences?.privacy) {
         localStorage.setItem('privacySettings', JSON.stringify(data.preferences.privacy));
       }
       setIsDirty(false);
     } catch (error) {
-      console.error('Error saving privacy settings:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Error al guardar la configuración de privacidad',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }

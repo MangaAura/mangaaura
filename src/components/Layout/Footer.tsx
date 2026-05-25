@@ -13,9 +13,9 @@ import {
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
-import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 function GithubIcon({ className }: { className?: string }) {
   return (

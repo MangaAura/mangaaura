@@ -5,7 +5,7 @@ import {
   Lock, 
   Loader2, 
   CheckCircle, 
-  AlertCircle, 
+  CheckCircle2, 
   Eye, 
   EyeOff,
   Shield,
@@ -80,9 +80,8 @@ function Content() {
     const value = e.target.value;
     setPassword(value);
     clearError();
-    if (touched.password) {
-      validateField('password', value);
-    }
+    setTouched((prev) => ({ ...prev, password: true }));
+    validateField('password', value);
     if (touched.confirmPassword && confirmPassword) {
       validateField('confirmPassword', confirmPassword);
     }
@@ -92,9 +91,8 @@ function Content() {
     const value = e.target.value;
     setConfirmPassword(value);
     clearError();
-    if (touched.confirmPassword) {
-      validateField('confirmPassword', value);
-    }
+    setTouched((prev) => ({ ...prev, confirmPassword: true }));
+    validateField('confirmPassword', value);
   };
 
   const handleBlur = (field: 'password' | 'confirmPassword') => {
@@ -109,7 +107,7 @@ function Content() {
       setFormState('invalid_token');
       handlePasswordResetError('INVALID_TOKEN');
     }
-  }, [token]);
+  }, [token, handlePasswordResetError]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -361,10 +359,15 @@ function Content() {
                     )}
 
                     {touched.password && validationErrors.password && (
-                      <p id="reset-password-error" className="mt-1 text-xs text-[var(--error)] flex items-center gap-1" role="alert">
-                        <AlertCircle className="w-3 h-3" />
-                        {validationErrors.password}
-                      </p>
+                      <div id="reset-password-error" className="mt-2">
+                        <ErrorMessage message={validationErrors.password} />
+                      </div>
+                    )}
+                    {touched.password && !validationErrors.password && password && (
+                      <div className="mt-2 flex items-start gap-2 p-2 bg-[var(--success)]/10 rounded-lg">
+                        <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium text-[var(--success)]">{t('auth.validation.passwordStrong')}</p>
+                      </div>
                     )}
                   </div>
 
@@ -403,10 +406,15 @@ function Content() {
                       </button>
                     </div>
                     {touched.confirmPassword && validationErrors.confirmPassword && (
-                      <p id="reset-confirm-password-error" className="mt-1 text-xs text-[var(--error)] flex items-center gap-1" role="alert">
-                        <AlertCircle className="w-3 h-3" />
-                        {validationErrors.confirmPassword}
-                      </p>
+                      <div id="reset-confirm-password-error" className="mt-2">
+                        <ErrorMessage message={validationErrors.confirmPassword} />
+                      </div>
+                    )}
+                    {touched.confirmPassword && !validationErrors.confirmPassword && confirmPassword && (
+                      <div className="mt-2 flex items-start gap-2 p-2 bg-[var(--success)]/10 rounded-lg">
+                        <CheckCircle2 className="w-4 h-4 text-[var(--success)] flex-shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium text-[var(--success)]">{t('auth.validation.passwordMatch')}</p>
+                      </div>
                     )}
                   </div>
 

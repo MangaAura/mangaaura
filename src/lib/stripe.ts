@@ -1,7 +1,7 @@
 /**
  * Stripe Configuration
  * 
- * Configuración de Stripe para pagos de InkCoins.
+ * Configuración de Stripe para pagos de Aura.
  */
 
 import Stripe from 'stripe';
@@ -70,41 +70,41 @@ export function getSubscriptionPlanById(planId: string): SubscriptionPlan | null
   return SUBSCRIPTION_PLANS.find(p => p.id === planId) || null;
 }
 
-// InkCoins packages/prices
-export const INKCOIN_PACKAGES = [
+// Aura packages/prices
+export const AURA_PACKAGES = [
   {
-    id: 'inkcoins_100',
+    id: 'aura_100',
     amount: 100,
     priceUSD: 100, // $1.00
-    name: '100 InkCoins',
+    name: '100 Aura',
     description: 'Paquete básico para propinas',
   },
   {
-    id: 'inkcoins_500',
+    id: 'aura_500',
     amount: 500,
     priceUSD: 450, // $4.50 (10% discount)
-    name: '500 InkCoins',
+    name: '500 Aura',
     description: 'Paquete popular para lectores activos',
   },
   {
-    id: 'inkcoins_1000',
+    id: 'aura_1000',
     amount: 1000,
     priceUSD: 850, // $8.50 (15% discount)
-    name: '1000 InkCoins',
+    name: '1000 Aura',
     description: 'Mejor valor para lectores frecuentes',
   },
   {
-    id: 'inkcoins_5000',
+    id: 'aura_5000',
     amount: 5000,
     priceUSD: 4000, // $40.00 (20% discount)
-    name: '5000 InkCoins',
+    name: '5000 Aura',
     description: 'Paquete premium para patrocinadores',
   },
 ] as const;
 
 // Helper to get package by ID
 export function getPackageById(packageId: string) {
-  return INKCOIN_PACKAGES.find(p => p.id === packageId) || null;
+  return AURA_PACKAGES.find(p => p.id === packageId) || null;
 }
 
 // Convert USD cents to Stripe amount

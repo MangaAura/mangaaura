@@ -64,7 +64,7 @@ DATABASE_URL="postgresql://user:password@host:5432/mangaaura?schema=public"
 │ Chapter       - Capitulos individuales                          │
 │ Clan          - Grupos de usuarios                              │
 │ Comment       - Comentarios en capitulos                        │
-│ Transaction   - Transacciones de InkCoins                       │
+│ Transaction   - Transacciones de Aura                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -81,7 +81,7 @@ DATABASE_URL="postgresql://user:password@host:5432/mangaaura?schema=public"
                     │ username(UQ) │
                     │ xpPoints     │
                     │ level        │
-                    │ inkcoins     │
+                    │ auraBalance  │
                     │ role         │
                     └──────┬───────┘
                            │
@@ -129,7 +129,7 @@ Usuarios registrados en la plataforma.
 | `passwordHash` | `String` | No | - | Hash de contrasena (null para OAuth) |
 | `emailVerified` | `DateTime` | No | - | Fecha de verificacion |
 | `xpPoints` | `Int` | Si | `0` | Puntos de experiencia |
-| `inkcoinsBalance` | `Int` | Si | `0` | Balance de InkCoins |
+| `auraBalance` | `Int` | Si | `0` | Balance de Aura |
 | `level` | `Int` | Si | `1` | Nivel actual |
 | `readingStreak` | `Int` | Si | `0` | Racha de lectura |
 | `lastReadAt` | `DateTime` | No | - | Ultima lectura |
@@ -333,7 +333,7 @@ Membresia de usuarios en clanes.
 
 ### Transaction
 
-Transacciones de InkCoins.
+Transacciones de Aura.
 
 **Tabla:** `transactions`
 
@@ -348,7 +348,7 @@ Transacciones de InkCoins.
 | `timestamp` | `DateTime` | Si | `now()` | Fecha de transaccion |
 
 **Tipos de transaccion:**
-- `PURCHASE`: Compra de InkCoins
+- `PURCHASE`: Compra de Aura
 - `TIP_GIVEN`: Propina enviada
 - `TIP_RECEIVED`: Propina recibida
 - `CROWDFUNDING_CONTRIBUTION`: Contribucion a crowdfunding
@@ -427,7 +427,7 @@ Propinas de usuarios a autores.
 | `chapterId` | `String` | Si | - | FK a Chapter |
 | `fromUserId` | `String` | Si | - | FK a User (emisor) |
 | `toUserId` | `String` | Si | - | FK a User (receptor) |
-| `amount` | `Int` | Si | - | Cantidad de InkCoins |
+| `amount` | `Int` | Si | - | Cantidad de Aura |
 | `message` | `String` | No | - | Mensaje opcional |
 | `createdAt` | `DateTime` | Si | `now()` | Fecha de creacion |
 
@@ -700,13 +700,13 @@ await prisma.$transaction(async (tx) => {
   // Restar balance
   await tx.user.update({
     where: { id: fromUserId },
-    data: { inkcoinsBalance: { decrement: amount } },
+    data: { auraBalance: { decrement: amount } },
   });
 
   // Sumar balance
   await tx.user.update({
     where: { id: toUserId },
-    data: { inkcoinsBalance: { increment: amount } },
+    data: { auraBalance: { increment: amount } },
   });
 
   // Crear registro de transaccion

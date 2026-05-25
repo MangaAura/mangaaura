@@ -6,8 +6,8 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
-import { Search, Filter, Grid3X3, Hash, List, Loader2, X, BookOpen, ChevronDown, Compass, Eye, Star, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Filter, Grid3X3, Hash, List, Loader2, X, BookOpen, ChevronDown, Compass, Eye, Star, Sparkles, Clock, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, Suspense } from 'react';
@@ -16,9 +16,12 @@ import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { MangaCard } from '@/components/MangaCard';
 import { SearchBar } from '@/components/Search/SearchBar';
 import { Button } from '@/components/ui/Button';
+import { EmptySearch } from '@/components/ui/EmptyState';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { normalizeGenreKey } from '@/constants/genres';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useGenres } from '@/hooks/useGenres';
+import { useRecentSearches } from '@/hooks/useRecentSearches';
 import { useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
@@ -266,6 +269,14 @@ function SearchPageContent() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [extraTags, setExtraTags] = useState<string[]>([]);
 
+  const { handleError } = useErrorHandler();
+  const { recentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } = useRecentSearches();
+
+  const handleSearchBarSearch = useCallback((searchQuery: string) => {
+    addRecentSearch(searchQuery);
+    router.push(`/explore?q=${encodeURIComponent(searchQuery)}`);
+  }, [addRecentSearch, router]);
+
   // Fetch extra tags from browse API (tags not in the DB genres)
   useEffect(() => {
     if (dbGenres.length === 0) return;
@@ -311,13 +322,14 @@ function SearchPageContent() {
       setHasMore(data.pagination?.hasNextPage ?? false);
       setTotal(data.pagination?.total ?? 0);
     } catch (error) {
-      console.error('Error searching:', error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
-  }, [query, selectedGenres, selectedStatus, selectedSort]);
+  }, [query, selectedGenres, selectedStatus, selectedSort, handleError]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
     fetchResults(1);
   }, [fetchResults]);
@@ -390,8 +402,70 @@ function SearchPageContent() {
               <SearchBar
                 placeholder={t('search.searchPlaceholder')}
                 showSuggestions={false}
+                onSearch={handleSearchBarSearch}
               />
             </div>
+
+            {/* ── Recent Searches Section ──────────────────────────── */}
+            {!query && recentSearches.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+                className="mb-6 p-5 bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-xs font-bold text-[var(--text-tertiary)] uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    {t('search.recentSearches')}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={clearRecentSearches}
+                    className="flex items-center gap-1 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors"
+                    aria-label={t('search.clearRecent')}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    {t('common.clear')}
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <AnimatePresence mode="popLayout">
+                  {recentSearches.map((searchQuery) => (
+                    <motion.div
+                      key={searchQuery}
+                      layout
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.15 } }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                      className="group relative"
+                    >
+                      <Link
+                        href={`/explore?q=${encodeURIComponent(searchQuery)}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] hover:border-[var(--primary)]/30 border border-transparent transition-all duration-200 pr-8"
+                      >
+                        <Search className="w-3 h-3 shrink-0" />
+                        {searchQuery}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeRecentSearch(searchQuery);
+                        }}
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 opacity-0 group-hover:opacity-100 text-[var(--text-tertiary)] hover:text-[var(--error)] transition-all rounded-full hover:bg-[var(--surface-sunken)]"
+                        aria-label={`${t('search.removeRecent')} ${searchQuery}`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </motion.div>
+                  ))}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
 
             {/* Filters Bar */}
             <div className="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-[var(--border)]">
@@ -586,21 +660,10 @@ function SearchPageContent() {
             </>
           )}
 
-          {/* Empty State */}
-          {!isLoading && results.length === 0 && (
-            <div className="text-center py-20">
-              <div className="relative inline-block mb-6">
-                <Search className="w-16 h-16 text-[var(--text-tertiary)] opacity-20" />
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/10 to-[var(--accent-purple)]/10 rounded-full blur-xl" />
-              </div>
-              <h2 className="text-xl font-bold mb-2">
-                {t('common.noResults')}
-              </h2>
-              <p className="text-[var(--text-tertiary)] max-w-md mx-auto">
-                {t('search.noResultsDescription')}
-              </p>
-            </div>
-          )}
+      {/* Empty State */}
+      {!isLoading && results.length === 0 && (
+        <EmptySearch query={query} />
+      )}
           </div>
     </div>
     </>

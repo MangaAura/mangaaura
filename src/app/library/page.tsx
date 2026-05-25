@@ -25,6 +25,7 @@ import { useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
+import { EmptyLibrary } from '@/components/ui/EmptyState';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { useLibrary, LibraryStatus } from '@/hooks/useLibrary';
 import { cn } from '@/lib/utils';
@@ -262,23 +263,21 @@ if (status === 'unauthenticated') {
           )}
 
           {/* Empty State */}
-          {!isLoading && entries.length === 0 && (
-            <div className="text-center py-20">
-              <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" aria-hidden="true" />
-              <h3 className="text-xl font-bold mb-2">
-                Tu biblioteca está vacía
-              </h3>
-              <p className="text-[var(--text-tertiary)] mb-6">
-                {statusFilter
-                  ? `No tienes mangas con estado "${STATUS_FILTERS.find(f => f.value === statusFilter)?.label}"`
-                  : 'Agrega mangas a tu biblioteca para empezar a leer'
-                }
-              </p>
-              <Link href="/explore">
-                <Button className="px-8 py-2.5">Explorar mangas</Button>
-              </Link>
-            </div>
-          )}
+      {!isLoading && entries.length === 0 && (
+        statusFilter ? (
+          <div className="text-center py-20">
+            <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" aria-hidden="true" />
+            <h3 className="text-xl font-bold mb-2">
+              Sin resultados
+            </h3>
+            <p className="text-[var(--text-tertiary)] mb-6">
+              No tienes mangas con estado &ldquo;{STATUS_FILTERS.find(f => f.value === statusFilter)?.label}&rdquo;
+            </p>
+          </div>
+        ) : (
+          <EmptyLibrary />
+        )
+      )}
         </div>
     </div>
   );

@@ -44,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 interface MangaData {
@@ -75,6 +76,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MangaManagementPage() {
   const t = useT();
+  const { handleError } = useErrorHandler();
   // Ensure useT is called unconditionally before any early returns
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -105,7 +107,7 @@ export default function MangaManagementPage() {
         setSelectedManga(null);
       }
     } catch (error) {
-      console.error('Failed to delete manga:', error);
+      handleError(error);
     }
   };
 

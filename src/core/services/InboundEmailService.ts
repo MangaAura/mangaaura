@@ -1,10 +1,10 @@
+import type { IAProvider } from './IAProvider'
 import type {
   IInboundEmailRepository,
   InboundEmailData,
   EmailClassification,
   InboundActionResult,
 } from './IInboundEmailRepository'
-import type { IAProvider } from './IAProvider'
 
 export class InboundEmailService {
   constructor(

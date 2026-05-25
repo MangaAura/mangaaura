@@ -1,7 +1,7 @@
 ﻿/**
  * Checkout Page
  * 
- * Página para comprar InkCoins con Stripe.
+ * Página para comprar Aura con Stripe.
  */
 
 'use client';
@@ -21,8 +21,9 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
-import { INKCOIN_PACKAGES, formatAmount } from '@/lib/stripe';
+import { AURA_PACKAGES, formatAmount } from '@/lib/stripe';
 import { cn } from '@/lib/utils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -113,14 +114,14 @@ export default function CheckoutPage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-8 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-4 text-center" role="alert">
-              <p className="text-[var(--error)]">{error}</p>
+            <div className="mb-8">
+              <ErrorMessage message={error} />
             </div>
           )}
 
           {/* Packages */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {INKCOIN_PACKAGES.map((pkg, index) => (
+            {AURA_PACKAGES.map((pkg, index) => (
               <div
                 key={pkg.id}
                 className={cn(
@@ -155,7 +156,7 @@ export default function CheckoutPage() {
                 <div className="text-3xl font-bold text-[var(--text-primary)] mb-1">
                   {pkg.amount.toLocaleString()}
                 </div>
-                <div className="text-sm text-[var(--text-secondary)] mb-4">{t('checkout.inkCoins')}</div>
+                <div className="text-sm text-[var(--text-secondary)] mb-4">{t('checkout.aura')}</div>
 
                 {/* Price */}
                 <div className="text-2xl font-bold text-[var(--text-primary)] mb-1">

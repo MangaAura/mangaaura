@@ -132,10 +132,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Log de seguridad
-    // console.log(`[Security] DMCA request submitted: ${dmca.id} by ${requesterEmail}`);
-
-    return NextResponse.json({
+  return NextResponse.json({
       success: true,
       dmca: {
         id: dmca.id,

@@ -8,7 +8,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -16,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
 import type { EventData } from '@/components/Event/EventCard';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 
 interface SubData {
@@ -69,12 +69,13 @@ export function EventsClient({
   const t = useT();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [votedId, setVotedId] = useState<string | null>(initialVotedId);
+  const [localVoting, setLocalVoting] = useState<VotingData | null>(voting);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
-  const [votedId, setVotedId] = useState<string | null>(initialVotedId);
-  const [localVoting, setLocalVoting] = useState<VotingData | null>(voting);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [votingLoading, setVotingLoading] = useState(false);
 
@@ -279,8 +280,8 @@ export function EventsClient({
         {activeTab === 'voting' && (
           <div>
             {voteError && (
-              <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)] rounded-xl p-3 mb-4 text-sm font-medium flex items-center gap-2" role="alert">
-                <AlertTriangle size={16} aria-hidden="true" /> {voteError}
+              <div className="mb-4">
+                <ErrorMessage message={voteError} />
               </div>
             )}
             {localVoting ? (

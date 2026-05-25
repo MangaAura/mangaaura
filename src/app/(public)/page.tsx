@@ -1,4 +1,5 @@
-﻿import { HomeContent } from '@/components/Home/HomeContent';
+﻿import Script from 'next/script';
+import { HomeContent } from '@/components/Home/HomeContent';
 import { prisma } from '@/lib/prisma';
 
 
@@ -84,16 +85,70 @@ export default async function HomePage() {
     prisma.chapter.count(),
   ]);
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '¿Qué es MangaAura?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'MangaAura es una plataforma de manga con IA donde puedes leer mangas gratis, crear tus propias series, crowdfundear capítulos y ganar Aura por tu actividad.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Cómo puedo crear mi propio manga?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Sube tus capítulos desde el panel de creador. MangaAura te ofrece herramientas de IA para generar descripciones, traducciones y recomendaciones automáticas.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Qué es Aura?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Aura es la moneda virtual de MangaAura. Los lectores pueden comprarla para crowdfundear capítulos, dar propinas a creadores y patrocinar contenido.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Es gratis leer mangas en MangaAura?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Sí, leer mangas en MangaAura es completamente gratuito. También puedes ganar XP, subir de nivel y desbloquear logros mientras lees.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Cómo funciona el crowdfunding de capítulos?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Los lectores pueden contribuir con Aura a los capítulos que quieren ver publicados. Cuando se alcanza la meta, el capítulo se libera para todos.',
+        },
+      },
+    ],
+  };
+
   return (
-    <HomeContent
-      latestMangas={latestMangas.map(normalizeManga)}
-      topMangas={topMangas.map(normalizeManga)}
-      updatingMangas={updatingMangas.map(normalizeManga)}
-      topUsers={topUsers}
-      featuredManga={featuredManga}
-      totalMangas={totalMangas}
-      totalReaders={totalReaders}
-      totalChapters={totalChapters}
-    />
+    <>
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <HomeContent
+        latestMangas={latestMangas.map(normalizeManga)}
+        topMangas={topMangas.map(normalizeManga)}
+        updatingMangas={updatingMangas.map(normalizeManga)}
+        topUsers={topUsers}
+        featuredManga={featuredManga}
+        totalMangas={totalMangas}
+        totalReaders={totalReaders}
+        totalChapters={totalChapters}
+      />
+    </>
   );
 }

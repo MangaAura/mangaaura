@@ -10,6 +10,7 @@ import { DateRangePicker, type DateRangePreset, type DateRange } from '@/compone
 import { ExportAnalyticsButton } from '@/components/Analytics/ExportAnalyticsButton';
 import { MangaSelector, type MangaOption } from '@/components/Analytics/MangaSelector';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 interface CreatorData {
@@ -42,7 +43,7 @@ interface ReaderData {
     avatarUrl: string | null;
     level: number;
     xpPoints: number;
-    inkcoinsBalance: number;
+    auraBalance: number;
   };
   stats: {
     totalChaptersRead: number;
@@ -79,6 +80,7 @@ function getDefaultDateRange(): DateRange {
 export default function AnalyticsPage() {
   const { data: session } = useSession();
   const t = useT();
+  const { handleError } = useErrorHandler();
   const [activeTab, setActiveTab] = useState<'creator' | 'reader'>('creator');
 
   const [creatorData, setCreatorData] = useState<CreatorData | null>(null);
@@ -102,9 +104,9 @@ export default function AnalyticsPage() {
       const data = await res.json();
       setCreatorData(data);
     } catch (err) {
-      console.error('Error fetching creator analytics:', err);
+      handleError(err);
     }
-  }, [selectedMangaId, dateRange]);
+  }, [selectedMangaId, dateRange, handleError]);
 
   const fetchCreatorMangas = useCallback(async () => {
     try {
@@ -116,7 +118,7 @@ export default function AnalyticsPage() {
     } catch {         
         setError(t('analytics.errorLoadingMangas'));
     }
-  }, []);
+  }, [setError, t]);
 
   const fetchReaderData = useCallback(async () => {
     try {
@@ -125,9 +127,9 @@ export default function AnalyticsPage() {
       const data = await res.json();
       setReaderData(data);
     } catch (err) {
-      console.error('Error fetching reader data:', err);
+      handleError(err);
     }
-  }, []);
+  }, [handleError]);
 
   // Data fetching effect - setState is necessary for async SWR data loading
   const shouldFetch = session?.user?.id;
@@ -144,7 +146,7 @@ export default function AnalyticsPage() {
         setError(t('analytics.errorLoading'));
       })
       .finally(() => setIsLoading(false));
-  }, [shouldFetch, fetchCreatorMangas, fetchCreatorData, fetchReaderData]);
+  }, [shouldFetch, fetchCreatorMangas, fetchCreatorData, fetchReaderData, t]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const xpForNextLevel = readerData?.stats.nextLevelXp || 2000;
@@ -296,7 +298,7 @@ export default function AnalyticsPage() {
                       </h2>
                       <p className="text-muted">
                         {readerData.clan ? `${t('analytics.memberOf')}: ${readerData.clan.name}` : t('analytics.noClanLabel')}
-                        {' \u2022 '}InkCoins: {readerData.user.inkcoinsBalance.toLocaleString('es')}
+                        {' \u2022 '}Aura: {readerData.user.auraBalance.toLocaleString('es')}
                       </p>
                     </div>
 

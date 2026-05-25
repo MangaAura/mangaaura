@@ -4,6 +4,8 @@ import { Sun, Moon, Monitor, Check, Palette, Layout, Type } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -14,6 +16,7 @@ export function AppearanceSettings() {
   const [theme, setTheme] = useState<Theme>('dark');
   const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [layoutDensity, setLayoutDensity] = useState<LayoutDensity>('normal');
+  const { toast } = useToast();
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,8 +25,11 @@ export function AppearanceSettings() {
     const savedFontSize = localStorage.getItem('fontSize') as FontSize;
     const savedLayout = localStorage.getItem('layoutDensity') as LayoutDensity;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedTheme) setTheme(savedTheme);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedFontSize) setFontSize(savedFontSize);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedLayout) setLayoutDensity(savedLayout);
   }, []);
 
@@ -65,7 +71,7 @@ export function AppearanceSettings() {
       localStorage.setItem('fontSize', fontSize);
       localStorage.setItem('layoutDensity', layoutDensity);
 
-      await fetch('/api/me/preferences', {
+      const res = await fetch('/api/me/preferences', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,10 +79,23 @@ export function AppearanceSettings() {
         }),
       });
 
+      if (!res.ok) {
+        const { message } = await extractApiError(res);
+        throw new Error(message);
+      }
+
       setIsDirty(false);
-      alert('Preferencias guardadas');
+      toast({
+        title: 'Guardado',
+        description: 'Preferencias guardadas correctamente',
+        variant: 'default',
+      });
     } catch (error) {
-      console.error('Error saving appearance:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Error al guardar preferencias',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }

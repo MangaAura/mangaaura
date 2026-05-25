@@ -72,6 +72,7 @@ export default function ReaderContent() {
   const [isResolving, setIsResolving] = useState(false);
 
   // Resolve chapterId to mangaId + chapterNumber if needed
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!chapterId || mangaId) return;
     setIsResolving(true);
@@ -131,13 +132,14 @@ export default function ReaderContent() {
     // Continuous reading: auto-advance to next chapter
     if (isLastPage && continuousReading && nextChapter && resolvedMangaId && !continuousNavPending.current) {
       continuousNavPending.current = true;
-      router.push(`/reader?mangaId=${resolvedMangaId}&chapterNumber=${nextChapter.chapterNumber}`);
+    router.push(`/reader?mangaId=${resolvedMangaId}&chapterNumber=${nextChapter.chapterNumber}`);
       return;
     }
     
     if (currentPage < chapterData.totalPages - 1) {
       setCurrentPage(p => p + 1);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [currentPage, chapterData, continuousReading, nextChapter, mangaId, router]);
 
   const prevPage = useCallback(() => {

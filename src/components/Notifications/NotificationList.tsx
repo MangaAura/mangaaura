@@ -34,7 +34,7 @@ const filterOptions: { value: NotificationType | 'all'; label: string }[] = [
   { value: 'MENTION', label: 'Menciones' },
   { value: 'ACHIEVEMENT_UNLOCKED', label: 'Logros' },
   { value: 'LEVEL_UP', label: 'Niveles' },
-  { value: 'INK_COINS_RECEIVED', label: 'InkCoins' },
+  { value: 'AURA_RECEIVED', label: 'Aura' },
   { value: 'SPONSORSHIP_WON', label: 'Patrocinios' },
   { value: 'SYSTEM', label: 'Sistema' },
 ];

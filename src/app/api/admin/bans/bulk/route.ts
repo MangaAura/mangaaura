@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { bulkCreateBan } from '@/core/services/BanService';
 import { auth } from '@/lib/auth';
 import { requirePermission } from '@/lib/permissions';
-import { bulkCreateBan } from '@/core/services/BanService';
 
 export async function POST(request: NextRequest) {
   try {

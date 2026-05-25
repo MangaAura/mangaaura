@@ -5,6 +5,9 @@ import { useSession } from 'next-auth/react';
 import { useState, useEffect, useRef } from 'react';
 import FocusLock from 'react-focus-lock';
 
+import { useToast } from '@/components/ui/Toast';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+
 interface QuizQuestion {
   question: string;
   answers: string[];
@@ -35,16 +38,19 @@ const FALLBACK_QUESTION: QuizQuestion = {
 
 export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: QuizPopupProps) {
   const { data: session } = useSession();
+  const { handleError } = useErrorHandler();
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [quizData, setQuizData] = useState<QuizQuestion>(FALLBACK_QUESTION);
+  const { toast } = useToast();
   const [isFetching, setIsFetching] = useState(true);
   const overlayRef = useRef<HTMLDivElement>(null);
   const [titleId] = useState(() => `quiz-title-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (isOpen && chapterId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsFetching(true);
       fetch(`/api/quiz?chapterId=${encodeURIComponent(chapterId)}`)
         .then(res => res.json())
@@ -54,7 +60,7 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
           }
         })
         .catch(() => {
-          console.error('Quiz: failed to load, using fallback');
+          handleError(new Error('Quiz: failed to load, using fallback'));
         })
         .finally(() => setIsFetching(false));
     }
@@ -96,7 +102,11 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
             })
           });
         } catch (error) {
-          console.error("Failed to reward XP", error);
+          toast({
+            title: 'Error',
+            description: 'No se pudo otorgar la experiencia. Contacta a soporte si el problema persiste.',
+            variant: 'destructive',
+          });
         }
       }
 

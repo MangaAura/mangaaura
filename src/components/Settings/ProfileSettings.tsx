@@ -1,12 +1,16 @@
 ﻿'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Check, User, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 
 interface ProfileSettingsProps {
   user: {
@@ -32,6 +36,8 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const { handleError } = useErrorHandler();
 
   // Username availability check
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -137,15 +143,15 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       });
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || 'Error al subir la imagen');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
 
       const { url } = await response.json();
       URL.revokeObjectURL(previewUrl);
       setAvatarPreview(url);
     } catch (error: any) {
-      console.error('Error uploading avatar:', error);
+      handleError(error);
       setAvatarError(error.message || 'Error al subir la imagen');
       setAvatarPreview(user.avatarUrl);
     } finally {
@@ -170,11 +176,12 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || 'Error al actualizar el perfil');
+        const { message } = await extractApiError(response);
+        throw new Error(message);
       }
+
+      const data = await response.json();
 
       setIsDirty(false);
       setSaveStatus('success');
@@ -183,7 +190,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     } catch (error) {
       setSaveStatus('error');
       setSaveError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
-      console.error('Error updating profile:', error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -199,21 +206,50 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {saveStatus === 'success' && (
-          <div role="status" className="p-3 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30">
-            <p className="text-sm text-[var(--success)]">Perfil actualizado correctamente</p>
-          </div>
-        )}
-        {saveStatus === 'error' && (
-          <div role="alert" className="p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30">
-            <p className="text-sm text-[var(--error)]">{saveError || 'Error al actualizar perfil. Inténtalo de nuevo.'}</p>
-          </div>
-        )}
-        {avatarError && (
-          <div role="alert" className="p-3 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/30">
-            <p className="text-sm text-[var(--error)]">{avatarError}</p>
-          </div>
-        )}
+        <AnimatePresence>
+          {saveStatus === 'success' && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              role="status"
+              className="p-3 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30"
+            >
+              <p className="text-sm text-[var(--success)]">Perfil actualizado correctamente</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {saveStatus === 'error' && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ErrorMessage
+                message={saveError || 'Error al actualizar perfil. Inténtalo de nuevo.'}
+                onDismiss={() => { setSaveStatus('idle'); setSaveError(null); }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {avatarError && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ErrorMessage
+                message={avatarError}
+                onDismiss={() => setAvatarError('')}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="w-24 h-24 cursor-pointer hover:opacity-90 transition-opacity">

@@ -14,7 +14,7 @@ describe('Auth API Integration', () => {
 
       expect(user.email.value).toBe('test@example.com');
       expect(user.username).toBe('testuser');
-      expect(user.inkcoins.amount).toBe(50);
+      expect(user.aura.amount).toBe(50);
 
       const event = events.find((e) => e.type === 'USER_REGISTERED');
       expect(event).toBeDefined();

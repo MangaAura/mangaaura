@@ -17,6 +17,7 @@ export function PageJumpInput({ currentPage, totalPages, onJump }: PageJumpInput
 
   useEffect(() => {
     if (!isEditing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInputValue(String(currentPage));
     }
   }, [currentPage, isEditing]);

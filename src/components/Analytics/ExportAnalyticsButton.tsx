@@ -1,10 +1,12 @@
 'use client';
 
+import { jsPDF } from 'jspdf';
 import { Download } from 'lucide-react';
 import { useState, useCallback } from 'react';
-import { jsPDF } from 'jspdf';
 
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { extractApiError } from '@/lib/extract-api-error';
 
 interface ExportAnalyticsButtonProps {
   activeTab?: 'creator' | 'reader';
@@ -12,6 +14,7 @@ interface ExportAnalyticsButtonProps {
 }
 
 export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: ExportAnalyticsButtonProps) {
+  const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [format, setFormat] = useState<'csv' | 'json' | 'pdf'>('csv');
 
@@ -132,8 +135,8 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
         });
 
         if (!res.ok) {
-          const errorText = await res.text().catch(() => 'Error al exportar');
-          throw new Error(errorText || 'Error al exportar');
+          const { message } = await extractApiError(res);
+          throw new Error(message);
         }
 
         const data = await res.json();
@@ -151,8 +154,8 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
         });
 
         if (!res.ok) {
-          const errorText = await res.text().catch(() => 'Error al exportar');
-          throw new Error(errorText || 'Error al exportar');
+          const { message } = await extractApiError(res);
+          throw new Error(message);
         }
 
         const disposition = res.headers.get('Content-Disposition') || '';
@@ -169,7 +172,11 @@ export function ExportAnalyticsButton({ activeTab = 'reader', dateRange }: Expor
         URL.revokeObjectURL(url);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al exportar');
+      toast({
+        title: 'Error de exportación',
+        description: err instanceof Error ? err.message : 'Error al exportar los datos',
+        variant: 'destructive',
+      });
     } finally {
       setIsExporting(false);
     }

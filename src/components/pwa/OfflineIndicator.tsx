@@ -3,11 +3,13 @@
 import { WifiOff, Wifi } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 export function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true);
   const [showIndicator, setShowIndicator] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     // Initial state
@@ -48,12 +50,12 @@ export function OfflineIndicator() {
         {isOnline ? (
           <>
             <Wifi className="w-4 h-4" />
-            <span className="text-sm font-medium">Conexión restaurada</span>
+            <span className="text-sm font-medium">{t('offline.reconnecting')}</span>
           </>
         ) : (
           <>
             <WifiOff className="w-4 h-4" />
-            <span className="text-sm font-medium">Sin conexión</span>
+            <span className="text-sm font-medium">{t('offline.noConnection')}</span>
           </>
         )}
       </div>

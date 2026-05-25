@@ -16,10 +16,10 @@ Usamos **PostgreSQL + Prisma** para core y **MongoDB + Mongoose** para analytics
 ### PostgreSQL (Core)
 | Tabla | Propósito |
 |-------|-----------|
-| User | Perfiles, XP, InkCoins |
+| User | Perfiles, XP, Aura |
 | MangaSeries | Metadatos de series |
 | Chapter | Capítulos, crowdfunding |
-| Transaction | Historial de InkCoins |
+| Transaction | Historial de Aura |
 | Clan | Gremios de lectores |
 | Achievement | Logros desbloqueados |
 

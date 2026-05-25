@@ -1,5 +1,3 @@
-import { PrismaClient } from '@/generated/prisma/client';
-
 import type {
   ICollectionRepository,
   CollectionRecord,
@@ -8,6 +6,7 @@ import type {
   CollectionWithItems,
   CollectionQuery,
 } from '@/core/services/ICollectionRepository';
+import { PrismaClient } from '@/generated/prisma/client';
 import { logSecurityEvent, SecurityAction, Severity } from '@/lib/security-audit';
 
 interface PrismaCollectionItem {

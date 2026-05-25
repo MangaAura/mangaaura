@@ -4,7 +4,9 @@ import { useSession } from 'next-auth/react';
 import { useCallback, useMemo, useState } from 'react';
 import useSWR, { SWRConfiguration } from 'swr';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { invalidateMangaCache } from '@/lib/cache';
+import { extractApiError } from '@/lib/extract-api-error';
 import { swrConfigs, fetcher } from '@/lib/swr-config';
 
 // Tipos exportados
@@ -110,6 +112,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
   const { mangaId, page: initialPage = 1, limit: initialLimit = 20, search: initialSearch, swrOptions = {} } = options;
   const { data: session } = useSession();
   const [isMutating, setIsMutating] = useState(false);
+  const { handleError } = useErrorHandler();
 
   const listKey = useMemo(() => {
     if (mangaId) return null;
@@ -138,8 +141,8 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
   const fetchWithAuth = useCallback(async <T>(url: string, options?: RequestInit): Promise<T> => {
     const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+      const { message } = await extractApiError(response);
+      throw new Error(message);
     }
     return response.json();
   }, []);
@@ -159,7 +162,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
       await invalidateMangaCache();
       return data.manga;
     } catch (err) {
-      console.error('Error creating manga:', err);
+      handleError(err);
       return null;
     } finally {
       setIsMutating(false);
@@ -178,7 +181,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
       await invalidateMangaCache(id);
       return data.manga;
     } catch (err) {
-      console.error('Error updating manga:', err);
+      handleError(err);
       return null;
     } finally {
       setIsMutating(false);
@@ -195,7 +198,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
       await invalidateMangaCache(id);
       return true;
     } catch (err) {
-      console.error('Error deleting manga:', err);
+      handleError(err);
       return false;
     } finally {
       setIsMutating(false);
@@ -213,7 +216,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
       await invalidateMangaCache(input.mangaId);
       return data.chapter;
     } catch (err) {
-      console.error('Error creating chapter:', err);
+      handleError(err);
       return null;
     } finally {
       setIsMutating(false);
@@ -229,7 +232,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
       if (manga?.id) await invalidateMangaCache(manga.id);
       return data.chapter;
     } catch (err) {
-      console.error('Error updating chapter:', err);
+      handleError(err);
       return null;
     } finally {
       setIsMutating(false);
@@ -245,7 +248,7 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
       if (manga?.id) await invalidateMangaCache(manga.id);
       return true;
     } catch (err) {
-      console.error('Error deleting chapter:', err);
+      handleError(err);
       return false;
     } finally {
       setIsMutating(false);

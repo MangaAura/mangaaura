@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         prisma.user.update({
           where: { id: bid.userId },
           data: {
-            inkcoinsBalance: {
+            auraBalance: {
               increment: bid.bidAmount,
             },
           },
@@ -57,9 +57,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-    // console.log(`[CRON] Cleaned up ${expiredBids.length} expired bids`);
-
-    return NextResponse.json({
+  return NextResponse.json({
       success: true,
       message: 'Expired bids cleaned up',
       bidsProcessed: expiredBids.length,

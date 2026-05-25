@@ -1,8 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-'use client';
-
-import {
-  Activity,
+'use client';import { Activity,
   BarChart3,
   Users,
   BookOpen,
@@ -16,11 +13,13 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type { RealtimeAnalytics } from '@/types/socket';
 
 async function exportToPDF(
   setExporting: (v: boolean) => void,
   setExportError: (v: string | null) => void,
+  onError?: (err: unknown, opts?: { context?: string }) => void,
 ) {
   try {
     setExporting(true);
@@ -48,8 +47,7 @@ async function exportToPDF(
 
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save(`mangaaura-realtime-analytics-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (err) {
-    console.error('Error exporting PDF:', err);
+  } catch (err) {      onError?.(err);
     setExportError('Failed to generate PDF. Please try again.');
   } finally {
     setExporting(false);
@@ -71,9 +69,12 @@ function AnimatedCounter({ value, label }: { value: number; label: string }) {
   const [pulse, setPulse] = useState(false);
 
   useEffect(() => {
-    setPulse(true);
-    const timer = setTimeout(() => setPulse(false), 300);
-    return () => clearTimeout(timer);
+    const pulseTimer = setTimeout(() => setPulse(true), 0);
+    const resetTimer = setTimeout(() => setPulse(false), 300);
+    return () => {
+      clearTimeout(pulseTimer);
+      clearTimeout(resetTimer);
+    };
   }, [value]);
 
   return (
@@ -204,6 +205,7 @@ export function RealtimeAnalyticsClient() {
   });
   const [connected, setConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const { handleError } = useErrorHandler();
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -299,7 +301,7 @@ export function RealtimeAnalyticsClient() {
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end gap-1">
               <button
-                onClick={() => exportToPDF(setExporting, setExportError)}
+                onClick={() => exportToPDF(setExporting, setExportError, handleError)}
                 disabled={exporting}
                 className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >

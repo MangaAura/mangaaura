@@ -22,6 +22,7 @@ import { MetricCard } from '@/components/AI/MetricCard';
 import { Badge } from '@/components/ui/Badge';
 import { useAIAlerts } from '@/hooks/useAIAlerts';
 import { useAIService } from '@/hooks/useAIService';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import {
   ServiceHealth,
   ServiceMetrics,
@@ -151,6 +152,8 @@ export function AIServiceDashboardClient() {
   const { getHealth, getMetrics, getQueueStats } = useAIService();
   const { alerts, dismissAlert, acknowledgeAlert } = useAIAlerts();
 
+  const { handleError } = useErrorHandler();
+
   const [data, setData] = useState<DashboardData>({
     health: null,
     metrics: null,
@@ -180,7 +183,7 @@ export function AIServiceDashboardClient() {
         });
         setLastUpdated(new Date());
       } catch (error) {
-        console.error('Error fetching AI service data:', error);
+        handleError(error);
       } finally {
         setIsLoading(false);
       }
@@ -190,7 +193,7 @@ export function AIServiceDashboardClient() {
     const interval = setInterval(doFetch, 2000);
 
     return () => clearInterval(interval);
-  }, [getHealth, getMetrics, getQueueStats]);
+  }, [getHealth, getMetrics, getQueueStats, handleError]);
 
   const { health, metrics, queueStats, modelMetrics } = data;
 

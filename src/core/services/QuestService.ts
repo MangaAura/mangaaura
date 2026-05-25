@@ -5,7 +5,7 @@
  * - Daily quests: small, achievable tasks that reset every 24h
  * - Weekly quests: larger goals that reset every Monday
  * - Progress tracking with visual feedback
- * - XP + InkCoins rewards on completion
+ * - XP + Aura rewards on completion
  * - Streak synergy: quests that reward maintaining streaks
  *
  * @packageDocumentation
@@ -21,7 +21,7 @@ export interface QuestDefinition {
   actionType: QuestActionType;
   target: number;
   xpReward: number;
-  inkcoinsReward: number;
+  auraReward: number;
   label: string;
   description: string;
   iconName: string;
@@ -38,7 +38,7 @@ export interface ActiveQuest {
   target: number;
   progress: number;
   xpReward: number;
-  inkcoinsReward: number;
+  auraReward: number;
   completed: boolean;
   claimed: boolean;
   sortOrder: number;
@@ -67,7 +67,7 @@ export const DAILY_QUESTS: QuestDefinition[] = [
     actionType: 'READ_CHAPTERS',
     target: 1,
     xpReward: 10,
-    inkcoinsReward: 0,
+    auraReward: 0,
     label: 'Lector Diario',
     description: 'Lee 1 capítulo hoy',
     iconName: 'BookOpen',
@@ -79,7 +79,7 @@ export const DAILY_QUESTS: QuestDefinition[] = [
     actionType: 'READ_CHAPTERS',
     target: 3,
     xpReward: 30,
-    inkcoinsReward: 5,
+    auraReward: 5,
     label: 'Maratón de Capítulos',
     description: 'Lee 3 capítulos hoy',
     iconName: 'Zap',
@@ -91,7 +91,7 @@ export const DAILY_QUESTS: QuestDefinition[] = [
     actionType: 'POST_COMMENT',
     target: 1,
     xpReward: 20,
-    inkcoinsReward: 0,
+    auraReward: 0,
     label: 'Opinión Diaria',
     description: 'Publica 1 comentario hoy',
     iconName: 'MessageSquare',
@@ -103,7 +103,7 @@ export const DAILY_QUESTS: QuestDefinition[] = [
     actionType: 'LIKE_COMMENTS',
     target: 3,
     xpReward: 15,
-    inkcoinsReward: 0,
+    auraReward: 0,
     label: 'Buen Gusto',
     description: 'Dale like a 3 comentarios hoy',
     iconName: 'Heart',
@@ -121,7 +121,7 @@ export const WEEKLY_QUESTS: QuestDefinition[] = [
     actionType: 'READ_CHAPTERS',
     target: 10,
     xpReward: 100,
-    inkcoinsReward: 10,
+    auraReward: 10,
     label: 'Lector Semanal',
     description: 'Lee 10 capítulos esta semana',
     iconName: 'BookOpenCheck',
@@ -133,7 +133,7 @@ export const WEEKLY_QUESTS: QuestDefinition[] = [
     actionType: 'COMPLETE_MANGA',
     target: 1,
     xpReward: 150,
-    inkcoinsReward: 20,
+    auraReward: 20,
     label: 'Finalizador',
     description: 'Completa 1 manga esta semana',
     iconName: 'CheckCircle',
@@ -145,7 +145,7 @@ export const WEEKLY_QUESTS: QuestDefinition[] = [
     actionType: 'POST_COMMENT',
     target: 5,
     xpReward: 80,
-    inkcoinsReward: 10,
+    auraReward: 10,
     label: 'Conversador',
     description: 'Publica 5 comentarios esta semana',
     iconName: 'MessagesSquare',
@@ -157,7 +157,7 @@ export const WEEKLY_QUESTS: QuestDefinition[] = [
     actionType: 'STREAK_MAINTAIN',
     target: 5,
     xpReward: 200,
-    inkcoinsReward: 25,
+    auraReward: 25,
     label: 'Disciplina Semanal',
     description: 'Mantén tu racha por 5 días esta semana',
     iconName: 'Flame',
@@ -269,7 +269,7 @@ export class QuestService {
         target: questDef.target,
         progress,
         xpReward: questDef.xpReward,
-        inkcoinsReward: questDef.inkcoinsReward,
+        auraReward: questDef.auraReward,
         completed,
         claimed: existing?.claimed ?? false,
         sortOrder: questDef.sortOrder,
@@ -397,14 +397,14 @@ export class QuestService {
   getTotalPossibleRewards(): {
     dailyXP: number;
     weeklyXP: number;
-    dailyInkCoins: number;
-    weeklyInkCoins: number;
+    dailyAura: number;
+    weeklyAura: number;
   } {
     const dailyXP = DAILY_QUESTS.reduce((sum, q) => sum + q.xpReward, 0);
     const weeklyXP = WEEKLY_QUESTS.reduce((sum, q) => sum + q.xpReward, 0);
-    const dailyInkCoins = DAILY_QUESTS.reduce((sum, q) => sum + q.inkcoinsReward, 0);
-    const weeklyInkCoins = WEEKLY_QUESTS.reduce((sum, q) => sum + q.inkcoinsReward, 0);
-    return { dailyXP, weeklyXP, dailyInkCoins, weeklyInkCoins };
+    const dailyAura = DAILY_QUESTS.reduce((sum, q) => sum + q.auraReward, 0);
+    const weeklyAura = WEEKLY_QUESTS.reduce((sum, q) => sum + q.auraReward, 0);
+    return { dailyXP, weeklyXP, dailyAura, weeklyAura };
   }
 }
 

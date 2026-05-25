@@ -8,7 +8,9 @@ import useSWR from 'swr';
 
 import { QuestCard } from './QuestCard';
 import type { ActiveQuest } from '@/core/services/QuestService';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
+import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
 interface QuestPanelProps {
@@ -30,7 +32,10 @@ interface QuestsResponse {
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch quests');
+  if (!res.ok) {
+    const { message } = await extractApiError(res);
+    throw new Error(message);
+  }
   return res.json();
 };
 
@@ -46,6 +51,7 @@ export function QuestPanel({ className, compact = false, collapsible = false }: 
   const [showCompletedDaily, setShowCompletedDaily] = useState(false);
   const [showCompletedWeekly, setShowCompletedWeekly] = useState(false);
   const [claimingQuestId, setClaimingQuestId] = useState<string | null>(null);
+  const { handleError } = useErrorHandler();
 
   const handleClaim = useCallback(
     async (questId: string) => {
@@ -59,15 +65,15 @@ export function QuestPanel({ className, compact = false, collapsible = false }: 
         if (res.ok) {
           const data = await res.json();
           toast.success(t('quests.rewardClaimed'), {
-            description: `+${data.xpAwarded ?? 0} XP${data.inkcoinsAwarded > 0 ? ` + ${data.inkcoinsAwarded} 🪙` : ''}`,
+            description: `+${data.xpAwarded ?? 0} XP${data.auraAwarded > 0 ? ` + ${data.auraAwarded} 🪙` : ''}`,
           });
           await mutate();
         } else {
-          const errorData = await res.json().catch(() => null);
-          toast.error(errorData?.error || t('quests.claimError'));
+          const { message } = await extractApiError(res);
+          toast.error(message);
         }
       } catch (err) {
-        console.error('Error claiming quest:', err);
+        handleError(err);
         toast.error(t('quests.connectionError'));
       } finally {
         setClaimingQuestId(null);

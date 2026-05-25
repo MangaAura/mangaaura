@@ -38,13 +38,13 @@
 ### ✍️ Para Creadores
 - **Subida de capítulos**: Arrastra y suelta páginas
 - **Editor de manga**: Gestión completa de series
-- **Crowdfunding**: Financia capítulos con InkCoins
+- **Crowdfunding**: Financia capítulos con Aura
 - **Propinas**: Recibe apoyo de lectores
 - **Analytics**: Estadísticas de lectura
 - **Rankings**: Compite en rankings mensuales
+### 💰 Economía Aura
 
-### 💰 Economía InkCoins
-- **Compra**: Integración Stripe para comprar InkCoins
+- **Compra**: Integración Stripe para comprar Aura
 - **Uso**: Patrocina capítulos, da propinas
 - **Gana**: XP por lectura, logros, ranking
 - **Wallet**: Gestión de saldo y transacciones

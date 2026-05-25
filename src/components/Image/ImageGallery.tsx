@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 import OptimizedImage from './OptimizedImage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -75,6 +76,7 @@ function Lightbox({
   onNavigate,
   showInfo = true,
 }: LightboxProps) {
+  const { handleError } = useErrorHandler();
   const [zoom, setZoom] = useState(1);
   const [showMetadata, setShowMetadata] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -126,6 +128,7 @@ function Lightbox({
 
   // Reset zoom when image changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setZoom(1);
   }, [currentIndex]);
 
@@ -148,7 +151,7 @@ function Lightbox({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading image:', error);
+      handleError(error);
     }
   };
 

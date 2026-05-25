@@ -152,7 +152,7 @@ export default function ReaderLayout({
           <div className="flex items-center space-x-1 sm:space-x-2">
             <div className="hidden sm:flex items-center px-3 py-1 bg-tertiary rounded-full mr-2">
               <Coins size={16} className="text-accent-orange mr-1" />
-              <span className="text-sm font-bold">{(session?.user as { inkcoinsBalance?: number } | undefined)?.inkcoinsBalance ?? 0}</span>
+              <span className="text-sm font-bold">{(session?.user as { auraBalance?: number } | undefined)?.auraBalance ?? 0}</span>
             </div>
             
             <div className="relative">

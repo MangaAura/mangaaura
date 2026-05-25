@@ -1,11 +1,11 @@
-import { PrismaClient } from '@/generated/prisma/client';
-
 import type {
   IClanRepository,
   ClanRecord,
   ClanMembershipRecord,
   AchievementDefRecord,
 } from '@/core/services/IClanRepository';
+import { PrismaClient } from '@/generated/prisma/client';
+
 
 export class PrismaClanRepository implements IClanRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -25,10 +25,10 @@ export class PrismaClanRepository implements IClanRepository {
     }) as unknown as ClanMembershipRecord[];
   }
 
-  async updateUserInkCoins(userId: string, amount: number): Promise<void> {
+  async updateUserAura(userId: string, amount: number): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
-      data: { inkcoinsBalance: { increment: amount } },
+      data: { auraBalance: { increment: amount } },
     });
   }
 
@@ -57,21 +57,51 @@ export class PrismaClanRepository implements IClanRepository {
     });
   }
 
-  async resetSeasonalScores(): Promise<void> {
-    await this.prisma.clan.updateMany({
-      data: { monthlyScore: 0, currentSeason: { increment: 1 } },
-    });
-    await this.prisma.clanMembership.updateMany({
-      data: { contributedScore: 0 },
-    });
-  }
-
   async findLatestSeason(): Promise<number> {
     const clan = await this.prisma.clan.findFirst({
       orderBy: { currentSeason: 'desc' },
       select: { currentSeason: true },
     });
     return clan?.currentSeason ?? 1;
+  }
+
+  async findSeasonEndDate(): Promise<Date | null> {
+    const clan = await this.prisma.clan.findFirst({
+      orderBy: { currentSeason: 'desc' },
+      select: { seasonEndDate: true },
+    });
+    return clan?.seasonEndDate ?? null;
+  }
+
+  async updateSeasonDates(clanId: string, seasonNumber: number, startDate: Date, endDate: Date): Promise<void> {
+    await this.prisma.clan.update({
+      where: { id: clanId },
+      data: {
+        currentSeason: seasonNumber,
+        seasonStartDate: startDate,
+        seasonEndDate: endDate,
+      },
+    });
+  }
+
+  async resetSeasonalScores(): Promise<void> {
+    const now = new Date();
+    const nextSeasonStart = now;
+    const nextSeasonEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    await this.prisma.$transaction([
+      this.prisma.clan.updateMany({
+        data: {
+          monthlyScore: 0,
+          currentSeason: { increment: 1 },
+          seasonStartDate: nextSeasonStart,
+          seasonEndDate: nextSeasonEnd,
+        },
+      }),
+      this.prisma.clanMembership.updateMany({
+        data: { contributedScore: 0 },
+      }),
+    ]);
   }
 
   async findMembersWithUsers(clanId: string): Promise<ClanMembershipRecord[]> {

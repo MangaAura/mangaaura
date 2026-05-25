@@ -1,5 +1,5 @@
-import { Redis as IoRedis } from 'ioredis';
 import { Redis as UpstashRedis } from '@upstash/redis';
+import { Redis as IoRedis } from 'ioredis';
 
 const REDIS_URL = process.env.REDIS_URL;
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;

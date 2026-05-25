@@ -44,11 +44,11 @@ export async function POST(request: Request) {
       const user = await tx.user.findUnique({ where: { id: userId } });
       if (!user) throw new Error('User not found');
 
-      if (amount < 0 && user.inkcoinsBalance < Math.abs(amount)) {
-        throw new Error('Insufficient InkCoins balance');
+      if (amount < 0 && user.auraBalance < Math.abs(amount)) {
+        throw new Error('Insufficient Aura balance');
       }
 
-      const newBalance = user.inkcoinsBalance + amount;
+      const newBalance = user.auraBalance + amount;
 
       const transaction = await tx.transaction.create({
         data: { userId, amount, type, referenceId }
@@ -56,15 +56,15 @@ export async function POST(request: Request) {
 
       const updatedUser = await tx.user.update({
         where: { id: userId },
-        data: { inkcoinsBalance: newBalance }
+        data: { auraBalance: newBalance }
       });
 
-      return { transaction, balance: updatedUser.inkcoinsBalance };
+      return { transaction, balance: updatedUser.auraBalance };
     });
 
     return NextResponse.json({ success: true, data: result });
   } catch (error: any) {
-    if (error.message === 'Insufficient InkCoins balance') {
+    if (error.message === 'Insufficient Aura balance') {
       return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }
     console.error('Error processing transaction:', error);

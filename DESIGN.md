@@ -135,7 +135,7 @@ The light palette is built on warm-leaning neutrals with a crisp, clean feel:
 - **Text Secondary (#6b6b6b):** Dimmed text for metadata, descriptions.
 - **Text Tertiary (#a3a3a3):** Very dimmed for placeholders.
 - **Border (#e5e5e5):** Light gray for container borders.
-- **Success (#22c55e):** Green for positive states (XP gained, InkCoins).
+- **Success (#22c55e):** Green for positive states (XP gained, Aura).
 - **Warning (#f59e0b):** Amber for alerts, level-up thresholds.
 - **Error (#ef4444):** Red for destructive actions, errors.
 

@@ -4,7 +4,7 @@ export type NotificationType =
   | 'COMMENT_REPLY'
   | 'SPONSORSHIP_WON'
   | 'LEVEL_UP'
-  | 'INK_COINS_RECEIVED'
+  | 'AURA_RECEIVED'
   | 'SYSTEM'
   | 'MENTION'
   | 'TIP_RECEIVED'

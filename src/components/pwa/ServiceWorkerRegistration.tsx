@@ -4,10 +4,12 @@ import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 export function ServiceWorkerRegistration() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const { handleError } = useErrorHandler();
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -29,7 +31,7 @@ export function ServiceWorkerRegistration() {
           });
         })
       .catch((err) => {
-        console.error('[SW] Registration failed:', err);
+        handleError(err);
       });
 
       const interval = setInterval(() => {

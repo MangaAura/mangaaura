@@ -100,7 +100,7 @@ export default function AnomaliesPage() {
     { refreshInterval: 15000 }
   );
 
-  const logs = data?.logs || [];
+  const logs = useMemo(() => data?.logs ?? [], [data]);
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / 50);
 

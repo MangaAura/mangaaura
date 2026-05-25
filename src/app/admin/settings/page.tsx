@@ -1,5 +1,6 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Globe,
   Shield,
@@ -13,6 +14,8 @@ import {
   Sparkles,
   Banknote,
   Users,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
@@ -31,6 +34,7 @@ import {
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 interface SiteSettings {
   siteName: string;
@@ -43,7 +47,7 @@ interface SiteSettings {
   enableAI: boolean;
   enableCrowdfunding: boolean;
   enableClans: boolean;
-  inkcoinsRewardPerChapter: number;
+  auraRewardPerChapter: number;
   xpRewardPerChapter: number;
   minimumPayoutAmount: number;
 }
@@ -60,10 +64,31 @@ export default function AdminSettingsPage() {
   const t = useT();
   const [form, setForm] = useState<Partial<SiteSettings>>({});
   const [saving, setSaving] = useState(false);
+  const [numberTouched, setNumberTouched] = useState<Record<string, boolean>>({});
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Use useMemo to derive form state from SWR data without setState in effect
   const effectiveForm = useMemo(() => data?.settings || form, [data?.settings, form]);
+
+  const validateNumber = (key: string, value: number): string | null => {
+    switch (key) {
+      case 'maxUploadSize':
+        if (value < 1) return t('admin.maxUploadSizeMin');
+        if (value > 50) return t('admin.maxUploadSizeMax');
+        return null;
+      case 'minimumPayoutAmount':
+        if (value < 100) return t('admin.minimumPayoutMin');
+        return null;
+      case 'auraRewardPerChapter':
+        if (value < 0) return t('admin.auraPerChapterMin');
+        return null;
+      case 'xpRewardPerChapter':
+        if (value < 0) return t('admin.xpPerChapterMin');
+        return null;
+      default:
+        return null;
+    }
+  };
 
   const handleChange = (key: keyof SiteSettings, value: any) => {
     // Only update local form state, not SWR data
@@ -300,11 +325,52 @@ export default function AdminSettingsPage() {
                 min={1}
                 max={50}
                 value={effectiveForm.maxUploadSize ? effectiveForm.maxUploadSize / (1024 * 1024) : 10}
-                onChange={(e) =>
-                  handleChange('maxUploadSize', Number(e.target.value) * 1024 * 1024)
-                }
-                className="mt-1"
+                onChange={(e) => {
+                  handleChange('maxUploadSize', Number(e.target.value) * 1024 * 1024);
+                }}
+                onBlur={() => setNumberTouched(prev => ({ ...prev, maxUploadSize: true }))}
+                className={cn(
+                  'mt-1',
+                  numberTouched.maxUploadSize && effectiveForm.maxUploadSize != null && (
+                    validateNumber('maxUploadSize', effectiveForm.maxUploadSize / (1024 * 1024))
+                      ? 'border-[var(--error)]'
+                      : 'border-[var(--success)]'
+                  )
+                )}
               />
+              <AnimatePresence>
+                {numberTouched.maxUploadSize && effectiveForm.maxUploadSize != null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-1"
+                  >
+                    {(() => {
+                      const err = validateNumber('maxUploadSize', effectiveForm.maxUploadSize / (1024 * 1024));
+                      const displayVal = effectiveForm.maxUploadSize / (1024 * 1024);
+                      if (err && displayVal > 0) {
+                        return (
+                          <div className="flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+                            <XCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span>{err}</span>
+                          </div>
+                        );
+                      }
+                      if (displayVal > 0) {
+                        return (
+                          <div className="flex items-start gap-1.5 text-xs text-[var(--success)]">
+                            <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span>{t('admin.maxUploadSizeValid')}</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div>
               <Label htmlFor="minimumPayoutAmount" className="text-[var(--text-secondary)]">
@@ -316,23 +382,97 @@ export default function AdminSettingsPage() {
                 min={100}
                 value={effectiveForm.minimumPayoutAmount || 1000}
                 onChange={(e) => handleChange('minimumPayoutAmount', Number(e.target.value))}
-                className="mt-1"
+                onBlur={() => setNumberTouched(prev => ({ ...prev, minimumPayoutAmount: true }))}
+                className={cn(
+                  'mt-1',
+                  numberTouched.minimumPayoutAmount && effectiveForm.minimumPayoutAmount != null && (
+                    validateNumber('minimumPayoutAmount', effectiveForm.minimumPayoutAmount)
+                      ? 'border-[var(--error)]'
+                      : 'border-[var(--success)]'
+                  )
+                )}
               />
+              <AnimatePresence>
+                {numberTouched.minimumPayoutAmount && effectiveForm.minimumPayoutAmount != null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-1"
+                  >
+                    {(() => {
+                      const err = validateNumber('minimumPayoutAmount', effectiveForm.minimumPayoutAmount);
+                      if (err) {
+                        return (
+                          <div className="flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+                            <XCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span>{err}</span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="flex items-start gap-1.5 text-xs text-[var(--success)]">
+                          <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                          <span>{t('admin.minimumPayoutValid')}</span>
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="inkcoinsRewardPerChapter" className="text-[var(--text-secondary)]">
-                {t('admin.inkcoinsPerChapter')}
+              <Label htmlFor="auraRewardPerChapter" className="text-[var(--text-secondary)]">
+                {t('admin.auraPerChapter')}
               </Label>
               <Input
-                id="inkcoinsRewardPerChapter"
+                id="auraRewardPerChapter"
                 type="number"
                 min={0}
-                value={effectiveForm.inkcoinsRewardPerChapter ?? 10}
-                onChange={(e) => handleChange('inkcoinsRewardPerChapter', Number(e.target.value))}
-                className="mt-1"
+                value={effectiveForm.auraRewardPerChapter ?? 10}
+                onChange={(e) => handleChange('auraRewardPerChapter', Number(e.target.value))}
+                onBlur={() => setNumberTouched(prev => ({ ...prev, auraRewardPerChapter: true }))}
+                className={cn(
+                  'mt-1',
+                  numberTouched.auraRewardPerChapter && effectiveForm.auraRewardPerChapter != null && (
+                    validateNumber('auraRewardPerChapter', effectiveForm.auraRewardPerChapter)
+                      ? 'border-[var(--error)]'
+                      : 'border-[var(--success)]'
+                  )
+                )}
               />
+              <AnimatePresence>
+                {numberTouched.auraRewardPerChapter && effectiveForm.auraRewardPerChapter != null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-1"
+                  >
+                    {(() => {
+                      const err = validateNumber('auraRewardPerChapter', effectiveForm.auraRewardPerChapter);
+                      if (err) {
+                        return (
+                          <div className="flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+                            <XCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span>{err}</span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="flex items-start gap-1.5 text-xs text-[var(--success)]">
+                          <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                          <span>{t('admin.auraPerChapterValid')}</span>
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div>
               <Label htmlFor="xpRewardPerChapter" className="text-[var(--text-secondary)]">
@@ -344,8 +484,45 @@ export default function AdminSettingsPage() {
                 min={0}
                 value={effectiveForm.xpRewardPerChapter ?? 25}
                 onChange={(e) => handleChange('xpRewardPerChapter', Number(e.target.value))}
-                className="mt-1"
+                onBlur={() => setNumberTouched(prev => ({ ...prev, xpRewardPerChapter: true }))}
+                className={cn(
+                  'mt-1',
+                  numberTouched.xpRewardPerChapter && effectiveForm.xpRewardPerChapter != null && (
+                    validateNumber('xpRewardPerChapter', effectiveForm.xpRewardPerChapter)
+                      ? 'border-[var(--error)]'
+                      : 'border-[var(--success)]'
+                  )
+                )}
               />
+              <AnimatePresence>
+                {numberTouched.xpRewardPerChapter && effectiveForm.xpRewardPerChapter != null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-1"
+                  >
+                    {(() => {
+                      const err = validateNumber('xpRewardPerChapter', effectiveForm.xpRewardPerChapter);
+                      if (err) {
+                        return (
+                          <div className="flex items-start gap-1.5 text-xs text-[var(--error)]" role="alert">
+                            <XCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span>{err}</span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="flex items-start gap-1.5 text-xs text-[var(--success)]">
+                          <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                          <span>{t('admin.xpPerChapterValid')}</span>
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
           <div>

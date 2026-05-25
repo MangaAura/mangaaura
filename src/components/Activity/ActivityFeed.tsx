@@ -11,6 +11,7 @@ import {
   Star,
   Plus,
   Crown,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
@@ -20,6 +21,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
 
@@ -89,6 +92,7 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const { handleError } = useErrorHandler();
 
   const fetchActivities = useCallback(async () => {
     try {
@@ -101,7 +105,10 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
       if (userId) params.append('userId', userId);
 
       const response = await fetch(`/api/feed?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch');
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
 
       const data = await response.json();
       const newActivities = data.activities || [];
@@ -114,7 +121,7 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
 
       setHasMore(newActivities.length === limit);
     } catch (error) {
-      console.error('Error fetching activities:', error);
+      handleError(error);
       setFetchError('Error al cargar actividades');
     } finally {
       setIsLoading(false);
@@ -282,7 +289,10 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
   if (fetchError) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center" role="alert">
-        <p className="text-[var(--error)] mb-4">{fetchError}</p>
+        <div className="inline-flex items-center gap-2 px-4 py-3 bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-lg mb-4">
+          <AlertCircle className="w-4 h-4 text-[var(--error)] shrink-0" aria-hidden="true" />
+          <p className="text-sm text-[var(--error)]">{fetchError}</p>
+        </div>
         <Button variant="outline" onClick={handleRetry}>
           Reintentar
         </Button>

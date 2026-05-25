@@ -3,6 +3,9 @@
 import { Copy, Terminal, Sparkles, Image as ImageIcon, Search, CheckCircle, Heart, Loader2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+
 
 interface Prompt {
   id: string;
@@ -22,6 +25,7 @@ interface Prompt {
 }
 
 export default function PromptHunterPage() {
+  const { handleError } = useErrorHandler();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -30,6 +34,7 @@ export default function PromptHunterPage() {
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   const fetchPrompts = useCallback(async (searchQuery: string, newOffset: number = 0) => {
     try {
       setIsLoading(true);
@@ -54,7 +59,7 @@ export default function PromptHunterPage() {
       setHasMore(data.pagination?.hasMore || false);
       setOffset(newOffset);
     } catch (err) {
-      console.error('Error fetching prompts:', err);
+      handleError(err);
       setError('Error al cargar los prompts');
     } finally {
       setIsLoading(false);
@@ -83,7 +88,7 @@ export default function PromptHunterPage() {
         p.id === promptId ? { ...p, likes: p.likes + 1, hasLiked: true } : p
       ));
     } catch (err) {
-      console.error('Error liking prompt:', err);
+      handleError(err);
     }
   };
 
@@ -128,12 +133,10 @@ export default function PromptHunterPage() {
         )}
 
         {error && (
-          <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-6 text-center" role="alert">
-            <p className="text-[var(--error)]">{error}</p>
-            <button onClick={() => fetchPrompts(search, 0)} className="mt-3 px-4 py-2 bg-[var(--error)] text-[var(--text-inverse)] rounded-lg hover:opacity-90 transition-opacity">
-              Reintentar
-            </button>
-          </div>
+          <ErrorMessage
+            message={error}
+            action={{ label: 'Reintentar', onClick: () => fetchPrompts(search, 0) }}
+          />
         )}
 
         {!isLoading && !error && prompts.length === 0 && (

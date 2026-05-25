@@ -10,7 +10,7 @@ export * from './chapter';
 export * from './clan';
 export * from './PostCommentUseCase';
 export * from './AddXPUseCase';
-export * from './SpendInkCoinsUseCase';
+export * from './SpendAuraUseCase';
 export * from './economy';
 export * from './notifications';
 export * from './follows';

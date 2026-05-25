@@ -9,6 +9,9 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
+
 interface ReadingAnalyticsOptions {
   mangaId: string;
   chapterId: string;
@@ -50,7 +53,8 @@ async function sendReadingEvent(
     });
 
     if (!response.ok) {
-      console.warn('Failed to send reading event:', await response.text());
+      const { message } = await extractApiError(response);
+      console.warn('Failed to send reading event:', message);
     }
   } catch (error) {
     // Silently fail - don't block UX
@@ -72,6 +76,8 @@ export function useReadingMongoAnalytics({
   const lastScrollEventRef = useRef<number>(0);
   const [readingStats, setReadingStats] = useState<ReadingStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { handleError } = useErrorHandler();
 
   // Use state for values needed during render (refs rule)
   const [pagesViewedCount, setPagesViewedCount] = useState(0);
@@ -140,15 +146,18 @@ export function useReadingMongoAnalytics({
     setIsLoading(true);
     try {
       const response = await fetch(`/api/analytics/reading/${chapterId}`);
-      if (!response.ok) throw new Error('Failed to fetch reading stats');
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
       const data = await response.json();
       setReadingStats(data.stats);
     } catch (error) {
-      console.error('Error fetching reading stats:', error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
-  }, [chapterId]);
+  }, [chapterId, handleError]);
 
   // Initialize start time and auto-start tracking después de 3 segundos
   useEffect(() => {

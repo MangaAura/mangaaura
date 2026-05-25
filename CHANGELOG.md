@@ -15,13 +15,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Rankings y sistema de XP
 - Clanes de lectura
 - Sistema de comentarios con likes y menciones
-- Crowdfunding para capítulos con InkCoins
+- Crowdfunding para capítulos con Aura
 - Sistema de propinas entre usuarios
 - Notificaciones en tiempo real
 - PWA completa con offline support
 - Push notifications
 - Templates de email responsivos
-- Integración Stripe para compra de InkCoins
+- Integración Stripe para compra de Aura
 - Analytics de lectura
 - Sistema de logros y badges
 - Panel de creador con analytics

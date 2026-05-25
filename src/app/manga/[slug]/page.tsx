@@ -65,6 +65,7 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
 
   const title = `${manga.title} | MangaAura`;
   const description = manga.description?.slice(0, 160) || `Lee ${manga.title} en MangaAura. ${manga.chapters.length} capítulos disponibles.`;
+  const keywords = manga.tags?.join(', ') || '';
   const ogImage = manga.coverUrl
     ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}`
     : undefined;
@@ -72,11 +73,22 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
   return {
     title,
     description,
+    keywords,
+    robots: { index: true, follow: true },
+    alternates: { canonical: `/manga/${slug}` },
     openGraph: {
       title,
       description,
       type: 'article',
+      locale: 'es_ES',
+      siteName: 'MangaAura',
+      url: `/manga/${slug}`,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: manga.title }] : undefined,
+      article: {
+        publishedTime: manga.createdAt?.toISOString(),
+        modifiedTime: manga.updatedAt?.toISOString(),
+        tags: manga.tags,
+      },
     },
     twitter: {
       card: 'summary_large_image',
@@ -84,7 +96,7 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
       description,
       images: ogImage ? [ogImage] : undefined,
     },
-    alternates: { canonical: `/manga/${slug}` },
+    category: 'Manga',
   };
 }
 

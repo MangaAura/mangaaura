@@ -1,24 +1,47 @@
 'use client';
 
-import { ArrowLeft, Users, AlertCircle, Loader2, Upload } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Users, AlertCircle, CheckCircle2, Loader2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { z } from 'zod';
+
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useT } from '@/i18n';
 
 
 export default function CreateClanPage() {
+  const t = useT();
   const { status } = useSession();
   const router = useRouter();
+  const clanSchema = useMemo(() => z.object({
+    name: z.string().min(3, t('clanCreate.nameMin')).max(50, t('clanCreate.nameMax')),
+    description: z.string().max(500).optional(),
+  }), [t]);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     emblemUrl: '',
   });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [emblemUploading, setEmblemUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const validateField = (field: string, value: string) => {
+    const shape = clanSchema.shape as Record<string, z.ZodString | z.ZodOptional<z.ZodString>>;
+    if (field === 'description') {
+      setFieldErrors((prev) => ({ ...prev, description: null }));
+      return;
+    }
+    const result = (shape[field] as z.ZodString)?.safeParse(value);
+    setFieldErrors((prev) => ({ ...prev, [field]: result?.success ? null : (result?.error?.issues[0]?.message ?? null) }));
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -38,14 +61,12 @@ export default function CreateClanPage() {
     e.preventDefault();
     setError('');
 
-    // Validation
-    if (formData.name.trim().length < 3) {
-      setError('El nombre debe tener al menos 3 caracteres');
-      return;
-    }
-
-    if (formData.name.trim().length > 50) {
-      setError('El nombre no puede exceder 50 caracteres');
+    const result = clanSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors_: Record<string, string | null> = {};
+      result.error.issues.forEach((issue) => { fieldErrors_[issue.path[0] as string] = issue.message; });
+      setFieldErrors(fieldErrors_);
+      setTouched({ name: true, description: true });
       return;
     }
 
@@ -64,7 +85,7 @@ export default function CreateClanPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear el clan');
+        throw new Error(data.error || t('clanCreate.errorGeneric'));
       }
 
       // Redirect to the new clan
@@ -79,6 +100,8 @@ export default function CreateClanPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    validateField(name, value);
   };
 
   const handleEmblemUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,13 +110,13 @@ export default function CreateClanPage() {
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
-      setError('Formato de imagen no soportado. Usa JPEG, PNG, WebP, GIF o AVIF.');
+      setError(t('clanCreate.errorImageType'));
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setError(`La imagen es demasiado grande. Máximo 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB recibido).`);
+      setError(`${t('clanCreate.errorImageSize')} (${(file.size / 1024 / 1024).toFixed(1)}MB ${t('clanCreate.emblemHint').split(' ').slice(-2).join(' ')}).`);
       return;
     }
 
@@ -111,7 +134,7 @@ export default function CreateClanPage() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Error al subir la imagen');
+        throw new Error(err.error || t('clanCreate.errorImageUpload'));
       }
 
       const data = await res.json();
@@ -135,31 +158,37 @@ export default function CreateClanPage() {
             className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors mb-4"
           >
           <ArrowLeft size={18} aria-hidden="true" />
-          Volver a Clanes
+          {t('clanCreate.backToClans')}
         </Link>
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
           <Users className="text-[var(--primary)]" size={30} aria-hidden="true" />
-            Crear Nuevo Clan
+            {t('clanCreate.title')}
           </h1>
           <p className="text-muted mt-2">
-            Funda tu propio clan y reúne a otros lectores para competir juntos
+            {t('clanCreate.subtitle')}
           </p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-6 mt-8">
         <form onSubmit={handleSubmit} className="bg-secondary border border-custom rounded-2xl p-8 shadow-sm">
-        {error && (
-          <div className="bg-accent-red/10 border border-accent-red/30 rounded-xl p-4 mb-6 flex items-start gap-3" role="alert" id="clan-error">
-            <AlertCircle className="text-accent-red flex-shrink-0 mt-0.5" size={20} aria-hidden="true" />
-            <p className="text-accent-red text-sm">{error}</p>
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              id="clan-error"
+            >
+              <ErrorMessage message={error} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
           {/* Clan Name */}
           <div className="mb-6">
             <label htmlFor="name" className="block text-sm font-bold mb-2">
-              Nombre del Clan <span className="text-accent-red">*</span>
+              {t('clanCreate.nameLabel')} <span className="text-accent-red">*</span>
             </label>
             <input
               type="text"
@@ -167,43 +196,72 @@ export default function CreateClanPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Ej: Los Guardianes de la Lectura"
+              placeholder={t('clanCreate.namePlaceholder')}
               maxLength={50}
-              className="w-full bg-tertiary border border-custom rounded-xl px-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors"
+              className={`w-full bg-tertiary border border-custom rounded-xl px-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors ${touched.name && fieldErrors.name ? 'border-accent-red' : ''} ${touched.name && !fieldErrors.name && formData.name.length >= 3 ? 'border-[var(--success)]' : ''}`}
               required
               autoComplete="off"
-              aria-describedby="name-count clan-error"
+              aria-describedby="name-count clan-error name-feedback"
             />
             <p id="name-count" className="text-xs text-muted mt-2">
-              {formData.name.length}/50 caracteres
+              {formData.name.length}/50 {t('clanCreate.charactersSuffix')}
             </p>
+            <AnimatePresence>
+              {touched.name && !fieldErrors.name && formData.name.length >= 3 && (
+                <motion.p
+                  id="name-feedback"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="flex items-center gap-1 text-xs text-[var(--success)] mt-1"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                  {t('clanCreate.nameValid')}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {touched.name && fieldErrors.name && (
+                <motion.p
+                  id="name-feedback"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="flex items-center gap-1 text-xs text-[var(--error)] mt-1"
+                  role="alert"
+                >
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                  {fieldErrors.name}
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Description */}
           <div className="mb-6">
             <label htmlFor="description" className="block text-sm font-bold mb-2">
-              Descripción
+              {t('clanCreate.descriptionLabel')}
             </label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe tu clan, sus objetivos y qué tipo de miembros buscas..."
+              placeholder={t('clanCreate.descriptionPlaceholder')}
               rows={4}
               maxLength={500}
               className="w-full bg-tertiary border border-custom rounded-xl px-4 py-3 text-fg-primary placeholder:text-muted focus:outline-none focus:border-accent-purple transition-colors resize-none"
               aria-describedby="desc-count"
             />
             <p id="desc-count" className="text-xs text-muted mt-2">
-              {formData.description.length}/500 caracteres
+              {formData.description.length}/500 {t('clanCreate.charactersSuffix')}
             </p>
           </div>
 
           {/* Emblem */}
           <div className="mb-8">
             <label className="block text-sm font-bold mb-2">
-              Emblema del Clan
+              {t('clanCreate.emblemLabel')}
             </label>
             <div
               onClick={() => fileInputRef.current?.click()}
@@ -231,24 +289,24 @@ export default function CreateClanPage() {
                 <Upload className="w-8 h-8 text-muted" />
               )}
               <p className="text-sm text-muted">
-                {emblemUploading ? 'Subiendo...' : formData.emblemUrl ? 'Toca para cambiar imagen' : 'Subir emblema del clan'}
+                {emblemUploading ? t('clanCreate.emblemUploading') : formData.emblemUrl ? t('clanCreate.emblemChange') : t('clanCreate.emblemUpload')}
               </p>
             </div>
             <p className="text-xs text-muted mt-2">
-              JPEG, PNG, WebP, GIF o AVIF. Máximo 5MB.
+              {t('clanCreate.emblemHint')}
             </p>
           </div>
 
           {/* Preview */}
           {formData.name && (
             <div className="bg-tertiary border border-custom rounded-xl p-6 mb-8">
-              <h3 className="text-sm font-bold text-muted uppercase mb-4">Vista Previa</h3>
+              <h3 className="text-sm font-bold text-muted uppercase mb-4">{t('clanCreate.preview')}</h3>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-3xl shadow-lg">
                   {formData.emblemUrl ? (
                     <img
                       src={formData.emblemUrl}
-                      alt="Emblema"
+                      alt={t('clanCreate.emblemLabel')}
                       className="w-16 h-16 rounded-xl object-cover"
                     />
                   ) : (
@@ -258,7 +316,7 @@ export default function CreateClanPage() {
                 <div>
                   <h4 className="font-bold text-lg">{formData.name}</h4>
                   <p className="text-sm text-muted">
-                    {formData.description || 'Sin descripción'}
+                    {formData.description || t('clanCreate.noDescription')}
                   </p>
                 </div>
               </div>
@@ -275,12 +333,12 @@ export default function CreateClanPage() {
               {loading ? (
                 <>
                 <Loader2 className="animate-spin" size={20} aria-hidden="true" />
-                Creando...
+                {t('clanCreate.submitting')}
               </>
             ) : (
               <>
                 <Users size={20} aria-hidden="true" />
-                  Crear Clan
+                  {t('clanCreate.submit')}
                 </>
               )}
             </button>
@@ -288,20 +346,20 @@ export default function CreateClanPage() {
               href="/community/clans"
               className="flex-1 sm:flex-none bg-tertiary border border-custom hover:border-accent-purple/50 text-fg-primary px-6 py-4 rounded-xl font-bold transition-all text-center"
             >
-              Cancelar
+              {t('clanCreate.cancel')}
             </Link>
           </div>
         </form>
 
         {/* Info Box */}
         <div className="mt-8 bg-accent-blue/10 border border-accent-blue/30 rounded-xl p-6">
-          <h3 className="font-bold text-accent-blue mb-2">¿Qué es un Clan?</h3>
+          <h3 className="font-bold text-accent-blue mb-2">{t('clanCreate.infoTitle')}</h3>
           <ul className="text-sm text-muted space-y-2">
-            <li>• Los clanes compiten entre sí en temporadas mensuales</li>
-            <li>• Gana puntos para tu clan leyendo manga y haciendo correcciones</li>
-            <li>• Los mejores clanes reciben recompensas al final de cada temporada</li>
-            <li>• Solo puedes ser miembro de un clan a la vez</li>
-            <li>• El creador del clan será el líder automáticamente</li>
+            <li>• {t('clanCreate.infoItem1')}</li>
+            <li>• {t('clanCreate.infoItem2')}</li>
+            <li>• {t('clanCreate.infoItem3')}</li>
+            <li>• {t('clanCreate.infoItem4')}</li>
+            <li>• {t('clanCreate.infoItem5')}</li>
           </ul>
         </div>
       </div>

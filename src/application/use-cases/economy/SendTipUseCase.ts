@@ -68,11 +68,11 @@ export class SendTipUseCase {
     }
 
     if (input.amount < 1) {
-      throw new ValidationError('El monto mínimo es 1 InkCoin');
+      throw new ValidationError('El monto mínimo es 1 Aura');
     }
 
     if (input.amount > 1000) {
-      throw new ValidationError('El monto no puede exceder 1000 InkCoins');
+      throw new ValidationError('El monto no puede exceder 1000 Aura');
     }
 
     if (input.message && input.message.length > 200) {

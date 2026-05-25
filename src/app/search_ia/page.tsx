@@ -7,6 +7,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 
@@ -42,6 +44,7 @@ const SORT_ICONS: Record<string, React.ReactNode> = {
 
 export default function BrowsePage() {
   const t = useT();
+  const { handleError } = useErrorHandler();
   const shouldReduceMotion = useReducedMotion();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -72,7 +75,7 @@ export default function BrowsePage() {
         setTotalPages(data.pagination?.totalPages || 1);
       }
     } catch (err) {
-      console.error('Error fetching manga:', err);
+      handleError(err);
       setError(t('browse.error'));
     } finally {
       setLoading(false);
@@ -80,6 +83,7 @@ export default function BrowsePage() {
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     fetchMangas(undefined, selectedTag, sort, 1);
   }, [selectedTag, sort, fetchMangas]);
@@ -259,23 +263,26 @@ export default function BrowsePage() {
               </div>
             ))}
           </div>
-        ) : mangas.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-20 bg-[var(--surface)] border border-[var(--border)] rounded-2xl"
-          >
-            <BookOpen className="w-14 h-14 text-[var(--text-tertiary)] mx-auto mb-4" />
-            <p className="text-[var(--text-secondary)] font-medium text-lg">
-              {searchQuery || selectedTag ? t('common.noResults') : t('browse.noMangas')}
-            </p>
-            {(searchQuery || selectedTag) && (
-              <button onClick={() => { setSearchQuery(''); setSelectedTag(null); }} className="mt-4 text-sm text-[var(--primary)] hover:underline font-medium cursor-pointer">
-                {t('browse.clearFilters')}
-              </button>
-            )}
-          </motion.div>
-        ) : (
+) : mangas.length === 0 ? (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+  >
+    {searchQuery || selectedTag ? (
+      <EmptyState
+        icon={<Search className="w-8 h-8" />}
+        title={t('common.noResults')}
+        description={searchQuery ? `No encontramos mangas para "${searchQuery}"` : undefined}
+        action={{ label: t('browse.clearFilters'), onClick: () => { setSearchQuery(''); setSelectedTag(null); } }}
+      />
+    ) : (
+      <EmptyState
+        icon={<BookOpen className="w-8 h-8" />}
+        title={t('browse.noMangas')}
+      />
+    )}
+  </motion.div>
+) : (
           <>
             <div className="flex items-center gap-2 mb-2">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />

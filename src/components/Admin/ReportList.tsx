@@ -25,6 +25,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { extractApiError } from '@/lib/extract-api-error';
 
 
 interface Report {
@@ -73,6 +75,7 @@ export function ReportList({
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const { handleError } = useErrorHandler();
 
   const fetchReports = useCallback(async () => {
     try {
@@ -84,13 +87,16 @@ export function ReportList({
       params.append('limit', '10');
 
       const response = await fetch(`/api/reports?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch');
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
 
       const data = await response.json();
       setReports(data.reports || []);
       setTotalPages(data.pagination?.totalPages || 1);
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +126,7 @@ export function ReportList({
         setSelectedReport(null);
       }
     } catch (error) {
-      console.error('Error updating report:', error);
+      handleError(error);
     } finally {
       setIsUpdating(false);
     }

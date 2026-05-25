@@ -71,19 +71,19 @@ export class PrismaPaymentRepository implements IPaymentRepository {
   async validateBalance(userId: string, amount: number): Promise<boolean> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { inkcoinsBalance: true },
+      select: { auraBalance: true },
     });
 
-    return user !== null && user.inkcoinsBalance >= amount;
+    return user !== null && user.auraBalance >= amount;
   }
 
   async getUserBalance(userId: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { inkcoinsBalance: true },
+      select: { auraBalance: true },
     });
 
-    return user?.inkcoinsBalance || 0;
+    return user?.auraBalance || 0;
   }
 
   async sendTipTransaction(params: SendTipTransactionParams): Promise<{ tip: TipRecord; newSenderBalance: number }> {
@@ -92,13 +92,13 @@ export class PrismaPaymentRepository implements IPaymentRepository {
     const result = await prisma.$transaction(async (tx) => {
       const senderUpdated = await tx.user.update({
         where: { id: fromUserId },
-        data: { inkcoinsBalance: { decrement: amount } },
-        select: { inkcoinsBalance: true },
+        data: { auraBalance: { decrement: amount } },
+        select: { auraBalance: true },
       });
 
       await tx.user.update({
         where: { id: toUserId },
-        data: { inkcoinsBalance: { increment: amount } },
+        data: { auraBalance: { increment: amount } },
       });
 
       const tip = await tx.tip.create({
@@ -131,7 +131,7 @@ export class PrismaPaymentRepository implements IPaymentRepository {
         },
       });
 
-      return { tip, balance: senderUpdated.inkcoinsBalance };
+      return { tip, balance: senderUpdated.auraBalance };
     });
 
     return { tip: this.toTipRecord(result.tip), newSenderBalance: result.balance };
@@ -172,7 +172,7 @@ export class PrismaPaymentRepository implements IPaymentRepository {
 
       await tx.user.update({
         where: { id: userId },
-        data: { inkcoinsBalance: { decrement: amount } },
+        data: { auraBalance: { decrement: amount } },
       });
 
       const updated = await tx.chapter.update({

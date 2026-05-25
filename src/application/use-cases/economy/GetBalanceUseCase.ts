@@ -28,7 +28,7 @@ export interface BalanceStats {
 }
 
 export interface GetBalanceOutput {
-  inkcoins: number;
+  aura: number;
   xp: number;
   level: number;
   rank: string;
@@ -52,14 +52,14 @@ export class GetBalanceUseCase {
       throw new UserNotFoundError(input.userId);
     }
 
-    const [inkcoins, tipStats, crowdfundingStats] = await Promise.all([
+    const [aura, tipStats, crowdfundingStats] = await Promise.all([
       this.paymentService.getUserBalance(input.userId),
       this.paymentService.getUserTipStats(input.userId),
       this.paymentService.getUserCrowdfundingStats(input.userId),
     ]);
 
     return {
-      inkcoins,
+      aura,
       xp: user.xp.amount,
       level: user.xp.level,
       rank: user.xp.rank,

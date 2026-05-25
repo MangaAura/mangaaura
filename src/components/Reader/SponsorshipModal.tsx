@@ -1,9 +1,12 @@
 'use client';
 
-import { X, Crown, Loader2, Coins, Target, Check, MessageSquare } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Crown, Loader2, Coins, Target, Check, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect, useRef } from 'react';
 import FocusLock from 'react-focus-lock';
+
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 interface SponsorshipModalProps {
   isOpen: boolean;
@@ -27,6 +30,9 @@ interface SponsorData {
 export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapterId }: SponsorshipModalProps) {
   const { data: session } = useSession();
   const [bidAmount, setBidAmount] = useState<number | ''>('');
+  const [bidAmountTouched, setBidAmountTouched] = useState(false);
+  const [bidAmountError, setBidAmountError] = useState('');
+  const [bidAmountValid, setBidAmountValid] = useState(false);
   const [sponsorName, setSponsorName] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +46,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
 
   useEffect(() => {
     if (!isOpen || !chapterId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingData(true);
     setDataError('');
     fetch(`/api/chapters/${chapterId}/sponsor`)
@@ -76,6 +83,20 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
 
   const minBid = sponsorData?.minNextBid || 10;
   const currentWinner = sponsorData?.currentWinner;
+
+  const validateBidAmount = (value: number | '') => {
+    const numValue = Number(value);
+    if (value === '' || numValue <= 0) {
+      setBidAmountError('Enter a valid amount');
+      setBidAmountValid(false);
+    } else if (numValue < minBid) {
+      setBidAmountError(`Minimum bid is ${minBid} IC`);
+      setBidAmountValid(false);
+    } else {
+      setBidAmountError('');
+      setBidAmountValid(true);
+    }
+  };
 
   const handleSponsor = async () => {
     if (!bidAmount || bidAmount <= 0 || !session?.user?.id) return;
@@ -128,7 +149,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
               </div>
               <h2 id={titleId} className="text-2xl font-bold mb-2">Patrocinar Próximo Capítulo</h2>
               <p className="text-sm text-muted px-4">
-                Apoya directamente al creador de <strong>{chapterTitle}</strong> con tus InkCoins para desbloquear el próximo capítulo más rápido.
+                Apoya directamente al creador de <strong>{chapterTitle}</strong> con tus Aura para desbloquear el próximo capítulo más rápido.
               </p>
             </div>
 
@@ -136,7 +157,10 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
               {loadingData ? (
                 <div className="flex justify-center py-4"><Loader2 size={20} className="animate-spin text-muted" /></div>
               ) : dataError ? (
-                <p className="text-center text-sm text-[var(--error)] py-4" role="alert">{dataError}</p>
+                <ErrorMessage
+                  message={dataError}
+                  onDismiss={() => setDataError('')}
+                />
               ) : (
                 <>
                   {currentWinner ? (
@@ -176,7 +200,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="sponsor-amount" className="block text-sm font-semibold mb-2">Tu Puja (InkCoins)</label>
+                <label htmlFor="sponsor-amount" className="block text-sm font-semibold mb-2">Tu Puja (Aura)</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--warning)]">
                     <Coins size={18} aria-hidden="true" />
@@ -185,11 +209,45 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                     id="sponsor-amount"
                     type="number"
                     value={bidAmount}
-                    onChange={(e) => { setBidAmount(Number(e.target.value)); setSubmitError(''); }}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? '' : Number(e.target.value);
+                      setBidAmount(val);
+                      setSubmitError('');
+                      if (bidAmountTouched) validateBidAmount(val);
+                    }}
+                    onBlur={() => {
+                      setBidAmountTouched(true);
+                      validateBidAmount(bidAmount);
+                    }}
                     placeholder={`Mín: ${minBid}`}
                     min={minBid}
                     className="w-full pl-10 pr-4 py-3 bg-background border border-custom focus:border-[var(--warning)] focus:ring-1 focus:ring-[var(--warning)] rounded-xl outline-none font-mono font-bold transition-all"
                   />
+                  {bidAmountTouched && (
+                    <AnimatePresence>
+                      {bidAmountError ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                        >
+                          <ErrorMessage
+                            message={bidAmountError}
+                            severity="warning"
+                          />
+                        </motion.div>
+                      ) : bidAmountValid && bidAmount !== '' ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-1 flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
+                          <p className="text-xs text-[var(--success)]">Valid amount</p>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  )}
                 </div>
               </div>
 
@@ -225,7 +283,10 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
               </div>
 
               {submitError && (
-                <p className="text-center text-sm text-[var(--error)] py-2" role="alert">{submitError}</p>
+                <ErrorMessage
+                  message={submitError}
+                  onDismiss={() => setSubmitError('')}
+                />
               )}
 
               <button
@@ -244,7 +305,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
             </div>
             <h2 className="text-3xl font-bold mb-3">¡Gracias por tu apoyo!</h2>
             <p className="text-muted mb-8">
-              Has aportado <strong>{bidAmount} InkCoins</strong> al capítulo. El creador ha sido notificado.
+              Has aportado <strong>{bidAmount} Aura</strong> al capítulo. El creador ha sido notificado.
             </p>
             <button
               onClick={() => { setIsSuccess(false); setBidAmount(''); onClose(); }}

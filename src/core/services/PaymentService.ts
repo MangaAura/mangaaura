@@ -41,7 +41,7 @@ export class PaymentService {
     const { chapterId, fromUserId, amount, message } = data;
 
     if (amount < 1) {
-      throw new Error('El monto mínimo es 1 InkCoin');
+      throw new Error('El monto mínimo es 1 Aura');
     }
 
     const chapter = await this.repository.getChapterWithAuthor(chapterId);
@@ -121,7 +121,7 @@ export class PaymentService {
     const { chapterId, userId, amount, isAnonymous = false, message } = data;
 
     if (amount < 1) {
-      throw new Error('El monto mínimo es 1 InkCoin');
+      throw new Error('El monto mínimo es 1 Aura');
     }
 
     const chapter = await this.repository.getChapterWithCrowdfunding(chapterId);

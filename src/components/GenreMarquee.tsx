@@ -60,7 +60,6 @@ export function GenreMarquee() {
   const { genres, isLoading } = useGenres();
   const prefersReducedMotion = useReducedMotion();
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
-  prefersReducedMotionRef.current = prefersReducedMotion;
 
   const SPEED = 0.03;
   const speedRef = useRef(SPEED);
@@ -82,7 +81,6 @@ export function GenreMarquee() {
   const allItems = [...genreCards, ...genreCards];
   const halfWidth = genreCards.length * CARD_FULL;
   const halfWidthRef = useRef(halfWidth);
-  halfWidthRef.current = halfWidth;
 
   // Bucle de animación con dependencias vacías — nunca se reinicia
   useEffect(() => {
@@ -170,6 +168,15 @@ export function GenreMarquee() {
       }
     };
   }, []);
+
+  // Sync refs after render to avoid refs-during-render violations
+  useEffect(() => {
+    prefersReducedMotionRef.current = prefersReducedMotion;
+  }, [prefersReducedMotion]);
+
+  useEffect(() => {
+    halfWidthRef.current = halfWidth;
+  }, [halfWidth]);
 
   useEffect(() => {
     const el = trackRef.current;

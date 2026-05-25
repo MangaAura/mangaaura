@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface BanUser {
   id: string;
@@ -100,6 +101,8 @@ export default function BansPage() {
   const [showLiftDialog, setShowLiftDialog] = useState<string | null>(null);
   const [liftReason, setLiftReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { handleError } = useErrorHandler();
 
   const [formData, setFormData] = useState({
     userId: '',
@@ -177,7 +180,7 @@ export default function BansPage() {
         alert(err.error || 'Error creating ban');
       }
     } catch (err) {
-      console.error('Error creating ban:', err);
+      handleError(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -201,7 +204,7 @@ export default function BansPage() {
         alert(err.error || 'Error lifting ban');
       }
     } catch (err) {
-      console.error('Error lifting ban:', err);
+      handleError(err);
     } finally {
       setIsSubmitting(false);
     }

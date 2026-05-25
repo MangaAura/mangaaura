@@ -60,7 +60,7 @@ describe('Gamification Use Cases', () => {
     });
   });
 
-  describe('InkCoins', () => {
+  describe('Aura', () => {
     it('debe recibir bonus de registro', () => {
       const { user } = User.registerWithEmail(
         Email.create('coins@test.com'),
@@ -69,21 +69,21 @@ describe('Gamification Use Cases', () => {
         { plainText: 'SecurePass123!' } as any
       );
 
-      expect(user.inkcoins.amount).toBe(50);
+      expect(user.aura.amount).toBe(50);
     });
 
-    it('debe poder gastar InkCoins', () => {
+    it('debe poder gastar Aura', () => {
       const user = User.create({
         email: Email.create('spend@test.com'),
         username: 'spendtest',
-        inkcoinsBalance: 100,
+        auraBalance: 100,
       });
 
-      user.spendInkCoins(30, 'TIP_TO_AUTHOR');
+      user.spendAura(30, 'TIP_TO_AUTHOR');
 
-      expect(user.inkcoins.amount).toBe(70);
+      expect(user.aura.amount).toBe(70);
 
-      const event = user.domainEvents.find((e) => e.type === 'INKCOINS_SPENT');
+      const event = user.domainEvents.find((e) => e.type === 'AURA_SPENT');
       expect(event?.payload.amount).toBe(30);
       expect(event?.payload.reason).toBe('TIP_TO_AUTHOR');
     });
@@ -92,10 +92,10 @@ describe('Gamification Use Cases', () => {
       const user = User.create({
         email: Email.create('poor@test.com'),
         username: 'poortest',
-        inkcoinsBalance: 10,
+        auraBalance: 10,
       });
 
-      expect(() => user.spendInkCoins(50, 'TIP')).toThrow();
+      expect(() => user.spendAura(50, 'TIP')).toThrow();
     });
   });
 

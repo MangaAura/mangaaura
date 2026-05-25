@@ -1,22 +1,22 @@
 /**
- * Evento: InkCoins gastados
- * Se dispara cuando un usuario gasta InkCoins
+ * Evento: Aura gastados
+ * Se dispara cuando un usuario gasta Aura
  * @packageDocumentation
  */
 
 import { DomainEvent } from './DomainEvent';
-import type { InkCoinsTransactionType } from '../types/transaction-types';
+import type { AuraTransactionType } from '../types/transaction-types';
 
 /**
-* Payload del evento InkCoinsSpentEvent
+* Payload del evento AuraSpentEvent
 */
-export interface InkCoinsSpentEventPayload {
+export interface AuraSpentEventPayload {
 /** ID del usuario */
 userId: string;
 /** Cantidad gastada */
 amount: number;
 /** Tipo de transacción */
-type: InkCoinsTransactionType;
+type: AuraTransactionType;
 /** Descripción de la transacción */
 description: string;
 /** Nuevo balance del usuario */
@@ -35,16 +35,16 @@ spentAt: string;
 }
 
 /**
- * Evento de dominio: InkCoins gastados
+ * Evento de dominio: Aura gastados
  */
-export class InkCoinsSpentEvent extends DomainEvent {
-  readonly name = 'INKCOINS_SPENT';
-  readonly payload: InkCoinsSpentEventPayload;
+export class AuraSpentEvent extends DomainEvent {
+  readonly name = 'AURA_SPENT';
+  readonly payload: AuraSpentEventPayload;
 
   constructor(payload: {
     userId: string;
     amount: number;
-    type: InkCoinsTransactionType;
+    type: AuraTransactionType;
     description: string;
     newBalance: number;
     transactionId: string;
@@ -69,9 +69,9 @@ export class InkCoinsSpentEvent extends DomainEvent {
 }
 
 /**
-* Payload del evento InkCoinsReceivedEvent
+* Payload del evento AuraReceivedEvent
 */
-export interface InkCoinsReceivedEventPayload {
+export interface AuraReceivedEventPayload {
 userId: string;
 amount: number;
 source: 'TIP' | 'CROWDFUND' | 'DAILY_BONUS' | 'ACHIEVEMENT' | 'REFERRAL' | 'OTHER';
@@ -84,12 +84,12 @@ receivedAt: string;
 }
 
 /**
-* Evento: InkCoins recibidos
-* Se dispara cuando un usuario recibe InkCoins
+* Evento: Aura recibidos
+* Se dispara cuando un usuario recibe Aura
 */
-export class InkCoinsReceivedEvent extends DomainEvent {
-readonly name = 'INKCOINS_RECEIVED';
-readonly payload: InkCoinsReceivedEventPayload;
+export class AuraReceivedEvent extends DomainEvent {
+readonly name = 'AURA_RECEIVED';
+readonly payload: AuraReceivedEventPayload;
 
   constructor(payload: {
     userId: string;
@@ -129,7 +129,7 @@ earnedAt: string;
 }
 
 /**
-* Evento: InkCoins ganados por autor
+* Evento: Aura ganados por autor
 * Se dispara cuando un autor recibe propinas o contribuciones
 */
 export class AuthorEarningsEvent extends DomainEvent {

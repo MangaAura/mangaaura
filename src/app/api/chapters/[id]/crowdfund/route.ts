@@ -77,12 +77,12 @@ export async function POST(
     // Verificar fondos
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { inkcoinsBalance: true },
+      select: { auraBalance: true },
     });
 
-    if (!user || user.inkcoinsBalance < amount) {
+    if (!user || user.auraBalance < amount) {
       return NextResponse.json(
-        { error: 'Fondos insuficientes', balance: user?.inkcoinsBalance || 0 },
+        { error: 'Fondos insuficientes', balance: user?.auraBalance || 0 },
         { status: 400 }
       );
     }
@@ -108,7 +108,7 @@ export async function POST(
       }),
       prisma.user.update({
         where: { id: session.user.id },
-        data: { inkcoinsBalance: { decrement: amount } },
+        data: { auraBalance: { decrement: amount } },
       }),
       prisma.transaction.create({
         data: {
@@ -147,10 +147,8 @@ export async function POST(
             chapterId: chapter.id,
             chapterNumber: chapter.chapterNumber,
             chapterTitle: chapter.title || undefined,
-          });
-
-          // console.log(`[Crowdfund] Goal reached notification queued for ${manga.title} chap ${chapter.chapterNumber}`);
-        }
+                });
+              }
       } catch (emailError) {
         console.error('[Crowdfund] Error queueing goal reached email:', emailError);
       }
@@ -162,7 +160,7 @@ export async function POST(
         amount,
         chapterId,
       },
-      newBalance: updatedUser.inkcoinsBalance,
+      newBalance: updatedUser.auraBalance,
       progress: {
         current: updatedChapter.crowdfundingCurrent,
         goal: chapter.crowdfundingGoal,
@@ -174,7 +172,7 @@ export async function POST(
       },
       message: isComplete
         ? '¡Meta alcanzada! El capítulo será publicado pronto.'
-        : `Contribución registrada. Faltan ${remaining} InkCoins.`,
+        : `Contribución registrada. Faltan ${remaining} Aura.`,
     });
   } catch (error) {
     console.error('Error en crowdfunding:', error);

@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rss, MessageCircle, FolderOpen, Calendar, Plus, Settings, X, Bell, Crown, LogOut, Medal,
+  Rss, MessageCircle, FolderOpen, Plus, Settings, X, Bell, Crown, LogOut, Medal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -163,21 +163,6 @@ export function MobileMenu({
                     >
                       <FolderOpen className="w-5 h-5" aria-hidden="true" />
                       {t('nav.collections')}
-                    </Link>
-
-                    <Link
-                      href="/events"
-                      onClick={onClose}
-                      className={
-                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
-                        (isActive(pathname, '/events')
-                          ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
-                          : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
-                      }
-                      aria-current={isActive(pathname, '/events') ? 'page' : undefined}
-                    >
-                      <Calendar className="w-5 h-5" aria-hidden="true" />
-                      {t('nav.events')}
                     </Link>
 
                     <Link

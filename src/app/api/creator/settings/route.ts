@@ -24,7 +24,7 @@ export async function GET() {
         email: true,
         avatarUrl: true,
         stripeCustomerId: true,
-        inkcoinsBalance: true,
+        auraBalance: true,
         createdAt: true,
       },
     });
@@ -66,7 +66,7 @@ export async function GET() {
       },
       payments: {
         stripeConnected: !!user.stripeCustomerId,
-        inkcoinsBalance: user.inkcoinsBalance,
+        auraBalance: user.auraBalance,
         totalTipsReceived: totalTips._sum.amount || 0,
         minimumPayout: 1000,
       },

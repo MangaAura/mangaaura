@@ -1,4 +1,4 @@
-export type InkCoinsTransactionType =
+export type AuraTransactionType =
   | 'TIP_AUTHOR'
   | 'CROWDFUND_CONTRIBUTION'
   | 'PREMIUM_CHAPTER'

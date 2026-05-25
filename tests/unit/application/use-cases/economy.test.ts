@@ -62,7 +62,7 @@ describe('SendTipUseCase', () => {
       senderId: 'user-1',
       chapterId: 'chapter-1',
       amount: 0,
-    })).rejects.toThrow('El monto mínimo es 1 InkCoin');
+    })).rejects.toThrow('El monto mínimo es 1 Aura');
   });
 
   it('debe rechazar monto que excede el límite', async () => {
@@ -70,7 +70,7 @@ describe('SendTipUseCase', () => {
       senderId: 'user-1',
       chapterId: 'chapter-1',
       amount: 1001,
-    })).rejects.toThrow('El monto no puede exceder 1000 InkCoins');
+    })).rejects.toThrow('El monto no puede exceder 1000 Auras');
   });
 
   it('debe rechazar senderId vacío', async () => {
@@ -167,7 +167,7 @@ describe('ContributeCrowdfundingUseCase', () => {
       userId: 'user-1',
       chapterId: 'chapter-1',
       amount: 0,
-    })).rejects.toThrow('El monto mínimo es 1 InkCoin');
+    })).rejects.toThrow('El monto mínimo es 1 Aura');
   });
 });
 
@@ -200,7 +200,7 @@ describe('GetBalanceUseCase', () => {
 
     const result = await useCase.execute({ userId: 'user-1' });
 
-    expect(result.inkcoins).toBe(500);
+    expect(result.aura).toBe(500);
     expect(result.xp).toBe(1500);
     expect(result.level).toBe(3);
     expect(result.stats.tips.totalGiven).toBe(200);

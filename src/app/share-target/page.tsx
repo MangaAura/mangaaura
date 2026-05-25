@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
-
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 interface SharedData {
   title: string;
@@ -22,6 +22,7 @@ export default function ShareTargetPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const title = params.get('title') || '';
@@ -66,7 +67,7 @@ export default function ShareTargetPage() {
         <div className="text-center">
           <Share2 className="w-16 h-16 text-muted mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">
-            {saved ? '¡Guardado!' : 'Compartir en MangaAura'}
+            {saved ? '¡Guardado!' : <>Compartir en <RepeatedChar text="MangaAura" /></>}
           </h1>
           <p className="text-muted">
             {saved ? 'El contenido fue guardado en tu biblioteca' : 'No se recibió contenido para compartir'}

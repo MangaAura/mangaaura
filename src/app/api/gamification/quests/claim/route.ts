@@ -1,7 +1,7 @@
 /**
  * Quest Claim API - Claim a completed quest reward
  *
- * POST /api/gamification/quests/claim - Claim XP + InkCoins for a completed quest
+ * POST /api/gamification/quests/claim - Claim XP + Aura for a completed quest
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -94,12 +94,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Award XP and InkCoins
+    // Award XP and Aura
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
         xpPoints: { increment: questDef.xpReward },
-        inkcoinsBalance: { increment: questDef.inkcoinsReward },
+        auraBalance: { increment: questDef.auraReward },
       },
     });
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       questId: questDef.questId,
       label: questDef.label,
       xpAwarded: questDef.xpReward,
-      inkcoinsAwarded: questDef.inkcoinsReward,
+      auraAwarded: questDef.auraReward,
     });
   } catch (error) {
     console.error('Error claiming quest reward:', error);

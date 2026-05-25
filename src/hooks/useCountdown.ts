@@ -86,8 +86,6 @@ export function useCountdown(endDate: string, startDate?: string): CountdownResu
   const [result, setResult] = useState<CountdownResult>(() => calc());
 
   useEffect(() => {
-    setResult(calc());
-
     const interval = setInterval(() => {
       setResult(calc());
     }, 1000);

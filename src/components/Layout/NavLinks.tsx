@@ -24,6 +24,7 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Inicio', path: '/', iconName: 'BookOpen', i18nKey: 'nav.home' },
   { name: 'Explorar', path: '/explore', iconName: 'Compass', i18nKey: 'nav.explore' },
   { name: 'Rankings', path: '/rankings', iconName: 'Trophy', i18nKey: 'nav.rankings' },
+  { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
   { name: 'Biblioteca', path: '/library', iconName: 'Library', i18nKey: 'nav.library', hideWhenLoggedOut: true },
@@ -45,7 +46,7 @@ export const MORE_NAV_LINKS: NavLinkDef[] = [
 
 const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
-  MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search,
+  MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
 };
 
 export function getIcon(name: string) {
@@ -110,10 +111,10 @@ export function NavLinks({ links, mobile, mounted = true }: NavLinksProps) {
             className={navLinkVariants({ active, mobile })}
             aria-current={active ? 'page' : undefined}
           >
-            {mounted && Icon ? (
-              <Icon className={mobile ? 'w-5 h-5' : 'w-4 h-4'} />
-            ) : (
-              <span className={mobile ? 'w-5 h-5' : 'w-4 h-4'} />
+      {mounted && Icon ? (
+            <Icon className={mobile ? 'w-5 h-5' : 'w-4 h-4'} aria-hidden="true" />
+          ) : (
+            <span className={mobile ? 'w-5 h-5' : 'w-4 h-4'} aria-hidden="true" />
             )}
             {t(link.i18nKey)}
           </Link>

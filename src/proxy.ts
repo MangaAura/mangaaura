@@ -1,8 +1,8 @@
 import { getToken } from '@auth/core/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { logRequest, generateRequestId } from '@/lib/request-logger';
 import { SESSION_COOKIE_NAME } from '@/lib/auth';
+import { logRequest, generateRequestId } from '@/lib/request-logger';
 
 // ─── Auth: protected routes ────────────────────────────────────────
 
@@ -62,7 +62,7 @@ function isProtectedRoute(pathname: string): boolean {
 // ─── Security constants ─────────────────────────────────────────────
 
 const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health', '/_rsc/'];
-const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/clans', '/api/upload'];
+const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications'];
 const CSRF_COOKIE_NAME = '__csrf_mw';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
@@ -280,4 +280,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   return response;
 }
 
-// Config is defined in middleware.ts (Next.js requires it to be exported directly from middleware file).
+export const config = {
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
+};

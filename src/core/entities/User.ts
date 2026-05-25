@@ -32,7 +32,7 @@ export interface UserProps {
   emailVerified?: Date;
   role?: UserRole;
   xpPoints?: number;
-  inkcoinsBalance?: number;
+  auraBalance?: number;
   readingStreak?: number;
   lastReadAt?: Date;
   createdAt?: Date;
@@ -55,7 +55,7 @@ export class User {
   private _emailVerified: Date | undefined;
   private _role: UserRole;
   private _xp: XP;
-  private _inkcoins: Money;
+  private _aura: Money;
   private _readingStreak: number;
   private _lastReadAt: Date | undefined;
   private _createdAt: Date;
@@ -72,7 +72,7 @@ export class User {
     this._emailVerified = props.emailVerified;
     this._role = props.role ?? 'USER';
     this._xp = XP.create(props.xpPoints ?? 0);
-    this._inkcoins = Money.create(props.inkcoinsBalance ?? 0, 'INK');
+    this._aura = Money.create(props.auraBalance ?? 0, 'INK');
     this._readingStreak = props.readingStreak ?? 0;
     this._lastReadAt = props.lastReadAt;
     this._createdAt = props.createdAt ?? new Date();
@@ -101,7 +101,7 @@ export class User {
       email,
       username: username.toLowerCase().trim(),
       xpPoints: 0,
-      inkcoinsBalance: 50, // Bonus de registro
+      auraBalance: 50, // Bonus de registro
       readingStreak: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -137,7 +137,7 @@ export class User {
       username: username.toLowerCase().trim(),
       emailVerified: new Date(),
       xpPoints: 0,
-      inkcoinsBalance: 50, // Bonus de registro
+      auraBalance: 50, // Bonus de registro
       readingStreak: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -204,8 +204,8 @@ export class User {
     return this._xp.rank;
   }
 
-  get inkcoins(): Money {
-    return this._inkcoins;
+  get aura(): Money {
+    return this._aura;
   }
 
   get readingStreak(): number {
@@ -350,34 +350,34 @@ export class User {
     });
   }
 
-  addInkCoins(amount: number, reason: string): void {
+  addAura(amount: number, reason: string): void {
     const coins = Money.create(amount, 'INK');
-    this._inkcoins = this._inkcoins.add(coins);
+    this._aura = this._aura.add(coins);
     this._updatedAt = new Date();
 
     this._domainEvents.push({
-      type: 'INKCOINS_EARNED',
+      type: 'AURA_EARNED',
       payload: {
         userId: this._id,
         amount,
-        balance: this._inkcoins.amount,
+        balance: this._aura.amount,
         reason,
       },
       occurredAt: new Date(),
     });
   }
 
-  spendInkCoins(amount: number, reason: string): void {
+  spendAura(amount: number, reason: string): void {
     const coins = Money.create(amount, 'INK');
-    this._inkcoins = this._inkcoins.subtract(coins);
+    this._aura = this._aura.subtract(coins);
     this._updatedAt = new Date();
 
     this._domainEvents.push({
-      type: 'INKCOINS_SPENT',
+      type: 'AURA_SPENT',
       payload: {
         userId: this._id,
         amount,
-        balance: this._inkcoins.amount,
+        balance: this._aura.amount,
         reason,
       },
       occurredAt: new Date(),
@@ -407,7 +407,7 @@ export class User {
       level: this._xp.level,
       rank: this._xp.rank,
       progressToNextLevel: this._xp.progressToNextLevel,
-      inkcoinsBalance: this._inkcoins.amount,
+      auraBalance: this._aura.amount,
       readingStreak: this._readingStreak,
       lastReadAt: this._lastReadAt?.toISOString(),
       createdAt: this._createdAt.toISOString(),

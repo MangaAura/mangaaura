@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 export function PushNotificationManager() {
   const { data: session } = useSession();
@@ -12,6 +13,7 @@ export function PushNotificationManager() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const { handleError } = useErrorHandler();
 
   const checkSubscription = async () => {
     try {
@@ -50,7 +52,7 @@ export function PushNotificationManager() {
       const { publicKey } = await vapidRes.json();
 
       if (!publicKey) {
-        console.error('No VAPID public key available');
+        handleError(new Error('No se encontró la clave pública VAPID'));
         return;
       }
 
@@ -71,7 +73,7 @@ export function PushNotificationManager() {
       setIsSubscribed(true);
       setShowPrompt(false);
     } catch (error) {
-      console.error('Error subscribing to push:', error);
+      handleError(error);
       setPermission('denied');
     }
   };
@@ -93,7 +95,7 @@ export function PushNotificationManager() {
 
       setIsSubscribed(false);
     } catch (error) {
-      console.error('Error unsubscribing from push:', error);
+      handleError(error);
     }
   };
 

@@ -29,14 +29,24 @@ const displayFont = Bebas_Neue({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
+
 export const metadata: Metadata = {
-  title: "MangaAura - Plataforma de Manga",
-  description: "Descubre, lee y comparte manga de calidad en MangaAura. La mejor plataforma para creadores y lectores de manga.",
-  keywords: ["manga", "lector", "anime", "comics", "mangaaura", "lectura", "subtitulos"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "MangaAura — Lee, crea y crowdfundea manga con IA",
+    template: "%s | MangaAura",
+  },
+  description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos. Únete a miles de creadores y lectores.",
+  keywords: ["manga", "crear manga online", "publicar manga", "crowdfunding manga", "leer manga", "anime", "mangaaura", "comics", "inteligencia artificial manga"],
   authors: [{ name: "MangaAura" }],
   manifest: "/manifest.json",
+  alternates: {
+    canonical: siteUrl,
+  },
   icons: {
     icon: [
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
@@ -46,16 +56,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "MangaAura - Plataforma de Manga",
-    description: "Descubre, lee y comparte manga de calidad en MangaAura",
+    title: "MangaAura — Lee, crea y crowdfundea manga con IA",
+    description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos.",
     siteName: "MangaAura",
     locale: "es_ES",
-    images: [{ url: "/og-image.png", width: 1000, height: 1000, alt: "MangaAura" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MangaAura" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MangaAura - Plataforma de Manga",
-    description: "Descubre, lee y comparte manga de calidad en MangaAura",
+    title: "MangaAura — Lee, crea y crowdfundea manga con IA",
+    description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos.",
   },
   robots: {
     index: true,

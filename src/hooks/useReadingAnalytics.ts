@@ -97,8 +97,9 @@ export function useReadingAnalytics({
 
   // Track time spent on unmount
   useEffect(() => {
+    const startTime = startTimeRef.current;
     return () => {
-      const timeSpent = Date.now() - startTimeRef.current;
+      const timeSpent = Date.now() - startTime;
       const pagesViewed = pagesViewedRef.current.size;
 
       if (hasStartedRef.current) {

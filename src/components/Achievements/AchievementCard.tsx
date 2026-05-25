@@ -112,8 +112,9 @@ export function AchievementCard({
   const isUnlocked = !!achievement.userAchievement;
   const progress = achievement.userAchievement?.progress || 0;
   const rarity = rarityConfig[achievement.rarity] || rarityConfig.EASY;
+  const [now] = useState(() => Date.now());
   const wasJustUnlocked = achievement.userAchievement?.earnedAt &&
-    Date.now() - achievement.userAchievement.earnedAt.getTime() < 86400000;
+    now - achievement.userAchievement.earnedAt.getTime() < 86400000;
 
   const handleClick = () => {
     if (isUnlocked && wasJustUnlocked) {

@@ -19,6 +19,8 @@
     "submit": "Enviar",
     "noResults": "No se encontraron resultados",
     "noData": "No hay datos disponibles",
+    "searchSuggestions": "Sugerencias de búsqueda",
+    "suggestions": "Sugerencias",
     "emptyState": "No hay nada aquí todavía",
     "viewAll": "Ver todos",
     "readMore": "Leer más",
@@ -29,9 +31,11 @@
     "settings": "Configuración",
     "theme": "Tema",
     "menu": "Menú",
+    "more": "Más",
     "and": "y",
     "all": "Todos",
-    "breadcrumb": "Navegación"
+    "breadcrumb": "Navegación",
+    "user": "Usuario"
   },
   "a11y": {
     "skipToContent": "Saltar al contenido",
@@ -223,7 +227,11 @@
       "passwordLowercase": "Debe contener al menos una minúscula",
       "passwordNumber": "Debe contener al menos un número",
       "passwordMismatch": "Las contraseñas no coinciden",
-      "confirmPasswordRequired": "Confirma tu contraseña"
+      "confirmPasswordRequired": "Confirma tu contraseña",
+      "validEmail": "Correo electrónico válido",
+      "validPassword": "Contraseña válida",
+      "passwordStrong": "Contraseña segura",
+      "passwordMatch": "Contraseñas coinciden"
     },
     "passwordStrength": {
       "weak": "Débil",
@@ -293,7 +301,7 @@
     "level": "Nivel",
     "xp": "XP",
     "achievements": "Logros",
-    "inkCoins": "InkCoins",
+    "aura": "Aura",
     "joined": "Miembro desde",
     "bio": "Biografía",
     "stats": "Estadísticas",
@@ -336,14 +344,33 @@
       "LEGENDARY": "Legendario"
     }
   },
-  "notifications": {
+"notifications": {
     "title": "Notificaciones",
     "markAllRead": "Marcar todo como leído",
     "newChapter": "¡Nuevo capítulo de {title}!",
     "achievementUnlocked": "¡Logro desbloqueado: {achievement}!",
     "commentReply": "{user} respondió a tu comentario",
     "newFollower": "{user} comenzó a seguirte",
-    "sponsorshipWon": "¡Ganaste la puja de patrocinio!"
+    "sponsorshipWon": "¡Ganaste la puja de patrocinio!",
+    "noNotifications": "Sin notificaciones",
+    "empty": "Sin notificaciones",
+    "viewAll": "Ver todas",
+    "noConnection": "Sin conexión"
+  },
+  "sponsorships": {
+    "noSponsorships": "Sin patrocinios aún",
+    "noSponsorshipsYet": "Sin patrocinios aún",
+    "activeBids": "Pujas Activas",
+    "wonSponsorships": "Patrocinios Ganados",
+    "history": "Historial",
+    "sponsorToAppear": "Patrocina un capítulo para aparecer aquí",
+    "exploreMangas": "Explorar mangas"
+  },
+  "collections": {
+    "noMangas": "Sin mangas"
+  },
+  "offline": {
+    "noConnection": "Sin conexión"
   },
   "errors": {
     "generic": "Algo salió mal. Intenta de nuevo.",
@@ -361,9 +388,9 @@
     "validation": "Datos inválidos",
     "connectionFailed": "No se pudo conectar con el servidor. Verifica tu conexión a internet e inténtalo de nuevo."
   },
-  "home": {
-    "discoverFuture": "Descubre el Futuro del Manga",
-    "description": "Tu plataforma de manga favorita con miles de títulos para explorar.",
+    "home": {
+      "discoverFuture": "El único lugar donde leer, crear y crowdfundear manga con IA",
+      "description": "Lee gratis o crea tu propio manga. Con IA que te ayuda a escribir, dibujar y traducir. Crowdfundea tus capítulos y gana Aura con cada página.",
     "exploreByGenre": "Explora por Género",
     "topMangas": "Top Mangas",
     "latestUpdates": "Últimas Actualizaciones",
@@ -372,15 +399,19 @@
     "viewFullRankings": "Ver Ranking Completo",
     "newReleases": "Nuevos Mangas",
     "viewAllNewReleases": "Ver Todos los Nuevos",
-    "ctaCreatorTitle": "¿Eres creador de manga?",
-    "ctaCreatorDesc": "Únete a MangaAura y llega a miles de lectores.",
+      "ctaCreatorTitle": "¿Creador? Publica tu manga y monetiza con Aura",
+      "ctaCreatorDesc": "Sube tus capítulos, recibe crowdfunding de tus lectores y gana con cada página. IA incluida.",
     "startCreating": "Empezar a crear",
     "newsTitle": "Noticias de MangaAura",
+    "featured": "Destacado",
     "newsPageDesc": "Entérate de las últimas novedades, actualizaciones de plataforma y eventos de la comunidad de MangaAura.",
     "newsCategoryCommunity": "COMUNIDAD",
     "newsCategoryPlatform": "PLATAFORMA",
+    "newsEmpty": "No hay noticias en esta categoría",
+    "newsCategoriesAria": "Categorías de noticias",
+    "newsPaginationAria": "Paginación de noticias",
     "newsClanSeason": "¡Arranca la Temporada 3 de Clanes!",
-    "newsClanSeasonDesc": "Reúne a tu gremio y preparaos para la nueva batalla por InkCoins. Nuevas recompensas añadidas al pozo.",
+    "newsClanSeasonDesc": "Reúne a tu gremio y preparaos para la nueva batalla por Aura. Nuevas recompensas añadidas al pozo.",
     "newsReaderMode": "Nuevo Lector Paged Mode",
     "newsReaderModeDesc": "Basado en vuestro feedback, hemos pulido el sistema de lectura por páginas para consumir menos RAM en móviles.",
     "newsAIArtists": "Nuevas Herramientas para Artistas IA",
@@ -388,12 +419,12 @@
     "newsMobileApp": "Beta de la App Móvil",
     "newsMobileAppDesc": "Ya disponible la beta cerrada de MangaAura para iOS y Android. Experiencia optimizada para móviles.",
     "newsContest": "Concurso de Mangas MangaAura",
-    "newsContestDesc": "Participa en nuestro concurso mensual de manga y gana InkCoins, exposición y badges exclusivos.",
-    "newsClanSeasonBody": "¡La Temporada 3 de Clanes ha comenzado oficialmente! Reúne a los miembros de tu gremio y prepárate para batallas épicas. Esta temporada trae nuevas recompensas de InkCoins, badges exclusivos y un sistema de emparejamiento renovado. Completa misiones diarias, asciende en la clasificación y demuestra el valor de tu clan. Se han añadido nuevas recompensas al pozo de premios, incluyendo marcos de avatar raros y cosméticos por tiempo limitado. ¡La temporada termina el 15 de agosto, así que empieza a ganar puntos ahora!",
+    "newsContestDesc": "Participa en nuestro concurso mensual de manga y gana Aura, exposición y badges exclusivos.",
+    "newsClanSeasonBody": "¡La Temporada 3 de Clanes ha comenzado oficialmente! Reúne a los miembros de tu gremio y prepárate para batallas épicas. Esta temporada trae nuevas recompensas de Aura, badges exclusivos y un sistema de emparejamiento renovado. Completa misiones diarias, asciende en la clasificación y demuestra el valor de tu clan. Se han añadido nuevas recompensas al pozo de premios, incluyendo marcos de avatar raros y cosméticos por tiempo limitado. ¡La temporada termina el 15 de agosto, así que empieza a ganar puntos ahora!",
     "newsReaderModeBody": "Basado en vuestros valiosos comentarios, hemos renovado por completo nuestro sistema de lectura página por página. El nuevo Modo de Lectura Paged consume significativamente menos RAM en dispositivos móviles, ofrece transiciones de página más rápidas e incluye una experiencia de lectura personalizable. Ahora puedes ajustar el brillo, el color de fondo y el tamaño de letra a tu preferencia. Tanto el desplazamiento vertical como la paginación horizontal son compatibles. ¡Pruébalo en cualquier manga y cuéntanos qué te parece!",
     "newsAIArtistsBody": "Nos complace anunciar una gran actualización de nuestras herramientas de creación AI. El nuevo conjunto incluye generación de personajes mejorada con mayor consistencia, creación de fondos de escena mejorada y una herramienta avanzada de inpainting para ajustar tus viñetas. Nuestra IA ahora entiende mejor los estilos de arte manga y puede asistir con patrones de screentone, líneas de velocidad y fondos de efectos. Estas herramientas están disponibles para todos los creadores en MangaAura. ¡Mejora tu flujo de trabajo y da vida a tus historias!",
     "newsMobileAppBody": "¡La beta cerrada de nuestra aplicación móvil ya está disponible para usuarios de iOS y Android! Experimenta MangaAura optimizado para tu teléfono con una interfaz nativa, desplazamiento suave y soporte de lectura offline. La beta incluye acceso a tu biblioteca, el lector y funciones comunitarias. Para unirte a la beta, revisa tu bandeja de entrada para una invitación o regístrate en la lista de espera. Esperamos tus comentarios para mejorar la experiencia móvil antes del lanzamiento público.",
-    "newsContestBody": "Nuestro concurso mensual de manga regresa con premios más grandes que nunca. El tema de este mes es 'Mundos Paralelos' — crea un manga one-shot explorando dimensiones alternativas. El ganador recibe 5000 InkCoins, un lugar destacado en la página principal, un badge exclusivo de 'Ganador del Concurso' y retroalimentación directa de nuestro equipo editorial. Las inscripciones están abiertas hasta fin de mes. ¡Todos los géneros y estilos son bienvenidos. Deja volar tu imaginación!",
+    "newsContestBody": "Nuestro concurso mensual de manga regresa con premios más grandes que nunca. El tema de este mes es 'Mundos Paralelos' — crea un manga one-shot explorando dimensiones alternativas. El ganador recibe 5000 Aura, un lugar destacado en la página principal, un badge exclusivo de 'Ganador del Concurso' y retroalimentación directa de nuestro equipo editorial. Las inscripciones están abiertas hasta fin de mes. ¡Todos los géneros y estilos son bienvenidos. Deja volar tu imaginación!",
     "newsReadingStats": "Nuevo Panel de Estadísticas",
     "newsReadingStatsDesc": "Sigue tus hábitos de lectura, establece metas y descubre tus géneros más leídos con nuestro nuevo panel de estadísticas personalizadas.",
     "newsReadingStatsBody": "¡Estamos emocionados de presentar el Panel de Estadísticas de Lectura — tu compañero personal de lectura! Ahora puedes rastrear cada capítulo que lees, visualizar tus hábitos a lo largo del tiempo y descubrir información fascinante sobre tu viaje manga.\n\nEl panel muestra tus capítulos totales leídos, rachas de lectura, géneros favoritos y patrones horarios. Establece metas semanales de lectura y gana insignias por alcanzar hitos. Compara tus estadísticas con amigos y descubre quién es el lector más dedicado de tu clan.\n\nAccede a tu panel desde tu página de perfil o haciendo clic en el nuevo botón 'Estadísticas' en el lector. Tus datos son privados por defecto, pero puedes compartir estadísticas seleccionadas con tu clan o seguidores. ¡Empieza a rastrear hoy y descubre qué tan profundo llega tu adicción al manga!",
@@ -411,8 +442,8 @@
     "newsPerformanceBody": "El rendimiento siempre ha sido una prioridad máxima, y estamos orgullosos de anunciar nuestra mayor actualización de infraestructura hasta la fecha. Durante el último mes, nuestro equipo de ingeniería ha estado trabajando duro optimizando cada capa del stack.\n\nLas mejoras clave incluyen: una reescritura completa de nuestro pipeline de entrega de imágenes con formatos de última generación y compresión inteligente, implementación de caché perimetral en nuestra CDN global que sirve el 80% de las solicitudes desde caché, optimización de consultas de base de datos que redujo los tiempos de carga promedio de páginas en un 40%, y una nueva estrategia de carga diferida para el lector que reduce la transferencia inicial de datos en un 60%.\n\nLos usuarios móviles notarán la mayor diferencia — las páginas cargan en menos de 2 segundos incluso en conexiones lentas, y el lector consume significativamente menos ancho de banda por capítulo. También hemos reducido nuestros tiempos de respuesta del servidor en más del 50%, haciendo que toda la plataforma se sienta más ágil.\n\n¡Estas mejoras ya están activas en todas las regiones. Cuéntanos cómo se siente el nuevo rendimiento!",
     "newsShowingResults": "Mostrando {start}–{end} de {total} artículos",
     "newsSummerEvent": "Festival de Lectura de Verano",
-    "newsSummerEventDesc": "Únete al Festival de Lectura de Verano con insignias exclusivas, fines de semana de doble XP y un gran premio de 10,000 InkCoins.",
-    "newsSummerEventBody": "¡El verano llegó y con él nuestro evento comunitario más grande del año — el Festival de Lectura de Verano de MangaAura! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga que dura toda la temporada.\n\n¿Qué hay disponible? Fines de semana de doble XP cada mes, insignias exclusivas del Festival de Verano para participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo InkCoins gratis y artículos cosméticos, y un gran premio de 10,000 InkCoins otorgado al lector con más capítulos completados al final del verano.\n\nLos creadores tampoco se quedan fuera — estamos organizando un concurso de one-shot 'Especial de Verano' con premios separados. Publica un capítulo temático de verano entre junio y agosto y podrías ganar 5,000 InkCoins más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Revisa la página de Eventos para el calendario completo y ¡comienza tu viaje de lectura de verano hoy! Captura tus estadísticas de lectura y compártelas con #MangaAuraVerano para la oportunidad de aparecer en nuestras redes sociales.",
+    "newsSummerEventDesc": "Únete al Festival de Lectura de Verano con insignias exclusivas, fines de semana de doble XP y un gran premio de 10,000 Aura.",
+    "newsSummerEventBody": "¡El verano llegó y con él nuestro evento comunitario más grande del año — el Festival de Lectura de Verano de MangaAura! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga que dura toda la temporada.\n\n¿Qué hay disponible? Fines de semana de doble XP cada mes, insignias exclusivas del Festival de Verano para participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo Aura gratis y artículos cosméticos, y un gran premio de 10,000 Aura otorgado al lector con más capítulos completados al final del verano.\n\nLos creadores tampoco se quedan fuera — estamos organizando un concurso de one-shot 'Especial de Verano' con premios separados. Publica un capítulo temático de verano entre junio y agosto y podrías ganar 5,000 Aura más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Revisa la página de Eventos para el calendario completo y ¡comienza tu viaje de lectura de verano hoy! Captura tus estadísticas de lectura y compártelas con #MangaAuraVerano para la oportunidad de aparecer en nuestras redes sociales.",
     "featured": "Destacado",
     "welcome": "Bienvenido a MangaAura",
     "readNow": "Leer Ahora",
@@ -590,7 +621,7 @@
       "badge": "EVENTOS COMUNITARIOS",
       "title1": "Desafíos de",
       "title2": "Arte de IA",
-      "desc": "La plataforma proporciona el mensaje básico. Tú generas el arte. La comunidad vota. El mejor gana InkCoins y reconocimiento eterno."
+      "desc": "La plataforma proporciona el mensaje básico. Tú generas el arte. La comunidad vota. El mejor gana Aura y reconocimiento eterno."
     },
     "filter": {
       "allTypes": "Todos los tipos",
@@ -668,6 +699,7 @@
       "emailPlaceholder": "tu@correo electrónico.com",
       "emailRequired": "Se requiere correo electrónico",
       "emailInvalid": "Introduce un correo electrónico válido",
+      "emailValid": "Correo electrónico válido",
       "category": "Categoría",
       "subject": "Sujeto",
       "subjectPlaceholder": "¿Cómo podemos ayudarte?",
@@ -719,6 +751,10 @@
     "sortChapters": "Más capítulos",
     "statusAll": "Todos",
     "statusHiatus": "Pausado",
+    "recentSearches": "Búsquedas recientes",
+    "clearRecent": "Limpiar búsquedas recientes",
+    "removeRecent": "Eliminar",
+    "pressEnterToSearch": "Presiona Enter para buscar",
     "advancedTitle": "Búsqueda Avanzada",
     "iaTitle": "Buscar IA",
     "by": "Por ",
@@ -765,6 +801,7 @@
       "reportReason": "Motivo del reporte",
       "maxLengthError": "La descripción no puede exceder 1000 caracteres",
       "invalidUrl": "La URL de evidencia no es válida",
+      "validUrl": "URL de evidencia válida",
       "connectionError": "Error de conexión. Inténtalo de nuevo.",
       "submitError": "Error al enviar el reporte",
       "targetTypeChapterDesc": "Reportar un capítulo específico",
@@ -829,7 +866,7 @@
         },
         "isItFree": {
           "q": "¿MangaAura es gratis?",
-          "a": "Sí, la mayoría del contenido es gratuito. Algunos mangas premium o funciones exclusivas pueden requerir suscripción o Ink Coins, nuestra moneda virtual."
+          "a": "Sí, la mayoría del contenido es gratuito. Algunos mangas premium o funciones exclusivas pueden requerir suscripción o Aura, nuestra moneda virtual."
         },
         "howToCreateAccount": {
           "q": "¿Cómo creo una cuenta?",
@@ -871,7 +908,7 @@
         },
         "monetize": {
           "q": "¿Puedo monetizar mi manga?",
-          "a": "Sí, a través de nuestro sistema de patrocinios e Ink Coins. Los lectores pueden apoyarte directamente y recibes una parte de los ingresos."
+          "a": "Sí, a través de nuestro sistema de patrocinios e Aura. Los lectores pueden apoyarte directamente y recibes una parte de los ingresos."
         },
         "formats": {
           "q": "¿Qué formatos de imagen se aceptan?",
@@ -883,8 +920,8 @@
           "q": "¿Cómo recupero mi contraseña?",
           "a": "En la página de inicio de sesión, haz clic en '¿Olvidaste tu contraseña?' y sigue las instrucciones. Recibirás un email para restablecerla."
         },
-        "whatAreInkCoins": {
-          "q": "¿Qué son los Ink Coins?",
+        "whatIsAura": {
+          "q": "¿Qué son los Aura?",
           "a": "Son la moneda virtual de MangaAura. Puedes usarlos para desbloquear capítulos premium, apoyar a creadores y comprar funciones especiales."
         },
         "deleteAccount": {
@@ -984,7 +1021,7 @@
     "tipSent": "Propina enviada",
     "tipReceived": "Propina recibida",
     "crowdfund": "Contribución de crowdfunding",
-    "purchase": "Compra de InkCoins",
+    "purchase": "Compra de Aura",
     "xpEarned": "XP ganado"
   },
   "collections": {
@@ -1097,7 +1134,7 @@
     "deleteUser": "Eliminar Usuario",
     "userProfile": "Perfil de Usuario",
     "xpPoints": "Puntos XP",
-    "inkCoins": "InkCoins",
+    "aura": "Aura",
     "readingStreak": "Racha de Lectura",
     "mangasCreated": "Mangas Creados",
     "chaptersUploaded": "Capítulos Subidos",
@@ -1135,11 +1172,16 @@
     "crowdfundingDesc": "Habilitar crowdfunding de capítulos",
     "clanes": "Clanes",
     "clanesDesc": "Habilitar creación y participación en clanes",
-    "uploadsEconomy": "Subidas y Economía",
-    "maxUploadSize": "Tamaño máximo de subida (MB)",
-    "minimumPayout": "Pago mínimo (InkCoins)",
-    "inkcoinsPerChapter": "InkCoins por capítulo leído",
-    "xpPerChapter": "XP por capítulo leído",
+    "uploadsEconomy": "Subidas y Economía",      "maxUploadSize": "Tamaño máximo de subida (MB)",
+      "maxUploadSizeMin": "Mínimo 1 MB",
+      "maxUploadSizeMax": "Máximo 50 MB",
+      "maxUploadSizeValid": "Tamaño válido",      "minimumPayout": "Pago mínimo (Aura)",
+      "minimumPayoutMin": "Mínimo 100 Aura",
+      "minimumPayoutValid": "Pago válido",      "auraPerChapter": "Aura por capítulo leído",
+      "auraPerChapterValid": "Valor válido",
+      "auraPerChapterMin": "Mínimo 0",      "xpPerChapter": "XP por capítulo leído",
+      "xpPerChapterValid": "Valor válido",
+      "xpPerChapterMin": "Mínimo 0",
     "allowedImageTypes": "Tipos de imagen permitidos",
     "savedCorrectly": "Configuración guardada correctamente",
     "errorLoadingSettings": "Error al cargar la configuración",
@@ -1147,40 +1189,43 @@
     "retry": "Reintentar",
     "accessDenied": "Acceso Denegado",
     "accessDeniedDesc": "No tienes permiso para acceder a esta página. Esta área está restringida solo para administradores.",
-    "goHome": "Ir al Inicio"
+    "goHome": "Ir al Inicio",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "emailInvalid": "Introduce un correo electrónico válido",
+    "validEmail": "Correo electrónico válido"
   },
   "checkout": {
-    "title": "Obtén InkCoins",
-    "badge": "Compra InkCoins",
-    "description": "Usa InkCoins para dar propinas a tus creadores favoritos, patrocinar capítulos y apoyar el contenido que amas.",
+    "title": "Obtén Aura",
+    "badge": "Compra Aura",
+    "description": "Usa Aura para dar propinas a tus creadores favoritos, patrocinar capítulos y apoyar el contenido que amas.",
     "loginRequired": "Inicia sesión",
-    "loginRequiredDesc": "Debes iniciar sesión para comprar InkCoins",
+    "loginRequiredDesc": "Debes iniciar sesión para comprar Aura",
     "login": "Iniciar sesión",
     "popular": "Popular",
-    "inkCoins": "InkCoins",
+    "aura": "Aura",
     "buy": "Comprar",
     "save": "Ahorra",
     "securePayment": "Pago seguro",
     "securePaymentDesc": "Procesado por Stripe con encriptación SSL de 256 bits",
     "instantDelivery": "Entrega inmediata",
-    "instantDeliveryDesc": "Los InkCoins se añaden a tu cuenta al completar el pago",
+    "instantDeliveryDesc": "Los Aura se añaden a tu cuenta al completar el pago",
     "noExpiration": "Sin expiración",
-    "noExpirationDesc": "Tus InkCoins nunca expiran, úsalos cuando quieras",
+    "noExpirationDesc": "Tus Aura nunca expiran, úsalos cuando quieras",
     "faq": "Preguntas frecuentes",
-    "faq1Q": "¿Qué puedo hacer con los InkCoins?",
+    "faq1Q": "¿Qué puedo hacer con los Aura?",
     "faq1A": "Puedes dar propinas a creadores, patrocinar capítulos para que se publiquen más rápido, y participar en eventos especiales de la comunidad.",
-    "faq2Q": "¿Los InkCoins tienen fecha de expiración?",
-    "faq2A": "No, tus InkCoins nunca expiran. Una vez comprados, permanecen en tu cuenta indefinidamente.",
+    "faq2Q": "¿Los Aura tienen fecha de expiración?",
+    "faq2A": "No, tus Aura nunca expiran. Una vez comprados, permanecen en tu cuenta indefinidamente.",
     "faq3Q": "¿Puedo obtener reembolso?",
-    "faq3A": "Los InkCoins son bienes digitales y generalmente no son reembolsables. Contáctanos si tienes algún problema con tu compra.",
+    "faq3A": "Los Aura son bienes digitales y generalmente no son reembolsables. Contáctanos si tienes algún problema con tu compra.",
     "success": {
       "title": "¡Compra exitosa!",
-      "desc": "Tus InkCoins han sido añadidos a tu cuenta.",
-      "added": "InkCoins añadidos",
+      "desc": "Tus Aura han sido añadidos a tu cuenta.",
+      "added": "Aura añadidos",
       "verifying": "Verificando tu compra...",
       "verifyingDesc": "Esto solo tomará un momento",
       "error": "Error al verificar la compra",
-      "errorDesc": "No pudimos confirmar tu pago. Si fuiste cobrado, los InkCoins se añadirán automáticamente.",
+      "errorDesc": "No pudimos confirmar tu pago. Si fuiste cobrado, los Aura se añadirán automáticamente.",
       "goLibrary": "Ir a mi biblioteca",
       "contactSupport": "Contactar soporte",
       "exploreManga": "Explorar mangas"
@@ -1339,7 +1384,7 @@
     "loadError": "Error al cargar la configuración",
     "publishedManga": "Mangas publicados",
     "totalViews": "Vistas totales",
-    "inkCoins": "InkCoins",
+    "aura": "Aura",
     "creatorProfile": "Perfil de Creador",
     "username": "Nombre de usuario",
     "usernameCantChange": "No se puede cambiar",
@@ -1371,7 +1416,7 @@
     "connect": "Conectar",
     "tipsReceived": "Propinas recibidas",
     "currentBalance": "Balance actual",
-    "inkCoinsInTips": "InkCoins en propinas",
+    "auraInTips": "Aura en propinas",
     "minPayout": "Pago mínimo para retiro:",
     "memberSince": "Miembro desde",
     "retry": "Reintentar"
@@ -1523,6 +1568,39 @@
     "claim": "Reclamar +{xp} XP{coins}",
     "expired": "Expirado"
   },
+  "clanCreate": {
+    "title": "Crear Nuevo Clan",
+    "subtitle": "Funda tu propio clan y reúne a otros lectores para competir juntos",
+    "nameLabel": "Nombre del Clan",
+    "namePlaceholder": "Ej: Los Guardianes de la Lectura",
+    "nameMin": "El nombre debe tener al menos 3 caracteres",
+    "nameMax": "El nombre no puede exceder 50 caracteres",
+    "nameValid": "Nombre válido",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Describe tu clan, sus objetivos y qué tipo de miembros buscas...",
+    "emblemLabel": "Emblema del Clan",
+    "emblemHint": "JPEG, PNG, WebP, GIF o AVIF. Máximo 5MB.",
+    "emblemUploading": "Subiendo...",
+    "emblemChange": "Toca para cambiar imagen",
+    "emblemUpload": "Subir emblema del clan",
+    "preview": "Vista Previa",
+    "noDescription": "Sin descripción",
+    "submit": "Crear Clan",
+    "submitting": "Creando...",
+    "cancel": "Cancelar",
+    "charactersSuffix": "caracteres",
+    "infoTitle": "¿Qué es un Clan?",
+    "infoItem1": "Los clanes compiten entre sí en temporadas mensuales",
+    "infoItem2": "Gana puntos para tu clan leyendo manga y haciendo correcciones",
+    "infoItem3": "Los mejores clanes reciben recompensas al final de cada temporada",
+    "infoItem4": "Solo puedes ser miembro de un clan a la vez",
+    "infoItem5": "El creador del clan será el líder automáticamente",
+    "errorGeneric": "Error al crear el clan",
+    "errorImageType": "Formato de imagen no soportado. Usa JPEG, PNG, WebP, GIF o AVIF.",
+    "errorImageSize": "La imagen es demasiado grande. Máximo 5MB.",
+    "errorImageUpload": "Error al subir la imagen",
+    "backToClans": "Volver a Clanes"
+  },
   "clansFilter": {
     "searchPlaceholder": "Buscar clanes...",
     "searchLabel": "Buscar clanes",
@@ -1565,6 +1643,11 @@
     "errorLeave": "Error al salir del clan",
     "errorJoin": "Error al unirse al clan"
   },
+  "creatorUpload": {
+    "chapterNumberInvalid": "Debe ser un número entero positivo",
+    "chapterNumberRequired": "El número de capítulo es obligatorio",
+    "chapterNumberValid": "Número de capítulo válido"
+  },
   "newThread": {
     "category": "Categoría",
     "title": "Título",
@@ -1576,6 +1659,13 @@
     "removeTag": "Eliminar etiqueta",
     "publishThread": "Publicar hilo",
     "creatorOnly": "Solo los creadores y administradores pueden crear hilos",
+    "errorTitleMin": "El título debe tener al menos 1 carácter",
+    "errorTitleMax": "El título no puede exceder 200 caracteres",
+    "errorContentMin": "El contenido debe tener al menos 1 carácter",
+    "errorContentMax": "El contenido no puede exceder 10,000 caracteres",
+    "errorCategoryRequired": "Selecciona una categoría",
+    "titleValid": "Título válido",
+    "contentValid": "Contenido válido",
     "errorCreating": "Error al crear el hilo",
     "errorGeneric": "Error al crear"
   },
@@ -1591,6 +1681,11 @@
     "login": "Iniciar sesión"
   },
   "forumReply": {
+    "errorContentMin": "La respuesta debe tener al menos 1 carácter",
+    "errorContentMax": "La respuesta no puede exceder 10,000 caracteres",
+    "errorContentMin": "La respuesta debe tener al menos 1 carácter",
+    "errorContentMax": "La respuesta no puede exceder 10,000 caracteres",
+    "contentValid": "Respuesta válida",
     "errorSending": "Error al enviar respuesta",
     "errorGeneric": "Error al enviar",
     "replyToThread": "Responder al hilo",
