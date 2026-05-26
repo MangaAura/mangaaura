@@ -4,7 +4,6 @@ import {
   Shield,
   Search,
   Loader2,
-  AlertTriangle,
   Info,
   AlertCircle,
   XCircle,
@@ -23,16 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { fetcher } from '@/lib/swr-config';
 
 interface AuditLogEntry {
   id: string;
   userId: string | null;
-  action: string;
   targetId: string | null;
   targetType: string | null;
+  action: string;
   severity: string;
   createdAt: string;
-  user?: { id: string; username: string; displayName: string | null } | null;
+  user: { username: string; displayName: string | null } | null;
 }
 
 interface AuditLogResponse {
@@ -40,45 +40,31 @@ interface AuditLogResponse {
   total: number;
 }
 
-const SEVERITY_ICONS: Record<string, React.ReactNode> = {
-  INFO: <Info className="w-4 h-4" />,
-  WARNING: <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />,
-  ERROR: <XCircle className="w-4 h-4 text-[var(--error)]" />,
-  CRITICAL: <AlertCircle className="w-4 h-4 text-[var(--error)]" />,
-};
+const ACTION_OPTIONS = [
+  'USER_LOGIN',
+  'USER_REGISTER',
+  'USER_UPDATE',
+  'USER_DELETE',
+  'BAN_CREATE',
+  'BAN_REMOVE',
+  'ROLE_UPDATE',
+  'CONTENT_DELETE',
+  'SUSPICIOUS_ACTIVITY',
+];
 
 const SEVERITY_COLORS: Record<string, string> = {
-  INFO: 'default',
+  INFO: 'secondary',
   WARNING: 'warning',
   ERROR: 'destructive',
   CRITICAL: 'destructive',
 };
 
-const ACTION_OPTIONS = [
-  'USER_LOGIN',
-  'USER_LOGOUT',
-  'USER_BANNED',
-  'USER_UNBANNED',
-  'USER_PROMOTED',
-  'USER_DEMOTED',
-  'MANGA_CREATED',
-  'MANGA_UPDATED',
-  'MANGA_DELETED',
-  'MANGA_HIDDEN',
-  'CHAPTER_CREATED',
-  'CHAPTER_UPDATED',
-  'CHAPTER_DELETED',
-  'CHAPTER_HIDDEN',
-  'COMMENT_DELETED',
-  'COMMENT_HIDDEN',
-  'REPORT_ASSIGNED',
-  'REPORT_RESOLVED',
-  'DMCA_REVIEWED',
-  'ADMIN_ACTION',
-  'SUSPICIOUS_ACTIVITY',
-];
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const SEVERITY_ICONS: Record<string, React.ReactNode> = {
+  INFO: <Info className="w-3 h-3" />,
+  WARNING: <AlertCircle className="w-3 h-3" />,
+  ERROR: <XCircle className="w-3 h-3" />,
+  CRITICAL: <XCircle className="w-3 h-3" />,
+};
 
 function buildUrl(filters: Record<string, string>) {
   const params = new URLSearchParams();

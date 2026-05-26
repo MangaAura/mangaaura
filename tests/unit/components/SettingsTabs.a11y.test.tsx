@@ -47,7 +47,10 @@ const mockUser = {
   emailPreferences: {
     newsletter: true,
     newFollowers: true,
+    commentReplies: true,
+    commentLikes: true,
     newComments: true,
+    commentMentions: true,
     chapterUpdates: true,
     achievements: true,
     marketing: false,
@@ -69,7 +72,7 @@ describe('SettingsTabs — Accessibility', () => {
     render(<SettingsTabs user={mockUser} />);
 
     const tabs = screen.getAllByRole('tab');
-    expect(tabs).toHaveLength(6);
+    expect(tabs).toHaveLength(7);
 
     // First tab (profile) should be selected by default
     const profileTab = screen.getByRole('tab', { name: /perfil/i });

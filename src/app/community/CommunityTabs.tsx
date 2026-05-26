@@ -11,7 +11,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import ClanCard from '@/components/Clan/ClanCard';
 import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
@@ -47,6 +47,26 @@ export default function CommunityTabs({
   const [activeTab, setActiveTab] = useState<Tab>('clans');
   const t = useT();
 
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '') as Tab;
+    if (hash === 'clans' || hash === 'events' || hash === 'polls') {
+      setActiveTab(hash);
+    }
+    const onHashChange = () => {
+      const newHash = window.location.hash.replace('#', '') as Tab;
+      if (newHash === 'clans' || newHash === 'events' || newHash === 'polls') {
+        setActiveTab(newHash);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    window.location.hash = tab;
+  };
+
   const tabCls = (tab: Tab, activeColor: string) =>
     `px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
       activeTab === tab
@@ -68,15 +88,18 @@ export default function CommunityTabs({
         </div>
 
         <div role="tablist" aria-label="Secciones de la comunidad" className="flex bg-[var(--surface-elevated)] rounded-xl p-1 border border-[var(--border)] shadow-sm">
-          <button role="tab" aria-selected={activeTab === 'clans'} aria-controls="community-clans-panel" tabIndex={activeTab === 'clans' ? 0 : -1} onClick={() => setActiveTab('clans')} className={tabCls('clans', 'text-[var(--accent-purple)]')}>
+          <button role="tab" aria-selected={activeTab === 'clans'} aria-controls="community-clans-panel" tabIndex={activeTab === 'clans' ? 0 : -1} onClick={() => handleTabChange('clans')} className={tabCls('clans', 'text-[var(--accent-purple)]')}>
             <Trophy size={16} aria-hidden="true" /> {t('community.clansTab')}
           </button>
-          <button role="tab" aria-selected={activeTab === 'events'} aria-controls="community-events-panel" tabIndex={activeTab === 'events' ? 0 : -1} onClick={() => setActiveTab('events')} className={tabCls('events', 'text-[var(--warning)]')}>
+          <button role="tab" aria-selected={activeTab === 'events'} aria-controls="community-events-panel" tabIndex={activeTab === 'events' ? 0 : -1} onClick={() => handleTabChange('events')} className={tabCls('events', 'text-[var(--warning)]')}>
             <Calendar size={16} aria-hidden="true" /> {t('community.eventsTab')}
           </button>
-          <button role="tab" aria-selected={activeTab === 'polls'} aria-controls="community-polls-panel" tabIndex={activeTab === 'polls' ? 0 : -1} onClick={() => setActiveTab('polls')} className={tabCls('polls', 'text-[var(--primary)]')}>
+          <button role="tab" aria-selected={activeTab === 'polls'} aria-controls="community-polls-panel" tabIndex={activeTab === 'polls' ? 0 : -1} onClick={() => handleTabChange('polls')} className={tabCls('polls', 'text-[var(--primary)]')}>
             <BarChart3 size={16} aria-hidden="true" /> Encuestas
           </button>
+          <Link href="/community/rules" className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]">
+            <Users size={16} aria-hidden="true" /> {t('community.rulesTab')}
+          </Link>
                   </div>
       </header>
 

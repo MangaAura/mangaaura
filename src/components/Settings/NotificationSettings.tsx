@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Mail, Bell, MessageSquare, BookOpen, Trophy, Heart } from 'lucide-react';
+import { Mail, Bell, MessageSquare, BookOpen, Trophy, Heart, AtSign, ThumbsUp, Reply } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
@@ -16,7 +16,10 @@ interface NotificationSettingsProps {
   preferences: {
     newsletter: boolean;
     newFollowers: boolean;
+    commentReplies: boolean;
+    commentLikes: boolean;
     newComments: boolean;
+    commentMentions: boolean;
     chapterUpdates: boolean;
     achievements: boolean;
     marketing: boolean;
@@ -37,10 +40,28 @@ const notificationTypes = [
     icon: Heart,
   },
   {
+    id: 'commentReplies',
+    label: 'Respuestas a comentarios',
+    description: 'Cuando alguien responde a un comentario tuyo',
+    icon: Reply,
+  },
+  {
+    id: 'commentLikes',
+    label: 'Likes en comentarios',
+    description: 'Cuando alguien da like a un comentario tuyo',
+    icon: ThumbsUp,
+  },
+  {
     id: 'newComments',
-    label: 'Comentarios y respuestas',
-    description: 'Cuando alguien comenta en tus publicaciones o te responde',
+    label: 'Nuevos comentarios en tu manga',
+    description: 'Cuando alguien comenta en un manga que has creado',
     icon: MessageSquare,
+  },
+  {
+    id: 'commentMentions',
+    label: 'Menciones',
+    description: 'Cuando alguien te menciona (@usuario) en un comentario',
+    icon: AtSign,
   },
   {
     id: 'chapterUpdates',

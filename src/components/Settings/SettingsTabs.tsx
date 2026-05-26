@@ -1,9 +1,10 @@
 'use client';
 
-import { User, Bell, Shield, Lock, Palette, Eye } from 'lucide-react';
+import { User, Bell, Shield, Lock, Palette, Eye, UserCog } from 'lucide-react';
 import { useState } from 'react';
 
 import { AccessibilitySettings } from './AccessibilitySettings';
+import { AccountSettings } from './AccountSettings';
 import { AppearanceSettings } from './AppearanceSettings';
 import { NotificationSettings } from './NotificationSettings';
 import { PrivacySettings } from './PrivacySettings';
@@ -20,7 +21,10 @@ interface User {
   emailPreferences: {
     newsletter: boolean;
     newFollowers: boolean;
+    commentReplies: boolean;
+    commentLikes: boolean;
     newComments: boolean;
+    commentMentions: boolean;
     chapterUpdates: boolean;
     achievements: boolean;
     marketing: boolean;
@@ -36,6 +40,7 @@ const tabs = [
   { id: 'notifications', label: 'Notificaciones', icon: Bell },
   { id: 'privacy', label: 'Privacidad', icon: Shield },
   { id: 'security', label: 'Seguridad', icon: Lock },
+  { id: 'account', label: 'Cuenta', icon: UserCog },
   { id: 'appearance', label: 'Apariencia', icon: Palette },
   { id: 'accessibility', label: 'Accesibilidad', icon: Eye },
 ];
@@ -102,6 +107,7 @@ export function SettingsTabs({ user }: SettingsTabsProps) {
         )}
         {activeTab === 'privacy' && <div role="tabpanel" id="panel-privacy" aria-labelledby="tab-privacy" tabIndex={0}><PrivacySettings userId={user.id} /></div>}
         {activeTab === 'security' && <div role="tabpanel" id="panel-security" aria-labelledby="tab-security" tabIndex={0}><SecuritySettings userId={user.id} /></div>}
+        {activeTab === 'account' && <div role="tabpanel" id="panel-account" aria-labelledby="tab-account" tabIndex={0}><AccountSettings userId={user.id} /></div>}
         {activeTab === 'appearance' && <div role="tabpanel" id="panel-appearance" aria-labelledby="tab-appearance" tabIndex={0}><AppearanceSettings /></div>}
         {activeTab === 'accessibility' && <div role="tabpanel" id="panel-accessibility" aria-labelledby="tab-accessibility" tabIndex={0}><AccessibilitySettings /></div>}
       </div>

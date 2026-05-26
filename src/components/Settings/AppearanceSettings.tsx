@@ -1,9 +1,10 @@
 ﻿'use client';
 
-import { Sun, Moon, Monitor, Check, Palette, Layout, Type } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Sun, Moon, Monitor, Check, Palette, Layout, Type, Paintbrush } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
@@ -12,10 +13,85 @@ type Theme = 'light' | 'dark' | 'system';
 type FontSize = 'small' | 'normal' | 'large';
 type LayoutDensity = 'compact' | 'normal' | 'comfortable';
 
+const PRESET_COLORS = [
+  { name: 'Indigo', light: '#5f5fe8', dark: '#818cf8' },
+  { name: 'Violeta', light: '#7c3aed', dark: '#a78bfa' },
+  { name: 'Azul', light: '#3b82f6', dark: '#60a5fa' },
+  { name: 'Verde', light: '#059669', dark: '#34d399' },
+  { name: 'Rojo', light: '#dc2626', dark: '#f87171' },
+  { name: 'Rosa', light: '#ec4899', dark: '#f472b6' },
+];
+
+function parseHex(hex: string) {
+  const cleaned = hex.replace('#', '');
+  const num = parseInt(cleaned, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+
+function toHex(r: number, g: number, b: number) {
+  return `#${[r, g, b].map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')}`;
+}
+
+function lighten(hex: string, amount: number) {
+  const { r, g, b } = parseHex(hex);
+  const lr = Math.min(255, r + (255 - r) * amount);
+  const lg = Math.min(255, g + (255 - g) * amount);
+  const lb = Math.min(255, b + (255 - b) * amount);
+  return toHex(lr, lg, lb);
+}
+
+function darken(hex: string, amount: number) {
+  const { r, g, b } = parseHex(hex);
+  return toHex(r * (1 - amount), g * (1 - amount), b * (1 - amount));
+}
+
+function hexToRgbValues(hex: string) {
+  const { r, g, b } = parseHex(hex);
+  return { r, g, b };
+}
+
+function applyPrimaryColor(lightColor: string, darkColor: string) {
+  const root = document.documentElement;
+
+  const lightRgb = hexToRgbValues(lightColor);
+  const darkRgb = hexToRgbValues(darkColor);
+
+  const lightHover = darken(lightColor, 0.12);
+  const lightSubtle = `rgba(${lightRgb.r}, ${lightRgb.g}, ${lightRgb.b}, 0.1)`;
+
+  const darkHover = lighten(darkColor, 0.1);
+  const darkSubtle = `rgba(${darkRgb.r}, ${darkRgb.g}, ${darkRgb.b}, 0.15)`;
+
+  root.style.setProperty('--primary', lightColor);
+  root.style.setProperty('--primary-hover', lightHover);
+  root.style.setProperty('--primary-subtle', lightSubtle);
+  root.style.setProperty('--primary-r', String(lightRgb.r));
+  root.style.setProperty('--primary-g', String(lightRgb.g));
+  root.style.setProperty('--primary-b', String(lightRgb.b));
+
+  root.style.setProperty('--dark-primary', darkColor);
+  root.style.setProperty('--dark-primary-hover', darkHover);
+  root.style.setProperty('--dark-primary-subtle', darkSubtle);
+  root.style.setProperty('--dark-primary-r', String(darkRgb.r));
+  root.style.setProperty('--dark-primary-g', String(darkRgb.g));
+  root.style.setProperty('--dark-primary-b', String(darkRgb.b));
+
+  const isDark = root.classList.contains('dark');
+  if (isDark) {
+    root.style.setProperty('--primary', darkColor);
+    root.style.setProperty('--primary-hover', darkHover);
+    root.style.setProperty('--primary-subtle', darkSubtle);
+    root.style.setProperty('--primary-r', String(darkRgb.r));
+    root.style.setProperty('--primary-g', String(darkRgb.g));
+    root.style.setProperty('--primary-b', String(darkRgb.b));
+  }
+}
+
 export function AppearanceSettings() {
   const [theme, setTheme] = useState<Theme>('dark');
   const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [layoutDensity, setLayoutDensity] = useState<LayoutDensity>('normal');
+  const [primaryColor, setPrimaryColor] = useState('#5f5fe8');
   const { toast } = useToast();
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,13 +100,17 @@ export function AppearanceSettings() {
     const savedTheme = localStorage.getItem('theme') as Theme;
     const savedFontSize = localStorage.getItem('fontSize') as FontSize;
     const savedLayout = localStorage.getItem('layoutDensity') as LayoutDensity;
+    const savedColor = localStorage.getItem('primaryColor');
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedTheme) setTheme(savedTheme);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedFontSize) setFontSize(savedFontSize);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedLayout) setLayoutDensity(savedLayout);
+    if (savedColor) {
+      setPrimaryColor(savedColor);
+      const stored = localStorage.getItem('primaryColorDark');
+      const darkColor = stored || lighten(savedColor, 0.35);
+      applyPrimaryColor(savedColor, darkColor);
+    }
   }, []);
 
   const handleThemeChange = (newTheme: Theme) => {
@@ -39,17 +119,48 @@ export function AppearanceSettings() {
 
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
+      const darkP = localStorage.getItem('primaryColorDark') || lighten(primaryColor, 0.35);
+      const rgb = hexToRgbValues(darkP);
+      document.documentElement.style.setProperty('--primary', darkP);
+      document.documentElement.style.setProperty('--primary-r', String(rgb.r));
+      document.documentElement.style.setProperty('--primary-g', String(rgb.g));
+      document.documentElement.style.setProperty('--primary-b', String(rgb.b));
     } else if (newTheme === 'light') {
       document.documentElement.classList.remove('dark');
+      const rgb = hexToRgbValues(primaryColor);
+      document.documentElement.style.setProperty('--primary', primaryColor);
+      document.documentElement.style.setProperty('--primary-r', String(rgb.r));
+      document.documentElement.style.setProperty('--primary-g', String(rgb.g));
+      document.documentElement.style.setProperty('--primary-b', String(rgb.b));
     } else {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (prefersDark) {
         document.documentElement.classList.add('dark');
+        const darkP = localStorage.getItem('primaryColorDark') || lighten(primaryColor, 0.35);
+        const rgb = hexToRgbValues(darkP);
+        document.documentElement.style.setProperty('--primary', darkP);
+        document.documentElement.style.setProperty('--primary-r', String(rgb.r));
+        document.documentElement.style.setProperty('--primary-g', String(rgb.g));
+        document.documentElement.style.setProperty('--primary-b', String(rgb.b));
       } else {
         document.documentElement.classList.remove('dark');
+        const rgb = hexToRgbValues(primaryColor);
+        document.documentElement.style.setProperty('--primary', primaryColor);
+        document.documentElement.style.setProperty('--primary-r', String(rgb.r));
+        document.documentElement.style.setProperty('--primary-g', String(rgb.g));
+        document.documentElement.style.setProperty('--primary-b', String(rgb.b));
       }
     }
   };
+
+  const handlePrimaryColorChange = useCallback((hex: string) => {
+    setPrimaryColor(hex);
+    setIsDirty(true);
+    const lightened = lighten(hex, 0.35);
+    localStorage.setItem('primaryColor', hex);
+    localStorage.setItem('primaryColorDark', lightened);
+    applyPrimaryColor(hex, lightened);
+  }, []);
 
   const handleFontSizeChange = (size: FontSize) => {
     setFontSize(size);
@@ -165,6 +276,45 @@ export function AppearanceSettings() {
 
       <div className="pt-6 border-t border-[var(--border)]">
         <div className="flex items-center gap-2 mb-4">
+          <Paintbrush className="w-5 h-5 text-[var(--primary)]" />
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">Color primario</h2>
+        </div>
+        <p className="text-sm text-[var(--text-secondary)] mb-4">
+          Personaliza el color principal de la aplicación
+        </p>
+
+        <div className="flex flex-wrap gap-3 mb-4">
+          {PRESET_COLORS.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => handlePrimaryColorChange(preset.light)}
+              className={cn(
+                'w-10 h-10 rounded-full border-2 transition-all cursor-pointer',
+                primaryColor === preset.light
+                  ? 'border-[var(--text-primary)] scale-110'
+                  : 'border-transparent hover:scale-110'
+              )}
+              style={{ backgroundColor: preset.light }}
+              title={preset.name}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Input
+            type="color"
+            value={primaryColor}
+            onChange={(e) => handlePrimaryColorChange(e.target.value)}
+            className="w-10 h-10 p-0.5 cursor-pointer border [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-md"
+          />
+          <span className="text-sm text-[var(--text-secondary)] font-mono">
+            {primaryColor}
+          </span>
+        </div>
+      </div>
+
+      <div className="pt-6 border-t border-[var(--border)]">
+        <div className="flex items-center gap-2 mb-4">
           <Type className="w-5 h-5 text-[var(--primary)]" />
           <h2 className="text-xl font-semibold text-[var(--text-primary)]">Tamaño de texto</h2>
         </div>
@@ -269,6 +419,10 @@ export function AppearanceSettings() {
               setTheme('dark');
               setFontSize('normal');
               setLayoutDensity('normal');
+              setPrimaryColor('#5f5fe8');
+              localStorage.removeItem('primaryColor');
+              localStorage.removeItem('primaryColorDark');
+              applyPrimaryColor('#5f5fe8', '#818cf8');
               setIsDirty(false);
             }}
           >

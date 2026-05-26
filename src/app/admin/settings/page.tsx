@@ -35,24 +35,23 @@ import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { fetcher } from '@/lib/swr-config';
 
 interface SiteSettings {
   siteName: string;
+  defaultLanguage: string;
   siteDescription: string;
   maintenanceMode: boolean;
-  maxUploadSize: number;
-  allowedImageTypes: string[];
-  defaultLanguage: string;
   enableRegistrations: boolean;
   enableAI: boolean;
   enableCrowdfunding: boolean;
   enableClans: boolean;
+  maxUploadSize: number;
+  minimumPayoutAmount: number;
   auraRewardPerChapter: number;
   xpRewardPerChapter: number;
-  minimumPayoutAmount: number;
+  allowedImageTypes: string[];
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AdminSettingsPage() {
   const { data, error, isLoading } = useSWR<{ settings: SiteSettings; adminCount: number }>(

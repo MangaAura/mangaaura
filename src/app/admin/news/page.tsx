@@ -52,6 +52,33 @@ import {
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { fetcher } from '@/lib/swr-config';
+
+// ─── Constants ────────────────────────────────────────────────────────
+
+const CATEGORIES = [
+  { value: 'platform', label: 'Plataforma' },
+  { value: 'community', label: 'Comunidad' },
+  { value: 'tools', label: 'Herramientas' },
+  { value: 'mobile', label: 'Móvil' },
+  { value: 'contest', label: 'Concurso' },
+];
+
+const CATEGORY_COLORS: Record<string, string> = {
+  platform: 'from-blue-600/40 to-blue-600/10',
+  community: 'from-amber-600/40 to-amber-600/10',
+  tools: 'from-purple-600/40 to-purple-600/10',
+  mobile: 'from-green-600/40 to-green-600/10',
+  contest: 'from-red-600/40 to-red-600/10',
+};
+
+const CATEGORY_BADGE: Record<string, string> = {
+  platform: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+  community: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
+  tools: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
+  mobile: 'bg-green-500/15 text-green-400 border-green-500/20',
+  contest: 'bg-red-500/15 text-red-400 border-red-500/20',
+};
 
 interface NewsArticle {
   id: string;
@@ -64,46 +91,16 @@ interface NewsArticle {
   contentEn?: string | null;
   coverUrl: string | null;
   category: string;
-  authorId: string;
   isPublished: boolean;
   isFeatured: boolean;
   publishedAt: string | null;
   scheduledAt: string | null;
   createdAt: string;
-  updatedAt: string;
   author: {
-    id: string;
     username: string;
     displayName: string | null;
-    avatarUrl: string | null;
   };
 }
-
-const CATEGORIES = [
-  { value: 'platform', label: 'Plataforma' },
-  { value: 'community', label: 'Comunidad' },
-  { value: 'tools', label: 'Herramientas' },
-  { value: 'mobile', label: 'Móvil' },
-  { value: 'contest', label: 'Concurso' },
-];
-
-const CATEGORY_COLORS: Record<string, string> = {
-  platform: 'from-indigo-950/50 via-indigo-900/20 to-transparent',
-  community: 'from-amber-950/50 via-amber-900/20 to-transparent',
-  tools: 'from-sky-950/50 via-sky-900/20 to-transparent',
-  mobile: 'from-emerald-950/50 via-emerald-900/20 to-transparent',
-  contest: 'from-rose-950/50 via-rose-900/20 to-transparent',
-};
-
-const CATEGORY_BADGE: Record<string, string> = {
-  platform: 'bg-indigo-500/15 text-indigo-300',
-  community: 'bg-amber-500/15 text-amber-300',
-  tools: 'bg-sky-500/15 text-sky-300',
-  mobile: 'bg-emerald-500/15 text-emerald-300',
-  contest: 'bg-rose-500/15 text-rose-300',
-};
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // ─── Preview Component ───────────────────────────────────────────────
 

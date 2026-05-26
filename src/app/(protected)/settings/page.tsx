@@ -42,7 +42,10 @@ export default async function SettingsPage() {
   let emailPrefs = {
     newsletter: true,
     newFollowers: true,
+    commentReplies: true,
+    commentLikes: true,
     newComments: true,
+    commentMentions: true,
     chapterUpdates: true,
     achievements: true,
     marketing: false,

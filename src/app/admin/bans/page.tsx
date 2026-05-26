@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { fetcher } from '@/lib/swr-config';
 
 interface BanUser {
   id: string;
@@ -40,27 +41,23 @@ interface BanUser {
   email: string;
 }
 
-interface BanRecord {
+interface BanEntry {
   id: string;
   userId: string | null;
-  banType: 'SUSPENSION' | 'PERMANENT' | 'IP_BAN';
+  ipAddress: string | null;
+  banType: string;
   reason: string;
   reasonDetail: string | null;
-  ipAddress: string | null;
-  expiresAt: string | null;
   isActive: boolean;
-  issuedById: string;
   issuedAt: string;
-  liftedById: string | null;
+  expiresAt: string | null;
   liftedAt: string | null;
-  liftReason: string | null;
-  issuedBy: { id: string; username: string };
-  liftedBy: { id: string; username: string } | null;
   user: BanUser | null;
+  issuedBy: { username: string };
 }
 
 interface BansResponse {
-  bans: BanRecord[];
+  bans: BanEntry[];
 }
 
 interface UsersResponse {
@@ -69,16 +66,15 @@ interface UsersResponse {
 
 const REASON_CATEGORIES = [
   'Spam',
-  'Comportamiento tóxico',
-  'Estafa',
-  'Contenido inapropiado',
-  'Acoso',
-  'Violación de TOS',
-  'Multi-cuentas',
-  'Otro',
+  'Harassment',
+  'Inappropriate Content',
+  'Copyright Infringement',
+  'Impersonation',
+  'Bot/Automation',
+  'Security Violation',
+  'Terms of Service Violation',
+  'Other',
 ];
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 function getBanTypeColor(type: string) {
   switch (type) {

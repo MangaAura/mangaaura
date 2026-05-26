@@ -4,9 +4,10 @@ import { motion, useReducedMotion } from 'framer-motion';
 import {
   Newspaper,
   Star,
-  Smartphone,
   Palette,
+  Smartphone,
   Trophy,
+  Sparkles,
   LayoutGrid,
   ChevronLeft,
   ChevronRight,
@@ -23,15 +24,14 @@ import {
   getArticlePath,
   type DisplayNewsItem,
 } from '@/lib/news';
-
-const ARTICLES_PER_PAGE = 6;
+import { fetcher } from '@/lib/swr-config';
 
 const iconMap: Record<string, React.ReactNode> = {
-  community: <Star className="text-[var(--warning)]" size={20} />,
-  platform: <Palette className="text-accent-purple" size={20} />,
-  tools: <Smartphone className="text-accent-blue" size={20} />,
-  mobile: <Smartphone className="text-accent-green" size={20} />,
-  contest: <Trophy className="text-[var(--warning)]" size={20} />,
+  community: <Star size={16} aria-hidden="true" />,
+  platform: <Palette size={16} aria-hidden="true" />,
+  tools: <Sparkles size={16} aria-hidden="true" />,
+  mobile: <Smartphone size={16} aria-hidden="true" />,
+  contest: <Trophy size={16} aria-hidden="true" />,
 };
 
 const categoryLabelKey: Record<string, string> = {
@@ -44,38 +44,35 @@ const categoryLabelKey: Record<string, string> = {
 
 const categoryTheme: Record<string, string> = {
   community:
-    'bg-amber-500/15 text-amber-300 data-[active=true]:bg-amber-500/30 data-[active=true]:ring-1 data-[active=true]:ring-amber-500/40',
+    'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 data-[active=true]:bg-amber-500/20 data-[active=true]:text-amber-300 data-[active=true]:ring-1 data-[active=true]:ring-amber-500/30',
   platform:
-    'bg-indigo-500/15 text-indigo-300 data-[active=true]:bg-indigo-500/30 data-[active=true]:ring-1 data-[active=true]:ring-indigo-500/40',
+    'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 data-[active=true]:bg-indigo-500/20 data-[active=true]:text-indigo-300 data-[active=true]:ring-1 data-[active=true]:ring-indigo-500/30',
   tools:
-    'bg-sky-500/15 text-sky-300 data-[active=true]:bg-sky-500/30 data-[active=true]:ring-1 data-[active=true]:ring-sky-500/40',
+    'bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 data-[active=true]:bg-sky-500/20 data-[active=true]:text-sky-300 data-[active=true]:ring-1 data-[active=true]:ring-sky-500/30',
   mobile:
-    'bg-emerald-500/15 text-emerald-300 data-[active=true]:bg-emerald-500/30 data-[active=true]:ring-1 data-[active=true]:ring-emerald-500/40',
+    'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 data-[active=true]:bg-emerald-500/20 data-[active=true]:text-emerald-300 data-[active=true]:ring-1 data-[active=true]:ring-emerald-500/30',
   contest:
-    'bg-rose-500/15 text-rose-300 data-[active=true]:bg-rose-500/30 data-[active=true]:ring-1 data-[active=true]:ring-rose-500/40',
+    'bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 data-[active=true]:bg-rose-500/20 data-[active=true]:text-rose-300 data-[active=true]:ring-1 data-[active=true]:ring-rose-500/30',
 };
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.08,
-    },
+    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
   },
-} as const;
+};
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: 'easeOut' },
+    transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
   },
-} as const;
+};
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const ARTICLES_PER_PAGE = 12;
 
 export function NewsClient() {
   const t = useT();

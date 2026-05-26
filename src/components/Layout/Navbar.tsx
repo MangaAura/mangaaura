@@ -2,18 +2,19 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  BookOpen, Rss, MessageCircle, FolderOpen, Sparkles, Plus, Menu, X, ChevronDown,
+  Rss, MessageCircle, FolderOpen, Sparkles, Plus, Menu, X, ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useState, useSyncExternalStore } from 'react';
+import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 
 import { AuthSection } from './AuthSection';
 import { MobileMenu } from './MobileMenu';
 import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive, localeHref, getLocaleFromPath } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useScrolled } from '@/hooks/useScrolled';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -54,6 +55,41 @@ export default function Navbar() {
   });
 
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close the "Más" dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!moreOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const isOutsideDropdown = moreDropdownRef.current && !moreDropdownRef.current.contains(target);
+      const moreButton = document.querySelector('[data-more-toggle]');
+      const isOutsideToggle = moreButton && !moreButton.contains(target);
+
+      if (isOutsideDropdown && isOutsideToggle) {
+        setMoreOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMoreOpen(false);
+      }
+    };
+
+    // Defer adding the listener so the opening click doesn't immediately close it
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [moreOpen]);
 
   const handleSearch = (query: string) => {
     const locale = getLocaleFromPath(pathname);
@@ -74,11 +110,9 @@ export default function Navbar() {
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <Link href={localeHref(pathname, '/')} className="flex items-center gap-2 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20 group-hover:shadow-[var(--primary)]/30 group-hover:scale-105 transition-all duration-200">
-                  <BookOpen className="w-5 h-5 text-[var(--text-inverse)]" aria-hidden="true" />
-                </div>
                 <span className="text-xl font-bold tracking-tight">
-                  Manga<span className="text-[var(--primary)]">Aura</span>
+                  <RepeatedChar text="Manga" />
+                  <span className="text-[var(--primary)]"><RepeatedChar text="Aura" /></span>
                 </span>
               </Link>
 
@@ -91,28 +125,23 @@ export default function Navbar() {
                       className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] transition-all duration-200 cursor-pointer"
                       aria-expanded={moreOpen}
                       aria-haspopup="true"
+                      data-more-toggle
                     >
                       {t('common.more')}
                       <ChevronDown className={'w-3.5 h-3.5 transition-transform duration-200 ' + (moreOpen ? 'rotate-180' : '')} aria-hidden="true" />
                     </button>
                     <AnimatePresence>
                     {moreOpen && (
-                      <>
-                        <button
-                          className="fixed inset-0 z-10"
-                          onClick={() => setMoreOpen(false)}
-                          aria-label={t('common.close')}
-                        />
-                        <motion.div
-                          initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                          transition={{ duration: 0.15, ease: 'easeOut' }}
-                          className="absolute top-full left-0 mt-2 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl shadow-black/10 py-2 z-20 origin-top-left"
-                        >
-                          <NavLinks links={moreLinks} mounted={mounted} />
-                        </motion.div>
-                      </>
+                      <motion.div
+                        ref={moreDropdownRef}
+                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                        transition={{ type: 'spring', duration: 0.35, bounce: 0.15 }}
+                        className="absolute top-full left-0 mt-2 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl shadow-black/10 py-2 z-20 origin-top-left"
+                      >
+                        <NavLinks links={moreLinks} mounted={mounted} />
+                      </motion.div>
                     )}
                     </AnimatePresence>
                   </div>
@@ -201,13 +230,6 @@ export default function Navbar() {
                     )}
                   </Link>
 
-                  <Link
-                    href={localeHref(pathname, '/creator/manga/new')}
-                    className="group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
-                    title={t('creator.newManga')}
-                  >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                  </Link>
                 </div>
               )}
 
@@ -219,6 +241,16 @@ export default function Navbar() {
               <div className="hidden sm:block w-48 lg:w-64">
                 <SearchBar onSearch={handleSearch} placeholder={t('common.search')} />
               </div>
+
+              {mounted && isLoggedIn && (
+                <Link
+                  href={localeHref(pathname, '/creator/manga/new')}
+                  className="hidden sm:flex group relative items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
+                  title={t('creator.newManga')}
+                >
+                  <Plus className="w-4 h-4" aria-hidden="true" />
+                </Link>
+              )}
 
               <AuthSection
                 mounted={mounted}

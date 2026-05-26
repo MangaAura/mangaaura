@@ -13,24 +13,20 @@ import Link from 'next/link';
 import useSWR from 'swr';
 
 import { cn } from '@/lib/utils';
+import { fetcher } from '@/lib/swr-config';
 
 interface MangaTag {
   id: string;
-  name: string;
   slug: string;
-  description: string | null;
-  type: string;
-  color: string | null;
-  parentId: string | null;
-  parent?: { id: string; name: string; slug: string } | null;
+  name: string;
+  color?: string;
+  description?: string;
 }
 
 interface MangaTagsDisplayProps {
   mangaId: string;
   className?: string;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function MangaTagsDisplay({ mangaId, className }: MangaTagsDisplayProps) {
   const { data, error, isLoading } = useSWR<{ tags: MangaTag[] }>(

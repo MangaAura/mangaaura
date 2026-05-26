@@ -31,49 +31,30 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Switch } from '@/components/ui/Switch';
+import { fetcher } from '@/lib/swr-config';
 
-interface WebhookEndpoint {
-  id: string;
-  userId: string;
-  url: string;
-  secret: string;
-  events: string[];
-  isActive: boolean;
-  description: string | null;
-  lastTriggeredAt: string | null;
-  failureCount: number;
-  createdAt: string;
-  updatedAt: string;
-  recentDeliveries?: WebhookDelivery[];
-}
+import { AVAILABLE_EVENTS } from '@/core/services/WebhookService';
 
 interface WebhookDelivery {
   id: string;
-  endpointId: string;
   event: string;
-  payload: string;
   status: string;
   statusCode: number | null;
-  responseBody: string | null;
   durationMs: number | null;
-  attemptCount: number;
-  error: string | null;
   createdAt: string;
 }
 
-const AVAILABLE_EVENTS = [
-  'CHAPTER_PUBLISHED',
-  'MANGA_CREATED',
-  'MANGA_UPDATED',
-  'COMMENT_POSTED',
-  'USER_REGISTERED',
-  'ACHIEVEMENT_UNLOCKED',
-  'NEW_CHAPTER',
-  'CROWDFUNDING_GOAL_REACHED',
-  'SPONSORSHIP_BID_SUBMITTED',
-];
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+interface WebhookEndpoint {
+  id: string;
+  url: string;
+  description: string | null;
+  events: string[];
+  isActive: boolean;
+  lastTriggeredAt: string | null;
+  failureCount: number;
+  createdAt: string;
+  recentDeliveries?: WebhookDelivery[];
+}
 
 function DeliveryStatusBadge({ status }: { status: string }) {
   const config: Record<string, { variant: 'success' | 'destructive' | 'warning' | 'default'; icon: React.ElementType }> = {

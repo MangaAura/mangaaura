@@ -188,6 +188,13 @@ function Content() {
 
   const passwordStrength = getPasswordStrength(formData.password);
 
+  const PASSWORD_REQUIREMENTS: Array<{ key: string; test: (p: string) => boolean }> = [
+    { key: 'auth.validation.passwordMin', test: (p) => p.length >= 8 },
+    { key: 'auth.validation.passwordUppercase', test: (p) => /[A-Z]/.test(p) },
+    { key: 'auth.validation.passwordLowercase', test: (p) => /[a-z]/.test(p) },
+    { key: 'auth.validation.passwordNumber', test: (p) => /[0-9]/.test(p) },
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -445,6 +452,24 @@ function Content() {
 
               <div>
                 <label htmlFor="register-password" className="block text-sm font-semibold mb-2 text-fg-primary">{t('auth.password')}</label>
+                <div className="mb-3 space-y-2">
+                  <div className="flex gap-[3px] h-[6px]">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          'flex-1 rounded-full transition-all duration-300',
+                          i <= passwordStrength.score ? passwordStrength.color : 'bg-[var(--border)]'
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted">
+                    {t('auth.passwordStrengthLabel')} <span className={cn('font-medium', passwordStrength.color.replace('bg-', 'text-'))}>
+                      {passwordStrength.label}
+                    </span>
+                  </p>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" size={18} />
                   <input
@@ -474,26 +499,23 @@ function Content() {
   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
 </button>
                 </div>
-                {formData.password && (
-                  <div className="mt-2">
-                    <div className="flex gap-[3px] h-[6px]">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            'flex-1 rounded-full transition-all duration-300',
-                            i <= passwordStrength.score ? passwordStrength.color : 'bg-[var(--border)]'
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <p className="mt-1 text-xs text-muted">
-                      {t('auth.passwordStrengthLabel')} <span className={cn('font-medium', passwordStrength.color.replace('bg-', 'text-'))}>
-                        {passwordStrength.label}
-                      </span>
-                    </p>
-                  </div>
-                )}
+                <ul className="mt-3 space-y-1.5">
+                  {PASSWORD_REQUIREMENTS.map((req) => {
+                    const met = req.test(formData.password);
+                    return (
+                      <li key={req.key} className="flex items-center gap-2 text-xs">
+                        {met ? (
+                          <CheckCircle2 size={14} className="text-[var(--success)] flex-shrink-0" />
+                        ) : (
+                          <XCircle size={14} className="text-[var(--error)] flex-shrink-0" />
+                        )}
+                        <span className={met ? 'text-[var(--success)]' : 'text-muted'}>
+                          {t(req.key)}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
                 {errors.password && (
                   <div id={passwordErrorId} className="mt-2">
                     <ErrorMessage message={errors.password} />

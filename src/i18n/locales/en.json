@@ -637,6 +637,7 @@
     "subtitle": "Connect with other readers, compete in clans and participate in events",
     "clansTab": "Clans",
     "eventsTab": "Events",
+    "rulesTab": "Rules",
     "clanWars": "Clan Wars",
     "clanWarsDesc": "Read manga in groups to earn XP and climb the rankings!",
     "myClan": "My Clan",
@@ -647,7 +648,19 @@
     "noActiveEvents": "No active events right now. Check back soon!",
     "viewAllEventsLink": "View all events",
     "communityEvents": "Community Events",
-    "eventPrizes": "Participate and win exclusive prizes"
+    "eventPrizes": "Participate and win exclusive prizes",
+    "rulesTitle": "Community Rules",
+    "rulesDesc": "Let's keep MangaAura a safe and fun space for everyone.",
+    "rulesList": [
+      "Respect all members. Harassment, discrimination, or offensive language will not be tolerated.",
+      "Do not share illegal, copyrighted, or inappropriate content.",
+      "No spam or unauthorized promotions.",
+      "Use the appropriate channels for each type of content.",
+      "Do not share personal information about yourself or other users.",
+      "Follow the instructions of moderators and administrators.",
+      "Report any violations of these rules using the report system.",
+      "Non-compliance may result in suspension or permanent account deletion."
+    ]
   },
   "events": {
     "hero": {
@@ -758,6 +771,18 @@
       "title": "Message Sent!",
       "message": "Thank you for contacting us. We have received your message and will respond within 24-48 hours.",
       "sendAnother": "Send another message"
+    }
+  },
+  "contacto": {
+    "faq": {
+      "q1": "How do I report inappropriate content?",
+      "a1": "Use the contact form selecting the 'DMCA Report' category or visit our reports page. Our team will review the content within 24-48 hours.",
+      "q2": "How do I publish my manga on the platform?",
+      "a2": "If you are a creator and want to publish your manga on MangaAura, select 'Business' as the category in the form. Our content team will contact you.",
+      "q3": "Can I delete my account?",
+      "a3": "Yes, you can delete your account from Settings > Privacy > Delete account. Note that this action is irreversible.",
+      "q4": "How do I contact technical support?",
+      "a4": "For technical issues, use the contact form with the 'Technical Support' category. Include screenshots if possible for faster resolution."
     }
   },
   "search": {
@@ -1447,7 +1472,25 @@
     "profileLoadError": "Could not load your profile data",
     "allManga": "All manga",
     "selectManga": "Select manga",
-    "errorLoadingMangas": "Error loading your manga"
+    "errorLoadingMangas": "Error loading your manga",
+    "signup": {
+      "title": "Signup Analytics",
+      "completionRate": "Completion Rate",
+      "dropOff": "Drop-off",
+      "avgTime": "Avg. Time",
+      "methodRate": "Signup Method",
+      "email": "Email",
+      "oauth": "OAuth",
+      "fieldUsername": "Username",
+      "fieldEmail": "Email",
+      "fieldPassword": "Password",
+      "fieldConfirm": "Confirm Password",
+      "totalSignups": "Total Signups",
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "today": "Today",
+      "noData": "No signup data available yet"
+    }
   },
   "creatorAnalytics": {
     "title": "Statistics",

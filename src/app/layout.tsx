@@ -126,24 +126,21 @@ export function reportWebVitals(metric: {
       // Fallback: silent (analytics are best-effort)
     }
 
-    // Also report poor Web Vitals to Sentry for debugging
-    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-      const thresholds: Record<string, number> = {
-        LCP: 2500, // 2.5s
-        INP: 200,  // 200ms
-        CLS: 0.1,  // 0.1
-        FCP: 1800, // 1.8s
-        TTFB: 800, // 800ms
-      };
-      const threshold = thresholds[metric.name];
-      if (threshold && metric.value > threshold) {
-        import('@sentry/nextjs').then((Sentry) => {
-          Sentry.captureMessage(
-            `Poor ${metric.name}: ${metric.value}`,
-            { level: 'warning', tags: { metric: metric.name, page: window.location.pathname } }
-          );
-        }).catch(() => {});
-      }
+    const thresholds: Record<string, number> = {
+      LCP: 2500, // 2.5s
+      INP: 200,  // 200ms
+      CLS: 0.1,  // 0.1
+      FCP: 1800, // 1.8s
+      TTFB: 800, // 800ms
+    };
+    const threshold = thresholds[metric.name];
+    if (threshold && metric.value > threshold) {
+      import('@sentry/nextjs').then((Sentry) => {
+        Sentry.captureMessage(
+          `Poor ${metric.name}: ${metric.value}`,
+          { level: 'warning', tags: { metric: metric.name, page: window.location.pathname } }
+        );
+      });
     }
   }
 }

@@ -14,35 +14,28 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { fetcher } from '@/lib/swr-config';
 
-interface Delivery {
+interface DeliveryItem {
   id: string;
-  endpointId: string;
   event: string;
-  payload: string;
   status: string;
   statusCode: number | null;
-  responseBody: string | null;
   durationMs: number | null;
   attemptCount: number;
-  error: string | null;
   createdAt: string;
+  endpointId: string;
   endpoint?: {
-    id: string;
-    url: string;
     description: string | null;
-  };
+    url: string;
+  } | null;
 }
 
 interface DeliveriesResponse {
-  deliveries: Delivery[];
+  deliveries: DeliveryItem[];
   total: number;
-  page: number;
-  limit: number;
   totalPages: number;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { variant: 'success' | 'destructive' | 'warning'; icon: React.ElementType }> = {

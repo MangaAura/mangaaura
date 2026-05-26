@@ -39,8 +39,9 @@ import {
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
 
-interface Chapter {
+interface MangaChapter {
   id: string;
   chapterNumber: number;
   title: string | null;
@@ -48,6 +49,11 @@ interface Chapter {
   viewCount: number;
   commentCount: number;
   createdAt: string;
+}
+
+interface MangaAuthor {
+  avatarUrl: string | null;
+  username: string;
 }
 
 interface MangaData {
@@ -58,25 +64,15 @@ interface MangaData {
   coverUrl: string | null;
   status: string;
   tags: string[];
-  totalViews: number;
-  rating: number | null;
-  authorId: string;
   authorName: string;
-  author: {
-    id: string;
-    username: string;
-    displayName: string | null;
-    email: string;
-    avatarUrl: string | null;
-  };
+  author: MangaAuthor;
+  chapters: MangaChapter[];
+  totalViews: number;
   bookmarkCount: number;
   commentCount: number;
-  chapters: Chapter[];
+  rating: number | null;
   createdAt: string;
-  updatedAt: string;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function EditMangaPage({ params }: { params: { slug: string } }) {
   const router = useRouter();

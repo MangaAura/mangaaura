@@ -44,7 +44,6 @@ export const MORE_NAV_LINKS: NavLinkDef[] = [
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
-  { name: 'Crear manga', path: '/creator/manga/new', iconName: 'Plus', i18nKey: 'creator.newManga', hideWhenLoggedOut: true },
   { name: 'Biblioteca', path: '/library', iconName: 'Library', i18nKey: 'nav.library', hideWhenLoggedOut: true },
   { name: 'Admin', path: '/admin', iconName: 'Shield', i18nKey: 'nav.admin', requiresModerator: true },
 ];

@@ -1,13 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import useSWR from 'swr';
 
-import { extractApiError } from '@/lib/extract-api-error';
+import { fetcher, getErrorMessage } from '@/lib/swr-config';
 
 export interface GenreFromApi {
   id: string;
   name: string;
   slug: string;
+}
+
+interface GenresResponse {
+  genres: GenreFromApi[];
 }
 
 interface UseGenresReturn {
@@ -16,46 +20,20 @@ interface UseGenresReturn {
   error: string | null;
 }
 
-/**
- * Hook to fetch all genres from the API.
- */
 export function useGenres(): UseGenresReturn {
-  const [genres, setGenres] = useState<GenreFromApi[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchGenres() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/genres');
-        if (!response.ok) {
-          const { message } = await extractApiError(response);
-          throw new Error(message);
-        }
-        const data = await response.json();
-        if (!cancelled) {
-          setGenres(data.genres || []);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Unknown error');
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
+  const { data, error, isLoading } = useSWR<GenresResponse>(
+    '/api/genres',
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
+      refreshInterval: 5 * 60 * 1000,
     }
+  );
 
-    fetchGenres();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { genres, isLoading, error };
+  return {
+    genres: data?.genres ?? [],
+    isLoading,
+    error: error ? getErrorMessage(error) : null,
+  };
 }

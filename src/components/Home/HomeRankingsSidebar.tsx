@@ -9,24 +9,26 @@ import useSWR from 'swr';
 
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { useT } from '@/i18n';
+import { Skeleton } from '@/components/ui/Skeleton';import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
 
 interface RankingManga {
   id: string;
   title: string;
-  slug: string;
-  coverUrl: string | null;
-  totalViews: number;
+  slug?: string;
+  coverUrl?: string | null;
+  totalViews?: number;
 }
 
 interface HomeRankingsSidebarProps {
-  topMangas?: any[];
+  topMangas?: RankingManga[];
 }
 
-const TIME_RANGE_MAP = { daily: 'day', weekly: 'week', monthly: 'month' } as const;
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const TIME_RANGE_MAP: Record<string, string> = {
+  daily: '24h',
+  weekly: '7d',
+  monthly: '30d',
+};
 
 const formatViews = (views: number): string => {
   if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
@@ -96,7 +98,7 @@ function RankingItem({ manga, index, t }: { manga: RankingManga; index: number; 
           {manga.title}
         </h4>
         <p className="text-xs text-muted">
-          <AnimatedCount value={manga.totalViews} /> {t('home.views')}
+          <AnimatedCount value={manga.totalViews ?? 0} /> {t('home.views')}
         </p>
       </div>
     </Link>
@@ -142,7 +144,7 @@ export function HomeRankingsSidebar({ topMangas = [] }: HomeRankingsSidebarProps
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
-  const { data, isLoading } = useSWR(
+  const { data, isLoading } = useSWR<{ mangas?: RankingManga[]; results?: RankingManga[] }>(
     isInView
       ? `/api/rankings?type=views&timeRange=${TIME_RANGE_MAP[activeTab]}&limit=5`
       : null,

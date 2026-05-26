@@ -15,8 +15,7 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+import { fetcher } from '@/lib/swr-config';
 
 export default function ImpersonatePage() {
   const [search, setSearch] = useState('');
@@ -25,7 +24,7 @@ export default function ImpersonatePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data, isValidating } = useSWR(
+  const { data, isValidating } = useSWR<{ users: Array<{ id: string; username: string; email: string }> }>(
     search.length >= 2 ? `/api/admin/users?search=${encodeURIComponent(search)}` : null,
     fetcher,
   );

@@ -6,8 +6,7 @@ import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 
 import { RepostButton } from '@/components/Repost/RepostButton';
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+import { fetcher } from '@/lib/swr-config';
 
 const typeIcons: Record<string, typeof BookOpen> = {
   MANGA: BookOpen,
@@ -22,7 +21,15 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function RepostsPage() {
-  const { data, error } = useSWR('/api/reposts', fetcher, { refreshInterval: 10000 });
+  interface RepostItem {
+  id: string;
+  originalType: string;
+  originalId: string;
+  createdAt: string;
+  comment?: string;
+}
+
+const { data, error } = useSWR<{ reposts: RepostItem[] }>('/api/reposts', fetcher, { refreshInterval: 10000 });
   const [filter, setFilter] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 

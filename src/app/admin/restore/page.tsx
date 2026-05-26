@@ -17,8 +17,7 @@ import {
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+import { fetcher } from '@/lib/swr-config';
 
 export default function RestorePage() {
   const [search, setSearch] = useState('');
@@ -28,7 +27,7 @@ export default function RestorePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data, isValidating, mutate } = useSWR(
+  const { data, isValidating, mutate } = useSWR<{ users: any[] }>(
     '/api/admin/users',
     fetcher,
   );

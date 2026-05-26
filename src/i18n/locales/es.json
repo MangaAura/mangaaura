@@ -634,6 +634,7 @@
     "subtitle": "Conéctate con otros lectores, compite en clanes y participa en eventos.",
     "clansTab": "Clanes",
     "eventsTab": "Eventos",
+    "rulesTab": "Reglas",
     "clanWars": "Guerras de clanes",
     "clanWarsDesc": "¡Lee manga en grupos para ganar XP y ascender en la clasificación!",
     "myClan": "mi clan",
@@ -644,7 +645,19 @@
     "noActiveEvents": "No hay eventos activos en este momento. ¡Vuelve pronto!",
     "viewAllEventsLink": "Ver todos los eventos",
     "communityEvents": "Eventos comunitarios",
-    "eventPrizes": "Participa y gana premios exclusivos"
+    "eventPrizes": "Participa y gana premios exclusivos",
+    "rulesTitle": "Reglas de la Comunidad",
+    "rulesDesc": "Mantengamos MangaAura como un espacio seguro y divertido para todos.",
+    "rulesList": [
+      "Respeta a todos los miembros. No toleramos acoso, discriminación o lenguaje ofensivo.",
+      "No compartas contenido ilegal, con derechos de autor o inapropiado.",
+      "No hagas spam ni promociones no autorizadas.",
+      "Usa los canales adecuados para cada tipo de contenido.",
+      "No compartas información personal tuya o de otros usuarios.",
+      "Sigue las instrucciones de los moderadores y administradores.",
+      "Reporta cualquier violación de estas reglas usando el sistema de reportes.",
+      "El incumplimiento puede resultar en suspensión o eliminación permanente de la cuenta."
+    ]
   },
   "events": {
     "hero": {
@@ -755,6 +768,18 @@
       "title": "¡Mensaje enviado!",
       "message": "Gracias por contactarnos. Hemos recibido su mensaje y le responderemos dentro de 24-48 horas.",
       "sendAnother": "enviar otro mensaje"
+    }
+  },
+  "contacto": {
+    "faq": {
+      "q1": "¿Cómo reporto contenido inappropriate?",
+      "a1": "Usa el formulario de contacto seleccionando la categoría 'Informe DMCA' o visita nuestra página de reportes. Nuestro equipo revisará el contenido en 24-48 horas.",
+      "q2": "¿Cómo publicó mi manga en la plataforma?",
+      "a2": "Si eres creador y quieres publicar tu manga en MangaAura, selecciona 'Negocio' como categoría en el formulario. Nuestro equipo de contenido se pondrá en contacto contigo.",
+      "q3": "¿Puedo eliminar mi cuenta?",
+      "a3": "Sí, puedes eliminar tu cuenta desde Configuración > Privacidad > Eliminar cuenta. Ten en cuenta que esta acción es irreversible.",
+      "q4": "¿Cómo contacto con soporte técnico?",
+      "a4": "Para problemas técnicos, usa el formulario de contacto con la categoría 'Apoyo técnico'. Incluye capturas de pantalla si es posible para una resolución más rápida."
     }
   },
   "search": {
@@ -1444,7 +1469,25 @@
     "profileLoadError": "No se pudieron cargar tus datos de perfil",
     "allManga": "Todos los mangas",
     "selectManga": "Seleccionar manga",
-    "errorLoadingMangas": "Error al cargar tus mangas"
+    "errorLoadingMangas": "Error al cargar tus mangas",
+    "signup": {
+      "title": "Registros",
+      "completionRate": "Tasa de Finalización",
+      "dropOff": "Abandono",
+      "avgTime": "Tiempo Promedio",
+      "methodRate": "Método de Registro",
+      "email": "Email",
+      "oauth": "OAuth",
+      "fieldUsername": "Usuario",
+      "fieldEmail": "Correo",
+      "fieldPassword": "Contraseña",
+      "fieldConfirm": "Confirmar Contraseña",
+      "totalSignups": "Registros Totales",
+      "last7Days": "Últimos 7 días",
+      "last30Days": "Últimos 30 días",
+      "today": "Hoy",
+      "noData": "Aún no hay datos de registro disponibles"
+    }
   },
   "creatorAnalytics": {
     "title": "Estadísticas",

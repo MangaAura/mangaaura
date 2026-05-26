@@ -54,8 +54,9 @@ function NotifButton({ unread, onClick, ariaLabel }: { unread: number; onClick: 
   return (
     <button
       onClick={() => { setAnimKey((k) => k + 1); onClick(); }}
-      className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-lg transition-all duration-200 cursor-pointer active:scale-90"
+      className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-lg transition-all duration-200 cursor-pointer active:scale-90 group/tooltip"
       aria-label={ariaLabel}
+      title={ariaLabel}
     >
       <Bell className="w-5 h-5" />
       {unread > 0 && (
@@ -88,6 +89,16 @@ export function AuthSection({
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
+  const [prevImage, setPrevImage] = useState(session?.user?.image);
+
+  // Reset imgError when avatar URL changes — enables live preview after upload
+  const currentImage = session?.user?.image;
+  if (currentImage !== prevImage) {
+    setPrevImage(currentImage);
+    if (imgError) {
+      setImgError(false);
+    }
+  }
 
   if (pathname && pathname !== prevPathname) {
     setPrevPathname(pathname);
@@ -95,19 +106,19 @@ export function AuthSection({
   }
 
   if (!mounted) {
-    return <div className="w-8 h-8 rounded-full bg-[var(--surface)] animate-pulse" />;
+    return <div className="w-8 h-8" />;
   }
 
   if (isLoggedIn) {
     const avatarSrc = !imgError && session?.user?.image
       ? session.user.image
-: `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=6366f1&color=fff`;
+      : '';
 
   return (
       <>
         <DropdownMenu.Root open={showNotifMenu} onOpenChange={setShowNotifMenu}>
           <DropdownMenu.Trigger asChild>
-            <NotifButton unread={unreadNotifications} onClick={() => {}} ariaLabel={t('notifications.title')} />
+            <NotifButton unread={unreadNotifications} onClick={() => setShowNotifMenu((prev) => !prev)} ariaLabel={t('notifications.title')} />
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content align="end" sideOffset={8} className="z-50 outline-none">
@@ -124,16 +135,22 @@ export function AuthSection({
               className="group relative flex items-center gap-2 p-1 pr-2.5 rounded-xl hover:bg-[var(--surface)] transition-all duration-200 cursor-pointer"
               aria-label={t('nav.settings')}
             >
-              <div className="relative">
-                <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-[var(--primary)] via-[var(--accent-purple)] to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <OptimizedImage
-                  src={avatarSrc}
-                  alt={session?.user?.name || 'User'}
-                  width={32}
-                  height={32}
-                  className="relative w-8 h-8 rounded-full object-cover ring-2 ring-[var(--border)] group-hover:ring-[var(--primary)]/50 transition-all duration-300"
-                  onError={() => setImgError(true)}
-                />
+              <div className="relative w-8 h-8">
+                {avatarSrc ? (
+                  <OptimizedImage
+                    key={avatarSrc}
+                    src={avatarSrc}
+                    alt={session?.user?.name || 'User'}
+                    width={32}
+                    height={32}
+                    className="w-full h-full rounded-full object-cover ring-2 ring-[var(--border)] group-hover:ring-[var(--primary)]/50 transition-all duration-300"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full ring-2 ring-[var(--border)] flex items-center justify-center text-[var(--text-tertiary)]">
+                    <User className="w-4 h-4" />
+                  </div>
+                )}
               </div>
               <span className="hidden lg:block max-w-[80px] truncate text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors duration-200">
                 {session?.user?.name || 'User'}
@@ -150,15 +167,21 @@ export function AuthSection({
               {/* Profile Card Header */}
               <div className="px-4 py-4 border-b border-[var(--border)] bg-gradient-to-b from-[var(--primary-subtle)]/30 to-transparent">
                 <div className="flex items-center gap-3">
-                  <div className="relative shrink-0">
-                    <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-[var(--primary)] via-[var(--accent-purple)] to-pink-500 opacity-60" />
-                    <OptimizedImage
-                      src={avatarSrc}
-                      alt={session?.user?.name || 'User'}
-                      width={44}
-                      height={44}
-                      className="relative w-11 h-11 rounded-full object-cover ring-2 ring-[var(--surface)]"
-                    />
+                  <div className="relative shrink-0 w-11 h-11">
+                    {avatarSrc ? (
+                      <OptimizedImage
+                        key={avatarSrc}
+                        src={avatarSrc}
+                        alt={session?.user?.name || 'User'}
+                        width={44}
+                        height={44}
+                        className="w-full h-full rounded-full object-cover ring-2 ring-[var(--surface)]"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full ring-2 ring-[var(--surface)] flex items-center justify-center bg-[var(--surface)] text-[var(--text-tertiary)]">
+                        <User className="w-5 h-5" />
+                      </div>
+                    )}
                     {session?.user?.level && (
                       <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-[10px] font-bold text-[var(--text-inverse)] flex items-center justify-center ring-2 ring-[var(--surface)] shadow-sm">
                         {session.user.level}

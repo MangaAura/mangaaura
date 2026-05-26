@@ -1,6 +1,6 @@
 'use client';
 
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { CircleDot, Circle, Monitor } from 'lucide-react';
 
 import { useTheme } from './ThemeProvider';
 import { useT } from '@/i18n';
@@ -10,13 +10,13 @@ export function ThemeToggle() {
   const t = useT();
 
   const options: { value: 'light' | 'dark' | 'system'; icon: typeof Sun; labelKey: string }[] = [
-    { value: 'light', icon: Sun, labelKey: 'theme.light' },
-    { value: 'dark', icon: Moon, labelKey: 'theme.dark' },
+    { value: 'light', icon: CircleDot, labelKey: 'theme.light' },
+    { value: 'dark', icon: Circle, labelKey: 'theme.dark' },
     { value: 'system', icon: Monitor, labelKey: 'theme.system' },
   ];
 
   return (
-    <div className="flex items-center gap-1 p-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg">
+    <div className="theme-toggle-wrapper">
       {options.map((option) => {
         const Icon = option.icon;
         const isActive = theme === option.value;

@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { useMemo } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -13,53 +14,85 @@ import {
   Shield,
   TrendingUp,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import useSWR from 'swr';
 
+import { ChartsSection } from '@/components/Admin/ChartsSection';
 import { StatCard } from '@/components/Admin/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
 
-const ChartsSection = dynamic(() => import('@/components/Admin/ChartsSection').then(m => ({ default: m.ChartsSection })), { ssr: false });
+// Shape returned by the API
+interface ApiDashboardStats {
+  counts: {
+    totalUsers: number;
+    totalMangas: number;
+    totalChapters: number;
+    totalComments: number;
+  };
+  today: {
+    newUsers: number;
+    newMangas: number;
+    newChapters: number;
+    newComments: number;
+  };
+  activity: {
+    last24h: number;
+    last7d: number;
+    last30d: number;
+  };
+}
 
+// Flat shape the template consumes
 interface DashboardStats {
   totalUsers: number;
   totalMangas: number;
   totalChapters: number;
   totalComments: number;
-  pendingReports: number;
-  newUsersToday: number;
-  newMangasToday: number;
-  newCommentsToday: number;
-  activityData: { date: string; users: number; views: number }[];
-  changes: {
+  changes?: {
     users: number;
     mangas: number;
     chapters: number;
     comments: number;
   };
+  newUsersToday: number;
+  newMangasToday: number;
+  newCommentsToday: number;
+  activityData?: { date: string; users: number; views: number }[];
 }
 
 interface ModerationAlert {
   id: string;
-  type: 'report' | 'abuse' | 'spam';
+  type: string;
   message: string;
   count: number;
   severity: 'low' | 'medium' | 'high';
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
 export default function AdminDashboardPage() {
   const t = useT();
-  const { data: stats, error: statsError, isLoading: statsLoading } = useSWR<DashboardStats>(
+  const { data: rawStats, error: statsError, isLoading: statsLoading } = useSWR<ApiDashboardStats>(
     '/api/admin/stats',
     fetcher,
     { refreshInterval: 60000 }
   );
+
+  // Flatten the nested API response to match the template expectations
+  const stats = useMemo((): DashboardStats | undefined => {
+    if (!rawStats) return undefined;
+    return {
+      totalUsers: rawStats.counts.totalUsers,
+      totalMangas: rawStats.counts.totalMangas,
+      totalChapters: rawStats.counts.totalChapters,
+      totalComments: rawStats.counts.totalComments,
+      newUsersToday: rawStats.today.newUsers,
+      newMangasToday: rawStats.today.newMangas,
+      newCommentsToday: rawStats.today.newComments,
+    };
+  }, [rawStats]);
 
   const { data: alertsData, error: _alertsError, isLoading: alertsLoading } = useSWR<{ alerts: ModerationAlert[] }>(
     '/api/admin/moderation/alerts',

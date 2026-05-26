@@ -33,18 +33,16 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
-import { Textarea } from '@/components/ui/Textarea';
-import { useT } from '@/i18n';
+import { Textarea } from '@/components/ui/Textarea';import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { fetcher } from '@/lib/swr-config';
 
 interface CreatorProfile {
-  username: string;
-  displayName: string | null;
-  email: string;
-  avatarUrl: string | null;
-  bio: string | null;
-  website: string | null;
-  socialLinks: Record<string, string>;
+  username?: string;
+  displayName?: string;
+  email?: string;
+  bio?: string;
+  website?: string;
 }
 
 interface PublishingPrefs {
@@ -55,27 +53,21 @@ interface PublishingPrefs {
   aiAssistance: boolean;
 }
 
-interface PaymentInfo {
-  stripeConnected: boolean;
-  auraBalance: number;
-  totalTipsReceived: number;
-  minimumPayout: number;
-}
-
-interface CreatorStats {
-  mangaCount: number;
-  totalViews: number;
-  memberSince: string;
-}
-
 interface CreatorSettingsData {
   profile: CreatorProfile;
   publishing: PublishingPrefs;
-  payments: PaymentInfo;
-  stats: CreatorStats;
+  stats: {
+    mangaCount: number;
+    totalViews: number;
+    memberSince?: string;
+  };
+  payments: {
+    auraBalance: number;
+    stripeConnected: boolean;
+    totalTipsReceived: number;
+    minimumPayout: number;
+  };
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function CreatorSettingsPage() {
   const t = useT();

@@ -37,28 +37,25 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import { useT } from '@/i18n';
+import { useErrorHandler } from '@/hooks/useErrorHandler';import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
 
 interface UserData {
   id: string;
-  email: string;
   username: string;
-  displayName: string | null;
-  avatarUrl: string | null;
+  email: string;
   role: string;
+  level: number;
   xpPoints: number;
   auraBalance: number;
-  level: number;
+  avatarUrl?: string | null;
+  displayName?: string | null;
   readingStreak: number;
   createdAt: string;
-  lastReadAt: string | null;
   mangaCount: number;
   chapterCount: number;
   commentCount: number;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function UsersPage() {
   // Always call useT first before any conditional logic

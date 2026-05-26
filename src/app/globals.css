@@ -463,6 +463,16 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: var(--ink-glow), 0 0 40px rgba(var(--primary-r), var(--primary-g), var(--primary-b), 0.15);
   }
 
+  .theme-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+  }
+
   .focus-ring:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);

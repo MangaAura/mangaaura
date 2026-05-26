@@ -46,33 +46,21 @@ import {
 } from '@/components/ui/Select';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
 
 interface MangaData {
   id: string;
   title: string;
   slug: string;
-  description: string | null;
   coverUrl: string | null;
   status: string;
   tags: string[];
-  totalViews: number;
-  rating: number | null;
-  authorId: string;
   authorName: string;
-  author: {
-    id: string;
-    username: string;
-    displayName: string | null;
-    email: string;
-  };
   chapterCount: number;
+  totalViews: number;
   bookmarkCount: number;
-  commentCount: number;
   createdAt: string;
-  updatedAt: string;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MangaManagementPage() {
   const t = useT();
@@ -84,7 +72,7 @@ export default function MangaManagementPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [page, setPage] = useState(1);
 
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR<{ mangas: MangaData[]; pagination: { total: number; totalPages: number } }>(
     `/api/admin/manga?page=${page}&status=${statusFilter}&search=${searchQuery}`,
     fetcher,
     { refreshInterval: 30000 }

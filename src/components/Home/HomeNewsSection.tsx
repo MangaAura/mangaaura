@@ -11,8 +11,7 @@ import {
   getArticlePath,
   type DisplayNewsItem,
 } from '@/lib/news';
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+import { fetcher } from '@/lib/swr-config';
 
 const categoryLabelKey: Record<string, string> = {
   community: 'home.newsCategoryCommunity',

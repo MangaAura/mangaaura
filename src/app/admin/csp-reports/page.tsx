@@ -17,40 +17,31 @@ import useSWR from 'swr';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { fetcher } from '@/lib/swr-config';
 
-interface CspReportItem {
+interface CspReportEntry {
   id: string;
   blockedUri: string;
   violatedDirective: string;
   documentUri: string;
-  effectiveDirective: string | null;
   sourceFile: string | null;
   lineNumber: number | null;
-  columnNumber: number | null;
   disposition: string;
-  isExtensionNoise: boolean;
   createdAt: string;
-}
-
-interface DirectiveSummary {
-  directive: string;
-  count: number;
+  isNoise: boolean;
 }
 
 interface CspReportsResponse {
-  reports: CspReportItem[];
+  reports: CspReportEntry[];
   total: number;
   page: number;
-  limit: number;
   totalPages: number;
-  summary: {
+  summary?: {
     totalReal: number;
     totalNoise: number;
-    byDirective: DirectiveSummary[];
+    byDirective: Array<{ directive: string; count: number }>;
   };
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function truncate(str: string, max: number) {
   return str.length > max ? str.slice(0, max) + '…' : str;

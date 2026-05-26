@@ -25,42 +25,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { fetcher } from '@/lib/swr-config';
 
-interface AnomalyEntry {
+interface AuditLogEntry {
   id: string;
   userId: string | null;
-  action: string;
   targetId: string | null;
-  targetType: string | null;
-  metadata: string | null;
+  action: string;
   severity: string;
   ipAddress: string | null;
-  userAgent: string | null;
+  metadata: string | null;
   createdAt: string;
-  user?: { id: string; username: string; displayName: string | null } | null;
+  user: { username: string; displayName: string | null } | null;
 }
 
 interface AnomaliesResponse {
-  logs: AnomalyEntry[];
+  logs: AuditLogEntry[];
   total: number;
 }
 
-const SEVERITY_CONFIG = {
-  INFO: { icon: Shield, color: 'default', label: 'Info' },
-  WARNING: { icon: AlertTriangle, color: 'warning', label: 'Warning' },
-  ERROR: { icon: ShieldAlert, color: 'destructive', label: 'Error' },
-  CRITICAL: { icon: Skull, color: 'destructive', label: 'Critical' },
-} as const;
-
 const ANOMALY_TYPE_OPTIONS = [
-  { value: '', label: 'All Types' },
+  { value: 'RAPID_FAILED_LOGINS', label: 'Rapid Failed Logins' },
+  { value: 'SUSPICIOUS_IP', label: 'Suspicious IP' },
+  { value: 'BRUTE_FORCE', label: 'Brute Force' },
+  { value: 'UNUSUAL_LOCATION', label: 'Unusual Location' },
+  { value: 'RAPID_ACTIONS', label: 'Rapid Actions' },
   { value: 'IMPOSSIBLE_TRAVEL', label: 'Impossible Travel' },
-  { value: 'CREDENTIAL_STUFFING', label: 'Credential Stuffing' },
-  { value: 'IP_ROTATION', label: 'IP Rotation' },
-  { value: 'MULTIPLE_ACCOUNTS', label: 'Multiple Accounts' },
 ];
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const SEVERITY_CONFIG: Record<string, { icon: React.ComponentType<{ className?: string }>; color: string }> = {
+  INFO: { icon: Shield, color: 'secondary' },
+  WARNING: { icon: AlertTriangle, color: 'warning' },
+  ERROR: { icon: ShieldAlert, color: 'destructive' },
+  CRITICAL: { icon: Skull, color: 'destructive' },
+};
 
 function buildUrl(filters: Record<string, string>) {
   const params = new URLSearchParams({ action: 'SUSPICIOUS_ACTIVITY' });

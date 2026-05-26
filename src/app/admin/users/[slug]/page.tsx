@@ -37,36 +37,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import { useT } from '@/i18n';
-
-interface UserManga {
-  id: string;
-  title: string;
-  status: string;
-  chapterCount: number;
-}
+import { useErrorHandler } from '@/hooks/useErrorHandler';import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
 
 interface UserData {
   id: string;
-  email: string;
   username: string;
-  displayName: string | null;
-  avatarUrl: string | null;
+  displayName?: string | null;
+  email: string;
   role: string;
+  avatarUrl?: string | null;
+  level: number;
   xpPoints: number;
   auraBalance: number;
-  level: number;
   readingStreak: number;
   createdAt: string;
-  lastReadAt: string | null;
   mangaCount: number;
   chapterCount: number;
   commentCount: number;
-  mangas: UserManga[];
+  mangas: Array<{
+    id: string;
+    title: string;
+    chapterCount: number;
+    status: string;
+  }>;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function EditUserPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
