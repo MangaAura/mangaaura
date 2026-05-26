@@ -5,6 +5,7 @@ import { Play, Compass, BookOpen, Users, BookMarked, Sparkles } from 'lucide-rea
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 import { useT } from '@/i18n';
 
@@ -66,6 +67,7 @@ export function AnimatedHero({
   totalReaders = 0,
   totalChapters = 0,
 }: AnimatedHeroProps) {
+  const { data: session } = useSession();
   const t = useT();
   const shouldReduceMotion = useReducedMotion();
 
@@ -164,14 +166,14 @@ export function AnimatedHero({
               </motion.span>
             </Link>
           ) : (
-            <Link href="/auth/register">
+            <Link href={session?.user ? '/creator/manga/new' : '/auth/register'}>
               <motion.span
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white cursor-pointer"
               >
                 <Sparkles className="w-5 h-5" />
-                {t('home.ctaHeroRegister')}
+                {session?.user ? t('creator.newManga') : t('home.ctaHeroRegister')}
               </motion.span>
             </Link>
           )}

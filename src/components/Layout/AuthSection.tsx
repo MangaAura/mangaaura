@@ -242,7 +242,7 @@ export function AuthSection({
 
                 <DropdownMenu.Item asChild>
                   <Link
-                    href={localeHref(pathname, '/creator/dashboard')}
+                    href={localeHref(pathname, '/')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
                   >
                     <Sparkles className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-amber-500 transition-colors duration-150" />

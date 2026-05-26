@@ -185,18 +185,18 @@ export default function Navbar() {
                   </Link>
 
                   <Link
-                    href={localeHref(pathname, '/creator/dashboard')}
+                    href={localeHref(pathname, '/')}
                     className={
                       'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
-                      (isActive(pathname, '/creator/dashboard')
+                      (isActive(pathname, '/')
                         ? ' text-amber-500 bg-amber-500/10 shadow-sm'
                         : ' text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10')
                     }
                     title={t('creator.dashboard')}
-                    aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
+                    aria-current={isActive(pathname, '/') ? 'page' : undefined}
                   >
-                    <Sparkles className={'w-4 h-4 ' + (isActive(pathname, '/creator/dashboard') ? '' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
-                    {isActive(pathname, '/creator/dashboard') && (
+                    <Sparkles className={'w-4 h-4 ' + (isActive(pathname, '/') ? '' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                    {isActive(pathname, '/') && (
                       <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-amber-500" />
                     )}
                   </Link>

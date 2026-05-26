@@ -117,7 +117,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const allowedTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
       setAvatarError('Formato no soportado. Usa JPEG, PNG, WebP o GIF.');
       return;
@@ -281,7 +281,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
             <input
               ref={avatarInputRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/webp,image/jpeg,image/png,image/avif"
               onChange={handleAvatarFile}
               className="hidden"
             />
@@ -302,7 +302,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-[var(--text-primary)]">Foto de perfil</h3>
             <p className="text-sm text-[var(--text-tertiary)]">
-              JPEG, PNG, WebP o GIF. Se redimensiona automáticamente a 400x400.
+              WebP, JPEG, PNG o AVIF. Se comprime automáticamente a 512×512 px.
             </p>
           </div>
         </div>
