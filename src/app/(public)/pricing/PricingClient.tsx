@@ -142,7 +142,7 @@ function PricingCard({
 
         <Link href={`/checkout?package=${pack.id}`}>
           <Button
-            variant={pack.popular ? 'primary' : 'secondary'}
+            variant={pack.popular ? 'default' : 'secondary'}
             className="w-full"
             size="sm"
           >
@@ -228,7 +228,7 @@ function PremiumCard({
 
         <Link href={`/checkout?plan=${plan.id}`}>
           <Button
-            variant={plan.popular ? 'primary' : 'outline'}
+            variant={plan.popular ? 'default' : 'outline'}
             className="w-full"
             size="sm"
           >
@@ -448,7 +448,7 @@ export default function PricingClient() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/auth/register">
-                <Button variant="primary" size="lg" className="gap-2">
+                <Button variant="default" size="lg" className="gap-2">
                   {t('pricing.ctaButton')}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
