@@ -31,6 +31,9 @@ export default async function SettingsPage() {
       email: true,
       avatarUrl: true,
       emailPreferences: true,
+      bio: true,
+      website: true,
+      socialLinks: true,
     },
   });
 

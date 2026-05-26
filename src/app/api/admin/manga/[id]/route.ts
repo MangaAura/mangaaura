@@ -146,7 +146,7 @@ export async function PATCH(
       }
     }
     if (tags !== undefined) {
-      updateData.tags = Array.isArray(tags) ? JSON.stringify(tags) : '[]';
+      updateData.tags = Array.isArray(tags) ? JSON.stringify(tags.map((t: string) => t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))) : '[]';
     }
 
     const manga = await prisma.mangaSeries.update({

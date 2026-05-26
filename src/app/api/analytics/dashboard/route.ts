@@ -1,9 +1,3 @@
-/**
- * Analytics Dashboard API
- * 
- * Retorna estadísticas para el dashboard del creador.
- */
-
 import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
@@ -25,15 +19,18 @@ export async function GET(request: Request) {
   const fromDate = dateFrom ? new Date(dateFrom) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const toDate = dateTo ? new Date(dateTo) : new Date();
 
-  const where: any = {
-    createdAt: {
-      gte: fromDate,
-      lte: toDate,
-    },
+  const dateWhere = {
+    createdAt: { gte: fromDate, lte: toDate },
   };
 
+  let authorizedMangaIds: string[] = [];
+
   if (mangaIdParam) {
-    where.mangaId = mangaIdParam;
+    const manga = await prisma.mangaSeries.findFirst({
+      where: { id: mangaIdParam, authorId: session.user.id },
+      select: { id: true },
+    });
+    if (manga) authorizedMangaIds = [manga.id];
   } else if (mangaIdsParam) {
     const mangaIds = mangaIdsParam.split(',').map((s: string) => s.trim()).filter(Boolean);
     if (mangaIds.length > 0) {
@@ -41,83 +38,64 @@ export async function GET(request: Request) {
         where: { id: { in: mangaIds }, authorId: session.user.id },
         select: { id: true },
       });
-      where.mangaId = { in: userMangas.map((m: any) => m.id) };
+      authorizedMangaIds = userMangas.map((m: any) => m.id);
     } else {
       const userMangas = await prisma.mangaSeries.findMany({
         where: { authorId: session.user.id },
         select: { id: true },
       });
-      where.mangaId = { in: userMangas.map((m: any) => m.id) };
+      authorizedMangaIds = userMangas.map((m: any) => m.id);
     }
   } else {
     const userMangas = await prisma.mangaSeries.findMany({
       where: { authorId: session.user.id },
       select: { id: true },
     });
-    where.mangaId = { in: userMangas.map((m: any) => m.id) };
+    authorizedMangaIds = userMangas.map((m: any) => m.id);
   }
-
-  const authorizedMangaIds = where.mangaId === Object(where.mangaId) && 'in' in where.mangaId
-    ? where.mangaId.in
-    : where.mangaId
-      ? [where.mangaId]
-      : [];
 
   const popularChapterWhere = authorizedMangaIds.length > 0
     ? { mangaId: { in: authorizedMangaIds } }
     : { manga: { authorId: session.user.id } };
 
-    // Obtener estadísticas
-  const [
-    views,
-    reads,
-    completions,
-    timeSpent,
-    dailyViews,
-    dailyReads,
-    popularChapters,
-  ] = await Promise.all([
-      // Total views
-      prisma.analyticsEvent.count({
-        where: { ...where, eventType: 'page_view' },
-      }),
+  const readingSessionWhere = authorizedMangaIds.length > 0
+    ? { chapter: { mangaId: { in: authorizedMangaIds } }, endedAt: { not: null } }
+    : { endedAt: { not: null } };
 
-      // Total reads
+    const [
+      views,
+      reads,
+      completions,
+      timeSpent,
+      dailyViews,
+      dailyReads,
+      popularChapters,
+    ] = await Promise.all([
       prisma.analyticsEvent.count({
-        where: { ...where, eventType: 'chapter_read' },
+        where: { ...dateWhere, eventType: 'page_view' },
       }),
-
-      // Total completions
       prisma.analyticsEvent.count({
-        where: { ...where, eventType: 'chapter_complete' },
+        where: { ...dateWhere, eventType: 'chapter_read' },
       }),
-
-      // Average time spent (usando ReadingSession)
+      prisma.analyticsEvent.count({
+        where: { ...dateWhere, eventType: 'chapter_complete' },
+      }),
       prisma.readingSession.aggregate({
-        where: {
-          chapter: { mangaId: { in: authorizedMangaIds.length > 0 ? authorizedMangaIds : undefined } },
-          endedAt: { not: null },
-        },
+        where: readingSessionWhere,
         _avg: {
           durationSeconds: true,
         },
       }),
-
-      // Daily stats - views
       prisma.analyticsEvent.groupBy({
         by: ['createdAt'],
-        where: { ...where, eventType: 'page_view' },
+        where: { ...dateWhere, eventType: 'page_view' },
         _count: { id: true },
       }),
-
-      // Daily stats - reads
       prisma.analyticsEvent.groupBy({
         by: ['createdAt'],
-        where: { ...where, eventType: 'chapter_read' },
+        where: { ...dateWhere, eventType: 'chapter_read' },
         _count: { id: true },
       }),
-
-      // Popular chapters
       prisma.chapter.findMany({
         where: popularChapterWhere,
         orderBy: { viewCount: 'desc' },
@@ -148,7 +126,6 @@ export async function GET(request: Request) {
     };
   });
 
-    // Calcular completion rate
     const completionRate = reads > 0 ? (completions / reads) * 100 : 0;
 
     return NextResponse.json({

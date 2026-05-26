@@ -17,6 +17,7 @@ export async function GET(_request: NextRequest) {
       select: {
         id: true,
         emailPreferences: true,
+        appearance: true,
       },
     });
 
@@ -43,9 +44,19 @@ export async function GET(_request: NextRequest) {
       // Use defaults
     }
 
+    let appearancePrefs = {};
+    try {
+      if (user.appearance) {
+        appearancePrefs = JSON.parse(user.appearance);
+      }
+    } catch {
+      // Use defaults
+    }
+
     return NextResponse.json({
       preferences: {
         email: emailPrefs,
+        appearance: appearancePrefs,
       },
     });
   } catch (error) {
@@ -69,12 +80,24 @@ export async function PATCH(request: NextRequest) {
     if (rlResponse) return rlResponse;
 
     const body = await request.json();
-    const { emailPreferences } = body;
+    const { emailPreferences, appearance } = body;
 
     const updateData: any = {};
 
     if (emailPreferences) {
       updateData.emailPreferences = JSON.stringify(emailPreferences);
+    }
+
+    if (appearance) {
+      const existing = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { appearance: true },
+      });
+      let currentAppearance = {};
+      try {
+        if (existing?.appearance) currentAppearance = JSON.parse(existing.appearance);
+      } catch {}
+      updateData.appearance = JSON.stringify({ ...currentAppearance, ...appearance });
     }
 
     const user = await prisma.user.update({
@@ -83,12 +106,17 @@ export async function PATCH(request: NextRequest) {
       select: {
         id: true,
         emailPreferences: true,
+        appearance: true,
       },
     });
+
+    let savedAppearance = {};
+    try { if (user.appearance) savedAppearance = JSON.parse(user.appearance); } catch {}
 
     return NextResponse.json({
       preferences: {
         email: JSON.parse(user.emailPreferences || '{}'),
+        appearance: savedAppearance,
       },
     });
   } catch (error) {

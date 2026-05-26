@@ -27,6 +27,10 @@ model User {
   twoFactorEnabled Boolean @default(false)
   twoFactorBackupCodes String?
   emailPreferences String @default("{}")
+  bio String?
+  website String?
+  socialLinks String @default("{}")
+  appearance String @default("{}")
   stripeCustomerId    String?   @unique
   subscriptionId      String?
   subscriptionStatus  String?

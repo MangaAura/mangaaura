@@ -248,10 +248,19 @@ export default function Navbar() {
               {mounted && isLoggedIn && (
                 <Link
                   href={localeHref(pathname, '/creator/manga/new')}
-                  className="hidden sm:flex group relative items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
+                  className={
+                    'hidden sm:flex group relative items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
+                    (isActive(pathname, '/creator/manga/new')
+                      ? ' text-[var(--primary)] bg-[var(--primary-subtle)] shadow-sm'
+                      : ' text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
+                  }
                   title={t('creator.newManga')}
+                  aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
                 >
-                  <Plus className="w-4 h-4" aria-hidden="true" />
+                  <Plus className={'w-4 h-4 ' + (isActive(pathname, '/creator/manga/new') ? '' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                  {isActive(pathname, '/creator/manga/new') && (
+                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--primary)]" />
+                  )}
                 </Link>
               )}
 

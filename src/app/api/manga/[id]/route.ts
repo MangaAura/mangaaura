@@ -57,21 +57,22 @@ export async function GET(
       data: { totalViews: { increment: 1 } },
     }).catch(err => console.error('[Manga] View count increment failed:', err));
 
-    // Add cache headers for stale-while-revalidate
-    const response = NextResponse.json({
-      id: manga.id,
-      title: manga.title,
-      slug: manga.slug,
-      description: manga.description,
-      coverUrl: manga.coverUrl,
-      status: manga.status,
-      tags: manga.tags ? JSON.parse(manga.tags) : [],
-      authorId: manga.authorId,
-      authorName: manga.authorName,
-      rating: manga.rating,
-      totalViews: manga.totalViews + 1,
-      createdAt: manga.createdAt,
-      updatedAt: manga.updatedAt,
+    return NextResponse.json({
+      manga: {
+        id: manga.id,
+        title: manga.title,
+        slug: manga.slug,
+        description: manga.description,
+        coverUrl: manga.coverUrl,
+        status: manga.status,
+        tags: manga.tags ? JSON.parse(manga.tags) : [],
+        authorId: manga.authorId,
+        authorName: manga.authorName,
+        rating: manga.rating,
+        totalViews: manga.totalViews + 1,
+        createdAt: manga.createdAt,
+        updatedAt: manga.updatedAt,
+      },
       chapters: chapters.map((ch: any) => ({
         id: ch.id,
         chapterNumber: ch.chapterNumber,
@@ -88,13 +89,12 @@ export async function GET(
             }
           : null,
       })),
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        'X-Cache-Tag': 'manga:' + id,
+      },
     });
-
-  // Set cache headers for stale-while-revalidate
-  response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-  response.headers.set('X-Cache-Tag', 'manga:' + id);
-
-  return response;
   } catch (error) {
     console.error('Error obteniendo manga:', error);
     return NextResponse.json(
@@ -196,7 +196,7 @@ export async function PUT(
 
     if (body.tags !== undefined) {
       if (Array.isArray(body.tags)) {
-        updateData.tags = JSON.stringify(body.tags.map((t: string) => t.toLowerCase().trim()));
+        updateData.tags = JSON.stringify(body.tags.map((t: string) => t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
       } else {
         return NextResponse.json(
           { error: 'Las etiquetas deben ser un array' },

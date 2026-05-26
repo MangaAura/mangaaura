@@ -19,6 +19,9 @@ export async function GET() {
         displayName: true,
         email: true,
         avatarUrl: true,
+        bio: true,
+        website: true,
+        socialLinks: true,
         stripeCustomerId: true,
         auraBalance: true,
         createdAt: true,
@@ -43,15 +46,18 @@ export async function GET() {
       _sum: { amount: true },
     });
 
+    let socialLinks = {};
+    try { if (user.socialLinks) socialLinks = JSON.parse(user.socialLinks); } catch {}
+
     return NextResponse.json({
       profile: {
         username: user.username,
         displayName: user.displayName,
         email: user.email,
         avatarUrl: user.avatarUrl,
-        bio: null,
-        website: null,
-        socialLinks: {},
+        bio: user.bio,
+        website: user.website,
+        socialLinks,
       },
       publishing: {
         defaultLanguage: 'es',
@@ -90,17 +96,19 @@ export async function PATCH(request: NextRequest) {
 
     const body = await request.json();
 
-    const profileFields = ['displayName', 'bio', 'website'];
     const updates: Record<string, any> = {};
-
-    for (const key of profileFields) {
-      if (body[key] !== undefined) {
-        updates[key] = body[key];
-      }
-    }
 
     if (body.displayName !== undefined) {
       updates.displayName = body.displayName;
+    }
+    if (body.bio !== undefined) {
+      updates.bio = body.bio;
+    }
+    if (body.website !== undefined) {
+      updates.website = body.website;
+    }
+    if (body.socialLinks !== undefined) {
+      updates.socialLinks = JSON.stringify(body.socialLinks);
     }
 
     if (Object.keys(updates).length === 0) {

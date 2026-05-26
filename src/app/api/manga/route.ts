@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
 
     const authorName = user?.displayName || user?.username || 'Unknown';
 
-    const processedTags = tags && Array.isArray(tags) ? tags.map((t: string) => t.toLowerCase().trim()) : [];
+    const processedTags = tags && Array.isArray(tags) ? tags.map((t: string) => t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')) : [];
 
     // Sync genres from tags — auto-create any new genres in the DB
     await syncGenresFromTags(processedTags);

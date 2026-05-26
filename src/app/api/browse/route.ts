@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const result = await withCache(cacheKey, cacheConfig.manga.list.ttl, async () => {
       const where: any = {};
       if (tag) {
-        where.tags = { contains: tag.toLowerCase() };
+        where.tags = { contains: tag.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') };
       }
       if (status) {
         where.status = status;
@@ -66,15 +66,14 @@ export async function GET(request: NextRequest) {
         prisma.mangaSeries.count({ where }),
       ]);
 
-      const tags = await prisma.mangaSeries.findMany({
+      const tagRows = await prisma.mangaSeries.findMany({
         select: { tags: true },
         where: { tags: { not: '[]' } },
-        distinct: ['tags'],
-        take: 100,
+        take: 500,
       });
 
       const allTags = [...new Set(
-        tags.flatMap((t: any) => {
+        tagRows.flatMap((t: any) => {
           try { return JSON.parse(t.tags); } catch { return []; }
         })
       )].sort() as string[];

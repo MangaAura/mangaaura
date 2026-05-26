@@ -206,11 +206,16 @@ export function OptimizedImage({
         />
       )}
       
-      {/* Error state indicator */}
+      {/* Error state — fallback to unoptimized img tag */}
       {hasError && (
-      <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-sunken)]">
-        <span className="text-[var(--text-tertiary)] text-sm">Error al cargar</span>
-        </div>
+        <img
+          src={imageSrc}
+          alt={alt}
+          className={`w-full h-full ${objectFitClass}`}
+          style={{ objectPosition }}
+          loading={loading === 'lazy' ? 'lazy' : 'eager'}
+          onLoad={handleLoad}
+        />
       )}
     </div>
   );

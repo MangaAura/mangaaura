@@ -18,6 +18,9 @@ interface User {
   displayName: string | null;
   email: string;
   avatarUrl: string | null;
+  bio?: string | null;
+  website?: string | null;
+  socialLinks?: string | null;
   emailPreferences: {
     newsletter: boolean;
     newFollowers: boolean;

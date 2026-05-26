@@ -342,8 +342,6 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
         <div
           ref={dropdownRef}
           id="search-suggestions"
-          role="listbox"
-          aria-label={t('common.searchSuggestions')}
           className="absolute top-full left-0 right-0 mt-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl shadow-black/15 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150"
         >
           {/* ── Recent searches (empty input, focused) ─────────────── */}
@@ -364,7 +362,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
                   {t('search.clear')}
                 </button>
               </div>
-              <div className="py-1">
+              <div className="py-1" role="listbox" aria-label={t('common.searchSuggestions')}>
                 <AnimatePresence initial={false}>
                 {recentSearches.map((searchQuery, index) => (
                   <motion.div
@@ -465,7 +463,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
                   <div className="px-3 py-2 text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider border-b border-[var(--border)]/50">
                     {t('common.suggestions')}
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto py-1">
+                  <div className="max-h-[300px] overflow-y-auto py-1" role="listbox" aria-label={t('common.searchSuggestions')}>
                     {suggestions.map((manga, index) => (
                       <button
                         key={manga.id}

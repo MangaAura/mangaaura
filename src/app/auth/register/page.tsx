@@ -567,17 +567,19 @@ function Content() {
                   <input
                     type="checkbox"
                     name="accept-terms"
+                    id={`${idPrefix}-accept-terms`}
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
                     className="peer w-[18px] h-[18px] rounded-[4px] border-2 border-custom bg-tertiary appearance-none cursor-pointer transition-all checked:bg-accent-blue checked:border-accent-blue focus-visible:ring-[3px] focus-visible:ring-[var(--accent-blue)]/20"
                     disabled={isLoading}
+                    aria-labelledby={`${idPrefix}-terms-label`}
                   />
                   <CheckCircle2
                     size={18}
                     className="absolute pointer-events-none opacity-0 peer-checked:opacity-100 text-[var(--text-inverse)] transition-opacity"
                   />
                 </div>
-                <span className="text-sm text-muted leading-relaxed select-none">
+                <span id={`${idPrefix}-terms-label`} className="text-sm text-muted leading-relaxed select-none">
                   {t('auth.acceptTerms')}{' '}
                   <Link href="/legal/terms" className="text-accent-blue font-medium hover:underline">{t('footer.terms')}</Link>
                   {' '}{t('common.and')}{' '}

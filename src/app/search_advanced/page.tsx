@@ -8,7 +8,7 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { CANONICAL_TAGS, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH, normalizeGenreKey } from '@/constants/genres';
+import { normalizeGenreKey } from '@/constants/genres';
 import { EmptySearch } from '@/components/ui/EmptyState';
 import { useT } from '@/i18n';
 
@@ -47,6 +47,7 @@ export default function AdvancedSearchPage() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [genres, setGenres] = useState<{ id: string; name: string; slug: string }[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queryRef = useRef(query);
   const genresRef = useRef(selectedGenres);
@@ -93,6 +94,9 @@ export default function AdvancedSearchPage() {
 
   useEffect(() => {
     doSearch();
+    fetch('/api/genres').then(r => r.json()).then(data => {
+      if (data.genres) setGenres(data.genres);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -106,22 +110,13 @@ export default function AdvancedSearchPage() {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [page, query, selectedGenres, selectedStatus, sortBy]);
 
-  const displayGenre = (genre: string): string => {
-    let slug = ENGLISH_TO_SLUG[genre];
-    if (!slug) {
-      const normalized = normalizeGenreKey(genre);
-      slug = ENGLISH_TO_SLUG[normalized];
-      if (!slug) {
-        const englishTag = SLUG_TO_ENGLISH[normalized];
-        if (englishTag) slug = ENGLISH_TO_SLUG[englishTag];
-      }
-    }
-    return slug ? t(`genres.${slug}`) : genre.charAt(0).toUpperCase() + genre.slice(1);
+  const getGenreName = (slug: string): string => {
+    const genre = genres.find(g => g.slug === slug);
+    return genre ? genre.name : slug;
   };
 
-  const toggleGenre = (genre: string) => {
-    const normalized = CANONICAL_TAGS.find(g => normalizeGenreKey(g) === normalizeGenreKey(genre)) || genre;
-    setSelectedGenres(prev => prev.includes(normalized) ? prev.filter(g => g !== normalized) : [...prev, normalized]);
+  const toggleGenre = (slug: string) => {
+    setSelectedGenres(prev => prev.includes(slug) ? prev.filter(g => g !== slug) : [...prev, slug]);
   };
 
   // Skeleton loader matching the result card layout
@@ -271,13 +266,13 @@ export default function AdvancedSearchPage() {
               <div>
                 <h3 className="font-bold text-sm text-[var(--text-muted)] uppercase tracking-wider mb-3">{t('search.genresTags')}</h3>
                 <div className="flex flex-wrap gap-2">
-                  {CANONICAL_TAGS.map(genre => (
+                  {genres.map(g => (
                     <button
-                      key={genre}
-                      onClick={() => toggleGenre(genre)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${selectedGenres.includes(genre) ? 'bg-[var(--accent-purple)] text-[var(--text-inverse)] border-[var(--accent-purple)]' : 'bg-[var(--surface-sunken)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-purple)]/50'}`}
+                      key={g.slug}
+                      onClick={() => toggleGenre(g.slug)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${selectedGenres.includes(g.slug) ? 'bg-[var(--accent-purple)] text-[var(--text-inverse)] border-[var(--accent-purple)]' : 'bg-[var(--surface-sunken)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-purple)]/50'}`}
                     >
-                      {displayGenre(genre)}
+                      {g.name}
                     </button>
                   ))}
                 </div>
@@ -366,22 +361,24 @@ export default function AdvancedSearchPage() {
                         )}
                       </p>
                       <div className="flex flex-wrap gap-1.5 mb-auto">
-                        {manga.tags?.slice(0, 3).map((genre: string) => (
+                        {manga.tags?.slice(0, 3).map((genre: string) => {
+                          const slug = normalizeGenreKey(genre);
+                          return (
                           <span key={genre} onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            const normalized = CANONICAL_TAGS.find(g => normalizeGenreKey(g) === normalizeGenreKey(genre)) || genre;
                             setSelectedGenres(prev => {
-                              const next = prev.includes(normalized) ? prev.filter(g => g !== normalized) : [...prev, normalized];
+                              const next = prev.includes(slug) ? prev.filter(g => g !== slug) : [...prev, slug];
                               genresRef.current = next;
                               return next;
                             });
                             if (timerRef.current) clearTimeout(timerRef.current);
                             doSearch();
-                          }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleGenre(genre); } }} role="button" tabIndex={0} className="text-[10px] font-bold bg-[var(--surface-sunken)] border border-[var(--border)] hover:border-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/10 text-[var(--text-muted)] hover:text-[var(--accent-purple)] px-2 py-0.5 rounded-full cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1">
-                            {displayGenre(genre)}
+                          }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleGenre(slug); } }} role="button" tabIndex={0} className="text-[10px] font-bold bg-[var(--surface-sunken)] border border-[var(--border)] hover:border-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/10 text-[var(--text-muted)] hover:text-[var(--accent-purple)] px-2 py-0.5 rounded-full cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1">
+                            {getGenreName(slug) || genre}
                           </span>
-                        ))}
+                          );
+                        })}
                       </div>
                       <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--border)]">
                         <div className="flex items-center gap-1 text-xs font-semibold text-[var(--text-muted)]">

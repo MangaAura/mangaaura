@@ -7,6 +7,10 @@
   Crown,
   Flame,
   Star,
+  Globe,
+  Camera,
+  Video,
+  MessageCircle,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -164,6 +168,66 @@ export default async function ProfilePage() {
             />
           </div>
         </Card>
+
+        {/* Bio & Social */}
+        {(user.bio || user.website || user.socialLinks) && (
+          <Card className="p-6 mb-6">
+            <div className="space-y-4">
+              {user.bio && (
+                <div>
+                  <p className="text-[var(--text-primary)]">{user.bio}</p>
+                </div>
+              )}
+              {user.website && (
+                <a
+                  href={user.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-[var(--primary)] hover:underline"
+                >
+                  <Globe className="w-4 h-4" />
+                  {user.website.replace(/^https?:\/\//, '')}
+                </a>
+              )}
+              {user.socialLinks && (() => {
+                try {
+                  const links = JSON.parse(user.socialLinks);
+                  const hasLinks = Object.values(links).some(Boolean);
+                  if (!hasLinks) return null;
+                  const socialIcons: Record<string, typeof Globe> = {
+                    twitter: MessageCircle,
+                    instagram: Camera,
+                    youtube: Video,
+                    tiktok: MessageCircle,
+                    discord: MessageCircle,
+                  };
+                  return (
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {Object.entries(links).map(([platform, url]) => {
+                        if (!url) return null;
+                        const Icon = socialIcons[platform] || Globe;
+                        return (
+                          <a
+                            key={platform}
+                            href={url as string}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors text-sm"
+                          >
+                            <Icon className="w-4 h-4" />
+                            {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  );
+                } catch {
+                  return null;
+                }
+              })()}
+            </div>
+          </Card>
+        )}
 
         {/* Content */}
         <Tabs defaultValue="reading" className="space-y-6">

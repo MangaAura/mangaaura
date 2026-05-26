@@ -1,8 +1,19 @@
 ﻿'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, X, Check, User, Loader2 } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Check,
+  Loader2,
+  Upload,
+  User,
+  X,
+  Globe,
+  Hash,
+  Camera,
+  Video,
+  MessageCircle,
+} from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 
 import { useSession } from 'next-auth/react';
 
@@ -11,8 +22,8 @@ import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { extractApiError } from '@/lib/extract-api-error';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface ProfileSettingsProps {
   user: {
@@ -21,17 +32,38 @@ interface ProfileSettingsProps {
     displayName: string | null;
     email: string;
     avatarUrl: string | null;
+    bio?: string | null;
+    website?: string | null;
+    socialLinks?: string | null;
   };
 }
 
+const SOCIAL_PLATFORMS = [
+  { id: 'twitter', label: 'Twitter / X', icon: MessageCircle, placeholder: 'https://x.com/usuario' },
+  { id: 'instagram', label: 'Instagram', icon: Camera, placeholder: 'https://instagram.com/usuario' },
+  { id: 'youtube', label: 'YouTube', icon: Video, placeholder: 'https://youtube.com/@usuario' },
+  { id: 'tiktok', label: 'TikTok', icon: Hash, placeholder: 'https://tiktok.com/@usuario' },
+  { id: 'discord', label: 'Discord', icon: MessageCircle, placeholder: 'https://discord.gg/invite' },
+];
+
 export function ProfileSettings({ user }: ProfileSettingsProps) {
   const { update: updateSession } = useSession();
+
+  const parseSocialLinks = (): Record<string, string> => {
+    try {
+      if (user.socialLinks) return JSON.parse(user.socialLinks);
+    } catch {}
+    return {};
+  };
 
   const [formData, setFormData] = useState({
     displayName: user.displayName || '',
     username: user.username,
     email: user.email,
+    bio: user.bio || '',
+    website: user.website || '',
   });
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(parseSocialLinks());
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
@@ -43,7 +75,6 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
 
   const { handleError } = useErrorHandler();
 
-  // Username availability check
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
   const usernameCheckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,6 +140,11 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     setIsDirty(true);
   };
 
+  const handleSocialChange = (platform: string, value: string) => {
+    setSocialLinks((prev) => ({ ...prev, [platform]: value }));
+    setIsDirty(true);
+  };
+
   const handleAvatarClick = () => {
     avatarInputRef.current?.click();
   };
@@ -119,7 +155,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
 
     const allowedTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
-      setAvatarError('Formato no soportado. Usa JPEG, PNG, WebP o GIF.');
+      setAvatarError('Formato no soportado. Usa JPEG, PNG, WebP o AVIF.');
       return;
     }
 
@@ -132,7 +168,6 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     setUploadingAvatar(true);
     setAvatarError('');
 
-    // Show local preview
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
     setIsDirty(true);
@@ -155,7 +190,6 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       URL.revokeObjectURL(previewUrl);
       setAvatarPreview(url);
 
-      // Refresh session image immediately so navbar updates
       await updateSession({ image: url });
     } catch (error: any) {
       handleError(error);
@@ -180,6 +214,9 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
           displayName: formData.displayName,
           username: formData.username !== user.username ? formData.username : undefined,
           avatarUrl: avatarPreview,
+          bio: formData.bio || null,
+          website: formData.website || null,
+          socialLinks: Object.fromEntries(Object.entries(socialLinks).filter(([, v]) => v)),
         }),
       });
 
@@ -194,7 +231,6 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       setSaveStatus('success');
       setFormData((prev) => ({ ...prev, username: data.user.username }));
 
-      // Refresh session so nav/profile dropdown reflect changes immediately
       const newDisplayName = formData.displayName;
       const newUsername = data.user.username;
       const sessionName = newDisplayName || newUsername || user.displayName || user.username;
@@ -366,6 +402,64 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
           </div>
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="bio">Biografía</Label>
+          <textarea
+            id="bio"
+            name="bio"
+            value={formData.bio}
+            onChange={handleChange}
+            rows={4}
+            maxLength={500}
+            placeholder="Cuéntanos sobre ti..."
+            className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none"
+          />
+          <p className="text-xs text-[var(--text-tertiary)]">
+            {formData.bio.length}/500 caracteres
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="website">Sitio web</Label>
+          <div className="relative">
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+            <Input
+              id="website"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              placeholder="https://tu-sitio.com"
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4 pt-4 border-t border-[var(--border)]">
+          <div>
+            <h3 className="font-medium text-[var(--text-primary)]">Redes sociales</h3>
+            <p className="text-sm text-[var(--text-tertiary)]">
+              Añade enlaces a tus redes sociales para que otros usuarios te encuentren
+            </p>
+          </div>
+          {SOCIAL_PLATFORMS.map((platform) => {
+            const Icon = platform.icon;
+            return (
+              <div key={platform.id} className="space-y-2">
+                <Label htmlFor={`social-${platform.id}`} className="flex items-center gap-2">
+                  <Icon className="w-4 h-4 text-[var(--text-secondary)]" />
+                  {platform.label}
+                </Label>
+                <Input
+                  id={`social-${platform.id}`}
+                  value={socialLinks[platform.id] || ''}
+                  onChange={(e) => handleSocialChange(platform.id, e.target.value)}
+                  placeholder={platform.placeholder}
+                />
+              </div>
+            );
+          })}
+        </div>
+
         <div className="flex justify-end gap-4 pt-4 border-t border-[var(--border)]">
           <Button
             type="button"
@@ -375,7 +469,10 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 displayName: user.displayName || '',
                 username: user.username,
                 email: user.email,
+                bio: user.bio || '',
+                website: user.website || '',
               });
+              setSocialLinks(parseSocialLinks());
               setAvatarPreview(user.avatarUrl);
               setAvatarError('');
               setSaveStatus('idle');

@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
         // Genre filter (using tags as genres)
         if (genres.length > 0) {
           where.AND = genres.map((genre: string) => ({
-            tags: { contains: `"${genre}"` },
+            tags: { contains: `"${genre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"` },
           }));
         }
 
@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
         // Tags filter
         if (tags.length > 0) {
           const tagsFilter = tags.map((tag) => ({
-            tags: { contains: `"${tag.trim()}"` },
+            tags: { contains: `"${tag.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"` },
           }));
           if (where.AND) {
             where.AND = [...(Array.isArray(where.AND) ? where.AND : [where.AND]), ...tagsFilter];

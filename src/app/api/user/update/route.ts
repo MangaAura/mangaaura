@@ -10,6 +10,9 @@ const updateProfileSchema = z.object({
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/).optional(),
   avatarUrl: z.string().url().optional(),
   emailPreferences: z.string().optional(),
+  bio: z.string().max(500).optional(),
+  website: z.string().max(200).optional(),
+  socialLinks: z.record(z.string(), z.string()).optional(),
 });
 
 export async function PATCH(request: NextRequest) {

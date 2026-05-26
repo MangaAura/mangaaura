@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { useTheme } from '@/components/ThemeProvider';
 import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
@@ -88,6 +89,7 @@ function applyPrimaryColor(lightColor: string, darkColor: string) {
 }
 
 export function AppearanceSettings() {
+  const { setTheme: setThemeProvider } = useTheme();
   const [theme, setTheme] = useState<Theme>('dark');
   const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [layoutDensity, setLayoutDensity] = useState<LayoutDensity>('normal');
@@ -97,7 +99,7 @@ export function AppearanceSettings() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
+    const savedTheme = localStorage.getItem('mangaaura-theme') as Theme;
     const savedFontSize = localStorage.getItem('fontSize') as FontSize;
     const savedLayout = localStorage.getItem('layoutDensity') as LayoutDensity;
     const savedColor = localStorage.getItem('primaryColor');
@@ -115,42 +117,8 @@ export function AppearanceSettings() {
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
+    setThemeProvider(newTheme);
     setIsDirty(true);
-
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      const darkP = localStorage.getItem('primaryColorDark') || lighten(primaryColor, 0.35);
-      const rgb = hexToRgbValues(darkP);
-      document.documentElement.style.setProperty('--primary', darkP);
-      document.documentElement.style.setProperty('--primary-r', String(rgb.r));
-      document.documentElement.style.setProperty('--primary-g', String(rgb.g));
-      document.documentElement.style.setProperty('--primary-b', String(rgb.b));
-    } else if (newTheme === 'light') {
-      document.documentElement.classList.remove('dark');
-      const rgb = hexToRgbValues(primaryColor);
-      document.documentElement.style.setProperty('--primary', primaryColor);
-      document.documentElement.style.setProperty('--primary-r', String(rgb.r));
-      document.documentElement.style.setProperty('--primary-g', String(rgb.g));
-      document.documentElement.style.setProperty('--primary-b', String(rgb.b));
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        document.documentElement.classList.add('dark');
-        const darkP = localStorage.getItem('primaryColorDark') || lighten(primaryColor, 0.35);
-        const rgb = hexToRgbValues(darkP);
-        document.documentElement.style.setProperty('--primary', darkP);
-        document.documentElement.style.setProperty('--primary-r', String(rgb.r));
-        document.documentElement.style.setProperty('--primary-g', String(rgb.g));
-        document.documentElement.style.setProperty('--primary-b', String(rgb.b));
-      } else {
-        document.documentElement.classList.remove('dark');
-        const rgb = hexToRgbValues(primaryColor);
-        document.documentElement.style.setProperty('--primary', primaryColor);
-        document.documentElement.style.setProperty('--primary-r', String(rgb.r));
-        document.documentElement.style.setProperty('--primary-g', String(rgb.g));
-        document.documentElement.style.setProperty('--primary-b', String(rgb.b));
-      }
-    }
   };
 
   const handlePrimaryColorChange = useCallback((hex: string) => {
@@ -178,7 +146,7 @@ export function AppearanceSettings() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      localStorage.setItem('theme', theme);
+      localStorage.setItem('mangaaura-theme', theme);
       localStorage.setItem('fontSize', fontSize);
       localStorage.setItem('layoutDensity', layoutDensity);
 
@@ -415,16 +383,17 @@ export function AppearanceSettings() {
         <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border)]">
           <Button
             variant="outline"
-            onClick={() => {
-              setTheme('dark');
-              setFontSize('normal');
-              setLayoutDensity('normal');
-              setPrimaryColor('#5f5fe8');
-              localStorage.removeItem('primaryColor');
-              localStorage.removeItem('primaryColorDark');
-              applyPrimaryColor('#5f5fe8', '#818cf8');
-              setIsDirty(false);
-            }}
+              onClick={() => {
+                  setTheme('dark');
+                  setThemeProvider('dark');
+                  setFontSize('normal');
+                  setLayoutDensity('normal');
+                  setPrimaryColor('#5f5fe8');
+                  localStorage.removeItem('primaryColor');
+                  localStorage.removeItem('primaryColorDark');
+                  applyPrimaryColor('#5f5fe8', '#818cf8');
+                  setIsDirty(false);
+                }}
           >
             Restaurar defaults
           </Button>

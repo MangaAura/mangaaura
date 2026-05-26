@@ -197,7 +197,12 @@ export function MobileMenu({
                     <Link
                       href={localeHref(pathname, '/creator/manga/new')}
                       onClick={onClose}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
+                      className={
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
+                        (isActive(pathname, '/creator/manga/new')
+                          ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
+                          : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
+                      }
                       aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
                     >
                       <Plus className="w-5 h-5" aria-hidden="true" />
