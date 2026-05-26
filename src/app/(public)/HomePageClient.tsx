@@ -1,20 +1,40 @@
 ﻿'use client';
 
+import dynamic from 'next/dynamic';
 import { Trophy, TrendingUp, Clock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
-import { GenreMarquee } from '@/components/GenreMarquee';
-import { AnimatedHero } from '@/components/Home/AnimatedHero';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
-import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { MangaCard } from '@/components/MangaCard';
-import { QuestPanel } from '@/components/Quest/QuestPanel';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
+
+// Dynamic imports for heavy animation components (code splitting)
+const GenreMarquee = dynamic(() => import('@/components/GenreMarquee').then(m => ({ default: m.GenreMarquee })), {
+  ssr: true,
+  loading: () => <div className="h-12 bg-tertiary/50 rounded-lg animate-pulse" />,
+});
+
+const AnimatedHero = dynamic(() => import('@/components/Home/AnimatedHero').then(m => ({ default: m.AnimatedHero })), {
+  ssr: true,
+  loading: () => (
+    <div className="relative w-full h-[60vh] min-h-[400px] bg-gradient-to-b from-tertiary to-background animate-pulse" />
+  ),
+});
+
+const HomeRankingsSidebar = dynamic(
+  () => import('@/components/Home/HomeRankingsSidebar').then(m => ({ default: m.HomeRankingsSidebar })),
+  { ssr: true }
+);
+
+const QuestPanel = dynamic(
+  () => import('@/components/Quest/QuestPanel').then(m => ({ default: m.QuestPanel })),
+  { ssr: true },
+);
 
 function parseTags(tags: unknown): string[] {
   if (Array.isArray(tags)) return tags as string[];

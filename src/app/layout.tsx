@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos.",
     siteName: "MangaAura",
     locale: "es_ES",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MangaAura" }],
+    images: [{ url: "/og-image.webp", width: 1200, height: 630, alt: "MangaAura" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -178,6 +178,7 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bebas+Neue&display=swap" />
         <link rel="dns-prefetch" href="https://**.vercel-storage.com" />
       </head>
       <body className="font-sans antialiased flex flex-col min-h-screen">
