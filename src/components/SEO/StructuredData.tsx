@@ -29,6 +29,38 @@ interface BreadcrumbStructuredDataProps {
   }>;
 }
 
+interface FAQPageStructuredDataProps {
+  items: Array<{
+    question: string;
+    answer: string;
+  }>;
+}
+
+interface HowToStructuredDataProps {
+  name: string;
+  description: string;
+  steps: Array<{
+    name: string;
+    text: string;
+    url?: string;
+    image?: string;
+  }>;
+  totalTime?: string;
+  estimatedCost?: string;
+}
+
+interface ArticleStructuredDataProps {
+  title: string;
+  description: string;
+  url: string;
+  imageUrl?: string;
+  authorName: string;
+  datePublished: string;
+  dateModified?: string;
+  publisherName?: string;
+  publisherLogo?: string;
+}
+
 export function MangaStructuredData({
   title,
   description,
@@ -113,6 +145,109 @@ export function ChapterStructuredData({
   );
 }
 
+export function FAQPageStructuredData({ items }: FAQPageStructuredDataProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
+  return (
+    <Script
+      id="faq-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+export function HowToStructuredData({
+  name,
+  description,
+  steps,
+  totalTime,
+  estimatedCost,
+}: HowToStructuredDataProps) {
+  const structuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name,
+    description,
+    step: steps.map((step, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: step.name,
+      text: step.text,
+      ...(step.url && { url: step.url }),
+      ...(step.image && { image: step.image }),
+    })),
+    ...(totalTime && { totalTime }),
+    ...(estimatedCost && { estimatedCost: { '@type': 'MonetaryAmount', value: estimatedCost, currency: 'EUR' } }),
+  };
+
+  return (
+    <Script
+      id="howto-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+export function ArticleStructuredData({
+  title,
+  description,
+  url,
+  imageUrl,
+  authorName,
+  datePublished,
+  dateModified,
+  publisherName = 'MangaAura',
+  publisherLogo = 'https://mangaaura.es/icons/icon-512x512.png',
+}: ArticleStructuredDataProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    url,
+    ...(imageUrl && { image: imageUrl }),
+    author: {
+      '@type': 'Person',
+      name: authorName,
+    },
+    datePublished,
+    ...(dateModified && { dateModified }),
+    publisher: {
+      '@type': 'Organization',
+      name: publisherName,
+      logo: {
+        '@type': 'ImageObject',
+        url: publisherLogo,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
+  };
+
+  return (
+    <Script
+      id="article-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
 export function BreadcrumbStructuredData({ items }: BreadcrumbStructuredDataProps) {
   const structuredData = {
     '@context': 'https://schema.org',
@@ -145,7 +280,7 @@ export function WebsiteStructuredData() {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://mangaaura.es/search?q={search_term_string}',
+        urlTemplate: 'https://mangaaura.es/explore?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },
@@ -153,6 +288,11 @@ export function WebsiteStructuredData() {
       'https://twitter.com/mangaaura',
       'https://discord.gg/mangaaura',
       'https://github.com/mangaaura',
+      'https://www.instagram.com/mangaaura/',
+      'https://www.reddit.com/r/mangaaura/',
+      'https://www.youtube.com/@mangaaura',
+      'https://www.twitch.tv/mangaaura',
+      'https://www.tiktok.com/@mangaaura',
     ],
   };
 
@@ -182,6 +322,12 @@ export function OrganizationStructuredData() {
     sameAs: [
       'https://twitter.com/mangaaura',
       'https://discord.gg/mangaaura',
+      'https://github.com/mangaaura',
+      'https://www.instagram.com/mangaaura/',
+      'https://www.reddit.com/r/mangaaura/',
+      'https://www.youtube.com/@mangaaura',
+      'https://www.twitch.tv/mangaaura',
+      'https://www.tiktok.com/@mangaaura',
     ],
   };
 

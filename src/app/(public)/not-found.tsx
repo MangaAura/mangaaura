@@ -5,12 +5,15 @@ import { Home, BookOpen, Search } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/Button';
+import { NoIndex } from '@/components/SEO/NoIndex';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 
 export default function MainNotFoundPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
+    <>
+      <NoIndex />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -54,5 +57,6 @@ export default function MainNotFoundPage() {
         </Link>
       </motion.div>
     </div>
+    </>
   );
 }

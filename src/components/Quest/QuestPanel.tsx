@@ -47,7 +47,7 @@ export function QuestPanel({ className, compact = false, collapsible = false }: 
     { refreshInterval: 30000 }, // refresh every 30s
   );
 
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showCompletedDaily, setShowCompletedDaily] = useState(false);
   const [showCompletedWeekly, setShowCompletedWeekly] = useState(false);
   const [claimingQuestId, setClaimingQuestId] = useState<string | null>(null);

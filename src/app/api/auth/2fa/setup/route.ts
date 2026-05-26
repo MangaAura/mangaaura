@@ -16,7 +16,9 @@ export async function POST() {
       secret: result.secret,
       otpauthUrl: result.otpauthUrl,
     });
-  } catch {
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  } catch (error) {
+    console.error('[2FA Setup]', error);
+    const message = error instanceof Error ? error.message : 'Error interno del servidor';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

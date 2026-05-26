@@ -19,7 +19,8 @@ function createPrismaClient(): PrismaClient {
     });
   }
 
-  // PostgreSQL adapter (production)    const { PrismaPg } = require("@prisma/adapter-pg") as typeof import("@prisma/adapter-pg");
+  // PostgreSQL adapter (production)
+  const { PrismaPg } = require("@prisma/adapter-pg") as typeof import("@prisma/adapter-pg");
   const adapter = new PrismaPg({
     connectionString: url,
   });

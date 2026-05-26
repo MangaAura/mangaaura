@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { NoIndex } from '@/components/SEO/NoIndex';
 
 export default function ErrorPage({
   error,
@@ -30,7 +31,9 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--surface)] px-4">
+    <>
+      <NoIndex />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--surface)] px-4">
       <div className="max-w-lg w-full text-center">
         <ErrorFallback error={error} reset={reset} showReset={false} />
 
@@ -85,5 +88,6 @@ export default function ErrorPage({
         </p>
       </div>
     </div>
+    </>
   );
 }

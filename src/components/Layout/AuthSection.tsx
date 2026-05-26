@@ -11,6 +11,8 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 
+import { localeHref } from './NavLinks';
+
 import { NotificationDropdown } from './NotificationDropdown';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useT } from '@/i18n';
@@ -183,7 +185,7 @@ export function AuthSection({
               <div className="py-1">
                 <DropdownMenu.Item asChild>
                   <Link
-                    href="/profile"
+                    href={localeHref(pathname, '/profile')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none"
                   >
                     <User className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-[var(--primary)] transition-colors duration-150" />
@@ -195,7 +197,7 @@ export function AuthSection({
 
                 <DropdownMenu.Item asChild>
                   <Link
-                    href="/library"
+                    href={localeHref(pathname, '/library')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
                   >
                     <Library className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-[var(--primary)] transition-colors duration-150" />
@@ -207,7 +209,7 @@ export function AuthSection({
 
                 <DropdownMenu.Item asChild>
                   <Link
-                    href="/collections"
+                    href={localeHref(pathname, '/collections')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
                   >
                     <FolderOpen className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-[var(--primary)] transition-colors duration-150" />
@@ -219,7 +221,7 @@ export function AuthSection({
 
                 <DropdownMenu.Item asChild>
                   <Link
-                    href="/messages"
+                    href={localeHref(pathname, '/messages')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
                   >
                     <MessageCircle className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-[var(--primary)] transition-colors duration-150" />
@@ -231,7 +233,7 @@ export function AuthSection({
 
                 <DropdownMenu.Item asChild>
                   <Link
-                    href="/feed"
+                    href={localeHref(pathname, '/feed')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
                   >
                     <Rss className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-[var(--primary)] transition-colors duration-150" />
@@ -244,7 +246,7 @@ export function AuthSection({
                 {session?.user?.role === 'CREATOR' && (
                   <DropdownMenu.Item asChild>
                     <Link
-                      href="/creator/dashboard"
+                      href={localeHref(pathname, '/creator/dashboard')}
                       className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
                     >
                       <Sparkles className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-amber-500 transition-colors duration-150" />
@@ -262,7 +264,7 @@ export function AuthSection({
                 {isModerator && (
                   <DropdownMenu.Item asChild>
                     <Link
-                      href="/admin"
+                      href={localeHref(pathname, '/admin')}
                       className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none"
                     >
                       <Shield className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-cyan-500 transition-colors duration-150" />
@@ -275,7 +277,7 @@ export function AuthSection({
 
                 <DropdownMenu.Item asChild>
                   <Link
-                    href="/settings"
+                    href={localeHref(pathname, '/settings')}
                     className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none"
                   >
                     <Settings className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-[var(--primary)] transition-colors duration-150" />
@@ -290,7 +292,7 @@ export function AuthSection({
 
               <div className="py-1">
                 <DropdownMenu.Item
-                  onSelect={() => signOut({ callbackUrl: '/' })}
+                  onSelect={() => signOut({ callbackUrl: localeHref(pathname, '/') })}
                   className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--error)] hover:bg-[var(--error)]/5 transition-all duration-150 cursor-pointer outline-none"
                 >
                   <LogOut className="w-4 h-4 group-hover/item:-translate-x-0.5 transition-transform duration-150" />
@@ -309,13 +311,13 @@ export function AuthSection({
   return (
     <div className="flex items-center gap-2">
       <Link
-        href="/auth/login"
+        href={localeHref(pathname, '/auth/login')}
         className="hidden sm:block px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface)] transition-all duration-200"
       >
         {t('nav.login')}
       </Link>
       <Link
-        href="/auth/register"
+        href={localeHref(pathname, '/auth/register')}
         className="px-4 py-2 text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)]/90 rounded-lg shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-[1.02]"
       >
         {t('nav.register')}

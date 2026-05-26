@@ -69,6 +69,10 @@ export function HomePageClient({
 }: HomePageClientProps) {
   const { data: session } = useSession();
   const t = useT();
+  const isCreator = session?.user?.role === 'CREATOR';
+  const isLoggedIn = !!session?.user;
+  const ctaHref = !isLoggedIn ? '/auth/register' : isCreator ? '/creator/manga/new' : '/explore';
+  const ctaLabel = !isLoggedIn ? t('nav.register') : isCreator ? t('creator.newManga') : t('home.exploreMangas');
 
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary">
@@ -289,12 +293,12 @@ export function HomePageClient({
                 </p>
               </div>
               <Link
-                href="/creator/upload"
+                href={ctaHref}
                 className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-[var(--text-inverse)] cursor-pointer"
                 style={{ background: 'linear-gradient(to right, var(--accent-purple), var(--primary))' }}
               >
                 <Sparkles className="w-5 h-5 mr-2" />
-                {t('home.startCreating')}
+                {ctaLabel}
               </Link>
             </div>
           </section>

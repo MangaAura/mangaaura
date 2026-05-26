@@ -8,7 +8,7 @@ test.describe('Browse Manga Page', () => {
 
   test('should have search input', async ({ page }) => {
     await page.goto('/browse');
-    await expect(page.getByPlaceholder(/buscar/i).first()).toBeVisible();
+    await expect(page.getByPlaceholder(/buscar|search/i).first()).toBeVisible();
   });
 
   test('should navigate to manga detail on click', async ({ page }) => {

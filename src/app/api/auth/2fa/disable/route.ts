@@ -32,7 +32,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  } catch (error) {
+    console.error('[2FA Disable]', error);
+    const message = error instanceof Error ? error.message : 'Error interno del servidor';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

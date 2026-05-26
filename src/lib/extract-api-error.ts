@@ -46,7 +46,7 @@ export async function extractApiError(response: Response): Promise<ExtractedErro
     if (body.errors && typeof body.errors === 'object') {
       const firstError = Object.values(body.errors).flat().filter(Boolean)[0];
       return {
-        message: firstError || 'Error de validación',
+        message: (firstError as string) || 'Error de validación',
         status,
         code: 'VALIDATION_ERROR',
         details: body.errors as Record<string, string[]>,

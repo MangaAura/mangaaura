@@ -5,12 +5,24 @@ import { useCallback, useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 
 import { Button } from '@/components/ui/Button';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 /**
  * Create a cropped image blob from a source URL and pixel crop area.
  * Uses Canvas API to extract the cropped region.
  */
+async function canvasToBlob(canvas: HTMLCanvasElement, format: string, quality: number): Promise<Blob> {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error(`Failed to create ${format} blob from canvas`));
+      },
+      format,
+      quality
+    );
+  });
+}
+
 export async function createCroppedImage(
   imageSrc: string,
   pixelCrop: Area,
@@ -26,7 +38,6 @@ export async function createCroppedImage(
   canvas.width = Math.round(pixelCrop.width);
   canvas.height = Math.round(pixelCrop.height);
 
-  // Draw the cropped portion of the image onto the canvas
   ctx.drawImage(
     image,
     pixelCrop.x,
@@ -39,16 +50,14 @@ export async function createCroppedImage(
     canvas.height
   );
 
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error('Failed to create image blob'));
-      },
-      outputFormat,
-      quality
-    );
-  });
+  try {
+    return await canvasToBlob(canvas, outputFormat, quality);
+  } catch {
+    if (outputFormat === 'image/webp') {
+      return canvasToBlob(canvas, 'image/png', 0.92);
+    }
+    throw new Error('No se pudo generar la imagen recortada');
+  }
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -69,6 +78,8 @@ interface ImageCropperProps {
   onCropConfirm: (croppedBlob: Blob) => void;
   /** Called when the user cancels cropping */
   onCancel: () => void;
+  /** Called when an error occurs during cropping */
+  onError?: (error: string) => void;
   /** Fixed aspect ratio (width/height). Default: 16/9 */
   aspect?: number;
   /** Whether the cropper is open */
@@ -88,6 +99,7 @@ export default function ImageCropper({
   imageSrc,
   onCropConfirm,
   onCancel,
+  onError,
   aspect = 16 / 9,
   open,
   title,
@@ -97,7 +109,6 @@ export default function ImageCropper({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [processing, setProcessing] = useState(false);
-  const { handleError } = useErrorHandler();
   const zoomRef = useRef<HTMLInputElement>(null);
 
   const onCropComplete = useCallback(
@@ -115,7 +126,8 @@ export default function ImageCropper({
       const blob = await createCroppedImage(imageSrc, croppedAreaPixels, 'image/webp', 0.92);
       onCropConfirm(blob);
     } catch (err) {
-      handleError(err);
+      const message = err instanceof Error ? err.message : 'Error al recortar la imagen';
+      onError?.(message);
     } finally {
       setProcessing(false);
     }

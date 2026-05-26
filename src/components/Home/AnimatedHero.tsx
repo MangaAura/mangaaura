@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { Play, Compass, BookOpen, Users, BookMarked } from 'lucide-react';
+import { Play, Compass, BookOpen, Users, BookMarked, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -163,7 +163,18 @@ export function AnimatedHero({
                 {t('home.readNow')}
               </motion.span>
             </Link>
-          ) : null}
+          ) : (
+            <Link href="/auth/register">
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white cursor-pointer"
+              >
+                <Sparkles className="w-5 h-5" />
+                {t('home.ctaHeroRegister')}
+              </motion.span>
+            </Link>
+          )}
           <Link href="/explore">
             <motion.span
               whileHover={{ scale: 1.05 }}
@@ -171,7 +182,7 @@ export function AnimatedHero({
               className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-semibold border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-colors cursor-pointer"
             >
               <Compass className="w-5 h-5" />
-              {t('home.exploreMangas')}
+              {coverUrl ? t('home.exploreMangas') : t('home.ctaHeroLearnMore')}
             </motion.span>
           </Link>
         </motion.div>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 
+import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { prisma } from '@/lib/prisma';
 
 interface ChapterPageProps {
@@ -14,6 +15,7 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
   const manga = await prisma.mangaSeries.findUnique({
     where: { slug },
     select: {
+      id: true,
       title: true,
       description: true,
       coverUrl: true,
@@ -26,10 +28,19 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
     return { title: 'Capítulo no encontrado | MangaAura' };
   }
 
+  const chapter = await prisma.chapter.findFirst({
+    where: { mangaId: manga.id, chapterNumber: chapterNum },
+    select: { createdAt: true, updatedAt: true },
+  });
+
   const title = `${manga.title} - Capítulo ${chapterNum} | MangaAura`;
   const description = `Lee el capítulo ${chapterNum} de ${manga.title} en MangaAura.${manga.description ? ` ${manga.description.slice(0, 120)}` : ''}`;
+  const chapterCount = await prisma.chapter.count({
+    where: { mangaId: manga.id },
+  });
+
   const ogImage = manga.coverUrl
-    ? `/api/og?type=chapter&title=${encodeURIComponent(`${manga.title} — Cap. ${chapterNum}`)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}`
+    ? `/api/og?type=chapter&title=${encodeURIComponent(`${manga.title} — Cap. ${chapterNum}`)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}&chapters=${chapterCount}`
     : undefined;
 
   return {
@@ -42,6 +53,8 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
       images: ogImage
         ? [{ url: ogImage, width: 1200, height: 630, alt: `${manga.title} capítulo ${chapterNum}` }]
         : undefined,
+      publishedTime: chapter?.createdAt?.toISOString(),
+      modifiedTime: chapter?.updatedAt?.toISOString(),
     },
     twitter: {
       card: 'summary_large_image',
@@ -61,7 +74,7 @@ export default async function ChapterReaderPage({ params }: ChapterPageProps) {
 
   const manga = await prisma.mangaSeries.findUnique({
     where: { slug },
-    select: { id: true },
+    select: { id: true, title: true },
   });
 
   if (!manga) notFound();
@@ -73,5 +86,17 @@ export default async function ChapterReaderPage({ params }: ChapterPageProps) {
 
   if (!chapter) notFound();
 
-  redirect(`/reader?mangaId=${manga.id}&chapterNumber=${chapterNum}`);
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Manga', item: '/explore' },
+          { name: manga.title, item: `/manga/${slug}` },
+          { name: `Capítulo ${chapterNum}`, item: `/manga/${slug}/chapter/${chapterNum}` },
+        ]}
+      />
+      {redirect(`/reader?mangaId=${manga.id}&chapterNumber=${chapterNum}`)}
+    </>
+  );
 }

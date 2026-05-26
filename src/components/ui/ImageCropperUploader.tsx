@@ -197,6 +197,7 @@ export const ImageCropperUploader = forwardRef<
         subtitle={cropperSubtitle}
         onCropConfirm={handleCropConfirm}
         onCancel={handleCropCancel}
+        onError={onError}
       />
     </>
   );

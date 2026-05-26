@@ -46,7 +46,7 @@ export function NewThreadForm({ categories }: NewThreadFormProps) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const validateField = (field: string, value: string) => {
-    const shape = threadSchema.shape as Record<string, z.ZodString>;
+    const shape = threadSchema.shape as Record<string, { safeParse: (v: unknown) => { success: boolean; error?: { issues: { message: string }[] } } }>;
     const result = shape[field]?.safeParse(value);
     setFieldErrors((prev) => ({ ...prev, [field]: result?.success ? null : (result?.error?.issues[0]?.message ?? null) }));
   };

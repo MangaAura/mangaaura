@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useEffect, useRef } from 'react';
 
-import { NavLinks, isActive, type NavLinkDef } from './NavLinks';
+import { NavLinks, isActive, localeHref, type NavLinkDef } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -92,7 +92,7 @@ export function MobileMenu({
                     <div className="my-2 border-t border-[var(--border)]" />
 
                     <Link
-                      href="/feed"
+                      href={localeHref(pathname, '/feed')}
                       onClick={onClose}
                       className={
                         'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -107,7 +107,7 @@ export function MobileMenu({
                     </Link>
 
                     <Link
-                      href="/notifications"
+                      href={localeHref(pathname, '/notifications')}
                       onClick={onClose}
                       className={
                         'flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -129,7 +129,7 @@ export function MobileMenu({
                     </Link>
 
                     <Link
-                      href="/messages"
+                      href={localeHref(pathname, '/messages')}
                       onClick={onClose}
                       className={
                         'flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -151,7 +151,7 @@ export function MobileMenu({
                     </Link>
 
                     <Link
-                      href="/collections"
+                      href={localeHref(pathname, '/collections')}
                       onClick={onClose}
                       className={
                         'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -166,7 +166,7 @@ export function MobileMenu({
                     </Link>
 
                     <Link
-                      href="/quests"
+                      href={localeHref(pathname, '/quests')}
                       onClick={onClose}
                       className={
                         'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -182,7 +182,7 @@ export function MobileMenu({
 
                     {isCreator && (
                       <Link
-                        href="/creator/dashboard"
+                        href={localeHref(pathname, '/creator/dashboard')}
                         onClick={onClose}
                         className={
                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -199,7 +199,7 @@ export function MobileMenu({
 
                     {isCreator && (
                       <Link
-                        href="/creator/manga/new"
+                        href={localeHref(pathname, '/creator/manga/new')}
                         onClick={onClose}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
                         aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
@@ -212,7 +212,7 @@ export function MobileMenu({
                     <div className="my-2 border-t border-[var(--border)]" />
 
                     <Link
-                      href="/settings"
+                      href={localeHref(pathname, '/settings')}
                       onClick={onClose}
                       className={
                         'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
@@ -248,7 +248,7 @@ export function MobileMenu({
               {mounted && !isLoggedIn && (
                 <div className="pt-3 border-t border-[var(--border)] space-y-2">
                   <Link
-                    href="/auth/login"
+                    href={localeHref(pathname, '/auth/login')}
                     onClick={onClose}
                     className="block w-full px-4 py-2.5 text-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--background)] border border-[var(--border)] rounded-lg hover:bg-[var(--surface-elevated)] transition-colors"
                     aria-current={isActive(pathname, '/auth/login') ? 'page' : undefined}
@@ -256,7 +256,7 @@ export function MobileMenu({
                     {t('nav.login')}
                   </Link>
                   <Link
-                    href="/auth/register"
+                    href={localeHref(pathname, '/auth/register')}
                     onClick={onClose}
                     className="block w-full px-4 py-2.5 text-center text-sm font-medium text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-hover)] rounded-lg transition-colors"
                     aria-current={isActive(pathname, '/auth/register') ? 'page' : undefined}

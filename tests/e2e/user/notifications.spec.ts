@@ -12,7 +12,7 @@ test.describe('Notificaciones', () => {
     const bellButton = page.getByLabel(/notificaciones|notifications/i);
     if (await bellButton.isVisible()) {
       await bellButton.click();
-      await expect(page.getByText(/notificaciones|sin notificaciones/i)).toBeVisible();
+      await expect(page.getByText(/notificaciones|sin notificaciones|notifications|no notifications/i)).toBeVisible();
     }
   });
 });

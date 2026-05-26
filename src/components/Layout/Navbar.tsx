@@ -11,7 +11,7 @@ import { useState, useSyncExternalStore } from 'react';
 
 import { AuthSection } from './AuthSection';
 import { MobileMenu } from './MobileMenu';
-import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive } from './NavLinks';
+import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive, localeHref, getLocaleFromPath } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -44,12 +44,14 @@ export default function Navbar() {
 
   const visibleLinks = ALL_NAV_LINKS.filter((link) => {
     if (link.requiresModerator) return mounted ? isModerator : false;
+    if (link.requiresCreator) return mounted ? isCreator : false;
     if (link.hideWhenLoggedOut) return mounted ? isLoggedIn : false;
     return true;
   });
 
   const moreLinks = MORE_NAV_LINKS.filter((link) => {
     if (link.requiresModerator) return mounted ? isModerator : false;
+    if (link.requiresCreator) return mounted ? isCreator : false;
     if (link.hideWhenLoggedOut) return mounted ? isLoggedIn : false;
     return true;
   });
@@ -57,7 +59,8 @@ export default function Navbar() {
   const [moreOpen, setMoreOpen] = useState(false);
 
   const handleSearch = (query: string) => {
-    router.push(`/explore?q=${encodeURIComponent(query)}`);
+    const locale = getLocaleFromPath(pathname);
+    router.push(`/${locale}/explore?q=${encodeURIComponent(query)}`);
   };
 
   return (
@@ -73,7 +76,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-2 group">
+              <Link href={localeHref(pathname, '/')} className="flex items-center gap-2 group">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20 group-hover:shadow-[var(--primary)]/30 group-hover:scale-105 transition-all duration-200">
                   <BookOpen className="w-5 h-5 text-[var(--text-inverse)]" aria-hidden="true" />
                 </div>
@@ -124,7 +127,7 @@ export default function Navbar() {
               {mounted && isLoggedIn && (
                 <div className="hidden md:flex items-center gap-0.5 mx-1 px-1.5 py-1 rounded-xl bg-[var(--surface)]/50 border border-[var(--border)]/50">
                   <Link
-                    href="/feed"
+                    href={localeHref(pathname, '/feed')}
                     className={
                       'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                       (isActive(pathname, '/feed')
@@ -141,7 +144,7 @@ export default function Navbar() {
                   </Link>
 
                   <Link
-                    href="/messages"
+                    href={localeHref(pathname, '/messages')}
                     className={
                       'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                       (isActive(pathname, '/messages')
@@ -168,7 +171,7 @@ export default function Navbar() {
                   </Link>
 
                   <Link
-                    href="/collections"
+                    href={localeHref(pathname, '/collections')}
                     className={
                       'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                       (isActive(pathname, '/collections')
@@ -186,7 +189,7 @@ export default function Navbar() {
 
                   {isCreator && (
                     <Link
-                      href="/creator/dashboard"
+                      href={localeHref(pathname, '/creator/dashboard')}
                       className={
                         'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
                         (isActive(pathname, '/creator/dashboard')
@@ -205,7 +208,7 @@ export default function Navbar() {
 
                   {isCreator && (
                     <Link
-                      href="/creator/manga/new"
+                      href={localeHref(pathname, '/creator/manga/new')}
                       className="group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
                       title={t('creator.newManga')}
                     >

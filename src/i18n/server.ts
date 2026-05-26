@@ -22,9 +22,18 @@ export function getLocaleFromHeaders(acceptLanguage?: string): Locale {
 }
 
 export async function detectLocale(): Promise<Locale> {
+  // 1. x-locale header set by middleware (highest priority)
+  const headersList = await headers();
+  const xLocale = headersList.get('x-locale');
+  if (xLocale && SUPPORTED_LOCALES.includes(xLocale as Locale)) {
+    return xLocale as Locale;
+  }
+
+  // 2. Check cookie (for direct visits without middleware)
   const fromCookie = await getLocaleFromCookies();
   if (fromCookie) return fromCookie;
-  const headersList = await headers();
+
+  // 3. Fall back to Accept-Language header
   const acceptLanguage = headersList.get('accept-language') || undefined;
   return getLocaleFromHeaders(acceptLanguage);
 }

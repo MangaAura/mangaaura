@@ -301,7 +301,7 @@ export function RealtimeAnalyticsClient() {
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end gap-1">
               <button
-                onClick={() => exportToPDF(setExporting, setExportError, handleError)}
+                onClick={() => exportToPDF(setExporting, setExportError, (err) => handleError(err))}
                 disabled={exporting}
                 className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >

@@ -5,6 +5,10 @@ import { AppShell } from '@/components/Layout/AppShell';
 export const metadata: Metadata = {
   title: 'Autenticación | MangaAura',
   description: 'Inicia sesión o regístrate en MangaAura.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AuthLayout({

@@ -37,6 +37,17 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  // Aura Economy fields
+  auraLifetimePurchased    Int         @default(0)
+  auraLifetimeTransferred  Int         @default(0)
+  auraLifetimeWithdrawn    Int         @default(0)
+  auraFirstPurchaseAt      DateTime?
+  kycStatus                String      @default("none") // none | pending | approved | rejected
+  kycVerifiedAt            DateTime?
+  referralCode             String?     @unique
+  referredBy               String?     // referralCode of referrer
+  transferLockUntil        DateTime?
+
   accounts                  Account[]
   sessions                  Session[]
   achievements              UserAchievement[]
@@ -60,6 +71,10 @@ model User {
   ledClan                   Clan?                      @relation("ClanLeader")
   pushSubscriptions         PushSubscription[]
   quests                    UserQuest[]
+  referralsSent      ReferralClaim[] @relation("ReferrerRelation")
+  referralsReceived   ReferralClaim[] @relation("RefereeRelation")
+  transfersSent       AuraTransfer[]  @relation("TransfersSent")
+  transfersReceived   AuraTransfer[]  @relation("TransfersReceived")
 
   // Roles & Permissions
   roles            UserRole[]         @relation("UserRoles")
@@ -295,6 +310,49 @@ model Transaction {
   @@index([userId])
   @@index([type])
   @@index([timestamp])
+}
+
+model AuraTransfer {
+  id           String   @id @default(cuid())
+  fromUserId   String
+  toUserId     String
+  amount       Int      // debited from sender (before burn)
+  burnedAmount Int      // floor(amount * 0.03)
+  netAmount    Int      // amount - burnedAmount
+  createdAt    DateTime @default(now())
+
+  fromUser User @relation("TransfersSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser   User @relation("TransfersReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([createdAt])
+}
+
+model ReferralClaim {
+  id             String    @id @default(cuid())
+  referrerId     String
+  refereeId      String
+  purchaseAmount Int       @default(0)  // how much referee purchased
+  bonusAwarded   Int       @default(0)  // floor(purchaseAmount * 0.10)
+  status         String    @default("locked") // locked | unlocked | claimed
+  unlockedAt     DateTime?
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  referrer User @relation("ReferrerRelation", fields: [referrerId], references: [id], onDelete: Cascade)
+  referee  User @relation("RefereeRelation", fields: [refereeId], references: [id], onDelete: Cascade)
+
+  @@unique([referrerId, refereeId])
+  @@index([referrerId])
+  @@index([refereeId])
+  @@index([status])
+}
+
+model StripeEvent {
+  stripeId    String   @id // Stripe event ID for idempotency
+  type        String
+  processedAt DateTime @default(now())
 }
 
 model Tip {

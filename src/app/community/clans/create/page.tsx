@@ -34,12 +34,12 @@ export default function CreateClanPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateField = (field: string, value: string) => {
-    const shape = clanSchema.shape as Record<string, z.ZodString | z.ZodOptional<z.ZodString>>;
+    const shape = clanSchema.shape as Record<string, { safeParse: (v: unknown) => { success: boolean; error?: { issues: { message: string }[] } } }>;
     if (field === 'description') {
       setFieldErrors((prev) => ({ ...prev, description: null }));
       return;
     }
-    const result = (shape[field] as z.ZodString)?.safeParse(value);
+    const result = shape[field]?.safeParse(value);
     setFieldErrors((prev) => ({ ...prev, [field]: result?.success ? null : (result?.error?.issues[0]?.message ?? null) }));
   };
 

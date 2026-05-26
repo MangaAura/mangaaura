@@ -43,6 +43,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   alternates: {
     canonical: siteUrl,
+    languages: {
+      'x-default': siteUrl,
+      es: siteUrl,
+      en: `${siteUrl}/en`,
+    },
   },
   icons: {
     icon: [

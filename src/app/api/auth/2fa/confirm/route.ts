@@ -31,7 +31,9 @@ export async function POST(request: NextRequest) {
     await redis.setex(`2fa:confirmed:${session.user.id}`, 1800, 'true');
 
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  } catch (error) {
+    console.error('[2FA Confirm]', error);
+    const message = error instanceof Error ? error.message : 'Error interno del servidor';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

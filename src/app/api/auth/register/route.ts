@@ -12,7 +12,17 @@ const registerSchema = z.object({
   email: z.string().email(),
   username: z.string().min(3).max(30),
   password: z.string().min(8),
+  referralCode: z.string().optional(), // Optional referral code from query param
 });
+
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +36,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429 });
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Cuerpo de solicitud inválido. Se esperaba JSON.' },
+        { status: 400 }
+      );
+    }
     const result = registerSchema.safeParse(body);
 
     if (!result.success) {
@@ -36,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email: emailStr, username, password: passwordStr } = result.data;
+    const { email: emailStr, username, password: passwordStr, referralCode: referredByCode } = result.data;
 
     // Validar email con Value Object
     let email;
@@ -92,24 +110,49 @@ export async function POST(request: NextRequest) {
     // Hashear contraseña
     const hashedPassword = await bcrypt.hash(passwordStr, 12);
 
-    // Crear usuario
+    // Generate unique referral code
+    let userReferralCode = generateReferralCode();
+    let codeExists = await prisma.user.findFirst({ where: { referralCode: userReferralCode } });
+    while (codeExists) {
+      userReferralCode = generateReferralCode();
+      codeExists = await prisma.user.findFirst({ where: { referralCode: userReferralCode } });
+    }
+
+    // Look up referrer if referral code provided
+    let referrerCode = referredByCode || null;
+    if (!referrerCode) {
+      // Try to get from query param
+      const url = new URL(request.url);
+      referrerCode = url.searchParams.get('ref');
+    }
+
+    let referrer = null;
+    if (referrerCode) {
+      referrer = await prisma.user.findFirst({
+        where: { referralCode: referrerCode.toUpperCase() },
+        select: { id: true },
+      });
+    }
+
+    // Create user
     const user = await prisma.user.create({
       data: {
         email: email.value,
         username: username.toLowerCase().trim(),
         passwordHash: hashedPassword,
         xpPoints: 0,
-        auraBalance: 50, // Bonus de registro
         level: 1,
         readingStreak: 0,
-      emailPreferences: JSON.stringify({
-        newChapters: true,
-        commentReplies: true,
-        tips: true,
-        achievements: true,
-        marketing: false,
-        crowdfundingUpdates: true,
-      }),
+        referralCode: userReferralCode,
+        referredBy: referrer ? referrerCode : null,
+        emailPreferences: JSON.stringify({
+          newChapters: true,
+          commentReplies: true,
+          tips: true,
+          achievements: true,
+          marketing: false,
+          crowdfundingUpdates: true,
+        }),
       },
       select: {
         id: true,
@@ -147,6 +190,19 @@ export async function POST(request: NextRequest) {
     }).catch((verifyError: unknown) => {
       console.error('[Register] Error creating verification token:', verifyError);
     });
+
+    // Create ReferralClaim for referrer if valid referral code was used
+    if (referrer) {
+      prisma.referralClaim.create({
+        data: {
+          referrerId: referrer.id,
+          refereeId: user.id,
+          status: 'locked',
+        },
+      }).catch((referralError: unknown) => {
+        console.error('[Register] Error creating referral claim:', referralError);
+      });
+    }
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const verificationUrl = `${baseUrl}/auth/verify?token=${verifyToken}`;

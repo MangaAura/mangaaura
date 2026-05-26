@@ -18,7 +18,7 @@ interface TipButtonProps {
 const PRESET_AMOUNTS = [10, 50, 100, 250, 500];
 
 interface UserBalance {
-  balance: number;
+  auraBalance: number;
 }
 
 export default function TipButton({ chapterId, authorName, onTipSent }: TipButtonProps) {
@@ -40,7 +40,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
       const response = await fetch('/api/economy/balance');
       if (response.ok) {
         const data: UserBalance = await response.json();
-        setUserBalance(data.balance);
+        setUserBalance(data.auraBalance);
       }
     } catch (error) {
       handleError(error);
@@ -173,7 +173,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
                 {isLoadingBalance ? (
                   <Loader2 size={14} className="animate-spin" />
                 ) : (
-                  <span>{userBalance?.toLocaleString() || '0'} IC</span>
+                  <span>{userBalance?.toLocaleString() || '0'} Aura</span>
                 )}
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               ) : (
                 <>
                   <Heart size={18} className="mr-2 fill-current" />
-                  Enviar {getAmount() > 0 ? `${getAmount().toLocaleString()} IC` : 'Propina'}
+                  Enviar {getAmount() > 0 ? `${getAmount().toLocaleString()} Aura` : 'Propina'}
                 </>
               )}
             </Button>
@@ -296,7 +296,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               </p>
             )}
             <p className="text-sm text-[var(--text-secondary)]">
-              Nuevo saldo: <span className="font-bold">{userBalance?.toLocaleString()} IC</span>
+              Nuevo saldo: <span className="font-bold">{userBalance?.toLocaleString()} Aura</span>
             </p>
             <Button
               onClick={handleClose}

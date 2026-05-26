@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test';
 test.describe('Perfil de Usuario', () => {
   test('debe mostrar el perfil del usuario cuando ha iniciado sesión', async ({ page }) => {
     await page.goto('/profile');
-    await expect(page.getByText(/perfil|usuario/i).first()).toBeVisible();
+    await expect(page.getByText(/perfil|usuario|profile|user/i).first()).toBeVisible();
   });
 
   test('debe mostrar la pestaña de actividad', async ({ page }) => {
     await page.goto('/profile');
-    await page.getByRole('tab', { name: /actividad/i }).click();
-    await expect(page.getByText(/actividad|actividad reciente/i)).toBeVisible();
+    await page.getByRole('tab', { name: /actividad|activity/i }).click();
+    await expect(page.getByText(/actividad|actividad reciente|activity|recent activity/i)).toBeVisible();
   });
 
   test('debe mostrar la sección de logros', async ({ page }) => {

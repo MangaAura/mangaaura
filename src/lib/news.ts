@@ -16,6 +16,8 @@ export interface DisplayNewsItem {
   date: string;
   coverUrl: string | null;
   isFeatured: boolean;
+  authorName?: string | null;
+  authorUsername?: string | null;
 }
 
 /** Predefined mapping from category → iconType */
@@ -48,6 +50,10 @@ export function dbArticleToDisplayItem(
     publishedAt: Date | string | null;
     createdAt: Date | string;
     isFeatured?: boolean;
+    author?: {
+      displayName?: string | null;
+      username?: string | null;
+    } | null;
   },
 ): DisplayNewsItem {
   const fmtDate = (d: Date | string) =>
@@ -71,6 +77,8 @@ export function dbArticleToDisplayItem(
     date: dateStr,
     coverUrl: dbArticle.coverUrl,
     isFeatured: dbArticle.isFeatured ?? false,
+    authorName: dbArticle.author?.displayName || dbArticle.author?.username || null,
+    authorUsername: dbArticle.author?.username || null,
   };
 }
 

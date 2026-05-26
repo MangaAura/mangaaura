@@ -4,6 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import {
   BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
   Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
+  Coins,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -18,6 +19,7 @@ export interface NavLinkDef {
   i18nKey: string;
   hideWhenLoggedOut?: boolean;
   requiresModerator?: boolean;
+  requiresCreator?: boolean;
 }
 
 export const ALL_NAV_LINKS: NavLinkDef[] = [
@@ -28,6 +30,7 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
   { name: 'Biblioteca', path: '/library', iconName: 'Library', i18nKey: 'nav.library', hideWhenLoggedOut: true },
+  { name: 'Crear manga', path: '/creator/manga/new', iconName: 'Plus', i18nKey: 'creator.newManga', requiresCreator: true },
   { name: 'Admin', path: '/admin', iconName: 'Shield', i18nKey: 'nav.admin', requiresModerator: true },
 ];
 
@@ -38,8 +41,11 @@ export const MAIN_NAV_LINKS: NavLinkDef[] = [
 ];
 
 export const MORE_NAV_LINKS: NavLinkDef[] = [
+  { name: 'Economía', path: '/economy', iconName: 'Coins', i18nKey: 'nav.economy', hideWhenLoggedOut: true },
+  { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
+  { name: 'Crear manga', path: '/creator/manga/new', iconName: 'Plus', i18nKey: 'creator.newManga', requiresCreator: true },
   { name: 'Biblioteca', path: '/library', iconName: 'Library', i18nKey: 'nav.library', hideWhenLoggedOut: true },
   { name: 'Admin', path: '/admin', iconName: 'Shield', i18nKey: 'nav.admin', requiresModerator: true },
 ];
@@ -47,7 +53,25 @@ export const MORE_NAV_LINKS: NavLinkDef[] = [
 const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
   MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
+  Coins,
 };
+
+/** Strip locale prefix from a pathname */
+export function stripLocale(pathname: string): string {
+  return pathname.replace(/^\/(es|en)(\/|$)/, '/') || '/';
+}
+
+/** Get locale from a pathname */
+export function getLocaleFromPath(pathname: string): string {
+  const match = pathname.match(/^\/(es|en)(\/|$)/);
+  return match ? match[1] : 'es';
+}
+
+/** Prepend locale prefix to path */
+export function localeHref(pathname: string, target: string): string {
+  const locale = getLocaleFromPath(pathname);
+  return `/${locale}${target === '/' ? '' : target}`;
+}
 
 export function getIcon(name: string) {
   return iconComponents[name];
@@ -55,15 +79,17 @@ export function getIcon(name: string) {
 
 export function isActive(pathname: string | null, path: string): boolean {
   if (!pathname) return false;
-  if (path === '/') return pathname === '/';
+  // Strip locale prefix from pathname for comparison
+  const cleanPathname = pathname.replace(/^\/(es|en)(\/|$)/, '/') || '/';
+  if (path === '/') return cleanPathname === '/';
   const overriddenByMoreSpecific = ALL_NAV_LINKS.some(
     (other) =>
       other.path !== path &&
       other.path.startsWith(`${path}/`) &&
-      (pathname === other.path || pathname.startsWith(`${other.path}/`))
+      (cleanPathname === other.path || cleanPathname.startsWith(`${other.path}/`))
   );
   if (overriddenByMoreSpecific) return false;
-  return pathname === path || pathname.startsWith(`${path}/`);
+  return cleanPathname === path || cleanPathname.startsWith(`${path}/`);
 }
 
 const navLinkVariants = cva(
@@ -107,7 +133,7 @@ export function NavLinks({ links, mobile, mounted = true }: NavLinksProps) {
         return (
           <Link
             key={link.path}
-            href={link.path}
+            href={localeHref(pathname, link.path)}
             className={navLinkVariants({ active, mobile })}
             aria-current={active ? 'page' : undefined}
           >

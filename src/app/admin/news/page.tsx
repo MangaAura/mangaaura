@@ -233,8 +233,10 @@ function CoverImageUploader({
     setUploadError(null);
 
     try {
-      const croppedFile = new File([croppedBlob], 'cover.webp', {
-        type: 'image/webp',
+      const blobType = croppedBlob.type || 'image/webp';
+      const ext = blobType.split('/')[1] || 'webp';
+      const croppedFile = new File([croppedBlob], `cover.${ext}`, {
+        type: blobType,
       });
 
       const formData = new FormData();

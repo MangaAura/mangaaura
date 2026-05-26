@@ -1,73 +1,54 @@
-import { NextRequest, NextResponse } from 'next/server';
+/**
+ * GET /api/economy/balance
+ * Get user's Aura balance and transfer quota
+ */
 
-import { GetBalanceUseCase, IUserBalanceRepository } from '@/application/use-cases/economy/GetBalanceUseCase';
-import { paymentService } from '@/infrastructure/adapters/paymentService';
+import { NextResponse } from 'next/server';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-class PrismaUserBalanceRepository implements IUserBalanceRepository {
-  async findById(id: string) {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        xpPoints: true,
-        level: true,
-      },
-    });
-    if (!user) return null;
-    const xpLevel = Math.floor(user.xpPoints / 1000) + 1;
-    const progress = user.xpPoints % 1000;
-    return {
-      id: user.id,
-      xp: {
-        amount: user.xpPoints,
-        level: xpLevel,
-        rank: xpLevel >= 50 ? 'Legendario' : xpLevel >= 30 ? 'Élite' : xpLevel >= 20 ? 'Maestro' : xpLevel >= 10 ? 'Avanzado' : xpLevel >= 5 ? 'Intermedio' : 'Principiante',
-        progressToNextLevel: Math.round((progress / 1000) * 100),
-      },
-    };
-  }
-}
-
-const getBalanceUseCase = new GetBalanceUseCase(
-  new PrismaUserBalanceRepository(),
-  paymentService
-);
-
-// GET /api/economy/balance - Obtener balance actual del usuario
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
-
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const identifier = session?.user?.id || ip;
-    const rlResult = await rateLimit(getRateLimitKey('economy-balance', identifier), 60, 60);
-    if (!rlResult.allowed) {
-      return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' }, {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil((rlResult.resetAt - Date.now()) / 1000)) },
-      });
-    }
-
-    const result = await getBalanceUseCase.execute({
-      userId: session.user.id,
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        auraBalance: true,
+        auraLifetimePurchased: true,
+        auraLifetimeTransferred: true,
+        auraLifetimeWithdrawn: true,
+        auraFirstPurchaseAt: true,
+      },
     });
 
-    return NextResponse.json(result);
+    if (!user) {
+      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    }
+
+    const transferQuota =
+      user.auraLifetimePurchased -
+      user.auraLifetimeTransferred -
+      user.auraLifetimeWithdrawn;
+
+    return NextResponse.json({
+      auraBalance: user.auraBalance,
+      auraLifetimePurchased: user.auraLifetimePurchased,
+      transferQuotaAvailable: Math.max(0, transferQuota),
+      transferQuotaUsed: user.auraLifetimeTransferred,
+      auraLifetimeWithdrawn: user.auraLifetimeWithdrawn,
+      canTransfer: user.auraLifetimePurchased > 0,
+      firstPurchaseAt: user.auraFirstPurchaseAt,
+    });
   } catch (error) {
-    // console.error('Error obteniendo balance:', error);
+    console.error('[Economy Balance] Error:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

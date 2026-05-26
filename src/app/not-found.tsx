@@ -5,6 +5,7 @@ import { Search, Home, BookOpen, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/Button';
+import { NoIndex } from '@/components/SEO/NoIndex';
 
 
 const containerVariants = {
@@ -24,7 +25,9 @@ const floatVariants = {
 
 export default function NotFoundPage() {
   return (
-    <main id="main-content" className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
+    <>
+      <NoIndex />
+      <main id="main-content" className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -147,5 +150,6 @@ export default function NotFoundPage() {
         </motion.p>
       </motion.div>
     </main>
+    </>
   );
 }

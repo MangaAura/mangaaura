@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Clock, TrendingUp, Sparkles } from 'lucide-react';
+import { Trophy, Clock, TrendingUp, Sparkles, BookOpen, Wand2, WifiOff, Gamepad2, Coins, HelpCircle, ArrowRight, Rocket } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
@@ -73,8 +73,8 @@ export function HomeContent({
   const isCreator = session?.user?.role === 'CREATOR';
   const isLoggedIn = !!session?.user;
 
-  const ctaHref = !isLoggedIn ? '/auth/register' : isCreator ? '/creator/upload' : '/explore';
-  const ctaLabel = !isLoggedIn ? t('nav.register') : isCreator ? t('home.startCreating') : t('home.exploreMangas');
+  const ctaHref = !isLoggedIn ? '/auth/register' : isCreator ? '/creator/manga/new' : '/explore';
+  const ctaLabel = !isLoggedIn ? t('nav.register') : isCreator ? t('creator.newManga') : t('home.exploreMangas');
 
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary">
@@ -90,6 +90,28 @@ export function HomeContent({
 
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         <GenreMarquee />
+
+        <AnimatedContainer viewport>
+          <section className="text-center py-8">
+            <h2 className="text-3xl font-bold mb-2">{t('home.howItWorksTitle')}</h2>
+            <p className="text-muted mb-10">{t('home.howItWorksDesc')}</p>
+            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {[
+                { icon: BookOpen, title: t('home.step1Title'), desc: t('home.step1Desc'), color: 'from-primary to-accent-blue' },
+                { icon: Wand2, title: t('home.step2Title'), desc: t('home.step2Desc'), color: 'from-accent-purple to-primary' },
+                { icon: Coins, title: t('home.step3Title'), desc: t('home.step3Desc'), color: 'from-secondary to-accent-green' },
+              ].map((step, i) => (
+                <div key={i} className="flex flex-col items-center p-6 rounded-2xl border border-border hover:border-primary/30 transition-all group">
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                    <step.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">{step.title}</h3>
+                  <p className="text-sm text-muted">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </AnimatedContainer>
 
         <AnimatedContainer viewport>
           <div className="flex items-center justify-between mb-4">
@@ -214,6 +236,57 @@ export function HomeContent({
             </AnimatedContainer>
           </div>
         </div>
+
+        <AnimatedContainer viewport>
+          <section className="py-8">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold mb-2">{t('home.featuresTitle')}</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: Wand2, title: t('home.featureAI'), desc: t('home.featureAIDesc'), color: 'from-primary to-accent-blue' },
+                { icon: WifiOff, title: t('home.featurePWA'), desc: t('home.featurePWADesc'), color: 'from-accent-purple to-primary' },
+                { icon: Gamepad2, title: t('home.featureGamification'), desc: t('home.featureGamificationDesc'), color: 'from-secondary to-accent-green' },
+                { icon: Rocket, title: t('home.featureCrowdfunding'), desc: t('home.featureCrowdfundingDesc'), color: 'from-accent-blue to-accent-purple' },
+              ].map((feat, i) => (
+                <div key={i} className="p-6 rounded-2xl border border-border hover:border-primary/30 transition-all group">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                    <feat.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-bold mb-2">{feat.title}</h3>
+                  <p className="text-sm text-muted">{feat.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </AnimatedContainer>
+
+        <AnimatedContainer viewport>
+          <section className="py-8">
+            <h2 className="text-3xl font-bold mb-2 text-center">{t('home.visibleFaqTitle')}</h2>
+            <div className="max-w-3xl mx-auto mt-8 space-y-4">
+              {[
+                { q: t('home.visibleFaq1Q'), a: t('home.visibleFaq1A') },
+                { q: t('home.visibleFaq2Q'), a: t('home.visibleFaq2A') },
+                { q: t('home.visibleFaq3Q'), a: t('home.visibleFaq3A') },
+                { q: t('home.visibleFaq4Q'), a: t('home.visibleFaq4A') },
+              ].map((faq, i) => (
+                <details key={i} className="group border border-border rounded-xl overflow-hidden">
+                  <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-tertiary/50 transition-colors font-medium">
+                    <span className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      {faq.q}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-muted transition-transform group-open:rotate-90" />
+                  </summary>
+                  <div className="p-4 pt-0 text-sm text-muted border-t border-border mt-2">
+                    <p className="pt-3">{faq.a}</p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        </AnimatedContainer>
 
         <AnimatedContainer viewport>
           <section className="bg-gradient-to-r from-accent-purple/20 via-accent-purple/10 to-accent-blue/20 border border-accent-purple/30 rounded-2xl p-8 md:p-12">

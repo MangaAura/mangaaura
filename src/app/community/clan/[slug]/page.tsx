@@ -62,6 +62,8 @@ export async function generateMetadata({
     return { title: 'Clan no encontrado - MangaAura' };
   }
 
+  const ogImage = `/api/og?type=clan&title=${encodeURIComponent(clan.name)}&cover=${clan.emblemUrl ? encodeURIComponent(clan.emblemUrl) : ''}`;
+
   return {
     title: `${clan.name} - MangaAura`,
     description:
@@ -69,6 +71,15 @@ export async function generateMetadata({
     openGraph: {
       title: `${clan.name} - Clan en MangaAura`,
       description: clan.description?.slice(0, 160) || undefined,
+      type: 'article',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: clan.name }],
+      publishedTime: clan.createdAt?.toISOString(),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${clan.name} - Clan en MangaAura`,
+      description: clan.description?.slice(0, 160) || undefined,
+      images: [ogImage],
     },
   };
 }

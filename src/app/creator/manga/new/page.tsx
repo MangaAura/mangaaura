@@ -16,8 +16,10 @@ import { useState, useCallback, useRef } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { Input } from '@/components/ui/Input';
+import { HowToStructuredData } from '@/components/SEO/StructuredData';
 import { useCreateManga } from '@/hooks/useCreateManga';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
@@ -26,7 +28,7 @@ import { cn } from '@/lib/utils';
 export default function NewMangaPage() {
   const router = useRouter();
   const t = useT();
-  const { createManga, isCreating, validateField } = useCreateManga();
+  const { createManga, isCreating, error: createError, validateField } = useCreateManga();
   const cropperRef = useRef<ImageCropperUploaderHandle>(null);
 
   const [formData, setFormData] = useState({
@@ -72,8 +74,10 @@ export default function NewMangaPage() {
   };
 
   const handleCropConfirm = (croppedBlob: Blob) => {
-    // Create a File from the cropped blob
-    const croppedFile = new File([croppedBlob], 'cover.webp', { type: 'image/webp' });
+    // Create a File from the cropped blob using its actual type
+    const blobType = croppedBlob.type || 'image/webp';
+    const ext = blobType.split('/')[1] || 'webp';
+    const croppedFile = new File([croppedBlob], `cover.${ext}`, { type: blobType });
     setCoverFile(croppedFile);
 
     // Show local preview immediately
@@ -134,7 +138,19 @@ export default function NewMangaPage() {
                       tagList.length > 0;
 
   return (
-    <div className="min-h-screen bg-[var(--surface-sunken)]">
+    <>
+      <HowToStructuredData
+        name="Cómo crear un manga en MangaAura"
+        description="Guía paso a paso para crear y publicar tu propio manga en MangaAura. Completa la información, sube una portada, añade tags y crea tu primer capítulo."
+        steps={[
+          { name: 'Añadir título', text: 'Escribe un título único para tu manga que capture la atención de los lectores.', url: 'https://mangaaura.es/creator/manga/new' },
+          { name: 'Escribir descripción', text: 'Describe tu manga: género, historia, personajes y qué hace especial tu obra.' },
+          { name: 'Añadir tags', text: 'Añade etiquetas relevantes como acción, romance, fantasía para que los lectores te encuentren.' },
+          { name: 'Subir portada', text: 'Sube una portada atractiva con ratio 3:4 que represente tu manga.' },
+          { name: 'Crear capítulos', text: 'Una vez creado el manga, podrás subir capítulos y compartirlos con la comunidad.' },
+        ]}
+      />
+      <div className="min-h-screen bg-[var(--surface-sunken)]">
       <main className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -395,6 +411,12 @@ export default function NewMangaPage() {
             </div>
           </div>
 
+          {createError && (
+            <div className="mt-8">
+              <ErrorMessage message={createError} />
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-[var(--border-subtle)]">
             <Link href="/creator/dashboard">
@@ -415,5 +437,6 @@ export default function NewMangaPage() {
         </form>
       </main>
     </div>
+    </>
   );
 }

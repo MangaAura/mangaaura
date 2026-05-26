@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
+import { NoIndex } from '@/components/SEO/NoIndex';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 interface SharedData {
@@ -63,7 +64,9 @@ export default function ShareTargetPage() {
 
   if (!showModal || saved) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <>
+        <NoIndex />
+        <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Share2 className="w-16 h-16 text-muted mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">
@@ -77,11 +80,14 @@ export default function ShareTargetPage() {
           </Link>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <>
+      <NoIndex />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="bg-secondary rounded-2xl shadow-2xl max-w-md w-full p-6 border border-custom">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -155,5 +161,6 @@ export default function ShareTargetPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

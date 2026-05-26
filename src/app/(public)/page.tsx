@@ -94,23 +94,22 @@ export default async function HomePage() {
         name: '¿Qué es MangaAura?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'MangaAura es una plataforma de manga con IA donde puedes leer mangas gratis, crear tus propias series, crowdfundear capítulos y ganar Aura por tu actividad.',
-        },
+          text: `MangaAura es una plataforma de manga con IA que cuenta con más de ${totalMangas.toLocaleString()} series de manga, ${totalChapters.toLocaleString()} capítulos publicados y una comunidad activa de más de ${totalReaders.toLocaleString()} lectores. Puedes leer mangas gratis, crear tus propias series con herramientas de IA, crowdfundear capítulos usando Aura y ganar XP mientras lees.`,        },
       },
       {
         '@type': 'Question',
         name: '¿Cómo puedo crear mi propio manga?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Sube tus capítulos desde el panel de creador. MangaAura te ofrece herramientas de IA para generar descripciones, traducciones y recomendaciones automáticas.',
+          text: 'Crear tu propio manga en MangaAura es sencillo: regístrate como creador, accede al panel de creador y sube tus capítulos con portada y descripción. MangaAura ofrece herramientas potenciadas por IA para generar descripciones automáticas, traducciones a múltiples idiomas y recomendaciones inteligentes que aumentan la visibilidad de tu obra entre los lectores.',
         },
       },
       {
         '@type': 'Question',
-        name: '¿Qué es Aura?',
+        name: '¿Qué es Aura y cómo funciona?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Aura es la moneda virtual de MangaAura. Los lectores pueden comprarla para crowdfundear capítulos, dar propinas a creadores y patrocinar contenido.',
+          text: 'Aura es la moneda virtual de MangaAura. Los lectores la usan para crowdfundear capítulos (apoyando económicamente a los creadores), dar propinas, patrocinar contenido exclusivo y participar en eventos especiales. Los creadores reciben Aura como recompensa por su trabajo, creando un ecosistema sostenible donde todos ganan.',
         },
       },
       {
@@ -118,7 +117,7 @@ export default async function HomePage() {
         name: '¿Es gratis leer mangas en MangaAura?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Sí, leer mangas en MangaAura es completamente gratuito. También puedes ganar XP, subir de nivel y desbloquear logros mientras lees.',
+          text: `Sí, leer mangas en MangaAura es completamente gratuito. Actualmente la plataforma alberga ${totalMangas.toLocaleString()} series con ${totalChapters.toLocaleString()} capítulos disponibles sin costo. Además, mientras lees acumulas XP, subes de nivel en más de 50 logros, mantienes rachas de lectura y apareces en los rankings globales. Todo 100% gratis, sin límites de lectura ni suscripciones obligatorias.`,
         },
       },
       {
@@ -126,7 +125,7 @@ export default async function HomePage() {
         name: '¿Cómo funciona el crowdfunding de capítulos?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Los lectores pueden contribuir con Aura a los capítulos que quieren ver publicados. Cuando se alcanza la meta, el capítulo se libera para todos.',
+          text: 'El crowdfunding en MangaAura permite a los lectores contribuir con Aura directamente a los capítulos que quieren ver publicados. Cada capítulo tiene una meta de financiamiento. Cuando la comunidad alcanza la meta, el capítulo se libera para todos los lectores. Este sistema permite a los creadores recibir apoyo directo de su audiencia mientras mantienen el contenido accesible para toda la comunidad.',
         },
       },
     ],

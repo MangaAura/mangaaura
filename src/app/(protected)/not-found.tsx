@@ -5,13 +5,16 @@ import { Home, Library, BookOpen, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/Button';
+import { NoIndex } from '@/components/SEO/NoIndex';
 import { useT } from '@/i18n';
 
 export default function AppNotFoundPage() {
   const t = useT();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
+    <>
+      <NoIndex />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--surface)] via-[var(--surface)] to-[var(--primary-subtle)]/30 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -71,5 +74,6 @@ export default function AppNotFoundPage() {
         </p>
       </motion.div>
     </div>
+    </>
   );
 }

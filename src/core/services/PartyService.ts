@@ -47,7 +47,7 @@ class PartyService {
       for (const key of keys) {
         const data = await redis.get(key);
         if (data) {
-          const party = JSON.parse(data) as PartyState;
+          const party = JSON.parse(data as string) as PartyState;
           party.lastActivity = new Date(party.lastActivity);
           party.startedAt = new Date(party.startedAt);
           this.parties.set(party.partyId, party);
@@ -55,7 +55,7 @@ class PartyService {
           const msgKey = `${REDIS_MESSAGES_PREFIX}${party.partyId}`;
           const msgData = await redis.get(msgKey);
           if (msgData) {
-            const messages = JSON.parse(msgData) as PartyMessage[];
+            const messages = JSON.parse(msgData as string) as PartyMessage[];
             this.messages.set(party.partyId, messages);
           }
 

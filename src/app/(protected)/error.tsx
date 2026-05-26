@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { NoIndex } from '@/components/SEO/NoIndex';
 
 export default function AppError({
   error,
@@ -9,5 +10,10 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <ErrorFallback error={error} reset={reset} />;
+  return (
+    <>
+      <NoIndex />
+      <ErrorFallback error={error} reset={reset} />
+    </>
+  );
 }

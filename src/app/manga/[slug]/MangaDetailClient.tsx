@@ -167,12 +167,18 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
               {manga.title}
             </h1>
 
-            <Link
-              href={`/profile`}
-              className="text-[var(--primary)] dark:text-indigo-300 hover:underline font-medium flex items-center gap-1 mb-4"
-            >
-              <User className="w-4 h-4" /> {manga.authorName}
-            </Link>
+            <div className="flex items-center gap-3 mb-4">
+              <Link
+                href={`/profile`}
+                className="text-[var(--primary)] dark:text-indigo-300 hover:underline font-medium flex items-center gap-1"
+              >
+                <User className="w-4 h-4" /> {t('manga.byAuthor', { author: manga.authorName ?? '' })}
+              </Link>
+              <span className="text-[var(--text-tertiary)] text-sm flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                {t('manga.lastUpdated', { date: formatDate(manga.chapters[manga.chapters.length - 1]?.createdAt ?? manga.createdAt ?? '') })}
+              </span>
+            </div>
 
             {/* Stats */}
             <motion.div

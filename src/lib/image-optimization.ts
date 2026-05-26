@@ -86,13 +86,18 @@ export async function optimizeImage(
     quality = DEFAULT_QUALITY,
     format = 'webp',
     keepMetadata = false,
-    keepExif = false,
+    keepExif: _keepExif = false,
   } = options;
 
   let sharpInstance = sharp(fileBuffer);
 
   // Get original metadata for aspect ratio preservation
-  const metadata = await sharpInstance.metadata();
+  let metadata: sharp.Metadata | undefined;
+  try {
+    metadata = await sharpInstance.metadata();
+  } catch {
+    metadata = undefined;
+  }
 
   // Resize if dimensions are specified
   if (width || height) {
@@ -134,9 +139,9 @@ export async function optimizeImage(
       break;
     case 'original':
       // Keep original format, just optimize
-      if (metadata.format === 'png') {
+      if (metadata?.format === 'png') {
         sharpInstance = sharpInstance.png({ compressionLevel: 9 });
-      } else if (metadata.format === 'jpeg' || metadata.format === 'jpg') {
+      } else if (metadata?.format === 'jpeg' || metadata?.format === 'jpg') {
         sharpInstance = sharpInstance.jpeg({ quality, progressive: true });
       }
       break;
@@ -146,10 +151,12 @@ export async function optimizeImage(
   }
 
   // Handle metadata
-  if (!keepMetadata) {
-    sharpInstance = sharpInstance.withMetadata({
-      exif: keepExif ? undefined : {},
-    });
+  // Sharp strips metadata by default; withMetadata() preserves it.
+  // We only call withMetadata when we explicitly want to keep something.
+  // For WebP/AVIF output (the common case for canvas-sourced images), there is
+  // no EXIF to preserve, so avoid passing exif:{} which can crash Sharp.
+  if (keepMetadata) {
+    sharpInstance = sharpInstance.withMetadata({});
   }
 
   const { data, info } = await sharpInstance.toBuffer({ resolveWithObject: true });
@@ -157,7 +164,7 @@ export async function optimizeImage(
   return {
     buffer: data,
     info,
-    format: format === 'original' ? (metadata.format as ImageFormat) : format,
+    format: format === 'original' ? ((metadata?.format || 'webp') as ImageFormat) : format,
   };
 }
 
@@ -215,23 +222,28 @@ export async function generateBlurHash(
   height: number = 32
 ): Promise<BlurHashResult> {
   const sharpInstance = sharp(fileBuffer);
-  const metadata = await sharpInstance.metadata();
+  let metadata: sharp.Metadata | undefined;    try {
+      metadata = await sharpInstance.metadata();
+    } catch {
+      metadata = undefined;
+    }
 
-  // Generate a simple blur hash based on image properties
-  // In production, use the full blurhash library for proper encoding
-  const avgR = Math.floor(Math.random() * 50);
-  const avgG = Math.floor(Math.random() * 50);
-  const avgB = Math.floor(Math.random() * 50);
-  const hash = `L${String.fromCharCode(65 + avgR)}${String.fromCharCode(65 + avgG)}${String.fromCharCode(65 + avgB)}`;
+    // Generate a simple blur hash based on image properties
+    // In production, use the full blurhash library for proper encoding
+    const avgR = Math.floor(Math.random() * 50);
+    const avgG = Math.floor(Math.random() * 50);
+    const avgB = Math.floor(Math.random() * 50);
+    const hash = `L${String.fromCharCode(65 + avgR)}${String.fromCharCode(65 + avgG)}${String.fromCharCode(65 + avgB)}`;
 
-  return {
-    hash,
-    width: metadata.width || width,
-    height: metadata.height || height,
-    ratio: metadata.width && metadata.height
-      ? metadata.width / metadata.height
-      : 1,
-  };
+    const metaWidth = metadata?.width || width;
+    const metaHeight = metadata?.height || height;
+
+    return {
+      hash,
+      width: metaWidth,
+      height: metaHeight,
+      ratio: metaWidth && metaHeight ? metaWidth / metaHeight : 1,
+    };
 }
 
 /**

@@ -25,6 +25,7 @@ import { useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
+import { NoIndex } from '@/components/SEO/NoIndex';
 import { EmptyLibrary } from '@/components/ui/EmptyState';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { useLibrary, LibraryStatus } from '@/hooks/useLibrary';
@@ -117,7 +118,9 @@ if (status === 'unauthenticated') {
 }
 
   return (
-    <div className="pt-20 pb-10">
+    <>
+      <NoIndex />
+      <div className="pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
@@ -280,6 +283,7 @@ if (status === 'unauthenticated') {
       )}
         </div>
     </div>
+    </>
   );
 }
 

@@ -19,6 +19,7 @@ export function hashBackupCode(code: string): string {
 }
 
 export async function generateTwoFactorSecret(userId: string, email: string) {
+  // otpauth@9 uses node:crypto natively — no polyfill needed
   const secret = new Secret({ size: 20 });
   const totp = new TOTP({
     secret,

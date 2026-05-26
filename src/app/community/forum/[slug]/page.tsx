@@ -67,11 +67,32 @@ export async function generateMetadata({ params }: ForumThreadPageProps): Promis
   const { slug } = await params;
   const thread = await prisma.forumThread.findUnique({
     where: { slug },
-    select: { title: true },
+    select: { title: true, content: true, createdAt: true, author: { select: { username: true, displayName: true } } },
   });
+  if (!thread) {
+    return { title: 'Foro | MangaAura' };
+  }
+  const authorName = thread.author?.displayName || thread.author?.username || '';
+  const description = thread.content?.replace(/<[^>]*>/g, '').slice(0, 160) || `Hilo de ${authorName} en el foro de MangaAura`;
+
+  const ogImage = `/api/og?type=forum&title=${encodeURIComponent(thread.title)}&author=${encodeURIComponent(authorName)}`;
+
   return {
-    title: thread ? `${thread.title} | Foro | MangaAura` : 'Foro | MangaAura',
-    description: thread?.title || 'Hilo del foro',
+    title: `${thread.title} | Foro | MangaAura`,
+    description,
+    openGraph: {
+      title: `${thread.title} | Foro | MangaAura`,
+      description,
+      type: 'article',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: thread.title }],
+      publishedTime: thread.createdAt?.toISOString(),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${thread.title} | Foro | MangaAura`,
+      description,
+      images: [ogImage],
+    },
   };
 }
 

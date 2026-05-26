@@ -3,6 +3,83 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { syncGenresFromTags } from '@/lib/genres';
+import { uploadImage } from '@/lib/storage';
+
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim() || 'untitled';
+}
+
+// POST /api/creator/mangas - Crear nuevo manga (multipart/form-data)
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    const title = (formData.get('title') as string)?.trim();
+    const description = (formData.get('description') as string)?.trim() || null;
+    const tagsRaw = formData.get('tags') as string;
+    const coverFile = formData.get('cover') as File | null;
+
+    if (!title || title.length < 3) {
+      return NextResponse.json({ error: 'El título debe tener al menos 3 caracteres' }, { status: 400 });
+    }
+    if (title.length > 100) {
+      return NextResponse.json({ error: 'El título debe tener menos de 100 caracteres' }, { status: 400 });
+    }
+
+    const processedTags = tagsRaw ? JSON.parse(tagsRaw).map((t: string) => t.toLowerCase().trim()) : [];
+
+    // Upload cover if provided
+    let coverUrl: string | null = null;
+    if (coverFile) {
+      const uploadResult = await uploadImage(coverFile, `covers/${session.user.id}`);
+      coverUrl = uploadResult.url;
+    }
+
+    // Generate unique slug
+    const baseSlug = generateSlug(title);
+    let slug = baseSlug;
+    let counter = 1;
+    while (await prisma.mangaSeries.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { displayName: true, username: true },
+    });
+
+    await syncGenresFromTags(processedTags);
+
+    const manga = await prisma.mangaSeries.create({
+      data: {
+        title,
+        slug,
+        description,
+        coverUrl,
+        authorId: session.user.id,
+        authorName: user?.displayName || user?.username || 'Unknown',
+        tags: JSON.stringify(processedTags),
+        status: 'ONGOING',
+      },
+    });
+
+    return NextResponse.json({ id: manga.id, slug: manga.slug }, { status: 201 });
+  } catch (error) {
+    console.error('Error creando manga:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
+}
 
 // GET /api/creator/mangas - Listar todos los mangas del creador logueado
 export async function GET(request: NextRequest) {

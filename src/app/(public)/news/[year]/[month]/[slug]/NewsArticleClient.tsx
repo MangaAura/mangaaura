@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, Calendar, Star, Palette, Smartphone, Trophy, Sparkles } from 'lucide-react';
+import { ArrowLeft, Calendar, Star, Palette, Smartphone, Trophy, Sparkles, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -151,6 +151,12 @@ export function NewsArticleClient({
                 <Calendar size={13} aria-hidden="true" />
                 <time dateTime={article.date}>{article.date}</time>
               </span>
+              {article.authorName && (
+                <span className="flex items-center gap-1.5 text-xs text-muted">
+                  <User size={13} aria-hidden="true" />
+                  {article.authorName}
+                </span>
+              )}
             </motion.div>
 
             <motion.h1
@@ -239,7 +245,15 @@ export function NewsArticleClient({
             <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
             {t('common.back')}
           </Link>
-          <time className="text-xs text-muted" dateTime={article.date}>{article.date}</time>
+          <div className="flex items-center gap-3">
+            {article.authorName && (
+              <span className="text-xs text-muted flex items-center gap-1">
+                <User size={13} aria-hidden="true" />
+                {article.authorName}
+              </span>
+            )}
+            <time className="text-xs text-muted" dateTime={article.date}>{article.date}</time>
+          </div>
         </motion.nav>
       </Container>
 

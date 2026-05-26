@@ -6,19 +6,47 @@
 - /rankings: Top ranked manga and readers.
 - /manga/[slug]: Individual manga series pages with chapters.
 - /reader/[slug]: Manga chapter reader.
+- /library: Personal reading library with reading progress tracking.
 
 ## Community
 - /community: Community hub with forums and clans.
+- /community/forum: Discussion forums by category.
+- /community/clans: User-created clans and groups.
 - /events: Seasonal events and competitions.
 - /news: Platform news and updates.
 
 ## For Creators
 - /creator/dashboard: Creator analytics and management.
+- /creator/manga/new: Create a new manga series.
 - /creator/upload: Upload new manga chapters.
+- /creator/sponsors: Sponsorship management for creators.
+
+## API & Integration
+- /api/og: Dynamic Open Graph image generation.
+- /api/analytics/web-vitals: Core Web Vitals reporting endpoint.
+- PWA support with offline reading via Service Worker at /sw.js.
+- Manifest at /manifest.json for installable web app.
 
 ## Key Features
-- AI-powered manga discovery and recommendations
-- Crowdfunding for chapters using Aura currency
-- Gamification with XP, achievements, and clans
-- Offline reading support
-- Creator revenue sharing
+- AI-powered manga discovery, recommendations, and automated descriptions
+- Crowdfunding for chapters using Aura virtual currency
+- Gamification with XP, levels, achievements, and reading streaks
+- Offline reading support with full PWA capabilities
+- Creator revenue sharing with sponsorship subscriptions
+- Two-factor authentication (2FA) for account security
+- Real-time notifications via WebSocket and push notifications
+- Multi-language support (Spanish and English)
+- Social features: clans, forums, user profiles, and direct messaging
+- Image cropping and optimization for manga covers
+
+## Content Policies
+- Content is user-generated from creators
+- All manga is available for free reading
+- Creators earn through Aura crowdfunding and sponsorships
+- Manga categories include standard genres (action, romance, fantasy, etc.)
+
+## FAQ
+- Q: Is MangaAura free? A: Yes, reading manga is completely free.
+- Q: How does Aura work? A: Aura is the virtual currency for crowdfunding chapters and supporting creators.
+- Q: How can I create manga? A: Register as a creator and upload your chapters from the creator dashboard.
+- Q: What is crowdfunding? A: Readers contribute Aura to chapters they want published. When the goal is met, the chapter is released for everyone.
