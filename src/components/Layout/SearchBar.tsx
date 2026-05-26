@@ -282,6 +282,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
         <input
           ref={inputRef}
           type="search"
+          role="combobox"
           name="search"
           value={query}
           onChange={(e) => {

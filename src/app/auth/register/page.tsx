@@ -562,7 +562,7 @@ function Content() {
                 )}
               </div>
 
-              <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="flex items-start gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center mt-0.5">
                   <input
                     type="checkbox"
@@ -583,7 +583,7 @@ function Content() {
                   {' '}{t('common.and')}{' '}
                   <Link href="/legal/privacy" className="text-accent-blue font-medium hover:underline">{t('footer.privacy')}</Link>
                 </span>
-              </label>
+              </div>
 
               <button
                 type="submit"

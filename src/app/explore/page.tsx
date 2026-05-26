@@ -112,108 +112,108 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
       whileTap={{ scale: 0.99 }}
       transition={{ type: 'spring', stiffness: 400, damping: 24 }}
       style={{ willChange: 'transform' }}
+      className="flex gap-4 sm:gap-5 p-3 sm:p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 transition-colors group"
     >
+      {/* Cover */}
       <Link
         href={`/manga/${manga.slug}`}
-        className="flex gap-4 sm:gap-5 p-3 sm:p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 transition-colors group"
+        className="w-[72px] h-[108px] sm:w-24 sm:h-36 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative shadow-sm block"
       >
-        {/* Cover */}
-        <div className="w-[72px] h-[108px] sm:w-24 sm:h-36 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative shadow-sm">
-          {manga.coverUrl ? (
-            <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading="lazy" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-[var(--text-tertiary)]" />
-            </div>
+        {manga.coverUrl ? (
+          <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading="lazy" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <BookOpen className="w-6 h-6 text-[var(--text-tertiary)]" />
+          </div>
+        )}
+        {/* Status badge on cover (mobile) */}
+        <span className={cn(statusStyle, 'absolute top-1 left-1 text-[10px] px-1.5 py-0.5 sm:hidden')}>
+          {statusLabel}
+        </span>
+      </Link>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+        {/* Top section */}
+        <div>
+          <div className="flex items-start gap-2 mb-1">
+            <Link href={`/manga/${manga.slug}`}>
+              <h3 className="font-bold text-sm sm:text-base group-hover:text-[var(--info)] transition-colors truncate hover:text-[var(--info)]">
+                {manga.title}
+              </h3>
+            </Link>
+            {/* Status badge (desktop) */}
+            <span className={cn(statusStyle, 'hidden sm:inline-block')}>
+              {statusLabel}
+            </span>
+          </div>
+
+          {manga.authorName && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (manga.authorUsername) {
+                  router.push(`/user/${manga.authorUsername}`);
+                }
+              }}
+              className={`text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors text-left ${manga.authorUsername ? 'cursor-pointer' : 'cursor-default'}`}
+            >
+              {manga.authorName}
+            </button>
           )}
-          {/* Status badge on cover (mobile) */}
-          <span className={cn(statusStyle, 'absolute top-1 left-1 text-[10px] px-1.5 py-0.5 sm:hidden')}>
-            {statusLabel}
+
+          {manga.description && (
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 mb-2 leading-relaxed">
+              {manga.description}
+            </p>
+          )}
+
+          {/* Genre tags */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {[...new Set(manga.tags.map(t => normalizeGenreKey(t)))].slice(0, 4).map(tag => {
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onGenreClick(resolveCanonicalTag(tag));
+                  }}
+                  className="px-2.5 py-1 text-[11px] bg-[var(--surface-sunken)] hover:bg-[var(--surface-elevated)] hover:text-[var(--primary)] rounded-full text-[var(--text-tertiary)] font-medium transition-colors cursor-pointer"
+                >
+                  {displayGenre(tag)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bottom stats row */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1">
+          {manga.rating && manga.rating > 0 && (
+            <span className="flex items-center gap-1 text-xs text-[var(--warning)] font-bold">
+              <Star size={13} className="fill-[var(--warning)]" />
+              {manga.rating.toFixed(1)}
+            </span>
+          )}
+          <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+            <BookOpen size={13} className="shrink-0" />
+            {t('search.chapterCount', { count: manga.chapterCount })}
+          </span>
+          <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+            <Eye size={13} className="shrink-0" />
+            {formatViews(manga.totalViews)}
           </span>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-          {/* Top section */}
-          <div>
-            <div className="flex items-start gap-2 mb-1">
-              <h3 className="font-bold text-sm sm:text-base group-hover:text-[var(--info)] transition-colors truncate">
-                {manga.title}
-              </h3>
-              {/* Status badge (desktop) */}
-              <span className={cn(statusStyle, 'hidden sm:inline-block')}>
-                {statusLabel}
-              </span>
-            </div>
-
-            {manga.authorName && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (manga.authorUsername) {
-                    router.push(`/user/${manga.authorUsername}`);
-                  }
-                }}
-                className={`text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors text-left ${manga.authorUsername ? 'cursor-pointer' : 'cursor-default'}`}
-              >
-                {manga.authorName}
-              </button>
-            )}
-
-            {manga.description && (
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 mb-2 leading-relaxed">
-                {manga.description}
-              </p>
-            )}
-
-            {/* Genre tags */}
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {[...new Set(manga.tags.map(t => normalizeGenreKey(t)))].slice(0, 4).map(tag => {
-                return (                    <button
-                      key={tag}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onGenreClick(resolveCanonicalTag(tag));
-                      }}
-                      className="px-2.5 py-1 text-[11px] bg-[var(--surface-sunken)] hover:bg-[var(--surface-elevated)] hover:text-[var(--primary)] rounded-full text-[var(--text-tertiary)] font-medium transition-colors cursor-pointer"
-                    >
-                      {displayGenre(tag)}
-                    </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Bottom stats row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1">
-            {manga.rating && manga.rating > 0 && (
-              <span className="flex items-center gap-1 text-xs text-[var(--warning)] font-bold">
-                <Star size={13} className="fill-[var(--warning)]" />
-                {manga.rating.toFixed(1)}
-              </span>
-            )}
-            <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
-              <BookOpen size={13} className="shrink-0" />
-              {t('search.chapterCount', { count: manga.chapterCount })}
-            </span>
-            <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
-              <Eye size={13} className="shrink-0" />
-              {formatViews(manga.totalViews)}
-            </span>
-          </div>
-
-          {/* Highlights */}
-          {manga.highlights && manga.highlights.length > 0 && (
-            <p className="text-[11px] mt-2 text-[var(--text-tertiary)] italic line-clamp-1 border-l-2 border-[var(--primary)]/30 pl-2">
-              &ldquo;{manga.highlights[0].snippet.replace(/<\/?mark>/g, '')}&rdquo;
-            </p>
-          )}
-        </div>
-      </Link>
+        {/* Highlights */}
+        {manga.highlights && manga.highlights.length > 0 && (
+          <p className="text-[11px] mt-2 text-[var(--text-tertiary)] italic line-clamp-1 border-l-2 border-[var(--primary)]/30 pl-2">
+            &ldquo;{manga.highlights[0].snippet.replace(/<\/?mark>/g, '')}&rdquo;
+          </p>
+        )}
+      </div>
     </motion.div>
   );
 }

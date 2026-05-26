@@ -97,7 +97,7 @@ export function Footer({ className }: { className?: string }) {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           <div className="col-span-2 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <Image src="/MangaAura_logo_circular.svg" alt="MangaAura" width={32} height={32} className="flex-shrink-0" />
+              <Image src="/MangaAura_logo_circular.svg" alt="" width={32} height={32} className="flex-shrink-0" />
               <RepeatedChar text="MangaAura" className="text-xl font-bold text-[var(--text-primary)]" />
             </Link>
             <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm">
