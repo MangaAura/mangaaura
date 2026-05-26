@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Check, User, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
+import { useSession } from 'next-auth/react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
@@ -23,6 +25,8 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettings({ user }: ProfileSettingsProps) {
+  const { update: updateSession } = useSession();
+
   const [formData, setFormData] = useState({
     displayName: user.displayName || '',
     username: user.username,
@@ -186,6 +190,13 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       setIsDirty(false);
       setSaveStatus('success');
       setFormData((prev) => ({ ...prev, username: data.user.username }));
+
+      // Refresh session so nav/profile dropdown reflect the new name immediately
+      const newDisplayName = formData.displayName;
+      const newUsername = data.user.username;
+      const sessionName = newDisplayName || newUsername || user.displayName || user.username;
+      await updateSession({ name: sessionName });
+
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       setSaveStatus('error');

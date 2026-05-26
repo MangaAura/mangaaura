@@ -265,10 +265,15 @@ export const authConfig = {
         }
       }
 
-      // ── Session update (e.g. after enabling/disabling 2FA) ───────
+      // ── Session update (e.g. after profile edit or 2FA toggle) ───
       if (trigger === 'update' && updateData) {
         if (typeof updateData.twoFactorEnabled === 'boolean') {
           token.twoFactorEnabled = updateData.twoFactorEnabled;
+        }
+        // Sync name with profile changes (displayName || username)
+        const updatePayload = updateData as Record<string, unknown>;
+        if (typeof updatePayload.name === 'string') {
+          token.name = updatePayload.name;
         }
       }
 
@@ -290,6 +295,7 @@ export const authConfig = {
     async session({ session, token }: { session: { user?: Record<string, unknown> }; token: Record<string, unknown> }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        session.user.name = token.name as string;
         session.user.xpPoints = token.xpPoints as number;
         session.user.level = token.level as number;
         session.user.role = token.role as string;
