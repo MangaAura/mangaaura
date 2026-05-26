@@ -878,7 +878,8 @@
     "genresTags": "Genres / Tags",
     "noResultsHint": "Try adjusting the filters or using different search terms.",
     "errorSearch": "Error searching. Try again.",
-    "errorConnection": "Connection error while searching."
+    "errorConnection": "Connection error while searching.",
+    "viewAllResults": "View all results"
   },
   "report": {
     "title": "Report Content",

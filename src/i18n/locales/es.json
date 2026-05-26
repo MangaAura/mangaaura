@@ -850,7 +850,8 @@
     "genresTags": "Géneros / Tags",
     "noResultsHint": "Intenta ajustar los filtros o utiliza términos de búsqueda diferentes.",
     "errorSearch": "Error al buscar. Inténtalo de nuevo.",
-    "errorConnection": "Error de conexión al buscar."
+    "errorConnection": "Error de conexión al buscar.",
+    "viewAllResults": "Ver todos los resultados"
   },
   "report": {
     "title": "Informar contenido",

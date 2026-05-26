@@ -5,6 +5,7 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
@@ -41,8 +42,12 @@ interface ProgressData {
  * Hook for user's reading progress
  */
 export function useReadingProgress(mangaId?: string) {
-  const key = mangaId ? `/api/progress?mangaId=${mangaId}` : '/api/progress';
-  
+  const { data: session } = useSession();
+  // Only fetch progress if user is authenticated — prevents 401 console errors
+  const key = session?.user
+    ? (mangaId ? `/api/progress?mangaId=${mangaId}` : '/api/progress')
+    : null;
+
   const { data, error, isLoading, mutate } = useSWR<ProgressData>(
     key,
     fetcher,
