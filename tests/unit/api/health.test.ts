@@ -76,6 +76,64 @@ describe('GET /api/health', () => {
     expect(data).toHaveProperty('environment');
   });
 
+  it('includes uptime information', async () => {
+    mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(data.uptime).toBeDefined();
+    expect(data.uptime).toHaveProperty('seconds');
+    expect(typeof data.uptime.seconds).toBe('number');
+    expect(data.uptime).toHaveProperty('human');
+    expect(typeof data.uptime.human).toBe('string');
+    expect(data.uptime).toHaveProperty('iso');
+    expect(data.uptime).toHaveProperty('startedAt');
+  });
+
+  it('includes memory usage information', async () => {
+    mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(data.memory).toBeDefined();
+    expect(data.memory).toHaveProperty('rssMb');
+    expect(data.memory).toHaveProperty('heapUsedMb');
+    expect(typeof data.memory.rssMb).toBe('number');
+    expect(data.memory.rssMb).toBeGreaterThan(0);
+  });
+
+  it('includes sentry status and response time', async () => {
+    mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(data).toHaveProperty('sentry');
+    expect(typeof data.sentry).toBe('boolean');
+    expect(data).toHaveProperty('responseTimeMs');
+    expect(typeof data.responseTimeMs).toBe('number');
+  });
+
+  it('includes database latency', async () => {
+    mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
+    mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
+    mockRedisStatus.isMockRedis.mockReturnValue(false);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(data).toHaveProperty('databaseLatencyMs');
+    expect(typeof data.databaseLatencyMs).toBe('number');
+  });
+
   it('sets Cache-Control: no-store header', async () => {
     mockPrisma.prisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
     mockRedisStatus.getRedisStatus.mockResolvedValue({ connected: true, isMock: false, mode: 'connected' });
