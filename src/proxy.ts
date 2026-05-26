@@ -129,19 +129,25 @@ function generateNonce(): string {
 
 // Pre-build CSP template parts — only the nonce changes per page request.
 const CSP_PREFIX = `default-src 'self'; script-src 'self' 'nonce-`;
-const CSP_SUFFIX = `' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com 'report-sample'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co https://*.ingest.sentry.io; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; media-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
+const CSP_SUFFIX = `' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com 'report-sample'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.vercel-storage.com https://*.blob.vercel-storage.com https://ui-avatars.com https://placehold.co https://*.unsplash.com; connect-src 'self' https://api.stripe.com https://*.supabase.co https://*.ingest.sentry.io; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; object-src 'none'; media-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'`;
 
-function buildCSP(nonce: string, reportUrl?: string): string {
-  const base = CSP_PREFIX + nonce + CSP_SUFFIX;
-  if (reportUrl) {
-    return `${base}; report-uri ${reportUrl}`;
+function buildCSP(nonce: string, options?: { reportUrl?: string; enforceUpgrade?: boolean }): string {
+  let base = CSP_PREFIX + nonce + CSP_SUFFIX;
+  if (options?.enforceUpgrade !== false) {
+    base += '; upgrade-insecure-requests';
+  }
+  if (options?.reportUrl) {
+    base += `; report-uri ${options.reportUrl}`;
   }
   return base;
 }
 
 function applySecurityHeaders(response: NextResponse, nonce: string) {
   const reportUrl = process.env.CSP_REPORT_URL;
-  const csp = buildCSP(nonce, reportUrl);
+  // Enforced CSP includes upgrade-insecure-requests
+  const csp = buildCSP(nonce, { reportUrl, enforceUpgrade: true });
+  // Report-only CSP excludes upgrade-insecure-requests (invalid in report-only mode)
+  const cspReportOnly = buildCSP(nonce, { reportUrl, enforceUpgrade: false });
 
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -159,7 +165,7 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
   response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
   response.headers.set('Content-Security-Policy', csp);
   if (reportUrl) {
-    response.headers.set('Content-Security-Policy-Report-Only', csp);
+    response.headers.set('Content-Security-Policy-Report-Only', cspReportOnly);
   }
 }
 
@@ -282,7 +288,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
       const nonce = generateNonce();
       requestHeaders.set('x-nonce', nonce);
-      requestHeaders.set('Content-Security-Policy', buildCSP(nonce, process.env.CSP_REPORT_URL));
+      requestHeaders.set('Content-Security-Policy', buildCSP(nonce, { reportUrl: process.env.CSP_REPORT_URL, enforceUpgrade: true }));
 
       const response = NextResponse.rewrite(newUrl, {
         request: { headers: requestHeaders },
@@ -386,7 +392,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     nonce = generateNonce();
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-nonce', nonce);
-    requestHeaders.set('Content-Security-Policy', buildCSP(nonce, process.env.CSP_REPORT_URL));
+    requestHeaders.set('Content-Security-Policy', buildCSP(nonce, { reportUrl: process.env.CSP_REPORT_URL, enforceUpgrade: true }));
 
     response = NextResponse.next({
       request: { headers: requestHeaders },
