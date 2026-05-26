@@ -48,10 +48,19 @@ vi.mock('@/hooks/useReadingProgress', () => ({
   useAutoSaveProgress: vi.fn(),
 }));
 
-// Mock OptimizedImage
+// Mock OptimizedImage - filter out React DOM warnings for non-HTML attrs
 vi.mock('@/components/Image/OptimizedImage', () => ({
-  OptimizedImage: ({ alt, ...props }: any) => (
-    <img alt={alt || 'imagen'} data-testid="optimized-image" {...props} />
+  OptimizedImage: ({ alt, fill, objectFit, objectPosition, priority, ...props }: any) => (
+    <img
+      alt={alt || 'imagen'}
+      data-testid="optimized-image"
+      style={{
+        ...(fill ? { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: objectFit || 'cover' } : {}),
+        ...(objectFit ? { objectFit } : {}),
+        ...(objectPosition ? { objectPosition } : {}),
+      }}
+      {...props}
+    />
   ),
 }));
 

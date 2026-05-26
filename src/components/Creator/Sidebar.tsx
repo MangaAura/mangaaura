@@ -22,7 +22,7 @@ interface SidebarProps {
 
 const navItems: { labelKey: string; href: string; icon: typeof HomeIcon }[] = [
   { labelKey: 'creator.dashboard', href: '/creator/dashboard', icon: HomeIcon },
-  { labelKey: 'creator.myManga', href: '/creator/dashboard', icon: BookOpenIcon },
+  { labelKey: 'creator.myManga', href: '/creator/manga', icon: BookOpenIcon },
   { labelKey: 'creator.uploadChapter', href: '/creator/upload', icon: UploadIcon },
   { labelKey: 'nav.sponsorships', href: '/creator/sponsors', icon: Medal },
   { labelKey: 'creator.analytics', href: '/analytics?tab=creator', icon: ChartBarIcon },
@@ -37,7 +37,7 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'w-64 bg-[var(--surface-sunken)] text-[var(--text-inverse)] flex flex-col min-h-screen',
+        'w-64 bg-[var(--surface-sunken)] text-[var(--text-inverse)] flex flex-col',
         className
       )}
     >

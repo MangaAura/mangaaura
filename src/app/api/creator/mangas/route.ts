@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-      const [mangas, total] = await Promise.all([
+      const [mangas, total, statsAgg, totalChaptersCount] = await Promise.all([
       prisma.mangaSeries.findMany({
         where,
         select: {
@@ -150,6 +150,14 @@ export async function GET(request: NextRequest) {
             orderBy: { updatedAt: 'desc' },
           }),
           prisma.mangaSeries.count({ where }),
+          prisma.mangaSeries.aggregate({
+            where: { authorId: userId },
+            _sum: { totalViews: true },
+            _avg: { rating: true },
+          }),
+          prisma.chapter.count({
+            where: { manga: { authorId: userId } },
+          }),
         ]);
 
     // Obtener información de capítulos para todos los mangas - use select para evitar over-fetching
@@ -216,6 +224,16 @@ export async function GET(request: NextRequest) {
           };
         });
 
+        const dashboardStats = {
+          totalMangas: total,
+          totalChapters: totalChaptersCount,
+          totalViews: statsAgg._sum.totalViews || 0,
+          viewsThisMonth: 0,
+          viewsThisWeek: 0,
+          averageRating: statsAgg._avg.rating || 0,
+          growthRate: 0,
+        };
+
         return {
           mangas: mangasWithStats,
           pagination: {
@@ -224,6 +242,7 @@ export async function GET(request: NextRequest) {
             total,
             totalPages: Math.ceil(total / limit),
           },
+          dashboardStats,
         };
       }
     );

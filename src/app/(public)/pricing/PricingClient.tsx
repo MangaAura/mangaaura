@@ -313,7 +313,7 @@ function BenefitsRow({ t }: { t: (key: string) => string }) {
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center mx-auto mb-3">
               <Icon className="w-5 h-5 text-[var(--primary)]" />
             </div>
-            <h4 className="text-sm font-bold mb-1">{t(`pricing.${benefit.titleKey}`)}</h4>
+            <h3 className="text-sm font-bold mb-1">{t(`pricing.${benefit.titleKey}`)}</h3>
             <p className="text-xs text-[var(--text-muted)]">{t(`pricing.${benefit.descKey}`)}</p>
           </motion.div>
         );

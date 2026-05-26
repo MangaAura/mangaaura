@@ -249,7 +249,7 @@ function ComparisonTable({
   const isReduced = useReducedMotion() ?? false;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]" tabIndex={0} role="region" aria-label="Tabla comparativa de características">
       <table className="w-full min-w-[700px]">
         <thead>
           <tr className="border-b-2 border-[var(--border)]">
@@ -528,7 +528,7 @@ export default function ComparisonClient() {
                   <item.icon className="w-5 h-5 text-[var(--primary)]" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-sm font-bold mb-0.5">{t(`comparison.${item.key}`)}</h4>
+                  <h3 className="text-sm font-bold mb-0.5">{t(`comparison.${item.key}`)}</h3>
                   <p className="text-xs text-[var(--text-muted)]">{t(`comparison.${item.key}Desc`)}</p>
                 </div>
               </motion.div>

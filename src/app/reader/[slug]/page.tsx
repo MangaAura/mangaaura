@@ -196,8 +196,11 @@ export default function ChapterReaderPage() {
     >
       <Navbar />
 
-      {/* Main Content */}
-      <div className="pt-14">
+      <main className="pt-14">
+        <h1 className="sr-only">
+          {chapter.manga.title} - Capítulo {chapter.chapterNumber}{chapter.title ? `: ${chapter.title}` : ''}
+        </h1>
+
         {/* Header Info */}
         <div className={cn(
           'border-b px-4 py-3 flex items-center justify-between',
@@ -385,7 +388,7 @@ export default function ChapterReaderPage() {
         )}>
           {currentPage + 1} / {chapter.totalPages}
         </div>
-      </div>
+      </main>
     </motion.div>
   );
 }

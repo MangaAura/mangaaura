@@ -7,19 +7,15 @@ import { redis } from '@/lib/redis';
 
 type _Output<T> = T extends { _zod: { output: infer O } } ? O : never;
 
-// Analytics event types
+// Analytics event types (must match frontend AnalyticsEvent.type)
 const EventType = z.enum([
-  'pageView',
-  'chapterRead',
-  'timeSpent',
-  'scrollDepth',
-  'chapterComplete',
-  'mangaView',
-  'searchQuery',
-  'bookmarkAdd',
-  'ratingGiven',
-  'shareEvent',
-  'commentPost',
+  'page_view',
+  'chapter_read',
+  'chapter_complete',
+  'time_spent',
+  'scroll_depth',
+  'comment',
+  'like',
 ]);
 
 // Schema for single event
@@ -49,186 +45,44 @@ async function checkRateLimit(key: string): Promise<boolean> {
   return current <= 100;
 }
 
-// Generate session ID
-function generateSessionId(): string {
-  return `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
 
-// Anonymize IP address
-function anonymizeIp(ip?: string): string | undefined {
-  if (!ip) return undefined;
-  
-  // IPv4: remove last octet
-  if (ip.includes('.')) {
-    return ip.split('.').slice(0, 3).join('.') + '.0';
-  }
-  
-  // IPv6: keep first 4 segments
-  if (ip.includes(':')) {
-    return ip.split(':').slice(0, 4).join(':') + '::';
-  }
-  
-  return ip;
-}
 
 // Process and save events
 async function processEvents(
   events: _Output<typeof eventSchema>[],
   userId: string | undefined,
-  userAgent: string | null,
-  ipAddress: string | undefined,
-  referrer: string | null
+  _userAgent: string | null,
+  _ipAddress: string | undefined,
+  _referrer: string | null
 ): Promise<void> {
-  const sessionId = generateSessionId();
   const timestamp = new Date();
 
   await prisma.$transaction(async (tx: any) => {
-    // Save events
+    // Save events with only existing AnalyticsEvent fields
     await tx.analyticsEvent.createMany({
       data: events.map((event) => ({
         eventType: event.type,
-        mangaId: event.mangaId,
-        chapterId: event.chapterId,
         userId,
-        sessionId,
-        metadata: event.metadata ? JSON.stringify(event.metadata) : null,
-        timestamp: event.timestamp ? new Date(event.timestamp) : timestamp,
-        userAgent,
-        ipAddress: anonymizeIp(ipAddress),
-        referrer,
+        metadata: JSON.stringify({
+          ...(event.metadata || {}),
+          ...(event.mangaId ? { mangaId: event.mangaId } : {}),
+          ...(event.chapterId ? { chapterId: event.chapterId } : {}),
+          ...(event.timestamp ? { clientTimestamp: event.timestamp } : {}),
+        }),
+        createdAt: event.timestamp ? new Date(event.timestamp) : timestamp,
       })),
     });
 
-    // Update real-time counters and stats
+    // Update chapter view counts
     for (const event of events) {
-      if (event.mangaId) {
-        await updateMangaStats(tx, event, timestamp);
+      if (event.type === 'chapter_read' && event.chapterId) {
+        await tx.chapter.update({
+          where: { id: event.chapterId },
+          data: { viewCount: { increment: 1 } },
+        }).catch(() => {});
       }
-      if (event.chapterId) {
-        await updateChapterStats(tx, event, timestamp);
-      }
     }
   });
-}
-
-// Update manga daily stats
-async function updateMangaStats(
-  tx: any,
-  event: _Output<typeof eventSchema>,
-  timestamp: Date
-): Promise<void> {
-  if (!event.mangaId) return;
-
-  const date = new Date(timestamp);
-  date.setHours(0, 0, 0, 0);
-
-  const hour = timestamp.getHours();
-
-  // Update daily stats
-  await tx.dailyStats.upsert({
-    where: {
-      date_mangaId: {
-        date,
-        mangaId: event.mangaId,
-      },
-    },
-    create: {
-      date,
-      mangaId: event.mangaId,
-      views: event.type === 'pageView' || event.type === 'mangaView' ? 1 : 0,
-      reads: event.type === 'chapterRead' ? 1 : 0,
-      completions: event.type === 'chapterComplete' ? 1 : 0,
-    },
-    update: {
-      views: event.type === 'pageView' || event.type === 'mangaView' ? { increment: 1 } : undefined,
-      reads: event.type === 'chapterRead' ? { increment: 1 } : undefined,
-      completions: event.type === 'chapterComplete' ? { increment: 1 } : undefined,
-    },
-  });
-
-  // Update hourly stats
-  await tx.hourlyStats.upsert({
-    where: {
-      date_hour_mangaId: {
-        date,
-        hour,
-        mangaId: event.mangaId,
-      },
-    },
-    create: {
-      date,
-      hour,
-      mangaId: event.mangaId,
-      views: event.type === 'pageView' || event.type === 'mangaView' ? 1 : 0,
-      reads: event.type === 'chapterRead' ? 1 : 0,
-    },
-    update: {
-      views: event.type === 'pageView' || event.type === 'mangaView' ? { increment: 1 } : undefined,
-      reads: event.type === 'chapterRead' ? { increment: 1 } : undefined,
-    },
-  });
-}
-
-// Update chapter stats
-async function updateChapterStats(
-  tx: any,
-  event: _Output<typeof eventSchema>,
-  _timestamp: Date
-): Promise<void> {
-  if (!event.chapterId || !event.mangaId) return;
-
-  // Get current chapter stats
-  const existingStats = await tx.chapterStats.findUnique({
-    where: { chapterId: event.chapterId },
-  });
-
-  if (!existingStats) {
-    // Create new stats
-    await tx.chapterStats.create({
-      data: {
-        chapterId: event.chapterId,
-        mangaId: event.mangaId,
-        views: event.type === 'pageView' || event.type === 'chapterRead' ? 1 : 0,
-        reads: event.type === 'chapterRead' ? 1 : 0,
-        completions: event.type === 'chapterComplete' ? 1 : 0,
-        avgTimeSpent: event.metadata?.seconds || 0,
-      },
-    });
-  } else {
-    // Update existing stats
-    const updates: any = {};
-
-    if (event.type === 'pageView' || event.type === 'chapterRead') {
-      updates.views = { increment: 1 };
-      updates.reads = { increment: 1 };
-    }
-    if (event.type === 'chapterComplete') {
-      updates.completions = { increment: 1 };
-    }
-    if (event.metadata?.seconds && typeof event.metadata.seconds === 'number') {
-      // Calculate new average
-      const newAvg = Math.round(
-        (existingStats.avgTimeSpent * existingStats.reads + event.metadata.seconds) /
-          (existingStats.reads + 1)
-      );
-      updates.avgTimeSpent = newAvg;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      await tx.chapterStats.update({
-        where: { chapterId: event.chapterId },
-        data: updates,
-      });
-    }
-  }
-
-  // Update chapter view count for reads
-  if (event.type === 'chapterRead') {
-    await tx.chapter.update({
-      where: { id: event.chapterId },
-      data: { viewCount: { increment: 1 } },
-    });
-  }
 }
 
 // POST /api/analytics/track - Track analytics events

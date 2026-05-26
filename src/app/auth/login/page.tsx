@@ -195,7 +195,7 @@ function Content() {
         <div className="w-full max-w-md [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)]">
           <div className="text-center mb-8 [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.1s_both]">
             <h1 className="text-[2rem] font-bold leading-[2.5rem] tracking-[-0.02em] mb-2">{t('auth.welcomeBack')}</h1>
-            <p className="text-muted">{t('auth.loginSubtitle')}</p>
+            <p className="text-secondary">{t('auth.loginSubtitle')}</p>
           </div>
 
           <div className="bg-[var(--surface-elevated)] rounded-[16px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border border-[var(--border-subtle)] [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.2s_both]">

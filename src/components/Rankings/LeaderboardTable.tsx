@@ -73,7 +73,7 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
             <p className="font-medium text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
               {item.displayName || item.username}
             </p>
-            <p className="text-xs text-[var(--text-tertiary)]">@{item.username}</p>
+            <p className="text-xs text-[var(--text-secondary)]">@{item.username}</p>
           </div>
         </Link>
       </td>
@@ -81,15 +81,15 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
         <div className="flex items-center justify-end gap-2">
           <Trophy className="w-4 h-4 text-[var(--warning)]" />
           <span className="font-semibold text-[var(--text-primary)]">{item.xpPoints.toLocaleString()}</span>
-          <span className="text-xs text-[var(--text-tertiary)]">XP</span>
+          <span className="text-xs text-[var(--text-secondary)]">XP</span>
         </div>
-        <p className="text-xs text-[var(--text-tertiary)]">Nivel {item.level}</p>
+        <p className="text-xs text-[var(--text-secondary)]">Nivel {item.level}</p>
       </td>
       <td className="py-4 px-4 text-right">
         <div className="flex items-center justify-end gap-2">
           <Flame className="w-4 h-4 text-[var(--accent-orange)]" />
           <span className="font-medium text-[var(--text-primary)]">{item.readingStreak}</span>
-          <span className="text-xs text-[var(--text-tertiary)]">días</span>
+          <span className="text-xs text-[var(--text-secondary)]">días</span>
         </div>
       </td>
       <td className="py-4 px-4 text-right">
@@ -120,7 +120,7 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
             <p className="font-medium text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
               {item.displayName || item.username}
             </p>
-            <p className="text-xs text-[var(--text-tertiary)]">@{item.username}</p>
+            <p className="text-xs text-[var(--text-secondary)]">@{item.username}</p>
           </div>
         </Link>
       </td>
@@ -129,13 +129,13 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
           <Eye className="w-4 h-4 text-[var(--primary)]" />
           <span className="font-semibold text-[var(--text-primary)]">{item.totalViews.toLocaleString()}</span>
         </div>
-        <p className="text-xs text-[var(--text-tertiary)]">vistas totales</p>
+        <p className="text-xs text-[var(--text-secondary)]">vistas totales</p>
       </td>
       <td className="py-4 px-4 text-right">
         <div className="flex items-center justify-end gap-2">
           <BookOpen className="w-4 h-4 text-[var(--success)]" />
           <span className="font-medium text-[var(--text-primary)]">{item._count.createdMangas}</span>
-          <span className="text-xs text-[var(--text-tertiary)]">mangas</span>
+          <span className="text-xs text-[var(--text-secondary)]">mangas</span>
         </div>
       </td>
       <td className="py-4 px-4 text-right">
@@ -174,13 +174,13 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
           <Trophy className="w-4 h-4 text-[var(--warning)]" />
           <span className="font-semibold text-[var(--text-primary)]">{item.totalScore.toLocaleString()}</span>
         </div>
-        <p className="text-xs text-[var(--text-tertiary)]">puntos</p>
+        <p className="text-xs text-[var(--text-secondary)]">puntos</p>
       </td>
       <td className="py-4 px-4 text-right">
         <div className="flex items-center justify-end gap-2">
           <Users className="w-4 h-4 text-[var(--primary)]" />
           <span className="font-medium text-[var(--text-primary)]">{item._count.members}</span>
-          <span className="text-xs text-[var(--text-tertiary)]">miembros</span>
+          <span className="text-xs text-[var(--text-secondary)]">miembros</span>
         </div>
       </td>
       <td className="py-4 px-4 text-right">
@@ -241,7 +241,7 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
           <Eye className="w-4 h-4 text-[var(--primary)]" />
           <span className="font-semibold text-[var(--text-primary)]">{item.totalViews.toLocaleString()}</span>
         </div>
-        <p className="text-xs text-[var(--text-tertiary)]">vistas</p>
+        <p className="text-xs text-[var(--text-secondary)]">vistas</p>
       </td>
       <td className="py-4 px-4 text-right">
         <div className="flex items-center justify-end gap-2">
@@ -308,7 +308,7 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between p-4 border-t border-[var(--border)]">
-          <p className="text-sm text-[var(--text-tertiary)]">
+          <p className="text-sm text-[var(--text-secondary)]">
             Mostrando {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, data.length)} de{' '}
             {data.length}
           </p>

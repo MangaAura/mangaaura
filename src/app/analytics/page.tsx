@@ -10,7 +10,6 @@ import { DateRangePicker, type DateRangePreset, type DateRange } from '@/compone
 import { ExportAnalyticsButton } from '@/components/Analytics/ExportAnalyticsButton';
 import { MangaSelector, type MangaOption } from '@/components/Analytics/MangaSelector';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 interface CreatorData {
@@ -80,7 +79,7 @@ function getDefaultDateRange(): DateRange {
 export default function AnalyticsPage() {
   const { data: session } = useSession();
   const t = useT();
-  const { handleError } = useErrorHandler();
+
   const [activeTab, setActiveTab] = useState<'creator' | 'reader'>('creator');
 
   const [creatorData, setCreatorData] = useState<CreatorData | null>(null);
@@ -94,60 +93,46 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchCreatorData = useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      if (selectedMangaId) params.append('mangaId', selectedMangaId);
-      params.append('from', dateRange.from.toISOString());
-      params.append('to', dateRange.to.toISOString());
-      const res = await fetch(`/api/analytics/dashboard?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to fetch creator analytics');
-      const data = await res.json();
-      setCreatorData(data);
-    } catch (err) {
-      handleError(err);
-    }
-  }, [selectedMangaId, dateRange, handleError]);
+    const params = new URLSearchParams();
+    if (selectedMangaId) params.append('mangaId', selectedMangaId);
+    params.append('from', dateRange.from.toISOString());
+    params.append('to', dateRange.to.toISOString());
+    const res = await fetch(`/api/analytics/dashboard?${params.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch creator analytics');
+    return res.json();
+  }, [selectedMangaId, dateRange]);
 
   const fetchCreatorMangas = useCallback(async () => {
-    try {
-      const res = await fetch('/api/creator/mangas');
-      if (res.ok) {
-        const data = await res.json();
-        setCreatorMangas(data.mangas || data || []);
-      }
-    } catch {         
-        setError(t('analytics.errorLoadingMangas'));
-    }
-  }, [setError, t]);
+    const res = await fetch('/api/creator/mangas');
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.mangas || data || [];
+  }, []);
 
   const fetchReaderData = useCallback(async () => {
-    try {
-      const res = await fetch('/api/me');
-      if (!res.ok) throw new Error('Failed to fetch reader data');
-      const data = await res.json();
-      setReaderData(data);
-    } catch (err) {
-      handleError(err);
-    }
-  }, [handleError]);
+    const res = await fetch('/api/me');
+    if (!res.ok) throw new Error('Failed to fetch reader data');
+    return res.json();
+  }, []);
 
-  // Data fetching effect - setState is necessary for async SWR data loading
+  // Data fetching
   const shouldFetch = session?.user?.id;
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (!shouldFetch) {
-      return;
-    }
+    if (!shouldFetch) return;
+    let cancelled = false;
+
     setIsLoading(true);
     setError(null);
-    Promise.all([fetchCreatorMangas(), fetchCreatorData(), fetchReaderData()])
-      .catch(() => {
-        setError(t('analytics.errorLoading'));
-      })
-      .finally(() => setIsLoading(false));
+
+    Promise.all([
+      fetchCreatorMangas().then((m) => { if (!cancelled) setCreatorMangas(m); }).catch(() => { if (!cancelled) setError(t('analytics.errorLoadingMangas')); }),
+      fetchCreatorData().then((d) => { if (!cancelled) setCreatorData(d); }).catch(() => { /* error handled by AnalyticsDashboard */ }),
+      fetchReaderData().then((d) => { if (!cancelled) setReaderData(d); }).catch(() => { /* not critical */ }),
+    ]).finally(() => { if (!cancelled) setIsLoading(false); });
+
+    return () => { cancelled = true; };
   }, [shouldFetch, fetchCreatorMangas, fetchCreatorData, fetchReaderData, t]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const xpForNextLevel = readerData?.stats.nextLevelXp || 2000;
   const currentXp = readerData?.user.xpPoints || 0;
@@ -212,22 +197,7 @@ export default function AnalyticsPage() {
           </div>
         </header>
 
-        {isLoading && (
-          <div className="space-y-6" role="status" aria-label="Cargando analíticas">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="card p-5 rounded-xl">
-                  <div className="h-4 bg-tertiary rounded w-24 mb-3 animate-pulse" />
-                  <div className="h-7 bg-tertiary rounded w-16 animate-pulse" />
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="h-80 bg-tertiary rounded-xl animate-pulse" />
-              <div className="h-80 bg-tertiary rounded-xl animate-pulse" />
-            </div>
-          </div>
-        )}
+
 
         {error && (
           <div className="card p-8 rounded-xl text-center" role="alert">
@@ -246,7 +216,7 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {activeTab === 'creator' && session?.user?.id && !isLoading && !error && (
+        {activeTab === 'creator' && session?.user?.id && !error && (
           <div id="analytics-creator-panel" role="tabpanel" aria-labelledby="analytics-creator-tab" className="space-y-6 animate-fade-in-up">
             {creatorMangas.length > 0 && (
               <div className="flex flex-col sm:flex-row gap-4">
@@ -277,7 +247,7 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {activeTab === 'reader' && session?.user?.id && !isLoading && !error && (
+        {activeTab === 'reader' && session?.user?.id && !error && (
           <div id="analytics-reader-panel" role="tabpanel" aria-labelledby="analytics-reader-tab" className="space-y-6 animate-fade-in-up">
             {readerData ? (
               <>
