@@ -21,7 +21,6 @@ import { useSession } from 'next-auth/react';
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import Navbar from '@/components/Layout/Navbar';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
@@ -314,9 +313,7 @@ function CreatorUploadPageContent() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
-      <Navbar />
-
-      <div className="max-w-6xl mx-auto space-y-8 p-6">
+      <div className="max-w-6xl mx-auto space-y-8 p-6 pt-4">
         {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-2 border-b border-[var(--border)] pb-6">
           <div>

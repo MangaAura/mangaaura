@@ -149,12 +149,14 @@ export function AppearanceSettings() {
       localStorage.setItem('mangaaura-theme', theme);
       localStorage.setItem('fontSize', fontSize);
       localStorage.setItem('layoutDensity', layoutDensity);
+      localStorage.setItem('primaryColor', primaryColor);
+      localStorage.setItem('primaryColorDark', lighten(primaryColor, 0.35));
 
       const res = await fetch('/api/me/preferences', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          appearance: { theme, fontSize, layoutDensity },
+          appearance: { theme, fontSize, layoutDensity, primaryColor, primaryColorDark: lighten(primaryColor, 0.35) },
         }),
       });
 

@@ -34,6 +34,8 @@ export interface AppShellProps {
   noPageTransition?: boolean;
   /** Whether to add pb-16 mobile padding (auto-enabled with showMobileBottomNav) */
   mobileBottomPadding?: boolean;
+  /** Show the top Navbar alongside a sidebar instead of hiding it */
+  showNavbarWithSidebar?: boolean;
 }
 
 export async function AppShell({
@@ -46,6 +48,7 @@ export async function AppShell({
   className = '',
   noPageTransition = false,
   mobileBottomPadding,
+  showNavbarWithSidebar = false,
 }: AppShellProps) {
   // pb-16 is auto-enabled when showMobileBottomNav is true unless explicitly overridden
   const addMobilePadding = mobileBottomPadding ?? showMobileBottomNav;
@@ -67,15 +70,18 @@ export async function AppShell({
     </main>
   );
 
-  // Sidebar layout: used by admin/creator (no top Navbar)
+  // Sidebar layout: used by admin/creator
   if (sidebar) {
     const content = (
-      <div className={`flex min-h-screen bg-[var(--surface)] ${className}`}>
+      <div className={`min-h-screen bg-[var(--surface)] ${className}`}>
         <div role="region" aria-label="Skip navigation">
           <SkipToContent />
         </div>
-        {sidebar}
-        {mainContent}
+        {showNavbarWithSidebar && <Navbar />}
+        <div className="flex">
+          {sidebar}
+          {mainContent}
+        </div>
       </div>
     );
 

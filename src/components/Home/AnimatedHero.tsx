@@ -98,9 +98,9 @@ export function AnimatedHero({
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
             <motion.div
-              initial={{ scale: 1.15, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] as const }}
+              initial={{ scale: 1.05 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const }}
               className="relative w-full h-full"
               suppressHydrationWarning
             >
@@ -110,6 +110,7 @@ export function AnimatedHero({
                 fill
                 className="object-cover object-right"
                 priority
+                fetchPriority="high"
                 aria-hidden
                 sizes="(max-width: 768px) 100vw, 55vw"
               />
