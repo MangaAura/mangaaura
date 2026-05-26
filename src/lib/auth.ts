@@ -227,6 +227,9 @@ export const authConfig = {
         token.xpPoints = (user.xpPoints as number) || 0;
         token.level = (user.level as number) || 1;
         token.role = (user.role as string) || 'USER';
+        if ((user as Record<string, unknown>).image) {
+          token.picture = (user as Record<string, unknown>).image;
+        }
 
         // Check 2FA status from DB so we can set twoFactorPending
         try {

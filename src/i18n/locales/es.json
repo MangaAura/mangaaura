@@ -566,7 +566,9 @@
   "theme": {
     "light": "Claro",
     "dark": "Oscuro",
-    "system": "Sistema"
+    "system": "Sistema",
+    "switchToLight": "Cambiar a modo claro",
+    "switchToDark": "Cambiar a modo oscuro"
   },
   "time": {
     "now": "Ahora",

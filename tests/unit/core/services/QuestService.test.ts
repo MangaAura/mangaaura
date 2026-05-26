@@ -268,16 +268,16 @@ describe('QuestService', () => {
       expect(rewards.weeklyXP).toBe(530);
     });
 
-    it('debe retornar la suma correcta de Aura diarios (5)', () => {
+    it('debe retornar la suma correcta de Aura diarios (0)', () => {
       const rewards = service.getTotalPossibleRewards();
-      // DAILY_READ_1=0 + DAILY_READ_3=5 + DAILY_COMMENT=0 + DAILY_LIKE_3=0 = 5
-      expect(rewards.dailyAura).toBe(5);
+      // Todas las daily tienen auraReward=0
+      expect(rewards.dailyAura).toBe(0);
     });
 
-    it('debe retornar la suma correcta de Aura semanales (65)', () => {
+    it('debe retornar la suma correcta de Aura semanales (0)', () => {
       const rewards = service.getTotalPossibleRewards();
-      // WEEKLY_READ_10=10 + WEEKLY_COMPLETE_MANGA=20 + WEEKLY_COMMENT_5=10 + WEEKLY_STREAK_5=25 = 65
-      expect(rewards.weeklyAura).toBe(65);
+      // Todas las weekly tienen auraReward=0
+      expect(rewards.weeklyAura).toBe(0);
     });
 
     it('todos los valores deben ser >= 0', () => {

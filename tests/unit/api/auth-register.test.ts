@@ -12,9 +12,13 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
       create: vi.fn(),
     },
     verificationToken: {
+      create: vi.fn(() => Promise.resolve()),
+    },
+    referralClaim: {
       create: vi.fn(() => Promise.resolve()),
     },
   },

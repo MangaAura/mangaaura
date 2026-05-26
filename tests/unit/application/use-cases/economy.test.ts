@@ -70,7 +70,7 @@ describe('SendTipUseCase', () => {
       senderId: 'user-1',
       chapterId: 'chapter-1',
       amount: 1001,
-    })).rejects.toThrow('El monto no puede exceder 1000 Auras');
+    })).rejects.toThrow('El monto no puede exceder 1000 Aura');
   });
 
   it('debe rechazar senderId vacío', async () => {

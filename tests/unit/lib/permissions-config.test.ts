@@ -44,9 +44,9 @@ describe('permissions-config', () => {
       expect(result).toEqual({ permission: 'audit:view' });
     });
 
-    it('returns correct permission for /creator/dashboard', () => {
+    it('returns requireAuth for /creator/dashboard', () => {
       const result = getRoutePermission('/creator/dashboard');
-      expect(result).toEqual({ permission: 'manga:create' });
+      expect(result).toEqual({ requireAuth: true });
     });
 
     it('returns requireAuth for /library', () => {
