@@ -16,13 +16,13 @@ import { useT } from '@/i18n';
 // ── Data ──────────────────────────────────────────────
 
 const PLATFORMS = [
-  { id: 'mangaaura', name: 'MangaAura', color: 'from-primary to-accent-purple', isMangaAura: true },
-  { id: 'mangaplus', name: 'Manga Plus', color: 'from-red-500 to-orange-500' },
-  { id: 'webtoon', name: 'Webtoon', color: 'from-green-500 to-emerald-500' },
-  { id: 'tapas', name: 'Tapas', color: 'from-blue-500 to-indigo-500' },
-  { id: 'shonenjump', name: 'Shonen Jump', color: 'from-yellow-500 to-orange-500' },
-  { id: 'mangadex', name: 'MangaDex', color: 'from-violet-500 to-purple-500' },
-  { id: 'inkr', name: 'INKR', color: 'from-cyan-500 to-teal-500' },
+  { id: 'mangaaura', name: 'MangaAura', color: 'from-primary to-accent-purple' as const, isMangaAura: true },
+  { id: 'mangaplus', name: 'Manga Plus', color: 'from-red-500 to-orange-500', isMangaAura: false },
+  { id: 'webtoon', name: 'Webtoon', color: 'from-green-500 to-emerald-500', isMangaAura: false },
+  { id: 'tapas', name: 'Tapas', color: 'from-blue-500 to-indigo-500', isMangaAura: false },
+  { id: 'shonenjump', name: 'Shonen Jump', color: 'from-yellow-500 to-orange-500', isMangaAura: false },
+  { id: 'mangadex', name: 'MangaDex', color: 'from-violet-500 to-purple-500', isMangaAura: false },
+  { id: 'inkr', name: 'INKR', color: 'from-cyan-500 to-teal-500', isMangaAura: false },
 ] as const;
 
 interface FeatureDef {
