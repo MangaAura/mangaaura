@@ -24,8 +24,8 @@ export const routePermissions: Record<string, RoutePermission> = {
   '/admin/manga': { permission: PERMISSIONS.MANGA_EDIT },
 
   // Creator routes
-  '/creator/dashboard': { permission: PERMISSIONS.MANGA_CREATE },
-  '/creator/upload': { permission: PERMISSIONS.CHAPTERS_CREATE },
+  '/creator/dashboard': { requireAuth: true },
+  '/creator/upload': { requireAuth: true },
 
   // Protected routes
   '/settings': { requireAuth: true },

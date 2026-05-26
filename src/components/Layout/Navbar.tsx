@@ -39,19 +39,16 @@ export default function Navbar() {
 
   const isLoggedIn = status === 'authenticated';
   const isModerator = session?.user?.role === 'MODERATOR' || session?.user?.role === 'ADMIN';
-  const isCreator = session?.user?.role === 'CREATOR';
   const userId = session?.user?.id as string | undefined;
 
   const visibleLinks = ALL_NAV_LINKS.filter((link) => {
     if (link.requiresModerator) return mounted ? isModerator : false;
-    if (link.requiresCreator) return mounted ? isCreator : false;
     if (link.hideWhenLoggedOut) return mounted ? isLoggedIn : false;
     return true;
   });
 
   const moreLinks = MORE_NAV_LINKS.filter((link) => {
     if (link.requiresModerator) return mounted ? isModerator : false;
-    if (link.requiresCreator) return mounted ? isCreator : false;
     if (link.hideWhenLoggedOut) return mounted ? isLoggedIn : false;
     return true;
   });
@@ -187,34 +184,30 @@ export default function Navbar() {
                     )}
                   </Link>
 
-                  {isCreator && (
-                    <Link
-                      href={localeHref(pathname, '/creator/dashboard')}
-                      className={
-                        'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
-                        (isActive(pathname, '/creator/dashboard')
-                          ? ' text-amber-500 bg-amber-500/10 shadow-sm'
-                          : ' text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10')
-                      }
-                      title={t('creator.dashboard')}
-                      aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
-                    >
-                      <Sparkles className={'w-4 h-4 ' + (isActive(pathname, '/creator/dashboard') ? '' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
-                      {isActive(pathname, '/creator/dashboard') && (
-                        <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-amber-500" />
-                      )}
-                    </Link>
-                  )}
+                  <Link
+                    href={localeHref(pathname, '/creator/dashboard')}
+                    className={
+                      'group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200' +
+                      (isActive(pathname, '/creator/dashboard')
+                        ? ' text-amber-500 bg-amber-500/10 shadow-sm'
+                        : ' text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10')
+                    }
+                    title={t('creator.dashboard')}
+                    aria-current={isActive(pathname, '/creator/dashboard') ? 'page' : undefined}
+                  >
+                    <Sparkles className={'w-4 h-4 ' + (isActive(pathname, '/creator/dashboard') ? '' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
+                    {isActive(pathname, '/creator/dashboard') && (
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-amber-500" />
+                    )}
+                  </Link>
 
-                  {isCreator && (
-                    <Link
-                      href={localeHref(pathname, '/creator/manga/new')}
-                      className="group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
-                      title={t('creator.newManga')}
-                    >
-                      <Plus className="w-4 h-4" aria-hidden="true" />
-                    </Link>
-                  )}
+                  <Link
+                    href={localeHref(pathname, '/creator/manga/new')}
+                    className="group relative flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] hover:from-[var(--primary-hover)] hover:to-[var(--accent-purple)] shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 transition-all duration-200 hover:scale-110 active:scale-95"
+                    title={t('creator.newManga')}
+                  >
+                    <Plus className="w-4 h-4" aria-hidden="true" />
+                  </Link>
                 </div>
               )}
 
@@ -257,7 +250,6 @@ export default function Navbar() {
         links={visibleLinks}
         mounted={mounted}
         isLoggedIn={isLoggedIn}
-        isCreator={isCreator}
         unreadMessages={unreadMessages}
         unreadNotifications={unreadNotifications}
         onSearch={handleSearch}

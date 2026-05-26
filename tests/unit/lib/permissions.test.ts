@@ -210,10 +210,10 @@ describe('permissions', () => {
 
   describe('getPrimaryRole', () => {
     it('returns user role from database', async () => {
-      mockUserFindUnique.mockResolvedValue({ role: 'CREATOR' });
+      mockUserFindUnique.mockResolvedValue({ role: 'ADMIN' });
 
       const role = await getPrimaryRole('user-1');
-      expect(role).toBe('CREATOR');
+      expect(role).toBe('ADMIN');
     });
 
     it('returns USER when user not found', async () => {

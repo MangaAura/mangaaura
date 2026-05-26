@@ -16,7 +16,6 @@ import { useT } from '@/i18n';
 const roleBadgeStyles: Record<string, { className: string; labelKey: string }> = {
   ADMIN: { className: 'bg-[var(--error)]/10 text-[var(--error)]', labelKey: 'forumThread.moderator' },
   MODERATOR: { className: 'bg-[var(--info)]/10 text-[var(--info)]', labelKey: 'forumThread.moderator' },
-  CREATOR: { className: 'bg-[var(--primary)]/10 text-[var(--primary)]', labelKey: 'forumThread.creator' },
 };
 
 interface ForumThreadClientProps {

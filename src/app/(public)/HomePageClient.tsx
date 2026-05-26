@@ -69,10 +69,9 @@ export function HomePageClient({
 }: HomePageClientProps) {
   const { data: session } = useSession();
   const t = useT();
-  const isCreator = session?.user?.role === 'CREATOR';
   const isLoggedIn = !!session?.user;
-  const ctaHref = !isLoggedIn ? '/auth/register' : isCreator ? '/creator/manga/new' : '/explore';
-  const ctaLabel = !isLoggedIn ? t('nav.register') : isCreator ? t('creator.newManga') : t('home.exploreMangas');
+  const ctaHref = isLoggedIn ? '/creator/manga/new' : '/auth/register';
+  const ctaLabel = isLoggedIn ? t('creator.newManga') : t('nav.register');
 
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary">

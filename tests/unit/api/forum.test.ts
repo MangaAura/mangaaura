@@ -22,7 +22,7 @@ vi.mock('@/lib/prisma', () => ({
 
 import { GET, POST } from '@/app/api/forum/threads/route';
 
-const mockSession = { user: { id: 'user-1', role: 'CREATOR' } };
+const mockSession = { user: { id: 'user-1', role: 'USER' } };
 
 const threadFixture = {
   id: 'thread-1',
@@ -31,7 +31,7 @@ const threadFixture = {
   content: 'This is a test thread',
   isPinned: false,
   createdAt: new Date('2025-06-01'),
-  author: { id: 'user-1', username: 'testuser', displayName: 'Test User', avatarUrl: null, role: 'CREATOR' },
+  author: { id: 'user-1', username: 'testuser', displayName: 'Test User', avatarUrl: null, role: 'USER' },
   category: { id: 'cat-1', name: 'General', slug: 'general', icon: '💬' },
   _count: { posts: 5 },
 };
@@ -137,7 +137,7 @@ describe('POST /api/forum/threads', () => {
     content: 'Thread content here',
     categoryId: validThread.categoryId,
     authorId: 'user-1',
-    author: { id: 'user-1', username: 'testuser', displayName: 'Test User', avatarUrl: null, role: 'CREATOR' },
+    author: { id: 'user-1', username: 'testuser', displayName: 'Test User', avatarUrl: null, role: 'USER' },
     category: { id: 'cat-1', name: 'General', slug: 'general' },
   };
 
@@ -162,22 +162,6 @@ describe('POST /api/forum/threads', () => {
 
     expect(response.status).toBe(401);
     expect(data.error).toBe('No autorizado');
-  });
-
-  it('returns 403 when user is not CREATOR or ADMIN', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-2', role: 'READER' } });
-
-    const response = await POST(
-      createRequest('/api/forum/threads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validThread),
-      })
-    );
-    const data = await response.json();
-
-    expect(response.status).toBe(403);
-    expect(data.error).toBe('Solo creadores pueden crear hilos');
   });
 
   it('creates a forum thread', async () => {

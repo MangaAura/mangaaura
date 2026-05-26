@@ -21,14 +21,13 @@ interface MobileMenuProps {
   links: NavLinkDef[];
   mounted: boolean;
   isLoggedIn: boolean;
-  isCreator?: boolean;
   unreadMessages: number;
   unreadNotifications?: number;
   onSearch: (query: string) => void;
 }
 
 export function MobileMenu({
-  open, onClose, links, mounted, isLoggedIn, isCreator, unreadMessages, unreadNotifications, onSearch,
+  open, onClose, links, mounted, isLoggedIn, unreadMessages, unreadNotifications, onSearch,
 }: MobileMenuProps) {
   const pathname = usePathname();
   const t = useT();
@@ -180,34 +179,30 @@ export function MobileMenu({
                       {t('nav.quests')}
                     </Link>
 
-                    {isCreator && (
-                      <Link
-                        href={localeHref(pathname, '/creator/dashboard')}
-                        onClick={onClose}
-                        className={
-                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
-                          (isActive(pathname, '/creator')
-                            ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
-                            : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
-                        }
-                        aria-current={isActive(pathname, '/creator') ? 'page' : undefined}
-                      >
-                        <Crown className="w-5 h-5" aria-hidden="true" />
-                        {t('creator.dashboard')}
-                      </Link>
-                    )}
+                    <Link
+                      href={localeHref(pathname, '/creator/dashboard')}
+                      onClick={onClose}
+                      className={
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors' +
+                        (isActive(pathname, '/creator')
+                          ? ' text-[var(--primary)] bg-[var(--primary-subtle)]'
+                          : ' text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]')
+                      }
+                      aria-current={isActive(pathname, '/creator') ? 'page' : undefined}
+                    >
+                      <Crown className="w-5 h-5" aria-hidden="true" />
+                      {t('creator.dashboard')}
+                    </Link>
 
-                    {isCreator && (
-                      <Link
-                        href={localeHref(pathname, '/creator/manga/new')}
-                        onClick={onClose}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
-                        aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
-                      >
-                        <Plus className="w-5 h-5" aria-hidden="true" />
-                        {t('creator.newManga')}
-                      </Link>
-                    )}
+                    <Link
+                      href={localeHref(pathname, '/creator/manga/new')}
+                      onClick={onClose}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-inverse)] bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] transition-all"
+                      aria-current={isActive(pathname, '/creator/manga/new') ? 'page' : undefined}
+                    >
+                      <Plus className="w-5 h-5" aria-hidden="true" />
+                      {t('creator.newManga')}
+                    </Link>
 
                     <div className="my-2 border-t border-[var(--border)]" />
 

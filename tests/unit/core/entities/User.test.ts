@@ -28,7 +28,7 @@ describe('User Entity', () => {
         email: Email.create('user@test.com'),
         username: 'customuser',
         displayName: 'Custom User',
-        role: 'CREATOR',
+        role: 'ADMIN',
         xpPoints: 1000,
         auraBalance: 500,
       });
@@ -36,7 +36,7 @@ describe('User Entity', () => {
       expect(user.id).toBe('custom-id');
       expect(user.username).toBe('customuser');
       expect(user.displayName).toBe('Custom User');
-      expect(user.role).toBe('CREATOR');
+      expect(user.role).toBe('ADMIN');
       expect(user.xp.amount).toBe(1000);
       expect(user.aura.amount).toBe(500);
     });
@@ -257,9 +257,9 @@ describe('User Entity', () => {
         username: 'promoteuser',
       });
 
-      user.changeRole('CREATOR');
+      user.changeRole('MODERATOR');
 
-      expect(user.role).toBe('CREATOR');
+      expect(user.role).toBe('MODERATOR');
     });
   });
 

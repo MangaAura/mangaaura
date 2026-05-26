@@ -270,10 +270,13 @@ export const authConfig = {
         if (typeof updateData.twoFactorEnabled === 'boolean') {
           token.twoFactorEnabled = updateData.twoFactorEnabled;
         }
-        // Sync name with profile changes (displayName || username)
+        // Sync name and avatar with profile changes
         const updatePayload = updateData as Record<string, unknown>;
         if (typeof updatePayload.name === 'string') {
           token.name = updatePayload.name;
+        }
+        if (typeof updatePayload.image === 'string') {
+          token.picture = updatePayload.image;
         }
       }
 
@@ -296,6 +299,7 @@ export const authConfig = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
+        session.user.image = token.picture as string | undefined | null;
         session.user.xpPoints = token.xpPoints as number;
         session.user.level = token.level as number;
         session.user.role = token.role as string;

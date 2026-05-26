@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
     const { format = 'csv', type = 'reading', dateRange } = body;
 
     const userId = session.user.id;
-    const isCreator = session.user.role === 'CREATOR' || session.user.role === 'ADMIN';
 
     // Build date filter if dateRange provided
     const dateFilter: Record<string, Date> = {};
@@ -113,13 +112,6 @@ export async function POST(request: NextRequest) {
       }
 
       case 'manga': {
-        if (!isCreator) {
-          return NextResponse.json(
-            { error: 'Solo creadores pueden exportar datos de manga' },
-            { status: 403 }
-          );
-        }
-
         const whereMangaDate: Record<string, unknown> = {};
         if (Object.keys(dateFilter).length > 0) {
           whereMangaDate.createdAt = dateFilter;

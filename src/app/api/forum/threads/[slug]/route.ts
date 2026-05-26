@@ -79,11 +79,6 @@ export async function POST(
     const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
     if (rlResponse) return rlResponse;
 
-    const role = session.user.role;
-    if (role !== 'CREATOR' && role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Solo creadores pueden responder' }, { status: 403 });
-    }
-
     const { slug } = await params;
     const thread = await prisma.forumThread.findUnique({ where: { slug } });
     if (!thread) {

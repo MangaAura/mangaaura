@@ -11,10 +11,6 @@ export async function GET() {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    if (session.user.role !== 'CREATOR' && session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -86,10 +82,6 @@ export async function PATCH(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    if (session.user.role !== 'CREATOR' && session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 

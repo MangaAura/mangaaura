@@ -8,7 +8,7 @@ import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 const updateUserSchema = z.object({
   displayName: z.string().min(1).max(50).optional(),
   email: z.string().email().max(254).optional(),
-  role: z.enum(['USER', 'ADMIN', 'BANNED', 'CREATOR']).optional(),
+  role: z.enum(['USER', 'ADMIN', 'BANNED']).optional(),
   xpPoints: z.number().int().min(0).optional(),
   auraBalance: z.number().int().min(0).optional(),
   level: z.number().int().min(1).optional(),

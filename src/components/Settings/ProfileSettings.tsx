@@ -123,9 +123,9 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       return;
     }
 
-    const maxSize = 2 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setAvatarError(`Archivo demasiado grande. Máximo 2MB (${(file.size / 1024 / 1024).toFixed(1)}MB).`);
+      setAvatarError(`Archivo demasiado grande. Máximo 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB).`);
       return;
     }
 
@@ -154,6 +154,9 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       const { url } = await response.json();
       URL.revokeObjectURL(previewUrl);
       setAvatarPreview(url);
+
+      // Refresh session image immediately so navbar updates
+      await updateSession({ image: url });
     } catch (error: any) {
       handleError(error);
       setAvatarError(error.message || 'Error al subir la imagen');
@@ -191,11 +194,12 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       setSaveStatus('success');
       setFormData((prev) => ({ ...prev, username: data.user.username }));
 
-      // Refresh session so nav/profile dropdown reflect the new name immediately
+      // Refresh session so nav/profile dropdown reflect changes immediately
       const newDisplayName = formData.displayName;
       const newUsername = data.user.username;
       const sessionName = newDisplayName || newUsername || user.displayName || user.username;
-      await updateSession({ name: sessionName });
+      const sessionImage = avatarPreview || user.avatarUrl;
+      await updateSession({ name: sessionName, image: sessionImage });
 
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
@@ -298,7 +302,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-[var(--text-primary)]">Foto de perfil</h3>
             <p className="text-sm text-[var(--text-tertiary)]">
-              JPEG, PNG, WebP o GIF. Se redimensiona automáticamente a 256x256.
+              JPEG, PNG, WebP o GIF. Se redimensiona automáticamente a 400x400.
             </p>
           </div>
         </div>

@@ -26,11 +26,6 @@ export default async function NewThreadPage() {
     redirect('/auth/login?callbackUrl=/community/forum/create');
   }
 
-  const role = session.user.role;
-  if (role !== 'CREATOR' && role !== 'ADMIN') {
-    redirect('/community/forum');
-  }
-
   const categories = await getCategories();
 
   return (

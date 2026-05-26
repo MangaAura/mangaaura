@@ -639,14 +639,12 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
   ];
 
   const roleLabel =
-    user.role === 'ADMIN' ? t('userProfile.roles.admin') : user.role === 'MODERATOR' ? t('userProfile.roles.moderator') : user.role === 'CREATOR' ? t('userProfile.roles.creator') : null;
+    user.role === 'ADMIN' ? t('userProfile.roles.admin') : user.role === 'MODERATOR' ? t('userProfile.roles.moderator') : null;
 
   const roleBadgeStyle =
     user.role === 'ADMIN'
       ? 'bg-[var(--error)]/10 text-[var(--error)] border-[var(--error)]/20'
-      : user.role === 'MODERATOR'
-        ? 'bg-[var(--info)]/10 text-[var(--info)] border-[var(--info)]/20'
-        : 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20';
+      : 'bg-[var(--info)]/10 text-[var(--info)] border-[var(--info)]/20';
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 
@@ -680,7 +678,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
                         transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.3 }}
                       >
                         <Badge className={`${roleBadgeStyle} border flex items-center gap-1.5 px-2.5 py-0.5`}>
-                          <Crown className={`w-3.5 h-3.5 ${user.role === 'CREATOR' ? 'text-amber-700 dark:text-yellow-500' : ''}`} />
+                          <Crown className="w-3.5 h-3.5" />
                           {roleLabel}
                         </Badge>
                       </motion.span>

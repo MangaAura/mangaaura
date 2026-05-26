@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import {
   Users, Crown, Shield, Trophy, BookOpen, Flame,
   Plus, Calendar, Swords, Loader2, AlertTriangle,
-  Zap, TrendingUp, Hash,
+  Zap, TrendingUp, Hash, Edit, Trash2, UserCog,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -311,9 +311,17 @@ function TotalScoreCard({ clan }: { clan: ClanData }) {
 function MemberRow({
   member,
   position,
+  isLeader,
+  currentUserId,
+  onPromote,
+  promoting,
 }: {
   member: ClanMember;
   position: number;
+  isLeader: boolean;
+  currentUserId: string | null;
+  onPromote: (memberId: string, newRole: string) => void;
+  promoting: string | null;
 }) {
   const t = useT();
   const roleConfig = getRoleConfig(member.role);
@@ -385,6 +393,40 @@ function MemberRow({
         </p>
       </div>
 
+      {/* Leader actions */}
+      {isLeader && member.userId !== currentUserId && member.role !== 'LEADER' && (
+        <div className="flex items-center gap-1 flex-shrink-0 mr-2" onClick={(e) => e.stopPropagation()}>
+          {member.role !== 'OFFICER' && (
+            <button
+              onClick={() => onPromote(member.userId, 'OFFICER')}
+              disabled={promoting === member.userId}
+              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/10 transition-all cursor-pointer"
+              title={t('clanDetail.promoteToOfficer')}
+            >
+              {promoting === member.userId ? <Loader2 size={14} className="animate-spin" /> : <UserCog size={14} />}
+            </button>
+          )}
+          {member.role === 'OFFICER' && (
+            <button
+              onClick={() => onPromote(member.userId, 'LEADER')}
+              disabled={promoting === member.userId}
+              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10 transition-all cursor-pointer"
+              title={t('clanDetail.transferLeadership')}
+            >
+              {promoting === member.userId ? <Loader2 size={14} className="animate-spin" /> : <Crown size={14} />}
+            </button>
+          )}
+          <button
+            onClick={() => onPromote(member.userId, 'MEMBER')}
+            disabled={promoting === member.userId}
+            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 transition-all cursor-pointer"
+            title={t('clanDetail.demote')}
+          >
+            {promoting === member.userId ? <Loader2 size={14} className="animate-spin" /> : <Shield size={14} />}
+          </button>
+        </div>
+      )}
+
       {/* XP & Level */}
       <div className="text-right flex-shrink-0">
         <div className="flex items-center gap-1 justify-end">
@@ -400,7 +442,7 @@ function MemberRow({
   );
 }
 
-function MembersSection({ clan }: { clan: ClanData }) {
+function MembersSection({ clan, isLeader, currentUserId, onPromote, promoting }: { clan: ClanData; isLeader: boolean; currentUserId: string | null; onPromote: (memberId: string, newRole: string) => void; promoting: string | null }) {
   const t = useT();
   const shouldReduceMotion = useReducedMotion();
 
@@ -433,7 +475,7 @@ function MembersSection({ clan }: { clan: ClanData }) {
             className="divide-y divide-[var(--border)]"
           >
             {clan.members.map((member, i) => (
-              <MemberRow key={member.id} member={member} position={i + 1} />
+              <MemberRow key={member.id} member={member} position={i + 1} isLeader={isLeader} currentUserId={currentUserId} onPromote={onPromote} promoting={promoting} />
             ))}
           </motion.div>
         )}
@@ -459,7 +501,14 @@ export default function ClanDetailClient({
   const [userMembership, setUserMembership] = useState(initialMembership);
   const [joining, setJoining] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [editDescription, setEditDescription] = useState(clan.description || '');
+  const [editEmblemUrl, setEditEmblemUrl] = useState(clan.emblemUrl || '');
+  const [saving, setSaving] = useState(false);
+  const [promoting, setPromoting] = useState<string | null>(null);
   const shouldReduceMotion = useReducedMotion();
+  const isLeader = userMembership?.role === 'LEADER';
 
   async function handleJoinLeave() {
     setJoining(true);
@@ -484,6 +533,68 @@ export default function ClanDetailClient({
       setActionError(err.message);
     } finally {
       setJoining(false);
+    }
+  }
+
+  async function handleEdit() {
+    setSaving(true);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: editDescription, emblemUrl: editEmblemUrl }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al actualizar');
+      }
+      clan.description = editDescription;
+      clan.emblemUrl = editEmblemUrl;
+      setEditing(false);
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    setSaving(true);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al eliminar');
+      }
+      window.location.href = '/community/clans';
+    } catch (err: any) {
+      setActionError(err.message);
+      setDeleting(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handlePromote(memberId: string, newRole: string) {
+    setPromoting(memberId);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/promote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId, newRole }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al cambiar rol');
+      }
+      window.location.reload();
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setPromoting(null);
     }
   }
 
@@ -605,9 +716,97 @@ export default function ClanDetailClient({
                 </div>
               )}
             </motion.div>
+
+            {/* ═══ Leader Management ═══ */}
+            {userId && isLeader && (
+              <motion.div
+                className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6 pt-6 border-t border-[var(--border)]/50"
+                initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.3 }}
+              >
+                <button
+                  onClick={() => { setEditDescription(clan.description || ''); setEditEmblemUrl(clan.emblemUrl || ''); setEditing(true); }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 transition-all cursor-pointer"
+                >
+                  <Edit size={16} />
+                  {t('clanDetail.editClan')}
+                </button>
+                <button
+                  onClick={() => setDeleting(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--error)] hover:border-[var(--error)]/40 hover:bg-[var(--error)]/5 transition-all cursor-pointer"
+                >
+                  <Trash2 size={16} />
+                  {t('clanDetail.deleteClan')}
+                </button>
+              </motion.div>
+            )}
           </div>
         </div>
       </header>
+
+      {/* ═══ Edit Modal ═══ */}
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditing(false)}>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">{t('clanDetail.editClan')}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{t('clanDetail.description')}</label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] resize-none"
+                  placeholder={t('clanDetail.descriptionPlaceholder')}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{t('clanDetail.emblemUrl')}</label>
+                <input
+                  value={editEmblemUrl}
+                  onChange={(e) => setEditEmblemUrl(e.target.value)}
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setEditing(false)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer">
+                {t('common.cancel')}
+              </button>
+              <button onClick={handleEdit} disabled={saving} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--primary)] text-white hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer">
+                {saving ? t('common.saving') : t('common.save')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Delete Confirmation ═══ */}
+      {deleting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setDeleting(false)}>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-[var(--error)]/15 flex items-center justify-center">
+                <AlertTriangle size={20} className="text-[var(--error)]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('clanDetail.deleteConfirmTitle')}</h3>
+                <p className="text-sm text-[var(--text-secondary)]">{t('clanDetail.deleteConfirmDesc')}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleting(false)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer">
+                {t('common.cancel')}
+              </button>
+              <button onClick={handleDelete} disabled={saving} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--error)] text-white hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer">
+                {saving ? t('common.deleting') : t('clanDetail.deleteClan')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══ Main Content ═══ */}
       <div className="max-w-5xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -652,7 +851,7 @@ export default function ClanDetailClient({
 
         {/* Right Column: Members */}
         <div className="lg:col-span-2">
-          <MembersSection clan={clan} />
+          <MembersSection clan={clan} isLeader={isLeader} currentUserId={userId} onPromote={handlePromote} promoting={promoting} />
         </div>
       </div>
     </div>

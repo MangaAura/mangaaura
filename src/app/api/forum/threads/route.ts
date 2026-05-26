@@ -65,11 +65,6 @@ export async function POST(request: NextRequest) {
     const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
     if (rlResponse) return rlResponse;
 
-    const role = session.user.role;
-    if (role !== 'CREATOR' && role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Solo creadores pueden crear hilos' }, { status: 403 });
-    }
-
     const body = await request.json();
     const data = createThreadSchema.parse(body);
 

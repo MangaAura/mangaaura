@@ -36,10 +36,7 @@ async function getForumData() {
 export default async function ForumPage() {
   const { categories, threads } = await getForumData();
   const session = await auth();
-  const canCreate = !!(session?.user?.id) && (
-    session.user.role === 'CREATOR' ||
-    session.user.role === 'ADMIN'
-  );
+  const canCreate = !!(session?.user?.id);
 
   return (
     <ForumClient 

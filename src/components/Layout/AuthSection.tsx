@@ -4,7 +4,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, ChevronDown, User, Library, FolderOpen, MessageCircle,
-  Rss, Sparkles, Shield, Settings, LogOut, Crown, Zap,
+  Rss, Sparkles, Shield, Settings, LogOut, Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -30,17 +30,14 @@ interface AuthSectionProps {
 function RoleBadge({ role, t }: { role?: string; t: (key: string) => string }) {
   if (!role || role === 'USER') return null;
   const styles: Record<string, string> = {
-    CREATOR: 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
     MODERATOR: 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
     ADMIN: 'bg-gradient-to-r from-rose-500/20 to-rose-600/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
   };
   const icons: Record<string, React.ReactNode> = {
-    CREATOR: <Crown className="w-3 h-3" />,
     MODERATOR: <Shield className="w-3 h-3" />,
     ADMIN: <Zap className="w-3 h-3" />,
   };
   const labels: Record<string, string> = {
-    CREATOR: t('roles.creator'),
     MODERATOR: t('roles.moderator'),
     ADMIN: t('roles.admin'),
   };
@@ -243,19 +240,17 @@ export function AuthSection({
                   </Link>
                 </DropdownMenu.Item>
 
-                {session?.user?.role === 'CREATOR' && (
-                  <DropdownMenu.Item asChild>
-                    <Link
-                      href={localeHref(pathname, '/creator/dashboard')}
-                      className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
-                    >
-                      <Sparkles className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-amber-500 transition-colors duration-150" />
-                      <span className="group-hover/item:translate-x-0.5 transition-transform duration-150">
-                        {t('creator.dashboard')}
-                      </span>
-                    </Link>
-                  </DropdownMenu.Item>
-                )}
+                <DropdownMenu.Item asChild>
+                  <Link
+                    href={localeHref(pathname, '/creator/dashboard')}
+                    className="group/item flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-150 outline-none md:hidden"
+                  >
+                    <Sparkles className="w-4 h-4 text-[var(--text-tertiary)] group-hover/item:text-amber-500 transition-colors duration-150" />
+                    <span className="group-hover/item:translate-x-0.5 transition-transform duration-150">
+                      {t('creator.dashboard')}
+                    </span>
+                  </Link>
+                </DropdownMenu.Item>
               </div>
 
               <div className="h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent mx-3" />

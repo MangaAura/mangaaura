@@ -29,7 +29,6 @@ interface ForumThreadPageProps {
 const roleBadgeStyles: Record<string, { className: string; label: string }> = {
   ADMIN: { className: 'bg-[var(--error)]/10 text-[var(--error)]', label: 'Admin' },
   MODERATOR: { className: 'bg-[var(--info)]/10 text-[var(--info)]', label: 'Moderador' },
-  CREATOR: { className: 'bg-[var(--primary)]/10 text-[var(--primary)]', label: 'Creador' },
 };
 
 async function getThreadData(slug: string) {
@@ -114,10 +113,7 @@ export default async function ForumThreadPage({ params }: ForumThreadPageProps) 
     }
   })();
 
-  const canReply = !!(session?.user?.id) && (
-    session.user.role === 'CREATOR' ||
-    session.user.role === 'ADMIN'
-  );
+  const canReply = !!(session?.user?.id);
 
   return (
     <div className="container mx-auto px-4 py-8">

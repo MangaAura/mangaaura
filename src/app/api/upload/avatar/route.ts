@@ -11,8 +11,8 @@ import {
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-const AVATAR_SIZE = 256;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const AVATAR_SIZE = 400;
 
 const ALLOWED_TYPES = [
   'image/jpeg',
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: `Archivo demasiado grande. Máximo: 2MB (recibido: ${Math.round(file.size / 1024 / 1024)}MB)` },
+        { error: `Archivo demasiado grande. Máximo: 5MB (recibido: ${Math.round(file.size / 1024 / 1024)}MB)` },
         { status: 400 }
       );
     }

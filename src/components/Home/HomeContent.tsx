@@ -70,11 +70,10 @@ export function HomeContent({
 }: HomeContentProps) {
   const t = useT();
   const { data: session } = useSession();
-  const isCreator = session?.user?.role === 'CREATOR';
   const isLoggedIn = !!session?.user;
 
-  const ctaHref = !isLoggedIn ? '/auth/register' : isCreator ? '/creator/manga/new' : '/explore';
-  const ctaLabel = !isLoggedIn ? t('nav.register') : isCreator ? t('creator.newManga') : t('home.exploreMangas');
+  const ctaHref = !isLoggedIn ? '/auth/register' : '/creator/manga/new';
+  const ctaLabel = !isLoggedIn ? t('nav.register') : t('creator.newManga');
 
   return (
     <div className="min-h-screen bg-background font-sans text-fg-primary">

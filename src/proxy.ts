@@ -54,8 +54,8 @@ const ROUTE_PERMISSIONS: Record<string, { permission?: string; roles?: string[];
   '/admin/ai-dashboard': { permission: 'admin:settings' },
   '/admin/settings': { permission: 'admin:settings' },
   '/admin/manga': { permission: 'manga:edit' },
-  '/creator/dashboard': { permission: 'manga:create' },
-  '/creator/upload': { permission: 'chapters:create' },
+  '/creator/dashboard': { requireAuth: true },
+  '/creator/upload': { requireAuth: true },
   '/settings': { requireAuth: true },
   '/profile': { requireAuth: true },
   '/library': { requireAuth: true },
@@ -95,7 +95,7 @@ function isProtectedRoute(pathname: string): boolean {
 // ─── Security constants ─────────────────────────────────────────────
 
 const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health', '/_rsc/'];
-const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications'];
+const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications', '/api/collections', '/api/follow', '/api/creator/mangas'];
 const CSRF_COOKIE_NAME = '__csrf_mw';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
@@ -173,6 +173,10 @@ function applyCORSHeaders(response: NextResponse, request: NextRequest) {
     response.headers.set('Access-Control-Max-Age', '86400');
     response.headers.set('Vary', 'Origin');
   }
+}
+
+function isServerAction(request: NextRequest): boolean {
+  return request.headers.get('Next-Action') !== null;
 }
 
 function validateCSRF(request: NextRequest): boolean {
@@ -289,9 +293,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       response.headers.set('X-Request-ID', requestId);
       response.headers.set('X-CSP-Nonce', nonce);
 
-      // CSRF validation for mutating requests
+      // CSRF validation for mutating requests (skip Server Actions — have built-in protection)
       const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
-      if (isMutating && !validateCSRF(request)) {
+      if (isMutating && !isServerAction(request) && !validateCSRF(request)) {
         logRequest({ method, path: originalPath, statusCode: 403, duration: Date.now() - startTime, ip, userAgent, requestId });
         return new NextResponse(JSON.stringify({ error: 'CSRF validation failed' }), {
           status: 403,
@@ -401,7 +405,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
-  const isCSRFProtected = isMutating && !CSRF_SKIP_PATHS.some((p) => pathname.startsWith(p));
+  const isCSRFProtected = isMutating && !isServerAction(request) && !CSRF_SKIP_PATHS.some((p) => pathname.startsWith(p));
 
   if (isCSRFProtected && !validateCSRF(request)) {
     logRequest({ method, path: pathname, statusCode: 403, duration: Date.now() - startTime, ip, userAgent, requestId });

@@ -20,7 +20,7 @@ export class InsufficientPermissionsError extends DomainError {
   }
 }
 
-export type UserRole = 'USER' | 'CREATOR' | 'MODERATOR' | 'ADMIN';
+export type UserRole = 'USER' | 'MODERATOR' | 'ADMIN';
 
 export interface UserProps {
   id: string;

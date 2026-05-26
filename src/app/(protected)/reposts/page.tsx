@@ -2,7 +2,7 @@
 
 import { Repeat2, Loader2, BookOpen, MessageSquare, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 
 import { RepostButton } from '@/components/Repost/RepostButton';
@@ -24,6 +24,7 @@ const typeLabels: Record<string, string> = {
 export default function RepostsPage() {
   const { data, error } = useSWR('/api/reposts', fetcher, { refreshInterval: 10000 });
   const [filter, setFilter] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
   if (error) return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-muted">Error al cargar reposts</div>;
   if (!data) return <div className="max-w-3xl mx-auto px-4 py-8" role="status"><Loader2 size={24} className="animate-spin mx-auto text-muted" /></div>;
@@ -43,13 +44,13 @@ export default function RepostsPage() {
 
       {reposts.length > 0 && (
         <div className="flex gap-2 mb-6">
-          <button onClick={() => setFilter(null)} className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${!filter ? 'bg-accent-blue text-white border-accent-blue' : 'bg-secondary border-custom hover:bg-tertiary'}`}>
+          <button onClick={() => startTransition(() => setFilter(null))} className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${!filter ? 'bg-accent-blue text-white border-accent-blue' : 'bg-secondary border-custom hover:bg-tertiary'}`}>
             Todos ({reposts.length})
           </button>
           {types.map((t) => {
             const count = reposts.filter((r: { originalType: string }) => r.originalType === t).length;
             return (
-              <button key={t} onClick={() => setFilter(t)} className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${filter === t ? 'bg-accent-blue text-white border-accent-blue' : 'bg-secondary border-custom hover:bg-tertiary'}`}>
+              <button key={t} onClick={() => startTransition(() => setFilter(t))} className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors cursor-pointer ${filter === t ? 'bg-accent-blue text-white border-accent-blue' : 'bg-secondary border-custom hover:bg-tertiary'}`}>
                 {typeLabels[t] || t} ({count})
               </button>
             );
