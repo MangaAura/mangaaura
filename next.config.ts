@@ -147,6 +147,11 @@ const nextConfig: NextConfig = {
         destination: '/analytics?tab=creator',
         permanent: true,
       },
+      {
+        source: '/search',
+        destination: '/search_ia',
+        permanent: true,
+      },
     ];
   },
 

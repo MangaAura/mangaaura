@@ -9,6 +9,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 
+import Image from 'next/image';
+
 import { AuthSection } from './AuthSection';
 import { MobileMenu } from './MobileMenu';
 import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive, localeHref, getLocaleFromPath } from './NavLinks';
@@ -110,6 +112,7 @@ export default function Navbar() {
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <Link href={localeHref(pathname, '/')} className="flex items-center gap-2 group">
+                <Image src="/MangaAura_logo_circular.svg" alt="MangaAura" width={28} height={28} className="flex-shrink-0" />
                 <span className="text-xl font-bold tracking-tight">
                   <RepeatedChar text="Manga" />
                   <span className="text-[var(--primary)]"><RepeatedChar text="Aura" /></span>

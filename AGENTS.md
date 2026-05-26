@@ -9,6 +9,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Repeated characters
 When rendering text where **two identical characters appear consecutively** (same letter and same case, e.g. `aa` or `AA` but NOT `aA`), the **second character** should be rendered in **italic** to visually distinguish them.
+
+### `BIENVENIDO A MANGAAURA` — double-A rule
+The welcome text "BIENVENIDO A MANGAAURA" is written in **ALL UPPERCASE** so that the two consecutive `A`s in `MANGAAURA` are both uppercase (`AA`), triggering the italic rule above. The `c === n` strict equality check in `WelcomeLabel` requires identical case to match, so using mixed case (`MangaAura`) would NOT work. This is implemented in `src/components/Home/AnimatedHero.tsx` (line 18) and the text lives in i18n locale files (`home.welcome` key).
 <!-- END:design-conventions -->
 
 <!-- BEGIN:project-info -->

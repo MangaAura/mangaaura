@@ -36,12 +36,12 @@ function SpainFlag() {
 function USFlag() {
   return (
     <FlagCircle>
-      <svg viewBox="0 0 24 18" className="w-full h-full" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="24" height="18" fill="#b22234"/>
+      <svg viewBox="0 0 24 24" className="w-full h-full" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="24" height="24" fill="#b22234"/>
         {[0, 2, 4, 6, 8, 10, 12].map((i) => (
-          <rect key={i} y={(i * 18) / 13} width="24" height={18 / 13} fill="#fff" />
+          <rect key={i} y={(i * 24) / 13} width="24" height={24 / 13} fill="#fff" />
         ))}
-        <rect width="10.4" height="10.4" fill="#3c3b6e" />
+        <rect width="13.8" height="13.8" fill="#3c3b6e" />
       </svg>
     </FlagCircle>
   );
@@ -73,6 +73,7 @@ export function LanguageSwitcher({ className, variant = 'toggle' }: LanguageSwit
           className
         )}
         aria-label={`${locale === 'es' ? t('language.en') : t('language.es')}`}
+        title={locale === 'es' ? 'Cambiar idioma' : 'Switch language'}
       >
         <Flag />
       </button>
