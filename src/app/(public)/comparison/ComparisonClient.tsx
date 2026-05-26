@@ -596,7 +596,7 @@ export default function ComparisonClient() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/auth/register">
-                <Button variant="primary" size="lg" className="gap-2">
+                <Button variant="default" size="lg" className="gap-2">
                   {t('comparison.ctaButton')}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
