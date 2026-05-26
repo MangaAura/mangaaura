@@ -147,7 +147,8 @@ export default function ChapterReaderPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--surface)]">
+      <main className="min-h-screen bg-[var(--surface)]">
+        <h1 className="sr-only">Cargando lector...</h1>
         {/* Skeleton header */}
         <div className="h-14 bg-[var(--surface-sunken)] animate-pulse" />
         {/* Skeleton toolbar */}
@@ -162,13 +163,14 @@ export default function ChapterReaderPage() {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
           <div className="w-24 h-8 rounded-full bg-[var(--surface-sunken)] animate-pulse" />
         </div>
-      </div>
+      </main>
     );
   }
 
   if (error || !chapter) {
     return (
-      <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center">
+      <main className="min-h-screen bg-[var(--surface)] flex items-center justify-center">
+        <h1 className="sr-only">Error al cargar el lector</h1>
         <div className="text-center">
           <p className="text-[var(--text-secondary)]">{error || 'Error al cargar'}</p>
         <button
@@ -178,7 +180,7 @@ export default function ChapterReaderPage() {
             Volver a explorar
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 

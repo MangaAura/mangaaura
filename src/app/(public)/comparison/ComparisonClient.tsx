@@ -241,15 +241,17 @@ function ComparisonTable({
   features,
   t,
   badge,
+  ariaLabel,
 }: {
   features: FeatureDef[];
   t: (key: string) => string;
   badge: string;
+  ariaLabel: string;
 }) {
   const isReduced = useReducedMotion() ?? false;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]" tabIndex={0} role="region" aria-label="Tabla comparativa de características">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]" tabIndex={0} role="region" aria-label={ariaLabel}>
       <table className="w-full min-w-[700px]">
         <thead>
           <tr className="border-b-2 border-[var(--border)]">
@@ -479,6 +481,7 @@ export default function ComparisonClient() {
             features={READER_FEATURES}
             t={t}
             badge={t('comparison.forReaders')}
+            ariaLabel="Tabla comparativa de funciones para lectores"
           />
         </div>
       </section>
@@ -496,6 +499,7 @@ export default function ComparisonClient() {
             features={CREATOR_FEATURES}
             t={t}
             badge={t('comparison.forCreators')}
+            ariaLabel="Tabla comparativa de funciones para creadores"
           />
         </div>
       </section>
