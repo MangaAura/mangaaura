@@ -4,9 +4,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SESSION_COOKIE_NAME } from '@/lib/auth';
 import { logRequest, generateRequestId } from '@/lib/request-logger';
 
+// ─── Locale routing (from middleware.ts) ────────────────────────────
+
+const LOCALES = ['es', 'en'] as const;
+const DEFAULT_LOCALE = 'es';
+
+function getLocale(request: NextRequest): string {
+  // 1. Check cookie
+  const cookieLocale = request.cookies.get('mangaaura-locale')?.value;
+  if (cookieLocale && LOCALES.includes(cookieLocale as any)) {
+    return cookieLocale;
+  }
+
+  // 2. Check Accept-Language header
+  const acceptLanguage = request.headers.get('accept-language');
+  if (acceptLanguage) {
+    const preferred = acceptLanguage.split(',')[0]?.split('-')[0];
+    if (preferred && LOCALES.includes(preferred as any)) {
+      return preferred;
+    }
+  }
+
+  return DEFAULT_LOCALE;
+}
+
+function hasLocalePrefix(pathname: string): string | null {
+  for (const locale of LOCALES) {
+    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
+      return locale;
+    }
+  }
+  return null;
+}
+
 // ─── Auth: protected routes ────────────────────────────────────────
 
-// ─── Route permissions (merged from middleware.ts) ────────────────
+// ─── Route permissions ────────────────────────────────────────────
 const ROUTE_PERMISSIONS: Record<string, { permission?: string; roles?: string[]; requireAuth?: boolean }> = {
   '/admin': { permission: 'admin:settings' },
   '/admin/users': { permission: 'users:read' },
@@ -160,40 +193,151 @@ function setCSRFCookie(response: NextResponse) {
   });
 }
 
-// ─── Main handler (replaces middleware.ts + proxy.ts) ───────────────
+// ─── URL helpers ───────────────────────────────────────────────────
+
+/** True for routes that should get locale prefix redirect/rewrite. */
+function isPageRoute(pathname: string): boolean {
+  return !(
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/static') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/manifest.json' ||
+    pathname === '/sw.js' ||
+    pathname.startsWith('/icons/') ||
+    pathname.startsWith('/apple-touch-icon') ||
+    /\.\w+$/.test(pathname)
+  );
+}
+
+/** Strip the locale prefix from `/es/path` → `/path` (or `/es` → `/`). */
+function stripLocalePrefix(pathname: string): string {
+  for (const locale of LOCALES) {
+    if (pathname === `/${locale}`) return '/';
+    if (pathname.startsWith(`/${locale}/`)) return pathname.slice(3); // strip `/en` or `/es`
+  }
+  return pathname;
+}
+
+// ─── Main handler ──────────────────────────────────────────────────
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  const { pathname } = request.nextUrl;
+  const originalPath = request.nextUrl.pathname;
+  const { search } = request.nextUrl;
   const method = request.method;
   const startTime = Date.now();
   const requestId = generateRequestId();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
 
+  // ── Locale routing for page routes ──────────────────────────
+  // Next.js 16: proxy.ts replaces middleware.ts
+  if (isPageRoute(originalPath)) {
+    const locale = hasLocalePrefix(originalPath);
+
+    if (locale) {
+      // Path has locale prefix (e.g. /es/profile) → rewrite internally
+      const effectivePath = stripLocalePrefix(originalPath);
+
+      // Auth check against the non-locale path
+      if (isProtectedRoute(effectivePath)) {
+        if (request.headers.get('RSC') !== '1') {
+          try {
+            const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+            if (secret) {
+              const token = await getToken({ req: request, secret, cookieName: SESSION_COOKIE_NAME });
+              if (!token) {
+                const loginUrl = new URL('/auth/login', request.url);
+                loginUrl.searchParams.set('callbackUrl', effectivePath);
+                return NextResponse.redirect(loginUrl);
+              }
+              const routePerm = getRoutePermission(effectivePath);
+              if (routePerm) {
+                if (routePerm.permission) {
+                  const perms = (token as any).permissions as string[] | undefined;
+                  if (!perms?.includes(routePerm.permission)) {
+                    return NextResponse.redirect(new URL('/', request.url));
+                  }
+                }
+                if (routePerm.roles && !routePerm.roles.includes((token as any).role as string)) {
+                  return NextResponse.redirect(new URL('/', request.url));
+                }
+              }
+            }
+          } catch {
+            // Si falla la verificación, continuamos silenciosamente
+          }
+        }
+      }
+
+      // Build rewrite with locale header + security headers
+      const newUrl = new URL(effectivePath, request.url);
+      newUrl.search = search;
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set('x-locale', locale);
+
+      const nonce = generateNonce();
+      requestHeaders.set('x-nonce', nonce);
+      requestHeaders.set('Content-Security-Policy', buildCSP(nonce, process.env.CSP_REPORT_URL));
+
+      const response = NextResponse.rewrite(newUrl, {
+        request: { headers: requestHeaders },
+      });
+
+      applySecurityHeaders(response, nonce);
+      applyCORSHeaders(response, request);
+      response.headers.set('X-Request-ID', requestId);
+      response.headers.set('X-CSP-Nonce', nonce);
+
+      // CSRF validation for mutating requests
+      const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+      if (isMutating && !validateCSRF(request)) {
+        logRequest({ method, path: originalPath, statusCode: 403, duration: Date.now() - startTime, ip, userAgent, requestId });
+        return new NextResponse(JSON.stringify({ error: 'CSRF validation failed' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Set CSRF cookie only if not already present
+      const hasCSRFCookie = request.cookies.get(CSRF_COOKIE_NAME);
+      if (!hasCSRFCookie) {
+        setCSRFCookie(response);
+      }
+
+      logRequest({ method, path: originalPath, statusCode: 200, duration: Date.now() - startTime, ip, userAgent, requestId });
+      return response;
+    }
+
+    // No locale prefix → detect and redirect
+    const detectedLocale = getLocale(request);
+    const newUrl = new URL(`/${detectedLocale}${originalPath}`, request.url);
+    newUrl.search = search;
+    logRequest({ method, path: originalPath, statusCode: 307, duration: Date.now() - startTime, ip, userAgent, requestId });
+    return NextResponse.redirect(newUrl, 307);
+  }
+
+  // ── Non-page routes (API, static, etc.) ─────────────────────
+
+  const pathname = originalPath; // non-page routes don't need locale stripping
+
   // -- Skip processing for truly static assets (no auth, no headers) --
   if (STATIC_SKIP_PATHS.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  // -- Handle HEAD for /api/auth/* (Auth.js v5 doesn't support HEAD) --
-  // Bots and health-checkers often use HEAD on auth endpoints, which causes
-  // "UnknownAction" errors in logs. Return 200 OK directly — HEAD has no body
-  // and only needs to signal the resource is alive.
+  // -- Handle HEAD for /api/auth/* --
   if (method === 'HEAD' && pathname.startsWith('/api/auth/')) {
     logRequest({ method, path: pathname, statusCode: 200, duration: Date.now() - startTime, ip, userAgent, requestId });
     return new NextResponse(null, { status: 200 });
   }
 
   // -- Redirect GET /api/auth/signin/:provider → /auth/login --
-  // Auth.js v5 only accepts POST for provider sign-in (requires CSRF token).
-  // Bots hitting GET /api/auth/signin/google trigger "UnknownAction" errors.
-  // Redirect them to the login page instead of letting Auth.js choke.
   if (method === 'GET' && /^\/api\/auth\/signin\/[^/]+$/.test(pathname)) {
     logRequest({ method, path: pathname, statusCode: 302, duration: Date.now() - startTime, ip, userAgent, requestId });
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
-  // -- Auth check for protected page routes --
+  // -- Auth check for protected page routes (non-locale) --
   if (isProtectedRoute(pathname)) {
-    // RSC payload requests carry auth state internally — skip redirects
     if (request.headers.get('RSC') !== '1') {
       try {
         const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
@@ -204,7 +348,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
           }
-          // Permission/role-based access control (from middleware.ts)
           const routePerm = getRoutePermission(pathname);
           if (routePerm) {
             if (routePerm.permission) {
@@ -219,13 +362,12 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
           }
         }
       } catch {
-        // Si falla la verificación (ej. sin secret), continuamos silenciosamente
+        // Si falla la verificación, continuamos silenciosamente
       }
     }
   }
 
-  // RSC payload requests — skip proxy to avoid CSP/security headers
-  // interfering with serialized RSC payload delivery.
+  // RSC payload requests — skip proxy to avoid CSP/security headers interference
   if (request.headers.get('RSC') === '1') return NextResponse.next();
 
   // API routes return JSON, not HTML — skip nonce/CSP generation overhead.
@@ -235,10 +377,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   let nonce = '';
 
   if (isApiRoute) {
-    // API routes: no SSR HTML → no nonce/CSP needed.
     response = NextResponse.next();
   } else {
-    // Page routes: generate nonce and inject CSP for SSR inline scripts.
     nonce = generateNonce();
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-nonce', nonce);
@@ -282,6 +422,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    // Include page routes (with locale prefixes) + API routes + static
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons/|apple-touch-icon).*)',
   ],
 };
