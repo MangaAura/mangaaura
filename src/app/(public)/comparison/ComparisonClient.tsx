@@ -6,7 +6,7 @@ import {
   AnimatePresence,
   type Variants,
 } from 'framer-motion';
-import { Sparkles, X, Minus, ChevronRight, ArrowRight, BookOpen, Wand2, Users, BarChart3, Coins, Globe, Moon, Smartphone, Zap, Shield, Gift, HelpCircle, Star, Trophy, Languages, Download, Crown, Layout as LayoutIcon } from 'lucide-react';
+import { Sparkles, X, Minus, Check, ChevronRight, ArrowRight, BookOpen, Wand2, Users, BarChart3, Coins, Globe, Moon, Smartphone, Zap, Shield, Gift, HelpCircle, Star, Trophy, Languages, Download, Crown, Layout as LayoutIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
