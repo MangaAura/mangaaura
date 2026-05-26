@@ -9,7 +9,7 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const t = useT();
 
-  const options: { value: 'light' | 'dark' | 'system'; icon: typeof Sun; labelKey: string }[] = [
+  const options: { value: 'light' | 'dark' | 'system'; icon: typeof CircleDot; labelKey: string }[] = [
     { value: 'light', icon: CircleDot, labelKey: 'theme.light' },
     { value: 'dark', icon: Circle, labelKey: 'theme.dark' },
     { value: 'system', icon: Monitor, labelKey: 'theme.system' },

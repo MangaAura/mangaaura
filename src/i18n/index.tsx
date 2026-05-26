@@ -9,7 +9,7 @@ import es from '@/i18n/locales/es.json';
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE } from './locales';
 export type { Locale } from './locales';
 
-type NestedRecord = { [key: string]: string | NestedRecord };
+type NestedRecord = { [key: string]: string | string[] | NestedRecord };
 
 const messages: Record<Locale, NestedRecord> = { es, en };
 

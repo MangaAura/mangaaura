@@ -348,7 +348,61 @@
       "LEGENDARY": "Legendary"
     }
   },
-"notifications": {
+  "about": {
+    "hero": {
+      "title": "Where Manga",
+      "subtitle": "Comes Alive",
+      "description": "MangaAura is the platform where creators and readers unite. We combine powerful publishing tools, fair monetization, and a passionate community to shape the future of manga.",
+      "cta": "Discover Our Story",
+      "ctaTeam": "Meet The Team"
+    },
+    "stats": {
+      "readers": "Active Readers",
+      "creators": "Creators",
+      "manga": "Manga Titles"
+    },
+    "story": {
+      "badge": "Our Story",
+      "title": "Born from a love of manga",
+      "p1": "MangaAura started in 2023 when a group of manga fans and creators got tired of platforms that treated comics as an afterthought. We wanted something built for manga — with page layouts that respect the art, tools that empower creators, and a community that truly understands the medium.",
+      "p2": "Our name comes from the concept of \"aura\" in manga storytelling — that intangible energy that makes characters and stories unforgettable. We believe every creator has a unique aura to share with the world, and our mission is to amplify it.",
+      "p3": "Today, MangaAura is home to thousands of creators from around the world, serving hundreds of thousands of readers who come not just to read, but to discover, support, and connect with the stories and people they love.",
+      "feature1": {
+        "title": "Fast Updates",
+        "desc": "New chapters within hours of release"
+      },
+      "feature2": {
+        "title": "Creator Safe",
+        "desc": "Full DMCA protection included"
+      },
+      "feature3": {
+        "title": "AI Powered",
+        "desc": "Smart translations and recommendations"
+      },
+      "feature4": {
+        "title": "80/20 Split",
+        "desc": "Creators keep 80% of earnings"
+      }
+    },
+    "team": {
+      "badge": "The Team",
+      "title": "Manga lovers building for manga lovers",
+      "subtitle": "A small but passionate team united by our love for manga and our mission to support creators worldwide."
+    },
+    "values": {
+      "badge": "What We Stand For",
+      "title": "Our Core Values",
+      "subtitle": "Every decision we make is guided by these principles. They are the foundation of MangaAura."
+    },
+    "cta": {
+      "title": "Ready to join the Aura?",
+      "description": "Whether you are a creator ready to share your story or a reader looking for your next favorite manga, there is a place for you in our community.",
+      "join": "Join MangaAura Free",
+      "explore": "Explore Manga",
+      "note": "No credit card required. Free tier includes unlimited reading and basic creator tools."
+    }
+  },
+  "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all as read",
     "newChapter": "New chapter of {title}!",

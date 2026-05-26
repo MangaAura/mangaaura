@@ -345,7 +345,7 @@
       "LEGENDARY": "Legendario"
     }
   },
-"notifications": {
+  "notifications": {
     "title": "Notificaciones",
     "markAllRead": "Marcar todo como leído",
     "newChapter": "¡Nuevo capítulo de {title}!",
@@ -368,10 +368,49 @@
     "exploreMangas": "Explorar mangas"
   },
   "collections": {
-    "noMangas": "Sin mangas"
+    "title": "Colecciones",
+    "description": "Descubre y organiza tus mangas favoritos",
+    "all": "Todas",
+    "public": "Públicas",
+    "myCollections": "Mis colecciones",
+    "noCollections": "No hay colecciones aún",
+    "noCollectionsDesc": "Crea una colección para organizar tus mangas",
+    "createCollection": "Crear colección",
+    "editCollection": "Editar colección",
+    "deleteCollection": "Eliminar colección",
+    "mangas": "mangas",
+    "private": "Privada",
+    "publicCollection": "Pública"
   },
   "offline": {
-    "noConnection": "Sin conexión"
+    "title": "Sin conexión",
+    "reconnecting": "¡Conexión restaurada!",
+    "noConnection": "Sin conexión a internet",
+    "reconnectingDesc": "Tu conexión ha vuelto. Puedes continuar navegando normalmente.",
+    "noConnectionDesc": "Parece que has perdido la conexión. Puedes seguir leyendo los capítulos que hayas guardado para modo offline.",
+    "continue": "Continuar",
+    "retry": "Reintentar",
+    "savedContent": "Disponible offline",
+    "noSavedContent": "No hay contenido guardado",
+    "noSavedContentDesc": "Cuando tengas conexión, guarda tus mangas favoritos para leerlos sin internet.",
+    "cacheInfo": "Información de caché",
+    "staticCache": "App Shell",
+    "imageCache": "Imágenes",
+    "apiCache": "API",
+    "totalCached": "Total en caché",
+    "loadingCache": "Cargando info de caché...",
+    "clearCache": "Limpiar caché",
+    "clearCacheDesc": "Elimina todos los recursos cacheados. La app se recargará al reconectar.",
+    "cacheCleared": "Caché limpiada",
+    "storageTitle": "Almacenamiento offline",
+    "storageMangas": "Mangas guardados",
+    "storageChapters": "Capítulos guardados",
+    "storageActions": "Acciones pendientes",
+    "tips": "Consejos para modo offline",
+    "tip1": "Guarda capítulos desde el lector para leerlos sin conexión",
+    "tip2": "Los capítulos guardados expiran después de 7 días",
+    "tip3": "Tu progreso se sincronizará cuando vuelvas a tener conexión",
+    "tip4": "Usa WiFi para guardar capítulos y ahorrar datos móviles"
   },
   "errors": {
     "generic": "Algo salió mal. Intenta de nuevo.",
@@ -389,9 +428,9 @@
     "validation": "Datos inválidos",
     "connectionFailed": "No se pudo conectar con el servidor. Verifica tu conexión a internet e inténtalo de nuevo."
   },
-    "home": {
-      "discoverFuture": "El único lugar donde leer, crear y crowdfundear manga con IA",
-      "description": "Lee gratis o crea tu propio manga. Con IA que te ayuda a escribir, dibujar y traducir. Crowdfundea tus capítulos y gana Aura con cada página.",
+  "home": {
+    "discoverFuture": "El único lugar donde leer, crear y crowdfundear manga con IA",
+    "description": "Lee gratis o crea tu propio manga. Con IA que te ayuda a escribir, dibujar y traducir. Crowdfundea tus capítulos y gana Aura con cada página.",
     "exploreByGenre": "Explora por Género",
     "topMangas": "Top Mangas",
     "latestUpdates": "Últimas Actualizaciones",
@@ -400,8 +439,8 @@
     "viewFullRankings": "Ver Ranking Completo",
     "newReleases": "Nuevos Mangas",
     "viewAllNewReleases": "Ver Todos los Nuevos",
-      "ctaCreatorTitle": "¿Creador? Publica tu manga y monetiza con Aura",
-      "ctaCreatorDesc": "Sube tus capítulos, recibe crowdfunding de tus lectores y gana con cada página. IA incluida.",
+    "ctaCreatorTitle": "¿Creador? Publica tu manga y monetiza con Aura",
+    "ctaCreatorDesc": "Sube tus capítulos, recibe crowdfunding de tus lectores y gana con cada página. IA incluida.",
     "startCreating": "Empezar a crear",
     "newsTitle": "Noticias de MangaAura",
     "featured": "Destacado",
@@ -445,7 +484,6 @@
     "newsSummerEvent": "Festival de Lectura de Verano",
     "newsSummerEventDesc": "Únete al Festival de Lectura de Verano con insignias exclusivas, fines de semana de doble XP y un gran premio de 10,000 Aura.",
     "newsSummerEventBody": "¡El verano llegó y con él nuestro evento comunitario más grande del año — el Festival de Lectura de Verano de MangaAura! Del 1 de junio al 31 de agosto, lectores y creadores pueden participar en una celebración de manga que dura toda la temporada.\n\n¿Qué hay disponible? Fines de semana de doble XP cada mes, insignias exclusivas del Festival de Verano para participantes que completen los desafíos de lectura, recompensas diarias de inicio de sesión incluyendo Aura gratis y artículos cosméticos, y un gran premio de 10,000 Aura otorgado al lector con más capítulos completados al final del verano.\n\nLos creadores tampoco se quedan fuera — estamos organizando un concurso de one-shot 'Especial de Verano' con premios separados. Publica un capítulo temático de verano entre junio y agosto y podrías ganar 5,000 Aura más un lugar destacado permanente en la página principal.\n\nEl festival también incluye eventos comunitarios semanales, sesiones de preguntas y respuestas con creadores y fiestas de lectura colaborativas. Revisa la página de Eventos para el calendario completo y ¡comienza tu viaje de lectura de verano hoy! Captura tus estadísticas de lectura y compártelas con #MangaAuraVerano para la oportunidad de aparecer en nuestras redes sociales.",
-    "featured": "Destacado",
     "welcome": "Bienvenido a MangaAura",
     "readNow": "Leer Ahora",
     "exploreMangas": "Explorar Mangas",
@@ -582,22 +620,13 @@
     "emptyFollowers": "No tienes seguidores aún"
   },
   "forum": {
-    "title": "Foro",
-    "community": "Foro de la Comunidad",
+    "title": "Foro de la Comunidad",
     "description": "Discute técnicas de dibujo, comparte consejos y conecta con otros creadores",
-    "noThreads": "Sin hilos",
-    "noThreadsDesc": "Aún no hay hilos en el foro",
-    "noReplies": "Sin respuestas",
-    "noRepliesDesc": "Aún no hay respuestas en este hilo",
+    "newThread": "Nuevo Hilo",
     "threads": "hilos",
-    "locked": "Cerrado",
-    "reply": "Responder",
-    "replyPlaceholder": "Escribe tu respuesta...",
-    "canOnlyReplyCreators": "Solo los creadores y administradores pueden responder en el foro",
-    "loginToReply": "Inicia sesión para participar en el foro",
-    "backToForum": "Volver al foro",
-    "closedThread": "Este hilo está cerrado",
-    "author": "Autor"
+    "closed": "Cerrado",
+    "noThreads": "Sin hilos",
+    "noThreadsDesc": "Aún no hay hilos en el foro"
   },
   "user": {
     "profile": "Perfil",
@@ -1079,21 +1108,6 @@
     "purchase": "Compra de Aura",
     "xpEarned": "XP ganado"
   },
-  "collections": {
-    "title": "Colecciones",
-    "description": "Descubre y organiza tus mangas favoritos",
-    "all": "Todas",
-    "public": "Públicas",
-    "myCollections": "Mis colecciones",
-    "noCollections": "No hay colecciones aún",
-    "noCollectionsDesc": "Crea una colección para organizar tus mangas",
-    "createCollection": "Crear colección",
-    "editCollection": "Editar colección",
-    "deleteCollection": "Eliminar colección",
-    "mangas": "mangas",
-    "private": "Privada",
-    "publicCollection": "Pública"
-  },
   "settings": {
     "title": "Configuración",
     "description": "Gestiona tu cuenta y preferencias",
@@ -1227,16 +1241,20 @@
     "crowdfundingDesc": "Habilitar crowdfunding de capítulos",
     "clanes": "Clanes",
     "clanesDesc": "Habilitar creación y participación en clanes",
-    "uploadsEconomy": "Subidas y Economía",      "maxUploadSize": "Tamaño máximo de subida (MB)",
-      "maxUploadSizeMin": "Mínimo 1 MB",
-      "maxUploadSizeMax": "Máximo 50 MB",
-      "maxUploadSizeValid": "Tamaño válido",      "minimumPayout": "Pago mínimo (Aura)",
-      "minimumPayoutMin": "Mínimo 100 Aura",
-      "minimumPayoutValid": "Pago válido",      "auraPerChapter": "Aura por capítulo leído",
-      "auraPerChapterValid": "Valor válido",
-      "auraPerChapterMin": "Mínimo 0",      "xpPerChapter": "XP por capítulo leído",
-      "xpPerChapterValid": "Valor válido",
-      "xpPerChapterMin": "Mínimo 0",
+    "uploadsEconomy": "Subidas y Economía",
+    "maxUploadSize": "Tamaño máximo de subida (MB)",
+    "maxUploadSizeMin": "Mínimo 1 MB",
+    "maxUploadSizeMax": "Máximo 50 MB",
+    "maxUploadSizeValid": "Tamaño válido",
+    "minimumPayout": "Pago mínimo (Aura)",
+    "minimumPayoutMin": "Mínimo 100 Aura",
+    "minimumPayoutValid": "Pago válido",
+    "auraPerChapter": "Aura por capítulo leído",
+    "auraPerChapterValid": "Valor válido",
+    "auraPerChapterMin": "Mínimo 0",
+    "xpPerChapter": "XP por capítulo leído",
+    "xpPerChapterValid": "Valor válido",
+    "xpPerChapterMin": "Mínimo 0",
     "allowedImageTypes": "Tipos de imagen permitidos",
     "savedCorrectly": "Configuración guardada correctamente",
     "errorLoadingSettings": "Error al cargar la configuración",
@@ -1329,7 +1347,6 @@
     "ctaButton": "Crear cuenta gratis",
     "ctaExplore": "Explorar manga"
   },
-
   "pricing": {
     "heroBadge": "Precios transparentes",
     "heroTitle": "Compra Aura o hazte Premium",
@@ -1740,15 +1757,6 @@
       "confirmation": "Al usar MangaAura, confirmas que has leído, entendido y aceptado estos Términos de Servicio."
     }
   },
-  "forum": {
-    "title": "Foro de la Comunidad",
-    "description": "Discute técnicas de dibujo, comparte consejos y conecta con otros creadores",
-    "newThread": "Nuevo Hilo",
-    "threads": "hilos",
-    "closed": "Cerrado",
-    "noThreads": "Sin hilos",
-    "noThreadsDesc": "Aún no hay hilos en el foro"
-  },
   "quests": {
     "title": "Misiones",
     "subtitle": "Completa misiones para ganar XP y monedas",
@@ -1886,8 +1894,6 @@
   "forumReply": {
     "errorContentMin": "La respuesta debe tener al menos 1 carácter",
     "errorContentMax": "La respuesta no puede exceder 10,000 caracteres",
-    "errorContentMin": "La respuesta debe tener al menos 1 carácter",
-    "errorContentMax": "La respuesta no puede exceder 10,000 caracteres",
     "contentValid": "Respuesta válida",
     "errorSending": "Error al enviar respuesta",
     "errorGeneric": "Error al enviar",
@@ -1904,36 +1910,6 @@
     "recommendedUsers": "Usuarios recomendados",
     "trendingContent": "Contenido en tendencia",
     "loginPrompt": "Inicia sesión para interactuar con la comunidad"
-  },
-  "offline": {
-    "title": "Sin conexión",
-    "reconnecting": "¡Conexión restaurada!",
-    "noConnection": "Sin conexión a internet",
-    "reconnectingDesc": "Tu conexión ha vuelto. Puedes continuar navegando normalmente.",
-    "noConnectionDesc": "Parece que has perdido la conexión. Puedes seguir leyendo los capítulos que hayas guardado para modo offline.",
-    "continue": "Continuar",
-    "retry": "Reintentar",
-    "savedContent": "Disponible offline",
-    "noSavedContent": "No hay contenido guardado",
-    "noSavedContentDesc": "Cuando tengas conexión, guarda tus mangas favoritos para leerlos sin internet.",
-    "cacheInfo": "Información de caché",
-    "staticCache": "App Shell",
-    "imageCache": "Imágenes",
-    "apiCache": "API",
-    "totalCached": "Total en caché",
-    "loadingCache": "Cargando info de caché...",
-    "clearCache": "Limpiar caché",
-    "clearCacheDesc": "Elimina todos los recursos cacheados. La app se recargará al reconectar.",
-    "cacheCleared": "Caché limpiada",
-    "storageTitle": "Almacenamiento offline",
-    "storageMangas": "Mangas guardados",
-    "storageChapters": "Capítulos guardados",
-    "storageActions": "Acciones pendientes",
-    "tips": "Consejos para modo offline",
-    "tip1": "Guarda capítulos desde el lector para leerlos sin conexión",
-    "tip2": "Los capítulos guardados expiran después de 7 días",
-    "tip3": "Tu progreso se sincronizará cuando vuelvas a tener conexión",
-    "tip4": "Usa WiFi para guardar capítulos y ahorrar datos móviles"
   },
   "auraEconomy": {
     "title": "Economía Aura",
@@ -2036,6 +2012,60 @@
       "approved": "Identidad verificada",
       "rejected": "Verificación rechazada",
       "retry": "Reintentar"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Donde el Manga",
+      "subtitle": "Cobra Vida",
+      "description": "MangaAura es la plataforma donde creadores y lectores se unen. Combinamos potentes herramientas de publicación, monetización justa y una comunidad apasionada para dar forma al futuro del manga.",
+      "cta": "Descubre Nuestra Historia",
+      "ctaTeam": "Conoce al Equipo"
+    },
+    "stats": {
+      "readers": "Lectores Activos",
+      "creators": "Creadores",
+      "manga": "Títulos de Manga"
+    },
+    "story": {
+      "badge": "Nuestra Historia",
+      "title": "Nacidos del amor por el manga",
+      "p1": "MangaAura empezó en 2023 cuando un grupo de fans y creadores del manga se cansaron de plataformas que trataban los cómics como algo secundario. Queríamos algo construido para el manga — con diseños de página que respeten el arte, herramientas que empoderen a los creadores y una comunidad que realmente entienda el medio.",
+      "p2": "Nuestro nombre viene del concepto de aura en la narrativa manga — esa energía intangible que hace que los personajes y las historias sean inolvidables. Creemos que cada creador tiene un aura única que compartir con el mundo, y nuestra misión es amplificarla.",
+      "p3": "Hoy, MangaAura es el hogar de miles de creadores de todo el mundo, sirviendo a cientos de miles de lectores que vienen no solo a leer, sino a descubrir, apoyar y conectar con las historias y personas que aman.",
+      "feature1": {
+        "title": "Actualizaciones Rápidas",
+        "desc": "Nuevos capítulos en horas tras su lanzamiento"
+      },
+      "feature2": {
+        "title": "Seguridad para Creadores",
+        "desc": "Protección DMCA incluida"
+      },
+      "feature3": {
+        "title": "Impulsado por IA",
+        "desc": "Traducciones y recomendaciones inteligentes"
+      },
+      "feature4": {
+        "title": "80/20 Split",
+        "desc": "Los creadores se quedan con el 80%"
+      }
+    },
+    "team": {
+      "badge": "El Equipo",
+      "title": "Amantes del manga construyendo para amantes del manga",
+      "subtitle": "Un equipo pequeño pero apasionado, unido por nuestro amor al manga y nuestra misión de apoyar a creadores en todo el mundo."
+    },
+    "values": {
+      "badge": "Lo que Defendemos",
+      "title": "Nuestros Valores Fundamentales",
+      "subtitle": "Cada decisión que tomamos está guiada por estos principios. Son la base de MangaAura."
+    },
+    "cta": {
+      "title": "¿Listo para unirte al Aura?",
+      "description": "Ya seas un creador listo para compartir tu historia o un lector en busca de tu próximo manga favorito, hay un lugar para ti en nuestra comunidad.",
+      "join": "Únete a MangaAura Gratis",
+      "explore": "Explorar Mangas",
+      "note": "No requiere tarjeta de crédito. El nivel gratuito incluye lectura ilimitada y herramientas básicas para creadores."
     }
   }
 }

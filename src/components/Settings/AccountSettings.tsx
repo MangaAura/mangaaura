@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
@@ -12,7 +12,7 @@ interface AccountSettingsProps {
   userId: string;
 }
 
-export function AccountSettings({ userId }: AccountSettingsProps) {
+export function AccountSettings(_props: AccountSettingsProps) {
   const [markedForDeletionAt, setMarkedForDeletionAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

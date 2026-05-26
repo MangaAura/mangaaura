@@ -143,16 +143,16 @@ function HeroSection() {
 
             <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-[var(--text-primary)] via-[var(--primary)] to-accent-purple bg-clip-text text-transparent">
-                {t('about.hero.title', 'Where Manga')}
+                {t('about.hero.title')}
               </span>
               <br />
               <span className="text-[var(--text-primary)]">
-                {t('about.hero.subtitle', 'Comes Alive')}
+                {t('about.hero.subtitle')}
               </span>
             </motion.h1>
 
             <motion.p variants={fadeInUp} className="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
-              {t('about.hero.description', 'MangaAura is the platform where creators and readers unite. We combine powerful publishing tools, fair monetization, and a passionate community to shape the future of manga.')}
+              {t('about.hero.description')}
             </motion.p>
 
             <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-4">
@@ -160,7 +160,7 @@ function HeroSection() {
                 href="#story"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-accent-purple text-[var(--text-inverse)] font-bold rounded-xl hover:opacity-90 transition-all hover:scale-105"
               >
-                {t('about.hero.cta', 'Discover Our Story')}
+                {t('about.hero.cta')}
                 <ChevronRight className="w-5 h-5" />
               </a>
               <a
@@ -168,24 +168,24 @@ function HeroSection() {
                 className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] font-bold rounded-xl hover:bg-[var(--surface-elevated)] transition-all"
               >
                 <Users className="w-5 h-5" />
-                {t('about.hero.ctaTeam', 'Meet The Team')}
+                {t('about.hero.ctaTeam')}
               </a>
             </motion.div>
 
             <motion.div variants={fadeInUp} className="mt-16 flex items-center justify-center gap-8 text-[var(--text-muted)]">
               <div className="text-center">
                 <div className="text-3xl font-bold text-[var(--text-primary)]">500K+</div>
-                <div className="text-sm">{t('about.stats.readers', 'Active Readers')}</div>
+                <div className="text-sm">{t('about.stats.readers')}</div>
               </div>
               <div className="w-px h-12 bg-[var(--border)]" />
               <div className="text-center">
                 <div className="text-3xl font-bold text-[var(--text-primary)]">2,000+</div>
-                <div className="text-sm">{t('about.stats.creators', 'Creators')}</div>
+                <div className="text-sm">{t('about.stats.creators')}</div>
               </div>
               <div className="w-px h-12 bg-[var(--border)]" />
               <div className="text-center">
                 <div className="text-3xl font-bold text-[var(--text-primary)]">50K+</div>
-                <div className="text-sm">{t('about.stats.manga', 'Manga Titles')}</div>
+                <div className="text-sm">{t('about.stats.manga')}</div>
               </div>
             </motion.div>
           </motion.div>
@@ -215,20 +215,20 @@ function StorySection() {
           <motion.div variants={fadeInUp}>
             <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
               <BookOpen className="w-4 h-4" />
-              {t('about.story.badge', 'Our Story')}
+              {t('about.story.badge')}
             </span>
             <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-[var(--text-primary)]">
-              {t('about.story.title', 'Born from a love of manga')}
+              {t('about.story.title')}
             </h2>
             <div className="space-y-4 text-[var(--text-secondary)] leading-relaxed">
               <p>
-                {t('about.story.p1', 'MangaAura started in 2023 when a group of manga fans and creators got tired of platforms that treated comics as an afterthought. We wanted something built for manga — with page layouts that respect the art, tools that empower creators, and a community that truly understands the medium.')}
+                {t('about.story.p1')}
               </p>
               <p>
-                {t('about.story.p2', 'Our name comes from the concept of "aura" in manga storytelling — that intangible energy that makes characters and stories unforgettable. We believe every creator has a unique aura to share with the world, and our mission is to amplify it.')}
+                {t('about.story.p2')}
               </p>
               <p>
-                {t('about.story.p3', 'Today, MangaAura is home to thousands of creators from around the world, serving hundreds of thousands of readers who come not just to read, but to discover, support, and connect with the stories and people they love.')}
+                {t('about.story.p3')}
               </p>
             </div>
           </motion.div>
@@ -239,23 +239,23 @@ function StorySection() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[var(--surface-sunken)] rounded-2xl p-6 text-center">
                   <Zap className="w-8 h-8 text-[var(--primary)] mx-auto mb-3" />
-                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature1.title', 'Fast Updates')}</div>
-                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature1.desc', 'New chapters within hours of release')}</div>
+                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature1.title')}</div>
+                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature1.desc')}</div>
                 </div>
                 <div className="bg-[var(--surface-sunken)] rounded-2xl p-6 text-center">
                   <Shield className="w-8 h-8 text-emerald-500 mx-auto mb-3" />
-                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature2.title', 'Creator Safe')}</div>
-                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature2.desc', 'Full DMCA protection included')}</div>
+                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature2.title')}</div>
+                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature2.desc')}</div>
                 </div>
                 <div className="bg-[var(--surface-sunken)] rounded-2xl p-6 text-center">
                   <Sparkles className="w-8 h-8 text-pink-500 mx-auto mb-3" />
-                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature3.title', 'AI Powered')}</div>
-                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature3.desc', 'Smart translations and recommendations')}</div>
+                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature3.title')}</div>
+                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature3.desc')}</div>
                 </div>
                 <div className="bg-[var(--surface-sunken)] rounded-2xl p-6 text-center">
                   <Heart className="w-8 h-8 text-rose-500 mx-auto mb-3" />
-                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature4.title', '80/20 Split')}</div>
-                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature4.desc', 'Creators keep 80% of earnings')}</div>
+                  <div className="font-bold text-[var(--text-primary)]">{t('about.story.feature4.title')}</div>
+                  <div className="text-sm text-[var(--text-muted)]">{t('about.story.feature4.desc')}</div>
                 </div>
               </div>
             </div>
@@ -284,13 +284,13 @@ function TeamSection() {
           <motion.div variants={fadeInUp}>
             <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
               <Users className="w-4 h-4" />
-              {t('about.team.badge', 'The Team')}
+              {t('about.team.badge')}
             </span>
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-              {t('about.team.title', 'Manga lovers building for manga lovers')}
+              {t('about.team.title')}
             </h2>
             <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-              {t('about.team.subtitle', 'A small but passionate team united by our love for manga and our mission to support creators worldwide.')}
+              {t('about.team.subtitle')}
             </p>
           </motion.div>
         </motion.div>
@@ -362,13 +362,13 @@ function ValuesSection() {
           <motion.div variants={fadeInUp}>
             <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
               <Star className="w-4 h-4" />
-              {t('about.values.badge', 'What We Stand For')}
+              {t('about.values.badge')}
             </span>
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-              {t('about.values.title', 'Our Core Values')}
+              {t('about.values.title')}
             </h2>
             <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-              {t('about.values.subtitle', 'Every decision we make is guided by these principles. They are the foundation of MangaAura.')}
+              {t('about.values.subtitle')}
             </p>
           </motion.div>
         </motion.div>
@@ -430,10 +430,10 @@ function CTASection() {
               <MessageCircle className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-              {t('about.cta.title', 'Ready to join the Aura?')}
+              {t('about.cta.title')}
             </h2>
             <p className="text-lg text-[var(--text-secondary)] mb-8">
-              {t('about.cta.description', 'Whether you are a creator ready to share your story or a reader looking for your next favorite manga, there is a place for you in our community.')}
+              {t('about.cta.description')}
             </p>
           </motion.div>
 
@@ -442,7 +442,7 @@ function CTASection() {
               href="/auth/register"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-accent-purple text-[var(--text-inverse)] font-bold rounded-xl hover:opacity-90 transition-all hover:scale-105"
             >
-              {t('about.cta.join', 'Join MangaAura Free')}
+              {t('about.cta.join')}
               <ChevronRight className="w-5 h-5" />
             </a>
             <a
@@ -450,12 +450,12 @@ function CTASection() {
               className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] font-bold rounded-xl hover:bg-[var(--surface-elevated)] transition-all"
             >
               <BookOpen className="w-5 h-5" />
-              {t('about.cta.explore', 'Explore Manga')}
+              {t('about.cta.explore')}
             </a>
           </motion.div>
 
           <motion.p variants={fadeInUp} className="mt-8 text-sm text-[var(--text-muted)]">
-            {t('about.cta.note', 'No credit card required. Free tier includes unlimited reading and basic creator tools.')}
+            {t('about.cta.note')}
           </motion.p>
         </motion.div>
       </Container>
@@ -464,8 +464,6 @@ function CTASection() {
 }
 
 export default function AboutPage() {
-  const t = useT();
-
   return (
     <main className="min-h-screen">
       <HeroSection />
