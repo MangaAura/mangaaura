@@ -1065,6 +1065,7 @@
     "stats": {
       "mangas": "Mangas",
       "following": "Following",
+      "followers": "Followers",
       "achievements": "Achievements",
       "streak": "Streak",
       "streakDays": "{count} days",

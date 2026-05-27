@@ -1037,6 +1037,7 @@
     "stats": {
       "mangas": "Mangas",
       "following": "Siguiendo",
+      "followers": "Seguidores",
       "achievements": "Logros",
       "streak": "Racha",
       "streakDays": "{count} días",

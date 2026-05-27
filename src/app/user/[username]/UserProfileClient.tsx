@@ -22,6 +22,10 @@ import {
   TrendingUp,
   Eye,
   Bookmark,
+  Globe,
+  Camera,
+  Video,
+  Heart,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -35,6 +39,10 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { useT, useLocale } from '@/i18n';
+import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
+import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
+import { CollectionsModal } from '@/app/(protected)/profile/CollectionsModal';
+import { AchievementsModal } from '@/app/(protected)/profile/AchievementsModal';
 
 // ─── Types ───────────────────────────────────────────────────────────────────────
 
@@ -66,10 +74,14 @@ interface ReadingProgressItem {
 
 interface UserAchievement {
   id: string;
-  unlockedAt: Date | string;
+  unlockedAt: Date;
   achievement: {
+    id: string;
     name: string;
     description: string;
+    iconUrl: string | null;
+    category: string;
+    difficulty: string;
   };
 }
 
@@ -85,6 +97,9 @@ interface UserData {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
+  bio: string | null;
+  website: string | null;
+  socialLinks: string | null;
   role: string;
   emailVerified: Date | string | null;
   level: number;
@@ -95,6 +110,7 @@ interface UserData {
     library: number;
     collections: number;
     following: number;
+    followers: number;
     achievements: number;
     createdMangas: number;
     activitiesFeed: number;
@@ -107,10 +123,25 @@ interface UserData {
   collections?: Array<{ id: string; name: string; description?: string | null; _count: { items: number; likes: number } }>;
 }
 
+interface FollowUserSummary {
+  id: string;
+  username: string;
+  displayName: string | null;
+  level: number;
+  avatarUrl: string | null;
+}
+
 interface UserProfileClientProps {
   user: UserData;
   isOwnProfile: boolean;
   sessionUserId?: string;
+  following: Array<{ id: string; following: FollowUserSummary; follower: FollowUserSummary }>;
+  followers: Array<{ id: string; following: FollowUserSummary; follower: FollowUserSummary }>;
+  libraryEntries: Array<{
+    id: string;
+    manga: { id: string; title: string; slug: string; coverUrl: string | null };
+    status: string;
+  }>;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
@@ -246,14 +277,17 @@ function StatCard({
   label,
   value,
   index,
+  onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string | number;
   index: number;
+  onClick?: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  return (
+
+  const content = (
     <motion.div
       custom={index}
       variants={statCardVariants}
@@ -289,6 +323,12 @@ function StatCard({
       </Card>
     </motion.div>
   );
+
+  if (onClick) {
+    return <button onClick={onClick} className="block w-full text-left cursor-pointer">{content}</button>;
+  }
+
+  return content;
 }
 
 function TimelineActivity({ activities, t, dateLocale }: { activities: ActivityItem[]; t: (key: string, params?: Record<string, string | number>) => string; dateLocale: Locale }) {
@@ -617,7 +657,7 @@ function MangaCreatedCard({ manga, isOwnProfile: _isOwnProfile, t }: { manga: Ma
 
 // ─── Main Component ───────────────────────────────────────────────────────────────
 
-export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserProfileClientProps) {
+export function UserProfileClient({ user, isOwnProfile, sessionUserId, following, followers, libraryEntries }: UserProfileClientProps) {
   const t = useT();
   const { locale } = useLocale();
   const dateLocale = locale === 'es' ? es : enUS;
@@ -625,13 +665,19 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
   const xpForNextLevel = user.level * 100;
   const xpProgress = Math.min(100, (user.xpPoints / xpForNextLevel) * 100);
 
+  const [followModalOpen, setFollowModalOpen] = useState(false);
+  const [libraryModalOpen, setLibraryModalOpen] = useState(false);
+  const [collectionsModalOpen, setCollectionsModalOpen] = useState(false);
+  const [achievementsModalOpen, setAchievementsModalOpen] = useState(false);
+
   const stats = [
-    { icon: BookOpen, label: t('userProfile.stats.mangas'), value: user._count.library },
-    { icon: Users, label: t('userProfile.stats.following'), value: user._count.following },
-    { icon: Trophy, label: t('userProfile.stats.achievements'), value: user._count.achievements },
+    { icon: BookOpen, label: t('userProfile.stats.mangas'), value: user._count.library, onClick: () => setLibraryModalOpen(true) },
+    { icon: Users, label: t('userProfile.stats.following'), value: user._count.following, onClick: () => setFollowModalOpen(true) },
+    { icon: Heart, label: t('userProfile.stats.followers'), value: user._count.followers, onClick: () => setFollowModalOpen(true) },
+    { icon: Trophy, label: t('userProfile.stats.achievements'), value: user._count.achievements, onClick: () => setAchievementsModalOpen(true) },
     { icon: Flame, label: t('userProfile.stats.streak'), value: t('userProfile.stats.streakDays', { count: user.readingStreak }) },
     ...(user._count.createdMangas > 0
-      ? [{ icon: Star, label: t('userProfile.stats.created'), value: user._count.createdMangas }]
+      ? [{ icon: Star, label: t('userProfile.stats.created'), value: user._count.createdMangas, onClick: () => {} }]
       : []),
   ];
 
@@ -644,6 +690,46 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
       : 'bg-[var(--info)]/10 text-[var(--info)] border-[var(--info)]/20';
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
+
+  const socialConfig: Record<string, { icon: React.ReactNode; label: string; brandColor: string }> = {
+    twitter: {
+      icon: (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      ),
+      label: 'X',
+      brandColor: 'hover:text-black dark:hover:text-white',
+    },
+    instagram: {
+      icon: <Camera className="w-3.5 h-3.5" />,
+      label: 'Instagram',
+      brandColor: 'hover:text-pink-500',
+    },
+    youtube: {
+      icon: <Video className="w-3.5 h-3.5" />,
+      label: 'YouTube',
+      brandColor: 'hover:text-red-500',
+    },
+    tiktok: {
+      icon: (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+        </svg>
+      ),
+      label: 'TikTok',
+      brandColor: 'hover:text-black dark:hover:text-white',
+    },
+    discord: {
+      icon: (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
+        </svg>
+      ),
+      label: 'Discord',
+      brandColor: 'hover:text-indigo-400',
+    },
+  };
 
   return (
     <div className="relative">
@@ -770,11 +856,63 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
           </motion.div>
 
           {/* ═══════ Stats Grid ═══════ */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
             {stats.map((stat, i) => (
-              <StatCard key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} index={i} />
+              <StatCard key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} index={i} onClick={stat.onClick} />
             ))}
           </div>
+
+          {/* ═══════ Bio & Social ═══════ */}
+          {(user.bio || user.website || user.socialLinks) && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.4 }}
+            >
+              <Card className="p-6 mb-8 relative overflow-hidden border-[var(--border)]/80 bg-[var(--surface)]/70 backdrop-blur-md">
+                {user.bio && (
+                  <p className="text-[var(--text-primary)] leading-relaxed text-sm mb-4">{user.bio}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  {user.website && (
+                    <a
+                      href={user.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-xs text-[var(--primary)] hover:text-[var(--primary-hover)] hover:border-[var(--border-strong)] transition-colors"
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      {user.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    </a>
+                  )}
+                  {user.socialLinks && (() => {
+                    try {
+                      const links = JSON.parse(user.socialLinks);
+                      return Object.entries(links).map(([platform, url]) => {
+                        if (!url) return null;
+                        const config = socialConfig[platform];
+                        if (!config) return null;
+                        return (
+                          <a
+                            key={platform}
+                            href={url as string}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={config.label}
+                            className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--text-secondary)] ${config.brandColor} transition-all duration-200 hover:scale-110 hover:border-[var(--border-strong)]`}
+                          >
+                            {config.icon}
+                          </a>
+                        );
+                      });
+                    } catch {
+                      return null;
+                    }
+                  })()}
+                </div>
+              </Card>
+            </motion.div>
+          )}
 
           {/* ═══════ Tabs ═══════ */}
           <Tabs defaultValue="activity">
@@ -887,7 +1025,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
             {user.collections && user.collections.length > 0 && (
               <TabsContent value="collections" className="border border-[var(--border)]/50 rounded-xl p-5">
                 <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" animate="visible">
-                  {user.collections!.map((col: any) => (
+                  {user.collections.map((col: any) => (
                     <motion.div key={col.id} variants={itemVariants}>
                       <Link href={`/collections/${col.id}`}>
                         <Card className="p-4 h-full hover:border-[var(--primary)] transition-all duration-200">
@@ -933,6 +1071,35 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId }: UserPro
           </Tabs>
         </div>
       </div>
+
+      {/* Modals */}
+      <FollowersModal
+        open={followModalOpen}
+        onOpenChange={setFollowModalOpen}
+        following={following}
+        followers={followers}
+      />
+      <LibraryModal
+        open={libraryModalOpen}
+        onOpenChange={setLibraryModalOpen}
+        entries={libraryEntries}
+      />
+      <CollectionsModal
+        open={collectionsModalOpen}
+        onOpenChange={setCollectionsModalOpen}
+        collections={(user.collections || []).map((c) => ({
+          id: c.id,
+          title: c.name,
+          coverUrl: null,
+          description: c.description || null,
+          _count: { items: c._count.items },
+        }))}
+      />
+      <AchievementsModal
+        open={achievementsModalOpen}
+        onOpenChange={setAchievementsModalOpen}
+        achievements={user.achievements as any}
+      />
     </div>
   );
 }

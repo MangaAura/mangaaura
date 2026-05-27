@@ -316,7 +316,7 @@ body: JSON.stringify({
           <div className="relative">
             <Avatar className="w-24 h-24 cursor-pointer hover:opacity-90 transition-opacity">
               <AvatarImage src={avatarPreview || undefined} />
-              <AvatarFallback className="text-2xl bg-[var(--primary)]" />
+              {!avatarPreview && <AvatarFallback className="text-2xl bg-[var(--primary)]" />}
             </Avatar>
             {uploadingAvatar && (
               <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">

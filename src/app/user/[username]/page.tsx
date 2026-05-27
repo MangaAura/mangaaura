@@ -5,7 +5,6 @@ import { UserProfileClient } from './UserProfileClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-
 interface UserProfilePageProps {
   params: Promise<{ username: string }>;
 }
@@ -19,6 +18,7 @@ async function getUserData(username: string) {
           library: true,
           collections: true,
           following: true,
+          followers: true,
           achievements: true,
           createdMangas: true,
           activitiesFeed: true,
@@ -27,7 +27,7 @@ async function getUserData(username: string) {
       achievements: {
         include: { achievement: true },
         orderBy: { unlockedAt: 'desc' },
-        take: 6,
+        take: 100,
       },
       createdMangas: {
         orderBy: { createdAt: 'desc' },
@@ -127,11 +127,47 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
   const isOwnProfile = session?.user?.id === user.id;
 
+  const [followingData, followersData, libraryEntries] = await Promise.all([
+    prisma.follow.findMany({
+      where: { followerId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      include: {
+        following: {
+          select: { id: true, username: true, displayName: true, avatarUrl: true, level: true },
+        },
+      },
+    }),
+    prisma.follow.findMany({
+      where: { followingId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      include: {
+        follower: {
+          select: { id: true, username: true, displayName: true, avatarUrl: true, level: true },
+        },
+      },
+    }),
+    prisma.userLibrary.findMany({
+      where: { userId: user.id },
+      orderBy: { addedAt: 'desc' },
+      take: 50,
+      include: {
+        manga: {
+          select: { id: true, title: true, slug: true, coverUrl: true },
+        },
+      },
+    }),
+  ]);
+
   return (
     <UserProfileClient
       user={user}
       isOwnProfile={isOwnProfile}
       sessionUserId={session?.user?.id}
+      following={followingData as any}
+      followers={followersData as any}
+      libraryEntries={libraryEntries as any}
     />
   );
 }
