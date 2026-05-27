@@ -299,6 +299,7 @@ export async function DELETE(
     await invalidateCache(`manga:${id}`);
     await invalidateCache('manga:list');
     await invalidateCache('user:mangas:list');
+    await invalidateCache('creator:mangas:dashboard');
 
     return NextResponse.json({
       message: `Manga "${manga.title}" enviado a la papelera. Se eliminará permanentemente en 30 días.`,

@@ -115,6 +115,36 @@ export function AppearanceSettings() {
     }
   }, []);
 
+  useEffect(() => {
+    fetch('/api/me/preferences')
+      .then((r) => r.json())
+      .then((data) => {
+        const appearance = data?.preferences?.appearance;
+        if (!appearance) return;
+        if (appearance.theme) {
+          setTheme(appearance.theme);
+          setThemeProvider(appearance.theme);
+          localStorage.setItem('mangaaura-theme', appearance.theme);
+        }
+        if (appearance.fontSize) {
+          setFontSize(appearance.fontSize);
+          localStorage.setItem('fontSize', appearance.fontSize);
+        }
+        if (appearance.layoutDensity) {
+          setLayoutDensity(appearance.layoutDensity);
+          localStorage.setItem('layoutDensity', appearance.layoutDensity);
+        }
+        if (appearance.primaryColor) {
+          setPrimaryColor(appearance.primaryColor);
+          const darkColor = appearance.primaryColorDark || lighten(appearance.primaryColor, 0.35);
+          localStorage.setItem('primaryColor', appearance.primaryColor);
+          localStorage.setItem('primaryColorDark', darkColor);
+          applyPrimaryColor(appearance.primaryColor, darkColor);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
     setThemeProvider(newTheme);

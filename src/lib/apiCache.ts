@@ -101,6 +101,14 @@ export async function invalidateCacheBatch(prefixes: string[]): Promise<void> {
 // Invalidate cache by pattern
 export async function invalidateCache(prefix: string): Promise<void> {
   await invalidatePattern(`mangaaura:${prefix}:*`);
+
+  // Also clear memory cache entries matching the prefix
+  const pattern = `mangaaura:${prefix}`;
+  for (const key of memoryCache.keys()) {
+    if (key.startsWith(pattern)) {
+      memoryCache.delete(key);
+    }
+  }
 }
 
 // Cache configuration for different endpoints

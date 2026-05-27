@@ -49,11 +49,11 @@ function RoleBadge({ role, t }: { role?: string; t: (key: string) => string }) {
   );
 }
 
-function NotifButton({ unread, onClick, ariaLabel }: { unread: number; onClick: () => void; ariaLabel: string }) {
+function NotifButton({ unread, onClick, ariaLabel }: { unread: number; onClick?: () => void; ariaLabel: string }) {
   const [animKey, setAnimKey] = useState(0);
   return (
     <button
-      onClick={() => { setAnimKey((k) => k + 1); onClick(); }}
+      onClick={() => { setAnimKey((k) => k + 1); onClick?.(); }}
       className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-lg transition-all duration-200 cursor-pointer active:scale-90 group/tooltip"
       aria-label={ariaLabel}
       title={ariaLabel}
@@ -118,7 +118,7 @@ export function AuthSection({
       <>
         <DropdownMenu.Root open={showNotifMenu} onOpenChange={setShowNotifMenu}>
           <DropdownMenu.Trigger asChild>
-            <NotifButton unread={unreadNotifications} onClick={() => setShowNotifMenu((prev) => !prev)} ariaLabel={t('notifications.title')} />
+            <NotifButton unread={unreadNotifications} ariaLabel={t('notifications.title')} />
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content align="end" sideOffset={8} className="z-50 outline-none">
