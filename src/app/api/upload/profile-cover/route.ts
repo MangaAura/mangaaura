@@ -90,7 +90,6 @@ export async function POST(request: NextRequest) {
       height: COVER_HEIGHT,
       quality: COVER_QUALITY,
       format: 'webp',
-      fit: 'cover',
     });
 
     const timestamp = Date.now();
