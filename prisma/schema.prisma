@@ -11,8 +11,9 @@ model User {
   id               String    @id @default(uuid())
   email            String    @unique
   username         String    @unique
-  displayName      String?
-  avatarUrl        String?
+   displayName      String?
+   avatarUrl        String?
+   coverUrl         String?
   passwordHash     String?
   emailVerified    DateTime?
   xpPoints         Int       @default(0)
@@ -110,6 +111,7 @@ model User {
   bookmarks          Bookmark[]
   newsArticles       NewsArticle[]
   reposts          Repost[]           @relation("Reposts")
+  announcements    Announcement[]
   eventSubmissions EventSubmission[]
   eventVotes       EventVote[]
   createdEvents Event[]
@@ -148,6 +150,7 @@ model MangaSeries {
   collectionItems CollectionItem[]
   bookmarks       Bookmark[]
   mangaTags       MangaTag[]
+  mangaGenres     MangaGenre[]
 
   @@index([slug])
   @@index([authorId])
@@ -744,8 +747,24 @@ model Genre {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  mangaGenres MangaGenre[]
+
   @@index([slug])
   @@index([name])
+}
+
+model MangaGenre {
+  id        String   @id @default(uuid())
+  mangaId   String
+  genreId   String
+  createdAt DateTime @default(now())
+
+  manga MangaSeries @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  genre Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@unique([mangaId, genreId])
+  @@index([mangaId])
+  @@index([genreId])
 }
 
 model RateLimit {
@@ -1206,6 +1225,29 @@ model InboundEmail {
   @@index([action])
   @@index([createdAt])
   @@index([processedAt])
+}
+
+// ─── Announcements ────────────────────────────────────────────
+model Announcement {
+  id        String   @id @default(uuid())
+  message   String
+  messageEn String?
+  type      String   @default("info") // info, warning, alert, maintenance
+  priority  String   @default("normal") // low, normal, high, critical
+  style     String   @default("banner") // banner, modal, toast, inline
+  isActive  Boolean  @default(true)
+  startAt   DateTime @default(now())
+  expiresAt DateTime?
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
+  @@index([type])
+  @@index([priority])
+  @@index([startAt, expiresAt])
 }
 
 // CSP Violation Reports — received via report-uri directive

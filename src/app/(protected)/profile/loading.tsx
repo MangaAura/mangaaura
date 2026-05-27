@@ -1,20 +1,32 @@
 export default function ProfileLoading() {
   return (
-    <div role="status" className="min-h-screen bg-background animate-pulse">
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="flex items-center gap-6 mb-8">
-          <div className="w-24 h-24 bg-tertiary rounded-full" />
-          <div className="space-y-3">
-            <div className="h-6 bg-tertiary rounded w-48" />
-            <div className="h-4 bg-tertiary rounded w-32" />
+    <div role="status" className="min-h-screen animate-pulse">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Cover */}
+          <div className="h-48 sm:h-56 rounded-t-xl bg-gradient-to-br from-[var(--surface-elevated)] to-[var(--border)]" />
+          {/* Avatar + info card */}
+          <div className="rounded-xl border border-[var(--border)]/50 bg-[var(--surface)]/70 backdrop-blur-md overflow-hidden -mt-24 relative z-10 mx-6">
+            <div className="px-6 pb-6">
+              <div className="-mt-12 sm:-mt-16 mb-3">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full ring-4 ring-[var(--surface)] bg-[var(--surface-elevated)]" />
+              </div>
+              <div className="space-y-3 mb-4">
+                <div className="h-6 w-48 bg-[var(--surface-elevated)] rounded" />
+                <div className="h-4 w-32 bg-[var(--surface-elevated)] rounded" />
+                <div className="h-4 w-64 bg-[var(--surface-elevated)] rounded" />
+              </div>
+              {/* Stats row */}
+              <div className="flex gap-5 mb-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-6 w-16 bg-[var(--surface-elevated)] rounded" />
+                ))}
+              </div>
+            </div>
           </div>
+          {/* Tabs area */}
+          <div className="h-64 bg-[var(--surface-elevated)] rounded-xl mx-6" />
         </div>
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-20 bg-secondary rounded-xl" />
-          ))}
-        </div>
-        <div className="h-64 bg-secondary rounded-xl" />
       </div>
     </div>
   );

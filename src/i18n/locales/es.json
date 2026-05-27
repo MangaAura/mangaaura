@@ -87,7 +87,7 @@
     "author": "Autor",
     "artist": "Artista",
     "genres": "Géneros",
-    "tags": "Etiquetas",
+    "tags": "Géneros",
     "rating": "Valoración",
     "views": "Vistas",
     "description": "Descripción",
@@ -104,7 +104,10 @@
     "chaptersTitle": "Capítulos",
     "inLibrary": "en la biblioteca",
     "pagesAbbr": "páginas.",
-    "viewAllChapters": "Ver todos los capítulos {count}"
+    "viewAllChapters": "Ver todos los capítulos {count}",
+    "byAuthor": "por {author}",
+    "lastUpdated": "Última actualización {date}",
+    "publishedOn": "Publicado {date}"
   },
   "reader": {
     "page": "Página",
@@ -848,7 +851,7 @@
     "unknown": "Desconocido",
     "viewDetails": "Ver detalles →",
     "page": "Página {page}",
-    "genresTags": "Géneros / Tags",
+    "genresTags": "Géneros",
     "noResultsHint": "Intenta ajustar los filtros o utiliza términos de búsqueda diferentes.",
     "errorSearch": "Error al buscar. Inténtalo de nuevo.",
     "errorConnection": "Error de conexión al buscar.",
@@ -1041,7 +1044,8 @@
       "achievements": "Logros",
       "streak": "Racha",
       "streakDays": "{count} días",
-      "created": "Creados"
+      "created": "Creados",
+      "collections": "Colecciones"
     },
     "roles": {
       "admin": "Admin",
@@ -1093,16 +1097,36 @@
       "achievements": {
         "title": "Sin logros",
         "description": "Este usuario aún no ha desbloqueado logros"
+      },
+      "collections": {
+        "title": "Sin colecciones",
+        "description": "Organiza tus mangas favoritos en colecciones"
       }
     },
     "buttons": {
       "editProfile": "Editar perfil",
-      "createAnother": "Crear otro"
+      "createAnother": "Crear otro",
+      "createCollection": "Crear colección",
+      "viewAllCollections": "Ver todas las colecciones",
+      "exploreMangas": "Explorar mangas",
+      "viewHistory": "Ver historial completo",
+      "viewAllAchievements": "Ver todos los logros"
     },
+    "followsYou": "Te sigue",
+    "shareProfile": "Compartir perfil",
+    "copiedLink": "Link copiado",
     "readingProgress": "Progreso de lectura: {percentage}%",
     "caps": "capítulos",
     "views": "vistas",
     "newBadge": "Nuevo"
+  },
+  "profileCompletion": {
+    "title": "Completa tu perfil",
+    "missing": "Agrega: {items}",
+    "avatar": "Avatar",
+    "bio": "Biografía",
+    "website": "Sitio web",
+    "social": "Redes sociales"
   },
   "transactions": {
     "title": "Historial de Transacciones",
@@ -1546,9 +1570,9 @@
     "description": "Descripción",
     "descriptionPlaceholder": "Describe la trama de tu manga...",
     "descriptionMin": "Mínimo 10 caracteres",
-    "tags": "Tags",
-    "tagsPlaceholder": "Añade tags (presiona Enter)",
-    "tagsHint": "Presiona Enter o coma para añadir un tag (máx. 10)",
+    "tags": "Géneros",
+    "tagsPlaceholder": "Añade géneros o busca existentes",
+    "tagsHint": "Presiona Enter o coma para añadir un género (máx. 10)",
     "cover": "Portada",
     "coverClick": "Click para subir",
     "coverHint": "PNG, JPG hasta 5MB",
@@ -1559,7 +1583,7 @@
     "create": "Crear Manga",
     "errorImageType": "El archivo debe ser una imagen",
     "errorImageSize": "La imagen no debe superar 5MB",
-    "removeTag": "Eliminar etiqueta"
+    "removeTag": "Eliminar género"
   },
   "creatorMangaEdit": {
     "notFound": "Manga no encontrado",
@@ -1578,9 +1602,9 @@
     "statusCompleted": "Completado",
     "statusPaused": "Pausado",
     "statusAbandoned": "Abandonado",
-    "tags": "Tags",
-    "tagsPlaceholder": "Añade tags (presiona Enter)",
-    "tagsHint": "Presiona Enter o coma para añadir un tag (máx. 10)",
+    "tags": "Géneros",
+    "tagsPlaceholder": "Añade géneros o busca existentes",
+    "tagsHint": "Presiona Enter o coma para añadir un género (máx. 10)",
     "cover": "Portada",
     "coverClick": "Click para cambiar",
     "coverHint": "PNG, JPG hasta 5MB",
@@ -1596,7 +1620,7 @@
     "errorDescriptionRequired": "La descripción es obligatoria",
     "errorDescriptionMin": "La descripción debe tener al menos 10 caracteres",
     "errorDescriptionMax": "La descripción debe tener menos de 1000 caracteres",
-    "errorTagsRequired": "Al menos un tag es obligatorio",
+    "errorTagsRequired": "Al menos un género es obligatorio",
     "errorImageType": "El archivo debe ser una imagen",
     "errorImageSize": "La imagen no debe superar 5MB"
   },
@@ -2072,5 +2096,27 @@
       "explore": "Explorar Mangas",
       "note": "No requiere tarjeta de crédito. El nivel gratuito incluye lectura ilimitada y herramientas básicas para creadores."
     }
+  },
+  "faqPage": {
+    "title": "Preguntas Frecuentes",
+    "description": "Encuentra respuestas a las preguntas más comunes sobre MangaAura",
+    "faq1Q": "¿Qué es MangaAura?",
+    "faq1A": "MangaAura es una plataforma para descubrir, leer y compartir manga. Ofrecemos una extensa biblioteca de manga con lectura en línea, sistema de logros, comunidad activa y herramientas para creadores.",
+    "faq2Q": "¿MangaAura es gratis?",
+    "faq2A": "Sí, la mayoría del contenido es gratuito. Algunos mangas premium o funciones exclusivas pueden requerir Aura, nuestra moneda virtual.",
+    "faq3Q": "¿Cómo empiezo a crear mi manga?",
+    "faq3A": "Regístrate como creador, ve al panel de creación y sube tu primer capítulo. Usa nuestras herramientas de IA para descripciones, traducciones y etiquetas.",
+    "faq4Q": "¿Qué puedo hacer con los Aura?",
+    "faq4A": "Puedes dar propinas a creadores, crowdfundear capítulos, patrocinar contenido y participar en eventos exclusivos de la comunidad.",
+    "faq5Q": "¿Puedo monetizar mi manga?",
+    "faq5A": "Sí, a través de nuestro sistema de patrocinios y Aura. Los lectores pueden apoyarte directamente y recibes una parte de los ingresos.",
+    "faq6Q": "¿Cómo funcionan los clanes?",
+    "faq6A": "Los clanes son grupos comunitarios organizados por intereses. Puedes unirte a un clan existente o crear el tuyo propio para conectar con otros lectores.",
+    "faq7Q": "¿Cómo recupero mi contraseña?",
+    "faq7A": "En la página de inicio de sesión, haz clic en \"¿Olvidaste tu contraseña?\" y sigue las instrucciones. Recibirás un email para restablecerla.",
+    "faq8Q": "¿Cómo protegen mis datos?",
+    "faq8A": "Usamos encriptación SSL, autenticación segura y cumplimos con las regulaciones de privacidad. Puedes revisar nuestra política de privacidad para más detalles.",
+    "stillHaveQuestions": "¿Aún tienes preguntas?",
+    "contactSupport": "Contactar Soporte"
   }
 }

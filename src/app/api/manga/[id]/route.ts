@@ -27,7 +27,7 @@ export async function GET(
       where: { id },
     });
 
-    if (!manga) {
+    if (!manga || manga.deletedAt) {
       return NextResponse.json(
         { error: 'Manga no encontrado' },
         { status: 404 }
@@ -196,7 +196,8 @@ export async function PUT(
 
     if (body.tags !== undefined) {
       if (Array.isArray(body.tags)) {
-        updateData.tags = JSON.stringify(body.tags.map((t: string) => t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+        const genreNames = body.tags.map((t: string) => t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+        updateData.tags = JSON.stringify(genreNames);
       } else {
         return NextResponse.json(
           { error: 'Las etiquetas deben ser un array' },
@@ -209,6 +210,27 @@ export async function PUT(
       where: { id },
       data: updateData,
     });
+
+    // Sync MangaGenre links if tags changed
+    if (body.tags !== undefined && Array.isArray(body.tags)) {
+      // Remove existing links
+      await prisma.mangaGenre.deleteMany({ where: { mangaId: id } });
+      // Create new links
+      for (const tagName of body.tags) {
+        const slug = tagName
+          .toLowerCase().trim()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        if (!slug) continue;
+        const genre = await prisma.genre.findUnique({ where: { slug } });
+        if (genre) {
+          await prisma.mangaGenre.create({
+            data: { mangaId: id, genreId: genre.id },
+          }).catch(() => { /* ignore duplicate */ });
+        }
+      }
+    }
 
     // Invalidar caches
     await invalidateCache(`manga:${id}`);

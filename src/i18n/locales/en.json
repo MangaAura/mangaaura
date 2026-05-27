@@ -87,7 +87,7 @@
     "author": "Author",
     "artist": "Artist",
     "genres": "Genres",
-    "tags": "Tags",
+    "tags": "Genres",
     "rating": "Rating",
     "views": "Views",
     "description": "Description",
@@ -876,7 +876,7 @@
     "unknown": "Unknown",
     "viewDetails": "View details →",
     "page": "Page {page}",
-    "genresTags": "Genres / Tags",
+    "genresTags": "Genres",
     "noResultsHint": "Try adjusting the filters or using different search terms.",
     "errorSearch": "Error searching. Try again.",
     "errorConnection": "Connection error while searching.",
@@ -1069,7 +1069,8 @@
       "achievements": "Achievements",
       "streak": "Streak",
       "streakDays": "{count} days",
-      "created": "Created"
+      "created": "Created",
+      "collections": "Collections"
     },
     "roles": {
       "admin": "Admin",
@@ -1121,16 +1122,36 @@
       "achievements": {
         "title": "No achievements",
         "description": "This user hasn't unlocked any achievements yet"
+      },
+      "collections": {
+        "title": "No collections",
+        "description": "Organize your favorite manga into collections"
       }
     },
     "buttons": {
       "editProfile": "Edit profile",
-      "createAnother": "Create another"
+      "createAnother": "Create another",
+      "createCollection": "Create collection",
+      "viewAllCollections": "View all collections",
+      "exploreMangas": "Explore manga",
+      "viewHistory": "View full history",
+      "viewAllAchievements": "View all achievements"
     },
+    "followsYou": "Follows you",
+    "shareProfile": "Share profile",
+    "copiedLink": "Link copied",
     "readingProgress": "Reading progress: {percentage}%",
     "caps": "chapters",
     "views": "views",
     "newBadge": "New"
+  },
+  "profileCompletion": {
+    "title": "Complete your profile",
+    "missing": "Add: {items}",
+    "avatar": "Avatar",
+    "bio": "Bio",
+    "website": "Website",
+    "social": "Social links"
   },
   "transactions": {
     "title": "Transaction History",
@@ -1608,9 +1629,9 @@
     "description": "Description",
     "descriptionPlaceholder": "Describe your manga's plot...",
     "descriptionMin": "Minimum 10 characters",
-    "tags": "Tags",
-    "tagsPlaceholder": "Add tags (press Enter)",
-    "tagsHint": "Press Enter or comma to add a tag (max 10)",
+    "tags": "Genres",
+    "tagsPlaceholder": "Add genres or search existing",
+    "tagsHint": "Press Enter or comma to add a genre (max 10)",
     "cover": "Cover",
     "coverClick": "Click to upload",
     "coverHint": "PNG, JPG up to 5MB",
@@ -1621,7 +1642,7 @@
     "create": "Create Manga",
     "errorImageType": "File must be an image",
     "errorImageSize": "Image must not exceed 5MB",
-    "removeTag": "Remove tag"
+    "removeTag": "Remove genre"
   },
   "creatorMangaEdit": {
     "notFound": "Manga not found",
@@ -1640,9 +1661,9 @@
     "statusCompleted": "Completed",
     "statusPaused": "Paused",
     "statusAbandoned": "Abandoned",
-    "tags": "Tags",
-    "tagsPlaceholder": "Add tags (press Enter)",
-    "tagsHint": "Press Enter or comma to add a tag (max 10)",
+    "tags": "Genres",
+    "tagsPlaceholder": "Add genres or search existing",
+    "tagsHint": "Press Enter or comma to add a genre (max 10)",
     "cover": "Cover",
     "coverClick": "Click to change",
     "coverHint": "PNG, JPG up to 5MB",
@@ -1658,7 +1679,7 @@
     "errorDescriptionRequired": "Description is required",
     "errorDescriptionMin": "Description must be at least 10 characters",
     "errorDescriptionMax": "Description must be less than 1000 characters",
-    "errorTagsRequired": "At least one tag is required",
+    "errorTagsRequired": "At least one genre is required",
     "errorImageType": "File must be an image",
     "errorImageSize": "Image must not exceed 5MB"
   },

@@ -56,7 +56,7 @@ export default async function ProfilePage() {
     redirect('/auth/login?callbackUrl=/profile');
   }
 
-  const [user, followingData, followersData, libraryEntries, userCollections] = await Promise.all([
+  const [user, followingData, followersData, libraryEntries, userCollections, activitiesFeed] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
@@ -123,6 +123,11 @@ export default async function ProfilePage() {
         _count: { select: { items: true } },
       },
     }),
+    prisma.userActivity.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    }),
   ]);
 
   if (!user) {
@@ -134,13 +139,14 @@ export default async function ProfilePage() {
 
   return (
     <ProfileClient
-      user={user}
+      user={user as any}
       xpProgress={xpProgress}
       xpForNextLevel={xpForNextLevel}
       following={followingData as unknown as FollowItem[]}
       followers={followersData as unknown as FollowItem[]}
       libraryEntries={libraryEntries as unknown as LibraryItem[]}
       collections={userCollections as unknown as CollectionItem[]}
+      activities={activitiesFeed as any}
     />
   );
 }

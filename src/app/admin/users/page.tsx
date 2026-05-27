@@ -21,7 +21,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import useSWR from 'swr';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
@@ -37,6 +37,15 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
@@ -57,6 +66,12 @@ interface UserData {
   commentCount: number;
 }
 
+const BAN_REASONS = [
+  'Spam', 'Harassment', 'Inappropriate Content',
+  'Copyright Infringement', 'Impersonation', 'Bot/Automation',
+  'Security Violation', 'Terms of Service Violation', 'Other',
+];
+
 export default function UsersPage() {
   // Always call useT first before any conditional logic
   const t = useT();
@@ -68,6 +83,12 @@ export default function UsersPage() {
   const [showActionDialog, setShowActionDialog] = useState(false);
   const [actionType, setActionType] = useState<'ban' | 'unban' | 'delete'>('ban');
   const [isActioning, setIsActioning] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkBanDialog, setShowBulkBanDialog] = useState(false);
+  const [bulkBanType, setBulkBanType] = useState('SUSPENSION');
+  const [bulkBanReason, setBulkBanReason] = useState('');
+  const [bulkBanReasonDetail, setBulkBanReasonDetail] = useState('');
+  const [isBulkBanning, setIsBulkBanning] = useState(false);
 
   const { data: _data, error, isLoading, mutate } = useSWR<{ users: UserData[] }>(
     '/api/admin/users',
@@ -81,6 +102,63 @@ export default function UsersPage() {
       },
     }
   );
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery) return users;
+    const query = searchQuery.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.username.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        (u.displayName && u.displayName.toLowerCase().includes(query))
+    );
+  }, [users, searchQuery]);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === filteredData.length) return new Set();
+      return new Set(filteredData.map((u) => u.id));
+    });
+  }, [filteredData]);
+
+  const handleBulkBan = async () => {
+    if (selectedIds.size === 0 || !bulkBanReason) return;
+    setIsBulkBanning(true);
+    try {
+      const res = await fetch('/api/admin/bans/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIds: Array.from(selectedIds),
+          banType: bulkBanType,
+          reason: bulkBanReason,
+          reasonDetail: bulkBanReasonDetail || undefined,
+        }),
+      });
+      if (res.ok) {
+        await mutate();
+        setShowBulkBanDialog(false);
+        setSelectedIds(new Set());
+        setBulkBanReason('');
+        setBulkBanReasonDetail('');
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Error creating bans');
+      }
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setIsBulkBanning(false);
+    }
+  };
 
   const handleAction = async () => {
     if (!selectedUser) return;
@@ -107,6 +185,29 @@ export default function UsersPage() {
 
   const columns: ColumnDef<UserData>[] = useMemo(
     () => [
+      {
+        id: 'select',
+        header: () => (
+          <input
+            type="checkbox"
+            checked={selectedIds.size > 0 && selectedIds.size === filteredData.length}
+            ref={(el) => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < filteredData.length; }}
+            onChange={toggleSelectAll}
+            className="rounded border-[var(--border)]"
+            aria-label="Seleccionar todos"
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={selectedIds.has(row.original.id)}
+            onChange={() => toggleSelect(row.original.id)}
+            className="rounded border-[var(--border)]"
+            aria-label={`Seleccionar ${row.original.username}`}
+          />
+        ),
+        size: 40,
+      },
       {
         accessorKey: 'user',
         header: 'User',
@@ -236,17 +337,6 @@ export default function UsersPage() {
     []
   );
 
-  const filteredData = useMemo(() => {
-    if (!searchQuery) return users;
-    const query = searchQuery.toLowerCase();
-    return users.filter(
-      (u) =>
-        u.username.toLowerCase().includes(query) ||
-        u.email.toLowerCase().includes(query) ||
-        (u.displayName && u.displayName.toLowerCase().includes(query))
-    );
-  }, [users, searchQuery]);
-
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -267,6 +357,27 @@ export default function UsersPage() {
             {t('admin.users')}
           </h1>
           <p className="text-[var(--text-muted)]">{t('admin.managePlatformUsers')}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {selectedIds.size > 0 && (
+            <>
+              <span className="text-sm text-[var(--text-tertiary)]">
+                {selectedIds.size} selected
+              </span>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  setBulkBanType('SUSPENSION');
+                  setBulkBanReason('');
+                  setShowBulkBanDialog(true);
+                }}
+              >
+                <Ban className="w-4 h-4 mr-1" />
+                Ban Selected
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -472,6 +583,74 @@ export default function UsersPage() {
               </DialogFooter>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Ban Dialog */}
+      <Dialog open={showBulkBanDialog} onOpenChange={setShowBulkBanDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Ban className="w-5 h-5" />
+              Ban {selectedIds.size} Users
+            </DialogTitle>
+            <DialogDescription>
+              Apply a ban to all selected users.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Ban Type</Label>
+              <Select value={bulkBanType} onValueChange={setBulkBanType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SUSPENSION">Suspension (Temporary)</SelectItem>
+                  <SelectItem value="PERMANENT">Permanent Ban</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Reason Category</Label>
+              <Select value={bulkBanReason} onValueChange={setBulkBanReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {BAN_REASONS.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Detail (optional)</Label>
+              <Textarea
+                placeholder="Additional details..."
+                value={bulkBanReasonDetail}
+                onChange={(e) => setBulkBanReasonDetail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkBanDialog(false)} disabled={isBulkBanning}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkBan}
+              disabled={isBulkBanning || !bulkBanReason}
+            >
+              {isBulkBanning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Ban className="w-4 h-4 mr-2" />
+              Ban {selectedIds.size} Users
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

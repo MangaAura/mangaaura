@@ -1,43 +1,34 @@
 'use client';
 
-import { formatDistanceToNow, isToday, isThisWeek, isThisMonth, format } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import type { Locale } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import { es } from 'date-fns/locale/es';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import {
-  Crown,
   Flame,
   BookOpen,
-  Users,
   Trophy,
   Star,
   Activity,
   Clock,
-  Calendar,
   Plus,
-  MessageSquare,
-  Share2,
   Sparkles,
-  TrendingUp,
   Eye,
   Bookmark,
-  Globe,
-  Camera,
-  Video,
-  Heart,
+  Share2,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { FollowButton } from '@/components/Social/FollowButton';
-import { Avatar, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { ProfileHeader, ProfileTimeline } from '@/components/Profile';
 import { useT, useLocale } from '@/i18n';
 import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
 import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
@@ -92,11 +83,20 @@ interface ActivityItem {
   createdAt: Date | string;
 }
 
+interface FollowUserSummary {
+  id: string;
+  username: string;
+  displayName: string | null;
+  level: number;
+  avatarUrl: string | null;
+}
+
 interface UserData {
   id: string;
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
   bio: string | null;
   website: string | null;
   socialLinks: string | null;
@@ -123,14 +123,6 @@ interface UserData {
   collections?: Array<{ id: string; name: string; description?: string | null; _count: { items: number; likes: number } }>;
 }
 
-interface FollowUserSummary {
-  id: string;
-  username: string;
-  displayName: string | null;
-  level: number;
-  avatarUrl: string | null;
-}
-
 interface UserProfileClientProps {
   user: UserData;
   isOwnProfile: boolean;
@@ -142,6 +134,7 @@ interface UserProfileClientProps {
     manga: { id: string; title: string; slug: string; coverUrl: string | null };
     status: string;
   }>;
+  isFollowingUser?: boolean;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
@@ -210,247 +203,7 @@ const itemVariants = {
   },
 } satisfies Variants;
 
-const statCardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.06,
-      type: 'spring' as const,
-      stiffness: 350,
-      damping: 25,
-    },
-  }),
-} satisfies Variants;
-
 // ─── Sub-components ────────────────────────────────────────────────────────────────
-
-function HeroGlowAvatar({ user, t, isSpecial }: { user: UserData; t: (key: string, params?: Record<string, string | number>) => string; isSpecial: boolean }) {
-  const shouldReduceMotion = useReducedMotion();
-  const roleAriaLabel =
-    user.role === 'ADMIN' ? t('userProfile.roles.admin') :
-    user.role === 'MODERATOR' ? t('userProfile.roles.moderator') :
-    t('userProfile.roles.creator');
-  return (
-    <motion.div
-      className="relative"
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 20 }}
-    >
-      {isSpecial && !shouldReduceMotion && (
-        <motion.div
-          className="absolute -inset-1 rounded-full"
-          aria-hidden="true"
-          animate={{
-            boxShadow: [
-              '0 0 15px rgba(245, 158, 11, 0.3), 0 0 30px rgba(245, 158, 11, 0.1)',
-              '0 0 25px rgba(245, 158, 11, 0.5), 0 0 50px rgba(245, 158, 11, 0.2)',
-              '0 0 15px rgba(245, 158, 11, 0.3), 0 0 30px rgba(245, 158, 11, 0.1)',
-            ],
-          }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      )}
-      <Avatar className="w-36 h-36 rounded-full ring-4 ring-[var(--surface)] shadow-xl relative z-10">
-        <AvatarImage src={user.avatarUrl || undefined} className="rounded-full" />
-      </Avatar>
-      {isSpecial && (
-        <motion.span
-          className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center text-xs ring-2 ring-amber-600 dark:ring-yellow-600 z-20 shadow-lg"
-          animate={shouldReduceMotion ? {} : { rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 3, repeat: Infinity }}
-          role="img"
-          aria-label={roleAriaLabel}
-        >
-          <Crown className="w-4 h-4" />
-        </motion.span>
-      )}
-    </motion.div>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  index,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string | number;
-  index: number;
-  onClick?: () => void;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const content = (
-    <motion.div
-      custom={index}
-      variants={statCardVariants}
-      initial="hidden"
-      animate="visible"
-      whileHover={{ y: -3 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="relative overflow-hidden"
-    >
-      <Card className="p-4 text-center bg-[var(--surface)]/60 backdrop-blur-sm border-[var(--border)]/80 hover:shadow-lg transition-shadow duration-200">
-        <motion.div
-          className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--accent-purple)]/10 flex items-center justify-center"
-          animate={{ scale: isHovered ? 1.15 : 1 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-        >
-          <Icon
-            className={`w-5 h-5 transition-colors duration-200 ${
-              isHovered ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'
-            }`}
-          />
-        </motion.div>
-        <p
-          className={`text-xl font-bold transition-all duration-200 ${
-            isHovered
-              ? 'text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)]'
-              : 'text-[var(--text-primary)]'
-          }`}
-        >
-          {value}
-        </p>
-        <p className="text-xs text-[var(--text-tertiary)]">{label}</p>
-      </Card>
-    </motion.div>
-  );
-
-  if (onClick) {
-    return <button onClick={onClick} className="block w-full text-left cursor-pointer">{content}</button>;
-  }
-
-  return content;
-}
-
-function TimelineActivity({ activities, t, dateLocale }: { activities: ActivityItem[]; t: (key: string, params?: Record<string, string | number>) => string; dateLocale: Locale }) {
-  const activityTypeConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string; color: string; bgColor: string }> = {
-    READ_CHAPTER: { icon: BookOpen, label: t('userProfile.activity.readChapter'), color: 'text-blue-400', bgColor: 'bg-blue-500' },
-    FOLLOW_USER: { icon: Users, label: t('userProfile.activity.followUser'), color: 'text-green-400', bgColor: 'bg-green-500' },
-    FOLLOW_MANGA: { icon: Bookmark, label: t('userProfile.activity.followManga'), color: 'text-emerald-400', bgColor: 'bg-emerald-500' },
-    COMMENT: { icon: MessageSquare, label: t('userProfile.activity.comment'), color: 'text-orange-400', bgColor: 'bg-orange-500' },
-    ACHIEVEMENT: { icon: Trophy, label: t('userProfile.activity.achievement'), color: 'text-yellow-400', bgColor: 'bg-yellow-500' },
-    CREATE_MANGA: { icon: Star, label: t('userProfile.activity.createManga'), color: 'text-purple-400', bgColor: 'bg-purple-500' },
-    LEVEL_UP: { icon: TrendingUp, label: t('userProfile.activity.levelUp'), color: 'text-amber-400', bgColor: 'bg-amber-500' },
-    UNFOLLOW_USER: { icon: Users, label: t('userProfile.activity.unfollowUser'), color: 'text-gray-400', bgColor: 'bg-gray-500' },
-    UNFOLLOW_MANGA: { icon: Bookmark, label: t('userProfile.activity.unfollowManga'), color: 'text-gray-400', bgColor: 'bg-gray-500' },
-    SHARE_MANGA: { icon: Share2, label: t('userProfile.activity.shareManga'), color: 'text-teal-400', bgColor: 'bg-teal-500' },
-  };
-
-  if (activities.length === 0) {
-    return (
-      <EmptyState
-        title={t('userProfile.empty.activity.title')}
-        description={t('userProfile.empty.activity.description')}
-        icon={<Activity className="w-12 h-12 text-[var(--text-tertiary)]" />}
-      />
-    );
-  }
-
-  const grouped: { label: string; items: ActivityItem[] }[] = [];
-  const today: ActivityItem[] = [];
-  const thisWeek: ActivityItem[] = [];
-  const thisMonth: ActivityItem[] = [];
-  const older: ActivityItem[] = [];
-
-  for (const a of activities) {
-    const d = new Date(a.createdAt);
-    if (isToday(d)) today.push(a);
-    else if (isThisWeek(d)) thisWeek.push(a);
-    else if (isThisMonth(d)) thisMonth.push(a);
-    else older.push(a);
-  }
-
-  if (today.length) grouped.push({ label: t('userProfile.timeLabels.today'), items: today });
-  if (thisWeek.length) grouped.push({ label: t('userProfile.timeLabels.thisWeek'), items: thisWeek });
-  if (thisMonth.length) grouped.push({ label: t('userProfile.timeLabels.thisMonth'), items: thisMonth });
-  if (older.length) grouped.push({ label: t('userProfile.timeLabels.older'), items: older });
-
-  return (
-    <div className="space-y-6">
-      {grouped.map((group) => (
-        <div key={group.label}>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
-              {group.label}
-            </span>
-            <div className="flex-1 h-px bg-[var(--border)]" />
-          </div>
-
-          <motion.div
-            className="relative pl-8 space-y-4"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-[var(--border)] rounded-full" />
-
-            {group.items.map((activity) => {
-              const config = activityTypeConfig[activity.activityType] || {
-                icon: Activity,
-                label: activity.activityType,
-                color: 'text-gray-400',
-                bgColor: 'bg-gray-500',
-              };
-              const Icon = config.icon;
-              let metadata = '';
-              if (activity.metadata) {
-                try {
-                  const m = JSON.parse(activity.metadata);
-                  metadata = m.title || m.name || '';
-                } catch { /* noop */ }
-              }
-
-              return (
-                <motion.div key={activity.id} variants={itemVariants} className="relative group">
-                  <motion.div
-                    className={`absolute -left-[20px] top-1.5 w-3 h-3 rounded-full ${config.bgColor} ring-2 ring-[var(--surface)] z-10`}
-                    whileHover={{ scale: 1.5 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                    aria-hidden="true"
-                  />
-
-                  <Card className="p-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default group">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-lg ${config.bgColor.replace('bg-', 'bg-')}/10 flex items-center justify-center flex-shrink-0`}>
-                        <Icon className={`w-4 h-4 ${config.color}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-[var(--text-primary)]">
-                          {config.label}
-                          {metadata && (
-                            <span className="text-[var(--text-tertiary)]">
-                              {' '}—{' '}
-                              <span className="font-medium text-[var(--text-secondary)]">{metadata}</span>
-                            </span>
-                          )}
-                        </p>
-                        <p
-                          className="text-xs text-[var(--text-tertiary)] mt-1"
-                          title={format(new Date(activity.createdAt), "d 'de' MMMM, yyyy 'a las' HH:mm", { locale: dateLocale })}
-                        >
-                          {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true, locale: dateLocale })}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function CircularProgress({ percentage, t }: { percentage: number; t: (key: string, params?: Record<string, string | number>) => string }) {
   const radius = 14;
@@ -657,11 +410,10 @@ function MangaCreatedCard({ manga, isOwnProfile: _isOwnProfile, t }: { manga: Ma
 
 // ─── Main Component ───────────────────────────────────────────────────────────────
 
-export function UserProfileClient({ user, isOwnProfile, sessionUserId, following, followers, libraryEntries }: UserProfileClientProps) {
+export function UserProfileClient({ user, isOwnProfile, sessionUserId, following, followers, libraryEntries, isFollowingUser }: UserProfileClientProps) {
   const t = useT();
   const { locale } = useLocale();
   const dateLocale = locale === 'es' ? es : enUS;
-  const shouldReduceMotion = useReducedMotion();
   const xpForNextLevel = user.level * 100;
   const xpProgress = Math.min(100, (user.xpPoints / xpForNextLevel) * 100);
 
@@ -669,250 +421,89 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
   const [libraryModalOpen, setLibraryModalOpen] = useState(false);
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false);
   const [achievementsModalOpen, setAchievementsModalOpen] = useState(false);
-
-  const stats = [
-    { icon: BookOpen, label: t('userProfile.stats.mangas'), value: user._count.library, onClick: () => setLibraryModalOpen(true) },
-    { icon: Users, label: t('userProfile.stats.following'), value: user._count.following, onClick: () => setFollowModalOpen(true) },
-    { icon: Heart, label: t('userProfile.stats.followers'), value: user._count.followers, onClick: () => setFollowModalOpen(true) },
-    { icon: Trophy, label: t('userProfile.stats.achievements'), value: user._count.achievements, onClick: () => setAchievementsModalOpen(true) },
-    { icon: Flame, label: t('userProfile.stats.streak'), value: t('userProfile.stats.streakDays', { count: user.readingStreak }) },
-    ...(user._count.createdMangas > 0
-      ? [{ icon: Star, label: t('userProfile.stats.created'), value: user._count.createdMangas, onClick: () => {} }]
-      : []),
-  ];
-
-  const roleLabel =
-    user.role === 'ADMIN' ? t('userProfile.roles.admin') : user.role === 'MODERATOR' ? t('userProfile.roles.moderator') : null;
-
-  const roleBadgeStyle =
-    user.role === 'ADMIN'
-      ? 'bg-[var(--error)]/10 text-[var(--error)] border-[var(--error)]/20'
-      : 'bg-[var(--info)]/10 text-[var(--info)] border-[var(--info)]/20';
+  const [shareTooltip, setShareTooltip] = useState(false);
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 
-  const socialConfig: Record<string, { icon: React.ReactNode; label: string; brandColor: string }> = {
-    twitter: {
-      icon: (
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-      ),
-      label: 'X',
-      brandColor: 'hover:text-black dark:hover:text-white',
-    },
-    instagram: {
-      icon: <Camera className="w-3.5 h-3.5" />,
-      label: 'Instagram',
-      brandColor: 'hover:text-pink-500',
-    },
-    youtube: {
-      icon: <Video className="w-3.5 h-3.5" />,
-      label: 'YouTube',
-      brandColor: 'hover:text-red-500',
-    },
-    tiktok: {
-      icon: (
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
-        </svg>
-      ),
-      label: 'TikTok',
-      brandColor: 'hover:text-black dark:hover:text-white',
-    },
-    discord: {
-      icon: (
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
-        </svg>
-      ),
-      label: 'Discord',
-      brandColor: 'hover:text-indigo-400',
-    },
+  const stats = [
+    { value: user._count.library, label: t('userProfile.stats.mangas'), onClick: () => setLibraryModalOpen(true) },
+    { value: user._count.following, label: t('userProfile.stats.following'), onClick: () => setFollowModalOpen(true) },
+    { value: user._count.followers, label: t('userProfile.stats.followers'), onClick: () => setFollowModalOpen(true) },
+    { value: user._count.achievements, label: t('userProfile.stats.achievements'), onClick: () => setAchievementsModalOpen(true) },
+    { value: user._count.collections, label: t('userProfile.stats.collections') || 'Colecciones', onClick: () => setCollectionsModalOpen(true) },
+  ];
+
+  const handleShareProfile = async () => {
+    const url = `${window.location.origin}/user/${user.username}`;
+    // Use Web Share API on mobile if available
+    if (navigator.share) {
+      try {
+        await navigator.share({ url, title: user.displayName || user.username });
+        return;
+      } catch { /* user cancelled or error */ }
+    }
+    // Fallback: clipboard with legacy support
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch { /* noop */ }
+    }
+    setShareTooltip(true);
+    setTimeout(() => setShareTooltip(false), 2000);
   };
 
   return (
     <div className="relative">
-      <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-br from-[var(--primary)]/15 via-[var(--accent-purple)]/8 to-transparent pointer-events-none" />
-
-      <div className="container mx-auto px-4 py-8 relative">
-        <div className="max-w-5xl mx-auto">
-          {/* ═══════ Profile Header ═══════ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <Card className="p-6 mb-8 relative overflow-hidden border-[var(--border)]/80 bg-[var(--surface)]/70 backdrop-blur-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/[0.04] via-transparent to-[var(--accent-purple)]/[0.04] pointer-events-none" />
-
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative">
-                <HeroGlowAvatar user={user} t={t} isSpecial={user.role !== 'USER'} />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 flex-wrap mb-1">
-                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                      {user.displayName || user.username}
-                    </h1>
-                    {roleLabel && (
-                      <motion.span
-                        initial={{ scale: 0, rotate: -10 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.3 }}
-                      >
-                        <Badge className={`${roleBadgeStyle} border flex items-center gap-1.5 px-2.5 py-0.5`}>
-                          <Crown className="w-3.5 h-3.5" />
-                          {roleLabel}
-                        </Badge>
-                      </motion.span>
-                    )}
-                    {user.emailVerified && (
-                      <Badge className="bg-[var(--success)]/10 text-[var(--success)] text-xs border border-[var(--success)]/20">
-                        {t('userProfile.roles.verified')}
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="text-sm text-[var(--text-tertiary)] inline-flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>{t('userProfile.memberSince', { date: memberSince })}</span>
-                    </span>
-                    {user.clanMemberships?.length > 0 && (
-                      <Link
-                        href={`/community/clan/${user.clanMemberships[0].clan.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 px-2 py-0.5 rounded-full transition-colors"
-                      >
-                        {user.clanMemberships[0].clan.emblemUrl ? (
-                          <Image
-                            src={user.clanMemberships[0].clan.emblemUrl}
-                            alt={`Emblema de ${user.clanMemberships[0].clan.name}`}
-                            width={12}
-                            height={12}
-                            className="w-3 h-3 rounded-full object-cover"
-                          />
-                        ) : (
-                          <Users className="w-3 h-3" />
-                        )}
-                        <span>{user.clanMemberships[0].clan.name}</span>
-                      </Link>
-                    )}
-                  </div>
-
-                  <p className="text-sm text-[var(--text-secondary)]">@{user.username}</p>
-
-                  {/* XP Progress */}
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <motion.span
-                          animate={{ rotate: [0, 5, -5, 0] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                        >
-                          <Flame className="w-5 h-5 text-[var(--warning)]" />
-                        </motion.span>
-                        <span className="font-bold text-[var(--text-primary)]">{t('userProfile.levelAndXp', { level: user.level, xp: user.xpPoints })}</span>
-                      </div>
-                      <span className="text-sm text-[var(--text-secondary)]">
-                        {user.xpPoints.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
-                      </span>
-                    </div>
-                    <div className="relative h-2.5 rounded-full bg-[var(--border)] overflow-hidden">
-                      <motion.div
-                        className="absolute inset-y-0 left-0 rounded-full"
-                        style={{
-                          background: 'linear-gradient(90deg, var(--primary), var(--accent-purple), var(--warning))',
-                          backgroundSize: '200% 100%',
-                        }}
-                        initial={{ width: 0 }}
-                        animate={{
-                          width: `${xpProgress}%`,
-                          backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                        }}
-                        transition={{
-                          width: { duration: 1, ease: [0.4, 0, 0.2, 1] },
-                          backgroundPosition: { duration: 3, repeat: Infinity, ease: 'linear' },
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="flex gap-2 flex-shrink-0">
-                  {!isOwnProfile && sessionUserId && (
-                    <FollowButton targetId={user.id} targetType="USER" size="default" />
-                  )}
-                  {isOwnProfile && (
-                    <Link href="/settings">
-                      <Button variant="outline" size="sm">
-                        {t('userProfile.buttons.editProfile')}
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* ═══════ Stats Grid ═══════ */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-            {stats.map((stat, i) => (
-              <StatCard key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} index={i} onClick={stat.onClick} />
-            ))}
-          </div>
-
-          {/* ═══════ Bio & Social ═══════ */}
-          {(user.bio || user.website || user.socialLinks) && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.4 }}
-            >
-              <Card className="p-6 mb-8 relative overflow-hidden border-[var(--border)]/80 bg-[var(--surface)]/70 backdrop-blur-md">
-                {user.bio && (
-                  <p className="text-[var(--text-primary)] leading-relaxed text-sm mb-4">{user.bio}</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <ProfileHeader
+            user={user}
+            stats={stats}
+            coverUrl={user.coverUrl}
+            xpProgress={xpProgress}
+            xpForNextLevel={xpForNextLevel}
+            t={t}
+            dateLocale={dateLocale}
+            memberSince={memberSince}
+            followsYou={!isOwnProfile && isFollowingUser ? true : undefined}
+            actions={
+              <>
+                {!isOwnProfile && sessionUserId && (
+                  <FollowButton targetId={user.id} targetType="USER" size="default" />
                 )}
-                <div className="flex flex-wrap items-center gap-2">
-                  {user.website && (
-                    <a
-                      href={user.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-xs text-[var(--primary)] hover:text-[var(--primary-hover)] hover:border-[var(--border-strong)] transition-colors"
+                {isOwnProfile && (
+                  <Link href="/settings">
+                    <Button variant="outline" size="sm">
+                      {t('userProfile.buttons.editProfile')}
+                    </Button>
+                  </Link>
+                )}
+                <div className="relative">
+                  <Button variant="ghost" size="icon" onClick={handleShareProfile} title={t('userProfile.shareProfile') || 'Compartir perfil'}>
+                    <Share2 className="w-4 h-4" />
+                  </Button>
+                  {shareTooltip && (
+                    <motion.span
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs bg-[var(--primary)] text-[var(--text-inverse)] px-2 py-1 rounded whitespace-nowrap"
                     >
-                      <Globe className="w-3.5 h-3.5" />
-                      {user.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                    </a>
+                      {t('userProfile.copiedLink') || 'Link copiado'}
+                    </motion.span>
                   )}
-                  {user.socialLinks && (() => {
-                    try {
-                      const links = JSON.parse(user.socialLinks);
-                      return Object.entries(links).map(([platform, url]) => {
-                        if (!url) return null;
-                        const config = socialConfig[platform];
-                        if (!config) return null;
-                        return (
-                          <a
-                            key={platform}
-                            href={url as string}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={config.label}
-                            className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--text-secondary)] ${config.brandColor} transition-all duration-200 hover:scale-110 hover:border-[var(--border-strong)]`}
-                          >
-                            {config.icon}
-                          </a>
-                        );
-                      });
-                    } catch {
-                      return null;
-                    }
-                  })()}
                 </div>
-              </Card>
-            </motion.div>
-          )}
+              </>
+            }
+          />
 
           {/* ═══════ Tabs ═══════ */}
           <Tabs defaultValue="activity">
@@ -966,9 +557,9 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
               )}
             </TabsList>
 
-            {/* ══ Activity Tab ══ */}
+            {/* ══ Activity Tab — Timeline Style ══ */}
             <TabsContent value="activity" className="border border-[var(--border)]/50 rounded-xl p-5">
-              <TimelineActivity activities={user.activitiesFeed} t={t} dateLocale={dateLocale} />
+              <ProfileTimeline activities={user.activitiesFeed} t={t} dateLocale={dateLocale} />
             </TabsContent>
 
             {/* ══ Reading Tab ══ */}

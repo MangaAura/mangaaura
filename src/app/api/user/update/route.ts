@@ -9,6 +9,7 @@ const updateProfileSchema = z.object({
   displayName: z.string().max(50).optional(),
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/).optional(),
   avatarUrl: z.string().url().optional(),
+  coverUrl: z.string().url().optional().nullable(),
   emailPreferences: z.string().optional(),
   bio: z.string().max(500).optional(),
   website: z.string().max(200).optional(),

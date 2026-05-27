@@ -11,6 +11,7 @@ import {
   Camera,
   Video,
   MessageCircle,
+  Image,
 } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 
@@ -71,6 +72,11 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const [coverPreview, setCoverPreview] = useState<string | null>(user.coverUrl || null);
+  const [coverError, setCoverError] = useState('');
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
@@ -194,9 +200,75 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     } catch (error: any) {
       setAvatarError(error.message || 'Error al subir la imagen');
       setAvatarPreview(user.avatarUrl);
-    } finally {
+} finally {
       setUploadingAvatar(false);
       if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
+
+  const handleCoverClick = () => {
+    coverInputRef.current?.click();
+  };
+
+  const handleCoverFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      setCoverError('Formato no soportado. Usa JPEG, PNG, WebP o AVIF.');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setCoverError(`Archivo demasiado grande. Máximo 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB).`);
+      return;
+    }
+
+    setUploadingCover(true);
+    setCoverError('');
+
+    const previewUrl = URL.createObjectURL(file);
+    setCoverPreview(previewUrl);
+    setIsDirty(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/profile-cover', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
+
+      const { url } = await response.json();
+      URL.revokeObjectURL(previewUrl);
+      setCoverPreview(url);
+    } catch (error: any) {
+      setCoverError(error.message || 'Error al subir el banner');
+      setCoverPreview(user.coverUrl || null);
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveCover = async () => {
+    setUploadingCover(true);
+    try {
+      await fetch('/api/upload/profile-cover', { method: 'DELETE' });
+      setCoverPreview(null);
+      setIsDirty(true);
+    } catch {
+      setCoverError('Error al eliminar el banner');
+    } finally {
+      setUploadingCover(false);
     }
   };
 
@@ -209,10 +281,11 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       const response = await fetch('/api/user/update', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
+        body: JSON.stringify({
           displayName: formData.displayName,
           username: formData.username !== user.username ? formData.username : undefined,
           avatarUrl: avatarPreview || undefined,
+          coverUrl: coverPreview || null,
           bio: formData.bio || undefined,
           website: formData.website || undefined,
           socialLinks: Object.fromEntries(
@@ -350,6 +423,63 @@ body: JSON.stringify({
               WebP, JPEG, PNG o AVIF. Se comprime automáticamente a 512×512 px.
             </p>
           </div>
+        </div>
+
+        {/* Cover photo */}
+        <div className="space-y-2">
+          <div className="relative rounded-xl overflow-hidden border border-[var(--border)] aspect-[3/1] bg-[var(--surface-sunken)] group">
+            {coverPreview ? (
+              <img src={coverPreview} alt="Banner" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <Image className="w-8 h-8 mx-auto mb-2 text-[var(--text-tertiary)]" />
+                  <p className="text-sm text-[var(--text-tertiary)]">Sin banner</p>
+                </div>
+              </div>
+            )}
+            {uploadingCover && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                onClick={handleCoverClick}
+                disabled={uploadingCover}
+                className="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg text-white text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                <Upload className="w-4 h-4 mr-1.5 inline" />
+                {coverPreview ? 'Cambiar' : 'Subir'}
+              </button>
+              {coverPreview && (
+                <button
+                  type="button"
+                  onClick={handleRemoveCover}
+                  disabled={uploadingCover}
+                  className="px-3 py-1.5 bg-red-500/80 hover:bg-red-500 rounded-lg text-white text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  <X className="w-4 h-4 mr-1.5 inline" />
+                  Eliminar
+                </button>
+              )}
+            </div>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/webp,image/jpeg,image/png,image/avif"
+              onChange={handleCoverFile}
+              className="hidden"
+            />
+          </div>
+          <p className="text-xs text-[var(--text-tertiary)]">
+            WebP, JPEG, PNG o AVIF. Se comprime automáticamente a 1500×500 px.
+          </p>
+          {coverError && (
+            <ErrorMessage message={coverError} onDismiss={() => setCoverError('')} />
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

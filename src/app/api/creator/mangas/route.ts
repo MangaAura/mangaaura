@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
+import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { syncGenresFromTags } from '@/lib/genres';
@@ -74,6 +74,24 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Create MangaGenre links
+    for (const tagName of processedTags) {
+      const slug = tagName
+        .toLowerCase().trim()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      if (!slug) continue;
+      const genre = await prisma.genre.findUnique({ where: { slug } });
+      if (genre) {
+        await prisma.mangaGenre.create({
+          data: { mangaId: manga.id, genreId: genre.id },
+        }).catch(() => { /* ignore duplicate */ });
+      }
+    }
+
+    await invalidateCache('creator:mangas');
+
     return NextResponse.json({ id: manga.id, slug: manga.slug }, { status: 201 });
   } catch (error) {
     console.error('Error creando manga:', error);
@@ -145,6 +163,9 @@ export async function GET(request: NextRequest) {
           totalViews: true,
           createdAt: true,
           updatedAt: true,
+          mangaGenres: {
+            select: { genre: { select: { name: true, slug: true } } },
+          },
         },
             skip: (page - 1) * limit,
             take: limit,
@@ -198,6 +219,8 @@ export async function GET(request: NextRequest) {
               ? mangaChapters[0].createdAt
               : manga.updatedAt;
 
+          const genres = manga.mangaGenres.map(mg => mg.genre.name);
+
           return {
             id: manga.id,
             title: manga.title,
@@ -205,7 +228,7 @@ export async function GET(request: NextRequest) {
             description: manga.description,
             coverUrl: manga.coverUrl,
             status: manga.status,
-            tags: manga.tags ? JSON.parse(manga.tags) : [],
+            tags: genres.length > 0 ? genres : (manga.tags ? JSON.parse(manga.tags) : []),
             rating: manga.rating,
             totalViews: manga.totalViews,
             createdAt: manga.createdAt,

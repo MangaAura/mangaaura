@@ -48,6 +48,9 @@ export const metadata: Metadata = {
       es: siteUrl,
       en: `${siteUrl}/en`,
     },
+    types: {
+      'application/rss+xml': `${siteUrl}/api/feed/rss`,
+    },
   },
   icons: {
     icon: [

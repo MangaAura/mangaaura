@@ -127,6 +127,12 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
   const isOwnProfile = session?.user?.id === user.id;
 
+  const isFollowingUser = !isOwnProfile && session?.user?.id
+    ? !!(await prisma.follow.findFirst({
+        where: { followerId: session.user.id, followingId: user.id },
+      }))
+    : false;
+
   const [followingData, followersData, libraryEntries] = await Promise.all([
     prisma.follow.findMany({
       where: { followerId: user.id },
@@ -168,6 +174,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
       following={followingData as any}
       followers={followersData as any}
       libraryEntries={libraryEntries as any}
+      isFollowingUser={isFollowingUser}
     />
   );
 }

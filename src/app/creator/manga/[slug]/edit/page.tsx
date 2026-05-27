@@ -4,7 +4,6 @@ import {
   ArrowLeftIcon,
   UploadIcon,
   XIcon,
-  PlusIcon,
   SaveIcon,
   AlertCircleIcon,
   CheckIcon,
@@ -15,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { use, useState, useCallback, useRef, useEffect } from 'react';
 
 
+import { GenreSelector } from '@/components/Creator/GenreSelector';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
@@ -47,7 +47,6 @@ export default function EditMangaPage({ params }: PageProps) {
     description: '',
   });
   const [tagList, setTagList] = useState<string[]>([]);
-  const [currentTag, setCurrentTag] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ONGOING');
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [_coverFile, setCoverFile] = useState<File | null>(null);
@@ -138,27 +137,7 @@ export default function EditMangaPage({ params }: PageProps) {
     }
   };
 
-  const addTag = () => {
-    const tag = currentTag.trim().toLowerCase();
-    if (tag && !tagList.includes(tag) && tagList.length < 10) {
-      setTagList((prev) => [...prev, tag]);
-      setCurrentTag('');
-      setHasChanges(true);
-      setErrors((prev) => ({ ...prev, tags: '' }));
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setTagList((prev) => prev.filter((tag) => tag !== tagToRemove));
-    setHasChanges(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      addTag();
-    }
-  };
+  // removed - handled by GenreSelector
 
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status as 'ONGOING' | 'COMPLETED' | 'HIATUS' | 'DROPPED');
@@ -359,53 +338,16 @@ export default function EditMangaPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    {/* Tags */}
+                    {/* Genres */}
                     <div>
-              <label htmlFor="edit-manga-tags" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                {t('creatorMangaEdit.tags')} <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  id="edit-manga-tags"
-                  value={currentTag}
-                          onChange={(e) => setCurrentTag(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          placeholder={t('creatorMangaEdit.tagsPlaceholder')}
-                          error={errors.tags}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={addTag}
-                          disabled={!currentTag.trim()}
-                        >
-                          <PlusIcon className="w-4 h-4" aria-hidden="true" />
-                        </Button>
-                      </div>
-            <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              {t('creatorMangaEdit.tagsHint')}
-            </p>
-                      
-                      {tagList.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {tagList.map((tag) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm"
-                            >
-                              {tag}
-                                <button
-                                  type="button"
-                                  onClick={() => removeTag(tag)}
-                                  className="hover:text-indigo-900"
-                                  aria-label={`Eliminar etiqueta ${tag}`}
-                                >
-                                  <XIcon className="w-3 h-3" aria-hidden="true" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                        Géneros <span className="text-red-500">*</span>
+                      </label>
+                      <GenreSelector
+                        selected={tagList}
+                        onChange={setTagList}
+                        error={errors.tags}
+                      />
                     </div>
                   </CardContent>
                 </Card>
