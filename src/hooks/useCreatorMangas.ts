@@ -26,6 +26,19 @@ export interface CreatorMangaStats {
   };
 }
 
+export interface TrashMangaStats {
+  id: string;
+  title: string;
+  slug: string;
+  coverUrl: string | null;
+  status: string;
+  tags: string[];
+  totalViews: number;
+  deletedAt: string;
+  daysLeft: number;
+  createdAt: string;
+}
+
 export interface CreatorDashboardStats {
   totalMangas: number;
   totalChapters: number;
@@ -68,7 +81,7 @@ export interface UseCreatorMangasReturn {
   previousPage: () => void;
   refresh: () => Promise<void>;
   updateMangaOptimistic: (id: string, updates: Partial<CreatorMangaStats>) => void;
-  deleteMangaOptimistic: (id: string) => void;
+  deleteManga: (id: string) => Promise<void>;
   revertOptimisticUpdate: () => void;
   clear: () => void;
 }
@@ -141,7 +154,7 @@ export function useCreatorMangas(options: UseCreatorMangasOptions = {}): UseCrea
     );
   }, [mangas, dashboardStats, mutateData]);
 
-  const deleteMangaOptimistic = useCallback((id: string) => {
+  const deleteManga = useCallback(async (id: string) => {
     previousStateRef.current = { mangas: [...mangas], dashboardStats };
     mutateData(
       (current) => {
@@ -150,7 +163,24 @@ export function useCreatorMangas(options: UseCreatorMangasOptions = {}): UseCrea
       },
       { revalidate: false }
     );
-  }, [mangas, dashboardStats, mutateData]);
+    try {
+      const response = await fetch(`/api/manga/${id}`, { method: 'DELETE' });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Error al eliminar' }));
+        throw new Error(err.error || 'Error al eliminar el manga');
+      }
+      await mutateData();
+    } catch (error) {
+      if (previousStateRef.current) {
+        mutateData(
+          { mangas: previousStateRef.current.mangas, pagination: data?.pagination || { page: 1, limit: pageSize, total: previousStateRef.current.mangas.length, totalPages: 1 }, dashboardStats: previousStateRef.current.dashboardStats || { totalMangas: 0, totalChapters: 0, totalViews: 0, viewsThisMonth: 0, viewsThisWeek: 0, averageRating: 0, growthRate: 0 } },
+          { revalidate: false }
+        );
+        previousStateRef.current = null;
+      }
+      throw error;
+    }
+  }, [mangas, dashboardStats, data?.pagination, pageSize, mutateData]);
 
   const revertOptimisticUpdate = useCallback(() => {
     if (previousStateRef.current) {
@@ -165,7 +195,7 @@ export function useCreatorMangas(options: UseCreatorMangasOptions = {}): UseCrea
     previousStateRef.current = null;
   }, []);
 
-  return { mangas, dashboardStats, isLoading, isValidating, error, currentPage, totalPages, totalMangas, filters, setFilters, goToPage, nextPage, previousPage, refresh, updateMangaOptimistic, deleteMangaOptimistic, revertOptimisticUpdate, clear };
+  return { mangas, dashboardStats, isLoading, isValidating, error, currentPage, totalPages, totalMangas, filters, setFilters, goToPage, nextPage, previousPage, refresh, updateMangaOptimistic, deleteManga, revertOptimisticUpdate, clear };
 }
 
 export default useCreatorMangas;

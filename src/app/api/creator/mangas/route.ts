@@ -116,6 +116,7 @@ export async function GET(request: NextRequest) {
       async () => {
         const where: Record<string, unknown> = {
           authorId: userId,
+          deletedAt: null,
         };
 
         if (status) {

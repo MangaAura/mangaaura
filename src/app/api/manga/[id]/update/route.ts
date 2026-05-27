@@ -52,15 +52,16 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const rlResult = await rateLimit(getRateLimitKey('delete-manga', `${session.user.id}:${ip}`), 3, 3600);
     if (!rlResult.allowed) return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 });
 
-    const manga = await prisma.mangaSeries.findUnique({ where: { id }, select: { authorId: true, title: true } });
+    const manga = await prisma.mangaSeries.findUnique({ where: { id }, select: { authorId: true, title: true, deletedAt: true } });
     if (!manga) return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
+    if (manga.deletedAt) return NextResponse.json({ error: 'El manga ya está en la papelera' }, { status: 400 });
     if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'No tienes permiso para eliminar este manga' }, { status: 403 });
     }
 
-    await prisma.mangaSeries.delete({ where: { id } });
+    await prisma.mangaSeries.update({ where: { id }, data: { deletedAt: new Date() } });
 
-    return NextResponse.json({ success: true, message: `"${manga.title}" eliminado` });
+    return NextResponse.json({ success: true, message: `"${manga.title}" enviado a la papelera` });
   } catch (error) {
     console.error('Error deleting manga:', error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });

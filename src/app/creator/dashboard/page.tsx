@@ -161,7 +161,7 @@ function QuickActionCard({ href, icon: Icon, title, desc, gradient, iconBg, icon
 export default function CreatorDashboardPage() {
   const { data: session } = useSession();
   const t = useT();
-  const { mangas, dashboardStats, isLoading, error, deleteMangaOptimistic } = useCreatorMangas();
+  const { mangas, dashboardStats, isLoading, error, deleteManga } = useCreatorMangas();
 
   const statsConfig = [
     { key: 'totalMangas', label: t('creatorDashboard.totalMangas'), icon: BookOpenIcon, variant: 'indigo' as StatVariant, value: dashboardStats?.totalMangas ?? 0, trend: undefined as number | undefined },
@@ -363,7 +363,7 @@ export default function CreatorDashboardPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.05, duration: 0.3, ease: 'easeOut' }}
                   >
-                    <MangaCard manga={manga} onDelete={deleteMangaOptimistic} />
+                    <MangaCard manga={manga} onDelete={deleteManga} />
                   </motion.div>
                 ))}
               </motion.div>

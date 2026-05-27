@@ -241,7 +241,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/manga/[id] - Eliminar manga y todos sus capítulos (solo owner)
+// DELETE /api/manga/[id] - Enviar manga a la papelera (soft delete, 30 días)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -264,13 +264,20 @@ export async function DELETE(
     // Verificar que el manga existe
     const manga = await prisma.mangaSeries.findUnique({
       where: { id },
-      select: { authorId: true, title: true },
+      select: { authorId: true, title: true, deletedAt: true },
     });
 
     if (!manga) {
       return NextResponse.json(
         { error: 'Manga no encontrado' },
         { status: 404 }
+      );
+    }
+
+    if (manga.deletedAt) {
+      return NextResponse.json(
+        { error: 'El manga ya está en la papelera' },
+        { status: 400 }
       );
     }
 
@@ -282,11 +289,11 @@ export async function DELETE(
       );
     }
 
-    // Eliminar manga y capítulos en transacción
-    await prisma.$transaction([
-      prisma.chapter.deleteMany({ where: { mangaId: id } }),
-      prisma.mangaSeries.delete({ where: { id } }),
-    ]);
+    // Soft delete: marcar como eliminado en lugar de borrar
+    await prisma.mangaSeries.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     // Invalidar caches
     await invalidateCache(`manga:${id}`);
@@ -294,7 +301,7 @@ export async function DELETE(
     await invalidateCache('user:mangas:list');
 
     return NextResponse.json({
-      message: `Manga "${manga.title}" eliminado exitosamente`,
+      message: `Manga "${manga.title}" enviado a la papelera. Se eliminará permanentemente en 30 días.`,
       deleted: true,
     });
   } catch (error) {
