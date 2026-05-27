@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
@@ -45,11 +46,16 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
   const t = useT();
+  const router = useRouter();
   const [showActions, setShowActions] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const status = {
     label: t(STATUS_KEYS[manga.status] || ''),
     color: STATUS_COLORS[manga.status] || 'bg-[var(--text-muted)]',
+  };
+
+  const handleCardClick = () => {
+    router.push(`/creator/manga/${manga.slug}`);
   };
 
   const handleDelete = async () => {
@@ -66,8 +72,9 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
 
   return (
     <div
+      onClick={handleCardClick}
       className={cn(
-        'bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--border-strong)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all duration-200',
+        'bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--border-strong)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all duration-200 cursor-pointer',
         className
       )}
     >
@@ -98,7 +105,10 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
         {/* Actions Menu */}
         <div className="absolute top-3 right-3">
           <button
-            onClick={() => setShowActions(!showActions)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowActions(!showActions);
+            }}
             className="p-2 bg-[var(--surface-elevated)]/90 backdrop-blur-sm rounded-lg hover:bg-[var(--surface-elevated)] transition-colors cursor-pointer"
           >
             <MoreVerticalIcon className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -108,18 +118,23 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
             <>
               <div
                 className="fixed inset-0 z-10"
-                onClick={() => setShowActions(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowActions(false);
+                }}
               />
               <div className="absolute right-0 top-full mt-1 w-48 bg-[var(--surface-elevated)] rounded-lg shadow-lg border border-[var(--border)] z-20 py-1">
                 <Link
-                  href={`/creator/manga/${manga.id}/edit`}
+                  href={`/creator/manga/${manga.slug}/edit`}
+                  onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]"
                 >
                   <EditIcon className="w-4 h-4" />
                   Editar Manga
                 </Link>
                 <Link
-                  href={`/creator/manga/${manga.id}`}
+                  href={`/creator/manga/${manga.slug}`}
+                  onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]"
                 >
                   <BookOpenIcon className="w-4 h-4" />
@@ -127,7 +142,10 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
                 </Link>
                 <hr className="my-1" />
                 <button
-                  onClick={handleDelete}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
                   disabled={isDeleting}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--error)] hover:bg-[var(--error)]/10 w-full text-left"
                 >
@@ -159,13 +177,13 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
 
         {/* Buttons */}
         <div className="flex gap-2 mt-4">
-          <Link href={`/creator/manga/${manga.id}/edit`} className="flex-1">
+          <Link href={`/creator/manga/${manga.slug}/edit`} className="flex-1" onClick={(e) => e.stopPropagation()}>
             <Button variant="outline" size="sm" className="w-full">
               <EditIcon className="w-4 h-4 mr-1" />
               Editar
             </Button>
           </Link>
-          <Link href={`/creator/manga/${manga.id}`} className="flex-1">
+          <Link href={`/creator/manga/${manga.slug}`} className="flex-1" onClick={(e) => e.stopPropagation()}>
             <Button variant="default" size="sm" className="w-full">
               <BookOpenIcon className="w-4 h-4 mr-1" />
               Capítulos

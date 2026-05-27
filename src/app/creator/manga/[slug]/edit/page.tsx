@@ -197,7 +197,7 @@ export default function EditMangaPage({ params }: PageProps) {
       }
     }
     if (manga) {
-      router.push(`/creator/manga/${manga.id}`);
+      router.push(`/creator/manga/${manga.slug}`);
     } else {
       router.push('/creator/dashboard');
     }

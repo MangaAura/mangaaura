@@ -106,13 +106,13 @@ export default function MangaDetailPage({ params }: PageProps) {
               </div>
             </div>
       <div className="flex gap-3">
-        <Link href={`/creator/manga/${manga.id}/edit`}>
+        <Link href={`/creator/manga/${manga.slug}/edit`}>
           <Button variant="outline">
             <EditIcon className="w-4 h-4 mr-2" />
             Editar
           </Button>
         </Link>
-        <Link href={`/creator/upload?mangaId=${manga.id}`}>
+        <Link href={`/creator/upload?mangaId=${manga.slug}`}>
           <Button>
             <PlusIcon className="w-4 h-4 mr-2" />
             Subir Capítulo
@@ -249,7 +249,7 @@ export default function MangaDetailPage({ params }: PageProps) {
                 <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   Lista de Capítulos
                 </h2>
-    <Link href={`/creator/upload?mangaId=${manga.id}`}>
+    <Link href={`/creator/upload?mangaId=${manga.slug}`}>
             <Button size="sm">
               <PlusIcon className="w-4 h-4 mr-2" />
               Subir Nuevo Capítulo
