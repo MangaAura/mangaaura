@@ -39,15 +39,21 @@ export async function PATCH(request: NextRequest) {
       data.username = normalizedUsername;
     }
 
+    const updateData: Record<string, unknown> = { ...data };
+    if (updateData.socialLinks) {
+      updateData.socialLinks = JSON.stringify(updateData.socialLinks);
+    }
+
     const updated = await prisma.user.update({
       where: { id: session.user.id },
-      data,
+      data: updateData,
       select: { id: true, username: true, displayName: true, avatarUrl: true, emailPreferences: true },
     });
 
     return NextResponse.json({ success: true, user: updated });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('Error updating profile:', message, error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }

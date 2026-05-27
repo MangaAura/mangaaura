@@ -49,7 +49,7 @@ const getFriendlyErrorMessage = (error: unknown): string => {
     if (message.includes('rate limit') || message.includes('429')) {
       return 'Has realizado demasiadas solicitudes. Por favor, espera un momento.';
     }
-    if (message.includes('server') || message.includes('500')) {
+    if (message.includes('server') || message.includes('500') || message.includes('error interno')) {
       return 'Ha ocurrido un error en el servidor. Por favor, inténtalo más tarde.';
     }
     

@@ -34,6 +34,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     confirmPassword: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
@@ -93,6 +94,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
 
     setIsLoading(true);
     setMessage(null);
+    setFieldErrors({});
 
     try {
       const response = await fetch('/api/auth/change-password', {
@@ -105,7 +107,17 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       });
 
       if (!response.ok) {
-        const { message } = await extractApiError(response);
+        const { message, details } = await extractApiError(response);
+        if (details?.fieldErrors) {
+          const mapped: Record<string, string> = {};
+          for (const [field, errors] of Object.entries(details.fieldErrors)) {
+            if (errors?.length) mapped[field] = errors[0];
+          }
+          if (Object.keys(mapped).length > 0) {
+            setFieldErrors(mapped);
+            throw new Error('Corrige los errores marcados en los campos');
+          }
+        }
         throw new Error(message);
       }
 
@@ -275,13 +287,18 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               id="currentPassword"
               type="password"
               value={passwordData.currentPassword}
-              onChange={(e) =>
-                setPasswordData((p) => ({ ...p, currentPassword: e.target.value }))
-              }
+              onChange={(e) => {
+                setPasswordData((p) => ({ ...p, currentPassword: e.target.value }));
+                setFieldErrors((prev) => ({ ...prev, currentPassword: '' }));
+              }}
               required
               autoComplete="current-password"
+              className={fieldErrors.currentPassword ? 'border-[var(--error)]' : ''}
               aria-describedby={message?.type === 'error' ? 'password-change-error' : undefined}
             />
+            {fieldErrors.currentPassword && (
+              <p className="text-xs text-[var(--error)]">{fieldErrors.currentPassword}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -292,12 +309,17 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               value={passwordData.newPassword}
               onChange={(e) => {
                 setPasswordData((p) => ({ ...p, newPassword: e.target.value }));
+                setFieldErrors((prev) => ({ ...prev, newPassword: '' }));
                 validatePasswordPatterns(e.target.value);
               }}
               required
               autoComplete="new-password"
+              className={fieldErrors.newPassword ? 'border-[var(--error)]' : ''}
               aria-describedby={`new-password-hint${message?.type === 'error' ? ' password-change-error' : ''}`}
             />
+            {fieldErrors.newPassword && (
+              <p className="text-xs text-[var(--error)]">{fieldErrors.newPassword}</p>
+            )}
             <ul id="new-password-hint" className="space-y-1" aria-label="Requisitos de contraseña">
               {PATTERN_RULES.map((rule) => {
                 const met = passwordPatterns[rule.key as keyof typeof passwordPatterns];
@@ -325,13 +347,18 @@ export function SecuritySettings({}: SecuritySettingsProps) {
               id="confirmPassword"
               type="password"
               value={passwordData.confirmPassword}
-              onChange={(e) =>
-                setPasswordData((p) => ({ ...p, confirmPassword: e.target.value }))
-              }
+              onChange={(e) => {
+                setPasswordData((p) => ({ ...p, confirmPassword: e.target.value }));
+                setFieldErrors((prev) => ({ ...prev, confirmPassword: '' }));
+              }}
               required
               autoComplete="new-password"
+              className={fieldErrors.confirmPassword ? 'border-[var(--error)]' : ''}
               aria-describedby={message?.type === 'error' ? 'password-change-error' : undefined}
             />
+            {fieldErrors.confirmPassword && (
+              <p className="text-xs text-[var(--error)]">{fieldErrors.confirmPassword}</p>
+            )}
           </div>
 
           <Button

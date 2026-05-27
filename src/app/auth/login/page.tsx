@@ -389,7 +389,7 @@ function Content() {
           </div>
 
           {!show2FA && (
-            <p className="text-center text-sm text-[var(--text-primary)]/70 mt-8">
+            <p className="text-center text-sm text-[var(--text-secondary)] mt-8">
               {t('auth.noAccount')}{' '}
               <Link href="/auth/register" className="text-accent-blue font-semibold hover:underline">
                 {t('auth.signUp')}

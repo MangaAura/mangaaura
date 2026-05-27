@@ -69,7 +69,8 @@ export async function POST(request: NextRequest) {
       gracePeriodDays: DELETION_GRACE_PERIOD_DAYS,
     });
   } catch (error) {
-    console.error('[AccountDeletion] Error:', error);
+    const msg = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('[AccountDeletion] Error:', msg);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }
@@ -109,7 +110,8 @@ export async function DELETE(request: NextRequest) {
       message: 'La eliminación de tu cuenta ha sido cancelada',
     });
   } catch (error) {
-    console.error('[AccountDeletion] Error canceling:', error);
+    const msg = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('[AccountDeletion] Error canceling:', msg);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }

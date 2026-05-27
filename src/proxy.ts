@@ -95,7 +95,7 @@ function isProtectedRoute(pathname: string): boolean {
 // ─── Security constants ─────────────────────────────────────────────
 
 const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health', '/_rsc/'];
-const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications', '/api/collections', '/api/follow', '/api/creator/mangas'];
+const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications', '/api/collections', '/api/follow', '/api/creator/mangas', '/api/manga', '/api/trash'];
 const CSRF_COOKIE_NAME = '__csrf_mw';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours

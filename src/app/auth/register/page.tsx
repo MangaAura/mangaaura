@@ -639,7 +639,7 @@ function Content() {
       </>
       )}
 
-      <p className="text-center text-sm text-[var(--text-primary)]/70 mt-6">
+      <p className="text-center text-sm text-[var(--text-secondary)] mt-6">
               {t('auth.hasAccount')}{' '}
               <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
                 {t('auth.signIn')}

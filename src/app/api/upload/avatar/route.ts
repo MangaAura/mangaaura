@@ -119,7 +119,8 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('Error en upload/avatar:', error);
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('Error en upload/avatar:', message);
     return NextResponse.json(
       { error: 'Error interno del servidor al subir el avatar' },
       { status: 500 }

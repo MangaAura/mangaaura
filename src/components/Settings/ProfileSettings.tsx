@@ -5,7 +5,6 @@ import {
   Check,
   Loader2,
   Upload,
-  User,
   X,
   Globe,
   Hash,
@@ -23,7 +22,6 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { extractApiError } from '@/lib/extract-api-error';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface ProfileSettingsProps {
   user: {
@@ -66,14 +64,13 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>(parseSocialLinks());
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
   const [avatarError, setAvatarError] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
-
-  const { handleError } = useErrorHandler();
 
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
@@ -90,6 +87,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const handleUsernameChange = (value: string) => {
     setFormData((prev) => ({ ...prev, username: value }));
     setIsDirty(true);
+    setFieldErrors((prev) => ({ ...prev, username: '' }));
 
     if (usernameCheckTimerRef.current) clearTimeout(usernameCheckTimerRef.current);
     if (abortControllerRef.current) {
@@ -138,11 +136,13 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setIsDirty(true);
+    setFieldErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleSocialChange = (platform: string, value: string) => {
     setSocialLinks((prev) => ({ ...prev, [platform]: value }));
     setIsDirty(true);
+    setFieldErrors((prev) => ({ ...prev, [platform]: '' }));
   };
 
   const handleAvatarClick = () => {
@@ -192,7 +192,6 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
 
       await updateSession({ image: url });
     } catch (error: any) {
-      handleError(error);
       setAvatarError(error.message || 'Error al subir la imagen');
       setAvatarPreview(user.avatarUrl);
     } finally {
@@ -223,13 +222,24 @@ body: JSON.stringify({
       });
 
       if (!response.ok) {
-        const { message } = await extractApiError(response);
+        const { message, details } = await extractApiError(response);
+        if (details?.fieldErrors) {
+          const mapped: Record<string, string> = {};
+          for (const [field, errors] of Object.entries(details.fieldErrors)) {
+            if (errors?.length) mapped[field] = errors[0];
+          }
+          if (Object.keys(mapped).length > 0) {
+            setFieldErrors(mapped);
+            throw new Error('Corrige los errores marcados en los campos');
+          }
+        }
         throw new Error(message);
       }
 
       const data = await response.json();
 
       setIsDirty(false);
+      setFieldErrors({});
       setSaveStatus('success');
       setFormData((prev) => ({ ...prev, username: data.user.username }));
 
@@ -243,7 +253,6 @@ body: JSON.stringify({
     } catch (error) {
       setSaveStatus('error');
       setSaveError(error instanceof Error ? error.message : 'Error al actualizar el perfil');
-      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -307,9 +316,7 @@ body: JSON.stringify({
           <div className="relative">
             <Avatar className="w-24 h-24 cursor-pointer hover:opacity-90 transition-opacity">
               <AvatarImage src={avatarPreview || undefined} />
-              <AvatarFallback className="text-2xl bg-[var(--primary)]">
-                <User className="w-10 h-10" aria-hidden="true" />
-              </AvatarFallback>
+              <AvatarFallback className="text-2xl bg-[var(--primary)]" />
             </Avatar>
             {uploadingAvatar && (
               <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
@@ -355,10 +362,16 @@ body: JSON.stringify({
               onChange={handleChange}
               placeholder="Tu nombre público"
               maxLength={50}
+              className={fieldErrors.displayName ? 'border-[var(--error)]' : ''}
             />
-            <p className="text-xs text-[var(--text-tertiary)]">
-              {formData.displayName.length}/50 caracteres
-            </p>
+            {fieldErrors.displayName && (
+              <p className="text-xs text-[var(--error)]">{fieldErrors.displayName}</p>
+            )}
+            {!fieldErrors.displayName && (
+              <p className="text-xs text-[var(--text-tertiary)]">
+                {formData.displayName.length}/50 caracteres
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -372,7 +385,7 @@ body: JSON.stringify({
                 name="username"
                 value={formData.username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
-                className="pl-8"
+                className={`pl-8 ${fieldErrors.username ? 'border-[var(--error)]' : ''}`}
                 maxLength={30}
                 minLength={3}
                 pattern="^[a-zA-Z0-9_]+$"
@@ -394,12 +407,12 @@ body: JSON.stringify({
                 </span>
               )}
             </div>
-            <p id="username-status" className="text-xs text-[var(--text-tertiary)]">
-              {usernameChecking
+            <p id="username-status" className={`text-xs ${fieldErrors.username ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'}`}>
+              {fieldErrors.username || (usernameChecking
                 ? 'Verificando disponibilidad...'
                 : usernameAvailable === false
                   ? 'Este nombre de usuario ya está en uso'
-                  : 'Mín. 3 caracteres. Solo letras, números y guión bajo.'}
+                  : 'Mín. 3 caracteres. Solo letras, números y guión bajo.')}
             </p>
           </div>
         </div>
@@ -414,11 +427,16 @@ body: JSON.stringify({
             rows={4}
             maxLength={500}
             placeholder="Cuéntanos sobre ti..."
-            className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none"
+            className={`w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border ${fieldErrors.bio ? 'border-[var(--error)]' : 'border-[var(--border)]'} text-[var(--text-primary)] resize-none`}
           />
-          <p className="text-xs text-[var(--text-tertiary)]">
-            {formData.bio.length}/500 caracteres
-          </p>
+          {fieldErrors.bio && (
+            <p className="text-xs text-[var(--error)]">{fieldErrors.bio}</p>
+          )}
+          {!fieldErrors.bio && (
+            <p className="text-xs text-[var(--text-tertiary)]">
+              {formData.bio.length}/500 caracteres
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -431,9 +449,12 @@ body: JSON.stringify({
               value={formData.website}
               onChange={handleChange}
               placeholder="https://tu-sitio.com"
-              className="pl-10"
+              className={`pl-10 ${fieldErrors.website ? 'border-[var(--error)]' : ''}`}
             />
           </div>
+          {fieldErrors.website && (
+            <p className="text-xs text-[var(--error)]">{fieldErrors.website}</p>
+          )}
         </div>
 
         <div className="space-y-4 pt-4 border-t border-[var(--border)]">
@@ -456,7 +477,11 @@ body: JSON.stringify({
                   value={socialLinks[platform.id] || ''}
                   onChange={(e) => handleSocialChange(platform.id, e.target.value)}
                   placeholder={platform.placeholder}
+                  className={fieldErrors[platform.id] ? 'border-[var(--error)]' : ''}
                 />
+                {fieldErrors[platform.id] && (
+                  <p className="text-xs text-[var(--error)]">{fieldErrors[platform.id]}</p>
+                )}
               </div>
             );
           })}
@@ -477,6 +502,7 @@ body: JSON.stringify({
               setSocialLinks(parseSocialLinks());
               setAvatarPreview(user.avatarUrl);
               setAvatarError('');
+              setFieldErrors({});
               setSaveStatus('idle');
               setSaveError(null);
               setIsDirty(false);
