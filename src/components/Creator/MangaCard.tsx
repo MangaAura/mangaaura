@@ -58,13 +58,18 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
     router.push(`/creator/manga/${manga.slug}`);
   };
 
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const handleDelete = async () => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este manga? Esta acción no se puede deshacer.')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este manga?')) {
       return;
     }
     setIsDeleting(true);
+    setDeleteError(null);
     try {
       await onDelete?.(manga.id);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setIsDeleting(false);
     }
@@ -152,6 +157,11 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
                   <Trash2Icon className="w-4 h-4" />
                   {isDeleting ? 'Eliminando...' : 'Eliminar'}
                 </button>
+                {deleteError && (
+                  <div className="px-4 py-2 text-xs text-[var(--error)] bg-[var(--error)]/5">
+                    {deleteError}
+                  </div>
+                )}
               </div>
             </>
           )}

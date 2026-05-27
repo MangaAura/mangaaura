@@ -222,14 +222,14 @@ export const authConfig = {
     },
     async jwt({ token, user, account, trigger, session: updateData }: { token: Record<string, unknown>; user?: { id: string; xpPoints?: number; level?: number; role?: string }; account?: { provider?: string }; trigger?: string; session?: { twoFactorEnabled?: boolean } }) {
       // ── Initial sign-in: populate token ──────────────────────────
-      if (user) {
-        token.id = user.id as string;
-        token.xpPoints = (user.xpPoints as number) || 0;
-        token.level = (user.level as number) || 1;
-        token.role = (user.role as string) || 'USER';
-        if ((user as Record<string, unknown>).image) {
-          token.picture = (user as Record<string, unknown>).image;
-        }
+if (user) {
+          token.id = user.id as string;
+          token.xpPoints = (user.xpPoints as number) || 0;
+          token.level = (user.level as number) || 1;
+          token.role = (user.role as string) || 'USER';
+          const userRecord = user as Record<string, unknown>;
+          token.name = (userRecord.name as string) ?? 'User';
+          token.picture = (userRecord.image as string) ?? '';
 
         // Check 2FA status from DB so we can set twoFactorPending
         try {
@@ -252,6 +252,8 @@ export const authConfig = {
           where: { email: token.email as string },
           select: {
             id: true,
+            displayName: true,
+            avatarUrl: true,
             xpPoints: true,
             level: true,
             role: true,
@@ -261,6 +263,8 @@ export const authConfig = {
 
         if (dbUser) {
           token.id = dbUser.id;
+          token.name = dbUser.displayName ?? 'User';
+          token.picture = dbUser.avatarUrl ?? '';
           token.xpPoints = dbUser.xpPoints;
           token.level = dbUser.level;
           token.role = dbUser.role;

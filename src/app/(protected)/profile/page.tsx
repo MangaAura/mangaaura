@@ -97,9 +97,6 @@ export default async function ProfilePage() {
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <Avatar className="w-24 h-24">
               <AvatarImage src={user.avatarUrl || undefined} />
-              <AvatarFallback className="text-2xl bg-[var(--primary)]">
-                {user.displayName?.[0] || user.username[0]}
-              </AvatarFallback>
             </Avatar>
 
             <div className="flex-1">

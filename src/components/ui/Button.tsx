@@ -1,3 +1,4 @@
+import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
@@ -36,9 +37,11 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
-function Button({ className, variant, size, isLoading, asChild: _asChild, children, ref, ...props }: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+function Button({ className, variant, size, isLoading, asChild = false, children, ref, ...props }: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+  const Comp = asChild ? Slot : 'button';
+
   return (
-    <button
+    <Comp
       className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
       disabled={isLoading || props.disabled}
@@ -72,7 +75,7 @@ function Button({ className, variant, size, isLoading, asChild: _asChild, childr
       ) : (
         children
       )}
-    </button>
+    </Comp>
   );
 }
 

@@ -25,7 +25,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
-import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface TrashManga {
@@ -42,7 +41,6 @@ interface TrashManga {
 }
 
 export default function TrashPage() {
-  const t = useT();
   const router = useRouter();
   const [restoringId, setRestoringId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TrashManga | null>(null);
