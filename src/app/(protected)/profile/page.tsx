@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Avatar, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';

@@ -210,13 +210,15 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       const response = await fetch('/api/user/update', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+body: JSON.stringify({
           displayName: formData.displayName,
           username: formData.username !== user.username ? formData.username : undefined,
-          avatarUrl: avatarPreview,
-          bio: formData.bio || null,
-          website: formData.website || null,
-          socialLinks: Object.fromEntries(Object.entries(socialLinks).filter(([, v]) => v)),
+          avatarUrl: avatarPreview || undefined,
+          bio: formData.bio || undefined,
+          website: formData.website || undefined,
+          socialLinks: Object.fromEntries(
+            Object.entries(socialLinks).filter(([, v]) => v)
+          ),
         }),
       });
 
