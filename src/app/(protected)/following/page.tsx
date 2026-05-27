@@ -10,6 +10,10 @@ export const metadata = {
   description: 'Gestiona las cuentas que sigues',
 };
 
+interface PageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
+
 async function getFollowing(userId: string) {
   const following = await prisma.follow.findMany({
     where: { followerId: userId },
@@ -32,9 +36,12 @@ async function getFollowers(userId: string) {
   return followers as unknown as FollowRelation[];
 }
 
-export default async function FollowingPage() {
+export default async function FollowingPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.id) return <div>Inicia sesión</div>;
+
+  const { tab } = await searchParams;
+  const initialTab = tab === 'followers' ? 'followers' : 'following';
 
   const [following, followers] = await Promise.all([
     getFollowing(session.user.id),
@@ -43,7 +50,7 @@ export default async function FollowingPage() {
 
   return (
     <Suspense fallback={<div className="animate-pulse h-96" />}>
-      <FollowingClient following={following} followers={followers} />
+      <FollowingClient following={following} followers={followers} initialTab={initialTab} />
     </Suspense>
   );
 }

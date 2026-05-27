@@ -33,8 +33,8 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
           <div className="flex items-start gap-3 mb-3">
             {/* Clan Emblem */}
             <div className="relative">
-              <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center overflow-hidden">
-                {clan.emblemUrl ? (
+              {clan.emblemUrl ? (
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden">
                   <Image
                     src={clan.emblemUrl}
                     alt={clan.name}
@@ -42,12 +42,14 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
                     className="object-cover"
                     sizes="64px"
                   />
-                ) : (
+                </div>
+              ) : (
+                <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center overflow-hidden">
                   <span className="text-2xl font-bold text-[var(--primary)]">
                     {clan.name.charAt(0).toUpperCase()}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
               {/* Ranking Badge */}
               {rank && rank <= 3 && (
                 <div

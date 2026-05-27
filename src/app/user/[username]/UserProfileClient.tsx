@@ -28,7 +28,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { FollowButton } from '@/components/Social/FollowButton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Avatar, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -225,9 +225,6 @@ function HeroGlowAvatar({ user, t, isSpecial }: { user: UserData; t: (key: strin
       )}
       <Avatar className="w-36 h-36 rounded-full ring-4 ring-[var(--surface)] shadow-xl relative z-10">
         <AvatarImage src={user.avatarUrl || undefined} className="rounded-full" />
-        <AvatarFallback className="text-3xl aspect-square rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-[var(--text-inverse)]">
-          {user.displayName?.[0] || user.username[0]}
-        </AvatarFallback>
       </Avatar>
       {isSpecial && (
         <motion.span

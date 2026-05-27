@@ -152,20 +152,20 @@ function HeroEmblem({ clan }: { clan: ClanData }) {
         aria-hidden="true"
       />
       {/* Emblem container */}
-      <div
-        className="relative w-28 h-28 rounded-2xl bg-gradient-to-br from-[var(--accent-purple)] to-[var(--primary)] flex items-center justify-center text-6xl shadow-2xl ring-4 ring-[var(--surface)] overflow-hidden"
-      >
-        {clan.emblemUrl ? (
+      {clan.emblemUrl ? (
+        <div className="relative w-28 h-28 rounded-2xl overflow-hidden ring-4 ring-[var(--surface)] shadow-2xl">
           <OptimizedImage
             src={clan.emblemUrl}
             alt={`${t('clanDetail.emblemOf')} ${clan.name}`}
             fill
             className="w-full h-full object-cover"
           />
-        ) : (
+        </div>
+      ) : (
+        <div className="relative w-28 h-28 rounded-2xl bg-gradient-to-br from-[var(--accent-purple)] to-[var(--primary)] flex items-center justify-center text-6xl shadow-2xl ring-4 ring-[var(--surface)] overflow-hidden">
           <span role="img" aria-label="Corona">👑</span>
-        )}
-      </div>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -352,20 +352,22 @@ function MemberRow({
 
       {/* Avatar */}
       <div className="relative flex-shrink-0">
-        <div
-          className={`w-11 h-11 rounded-full bg-gradient-to-br ${getMemberGradient(position - 1)} flex items-center justify-center text-[var(--text-inverse)] text-xs font-black shadow-md overflow-hidden ring-2 ring-[var(--surface)]`}
-        >
-          {member.user.avatarUrl ? (
+        {member.user.avatarUrl ? (
+          <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-[var(--surface)] shadow-md">
             <OptimizedImage
               src={member.user.avatarUrl}
               alt={displayName}
               fill
               className="w-full h-full rounded-full object-cover"
             />
-          ) : (
-            getInitials(displayName)
-          )}
-        </div>
+          </div>
+        ) : (
+          <div
+            className={`w-11 h-11 rounded-full bg-gradient-to-br ${getMemberGradient(position - 1)} flex items-center justify-center text-[var(--text-inverse)] text-xs font-black shadow-md overflow-hidden ring-2 ring-[var(--surface)]`}
+          >
+            {getInitials(displayName)}
+          </div>
+        )}
         {/* Leader crown */}
         {member.role === 'LEADER' && (
           <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center ring-2 ring-[var(--surface)] shadow-md" aria-label={t('clanDetail.leader')}>

@@ -20,8 +20,8 @@ export interface FollowRelation {
   follower: UserSummary;
 }
 
-export function FollowingClient({ following, followers }: { following: FollowRelation[]; followers: FollowRelation[] }) {
-  const [tab, setTab] = useState<'following' | 'followers'>('following');
+export function FollowingClient({ following, followers, initialTab = 'following' }: { following: FollowRelation[]; followers: FollowRelation[]; initialTab?: 'following' | 'followers' }) {
+  const [tab, setTab] = useState<'following' | 'followers'>(initialTab);
   const t = useT();
   const items = tab === 'following' ? following : followers;
   const userKey = tab === 'following' ? 'following' : 'follower';

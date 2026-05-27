@@ -302,17 +302,19 @@ export default function CreateClanPage() {
             <div className="bg-tertiary border border-custom rounded-xl p-6 mb-8">
               <h3 className="text-sm font-bold text-muted uppercase mb-4">{t('clanCreate.preview')}</h3>
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-3xl shadow-lg">
-                  {formData.emblemUrl ? (
+                {formData.emblemUrl ? (
+                  <div className="w-16 h-16 rounded-xl overflow-hidden shadow-lg">
                     <img
                       src={formData.emblemUrl}
                       alt={t('clanCreate.emblemLabel')}
-                      className="w-16 h-16 rounded-xl object-cover"
+                      className="w-full h-full rounded-xl object-cover"
                     />
-                  ) : (
-                    '👑'
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-3xl shadow-lg">
+                    {'👑'}
+                  </div>
+                )}
                 <div>
                   <h4 className="font-bold text-lg">{formData.name}</h4>
                   <p className="text-sm text-muted">
