@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 // GET /api/clans/[id]/invitations/pending - Listar invitaciones pendientes del clan
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

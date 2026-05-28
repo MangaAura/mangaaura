@@ -110,6 +110,8 @@ model User {
   clanAnnouncements ClanAnnouncement[]
   sentJoinRequests   ClanJoinRequest[]     @relation("JoinRequestSender")
   receivedJoinRequests ClanJoinRequest[]   @relation("JoinRequestReviewer")
+  clanInvitesSent ClanInvite[] @relation("ClanInviteSent")
+  clanInvitesReceived ClanInvite[] @relation("ClanInviteReceived")
   collections        Collection[]          @relation("Collections")
   collectionLikes    CollectionLike[]
   collectionCollaborators CollectionCollaborator[]
@@ -425,6 +427,7 @@ model Clan {
   joinRequests  ClanJoinRequest[]
   announcements ClanAnnouncement[]
   chatMessages ClanChatMessage[]
+  invites ClanInvite[]
 
   @@index([totalScore])
   @@index([monthlyScore])

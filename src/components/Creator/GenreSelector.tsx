@@ -36,9 +36,9 @@ export function GenreSelector({ selected, onChange, error, max = 10 }: GenreSele
   }, [allGenres, selected, input]);
 
   const addGenre = useCallback((name: string) => {
-    const clean = name.toLowerCase().trim();
+    const clean = normalize(name);
     if (!clean) return;
-    if (selected.some(s => normalize(s) === normalize(clean))) return;
+    if (selected.some(s => normalize(s) === clean)) return;
     if (selected.length >= max) return;
     onChange([...selected, clean]);
     setInput('');
