@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
@@ -116,6 +117,35 @@ export async function PUT(
       },
     });
 
+    // Audit log for description change
+    if (description !== undefined) {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_DESCRIPTION_UPDATED',
+        targetId: id,
+        targetType: 'CLAN',
+        metadata: {
+          clanName: clan.name,
+          newDescription: description?.trim().slice(0, 300) || null,
+        },
+        ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
+      });
+    }
+
+    // Audit log for emblem change
+    if (emblemUrl !== undefined) {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_EMBLEM_UPDATED',
+        targetId: id,
+        targetType: 'CLAN',
+        metadata: {
+          clanName: clan.name,
+        },
+        ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
+      });
+    }
+
     return NextResponse.json({ clan });
   } catch (error) {
     console.error('Error updating clan:', error);
@@ -146,6 +176,8 @@ export async function DELETE(
     if (rlResponse) return rlResponse;
 
     // Check if user is the clan leader
+    const clanInfo = await prisma.clan.findUnique({ where: { id }, select: { name: true } });
+
     const membership = await prisma.clanMembership.findFirst({
       where: {
         clanId: id,
@@ -163,6 +195,19 @@ export async function DELETE(
 
     await prisma.clan.delete({
       where: { id },
+    });
+
+    // Audit log for clan deletion
+    await logSecurityEvent({
+      userId: session.user.id,
+      action: 'CLAN_DELETED',
+      targetId: id,
+      targetType: 'CLAN',
+      metadata: {
+        clanName: clanInfo?.name || 'Unknown',
+      },
+      severity: 'WARNING',
+      ipAddress: _req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || _req.headers.get('x-real-ip') || undefined,
     });
 
     return NextResponse.json({ success: true });

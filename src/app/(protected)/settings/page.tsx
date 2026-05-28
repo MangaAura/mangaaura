@@ -30,6 +30,7 @@ export default async function SettingsPage() {
       displayName: true,
       email: true,
       avatarUrl: true,
+      coverUrl: true,
       emailPreferences: true,
       bio: true,
       website: true,

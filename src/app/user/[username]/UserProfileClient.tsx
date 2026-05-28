@@ -17,10 +17,13 @@ import {
   Eye,
   Bookmark,
   Share2,
+  MessageCircle,
+  Loader2,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { FollowButton } from '@/components/Social/FollowButton';
 import { Badge } from '@/components/ui/Badge';
@@ -29,6 +32,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { ProfileHeader, ProfileTimeline } from '@/components/Profile';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useT, useLocale } from '@/i18n';
 import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
 import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
@@ -408,6 +412,110 @@ function MangaCreatedCard({ manga, isOwnProfile: _isOwnProfile, t }: { manga: Ma
   );
 }
 
+// ─── Skeleton States ─────────────────────────────────────────────────
+
+function SkeletonBar({ className }: { className?: string }) {
+  return (
+    <div
+      className={`animate-pulse rounded bg-[var(--border)]/60 ${className ?? ''}`}
+      aria-hidden="true"
+    />
+  );
+}
+
+function ActivityTabSkeleton() {
+  return (
+    <div className="border border-[var(--border)]/50 rounded-xl p-5" aria-label="Loading activity">
+      <div className="space-y-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <SkeletonBar className="w-10 h-10 rounded-full flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <SkeletonBar className="h-4 w-3/5" />
+              <SkeletonBar className="h-3 w-2/5" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReadingTabSkeleton() {
+  return (
+    <div className="border border-[var(--border)]/50 rounded-xl p-5" aria-label="Loading reading">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className={`flex gap-4 p-4 rounded-xl border border-[var(--border)]/50 ${i === 0 ? 'sm:col-span-2' : ''}`}>
+            <SkeletonBar className="w-14 h-[72px] rounded-md flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <SkeletonBar className="h-4 w-2/3" />
+              <SkeletonBar className="h-3 w-1/3" />
+              <div className="flex items-center justify-between mt-2">
+                <SkeletonBar className="w-9 h-9 rounded-full" />
+                <SkeletonBar className="h-3 w-20" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AchievementTabSkeleton() {
+  return (
+    <div className="border border-[var(--border)]/50 rounded-xl p-5" aria-label="Loading achievements">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="p-4 text-center rounded-xl border border-[var(--border)]/50">
+            <SkeletonBar className="w-14 h-14 mx-auto mb-3 rounded-xl" />
+            <SkeletonBar className="h-4 w-3/4 mx-auto mb-2" />
+            <SkeletonBar className="h-3 w-5/6 mx-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CreatedTabSkeleton() {
+  return (
+    <div className="border border-[var(--border)]/50 rounded-xl p-5" aria-label="Loading mangas">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="overflow-hidden rounded-xl border border-[var(--border)]/50">
+            <SkeletonBar className="aspect-[3/4] w-full" />
+            <div className="p-3 space-y-2">
+              <SkeletonBar className="h-4 w-4/5" />
+              <SkeletonBar className="h-3 w-3/5" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CollectionsTabSkeleton() {
+  return (
+    <div className="border border-[var(--border)]/50 rounded-xl p-5" aria-label="Loading collections">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="p-4 rounded-xl border border-[var(--border)]/50">
+            <SkeletonBar className="h-5 w-3/5 mb-2" />
+            <SkeletonBar className="h-3 w-4/5 mb-3" />
+            <div className="flex gap-3">
+              <SkeletonBar className="h-3 w-12" />
+              <SkeletonBar className="h-3 w-12" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────────
 
 export function UserProfileClient({ user, isOwnProfile, sessionUserId, following, followers, libraryEntries, isFollowingUser }: UserProfileClientProps) {
@@ -417,11 +525,17 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
   const xpForNextLevel = user.level * 100;
   const xpProgress = Math.min(100, (user.xpPoints / xpForNextLevel) * 100);
 
+  const [ready, setReady] = useState(false);
   const [followModalOpen, setFollowModalOpen] = useState(false);
   const [libraryModalOpen, setLibraryModalOpen] = useState(false);
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false);
   const [achievementsModalOpen, setAchievementsModalOpen] = useState(false);
   const [shareTooltip, setShareTooltip] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const unreadCount = useUnreadMessages();
+  const router = useRouter();
+
+  useEffect(() => { setReady(true); }, []);
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 
@@ -478,7 +592,51 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
             actions={
               <>
                 {!isOwnProfile && sessionUserId && (
-                  <FollowButton targetId={user.id} targetType="USER" size="default" />
+                  <>
+                    <div className="relative">
+                      <button
+                        onClick={async () => {
+                          if (sendingMessage) return;
+                          setSendingMessage(true);
+                          try {
+                            const res = await fetch('/api/conversations', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ participantId: user.id }),
+                            });
+                            if (!res.ok) throw new Error('Failed to create conversation');
+                            const data = await res.json();
+                            router.push(`/messages/${data.id}`);
+                          } catch {
+                            setSendingMessage(false);
+                          }
+                        }}
+                        disabled={sendingMessage}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[var(--primary)] text-[var(--text-inverse)] hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2"
+                        aria-label={t('userProfile.buttons.sendMessage')}
+                      >
+                        {sendingMessage ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <MessageCircle className="w-4 h-4" />
+                        )}
+                        {sendingMessage ? '' : t('userProfile.buttons.sendMessage')}
+                      </button>
+                      {unreadCount > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                          className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full shadow-md ring-2 ring-[var(--background)]"
+                          title={`${unreadCount} mensajes sin leer`}
+                          role="status"
+                        >
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </motion.span>
+                      )}
+                    </div>
+                    <FollowButton targetId={user.id} targetType="USER" size="default" />
+                  </>
                 )}
                 {isOwnProfile && (
                   <Link href="/settings">
@@ -507,7 +665,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
 
           {/* ═══════ Tabs ═══════ */}
           <Tabs defaultValue="activity">
-            <TabsList className="mb-6">
+            <TabsList className="mb-6 overflow-x-auto max-w-full">
               <TabsTrigger
                 value="activity"
                 className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
@@ -559,12 +717,12 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
 
             {/* ══ Activity Tab — Timeline Style ══ */}
             <TabsContent value="activity" className="border border-[var(--border)]/50 rounded-xl p-5">
-              <ProfileTimeline activities={user.activitiesFeed} t={t} dateLocale={dateLocale} />
+              {!ready ? <ActivityTabSkeleton /> : <ProfileTimeline activities={user.activitiesFeed} t={t} dateLocale={dateLocale} />}
             </TabsContent>
 
             {/* ══ Reading Tab ══ */}
             <TabsContent value="reading" className="border border-[var(--border)]/50 rounded-xl p-5">
-              {user.readingProgress.length > 0 ? (
+              {!ready ? <ReadingTabSkeleton /> : user.readingProgress.length > 0 ? (
                 <motion.div
                   className="grid gap-3 sm:grid-cols-2"
                   variants={containerVariants}
@@ -592,7 +750,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
 
             {/* ══ Achievements Tab ══ */}
             <TabsContent value="achievements" className="border border-[var(--border)]/50 rounded-xl p-5">
-              {user.achievements.length > 0 ? (
+              {!ready ? <AchievementTabSkeleton /> : user.achievements.length > 0 ? (
                 <motion.div
                   className="grid grid-cols-2 md:grid-cols-3 gap-4"
                   variants={containerVariants}
@@ -615,48 +773,52 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
             {/* ══ Collections Tab ══ */}
             {user.collections && user.collections.length > 0 && (
               <TabsContent value="collections" className="border border-[var(--border)]/50 rounded-xl p-5">
-                <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" animate="visible">
-                  {user.collections.map((col: any) => (
-                    <motion.div key={col.id} variants={itemVariants}>
-                      <Link href={`/collections/${col.id}`}>
-                        <Card className="p-4 h-full hover:border-[var(--primary)] transition-all duration-200">
-                          <h3 className="font-semibold mb-1 truncate">{col.name}</h3>
-                          {col.description && <p className="text-xs text-[var(--text-tertiary)] mb-3 line-clamp-2">{col.description}</p>}
-                          <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)]">
-                            <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{col._count?.items || 0}</span>
-                            <span className="flex items-center gap-1"><Star className="w-3 h-3" />{col._count?.likes || 0}</span>
-                          </div>
-                        </Card>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </motion.div>
+                {!ready ? <CollectionsTabSkeleton /> : (
+                  <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" animate="visible">
+                    {user.collections.map((col: any) => (
+                      <motion.div key={col.id} variants={itemVariants}>
+                        <Link href={`/collections/${col.id}`}>
+                          <Card className="p-4 h-full hover:border-[var(--primary)] transition-all duration-200">
+                            <h3 className="font-semibold mb-1 truncate">{col.name}</h3>
+                            {col.description && <p className="text-xs text-[var(--text-tertiary)] mb-3 line-clamp-2">{col.description}</p>}
+                            <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)]">
+                              <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{col._count?.items || 0}</span>
+                              <span className="flex items-center gap-1"><Star className="w-3 h-3" />{col._count?.likes || 0}</span>
+                            </div>
+                          </Card>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
               </TabsContent>
             )}
 
             {/* ══ Created Tab ══ */}
             {user._count.createdMangas > 0 && (
               <TabsContent value="created" className="border border-[var(--border)]/50 rounded-xl p-5">
-                <motion.div
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {user.createdMangas.map((manga) => (
-                    <MangaCreatedCard key={manga.id} manga={manga} isOwnProfile={isOwnProfile} t={t} />
-                  ))}
-                  {isOwnProfile && (
-                    <motion.div variants={itemVariants}>
-                      <Link href="/creator/dashboard">
-                        <Card className="h-full min-h-[200px] flex flex-col items-center justify-center gap-2 border-dashed hover:border-[var(--primary)] hover:bg-[var(--primary-subtle)]/10 transition-all duration-200 cursor-pointer">
-                          <Plus className="w-8 h-8 text-[var(--text-tertiary)]" />
-                          <span className="text-sm text-[var(--text-tertiary)]">{t('userProfile.buttons.createAnother')}</span>
-                        </Card>
-                      </Link>
-                    </motion.div>
-                  )}
-                </motion.div>
+                {!ready ? <CreatedTabSkeleton /> : (
+                  <motion.div
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {user.createdMangas.map((manga) => (
+                      <MangaCreatedCard key={manga.id} manga={manga} isOwnProfile={isOwnProfile} t={t} />
+                    ))}
+                    {isOwnProfile && (
+                      <motion.div variants={itemVariants}>
+                        <Link href="/creator/dashboard">
+                          <Card className="h-full min-h-[200px] flex flex-col items-center justify-center gap-2 border-dashed hover:border-[var(--primary)] hover:bg-[var(--primary-subtle)]/10 transition-all duration-200 cursor-pointer">
+                            <Plus className="w-8 h-8 text-[var(--text-tertiary)]" />
+                            <span className="text-sm text-[var(--text-tertiary)]">{t('userProfile.buttons.createAnother')}</span>
+                          </Card>
+                        </Link>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
               </TabsContent>
             )}
           </Tabs>

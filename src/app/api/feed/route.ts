@@ -82,8 +82,10 @@ export async function GET(request: NextRequest) {
                 title: true,
                 coverUrl: true,
                 slug: true,
+                deletedAt: true,
               },
             });
+            if (!target || target.deletedAt) return null;
           } else if (activity.targetType === 'USER') {
             target = await prisma.user.findUnique({
               where: { id: activity.targetId },

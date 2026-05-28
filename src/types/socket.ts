@@ -107,7 +107,8 @@ export type NotificationType =
   | 'SYSTEM'
   | 'FOLLOW'
   | 'PARTY_INVITE'
-  | 'PARTY_STARTED';
+  | 'PARTY_STARTED'
+  | 'CLAN_INVITE';
 
 export interface Notification {
   id: string;
@@ -137,6 +138,72 @@ export interface ServerToClientEvents extends PartyServerToClientEvents {
   'user:online': (userId: string) => void;
   'user:offline': (userId: string) => void;
   'analytics:stats': (stats: RealtimeAnalytics) => void;
+  'dm:typing-update': (data: { userId: string; username: string; isTyping: boolean }) => void;
+  'dm:message': (message: {
+    id: string;
+    content: string;
+    createdAt: Date | string;
+    senderId: string;
+    isRead: boolean;
+    isEdited?: boolean;
+    isDeleted?: boolean;
+    replyTo?: {
+      id: string;
+      content: string;
+      senderId: string;
+      senderName: string;
+    } | null;
+  }) => void;
+  'dm:read': (data: { messageIds: string[] }) => void;
+  'dm:message-edited': (data: { id: string; content: string; editedAt: string }) => void;
+  'dm:message-deleted': (data: { id: string }) => void;
+  'dm:reaction': (data: { messageId: string; emoji: string; userId: string; action: 'add' | 'remove' }) => void;
+  'dm:unread-count': (data: { count: number }) => void;
+  'user:status': (data: { userId: string; online: boolean }) => void;
+  // ── Clan Chat ─────────────────────────────────────────────────
+  'clan:message': (message: {
+    id: string;
+    content: string;
+    clanId: string;
+    senderId: string;
+    senderName: string;
+    senderAvatar: string | null;
+    createdAt: Date | string;
+    isEdited?: boolean;
+    isDeleted?: boolean;
+    replyTo?: {
+      id: string;
+      content: string;
+      senderId: string;
+      senderName: string;
+    } | null;
+  }) => void;
+  'clan:message-edited': (data: { id: string; clanId: string; content: string; editedAt: string }) => void;
+  'clan:message-deleted': (data: { id: string; clanId: string }) => void;
+  'clan:reaction': (data: { messageId: string; clanId: string; emoji: string; userId: string; action: 'add' | 'remove' }) => void;
+  'clan:typing-update': (data: { clanId: string; userId: string; username: string; isTyping: boolean }) => void;
+  // ── Clan Join Requests ────────────────────────────────────────────
+  'clan:join-request': (data: {
+    clanId: string;
+    requestId: string;
+    requesterId: string;
+    requesterName: string;
+    requesterAvatar: string | null;
+    message: string | null;
+    createdAt: string;
+  }) => void;
+  'clan:join-request-reviewed': (data: {
+    clanId: string;
+    requestId: string;
+    status: 'APPROVED' | 'REJECTED';
+    reviewerId: string;
+    reviewerName: string;
+  }) => void;
+  'clan:join-request-cancelled': (data: {
+    clanId: string;
+    requestId: string;
+    userId: string;
+  }) => void;
 }
 
 export interface ClientToServerEvents extends PartyClientToServerEvents {
@@ -148,6 +215,11 @@ export interface ClientToServerEvents extends PartyClientToServerEvents {
   'analytics:heartbeat': (data: { mangaId?: string; chapterId?: string; page?: number }) => void;
   'analytics:subscribe': () => void;
   'analytics:unsubscribe': () => void;
+  'dm:typing': (data: { conversationId: string; isTyping: boolean }) => void;
+  'user:get-status': (data: { userId: string }) => void;
+  // ── Clan Chat ─────────────────────────────────────────────────
+  'clan:typing': (data: { clanId: string; isTyping: boolean }) => void;
+  'clan:message': (data: { clanId: string; content: string; replyToId?: string | null }) => void;
 }
 
 export interface InterServerEvents {

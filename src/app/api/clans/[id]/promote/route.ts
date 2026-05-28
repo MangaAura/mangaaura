@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
@@ -80,6 +81,15 @@ export async function POST(
       );
     }
 
+    // Get clan and target user info for audit
+    const [clan, targetUser] = await Promise.all([
+      prisma.clan.findUnique({ where: { id }, select: { name: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { username: true, displayName: true } }),
+    ]);
+
+    const targetName = targetUser?.displayName || targetUser?.username || userId;
+    const oldRole = targetMembership.role;
+
     // If promoting to LEADER, demote current leader first
     if (role === 'LEADER') {
       await prisma.$transaction(async (tx: any) => {
@@ -106,6 +116,53 @@ export async function POST(
       await prisma.clanMembership.update({
         where: { id: targetMembership.id },
         data: { role },
+      });
+    }
+
+    // Audit log
+    if (role === 'LEADER') {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_LEADERSHIP_TRANSFERRED',
+        targetId: id,
+        targetType: 'CLAN',
+        metadata: {
+          clanName: clan?.name || 'Unknown',
+          previousLeaderId: session.user.id,
+          newLeaderId: userId,
+          newLeaderName: targetName,
+        },
+        severity: 'WARNING',
+        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || undefined,
+      });
+    } else if (role === 'OFFICER' && oldRole !== 'OFFICER') {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_MEMBER_PROMOTED',
+        targetId: userId,
+        targetType: 'CLAN',
+        metadata: {
+          clanName: clan?.name || 'Unknown',
+          clanId: id,
+          memberName: targetName,
+          newRole: role,
+        },
+        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || undefined,
+      });
+    } else if (oldRole === 'OFFICER' && role === 'MEMBER') {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_MEMBER_DEMOTED',
+        targetId: userId,
+        targetType: 'CLAN',
+        metadata: {
+          clanName: clan?.name || 'Unknown',
+          clanId: id,
+          memberName: targetName,
+          oldRole,
+        },
+        severity: 'WARNING',
+        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || undefined,
       });
     }
 

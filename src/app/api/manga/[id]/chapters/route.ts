@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // Verificar que el manga existe
+    // Verificar que el manga existe y no está eliminado
     const manga = await prisma.mangaSeries.findUnique({
       where: { id },
       select: { id: true },

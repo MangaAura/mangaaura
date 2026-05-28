@@ -1110,7 +1110,8 @@
       "viewAllCollections": "Ver todas las colecciones",
       "exploreMangas": "Explorar mangas",
       "viewHistory": "Ver historial completo",
-      "viewAllAchievements": "Ver todos los logros"
+      "viewAllAchievements": "Ver todos los logros",
+      "sendMessage": "Enviar mensaje"
     },
     "followsYou": "Te sigue",
     "shareProfile": "Compartir perfil",
@@ -1124,6 +1125,7 @@
     "title": "Completa tu perfil",
     "missing": "Agrega: {items}",
     "avatar": "Avatar",
+    "cover": "Portada",
     "bio": "Biografía",
     "website": "Sitio web",
     "social": "Redes sociales"
@@ -1881,7 +1883,17 @@
     "closeError": "Cerrar error",
     "emblemOf": "Emblema de",
     "errorLeave": "Error al salir del clan",
-    "errorJoin": "Error al unirse al clan"
+    "errorJoin": "Error al unirse al clan",
+    "auditLogs": "Registro de Auditoría",
+    "auditLogsEmpty": "No hay eventos de auditoría registrados.",
+    "auditLogsAction": "Acción",
+    "auditLogsUser": "Usuario",
+    "auditLogsDate": "Fecha",
+    "auditLogsDetails": "Detalles",
+    "auditLogsLoading": "Cargando registros de auditoría…",
+    "auditLogsError": "Error al cargar los registros de auditoría.",
+    "auditLogsClose": "Cerrar",
+    "viewAuditLogs": "Ver Auditoría"
   },
   "creatorUpload": {
     "chapterNumberInvalid": "Debe ser un número entero positivo",

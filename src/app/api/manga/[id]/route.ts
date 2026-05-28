@@ -263,7 +263,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/manga/[id] - Enviar manga a la papelera (soft delete, 30 días)
+// DELETE /api/manga/[id] - Enviar manga a la papelera (mover a DeletedMangaBundle)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -283,7 +283,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Verificar que el manga existe
+    // Verificar que el manga existe y NO está ya en papelera
     const manga = await prisma.mangaSeries.findUnique({
       where: { id },
       select: { authorId: true, title: true, deletedAt: true },
@@ -303,7 +303,6 @@ export async function DELETE(
       );
     }
 
-    // Verificar ownership
     if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'No tienes permisos para eliminar este manga' },
@@ -311,13 +310,66 @@ export async function DELETE(
       );
     }
 
-    // Soft delete: marcar como eliminado en lugar de borrar
-    await prisma.mangaSeries.update({
+    // ── 1. Empaquetar TODO el grafo de datos en un bundle ──────────────
+    const fullManga = await prisma.mangaSeries.findUnique({
       where: { id },
-      data: { deletedAt: new Date() },
+      include: {
+        chapters: {
+          include: {
+            comments: {
+              include: {
+                likes: true,
+                mentions: true,
+              },
+            },
+            tips: true,
+            crowdfundingContributions: true,
+            sponsorshipBids: true,
+            readingSessions: true,
+            corrections: true,
+          },
+        },
+        libraryEntries: true,
+        userMangas: true,
+        readingProgress: true,
+        collectionItems: true,
+        bookmarks: true,
+        mangaTags: true,
+        mangaGenres: true,
+      },
     });
 
-    // Invalidar caches
+    if (!fullManga) {
+      return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
+    // Serializar a JSON y guardar en DeletedMangaBundle
+    await prisma.deletedMangaBundle.create({
+      data: {
+        id: fullManga.id,
+        title: fullManga.title,
+        slug: fullManga.slug,
+        coverUrl: fullManga.coverUrl,
+        authorId: fullManga.authorId,
+        authorName: fullManga.authorName,
+        status: fullManga.status,
+        tags: fullManga.tags,
+        totalViews: fullManga.totalViews,
+        rating: fullManga.rating,
+        data: JSON.stringify({
+          manga: fullManga,
+        }),
+        expiresAt,
+      },
+    });
+
+    // ── 2. Borrar el MangaSeries (cascade elimina todo relacionado) ───
+    await prisma.mangaSeries.delete({ where: { id } });
+
+    // ── 3. Invalidar caches ───────────────────────────────────────────
     await invalidateCache(`manga:${id}`);
     await invalidateCache('manga:list');
     await invalidateCache('user:mangas:list');

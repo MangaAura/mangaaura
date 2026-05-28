@@ -23,7 +23,10 @@ export async function GET(
 
       const mangas = await prisma.mangaSeries.findMany({
         where: {
-          tags: { contains: slug },
+          deletedAt: null,
+          mangaGenres: {
+            some: { genre: { slug } },
+          },
           status: { not: 'DRAFT' },
         },
         orderBy: { totalViews: 'desc' },
@@ -38,8 +41,12 @@ export async function GET(
           status: true,
           rating: true,
           totalViews: true,
-          tags: true,
           createdAt: true,
+          mangaGenres: {
+            select: {
+              genre: { select: { name: true, slug: true } },
+            },
+          },
           _count: { select: { chapters: true, libraryEntries: true } },
         },
       });
@@ -56,7 +63,7 @@ export async function GET(
           status: m.status,
           rating: m.rating,
           totalViews: m.totalViews,
-          tags: (() => { try { return JSON.parse(m.tags as string); } catch { return []; } })(),
+          genres: m.mangaGenres.map((mg) => mg.genre.name),
           createdAt: m.createdAt.toISOString(),
           chapterCount: m._count.chapters,
           libraryCount: m._count.libraryEntries,

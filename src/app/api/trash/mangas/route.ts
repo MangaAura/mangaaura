@@ -16,33 +16,19 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    // Auto-cleanup: permanently delete mangas that have been in trash > 30 days
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() - TRASH_EXPIRY_DAYS);
-
-    const expiredMangas = await prisma.mangaSeries.findMany({
+    // Auto-cleanup: permanently delete bundles that have expired
+    const now = new Date();
+    await prisma.deletedMangaBundle.deleteMany({
       where: {
         authorId: session.user.id,
-        deletedAt: { not: null, lte: expiryDate },
+        expiresAt: { lte: now },
       },
-      select: { id: true },
     });
 
-    if (expiredMangas.length > 0) {
-      const expiredIds = expiredMangas.map((m) => m.id);
-      await prisma.$transaction([
-        prisma.chapter.deleteMany({ where: { mangaId: { in: expiredIds } } }),
-        prisma.mangaSeries.deleteMany({ where: { id: { in: expiredIds } } }),
-      ]);
-    }
+    const where = { authorId: session.user.id };
 
-    const where = {
-      authorId: session.user.id,
-      deletedAt: { not: null },
-    };
-
-    const [mangas, total] = await Promise.all([
-      prisma.mangaSeries.findMany({
+    const [bundles, total] = await Promise.all([
+      prisma.deletedMangaBundle.findMany({
         where,
         select: {
           id: true,
@@ -59,25 +45,24 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { deletedAt: 'desc' },
       }),
-      prisma.mangaSeries.count({ where }),
+      prisma.deletedMangaBundle.count({ where }),
     ]);
 
-    const mangasWithStats = mangas.map((manga) => {
-      const daysLeft = manga.deletedAt
-        ? Math.max(0, TRASH_EXPIRY_DAYS - Math.floor((Date.now() - manga.deletedAt.getTime()) / (1000 * 60 * 60 * 24)))
-        : 0;
+    const mangasWithStats = bundles.map((bundle) => {
+      const msSinceDeleted = Date.now() - bundle.deletedAt.getTime();
+      const daysLeft = Math.max(0, TRASH_EXPIRY_DAYS - Math.floor(msSinceDeleted / (1000 * 60 * 60 * 24)));
 
       return {
-        id: manga.id,
-        title: manga.title,
-        slug: manga.slug,
-        coverUrl: manga.coverUrl,
-        status: manga.status,
-        tags: manga.tags ? JSON.parse(manga.tags) : [],
-        totalViews: manga.totalViews,
-        deletedAt: manga.deletedAt,
+        id: bundle.id,
+        title: bundle.title,
+        slug: bundle.slug,
+        coverUrl: bundle.coverUrl,
+        status: bundle.status,
+        tags: bundle.tags ? JSON.parse(bundle.tags) : [],
+        totalViews: bundle.totalViews,
+        deletedAt: bundle.deletedAt.toISOString(),
         daysLeft,
-        createdAt: manga.createdAt,
+        createdAt: bundle.createdAt.toISOString(),
       };
     });
 

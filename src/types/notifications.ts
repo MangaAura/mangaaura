@@ -13,6 +13,10 @@ export enum NotificationType {
   ACHIEVEMENT_UNLOCKED = 'ACHIEVEMENT_UNLOCKED',
   SYSTEM = 'SYSTEM',
   STREAK_MILESTONE = 'STREAK_MILESTONE',
+  CLAN_INVITE = 'CLAN_INVITE',
+  CLAN_JOIN_REQUEST = 'CLAN_JOIN_REQUEST',
+  CLAN_JOIN_APPROVED = 'CLAN_JOIN_APPROVED',
+  CLAN_JOIN_REJECTED = 'CLAN_JOIN_REJECTED',
 }
 
 export interface NotificationPayload {
@@ -74,6 +78,41 @@ export interface NotificationPayload {
     label: string;
     xpBonus: number;
     freezesAwarded: number;
+  };
+  [NotificationType.CLAN_INVITE]: {
+    clanId: string;
+    clanName: string;
+    clanEmblemUrl?: string;
+    inviterId: string;
+    inviterName: string;
+    inviterAvatar?: string;
+    invitationId: string;
+  };
+  [NotificationType.CLAN_JOIN_REQUEST]: {
+    clanId: string;
+    clanName: string;
+    clanEmblemUrl?: string;
+    requesterId: string;
+    requesterName: string;
+    requesterAvatar?: string;
+    requestId: string;
+    message?: string;
+  };
+  [NotificationType.CLAN_JOIN_APPROVED]: {
+    clanId: string;
+    clanName: string;
+    clanEmblemUrl?: string;
+    reviewerId: string;
+    reviewerName: string;
+    requestId: string;
+  };
+  [NotificationType.CLAN_JOIN_REJECTED]: {
+    clanId: string;
+    clanName: string;
+    reviewerId: string;
+    reviewerName: string;
+    requestId: string;
+    reason?: string;
   };
 }
 

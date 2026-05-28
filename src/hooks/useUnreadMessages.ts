@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+import { useSocket } from '@/hooks/useSocket';
 
 export function useUnreadMessages() {
   const [unreadCount, setUnreadCount] = useState(0);
+  const { isConnected, on } = useSocket({ autoConnect: true });
+  const hasListenersRef = useRef(false);
+
   useEffect(() => {
     async function fetchCount() {
       try {
@@ -13,5 +18,21 @@ export function useUnreadMessages() {
     const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // WebSocket real-time updates
+  useEffect(() => {
+    if (!isConnected || !on || hasListenersRef.current) return;
+    hasListenersRef.current = true;
+
+    const cleanup = on('dm:unread-count', (data: { count: number }) => {
+      setUnreadCount(data.count);
+    });
+
+    return () => {
+      cleanup?.();
+      hasListenersRef.current = false;
+    };
+  }, [isConnected, on]);
+
   return unreadCount;
 }

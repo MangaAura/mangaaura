@@ -9,7 +9,11 @@ export type NotificationType =
   | 'MENTION'
   | 'TIP_RECEIVED'
   | 'CROWDFUNDING_CONTRIBUTION'
-  | 'STREAK_MILESTONE';
+  | 'STREAK_MILESTONE'
+  | 'CLAN_INVITE'
+  | 'CLAN_JOIN_REQUEST'
+  | 'CLAN_JOIN_APPROVED'
+  | 'CLAN_JOIN_REJECTED';
 
 export interface NotificationRecord {
   id: string;

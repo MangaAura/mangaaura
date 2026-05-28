@@ -5,9 +5,10 @@ import {
   Users, Crown, Shield, Trophy, BookOpen, Flame,
   Plus, Calendar, Swords, Loader2, AlertTriangle,
   Zap, TrendingUp, Hash, Edit, Trash2, UserCog,
+  ScrollText, X, Clock, Send, UserPlus, Check, XCircle, Search,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
@@ -509,8 +510,140 @@ export default function ClanDetailClient({
   const [editEmblemUrl, setEditEmblemUrl] = useState(clan.emblemUrl || '');
   const [saving, setSaving] = useState(false);
   const [promoting, setPromoting] = useState<string | null>(null);
+  const [auditLogsOpen, setAuditLogsOpen] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<any[] | null>(null);
+  const [auditLogsLoading, setAuditLogsLoading] = useState(false);
+  const [auditLogsError, setAuditLogsError] = useState<string | null>(null);
+  // ── Join Request State ──
+  const [myPendingRequest, setMyPendingRequest] = useState<any | null>(null);
+  const [loadingMyRequest, setLoadingMyRequest] = useState(false);
+  const [joinRequests, setJoinRequests] = useState<any[]>([]);
+  const [joinRequestsOpen, setJoinRequestsOpen] = useState(false);
+  const [joinRequestsLoading, setJoinRequestsLoading] = useState(false);
+  const [joinRequestMessage, setJoinRequestMessage] = useState('');
+  const [joinRequestSending, setJoinRequestSending] = useState(false);
+  const [joinRequestError, setJoinRequestError] = useState<string | null>(null);
+  const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
+  const [cancellingRequest, setCancellingRequest] = useState(false);
+
+  // ── Invite State ──
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteSearch, setInviteSearch] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [sendingInvite, setSendingInvite] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+  const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+  const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const isLeader = userMembership?.role === 'LEADER';
+  const isOfficer = userMembership?.role === 'OFFICER';
+  const canViewAudit = userMembership?.role === 'LEADER' || userMembership?.role === 'OFFICER';
+  const canInvite = userMembership?.role === 'LEADER' || userMembership?.role === 'OFFICER';
+
+  // ── Fetch user's pending join request on mount ──
+  useEffect(() => {
+    if (userId && !userMembership) {
+      setLoadingMyRequest(true);
+      fetch(`/api/clans/${clan.id}/join-requests?status=PENDING`)
+        .then(res => res.ok ? res.json() : { joinRequests: [] })
+        .then(data => {
+          const myRequest = data.joinRequests?.find((r: any) => r.userId === userId);
+          if (myRequest) setMyPendingRequest(myRequest);
+        })
+        .catch(() => {})
+        .finally(() => setLoadingMyRequest(false));
+    }
+  }, [userId, userMembership, clan.id]);
+
+  async function handleSendJoinRequest() {
+    setJoinRequestSending(true);
+    setJoinRequestError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/join-requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: joinRequestMessage || undefined }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || t('clanDetail.errorJoinRequest'));
+      }
+      const data = await res.json();
+      setMyPendingRequest(data.joinRequest);
+      setJoinRequestMessage('');
+    } catch (err: any) {
+      setJoinRequestError(err.message);
+    } finally {
+      setJoinRequestSending(false);
+    }
+  }
+
+  async function handleCancelJoinRequest() {
+    if (!myPendingRequest) return;
+    setCancellingRequest(true);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/join-requests/${myPendingRequest.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al cancelar solicitud');
+      }
+      setMyPendingRequest(null);
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setCancellingRequest(false);
+    }
+  }
+
+  async function loadJoinRequests() {
+    setJoinRequestsLoading(true);
+    setJoinRequestError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/join-requests?all=1`);
+      if (!res.ok) throw new Error('Error al cargar solicitudes');
+      const data = await res.json();
+      setJoinRequests(data.joinRequests || []);
+    } catch (err: any) {
+      setJoinRequestError(err.message);
+    } finally {
+      setJoinRequestsLoading(false);
+    }
+  }
+
+  async function handleReviewJoinRequest(requestId: string, action: 'APPROVED' | 'REJECTED') {
+    setReviewingRequest(requestId);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/join-requests/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, reason: action === 'REJECTED' ? 'Solicitud rechazada' : undefined }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al procesar solicitud');
+      }
+      // Refresh the list
+      loadJoinRequests();
+      // If approved and it was the current user's request, update membership
+      if (action === 'APPROVED') {
+        const reviewed = joinRequests.find((r: any) => r.id === requestId);
+        if (reviewed?.userId === userId) {
+          setMyPendingRequest(null);
+          setUserMembership({ role: 'MEMBER' });
+          window.location.reload();
+        }
+      }
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setReviewingRequest(null);
+    }
+  }
 
   async function handleJoinLeave() {
     setJoining(true);
@@ -600,6 +733,93 @@ export default function ClanDetailClient({
     }
   }
 
+  // ── Invitation Handlers ──
+  const loadPendingInvites = useCallback(async () => {
+    if (!canInvite) return;
+    setLoadingPendingInvites(true);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/invitations/pending`);
+      if (res.ok) {
+        const data = await res.json();
+        setPendingInvites(data.invitations || []);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setLoadingPendingInvites(false);
+    }
+  }, [clan.id, canInvite]);
+
+  useEffect(() => {
+    if (inviteOpen) {
+      loadPendingInvites();
+    }
+  }, [inviteOpen, loadPendingInvites]);
+
+  const handleSearchUsers = useCallback((query: string) => {
+    setInviteSearch(query);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    searchTimeoutRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}&excludeClanId=${clan.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.users || []);
+        }
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+  }, [clan.id]);
+
+  const handleSendInvite = async (inviteeId: string) => {
+    setSendingInvite(inviteeId);
+    setInviteSuccess(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/invitations/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteeId }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al enviar invitación');
+      }
+      setInviteSuccess(inviteeId);
+      setTimeout(() => setInviteSuccess(null), 2000);
+      // Refresh pending invites list
+      loadPendingInvites();
+      // Remove from search results
+      setSearchResults(prev => prev.filter(u => u.id !== inviteeId));
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setSendingInvite(null);
+    }
+  };
+
+  const handleCancelInvite = async (invitationId: string) => {
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/invitations/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invitationId }),
+      });
+      if (res.ok) {
+        setPendingInvites(prev => prev.filter(inv => inv.id !== invitationId));
+      }
+    } catch {
+      // Silently fail
+    }
+  };
+
   const joinedLabel = userMembership
     ? userMembership.role === 'LEADER'
       ? t('clanDetail.youAreLeader')
@@ -681,29 +901,52 @@ export default function ClanDetailClient({
                   {joinedLabel && (
                     <span className="text-xs font-semibold text-[var(--text-muted)]">{joinedLabel}</span>
                   )}
-                  <button
-                    onClick={handleJoinLeave}
-                    disabled={joining}
-                    className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer text-sm ${
-                      userMembership
-                        ? 'bg-[var(--surface)] border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--error)]/40 hover:text-[var(--error)] hover:bg-[var(--error)]/5'
-                        : 'bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-white hover:shadow-xl hover:shadow-[var(--accent-purple)]/25 hover:scale-105 active:scale-95'
-                    }`}
-                  >
-                    {joining ? (
-                      <Loader2 size={18} className="animate-spin" />
-                    ) : userMembership ? (
-                      <>
-                        <Shield size={18} />
-                        {t('clanDetail.leaveClan')}
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={18} />
-                        {t('clanDetail.joinClan')}
-                      </>
-                    )}
-                  </button>
+                  {userMembership ? (
+                    <button
+                      onClick={handleJoinLeave}
+                      disabled={joining}
+                      className="px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer text-sm bg-[var(--surface)] border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--error)]/40 hover:text-[var(--error)] hover:bg-[var(--error)]/5"
+                    >
+                      {joining ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <>
+                          <Shield size={18} />
+                          {t('clanDetail.leaveClan')}
+                        </>
+                      )}
+                    </button>
+                  ) : myPendingRequest ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-amber-500/10 border-2 border-amber-500/30 text-amber-600 dark:text-amber-400">
+                        <Clock size={18} />
+                        {t('clanDetail.requestPending')}
+                      </div>
+                      <button
+                        onClick={handleCancelJoinRequest}
+                        disabled={cancellingRequest}
+                        className="text-xs text-[var(--text-muted)] hover:text-[var(--error)] transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        {cancellingRequest ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <XCircle size={12} />
+                        )}
+                        {t('clanDetail.cancelRequest')}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setJoinRequestsOpen(true)}
+                      className="px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer text-sm bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-white hover:shadow-xl hover:shadow-[var(--accent-purple)]/25 hover:scale-105 active:scale-95"
+                    >
+                      <UserPlus size={18} />
+                      {t('clanDetail.sendJoinRequest')}
+                    </button>
+                  )}
+                  {loadingMyRequest && (
+                    <Loader2 size={16} className="animate-spin text-[var(--text-muted)]" />
+                  )}
                 </div>
               ) : (
                 <div className="text-center">
@@ -719,8 +962,8 @@ export default function ClanDetailClient({
               )}
             </motion.div>
 
-            {/* ═══ Leader Management ═══ */}
-            {userId && isLeader && (
+            {/* ═══ Leader & Officer Management ═══ */}
+            {userId && (isLeader || isOfficer) && (
               <motion.div
                 className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6 pt-6 border-t border-[var(--border)]/50"
                 initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
@@ -741,6 +984,49 @@ export default function ClanDetailClient({
                   <Trash2 size={16} />
                   {t('clanDetail.deleteClan')}
                 </button>
+                {/* ═══ Audit Logs Button ═══ */}
+                {/* ═══ Invite Button ═══ */}
+                {canInvite && (
+                  <button
+                    onClick={() => setInviteOpen(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 transition-all cursor-pointer"
+                  >
+                    <UserPlus size={16} />
+                    {t('clanDetail.inviteMembers')}
+                  </button>
+                )}
+                {(isLeader || isOfficer) && (
+                  <button
+                    onClick={() => { setJoinRequestsOpen(true); loadJoinRequests(); }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-amber-500 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all cursor-pointer relative"
+                  >
+                    <Clock size={16} />
+                    {t('clanDetail.manageRequests')}
+                  </button>
+                )}
+                {canViewAudit && (
+                  <button
+                    onClick={async () => {
+                      setAuditLogsOpen(true);
+                      setAuditLogsLoading(true);
+                      setAuditLogsError(null);
+                      try {
+                        const res = await fetch(`/api/clans/${clan.id}/audit-logs`);
+                        if (!res.ok) throw new Error((await res.json()).error || 'Error al cargar auditoría');
+                        const data = await res.json();
+                        setAuditLogs(data.logs || []);
+                      } catch (err: any) {
+                        setAuditLogsError(err.message);
+                      } finally {
+                        setAuditLogsLoading(false);
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent-purple)] hover:border-[var(--accent-purple)]/40 hover:bg-[var(--accent-purple)]/5 transition-all cursor-pointer"
+                  >
+                    <ScrollText size={16} />
+                    {t('clanDetail.viewAuditLogs')}
+                  </button>
+                )}
               </motion.div>
             )}
           </div>
@@ -780,6 +1066,461 @@ export default function ClanDetailClient({
               <button onClick={handleEdit} disabled={saving} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--primary)] text-white hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer">
                 {saving ? t('common.saving') : t('common.save')}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Audit Logs Modal ═══ */}
+      {auditLogsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => { setAuditLogsOpen(false); setAuditLogs(null); setAuditLogsError(null); }}>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-2xl mx-4 shadow-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[var(--accent-purple)]/15 flex items-center justify-center">
+                  <ScrollText size={18} className="text-[var(--accent-purple)]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('clanDetail.auditLogs')}</h3>
+                  <p className="text-xs text-[var(--text-muted)]">{clan.name}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setAuditLogsOpen(false); setAuditLogs(null); setAuditLogsError(null); }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all cursor-pointer"
+                aria-label={t('clanDetail.auditLogsClose')}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5">
+              {auditLogsLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]">
+                  <Loader2 size={32} className="animate-spin mb-3" />
+                  <p className="text-sm">{t('clanDetail.auditLogsLoading')}</p>
+                </div>
+              ) : auditLogsError ? (
+                <div className="flex flex-col items-center justify-center py-16 text-[var(--error)]">
+                  <AlertTriangle size={32} className="mb-3" />
+                  <p className="text-sm font-medium">{auditLogsError}</p>
+                </div>
+              ) : auditLogs && auditLogs.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]">
+                  <ScrollText size={40} className="mb-3 opacity-40" />
+                  <p className="text-sm">{t('clanDetail.auditLogsEmpty')}</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {auditLogs?.map((log: any) => (
+                    <div
+                      key={log.id}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-[var(--surface-sunken)]/50 transition-colors"
+                    >
+                      {/* Action icon */}
+                      <div className="w-8 h-8 rounded-lg bg-[var(--surface-sunken)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Clock size={14} className="text-[var(--text-tertiary)]" />
+                      </div>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] uppercase tracking-wider">
+                            {log.action}
+                          </span>
+                          <span className="text-xs text-[var(--text-muted)]">
+                            {new Date(log.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-[var(--text-primary)] mt-1">
+                          {log.details || log.action}
+                        </p>
+                        {log.user && (
+                          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                            {t('clanDetail.auditLogsUser')}: {log.user.username || log.user.displayName}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Invite Members Modal ═══ */}
+      {inviteOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 sm:items-center bg-black/60 backdrop-blur-sm" onClick={() => { setInviteOpen(false); setInviteSearch(''); setSearchResults([]); }}>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[70vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/15 flex items-center justify-center">
+                  <UserPlus size={18} className="text-[var(--primary)]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('clanDetail.inviteMembers')}</h3>
+                  <p className="text-xs text-[var(--text-muted)]">{t('clanDetail.inviteDescription')}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setInviteOpen(false); setInviteSearch(''); setSearchResults([]); }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all cursor-pointer"
+                aria-label={t('common.close')}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Search input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={inviteSearch}
+                  onChange={(e) => handleSearchUsers(e.target.value)}
+                  placeholder={t('clanDetail.inviteSearchPlaceholder')}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-sunken)] pl-10 pr-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all"
+                  autoFocus
+                />
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+              </div>
+
+              {/* Search results */}
+              {searching && (
+                <div className="flex items-center justify-center py-8 text-[var(--text-muted)]">
+                  <Loader2 size={20} className="animate-spin mr-2" />
+                  <span className="text-sm">{t('common.searching')}</span>
+                </div>
+              )}
+
+              {!searching && inviteSearch.length >= 2 && searchResults.length === 0 && (
+                <div className="text-center py-8 text-[var(--text-muted)]">
+                  <Users size={32} className="mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">{t('clanDetail.inviteNoResults')}</p>
+                </div>
+              )}
+
+              {!searching && searchResults.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t('clanDetail.inviteSearchResults')}</p>
+                  {searchResults.map((user: any) => (
+                    <div
+                      key={user.id}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--surface-sunken)]/50 transition-colors"
+                    >
+                      {/* Avatar */}
+                      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20">
+                        {user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt={user.displayName || user.username} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-sm font-bold text-[var(--primary)]">
+                            {(user.displayName || user.username).slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      {/* Name */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                          {user.displayName || user.username}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)]">
+                          @{user.username} · {t('clanDetail.level')} {user.level}
+                        </p>
+                      </div>
+                      {/* Invite button */}
+                      {inviteSuccess === user.id ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-500">
+                          <Check size={14} />
+                          {t('clanDetail.inviteSent')}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleSendInvite(user.id)}
+                          disabled={sendingInvite === user.id}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--primary)] text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {sendingInvite === user.id ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <><Send size={12} /> {t('clanDetail.inviteButton')}</>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pending Invites */}
+              {pendingInvites.length > 0 && (
+                <div className="pt-3 border-t border-[var(--border)]">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                      {t('clanDetail.pendingInvitations')} ({pendingInvites.length})
+                    </p>
+                    {loadingPendingInvites && <Loader2 size={12} className="animate-spin text-[var(--text-tertiary)]" />}
+                  </div>
+                  <div className="space-y-2">
+                    {pendingInvites.map((inv: any) => (
+                      <div key={inv.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-[var(--surface-sunken)]/50">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--warning)]/10 text-[var(--warning)] flex-shrink-0">
+                          <Clock size={14} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                            {inv.invitee.displayName || inv.invitee.username}
+                          </p>
+                          <p className="text-xs text-[var(--text-muted)]">
+                            @{inv.invitee.username}
+                          </p>
+                        </div>
+                        {(isLeader || inv.inviterId === userId) && (
+                          <button
+                            onClick={() => handleCancelInvite(inv.id)}
+                            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 transition-all cursor-pointer"
+                            title={t('clanDetail.cancelInvite')}
+                          >
+                            <XCircle size={14} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Join Requests Modal ═══ */}
+      {joinRequestsOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 sm:items-center bg-black/60 backdrop-blur-sm" onClick={() => { setJoinRequestsOpen(false); setJoinRequestMessage(''); setJoinRequestError(null); }}>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[75vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                  {isLeader || isOfficer ? (
+                    <Clock size={18} className="text-amber-500" />
+                  ) : (
+                    <UserPlus size={18} className="text-[var(--primary)]" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
+                    {isLeader || isOfficer
+                      ? t('clanDetail.manageRequests')
+                      : t('clanDetail.sendJoinRequest')}
+                  </h3>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {isLeader || isOfficer
+                      ? t('clanDetail.manageRequestsDesc')
+                      : t('clanDetail.sendJoinRequestDesc')}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setJoinRequestsOpen(false); setJoinRequestMessage(''); setJoinRequestError(null); }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all cursor-pointer"
+                aria-label={t('common.close')}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5">
+              {/* Leader/Officer: Show pending requests */}
+              {(isLeader || isOfficer) ? (
+                <>
+                  {joinRequestsLoading ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]">
+                      <Loader2 size={24} className="animate-spin mb-2" />
+                      <p className="text-sm">{t('common.loading')}</p>
+                    </div>
+                  ) : joinRequests.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]">
+                      <UserPlus size={36} className="mb-2 opacity-40" />
+                      <p className="text-sm font-medium">{t('clanDetail.noPendingRequests')}</p>
+                      <p className="text-xs mt-1">{t('clanDetail.noPendingRequestsDesc')}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                        {t('clanDetail.pendingRequests')} ({joinRequests.length})
+                      </p>
+                      {joinRequests.map((req: any) => (
+                        <div
+                          key={req.id}
+                          className={`flex items-start gap-3 p-4 rounded-xl transition-colors ${
+                            req.status === 'PENDING'
+                              ? 'bg-amber-500/5 border border-amber-500/20'
+                              : 'bg-[var(--surface-sunken)]/50 border border-[var(--border)]'
+                          }`}
+                        >
+                          {/* Avatar */}
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20">
+                            {req.user.avatarUrl ? (
+                              <img src={req.user.avatarUrl} alt={req.user.displayName || req.user.username} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-sm font-bold text-[var(--primary)]">
+                                {(req.user.displayName || req.user.username).slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-[var(--text-primary)]">
+                                {req.user.displayName || req.user.username}
+                              </p>
+                              <span className="text-xs text-[var(--text-muted)]">
+                                @{req.user.username}
+                              </span>
+                              {req.status === 'PENDING' && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                                  {t('clanDetail.pending')}
+                                </span>
+                              )}
+                              {req.status === 'APPROVED' && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                  {t('clanDetail.approved')}
+                                </span>
+                              )}
+                              {req.status === 'REJECTED' && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--error)]/15 text-[var(--error)]">
+                                  {t('clanDetail.rejected')}
+                                </span>
+                              )}
+                              {req.status === 'CANCELLED' && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--text-muted)]/15 text-[var(--text-muted)]">
+                                  {t('clanDetail.cancelled')}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-[var(--text-tertiary)]">
+                                {t('clanDetail.level')} {req.user.level} · {req.user.xpPoints.toLocaleString()} XP
+                              </span>
+                            </div>
+                            {req.message && (
+                              <p className="text-xs text-[var(--text-secondary)] mt-1.5 italic bg-[var(--surface-sunken)]/50 rounded-lg px-3 py-1.5">
+                                &ldquo;{req.message}&rdquo;
+                              </p>
+                            )}
+                            <p className="text-[10px] text-[var(--text-muted)] mt-1">
+                              {new Date(req.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          {/* Actions */}
+                          {req.status === 'PENDING' && (isLeader || isOfficer) && (
+                            <div className="flex flex-col gap-1.5 flex-shrink-0">
+                              <button
+                                onClick={() => handleReviewJoinRequest(req.id, 'APPROVED')}
+                                disabled={reviewingRequest === req.id}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-white hover:bg-emerald-600 transition-all disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+                              >
+                                {reviewingRequest === req.id ? (
+                                  <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                  <><Check size={12} /> {t('common.approve')}</>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => handleReviewJoinRequest(req.id, 'REJECTED')}
+                                disabled={reviewingRequest === req.id}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--error)] hover:border-[var(--error)]/40 transition-all disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+                              >
+                                <XCircle size={12} /> {t('common.reject')}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* Non-member: Show send request form */
+                <>
+                  {myPendingRequest ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mb-4">
+                        <Clock size={28} className="text-amber-500" />
+                      </div>
+                      <h4 className="text-lg font-bold text-[var(--text-primary)] mb-1">{t('clanDetail.requestSent')}</h4>
+                      <p className="text-sm text-[var(--text-secondary)] max-w-xs">
+                        {t('clanDetail.requestSentDesc')}
+                      </p>
+                      {myPendingRequest.message && (
+                        <p className="text-xs text-[var(--text-tertiary)] mt-3 italic bg-[var(--surface-sunken)]/50 rounded-lg px-4 py-2 max-w-sm">
+                          &ldquo;{myPendingRequest.message}&rdquo;
+                        </p>
+                      )}
+                      <p className="text-xs text-[var(--text-muted)] mt-3">
+                        {t('clanDetail.requestedAt')} {new Date(myPendingRequest.createdAt).toLocaleString()}
+                      </p>
+                      <button
+                        onClick={handleCancelJoinRequest}
+                        disabled={cancellingRequest}
+                        className="mt-4 px-4 py-2 rounded-lg text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--error)] hover:border-[var(--error)]/40 transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        {cancellingRequest ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <XCircle size={14} />
+                        )}
+                        {t('clanDetail.cancelRequest')}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                          {t('clanDetail.joinRequestMessage')}
+                        </label>
+                        <textarea
+                          value={joinRequestMessage}
+                          onChange={(e) => setJoinRequestMessage(e.target.value.slice(0, 500))}
+                          rows={4}
+                          maxLength={500}
+                          className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-sunken)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] resize-none transition-all"
+                          placeholder={t('clanDetail.joinRequestPlaceholder')}
+                        />
+                        <div className="flex justify-between mt-1">
+                          <p className="text-xs text-[var(--text-tertiary)]">{t('clanDetail.joinRequestHint')}</p>
+                          <span className="text-xs text-[var(--text-muted)]">{joinRequestMessage.length}/500</span>
+                        </div>
+                      </div>
+
+                      {joinRequestError && (
+                        <div className="flex items-center gap-2 text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-3 py-2">
+                          <AlertTriangle size={14} />
+                          {joinRequestError}
+                        </div>
+                      )}
+
+                      <button
+                        onClick={handleSendJoinRequest}
+                        disabled={joinRequestSending}
+                        className="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-white hover:shadow-lg hover:shadow-[var(--accent-purple)]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer text-sm"
+                      >
+                        {joinRequestSending ? (
+                          <Loader2 size={18} className="animate-spin" />
+                        ) : (
+                          <><Send size={18} /> {t('clanDetail.sendRequest')}</>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

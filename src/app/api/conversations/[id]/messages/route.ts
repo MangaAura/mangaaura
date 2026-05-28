@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
+import { getIO } from '@/lib/socket';
+import type { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const messageSchema = z.object({
   content: z.string().min(1).max(2000),
+  replyToId: z.string().optional(),
 });
 
 // GET /api/conversations/[id]/messages - Get messages
@@ -25,6 +28,7 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
+    const search = searchParams.get('search') || '';
 
     // Verify user is part of conversation
     const conversation = await prisma.conversation.findFirst({
@@ -52,8 +56,14 @@ export async function GET(
       );
     }
 
+    // Build where clause
+    const where: Prisma.DirectMessageWhereInput = { conversationId: id };
+    if (search.trim()) {
+      where.content = { contains: search.trim(), mode: 'insensitive' };
+    }
+
     const messages = await prisma.directMessage.findMany({
-      where: { conversationId: id },
+      where,
       include: {
         sender: {
           select: {
@@ -63,15 +73,30 @@ export async function GET(
             avatarUrl: true,
           },
         },
+        reactions: {
+          include: {
+            user: {
+              select: { id: true, username: true },
+            },
+          },
+        },
+        replyTo: {
+          select: {
+            id: true,
+            content: true,
+            senderId: true,
+            sender: {
+              select: { username: true, displayName: true },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    const total = await prisma.directMessage.count({
-      where: { conversationId: id },
-    });
+    const total = await prisma.directMessage.count({ where });
 
     return NextResponse.json({
       messages: messages.reverse(), // Oldest first for display
@@ -141,7 +166,20 @@ export async function POST(
       );
     }
 
-    const { content } = parsed.data;
+    const { content, replyToId } = parsed.data;
+
+    // Validate replyToId if provided
+    if (replyToId) {
+      const replyMessage = await prisma.directMessage.findFirst({
+        where: { id: replyToId, conversationId: id },
+      });
+      if (!replyMessage) {
+        return NextResponse.json(
+          { error: 'Mensaje de reply no encontrado' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Create message and update conversation in transaction
     const [message] = await prisma.$transaction([
@@ -150,6 +188,7 @@ export async function POST(
           conversationId: id,
           senderId: session.user.id,
           content: content.trim(),
+          replyToId: replyToId || null,
         },
         include: {
           sender: {
@@ -167,6 +206,88 @@ export async function POST(
         data: { lastMessageAt: new Date() },
       }),
     ]);
+
+    // Emitir evento en tiempo real al room de la conversación
+    const io = getIO();
+    if (io) {
+      let replyToPayload = null;
+      if (replyToId) {
+        const repliedMsg = await prisma.directMessage.findUnique({
+          where: { id: replyToId },
+          select: {
+            id: true,
+            content: true,
+            senderId: true,
+            sender: { select: { username: true, displayName: true } },
+          },
+        });
+        if (repliedMsg) {
+          replyToPayload = {
+            id: repliedMsg.id,
+            content: repliedMsg.content,
+            senderId: repliedMsg.senderId,
+            senderName: repliedMsg.sender.displayName || repliedMsg.sender.username,
+          };
+        }
+      }
+
+      const messagePayload = {
+        id: message.id,
+        content: message.content,
+        createdAt: message.createdAt.toISOString(),
+        senderId: message.senderId,
+        isRead: message.isRead,
+        replyTo: replyToPayload,
+      };
+
+      // Emitir el nuevo mensaje a todos en el room
+      io.to(`dm:${id}`).emit('dm:message', messagePayload);
+
+      // Marcar como leídos los mensajes del otro usuario
+      const otherParticipantId =
+        conversation.participant1Id === session.user.id
+          ? conversation.participant2Id
+          : conversation.participant1Id;
+
+      // Emitir actualización del contador de no leídos al otro usuario
+      const newUnreadCount = await prisma.directMessage.count({
+        where: {
+          isRead: false,
+          senderId: { not: otherParticipantId },
+          conversation: {
+            OR: [
+              { participant1Id: otherParticipantId },
+              { participant2Id: otherParticipantId },
+            ],
+          },
+        },
+      });
+      io.to(`user:${otherParticipantId}`).emit('dm:unread-count', { count: newUnreadCount });
+
+      const unreadMessages = await prisma.directMessage.findMany({
+        where: {
+          conversationId: id,
+          senderId: otherParticipantId,
+          isRead: false,
+        },
+        select: { id: true },
+      });
+
+      if (unreadMessages.length > 0) {
+        await prisma.directMessage.updateMany({
+          where: {
+            conversationId: id,
+            senderId: otherParticipantId,
+            isRead: false,
+          },
+          data: { isRead: true },
+        });
+
+        io.to(`dm:${id}`).emit('dm:read', {
+          messageIds: unreadMessages.map((m) => m.id),
+        });
+      }
+    }
 
     return NextResponse.json({ message });
   } catch (error) {

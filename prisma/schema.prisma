@@ -104,6 +104,12 @@ model User {
   contactMessages  ContactMessage[]
   conversations2   Conversation[]     @relation("Participant2")
   directMessages   DirectMessage[]
+  reactions        MessageReaction[]
+  clanChatMessages ClanChatMessage[]
+  clanChatMessageReactions ClanChatMessageReaction[]
+  clanAnnouncements ClanAnnouncement[]
+  sentJoinRequests   ClanJoinRequest[]     @relation("JoinRequestSender")
+  receivedJoinRequests ClanJoinRequest[]   @relation("JoinRequestReviewer")
   collections        Collection[]          @relation("Collections")
   collectionLikes    CollectionLike[]
   collectionCollaborators CollectionCollaborator[]
@@ -416,6 +422,9 @@ model Clan {
 
   leader  User?            @relation("ClanLeader", fields: [leaderId], references: [id])
   members ClanMembership[]
+  joinRequests  ClanJoinRequest[]
+  announcements ClanAnnouncement[]
+  chatMessages ClanChatMessage[]
 
   @@index([totalScore])
   @@index([monthlyScore])
@@ -428,6 +437,7 @@ model ClanMembership {
   role             String   @default("MEMBER")
   joinedAt         DateTime @default(now())
   contributedScore Int      @default(0)
+  lastReadAt       DateTime @default(now())
 
   clan Clan @relation(fields: [clanId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -435,6 +445,63 @@ model ClanMembership {
   @@unique([clanId, userId])
   @@index([clanId])
   @@index([userId])
+}
+
+model ClanJoinRequest {
+  id        String   @id @default(uuid())
+  clanId    String
+  userId    String
+  status    String   @default("PENDING") // PENDING | APPROVED | REJECTED | CANCELLED
+  message   String?  @db.VarChar(500)
+  reviewedBy String? // userId of the leader/officer who reviewed
+  reviewedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clan Clan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  user User @relation("JoinRequestSender", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("JoinRequestReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@unique([clanId, userId, status]) // Only one pending request per user per clan
+  @@index([clanId, status])
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+model ClanAnnouncement {
+  id        String   @id @default(uuid())
+  clanId    String
+  authorId  String
+  content   String   @db.VarChar(1000)
+  pinned    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clan   Clan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([clanId, pinned])
+  @@index([createdAt])
+}
+
+model ClanInvite {
+  id        String   @id @default(uuid())
+  clanId    String
+  inviterId String
+  inviteeId String
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED, EXPIRED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  respondedAt DateTime?
+
+  clan    Clan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  inviter User @relation("ClanInviteSent", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee User @relation("ClanInviteReceived", fields: [inviteeId], references: [id], onDelete: Cascade)
+
+  @@unique([clanId, inviteeId, status], name: "pendingInvite")
+  @@index([inviteeId, status])
+  @@index([clanId, status])
+  @@index([createdAt])
 }
 
 model Account {
@@ -915,16 +982,79 @@ model DirectMessage {
   conversationId String
   senderId       String
   content        String
+  replyToId      String?
   isRead         Boolean   @default(false)
   readAt         DateTime?
+  isEdited       Boolean   @default(false)
+  editedAt       DateTime?
+  isDeleted      Boolean   @default(false)
   createdAt      DateTime  @default(now())
 
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversation Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo      DirectMessage? @relation("MessageReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies      DirectMessage[] @relation("MessageReply")
+  reactions    MessageReaction[]
 
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
+  @@index([replyToId])
+}
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message DirectMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@index([userId])
+}
+
+// ─── Clan Chat ───────────────────────────────────────────────────
+
+model ClanChatMessage {
+  id        String    @id @default(uuid())
+  clanId    String
+  senderId  String
+  content   String
+  replyToId String?
+  isEdited  Boolean   @default(false)
+  editedAt  DateTime?
+  isDeleted Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  clan    Clan              @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  sender  User              @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo ClanChatMessage?  @relation("ClanChatMessageReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies ClanChatMessage[] @relation("ClanChatMessageReply")
+  reactions ClanChatMessageReaction[]
+
+  @@index([clanId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@index([replyToId])
+}
+
+model ClanChatMessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message ClanChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@index([userId])
 }
 
 // Public Collections/Lists
@@ -1251,6 +1381,32 @@ model Announcement {
 }
 
 // CSP Violation Reports — received via report-uri directive
+// ─── Deleted Manga Bundle ────────────────────────────────────────
+// Al enviar un manga a la papelera, se guarda todo su grafo de datos aquí
+// como un JSON blob. Al restaurar, se recrea MangaSeries + todas las relaciones.
+model DeletedMangaBundle {
+  id         String   @id // Same as original MangaSeries ID
+  title      String
+  slug       String
+  coverUrl   String?
+  authorId   String
+  authorName String
+  status     String   @default("ONGOING")
+  tags       String
+  totalViews Int      @default(0)
+  rating     Float?
+
+  // Single JSON blob with ALL related data (manga + chapters + all relations)
+  data      String
+
+  deletedAt  DateTime @default(now())
+  expiresAt  DateTime // 30 days after deletedAt
+  createdAt  DateTime @default(now())
+
+  @@index([authorId])
+  @@index([expiresAt])
+}
+
 model CspReport {
   id                String   @id @default(uuid())
   blockedUri        String

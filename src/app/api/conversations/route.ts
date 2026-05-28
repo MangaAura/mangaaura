@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
             createdAt: true,
             senderId: true,
             isRead: true,
+            isDeleted: true,
           },
         },
         _count: {

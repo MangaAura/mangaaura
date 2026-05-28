@@ -1135,7 +1135,8 @@
       "viewAllCollections": "View all collections",
       "exploreMangas": "Explore manga",
       "viewHistory": "View full history",
-      "viewAllAchievements": "View all achievements"
+      "viewAllAchievements": "View all achievements",
+      "sendMessage": "Send message"
     },
     "followsYou": "Follows you",
     "shareProfile": "Share profile",
@@ -1149,6 +1150,7 @@
     "title": "Complete your profile",
     "missing": "Add: {items}",
     "avatar": "Avatar",
+    "cover": "Cover",
     "bio": "Bio",
     "website": "Website",
     "social": "Social links"
@@ -1949,7 +1951,17 @@
     "closeError": "Close error",
     "emblemOf": "Emblem of",
     "errorLeave": "Error leaving clan",
-    "errorJoin": "Error joining clan"
+    "errorJoin": "Error joining clan",
+    "auditLogs": "Audit Log",
+    "auditLogsEmpty": "No audit events recorded.",
+    "auditLogsAction": "Action",
+    "auditLogsUser": "User",
+    "auditLogsDate": "Date",
+    "auditLogsDetails": "Details",
+    "auditLogsLoading": "Loading audit logs…",
+    "auditLogsError": "Error loading audit logs.",
+    "auditLogsClose": "Close",
+    "viewAuditLogs": "View Audit Log"
   },
   "creatorUpload": {
     "chapterNumberInvalid": "Must be a positive integer",

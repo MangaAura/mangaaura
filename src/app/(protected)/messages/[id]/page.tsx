@@ -74,6 +74,26 @@ export default async function ConversationPage({ params }: ConversationPageProps
         createdAt: true,
         senderId: true,
         isRead: true,
+        isEdited: true,
+        editedAt: true,
+        isDeleted: true,
+        replyTo: {
+          select: {
+            id: true,
+            content: true,
+            senderId: true,
+            sender: {
+              select: { username: true, displayName: true },
+            },
+          },
+        },
+        reactions: {
+          select: {
+            id: true,
+            emoji: true,
+            userId: true,
+          },
+        },
       },
     },
   },
@@ -110,6 +130,22 @@ export default async function ConversationPage({ params }: ConversationPageProps
             createdAt: m.createdAt.toISOString(),
             senderId: m.senderId,
             isRead: m.isRead,
+            isEdited: m.isEdited,
+            editedAt: m.editedAt?.toISOString(),
+            isDeleted: m.isDeleted,
+            replyTo: m.replyTo
+              ? {
+                  id: m.replyTo.id,
+                  content: m.replyTo.content,
+                  senderId: m.replyTo.senderId,
+                  senderName: m.replyTo.sender.displayName || m.replyTo.sender.username,
+                }
+              : null,
+            reactions: m.reactions.map((r) => ({
+              id: r.id,
+              emoji: r.emoji,
+              userId: r.userId,
+            })),
           }))}
         />
       </div>

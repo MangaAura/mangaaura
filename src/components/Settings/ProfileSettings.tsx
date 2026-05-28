@@ -444,8 +444,8 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
               </div>
             )}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/50 to-transparent" />
-            <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 opacity-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/50 to-transparent hidden sm:block" />
+            <div className="absolute bottom-2 right-2 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button
                 type="button"
                 onClick={handleCoverClick}

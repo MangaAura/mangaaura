@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
@@ -38,6 +39,12 @@ export async function POST(
       );
     }
 
+    // Get clan info for audit
+    const clanInfo = await prisma.clan.findUnique({
+      where: { id },
+      select: { name: true },
+    });
+
     // If user is the leader, check if there are other members to transfer leadership
     if (membership.role === 'LEADER') {
       const memberCount = await prisma.clanMembership.count({
@@ -51,9 +58,25 @@ export async function POST(
         );
       }
 
+      const deletedClanName = clanInfo?.name || 'Unknown';
+
       // If leader is the only member, delete the clan
       await prisma.clan.delete({
         where: { id },
+      });
+
+      // Audit log for clan deletion via last member leaving
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_DELETED',
+        targetId: id,
+        targetType: 'CLAN',
+        metadata: {
+          clanName: deletedClanName,
+          reason: 'last_member_left',
+        },
+        severity: 'WARNING',
+        ipAddress: _req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || _req.headers.get('x-real-ip') || undefined,
       });
 
       return NextResponse.json({ 
@@ -65,6 +88,19 @@ export async function POST(
     // Remove membership
     await prisma.clanMembership.delete({
       where: { id: membership.id },
+    });
+
+    // Audit log
+    await logSecurityEvent({
+      userId: session.user.id,
+      action: 'CLAN_MEMBER_LEFT',
+      targetId: id,
+      targetType: 'CLAN',
+      metadata: {
+        clanName: clanInfo?.name || 'Unknown',
+        previousRole: membership.role,
+      },
+      ipAddress: _req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || _req.headers.get('x-real-ip') || undefined,
     });
 
     return NextResponse.json({ success: true });

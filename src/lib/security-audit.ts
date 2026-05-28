@@ -25,7 +25,18 @@ export type SecurityAction =
   | 'CREATED_COLLECTION'
   | 'USER_FOLLOWED_USER'
   | 'BLOCKED_USER'
-  | 'UNBLOCKED_USER';
+  | 'UNBLOCKED_USER'
+  | 'CLAN_CREATED'
+  | 'CLAN_DELETED'
+  | 'CLAN_DESCRIPTION_UPDATED'
+  | 'CLAN_EMBLEM_UPDATED'
+  | 'CLAN_MEMBER_KICKED'
+  | 'CLAN_MEMBER_PROMOTED'
+  | 'CLAN_MEMBER_DEMOTED'
+  | 'CLAN_LEADERSHIP_TRANSFERRED'
+  | 'CLAN_MEMBER_LEFT'
+  | 'CLAN_MEMBER_JOINED'
+  | 'CLAN_CHAT_MESSAGE_DELETED';
 
 export type Severity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
@@ -33,7 +44,7 @@ interface AuditLogParams {
   userId?: string;
   action: SecurityAction;
   targetId?: string;
-  targetType?: 'USER' | 'MANGA' | 'CHAPTER' | 'COMMENT' | 'REPORT';
+  targetType?: 'USER' | 'MANGA' | 'CHAPTER' | 'COMMENT' | 'REPORT' | 'CLAN' | 'CLAN_CHAT';
   metadata?: Record<string, unknown>;
   severity?: Severity;
   ipAddress?: string;

@@ -384,6 +384,36 @@ export const initIO = (httpServer: NetServer): IOServer => {
       io?.to(`user:${userId}`).emit('notification:count', 0);
     });
 
+    // =============== DIRECT MESSAGE EVENTS ===============
+
+    // Indicador de escritura en mensajes directos
+    socket.on('dm:typing', ({ conversationId, isTyping }) => {
+      socket.to(`dm:${conversationId}`).emit('dm:typing-update', {
+        userId: userId!,
+        username: username || 'Anonymous',
+        isTyping,
+      });
+    });
+
+    // Solicitar estado online de un usuario
+    socket.on('user:get-status', ({ userId: targetUserId }) => {
+      // Comprobar si el usuario está conectado en algún socket
+      const socketsInRoom = io?.sockets.adapter.rooms.get(`user:${targetUserId}`);
+      const online = !!socketsInRoom && socketsInRoom.size > 0;
+      socket.emit('user:status', { userId: targetUserId, online });
+    });
+
+    // =============== CLAN CHAT EVENTS ===============
+
+    socket.on('clan:typing', ({ clanId, isTyping }) => {
+      socket.to(`clan:${clanId}`).emit('clan:typing-update', {
+        clanId,
+        userId: userId!,
+        username: username || 'Anonymous',
+        isTyping,
+      });
+    });
+
     // Ping-pong para mantener conexion
   socket.on('ping', () => {
     socket.emit('notification:new', { notification: null } as any);

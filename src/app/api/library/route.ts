@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
     const where = {
       userId: session.user.id,
       ...(status && { status }),
+      manga: { deletedAt: null },
     };
 
     // Build orderBy based on sort
@@ -105,20 +106,23 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Enrich with latest chapter info
-    const enrichedEntries = entries.map((entry: any) => ({
-      id: entry.id,
-      mangaId: entry.mangaId,
-      status: entry.status,
-      currentChapter: entry.currentChapter,
-      rating: entry.rating,
-      addedAt: entry.addedAt,
-      updatedAt: entry.updatedAt,
-      manga: entry.manga,
-      totalChapters: entry.manga.chapters.length,
-      progress: entry.manga.chapters[0] 
-        ? Math.round((entry.currentChapter / entry.manga.chapters[0].chapterNumber) * 100)
-        : 0,
-    }));
+    const enrichedEntries = entries.map((entry: any) => {
+      if (!entry.manga) return null;
+      return {
+        id: entry.id,
+        mangaId: entry.mangaId,
+        status: entry.status,
+        currentChapter: entry.currentChapter,
+        rating: entry.rating,
+        addedAt: entry.addedAt,
+        updatedAt: entry.updatedAt,
+        manga: entry.manga,
+        totalChapters: entry.manga.chapters.length,
+        progress: entry.manga.chapters[0]
+          ? Math.round((entry.currentChapter / entry.manga.chapters[0].chapterNumber) * 100)
+          : 0,
+      };
+    }).filter(Boolean);
 
     const result = {
       entries: enrichedEntries,

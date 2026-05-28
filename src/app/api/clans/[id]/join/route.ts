@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
@@ -66,6 +67,18 @@ export async function POST(
           },
         },
       },
+    });
+
+    // Audit log
+    await logSecurityEvent({
+      userId,
+      action: 'CLAN_MEMBER_JOINED',
+      targetId: id,
+      targetType: 'CLAN',
+      metadata: {
+        clanName: clan.name,
+      },
+      ipAddress: _req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || _req.headers.get('x-real-ip') || undefined,
     });
 
     return NextResponse.json({ membership }, { status: 201 });

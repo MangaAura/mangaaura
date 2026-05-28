@@ -16,7 +16,11 @@ export type NotificationType =
   | 'MENTION'
   | 'TIP_RECEIVED'
   | 'CROWDFUNDING_CONTRIBUTION'
-  | 'STREAK_MILESTONE';
+  | 'STREAK_MILESTONE'
+  | 'CLAN_INVITE'
+  | 'CLAN_JOIN_REQUEST'
+  | 'CLAN_JOIN_APPROVED'
+  | 'CLAN_JOIN_REJECTED';
 
 export interface CreateNotificationDTO {
   userId: string;
@@ -261,6 +265,107 @@ export class NotificationService {
         goalReached,
       },
       linkUrl: `/chapter/${chapter.id}`,
+    });
+  }
+
+  async notifyClanJoinRequest(
+    userId: string,
+    clan: { id: string; name: string; emblemUrl?: string | null },
+    requester: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null },
+    requestId: string,
+    message?: string
+  ): Promise<Notification> {
+    return this.createNotification({
+      userId,
+      type: 'CLAN_JOIN_REQUEST',
+      title: '🚪 Solicitud de Ingreso',
+      message: `${requester.displayName || requester.username} quiere unirse a ${clan.name}${message ? `: "${message.substring(0, 100)}"` : ''}`,
+      data: {
+        clanId: clan.id,
+        clanName: clan.name,
+        clanEmblemUrl: clan.emblemUrl,
+        requesterId: requester.id,
+        requesterName: requester.displayName || requester.username,
+        requesterAvatar: requester.avatarUrl,
+        requestId,
+        message: message?.substring(0, 500),
+      },
+      imageUrl: requester.avatarUrl || undefined,
+      linkUrl: `/community/clan/${clan.id}`,
+    });
+  }
+
+  async notifyClanJoinApproved(
+    userId: string,
+    clan: { id: string; name: string; emblemUrl?: string | null },
+    reviewer: { id: string; username: string; displayName?: string | null },
+    requestId: string
+  ): Promise<Notification> {
+    return this.createNotification({
+      userId,
+      type: 'CLAN_JOIN_APPROVED',
+      title: '✅ Solicitud Aprobada',
+      message: `Tu solicitud para unirte a ${clan.name} fue aceptada por ${reviewer.displayName || reviewer.username}`,
+      data: {
+        clanId: clan.id,
+        clanName: clan.name,
+        clanEmblemUrl: clan.emblemUrl,
+        reviewerId: reviewer.id,
+        reviewerName: reviewer.displayName || reviewer.username,
+        requestId,
+      },
+      imageUrl: clan.emblemUrl || undefined,
+      linkUrl: `/community/clan/${clan.id}`,
+    });
+  }
+
+  async notifyClanJoinRejected(
+    userId: string,
+    clan: { id: string; name: string; emblemUrl?: string | null },
+    reviewer: { id: string; username: string; displayName?: string | null },
+    requestId: string,
+    reason?: string
+  ): Promise<Notification> {
+    return this.createNotification({
+      userId,
+      type: 'CLAN_JOIN_REJECTED',
+      title: '❌ Solicitud Rechazada',
+      message: `Tu solicitud para unirte a ${clan.name} fue rechazada${reason ? `: ${reason}` : ''}`,
+      data: {
+        clanId: clan.id,
+        clanName: clan.name,
+        clanEmblemUrl: clan.emblemUrl,
+        reviewerId: reviewer.id,
+        reviewerName: reviewer.displayName || reviewer.username,
+        requestId,
+        reason,
+      },
+      linkUrl: `/community/clan/${clan.id}`,
+    });
+  }
+
+  async notifyClanInvite(
+    userId: string,
+    clan: { id: string; name: string; emblemUrl?: string | null },
+    inviter: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null },
+    invitationId: string
+  ): Promise<Notification> {
+    return this.createNotification({
+      userId,
+      type: 'CLAN_INVITE',
+      title: '🎮 Invitación al Clan',
+      message: `${inviter.displayName || inviter.username} te ha invitado a unirte a ${clan.name}`,
+      data: {
+        clanId: clan.id,
+        clanName: clan.name,
+        clanEmblemUrl: clan.emblemUrl,
+        inviterId: inviter.id,
+        inviterName: inviter.displayName || inviter.username,
+        inviterAvatar: inviter.avatarUrl,
+        invitationId,
+      },
+      imageUrl: clan.emblemUrl || undefined,
+      linkUrl: `/community/clan/${clan.id}`,
     });
   }
 

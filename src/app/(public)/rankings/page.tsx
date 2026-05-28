@@ -34,7 +34,7 @@ async function getLeaderboards() {
     prisma.user.findMany({
       take: 50,
       where: {
-        createdMangas: { some: {} },
+        createdMangas: { some: { deletedAt: null } },
       },
       select: {
         id: true,
@@ -45,6 +45,7 @@ async function getLeaderboards() {
           select: { createdMangas: true },
         },
         createdMangas: {
+          where: { deletedAt: null },
           select: {
             totalViews: true,
             _count: { select: { chapters: true } },
@@ -73,6 +74,7 @@ async function getLeaderboards() {
 
     // Trending Manga
     prisma.mangaSeries.findMany({
+      where: { deletedAt: null },
       take: 50,
       orderBy: { totalViews: 'desc' },
       select: {

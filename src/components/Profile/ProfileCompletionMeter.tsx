@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 interface ProfileCompletionMeterProps {
   hasAvatar: boolean;
+  hasCover: boolean;
   hasBio: boolean;
   hasWebsite: boolean;
   hasSocialLinks: boolean;
@@ -14,13 +15,14 @@ interface ProfileCompletionMeterProps {
 
 const items = [
   { key: 'avatar', labelKey: 'profileCompletion.avatar' },
+  { key: 'cover', labelKey: 'profileCompletion.cover' },
   { key: 'bio', labelKey: 'profileCompletion.bio' },
   { key: 'website', labelKey: 'profileCompletion.website' },
   { key: 'social', labelKey: 'profileCompletion.social' },
 ] as const;
 
-export function ProfileCompletionMeter({ hasAvatar, hasBio, hasWebsite, hasSocialLinks, t }: ProfileCompletionMeterProps) {
-  const checks = { avatar: hasAvatar, bio: hasBio, website: hasWebsite, social: hasSocialLinks };
+export function ProfileCompletionMeter({ hasAvatar, hasCover, hasBio, hasWebsite, hasSocialLinks, t }: ProfileCompletionMeterProps) {
+  const checks = { avatar: hasAvatar, cover: hasCover, bio: hasBio, website: hasWebsite, social: hasSocialLinks };
   const completed = Object.values(checks).filter(Boolean).length;
   const total = items.length;
   const percentage = Math.round((completed / total) * 100);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
@@ -52,6 +53,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const rlResult = await rateLimit(getRateLimitKey('delete-manga', `${session.user.id}:${ip}`), 3, 3600);
     if (!rlResult.allowed) return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 });
 
+    // Verificar que el manga existe y NO está ya en papelera
     const manga = await prisma.mangaSeries.findUnique({ where: { id }, select: { authorId: true, title: true, deletedAt: true } });
     if (!manga) return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
     if (manga.deletedAt) return NextResponse.json({ error: 'El manga ya está en la papelera' }, { status: 400 });
@@ -59,9 +61,64 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: 'No tienes permiso para eliminar este manga' }, { status: 403 });
     }
 
-    await prisma.mangaSeries.update({ where: { id }, data: { deletedAt: new Date() } });
+    // ── 1. Empaquetar TODO el grafo de datos en un bundle ──────────────
+    const fullManga = await prisma.mangaSeries.findUnique({
+      where: { id },
+      include: {
+        chapters: {
+          include: {
+            comments: { include: { likes: true, mentions: true } },
+            tips: true,
+            crowdfundingContributions: true,
+            sponsorshipBids: true,
+            readingSessions: true,
+            corrections: true,
+          },
+        },
+        libraryEntries: true,
+        userMangas: true,
+        readingProgress: true,
+        collectionItems: true,
+        bookmarks: true,
+        mangaTags: true,
+        mangaGenres: true,
+      },
+    });
 
-    return NextResponse.json({ success: true, message: `"${manga.title}" enviado a la papelera` });
+    if (!fullManga) return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
+    await prisma.deletedMangaBundle.create({
+      data: {
+        id: fullManga.id,
+        title: fullManga.title,
+        slug: fullManga.slug,
+        coverUrl: fullManga.coverUrl,
+        authorId: fullManga.authorId,
+        authorName: fullManga.authorName,
+        status: fullManga.status,
+        tags: fullManga.tags,
+        totalViews: fullManga.totalViews,
+        rating: fullManga.rating,
+        data: JSON.stringify({ manga: fullManga }),
+        expiresAt,
+      },
+    });
+
+    // ── 2. Borrar el MangaSeries (cascade elimina todo relacionado) ───
+    await prisma.mangaSeries.delete({ where: { id } });
+
+    // ── 3. Invalidar caches ───────────────────────────────────────────
+    await invalidateCache(`manga:${id}`);
+    await invalidateCache('manga:list');
+    await invalidateCache('user:mangas:list');
+
+    return NextResponse.json({
+      success: true,
+      message: `"${manga.title}" enviado a la papelera. Se eliminará permanentemente en 30 días.`,
+    });
   } catch (error) {
     console.error('Error deleting manga:', error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });

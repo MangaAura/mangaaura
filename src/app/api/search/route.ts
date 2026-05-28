@@ -43,7 +43,7 @@ function extractHighlights(manga: {
   title: string;
   description: string | null;
   authorName: string | null;
-  tags: string | null;
+  genres: string[];
 }, query: string) {
   if (!query) return null;
 
@@ -81,21 +81,16 @@ function extractHighlights(manga: {
     });
   }
 
-  // Check tags match
-  if (manga.tags) {
-    try {
-      const tags = JSON.parse(manga.tags) as string[];
-      const matchingTags = tags.filter((tag: string) =>
-        tag.toLowerCase().includes(queryLower)
-      );
-      if (matchingTags.length > 0) {
-        highlights.push({
-          field: 'tags',
-          snippet: matchingTags.map((t: string) => highlightText(t, query)).join(', '),
-        });
-      }
-    } catch {
-      // Invalid JSON, ignore
+  // Check genres match
+  if (manga.genres.length > 0) {
+    const matchingGenres = manga.genres.filter((genre: string) =>
+      genre.toLowerCase().includes(queryLower)
+    );
+    if (matchingGenres.length > 0) {
+      highlights.push({
+        field: 'genres',
+        snippet: matchingGenres.map((g: string) => highlightText(g, query)).join(', '),
+      });
     }
   }
 
@@ -153,23 +148,34 @@ export async function GET(request: NextRequest) {
       cacheKey,
       query ? 30 : cacheConfig.manga.list.ttl, // Shorter cache for search queries
       async () => {
-        // Build where clause
-        const where: Prisma.MangaSeriesWhereInput = {};
+// Build where clause
+        const where: Prisma.MangaSeriesWhereInput = { deletedAt: null };
 
         // Text search with full-text capabilities - use case-insensitive search
         if (query) {
-    where.OR = [
-      { title: { contains: query } },
-      { description: { contains: query } },
-      { authorName: { contains: query } },
-    ];
+          where.OR = [
+            { title: { contains: query } },
+            { description: { contains: query } },
+            { authorName: { contains: query } },
+          ];
         }
 
-        // Genre filter (using tags as genres)
-        if (genres.length > 0) {
-          where.AND = genres.map((genre: string) => ({
-            tags: { contains: `"${genre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"` },
-          }));
+        // Genre filter - uses MangaGenre join table
+        const allGenreSlugs = [
+          ...genres.map((g: string) =>
+            g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          ),
+          ...tags.map((t: string) =>
+            t.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          ),
+        ];
+
+        if (allGenreSlugs.length > 0) {
+          where.mangaGenres = {
+            some: {
+              genre: { slug: { in: allGenreSlugs } },
+            },
+          };
         }
 
         // Status filter
@@ -188,18 +194,6 @@ export async function GET(request: NextRequest) {
             gte: minRating,
             lte: maxRating,
           };
-        }
-
-        // Tags filter
-        if (tags.length > 0) {
-          const tagsFilter = tags.map((tag) => ({
-            tags: { contains: `"${tag.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"` },
-          }));
-          if (where.AND) {
-            where.AND = [...(Array.isArray(where.AND) ? where.AND : [where.AND]), ...tagsFilter];
-          } else {
-            where.AND = tagsFilter;
-          }
         }
 
         // Optimized cursor-based pagination
@@ -237,7 +231,11 @@ export async function GET(request: NextRequest) {
                 select: { username: true },
               },
               status: true,
-              tags: true,
+              mangaGenres: {
+                select: {
+                  genre: { select: { name: true, slug: true } },
+                },
+              },
               totalViews: true,
               rating: true,
               createdAt: true,
@@ -284,7 +282,7 @@ export async function GET(request: NextRequest) {
           authorName: manga.authorName,
           authorUsername: manga.author?.username || null,
           status: manga.status,
-          tags: manga.tags ? JSON.parse(manga.tags) : [],
+          genres: manga.mangaGenres.map((mg) => mg.genre.name),
           totalViews: manga.totalViews,
           rating: manga.rating,
           chapterCount: manga._count.chapters,
@@ -295,14 +293,14 @@ export async function GET(request: NextRequest) {
               title: manga.title,
               description: manga.description,
               authorName: manga.authorName,
-              tags: manga.tags,
+              genres: manga.mangaGenres.map((mg) => mg.genre.name),
             },
             query
           ) : null,
         }));
 
         return {
-          mangas: transformedResults, // Also provide as 'mangas' for backward compatibility
+          mangas: transformedResults,
           results: transformedResults,
           pagination: {
             page,
@@ -320,7 +318,6 @@ export async function GET(request: NextRequest) {
               author,
               minRating,
               maxRating,
-              tags,
             },
             sort,
           },

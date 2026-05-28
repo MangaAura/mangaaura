@@ -16,34 +16,27 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const manga = await prisma.mangaSeries.findUnique({
+    const bundle = await prisma.deletedMangaBundle.findUnique({
       where: { id },
-      select: { authorId: true, title: true, deletedAt: true },
+      select: { authorId: true, title: true },
     });
 
-    if (!manga) {
-      return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
+    if (!bundle) {
+      return NextResponse.json({ error: 'Manga no encontrado en la papelera' }, { status: 404 });
     }
 
-    if (!manga.deletedAt) {
-      return NextResponse.json({ error: 'El manga no está en la papelera. Usa eliminar primero.' }, { status: 400 });
-    }
-
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (bundle.authorId !== session.user.id && session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'No tienes permiso para eliminar este manga permanentemente' }, { status: 403 });
     }
 
-    await prisma.$transaction([
-      prisma.chapter.deleteMany({ where: { mangaId: id } }),
-      prisma.mangaSeries.delete({ where: { id } }),
-    ]);
+    await prisma.deletedMangaBundle.delete({ where: { id } });
 
     await invalidateCache(`manga:${id}`);
     await invalidateCache('manga:list');
     await invalidateCache('user:mangas:list');
 
     return NextResponse.json({
-      message: `Manga "${manga.title}" eliminado permanentemente`,
+      message: `Manga "${bundle.title}" eliminado permanentemente`,
       deleted: true,
     });
   } catch (error) {
