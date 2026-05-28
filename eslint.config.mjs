@@ -1,6 +1,9 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextConfig from "eslint-config-next";
 import nextTs from "eslint-config-next/typescript";
+import importPlugin from "eslint-plugin-import";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import reactPlugin from "eslint-plugin-react";
 
 const eslintConfig = defineConfig([
   ...nextConfig,
@@ -20,6 +23,11 @@ const eslintConfig = defineConfig([
   {
     name: "mangaaura-custom-rules",
     files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+    plugins: {
+      import: importPlugin,
+      "react-hooks": reactHooksPlugin,
+      react: reactPlugin,
+    },
     rules: {
       "import/no-anonymous-default-export": "warn",
       "import/no-duplicates": "warn",

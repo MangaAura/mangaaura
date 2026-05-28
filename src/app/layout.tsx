@@ -37,8 +37,8 @@ export const metadata: Metadata = {
     default: "MangaAura — Lee, crea y crowdfundea manga con IA",
     template: "%s | MangaAura",
   },
-  description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos. Únete a miles de creadores y lectores.",
-  keywords: ["manga", "crear manga online", "publicar manga", "crowdfunding manga", "leer manga", "anime", "mangaaura", "comics", "inteligencia artificial manga"],
+  description: "La plataforma de manga con IA para leer manga online, crear y crowdfundear capítulos. Únete a miles de creadores y lectores de manga y anime.",
+  keywords: ["manga", "leer manga", "manga online", "manga anime", "manga comic", "manga web", "manga website", "manga y anime", "manga yuri", "manga a color", "manga tatuaje", "crear manga online", "publicar manga", "crowdfunding manga", "anime", "comics japoneses", "mangaaura", "inteligencia artificial manga", "manhwa", "webtoon"],
   authors: [{ name: "MangaAura" }],
   manifest: "/manifest.json",
   alternates: {
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: "MangaAura — Lee, crea y crowdfundea manga con IA",
-    description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos.",
+    description: "La plataforma para leer manga online, crear y crowdfundear capítulos con IA.",
     siteName: "MangaAura",
     locale: "es_ES",
     images: [{ url: "/og-image.webp", width: 1200, height: 630, alt: "MangaAura" }],
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "MangaAura — Lee, crea y crowdfundea manga con IA",
-    description: "La plataforma de manga con IA que te permite leer, crear y crowdfundear capítulos.",
+    description: "La plataforma para leer manga online, crear y crowdfundear capítulos con IA.",
   },
   robots: {
     index: true,

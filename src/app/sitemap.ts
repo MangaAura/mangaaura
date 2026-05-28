@@ -20,6 +20,13 @@ const staticRoutes = [
   { path: '/news', priority: 0.7, changefreq: 'weekly' },
   { path: '/blog', priority: 0.7, changefreq: 'weekly' },
   { path: '/feed', priority: 0.6, changefreq: 'always' },
+  { path: '/guias', priority: 0.8, changefreq: 'weekly' },
+  { path: '/guias/donde-leer-manga-legal-seguro', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guias/mejores-apps-leer-manga', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guias/comprar-manga-digital-espana', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guias/guia-principiantes-manga', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guias/aplicaciones-recomendaciones-personalizadas', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guias/manga-mas-vendido-historia', priority: 0.7, changefreq: 'monthly' },
 ];
 
 // Safe DB query wrapper that suppresses Prisma errors during build

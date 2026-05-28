@@ -43,6 +43,11 @@ const mangaFixture = {
   createdAt: new Date('2025-01-01'),
   updatedAt: new Date('2025-06-01'),
   _count: { chapters: 10 },
+  mangaGenres: [
+    { genre: { name: 'Action', slug: 'action' } },
+    { genre: { name: 'Adventure', slug: 'adventure' } },
+  ],
+  author: { username: 'testauthor' },
 };
 
 function createRequest(url: string): NextRequest {

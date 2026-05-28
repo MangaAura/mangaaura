@@ -15,6 +15,7 @@ import {
   Monitor,
   Eye,
   Hash,
+  Palette,
 } from 'lucide-react';
 
 export interface GenreCategory {
@@ -94,6 +95,14 @@ export const GENRE_DISPLAY: Record<string, { icon: React.ComponentType<{ classNa
   'suspenso': {
     icon: Ghost,
     color: 'bg-violet-100 text-violet-700 border-violet-200 hover:bg-violet-200 dark:bg-violet-900 dark:text-violet-300 dark:border-violet-800 dark:hover:bg-violet-800 hover:shadow-[0_0_15px_rgba(139,92,246,0.3)]',
+  },
+  'yuri': {
+    icon: Heart,
+    color: 'bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200 dark:bg-rose-900 dark:text-rose-300 dark:border-rose-800 dark:hover:bg-rose-800 hover:shadow-[0_0_15px_rgba(244,63,94,0.3)]',
+  },
+  'a-color': {
+    icon: Palette,
+    color: 'bg-gradient-to-r from-purple-100 via-pink-100 to-amber-100 text-purple-700 border-purple-200 hover:from-purple-200 hover:via-pink-200 hover:to-amber-200 dark:from-purple-900 dark:via-pink-900 dark:to-amber-900 dark:text-purple-300 dark:border-purple-800 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]',
   },
 };
 

@@ -73,6 +73,20 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: 'AhrefsBot',
         crawlDelay: 10,
       },
+      {
+        userAgent: 'SemrushBot',
+        crawlDelay: 10,
+      },
+      {
+        userAgent: 'Applebot',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
+      {
+        userAgent: 'Google-Extended',
+        allow: '/',
+        disallow: ['/api', '/admin', '/creator', '/auth'],
+      },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
     host: BASE_URL,
