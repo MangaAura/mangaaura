@@ -56,3 +56,6 @@ next-env.d.ts
 nul
 
 *.db
+
+# Nested git repos
+/open-design
