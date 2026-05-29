@@ -56,6 +56,7 @@ declare module '@prisma/client' {
   interface Clan {
     id: string;
     name: string;
+    slug: string;
     description: string | null;
     emblemUrl: string | null;
     totalScore: number;

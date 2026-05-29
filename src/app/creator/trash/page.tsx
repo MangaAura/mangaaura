@@ -38,6 +38,7 @@ interface TrashManga {
   deletedAt: string;
   daysLeft: number;
   createdAt: string;
+  source: 'bundle' | 'soft';
 }
 
 export default function TrashPage() {

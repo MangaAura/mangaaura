@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function CommunityPage() {
   const session = await auth();
-  let userClanId: string | null = null;
+  let userClanSlug: string | null = null;
 
   // Fetch all data in parallel
   const [topClans, activeEvents, userMembership, totalClans] = await Promise.all([
@@ -34,23 +34,27 @@ export default async function CommunityPage() {
       },
     }),
 
-    // User's clan membership
+    // User's clan membership (with slug)
     session?.user?.id
       ? prisma.clanMembership.findFirst({
           where: { userId: session.user.id },
-          select: { clanId: true },
+          select: {
+            clanId: true,
+            clan: { select: { slug: true } },
+          },
         })
       : null,
     // Total clan count
     prisma.clan.count(),
   ]);
 
-  userClanId = userMembership?.clanId ?? null;
+  userClanSlug = userMembership?.clan?.slug ?? null;
 
   // Serialize dates
   const serializedClans = topClans.map((c) => ({
     id: c.id,
     name: c.name,
+    slug: c.slug,
     description: c.description,
     emblemUrl: c.emblemUrl,
     totalScore: c.totalScore,
@@ -78,7 +82,7 @@ export default async function CommunityPage() {
       topClans={serializedClans}
       activeEvents={serializedEvents}
       totalClans={totalClans}
-      userClanId={userClanId}
+      userClanSlug={userClanSlug}
     />
   );
 }

@@ -268,7 +268,7 @@ El actual es bueno pero puede mejorarse:
 - Offline reading with full PWA capabilities
 - Creator revenue sharing through sponsorships
 - Two-factor authentication (2FA)
-- Real-time notifications via WebSocket
+- Real-time notifications via HTTP polling (30s interval)
 - Multi-language support (Spanish and English)
 - Image cropping and optimization for covers
 - Dynamic OG images at /api/og

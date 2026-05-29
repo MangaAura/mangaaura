@@ -1,12 +1,12 @@
 'use client';
 
-import { PlusIcon, XIcon } from 'lucide-react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { XIcon, SearchIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { useGenres } from '@/hooks/useGenres';
+import { GENRE_DISPLAY, DEFAULT_GENRE_DISPLAY } from '@/constants/genres';
+import { useGenres, type GenreFromApi } from '@/hooks/useGenres';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 interface GenreSelectorProps {
   selected: string[];
@@ -21,107 +21,90 @@ const normalize = (s: string) =>
 export function GenreSelector({ selected, onChange, error, max = 10 }: GenreSelectorProps) {
   const t = useT();
   const { genres: allGenres } = useGenres();
-  const [input, setInput] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    if (!input.trim()) return [];
-    const q = normalize(input);
-    return allGenres
-      .filter(g => !selected.some(s => normalize(s) === normalize(g.name)))
-      .filter(g => normalize(g.name).includes(q))
-      .slice(0, 6);
-  }, [allGenres, selected, input]);
+    if (!search.trim()) return allGenres;
+    const q = normalize(search);
+    return allGenres.filter(g => normalize(g.name).includes(q));
+  }, [allGenres, search]);
 
-  const addGenre = useCallback((name: string) => {
-    const clean = normalize(name);
-    if (!clean) return;
-    if (selected.some(s => normalize(s) === clean)) return;
-    if (selected.length >= max) return;
-    onChange([...selected, clean]);
-    setInput('');
-    setShowSuggestions(false);
-    inputRef.current?.focus();
-  }, [selected, onChange, max]);
-
-  const removeGenre = useCallback((name: string) => {
-    onChange(selected.filter(s => normalize(s) !== normalize(name)));
-  }, [selected, onChange]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      if (input.trim()) addGenre(input);
-    }
-    if (e.key === 'Backspace' && !input && selected.length > 0) {
-      removeGenre(selected[selected.length - 1]);
+  const toggleGenre = (genre: GenreFromApi) => {
+    const norm = normalize(genre.name);
+    if (selected.some(s => normalize(s) === norm)) {
+      onChange(selected.filter(s => normalize(s) !== norm));
+    } else if (selected.length < max) {
+      onChange([...selected, genre.name]);
     }
   };
 
   return (
-    <div ref={containerRef} className="relative">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => { setInput(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            onKeyDown={handleKeyDown}
-            placeholder={t('creatorMangaNew.tagsPlaceholder')}
-            error={error}
-          />
-          {showSuggestions && filtered.length > 0 && (
-            <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-xl max-h-48 overflow-y-auto">
-              {filtered.map(g => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onMouseDown={(e) => { e.preventDefault(); addGenre(g.name); }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--surface-sunken)] transition-colors"
-                >
-                  {g.name}
-                </button>
-              ))}
-            </div>
+    <div>
+      {/* Search filter */}
+      <div className="relative">
+        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('creatorMangaNew.tagsPlaceholder')}
+          className={cn(
+            'w-full rounded-lg border bg-[var(--surface-elevated)] pl-9 pr-3 py-2 text-sm',
+            'placeholder:text-[var(--text-tertiary)]',
+            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+            error && 'border-red-500 focus:ring-red-500',
           )}
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => addGenre(input)}
-          disabled={!input.trim() || selected.length >= max}
-        >
-          <PlusIcon className="w-4 h-4" />
-        </Button>
+        />
       </div>
 
-      <p className="text-xs text-[var(--text-tertiary)] mt-1">
-        {t('creatorMangaNew.tagsHint')} ({selected.length}/{max})
+      {/* Available genres grid */}
+      <div className="flex flex-wrap gap-2 mt-3">
+        {filtered.map((genre) => {
+          const display = GENRE_DISPLAY[genre.slug] || DEFAULT_GENRE_DISPLAY;
+          const Icon = display.icon;
+          const isSelected = selected.some(s => normalize(s) === normalize(genre.name));
+          const isMaxed = selected.length >= max && !isSelected;
+
+          return (
+            <button
+              key={genre.id}
+              type="button"
+              onClick={() => toggleGenre(genre)}
+              disabled={isMaxed}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all',
+                isSelected
+                  ? 'ring-2 ring-offset-1 ring-indigo-500 opacity-100'
+                  : 'opacity-80 hover:opacity-100',
+                isMaxed && 'opacity-40 cursor-not-allowed',
+                display.color,
+              )}
+            >
+              <Icon className="w-4 h-4" />
+              {genre.name}
+              {isSelected && (
+                <XIcon className="w-3 h-3 ml-0.5" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {filtered.length === 0 && (
+        <p className="text-sm text-[var(--text-tertiary)] mt-3 text-center">
+          {t('creatorMangaNew.noGenresFound')}
+        </p>
+      )}
+
+      {/* Selected count */}
+      <p className="text-xs text-[var(--text-tertiary)] mt-2">
+        {selected.length}/{max} {t('creatorMangaNew.tagsHint')}
       </p>
 
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {selected.map((g) => (
-            <span
-              key={g}
-              className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm"
-            >
-              {g}
-              <button
-                type="button"
-                onClick={() => removeGenre(g)}
-                className="hover:text-indigo-900"
-                aria-label={`Eliminar ${g}`}
-              >
-                <XIcon className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
+      {error && (
+        <p className="mt-1 text-xs text-red-500 flex items-center gap-1" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );

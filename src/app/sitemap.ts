@@ -130,7 +130,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const clans = await safeDbQuery(
     () =>
       prisma.clan.findMany({
-        select: { id: true, updatedAt: true },
+        select: { slug: true, updatedAt: true },
         take: 50,
       }),
     []
@@ -138,7 +138,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const clan of clans) {
     routes.push({
-      url: `${BASE_URL}/community/clan/${clan.id}`,
+      url: `${BASE_URL}/community/clan/${clan.slug}`,
       lastModified: clan.updatedAt,
       changeFrequency: 'weekly',
       priority: 0.4,

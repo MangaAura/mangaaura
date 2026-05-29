@@ -48,7 +48,7 @@ async function getUserData(username: string) {
         orderBy: { joinedAt: 'desc' },
         include: {
           clan: {
-            select: { id: true, name: true, emblemUrl: true },
+            select: { id: true, name: true, slug: true, emblemUrl: true },
           },
         },
       },

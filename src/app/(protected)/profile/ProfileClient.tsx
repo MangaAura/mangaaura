@@ -79,6 +79,7 @@ interface UserData {
   } | null;
   achievements: UserAchievement[];
   readingProgress: ReadingProgress[];
+  clanMemberships?: Array<{ clan: { id: string; name: string; slug: string; emblemUrl: string | null } }>;
   createdAt: Date | string;
 }
 

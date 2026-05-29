@@ -51,19 +51,18 @@
 
 ---
 
-## 3. WebSocket para Notificaciones
+## 3. Notificaciones con Polling HTTP
 
 ### Backend
-- **Socket.IO**: Servidor WebSocket
-- Autenticación con JWT
-- Rooms por usuario
-- Eventos en tiempo real
+- **Polling cada 30s**: SWR refreshInterval para notificaciones, badge y dropdown
+- Autenticación con NextAuth
+- Notificaciones persistentes en DB
 
 ### Frontend
-- `useSocket` hook para conexión
-- `useNotifications` hook para gestión
-- **NotificationBell**: Campana con dropdown
-- Notificaciones persistentes en DB
+- `useNotifications` hook con polling automático
+- `useUnreadNotifications` hook para badge de conteo
+- **NotificationBell**: Campana con dropdown (30s polling)
+- **NotificationDropdown**: Dropdown del header (30s polling)
 
 ### Tipos de Notificaciones
 - `NEW_CHAPTER` - Nuevo capítulo
@@ -147,7 +146,6 @@ src/
 ├── infrastructure/ai/            # Sistema de IA
 ├── lib/
 │   ├── storage.ts                # Vercel Blob
-│   └── socket.ts                 # WebSocket
 └── types/                        # Tipos TypeScript
 ```
 
@@ -201,7 +199,7 @@ npm run dev
 | `/creator/dashboard` | Dashboard creador |
 | `/creator/upload` | Subir capítulo |
 | `/creator/manga/new` | Crear manga |
-| `/api/socket` | WebSocket endpoint |
+| `/api/notifications` | Notifications API |
 
 ---
 
@@ -219,8 +217,9 @@ npm run dev
 - Preview de imágenes
 - Progreso en tiempo real
 
-✅ **Notificaciones en Tiempo Real**
-- WebSocket con Socket.IO
+✅ **Notificaciones con Polling HTTP**
+- Polling cada 30s para notificaciones y badge
+- Polling cada 5s para chat y party reader
 - Notificaciones persistentes
 - Badge de conteo
 - Dropdown interactivo
@@ -241,7 +240,7 @@ npm run dev
 
 ## 11. Próximos Pasos Sugeridos
 
-- [ ] WebSocket: Escalar con Redis adapter
+- [ ] Notificaciones: Migrar polling a Server-Sent Events (SSE)
 - [ ] Comentarios: Moderación con IA (toxicidad)
 - [ ] Analytics: Exportar a CSV/PDF
 - [ ] Manga: Sistema de tags avanzado

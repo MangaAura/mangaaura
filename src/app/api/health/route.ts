@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
-import { getRedisStatus, isMockRedis } from '@/lib/redis';
-import { getIO } from '@/lib/socket';
-import { getOnlineClientsCount } from '@/lib/socket-redis-adapter';
+import { getRedisStatus } from '@/lib/redis';
 import { getUptimeSeconds, getUptimeHuman, getUptimeISO, getStartTime } from '@/lib/uptime';
 
 // ── Version ──────────────────────────────────────────────────────────────
@@ -41,25 +39,6 @@ export async function GET() {
 
   const redisStatus = await getRedisStatus();
 
-  // Socket.IO health
-  let socketStatus: 'running' | 'not_initialized' | 'error' = 'not_initialized';
-  let socketConnections = 0;
-  let totalConnections = 0;
-  let redisAdapterAvailable = false;
-
-  try {
-    const io = getIO();
-    if (io) {
-      socketStatus = 'running';
-      socketConnections = io.sockets.sockets.size;
-      // Obtener total de clientes únicos a través de todos los nodos (Redis adapter)
-      totalConnections = await getOnlineClientsCount();
-      redisAdapterAvailable = !isMockRedis();
-    }
-  } catch {
-    socketStatus = 'error';
-  }
-
   // Database check
   let dbHealthy = false;
   let dbLatencyMs = 0;
@@ -80,10 +59,6 @@ export async function GET() {
     databaseLatencyMs: dbLatencyMs,
     redis: redisStatus.connected,
     redisMode: redisStatus.mode as 'connected' | 'disconnected' | 'mock',
-    socket: socketStatus,
-    socketConnections,
-    totalConnections,
-    redisAdapterAvailable,
     sentry: isSentryInitialized(),
     uptime: {
       seconds: getUptimeSeconds(),

@@ -69,6 +69,15 @@ export default async function ProfilePage() {
             achievements: true,
           },
         },
+        clanMemberships: {
+          take: 1,
+          orderBy: { joinedAt: 'desc' },
+          include: {
+            clan: {
+              select: { id: true, name: true, slug: true, emblemUrl: true },
+            },
+          },
+        },
         achievements: {
           include: { achievement: true },
           orderBy: { unlockedAt: 'desc' },

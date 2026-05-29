@@ -13,6 +13,7 @@ export interface ClanMemberProps {
 export interface ClanProps {
   id: string;
   name: string;
+  slug: string;
   description?: string;
   emblemUrl?: string;
   leaderId: string;
@@ -33,6 +34,7 @@ export interface ClanDomainEvent {
 export class Clan {
   private _id: string;
   private _name: string;
+  private _slug: string;
   private _description: string | undefined;
   private _emblemUrl: string | undefined;
   private _leaderId: string;
@@ -47,6 +49,7 @@ export class Clan {
   constructor(props: ClanProps) {
     this._id = props.id;
     this._name = props.name;
+    this._slug = props.slug;
     this._description = props.description;
     this._emblemUrl = props.emblemUrl;
     this._leaderId = props.leaderId;
@@ -86,6 +89,7 @@ export class Clan {
 
   get id(): string { return this._id; }
   get name(): string { return this._name; }
+  get slug(): string { return this._slug; }
   get description(): string | undefined { return this._description; }
   get emblemUrl(): string | undefined { return this._emblemUrl; }
   get leaderId(): string { return this._leaderId; }
@@ -177,6 +181,7 @@ export class Clan {
     return {
       id: this._id,
       name: this._name,
+      slug: this._slug,
       description: this._description,
       emblemUrl: this._emblemUrl,
       leaderId: this._leaderId,

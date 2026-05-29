@@ -11,9 +11,6 @@ const mockRedisStatus = vi.hoisted(() => ({
 
 vi.mock('@/lib/prisma', () => mockPrisma);
 vi.mock('@/lib/redis', () => mockRedisStatus);
-vi.mock('@/lib/socket', () => ({ getIO: vi.fn(() => null) }));
-vi.mock('@/lib/socket-redis-adapter', () => ({ getOnlineClientsCount: vi.fn(() => Promise.resolve(0)) }));
-
 import { GET } from '@/app/api/health/route';
 
 describe('GET /api/health', () => {

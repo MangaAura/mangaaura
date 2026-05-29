@@ -40,7 +40,7 @@ export async function POST(
     // Verify clan exists
     const clan = await prisma.clan.findUnique({
       where: { id },
-      select: { id: true, name: true, emblemUrl: true, leaderId: true },
+      select: { id: true, name: true, slug: true, emblemUrl: true, leaderId: true },
     });
 
     if (!clan) {
@@ -140,7 +140,7 @@ export async function POST(
         const ns = await getNotificationService();
         await ns.notifyClanInvite(
           inviteeId,
-          { id: clan.id, name: clan.name, emblemUrl: clan.emblemUrl },
+          { id: clan.id, name: clan.name, slug: clan.slug, emblemUrl: clan.emblemUrl },
           {
             id: sender.id,
             username: sender.username,

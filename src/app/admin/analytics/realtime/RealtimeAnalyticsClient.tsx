@@ -7,12 +7,9 @@
   Download,
   Eye,
   RefreshCw,
-  Wifi,
   WifiOff,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
-
+import { useEffect, useRef, useState } from 'react';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type { RealtimeAnalytics } from '@/types/socket';
 
@@ -203,86 +200,36 @@ export function RealtimeAnalyticsClient() {
     peakToday: 0,
     peakTime: '',
   });
-  const [connected, setConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const { handleError } = useErrorHandler();
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
-  const socketRef = useRef<Socket | null>(null);
-  const fallbackIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const connectSocket = useCallback(() => {
-    if (socketRef.current?.connected) return;
-
-    const socket = io(window.location.origin, {
-      path: '/api/socket',
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('connect', () => {
-      setConnected(true);
-      socket.emit('analytics:subscribe');
-      if (fallbackIntervalRef.current) {
-        clearInterval(fallbackIntervalRef.current);
-        fallbackIntervalRef.current = null;
-      }
-    });
-
-    socket.on('analytics:stats', (data: RealtimeAnalytics) => {
-      setStats(data);
-      setLastUpdated(new Date());
-    });
-
-    socket.on('disconnect', () => {
-      setConnected(false);
-    });
-
-    socket.on('connect_error', () => {
-      setConnected(false);
-    });
-
-    socketRef.current = socket;
-  }, []);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    connectSocket();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.emit('analytics:unsubscribe');
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-      if (fallbackIntervalRef.current) {
-        clearInterval(fallbackIntervalRef.current);
-        fallbackIntervalRef.current = null;
-      }
-    };
-  }, [connectSocket]);
-
-  useEffect(() => {
-    if (!connected) {
-      fallbackIntervalRef.current = setInterval(async () => {
-        try {
-          const res = await fetch('/api/admin/analytics/realtime');
-          if (res.ok) {
-            const data: RealtimeAnalytics = await res.json();
-            setStats(data);
-            setLastUpdated(new Date());
-          }
-        } catch {
-          // silencio
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/admin/analytics/realtime');
+        if (res.ok) {
+          const data: RealtimeAnalytics = await res.json();
+          setStats(data);
+          setLastUpdated(new Date());
         }
-      }, POLL_INTERVAL);
-    }
-
-    return () => {
-      if (fallbackIntervalRef.current) {
-        clearInterval(fallbackIntervalRef.current);
-        fallbackIntervalRef.current = null;
+      } catch {
+        // silencio
       }
     };
-  }, [connected]);
+
+    fetchStats();
+    pollIntervalRef.current = setInterval(fetchStats, POLL_INTERVAL);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
@@ -317,20 +264,13 @@ export function RealtimeAnalyticsClient() {
               )}
             </div>
             <div className="flex items-center gap-2">
-              {connected ? (
-                <span className="flex items-center gap-1.5 text-sm text-[var(--success)]">
-                  <Wifi className="w-4 h-4" />
-                  Live
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-sm text-[var(--warning)]">
-                  <WifiOff className="w-4 h-4" />
-                  Polling
-                </span>
-              )}
+              <span className="flex items-center gap-1.5 text-sm text-[var(--warning)]">
+                <WifiOff className="w-4 h-4" />
+                Polling
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-[var(--text-tertiary)]">
-              <RefreshCw className={`w-4 h-4 ${connected ? 'animate-spin' : ''}`} />
+              <RefreshCw className="w-4 h-4" />
               <span>Updated: {lastUpdated.toLocaleTimeString()}</span>
             </div>
           </div>
@@ -384,7 +324,7 @@ export function RealtimeAnalyticsClient() {
         </div>
 
         <div className="mt-8 text-center text-sm text-[var(--text-tertiary)]">
-          <p>Data updates every 5 seconds via WebSocket {!connected && `(fallback: ${POLL_INTERVAL / 1000}s polling)`}</p>
+          <p>Data updates every {POLL_INTERVAL / 1000}s via polling</p>
         </div>
       </div>
     </div>

@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
-import { getIO } from '@/lib/socket';
 import type { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const messageSchema = z.object({
   content: z.string().min(1).max(2000),
-  replyToId: z.string().optional(),
+  replyToId: z.string().optional().nullable(),
 });
 
 // GET /api/conversations/[id]/messages - Get messages
@@ -207,87 +206,7 @@ export async function POST(
       }),
     ]);
 
-    // Emitir evento en tiempo real al room de la conversación
-    const io = getIO();
-    if (io) {
-      let replyToPayload = null;
-      if (replyToId) {
-        const repliedMsg = await prisma.directMessage.findUnique({
-          where: { id: replyToId },
-          select: {
-            id: true,
-            content: true,
-            senderId: true,
-            sender: { select: { username: true, displayName: true } },
-          },
-        });
-        if (repliedMsg) {
-          replyToPayload = {
-            id: repliedMsg.id,
-            content: repliedMsg.content,
-            senderId: repliedMsg.senderId,
-            senderName: repliedMsg.sender.displayName || repliedMsg.sender.username,
-          };
-        }
-      }
-
-      const messagePayload = {
-        id: message.id,
-        content: message.content,
-        createdAt: message.createdAt.toISOString(),
-        senderId: message.senderId,
-        isRead: message.isRead,
-        replyTo: replyToPayload,
-      };
-
-      // Emitir el nuevo mensaje a todos en el room
-      io.to(`dm:${id}`).emit('dm:message', messagePayload);
-
-      // Marcar como leídos los mensajes del otro usuario
-      const otherParticipantId =
-        conversation.participant1Id === session.user.id
-          ? conversation.participant2Id
-          : conversation.participant1Id;
-
-      // Emitir actualización del contador de no leídos al otro usuario
-      const newUnreadCount = await prisma.directMessage.count({
-        where: {
-          isRead: false,
-          senderId: { not: otherParticipantId },
-          conversation: {
-            OR: [
-              { participant1Id: otherParticipantId },
-              { participant2Id: otherParticipantId },
-            ],
-          },
-        },
-      });
-      io.to(`user:${otherParticipantId}`).emit('dm:unread-count', { count: newUnreadCount });
-
-      const unreadMessages = await prisma.directMessage.findMany({
-        where: {
-          conversationId: id,
-          senderId: otherParticipantId,
-          isRead: false,
-        },
-        select: { id: true },
-      });
-
-      if (unreadMessages.length > 0) {
-        await prisma.directMessage.updateMany({
-          where: {
-            conversationId: id,
-            senderId: otherParticipantId,
-            isRead: false,
-          },
-          data: { isRead: true },
-        });
-
-        io.to(`dm:${id}`).emit('dm:read', {
-          messageIds: unreadMessages.map((m) => m.id),
-        });
-      }
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({ message });
   } catch (error) {

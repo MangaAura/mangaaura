@@ -411,6 +411,7 @@ model CrowdfundingContribution {
 model Clan {
   id            String    @id @default(uuid())
   name          String    @unique
+  slug          String    @unique
   description   String?
   emblemUrl     String?
   totalScore    Int       @default(0)

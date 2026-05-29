@@ -83,8 +83,8 @@ describe('GET /api/manga/[id]', () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.title).toBe('Test Manga');
-    expect(data.tags).toEqual(['action', 'adventure']);
+    expect(data.manga.title).toBe('Test Manga');
+    expect(data.manga.tags).toEqual(['action', 'adventure']);
     expect(data.chapters).toHaveLength(2);
   });
 

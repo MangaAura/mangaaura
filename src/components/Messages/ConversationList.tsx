@@ -45,10 +45,12 @@ interface Conversation {
 }
 
 interface ConversationListProps {
-  activeConversationId?: string;
+  activeConversationId?: string | null;
+  onSelectConversation?: (conversationId: string, participant: { id: string; username: string; displayName: string | null; avatarUrl: string | null }) => void;
+  onSelectClanChat?: (clanId: string) => void;
 }
 
-export function ConversationList({ activeConversationId }: ConversationListProps) {
+export function ConversationList({ activeConversationId, onSelectConversation, onSelectClanChat }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [clanChat, setClanChat] = useState<ClanChatPreview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -145,10 +147,11 @@ export function ConversationList({ activeConversationId }: ConversationListProps
       {/* ── Clan Chat (Pinned) ──────────────────────────────── */}
       {clanChat && (
         <>
-          <Link
-            href={`/messages/clan/${clanChat.id}`}
+          <button
+            type="button"
+            onClick={() => onSelectClanChat?.(clanChat.id)}
             className={cn(
-              'flex items-center gap-3 p-4 rounded-lg transition-all group',
+              'w-full text-left flex items-center gap-3 p-4 rounded-lg transition-all group',
               activeConversationId === `clan:${clanChat.id}`
                 ? 'bg-[var(--primary)]/20 border border-[var(--primary)]/30'
                 : 'hover:bg-[var(--surface-sunken)]/50 border border-transparent hover:border-[var(--primary)]/20',
@@ -197,7 +200,7 @@ export function ConversationList({ activeConversationId }: ConversationListProps
             </div>
 
             <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          </button>
 
           {/* Separator between clan chat and DMs */}
           <div className="flex items-center gap-3 px-4 py-2">
@@ -231,11 +234,11 @@ export function ConversationList({ activeConversationId }: ConversationListProps
         </div>
       ) : (
         conversations.map((conversation) => (
-          <Link
+          <button
             key={conversation.id}
-            href={`/messages/${conversation.id}`}
+            onClick={() => onSelectConversation?.(conversation.id, conversation.participant)}
             className={cn(
-              'flex items-center gap-3 p-4 rounded-lg transition-colors',
+              'w-full text-left flex items-center gap-3 p-4 rounded-lg transition-colors cursor-pointer',
               activeConversationId === conversation.id
                 ? 'bg-[var(--primary)]/20 border border-[var(--primary)]/30'
                 : 'hover:bg-[var(--surface-sunken)]/50'
@@ -288,7 +291,7 @@ export function ConversationList({ activeConversationId }: ConversationListProps
             </div>
 
             <ChevronRight className="w-5 h-5 text-[var(--text-muted)]" />
-          </Link>
+          </button>
         ))
       )}
     </div>

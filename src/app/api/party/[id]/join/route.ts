@@ -65,7 +65,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       userId: session.user.id,
       username: session.user.name || 'Anonymous',
       avatarUrl: session.user.image || undefined,
-    }, '');
+    });
 
     if (!result.success) {
       return NextResponse.json(

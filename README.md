@@ -163,8 +163,6 @@ npm run test:coverage
 ```bash
 # Desarrollo
 npm run dev              # Iniciar servidor de desarrollo
-npm run dev:socket      # Iniciar servidor WebSocket
-npm run dev:all         # Iniciar ambos
 
 # Build
 npm run build           # Build para producción

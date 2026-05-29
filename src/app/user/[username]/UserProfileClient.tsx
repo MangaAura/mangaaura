@@ -123,7 +123,7 @@ interface UserData {
   createdMangas: MangaPreview[];
   readingProgress: ReadingProgressItem[];
   activitiesFeed: ActivityItem[];
-  clanMemberships: { clan: { id: string; name: string; emblemUrl: string | null } }[];
+  clanMemberships: { clan: { id: string; name: string; slug: string; emblemUrl: string | null } }[];
   collections?: Array<{ id: string; name: string; description?: string | null; _count: { items: number; likes: number } }>;
 }
 
@@ -602,7 +602,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
                             const res = await fetch('/api/conversations', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ participantId: user.id }),
+                              body: JSON.stringify({ userId: user.id }),
                             });
                             if (!res.ok) throw new Error('Failed to create conversation');
                             const data = await res.json();
@@ -635,7 +635,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
                         </motion.span>
                       )}
                     </div>
-                    <FollowButton targetId={user.id} targetType="USER" size="default" />
+                    <FollowButton targetId={user.id} targetType="USER" size="default" initialIsFollowing={isFollowingUser} />
                   </>
                 )}
                 {isOwnProfile && (

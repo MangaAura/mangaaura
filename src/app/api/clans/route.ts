@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
+import { toSlug } from '@/lib/slug';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/clans - Listar clanes
@@ -139,11 +140,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Generate unique slug
+    const baseSlug = toSlug(name.trim());
+    let slug = baseSlug;
+    let slugCounter = 1;
+    while (await prisma.clan.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${slugCounter++}`;
+    }
+
     // Create clan with leader as first member
     const clan = await prisma.$transaction(async (tx: any) => {
       const newClan = await tx.clan.create({
         data: {
           name: name.trim(),
+          slug,
           description: description?.trim(),
           emblemUrl: emblemUrl?.trim(),
           leaderId: userId,

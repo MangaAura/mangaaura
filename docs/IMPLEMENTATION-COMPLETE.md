@@ -1,6 +1,6 @@
 # Implementación Completa - MangaAura
 
-Sistema completo de manga con IA paralela, subida de mangas, WebSocket, comentarios y analytics.
+Sistema completo de manga con IA paralela, subida de mangas, polling HTTP (notificaciones), comentarios y analytics.
 
 ---
 
@@ -21,9 +21,9 @@ Sistema completo de manga con IA paralela, subida de mangas, WebSocket, comentar
 - **Progreso Real**: Barra de progreso
 - **Creator Dashboard**: `/creator/dashboard`
 
-### ✅ 3. WebSocket Notificaciones
-- **Socket.IO**: Servidor WebSocket
-- **Notificaciones en Tiempo Real**: Nueva capítulo, likes, menciones
+### ✅ 3. Notificaciones con Polling HTTP
+- **Polling cada 30s**: Notificaciones, badge de no leídos, dropdown
+- **Notificaciones en Tiempo Real**: Nuevo capítulo, likes, menciones
 - **NotificationBell**: Campana con dropdown
 - **Página Completa**: `/notifications`
 
@@ -53,7 +53,7 @@ src/
 │   │   ├── chapters/[id]/comments/  # Comment APIs
 │   │   ├── notifications/            # Notification APIs
 │   │   ├── upload/                   # Upload APIs
-│   │   └── socket/                   # WebSocket
+│   │   └── party/                    # Party reading (HTTP polling)
 │   ├── creator/
 │   │   ├── analytics/                # Analytics page
 │   │   ├── dashboard/                # Creator dashboard
@@ -74,11 +74,10 @@ src/
 │   ├── useAnalytics.ts              # Analytics hook
 │   ├── useChapterComments.ts        # Comments hook
 │   ├── useMangaUpload.ts            # Upload hook
-│   ├── useNotifications.ts          # Notifications hook
-│   └── useSocket.ts                 # WebSocket hook
+│   ├── useNotifications.ts          # Notifications hook (30s polling)
+│   └── useParty.ts                  # Party reading hook (5s polling)
 ├── infrastructure/ai/               # AI system
 ├── lib/
-│   ├── socket.ts                    # WebSocket server
 │   ├── storage.ts                   # Vercel Blob
 │   └── ...
 └── types/                           # TypeScript types
@@ -176,7 +175,7 @@ npm test -- tests/integration/ai/
 
 ## 🔮 Próximos Pasos Sugeridos
 
-- [ ] Redis Adapter para WebSocket (escalabilidad)
+- [ ] Migrar polling a Server-Sent Events (SSE) para menor latencia
 - [ ] PWA con offline support
 - [ ] Push Notifications nativas
 - [ ] Sistema de badges/logros
@@ -194,7 +193,7 @@ npm test -- tests/integration/ai/
 ### v1.0.0 - Sistema Completo
 - ✅ Sistema de IA paralelo
 - ✅ Subida de mangas
-- ✅ WebSocket notificaciones
+- ✅ Polling HTTP para notificaciones y chat
 - ✅ Comentarios anidados
 - ✅ Analytics avanzado
 - ✅ Dashboard creador

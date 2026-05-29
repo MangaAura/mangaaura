@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     // Limitar resultados
     parties = parties.slice(0, limit);
 
-    // Ocultar socketIds y datos sensibles
+    // Sanitize sensitive data
     const sanitizedParties = parties.map((party) => ({
       partyId: party.partyId,
       mangaId: party.mangaId,

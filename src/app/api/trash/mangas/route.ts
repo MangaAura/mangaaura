@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
 
     const where = { authorId: session.user.id };
 
-    const [bundles, total] = await Promise.all([
+    // Get bundles (properly deleted manga)
+    const [bundles, softDeletedMangas, total] = await Promise.all([
       prisma.deletedMangaBundle.findMany({
         where,
         select: {
@@ -43,6 +44,21 @@ export async function GET(request: NextRequest) {
         },
         skip: (page - 1) * limit,
         take: limit,
+        orderBy: { deletedAt: 'desc' },
+      }),
+      prisma.mangaSeries.findMany({
+        where: { authorId: session.user.id, deletedAt: { not: null } },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          coverUrl: true,
+          status: true,
+          tags: true,
+          totalViews: true,
+          deletedAt: true,
+          createdAt: true,
+        },
         orderBy: { deletedAt: 'desc' },
       }),
       prisma.deletedMangaBundle.count({ where }),
@@ -63,16 +79,42 @@ export async function GET(request: NextRequest) {
         deletedAt: bundle.deletedAt.toISOString(),
         daysLeft,
         createdAt: bundle.createdAt.toISOString(),
+        source: 'bundle' as const,
       };
     });
 
+    // Add soft-deleted manga (deletedAt set but not in bundle)
+    const softDeletedWithStats = softDeletedMangas.map((manga) => {
+      const msSinceDeleted = Date.now() - manga.deletedAt!.getTime();
+      const daysLeft = Math.max(0, TRASH_EXPIRY_DAYS - Math.floor(msSinceDeleted / (1000 * 60 * 60 * 24)));
+
+      return {
+        id: manga.id,
+        title: manga.title,
+        slug: manga.slug,
+        coverUrl: manga.coverUrl,
+        status: manga.status,
+        tags: manga.tags ? JSON.parse(manga.tags) : [],
+        totalViews: manga.totalViews,
+        deletedAt: manga.deletedAt!.toISOString(),
+        daysLeft,
+        createdAt: manga.createdAt.toISOString(),
+        source: 'soft' as const,
+      };
+    });
+
+    // Combine both sources and sort by deletedAt desc
+    const allMangas = [...mangasWithStats, ...softDeletedWithStats].sort(
+      (a, b) => new Date(b.deletedAt).getTime() - new Date(a.deletedAt).getTime()
+    );
+
     return NextResponse.json({
-      mangas: mangasWithStats,
+      mangas: allMangas,
       pagination: {
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: total + softDeletedMangas.length,
+        totalPages: Math.ceil((total + softDeletedMangas.length) / limit),
       },
     });
   } catch (error) {

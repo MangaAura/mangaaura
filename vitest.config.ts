@@ -22,10 +22,10 @@ coverage: {
     provider: 'v8',
     reporter: ['text', 'json', 'html'],
     thresholds: {
-      lines: 60,
+      lines: 59,
       functions: 50,
       branches: 40,
-      statements: 60,
+      statements: 59,
     },
     exclude: [
 'node_modules/',

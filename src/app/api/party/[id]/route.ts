@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Ocultar socketIds
+    // Sanitize member data
     const sanitizedParty = {
       ...party,
       members: party.members.map((member) => ({

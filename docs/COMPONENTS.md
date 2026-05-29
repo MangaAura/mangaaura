@@ -640,16 +640,16 @@ Hook para guardar progreso de lectura automaticamente.
 useAutoSaveProgress(mangaId, chapterId, currentPage, totalPages);
 ```
 
-### useSocket
+### useParty
 
-Hook para conexion WebSocket.
+Hook para lectura en grupo con polling HTTP cada 5s.
 
-**Ubicacion:** `src/hooks/useSocket.ts`
+**Ubicación:** `src/hooks/useParty.ts`
 
 **Uso:**
 
 ```tsx
-const { socket, isConnected, emit, on } = useSocket('/party-room');
+const { members, messages, currentPage, isHost, changePage, sendMessage } = useParty({ partyId, autoJoin: true });
 ```
 
 ---

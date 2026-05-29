@@ -42,8 +42,10 @@ function parseTags(tags: unknown): string[] {
 }
 
 export default async function HomePage() {
+  const whereActive = { deletedAt: null };
   const [latestMangas, topMangas, updatingMangas, topUsers, featuredManga, totalMangas, totalReaders, totalChapters] = await Promise.all([
     prisma.mangaSeries.findMany({
+      where: whereActive,
       take: 6,
       orderBy: { createdAt: 'desc' },
       select: {
@@ -53,6 +55,7 @@ export default async function HomePage() {
       },
     }),
     prisma.mangaSeries.findMany({
+      where: whereActive,
       take: 5,
       orderBy: { totalViews: 'desc' },
       select: {
@@ -62,6 +65,7 @@ export default async function HomePage() {
       },
     }),
     prisma.mangaSeries.findMany({
+      where: whereActive,
       take: 6,
       orderBy: { updatedAt: 'desc' },
       select: {
@@ -76,11 +80,11 @@ export default async function HomePage() {
       select: { id: true, username: true, avatarUrl: true, level: true, xpPoints: true },
     }),
     prisma.mangaSeries.findFirst({
-      where: { totalViews: { gt: 0 } },
+      where: { ...whereActive, totalViews: { gt: 0 } },
       orderBy: { totalViews: 'desc' },
       select: { id: true, title: true, slug: true, coverUrl: true, description: true, authorName: true },
     }),
-    prisma.mangaSeries.count(),
+    prisma.mangaSeries.count({ where: whereActive }),
     prisma.user.count(),
     prisma.chapter.count(),
   ]);

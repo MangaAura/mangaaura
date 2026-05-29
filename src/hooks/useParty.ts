@@ -1,27 +1,43 @@
 /**
- * useParty Hook
+ * useParty Hook (HTTP Polling)
  *
- * Hook para gestionar conexión y estado de Party Reading
+ * WebSockets fueron removidos. Este hook usa polling HTTP cada 5s
+ * para sincronización de página, miembros y mensajes del party.
  */
 
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import type {
-  PartyMember,
-  PartyMessage,
-  PartyState,
-  CursorPosition,
-  Reaction,
-  PartyServerToClientEvents,
-  PartyClientToServerEvents,
-} from '@/types/socket';
+// ── Tipos ──────────────────────────────────────────────────────────
+interface PartyMember {
+  userId: string;
+  username: string;
+  avatarUrl: string | null;
+  isHost: boolean;
+  isOnline: boolean;
+  currentPage: number;
+}
 
-type PartySocket = Socket<PartyServerToClientEvents, PartyClientToServerEvents>;
+interface PartyMessage {
+  id: string;
+  type: 'chat' | 'system';
+  content: string;
+  avatarUrl: string | null;
+  username: string;
+  createdAt: string;
+}
+
+interface PartyReaction {
+  id: string;
+  reaction: string;
+  username: string;
+}
+
+interface TypingUser {
+  username: string;
+}
 
 interface UsePartyOptions {
   partyId: string;
@@ -31,311 +47,267 @@ interface UsePartyOptions {
   onError?: (error: string) => void;
 }
 
-export function useParty(options: UsePartyOptions) {
-  const { partyId, autoJoin = true, onConnect, onDisconnect, onError } = options;
-  const { data: session, status } = useSession();
-  const { handleError } = useErrorHandler();
+// ── Hook ───────────────────────────────────────────────────────────
+export function useParty({
+  partyId,
+  autoJoin = false,
+  onConnect,
+  onError,
+}: UsePartyOptions) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
-  const socketRef = useRef<PartySocket | null>(null);
-  const [socket, setSocket] = useState<PartySocket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isJoined, setIsJoined] = useState(false);
-  const [party, setParty] = useState<PartyState | null>(null);
   const [members, setMembers] = useState<PartyMember[]>([]);
   const [messages, setMessages] = useState<PartyMessage[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isHost, setIsHost] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<{ userId: string; username: string }[]>([]);
-  const [cursors, setCursors] = useState<Record<string, CursorPosition>>({});
-  const [reactions, setReactions] = useState<Reaction[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Conectar socket
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const msgPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const joinedRef = useRef(false);
+  const isHostRef = useRef(false);
+  const currentPageRef = useRef(1);
+
+  // Keep refs in sync
+  useEffect(() => { isHostRef.current = isHost; }, [isHost]);
+  useEffect(() => { currentPageRef.current = currentPage; }, [currentPage]);
+
+  // ── Join party ──────────────────────────────────────────────────
+  const joinParty = useCallback(async () => {
+    if (joinedRef.current) return;
+    try {
+      const res = await fetch(`/api/party/${partyId}/join`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.party) {
+        const errMsg = data.error || 'Failed to join party';
+        setError(errMsg);
+        onError?.(errMsg);
+        return;
+      }
+      joinedRef.current = true;
+      setIsJoined(true);
+      setIsConnected(true);
+      onConnect?.();
+      setMembers(data.party.members || []);
+      setCurrentPage(data.party.currentPage || 1);
+      setIsHost(userId === data.party.hostId);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : 'Failed to join party';
+      setError(errMsg);
+      onError?.(errMsg);
+    }
+  }, [partyId, userId, onConnect, onError]);
+
+  // ── Leave party ─────────────────────────────────────────────────
+  const leaveParty = useCallback(async () => {
+    try {
+      await fetch(`/api/party/${partyId}/leave`, { method: 'POST' });
+      joinedRef.current = false;
+      setIsJoined(false);
+      setIsConnected(false);
+    } catch {
+      // Best effort
+    }
+  }, [partyId]);
+
+  // ── Change page (host only) ─────────────────────────────────────
+  const changePage = useCallback(async (page: number) => {
+    if (!isHostRef.current) return;
+    setCurrentPage(page);
+    try {
+      await fetch(`/api/party/${partyId}/page`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page }),
+      });
+    } catch {
+      // Optimistic update already applied
+    }
+  }, [partyId]);
+
+  // ── Sync page (non-host, for cursor position) ───────────────────
+  const syncPage = useCallback(async (page: number) => {
+    // No-op: individual page sync not critical enough for HTTP
+    void page;
+  }, []);
+
+  // ── Send message ────────────────────────────────────────────────
+  const sendMessage = useCallback(async (content: string) => {
+    const optimisticId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const optimistic: PartyMessage = {
+      id: optimisticId,
+      type: 'chat',
+      content,
+      avatarUrl: session?.user?.image || null,
+      username: session?.user?.name || 'You',
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, optimistic]);
+
+    try {
+      const res = await fetch(`/api/party/${partyId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, type: 'chat' }),
+      });
+      const data = await res.json();
+      if (data.message) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticId ? { ...data.message, createdAt: data.message.createdAt?.toString?.() || data.message.createdAt } : m))
+        );
+      }
+    } catch {
+      // Keep optimistic message
+    }
+  }, [partyId, session?.user?.image, session?.user?.name]);
+
+  // ── Send reaction (no-op, no API) ───────────────────────────────
+  const sendReaction = useCallback((_reaction: string, _page?: number) => {}, []);
+
+  // ── Set typing (no-op, no API) ──────────────────────────────────
+  const setTyping = useCallback((_isTyping: boolean) => {}, []);
+
+  // ── Become host (no-op, no API) ─────────────────────────────────
+  const becomeHost = useCallback(() => {}, []);
+
+  // ── Move cursor (no-op, no API) ─────────────────────────────────
+  const moveCursor = useCallback((_x: number, _y: number, _page: number) => {}, []);
+
+  // ── Polling: party state (members + currentPage) ────────────────
   useEffect(() => {
-    if (status === 'loading' || !session) return;
+    if (!partyId) return;
 
-    const initSocket = async () => {
+    const poll = async () => {
       try {
-        if (typeof window === 'undefined') return;
+        const res = await fetch(`/api/party/${partyId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.party) return;
 
-        if (!session.user) return;
+        const party = data.party;
+        setMembers(party.members || []);
+        // Only update page from server if we're not the host (host controls their own page)
+        if (!isHostRef.current) {
+          setCurrentPage(party.currentPage || 1);
+        }
+        setIsConnected(true);
+        setError(null);
 
-        const token = session.user.id ?? '';
-
-        const socket: PartySocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
-          path: '/api/socket',
-          auth: { token },
-          transports: ['websocket', 'polling'],
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-          reconnectionDelayMax: 5000,
-          randomizationFactor: 0.5,
-        });
-
-        socketRef.current = socket;
-        setSocket(socket);
-
-        // Event listeners de conexion
-        socket.on('connect', () => {
-          console.info('[Party] Connected');
-          setIsConnected(true);
-          setError(null);
-          onConnect?.();
-
-          // Unirse al party automaticamente
-          if (autoJoin) {
-            socket.emit('party:join', {
-              partyId,
-              user: {
-                userId: session.user!.id,
-                username: session.user!.name || 'Anonymous',
-                avatarUrl: session.user!.image || undefined,
-              },
-            });
-          }
-        });
-
-        socket.on('disconnect', (reason) => {
-          console.info('[Party] Disconnected:', reason);
-          setIsConnected(false);
-          setIsJoined(false);
-          onDisconnect?.(reason);
-        });
-
-        socket.on('connect_error', (err) => {
-          handleError(err);
-          setError(err.message);
-          onError?.(err.message);
-        });
-
-        // Event listeners de party
-        socket.on('party:joined', ({ party: partyData, member }) => {
-          console.info('[Party] Joined:', partyData.partyId);
-          setIsJoined(true);
-          setParty(partyData);
-          setMembers(partyData.members);
-          setCurrentPage(partyData.currentPage);
-          setIsHost(member.isHost);
-        });
-
-        socket.on('party:state', (partyData) => {
-          setParty(partyData);
-          setMembers(partyData.members);
-          setCurrentPage(partyData.currentPage);
-        });
-
-        socket.on('party:member-joined', ({ member }) => {
-          setMembers((prev) => {
-            const exists = prev.find((m) => m.userId === member.userId);
-            if (exists) {
-              return prev.map((m) => (m.userId === member.userId ? member : m));
-            }
-            return [...prev, member];
-          });
-        });
-
-        socket.on('party:member-left', ({ userId }) => {
-          setMembers((prev) => prev.filter((m) => m.userId !== userId));
-        });
-
-        socket.on('party:member-updated', ({ member }) => {
-          setMembers((prev) =>
-            prev.map((m) => (m.userId === member.userId ? member : m))
-          );
-        });
-
-        socket.on('party:page-sync', ({ page, hostId }) => {
-          setCurrentPage(page);
-          // Actualizar pagina del host
-          setMembers((prev) =>
-            prev.map((m) =>
-              m.userId === hostId ? { ...m, currentPage: page } : m
-            )
-          );
-        });
-
-        socket.on('party:message-received', (message) => {
-          setMessages((prev) => {
-            // Evitar duplicados
-            if (prev.find((m) => m.id === message.id)) return prev;
-            return [...prev, message];
-          });
-        });
-
-        socket.on('party:typing-update', ({ userId, username, isTyping }) => {
-          setTypingUsers((prev) => {
-            if (isTyping) {
-              if (prev.find((u) => u.userId === userId)) return prev;
-              return [...prev, { userId, username }];
-            } else {
-              return prev.filter((u) => u.userId !== userId);
-            }
-          });
-        });
-
-        socket.on('party:cursor-update', ({ userId, position }) => {
-          setCursors((prev) => ({
-            ...prev,
-            [userId]: position,
-          }));
-        });
-
-        socket.on('party:reaction-received', (reaction) => {
-          setReactions((prev) => [...prev, reaction]);
-          // Limpiar reacciones despues de 3 segundos
-          setTimeout(() => {
-            setReactions((prev) =>
-              prev.filter((r) => r.id !== reaction.id)
-            );
-          }, 3000);
-        });
-
-        socket.on('party:host-changed', ({ newHostId, newHostName: _newHostName }) => {
-          setIsHost(newHostId === session!.user!.id);
-          setMembers((prev) =>
-            prev.map((m) => ({
-              ...m,
-              isHost: m.userId === newHostId,
-            }))
-          );
-        });
-
-        socket.on('party:error', ({ message }) => {
-          setError(message);
-          onError?.(message);
-        });
-
-        socket.on('party:closed', ({ reason }) => {
-          setError(`Party closed: ${reason}`);
-          setIsJoined(false);
-        });
-
-        socket.connect();
-      } catch (err) {
-        handleError(err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsHost(userId === party.hostId);
+      } catch {
+        setIsConnected(false);
       }
     };
 
-    initSocket();
+    // Initial fetch
+    poll();
+
+    pollingRef.current = setInterval(poll, 5000);
+
+    // Pause polling when tab hidden
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
+      } else {
+        poll(); // Immediate poll on resume
+        if (!pollingRef.current) {
+          pollingRef.current = setInterval(poll, 5000);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [partyId]);
+
+  // ── Polling: messages ───────────────────────────────────────────
+  useEffect(() => {
+    if (!partyId || !isJoined) return;
+
+    const pollMessages = async () => {
+      try {
+        const res = await fetch(`/api/party/${partyId}/messages?limit=50`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.messages) return;
+
+        setMessages((prev) => {
+          const serverIds = new Set(data.messages.map((m: PartyMessage) => m.id));
+          const optimisticOnly = prev.filter(
+            (m) => m.id.startsWith('temp_') && !serverIds.has(m.id)
+          );
+          const merged = [...data.messages, ...optimisticOnly];
+          merged.sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+          return merged;
+        });
+      } catch {
+        // Silent, party state polling handles connection status
       }
     };
-  }, [session, status, partyId, autoJoin, onConnect, onDisconnect, onError]);
 
-  // Acciones del party
-  const joinParty = useCallback(() => {
-    if (!socketRef.current || !session) return;
-    socketRef.current.emit('party:join', {
-      partyId,
-      user: {
-        userId: session.user!.id,
-        username: session.user!.name || 'Anonymous',
-        avatarUrl: session.user!.image || undefined,
-      },
-    });
-  }, [partyId, session]);
+    // Initial fetch after join
+    pollMessages();
 
-  const leaveParty = useCallback(() => {
-    if (!socketRef.current) return;
-    socketRef.current.emit('party:leave', { partyId });
-    setIsJoined(false);
-  }, [partyId]);
+    msgPollingRef.current = setInterval(pollMessages, 5000);
 
-  const changePage = useCallback(
-    (page: number) => {
-      if (!socketRef.current || !isHost) return;
-      socketRef.current.emit('party:page-change', { partyId, page });
-    },
-    [partyId, isHost]
-  );
-
-  const syncPage = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      if (socketRef.current) {
-        socketRef.current.emit('party:cursor-move', {
-          partyId,
-          position: {
-            userId: session?.user?.id || '',
-            username: session?.user?.name || '',
-            x: 0,
-            y: 0,
-            page,
-          },
-        });
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (msgPollingRef.current) {
+          clearInterval(msgPollingRef.current);
+          msgPollingRef.current = null;
+        }
+      } else {
+        pollMessages();
+        if (!msgPollingRef.current) {
+          msgPollingRef.current = setInterval(pollMessages, 5000);
+        }
       }
-    },
-    [partyId, session]
-  );
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
-  const sendMessage = useCallback(
-    (content: string) => {
-      if (!socketRef.current || !content.trim()) return;
-      socketRef.current.emit('party:message', { partyId, content: content.trim() });
-    },
-    [partyId]
-  );
+    return () => {
+      if (msgPollingRef.current) clearInterval(msgPollingRef.current);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [partyId, isJoined]);
 
-  const sendReaction = useCallback(
-    (reaction: string, page: number = currentPage) => {
-      if (!socketRef.current) return;
-      socketRef.current.emit('party:reaction', { partyId, reaction, page });
-    },
-    [partyId, currentPage]
-  );
-
-  const setTyping = useCallback(
-    (isTyping: boolean) => {
-      if (!socketRef.current) return;
-      socketRef.current.emit('party:typing', { partyId, isTyping });
-    },
-    [partyId]
-  );
-
-  const becomeHost = useCallback(() => {
-    if (!socketRef.current) return;
-    socketRef.current.emit('party:become-host', { partyId });
-  }, [partyId]);
-
-  const moveCursor = useCallback(
-    (x: number, y: number, page: number) => {
-      if (!socketRef.current) return;
-      socketRef.current.emit('party:cursor-move', {
-        partyId,
-        position: {
-          userId: session?.user?.id || '',
-          username: session?.user?.name || '',
-          x,
-          y,
-          page,
-        },
-      });
-    },
-    [partyId, session]
-  );
+  // ── Auto-join ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (autoJoin && partyId) {
+      joinParty();
+    }
+    return () => {
+      if (joinedRef.current) {
+        leaveParty();
+      }
+    };
+  }, [autoJoin, partyId, joinParty, leaveParty]);
 
   return {
-    // Estado
-    socket,
+    socket: null,
     isConnected,
     isJoined,
-    party,
+    party: null,
     members,
     messages,
     currentPage,
     isHost,
-    typingUsers,
-    cursors,
-    reactions,
+    typingUsers: [] as TypingUser[],
+    cursors: {} as Record<string, unknown>,
+    reactions: [] as PartyReaction[],
     error,
-
-    // Acciones
     joinParty,
     leaveParty,
     changePage,

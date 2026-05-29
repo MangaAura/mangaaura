@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockFindMany = vi.hoisted(() => vi.fn());
 const mockCount = vi.hoisted(() => vi.fn());
+const mockGenreFindMany = vi.hoisted(() => vi.fn());
 const mockWithCache = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/prisma', () => ({
@@ -10,6 +11,9 @@ vi.mock('@/lib/prisma', () => ({
     mangaSeries: {
       findMany: mockFindMany,
       count: mockCount,
+    },
+    genre: {
+      findMany: mockGenreFindMany,
     },
   },
 }));
@@ -35,6 +39,7 @@ const mangaFixture = {
   totalViews: 1500,
   createdAt: new Date('2025-01-01'),
   updatedAt: new Date('2025-06-01'),
+  mangaGenres: [],
   _count: { chapters: 10, libraryEntries: 50 },
 };
 
@@ -45,6 +50,7 @@ function createRequest(url: string): NextRequest {
 describe('GET /api/browse', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGenreFindMany.mockResolvedValue([]);
     mockWithCache.mockImplementation((_key: string, _ttl: number, fetchFn: () => unknown) => fetchFn());
   });
 
@@ -58,20 +64,26 @@ describe('GET /api/browse', () => {
     expect(response.status).toBe(200);
     expect(data.mangas).toHaveLength(1);
     expect(data.mangas[0].title).toBe('Test Manga');
-    expect(data.mangas[0].tags).toEqual(['action', 'adventure']);
+    expect(data.mangas[0].genres).toEqual([]);
     expect(data.mangas[0].chapterCount).toBe(10);
     expect(data.mangas[0].libraryCount).toBe(50);
   });
 
-  it('filters by genre tag', async () => {
+  it('filters by genre slug', async () => {
     mockFindMany.mockResolvedValue([mangaFixture]);
     mockCount.mockResolvedValue(1);
 
-    await GET(createRequest('/api/browse?tag=action'));
+    await GET(createRequest('/api/browse?genre=action'));
 
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ tags: { contains: 'action' } }),
+        where: expect.objectContaining({
+          mangaGenres: {
+            some: {
+              genre: { slug: 'action' },
+            },
+          },
+        }),
       })
     );
   });

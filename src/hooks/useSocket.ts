@@ -1,146 +1,29 @@
 /**
- * useSocket Hook
- * 
- * Hook para conectar al servidor Socket.IO
+ * useSocket Hook (NOOP)
+ *
+ * WebSockets fueron removidos. Este hook es un stub que retorna
+ * valores por defecto para mantener compatibilidad con el resto del código.
+ * Toda la comunicación en tiempo real se maneja vía polling HTTP.
  */
 
 'use client';
 
-import { useSession } from 'next-auth/react';
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useCallback } from 'react';
 
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import type {
-  ClientToServerEvents,
-  ServerToClientEvents,
-} from '@/lib/socket';
-
-type SocketType = Socket<ServerToClientEvents, ClientToServerEvents>;
-
-interface UseSocketOptions {
-  autoConnect?: boolean;
-  onConnect?: () => void;
-  onDisconnect?: (reason: string) => void;
-  onError?: (error: Error) => void;
-}
-
-export function useSocket(options: UseSocketOptions = {}) {
-  const { data: session, status } = useSession();
-  const socketRef = useRef<SocketType | null>(null);
-  const [socket, setSocket] = useState<SocketType | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState('N/A');
-  const [error, setError] = useState<string | null>(null);
-  
-  const { autoConnect = true, onConnect, onDisconnect, onError } = options;
-  const { handleError } = useErrorHandler();
-
-  useEffect(() => {
-    if (status === 'loading' || !session) return;
-
-    const initSocket = async () => {
-      try {
-        // Solo inicializar en cliente
-        if (typeof window === 'undefined') return;
-
-        // Obtener token de sesión
-        const token = session.user?.id; // Simplificado, idealmente usar JWT
-
-        // Crear conexión Socket.IO
-        const socket: SocketType = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
-          path: '/api/socket',
-          auth: { token },
-          transports: ['websocket', 'polling'],
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-          reconnectionDelayMax: 5000,
-          randomizationFactor: 0.5,
-        });
-
-        socketRef.current = socket;
-        setSocket(socket); // Update state after socket is initialized
-
-        // Event listeners
-        socket.on('connect', () => {
-          console.info('[Socket] Connected');
-          setIsConnected(true);
-          setTransport(socket.io.engine?.transport?.name || 'N/A');
-          setError(null);
-          onConnect?.();
-        });
-
-        socket.on('disconnect', (reason) => {
-          console.info('[Socket] Disconnected:', reason);
-          setIsConnected(false);
-          onDisconnect?.(reason);
-        });
-
-        socket.on('connect_error', (err) => {
-          handleError(err);
-          setError(err.message);
-          onError?.(err);
-        });
-
-    socket.io.engine.on('upgrade', (transport) => {
-      const name = typeof transport === 'string' ? transport : transport.name;
-      console.info('[Socket] Transport upgraded to:', name);
-      setTransport(name);
-    });
-
-        // Auto connect
-        if (autoConnect) {
-          socket.connect();
-        }
-      } catch (err) {
-        handleError(err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      }
-    };
-
-    initSocket();
-
-    // Cleanup
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
-  }, [session, status, autoConnect, onConnect, onDisconnect, onError, handleError]);
-
-  // Métodos expuestos
-  const joinRoom = useCallback((room: string) => {
-    socketRef.current?.emit('user:join-room', room);
-  }, []);
-
-  const leaveRoom = useCallback((room: string) => {
-    socketRef.current?.emit('user:leave-room', room);
-  }, []);
-
-  const emit = useCallback(<T extends keyof ClientToServerEvents>(
-    event: T,
-    ...args: Parameters<ClientToServerEvents[T]>
-  ) => {
-    socketRef.current?.emit(event, ...args);
-  }, []);
-
-  const on = useCallback(<T extends keyof ServerToClientEvents>(
-    event: T,
-    callback: ServerToClientEvents[T]
-  ) => {
-    (socketRef.current?.on as any)(event, callback);
-    return () => {
-      (socketRef.current?.off as any)(event, callback);
-    };
+export function useSocket(_options?: Record<string, unknown>) {
+  const joinRoom = useCallback((_room: string) => {}, []);
+  const leaveRoom = useCallback((_room: string) => {}, []);
+  const emit = useCallback(<T extends string>(_event: T, ..._args: unknown[]) => {}, []);
+  const on = useCallback(<T extends string>(_event: T, _callback: (...args: unknown[]) => void) => {
+    // Devuelve un cleanup noop para compatibilidad con el patrón useEffect
+    return () => {};
   }, []);
 
   return {
-    socket,
-    isConnected,
-    transport,
-    error,
+    socket: null,
+    isConnected: false,
+    transport: 'N/A',
+    error: null,
     joinRoom,
     leaveRoom,
     emit,

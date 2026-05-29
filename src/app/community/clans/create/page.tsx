@@ -89,7 +89,7 @@ export default function CreateClanPage() {
       }
 
       // Redirect to the new clan
-      router.push(`/community/clan/${data.clan.id}`);
+      router.push(`/community/clan/${data.clan.slug}`);
     } catch (err: any) {
       setError(err.message);
     } finally {

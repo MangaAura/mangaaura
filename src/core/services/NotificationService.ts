@@ -270,7 +270,7 @@ export class NotificationService {
 
   async notifyClanJoinRequest(
     userId: string,
-    clan: { id: string; name: string; emblemUrl?: string | null },
+    clan: { id: string; name: string; slug: string; emblemUrl?: string | null },
     requester: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null },
     requestId: string,
     message?: string
@@ -291,13 +291,13 @@ export class NotificationService {
         message: message?.substring(0, 500),
       },
       imageUrl: requester.avatarUrl || undefined,
-      linkUrl: `/community/clan/${clan.id}`,
+      linkUrl: `/community/clan/${clan.slug}`,
     });
   }
 
   async notifyClanJoinApproved(
     userId: string,
-    clan: { id: string; name: string; emblemUrl?: string | null },
+    clan: { id: string; name: string; slug: string; emblemUrl?: string | null },
     reviewer: { id: string; username: string; displayName?: string | null },
     requestId: string
   ): Promise<Notification> {
@@ -315,13 +315,13 @@ export class NotificationService {
         requestId,
       },
       imageUrl: clan.emblemUrl || undefined,
-      linkUrl: `/community/clan/${clan.id}`,
+      linkUrl: `/community/clan/${clan.slug}`,
     });
   }
 
   async notifyClanJoinRejected(
     userId: string,
-    clan: { id: string; name: string; emblemUrl?: string | null },
+    clan: { id: string; name: string; slug: string; emblemUrl?: string | null },
     reviewer: { id: string; username: string; displayName?: string | null },
     requestId: string,
     reason?: string
@@ -340,13 +340,13 @@ export class NotificationService {
         requestId,
         reason,
       },
-      linkUrl: `/community/clan/${clan.id}`,
+      linkUrl: `/community/clan/${clan.slug}`,
     });
   }
 
   async notifyClanInvite(
     userId: string,
-    clan: { id: string; name: string; emblemUrl?: string | null },
+    clan: { id: string; name: string; slug: string; emblemUrl?: string | null },
     inviter: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null },
     invitationId: string
   ): Promise<Notification> {
@@ -365,7 +365,7 @@ export class NotificationService {
         invitationId,
       },
       imageUrl: clan.emblemUrl || undefined,
-      linkUrl: `/community/clan/${clan.id}`,
+      linkUrl: `/community/clan/${clan.slug}`,
     });
   }
 

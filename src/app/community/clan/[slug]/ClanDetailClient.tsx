@@ -1,18 +1,19 @@
-'use client';
-
-import { motion, useReducedMotion } from 'framer-motion';
+'use client';import {
+  motion, useReducedMotion, useSpring, useTransform, useInView
+} from 'framer-motion';
 import {
   Users, Crown, Shield, Trophy, BookOpen, Flame,
   Plus, Calendar, Swords, Loader2, AlertTriangle,
-  Zap, TrendingUp, Hash, Edit, Trash2, UserCog,
-  ScrollText, X, Clock, Send, UserPlus, Check, XCircle, Search,
+  Zap, TrendingUp, Edit, Trash2, UserCog,
+  ScrollText, X, Clock, Send, UserPlus, Check, XCircle, Search, ChevronRight,
+  Upload, ImageIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
-import { useT } from '@/i18n';
+import { useI18n, useT } from '@/i18n';
 
 // ── Types ──────────────────────────────────────────────
 interface ClanMember {
@@ -95,6 +96,26 @@ function getMemberGradient(index: number): string {
   return gradients[index % gradients.length];
 }
 
+// ── Animated Counter ───────────────────────────────────
+function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const spring = useSpring(0, { stiffness: 60, damping: 15 });
+  const display = useTransform(spring, (v) => `${Math.round(v).toLocaleString()}${suffix}`);
+
+  useEffect(() => {
+    if (isInView) {
+      spring.set(value);
+    }
+  }, [isInView, value, spring]);
+
+  return (
+    <motion.span ref={ref} className="tabular-nums">
+      {display}
+    </motion.span>
+  );
+}
+
 function getPositionStyle(position: number) {
   if (position === 1) return 'text-amber-500 dark:text-yellow-400';
   if (position === 2) return 'text-slate-400 dark:text-slate-300';
@@ -143,28 +164,30 @@ function HeroEmblem({ clan }: { clan: ClanData }) {
       initial={shouldReduceMotion ? {} : { scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-      className="relative"
+      className="relative group"
     >
       {/* Glow ring */}
       <motion.div
-        className="absolute inset-0 rounded-2xl bg-[var(--accent-purple)]/30 blur-xl"
+        className="absolute inset-0 rounded-full bg-[var(--accent-purple)]/30 blur-xl group-hover:blur-2xl transition-all duration-500"
         animate={shouldReduceMotion ? {} : { scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         aria-hidden="true"
       />
-      {/* Emblem container */}
+      {/* Emblem container - circular profile pic style */}
       {clan.emblemUrl ? (
-        <div className="relative w-28 h-28 rounded-2xl overflow-hidden ring-4 ring-[var(--surface)] shadow-2xl">
+        <div className="relative w-28 h-28 rounded-full overflow-hidden ring-2 ring-[var(--surface)] shadow-2xl group-hover:ring-[var(--primary)]/40 transition-all duration-300">
           <OptimizedImage
             src={clan.emblemUrl}
             alt={`${t('clanDetail.emblemOf')} ${clan.name}`}
             fill
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           />
         </div>
       ) : (
-        <div className="relative w-28 h-28 rounded-2xl bg-gradient-to-br from-[var(--accent-purple)] to-[var(--primary)] flex items-center justify-center text-6xl shadow-2xl ring-4 ring-[var(--surface)] overflow-hidden">
-          <span role="img" aria-label="Corona">👑</span>
+        <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-[var(--accent-purple)] to-[var(--primary)] flex items-center justify-center shadow-2xl ring-2 ring-[var(--surface)] group-hover:ring-[var(--primary)]/40 transition-all duration-300 overflow-hidden">
+          <span className="text-5xl font-black text-white/90">
+            {clan.name.charAt(0).toUpperCase()}
+          </span>
         </div>
       )}
     </motion.div>
@@ -193,15 +216,17 @@ function StatCard({
       variants={shouldReduceMotion ? {} : statCardVariants}
       initial="hidden"
       animate="visible"
-      className="group bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 hover:shadow-lg hover:shadow-[var(--primary)]/5 hover:border-[var(--primary)]/30 transition-all duration-200"
+      className="group bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] rounded-xl p-5 hover:shadow-lg hover:shadow-[var(--primary)]/8 hover:border-[var(--primary)]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
     >
       <div className="flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-lg ${colorClass} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110`}>
+        <div className={`w-10 h-10 rounded-lg ${colorClass} flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}>
           <Icon className="w-5 h-5" />
         </div>
         <div className="min-w-0">
           <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{label}</p>
-          <p className="text-2xl font-extrabold text-[var(--text-primary)] mt-0.5">{value}</p>
+          <p className="text-2xl font-extrabold text-[var(--text-primary)] mt-0.5">
+            <AnimatedCounter value={parseInt(value.replace(/[^0-9]/g, '')) || 0} />
+          </p>
           {subtitle && (
             <p className="text-xs text-[var(--text-tertiary)] mt-1">{subtitle}</p>
           )}
@@ -219,14 +244,16 @@ function SeasonProgress({ clan }: { clan: ClanData }) {
 
   return (
     <AnimatedContainer animation="fadeInUp" delay={0.3}>
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+      <div className="bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/5 hover:border-[var(--primary)]/20 transition-all duration-200">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-bold text-lg flex items-center gap-2 text-[var(--text-primary)]">
-            <Flame className="text-red-500" size={22} />
+            <div className="p-1.5 rounded-lg bg-red-500/10">
+              <Flame className="text-red-500" size={18} />
+            </div>
             {t('clanDetail.season')} {clan.currentSeason}
           </h2>
-          <span className="text-xs font-semibold text-[var(--text-muted)] bg-[var(--surface-sunken)] px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold text-[var(--text-muted)] bg-[var(--surface-sunken)]/80 backdrop-blur-sm px-3 py-1 rounded-full border border-[var(--border)]">
             {t('clanDetail.goal')}: {seasonGoal.toLocaleString()} {t('clanDetail.pts')}
           </span>
         </div>
@@ -239,7 +266,7 @@ function SeasonProgress({ clan }: { clan: ClanData }) {
               {clan.monthlyScore.toLocaleString()}
             </span>
           </div>
-          <div className="relative h-4 bg-[var(--surface-sunken)] rounded-full overflow-hidden">
+          <div className="relative h-4 bg-[var(--surface-sunken)] rounded-full overflow-hidden shadow-inner">
             <motion.div
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] rounded-full"
               initial={shouldReduceMotion ? {} : { width: 0 }}
@@ -272,13 +299,14 @@ function TotalScoreCard({ clan }: { clan: ClanData }) {
 
   return (
     <AnimatedContainer animation="fadeInUp" delay={0.4}>
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm relative overflow-hidden">
+      <div className="bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] rounded-2xl p-6 shadow-sm relative overflow-hidden hover:shadow-lg hover:shadow-[var(--warning)]/5 hover:border-[var(--warning)]/20 transition-all duration-200 group">
         {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[var(--warning)]/10 to-transparent rounded-bl-full" aria-hidden="true" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[var(--warning)]/10 to-transparent rounded-bl-full group-hover:from-[var(--warning)]/20 transition-all duration-500" aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[var(--accent-purple)]/5 to-transparent rounded-tr-full" aria-hidden="true" />
 
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-9 h-9 rounded-lg bg-[var(--warning)]/15 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-[var(--warning)]/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <Trophy className="w-5 h-5 text-[var(--warning)]" />
             </div>
             <h2 className="font-bold text-lg text-[var(--text-primary)]">{t('clanDetail.totalScore')}</h2>
@@ -338,8 +366,11 @@ function MemberRow({
     >
       <motion.div
         variants={shouldReduceMotion ? {} : itemVariants}
-        className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--surface-sunken)]/50 transition-colors cursor-pointer"
+        className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--surface-sunken)]/50 transition-all duration-200 cursor-pointer relative"
       >
+      {/* Left gradient accent on hover */}
+      <div className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full bg-gradient-to-b from-[var(--primary)] to-[var(--accent-purple)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
       {/* Position */}
       <div className={`w-8 text-center font-black text-lg flex-shrink-0 ${positionStyle}`}>
         {position <= 3 ? (
@@ -354,24 +385,24 @@ function MemberRow({
       {/* Avatar */}
       <div className="relative flex-shrink-0">
         {member.user.avatarUrl ? (
-          <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-[var(--surface)] shadow-md">
+          <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-[var(--surface)] shadow-md group-hover:ring-[var(--primary)]/40 transition-all duration-300">
             <OptimizedImage
               src={member.user.avatarUrl}
               alt={displayName}
               fill
-              className="w-full h-full rounded-full object-cover"
+              className="w-full h-full rounded-full object-cover transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         ) : (
           <div
-            className={`w-11 h-11 rounded-full bg-gradient-to-br ${getMemberGradient(position - 1)} flex items-center justify-center text-[var(--text-inverse)] text-xs font-black shadow-md overflow-hidden ring-2 ring-[var(--surface)]`}
+            className={`w-11 h-11 rounded-full bg-gradient-to-br ${getMemberGradient(position - 1)} flex items-center justify-center text-[var(--text-inverse)] text-xs font-black shadow-md overflow-hidden ring-2 ring-[var(--surface)] group-hover:ring-[var(--primary)]/40 transition-all duration-300`}
           >
             {getInitials(displayName)}
           </div>
         )}
         {/* Leader crown */}
         {member.role === 'LEADER' && (
-          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center ring-2 ring-[var(--surface)] shadow-md" aria-label={t('clanDetail.leader')}>
+          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-500 dark:bg-yellow-500 text-gray-900 flex items-center justify-center ring-2 ring-[var(--surface)] shadow-md group-hover:scale-110 transition-transform duration-300" aria-label={t('clanDetail.leader')}>
             <Crown size={10} />
           </div>
         )}
@@ -403,7 +434,7 @@ function MemberRow({
             <button
               onClick={() => onPromote(member.userId, 'OFFICER')}
               disabled={promoting === member.userId}
-              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/10 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/10 transition-all cursor-pointer hover:scale-110 active:scale-95"
               title={t('clanDetail.promoteToOfficer')}
             >
               {promoting === member.userId ? <Loader2 size={14} className="animate-spin" /> : <UserCog size={14} />}
@@ -413,7 +444,7 @@ function MemberRow({
             <button
               onClick={() => onPromote(member.userId, 'LEADER')}
               disabled={promoting === member.userId}
-              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-amber-500 hover:bg-amber-500/10 transition-all cursor-pointer hover:scale-110 active:scale-95"
               title={t('clanDetail.transferLeadership')}
             >
               {promoting === member.userId ? <Loader2 size={14} className="animate-spin" /> : <Crown size={14} />}
@@ -422,7 +453,7 @@ function MemberRow({
           <button
             onClick={() => onPromote(member.userId, 'MEMBER')}
             disabled={promoting === member.userId}
-            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 transition-all cursor-pointer"
+            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 transition-all cursor-pointer hover:scale-110 active:scale-95"
             title={t('clanDetail.demote')}
           >
             {promoting === member.userId ? <Loader2 size={14} className="animate-spin" /> : <Shield size={14} />}
@@ -431,7 +462,7 @@ function MemberRow({
       )}
 
       {/* XP & Level */}
-      <div className="text-right flex-shrink-0">
+      <div className="text-right flex-shrink-0 mr-1">
         <div className="flex items-center gap-1 justify-end">
           <Zap size={13} className="text-[var(--accent-purple)]" />
           <span className="font-extrabold text-sm text-[var(--text-primary)]">
@@ -439,6 +470,11 @@ function MemberRow({
           </span>
         </div>
         <div className="text-xs text-[var(--text-muted)]">{t('clanDetail.level')} {member.user.level}</div>
+      </div>
+
+      {/* Chevron on hover */}
+      <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <ChevronRight size={18} className="text-[var(--text-tertiary)]" />
       </div>
     </motion.div>
     </Link>
@@ -451,7 +487,7 @@ function MembersSection({ clan, isLeader, currentUserId, onPromote, promoting }:
 
   return (
     <AnimatedContainer animation="fadeInUp" delay={0.5}>
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] rounded-2xl shadow-sm overflow-hidden hover:shadow-lg hover:shadow-[var(--primary)]/5 transition-all duration-200">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[var(--border)] flex justify-between items-center bg-[var(--surface-sunken)]/50">
           <h2 className="font-bold text-lg flex items-center gap-2 text-[var(--text-primary)]">
@@ -465,11 +501,19 @@ function MembersSection({ clan, isLeader, currentUserId, onPromote, promoting }:
 
         {/* Members list */}
         {clan.members.length === 0 ? (
-          <div className="px-6 py-12 text-center text-[var(--text-muted)]">
-            <Users size={32} className="mx-auto mb-3 opacity-40" />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="px-6 py-12 text-center text-[var(--text-muted)]"
+          >
+            <div className="relative inline-flex mb-3">
+              <div className="absolute inset-0 rounded-full bg-[var(--primary)]/10 blur-xl" />
+              <Users size={36} className="relative opacity-40 text-[var(--primary)]" />
+            </div>
             <p className="text-sm">{t('clanDetail.noMembers')}</p>
             <p className="text-xs mt-1">{t('clanDetail.beFirst')}</p>
-          </div>
+          </motion.div>
         ) : (
           <motion.div
             variants={shouldReduceMotion ? {} : containerVariants}
@@ -500,15 +544,19 @@ export default function ClanDetailClient({
   userMembership: initialMembership,
   userId,
 }: ClanDetailClientProps) {
-  const t = useT();
+  const { locale, t } = useI18n();
   const [userMembership, setUserMembership] = useState(initialMembership);
   const [joining, setJoining] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editName, setEditName] = useState(clan.name);
   const [editDescription, setEditDescription] = useState(clan.description || '');
   const [editEmblemUrl, setEditEmblemUrl] = useState(clan.emblemUrl || '');
   const [saving, setSaving] = useState(false);
+  const [emblemUploading, setEmblemUploading] = useState(false);
+  const emblemInputRef = useRef<HTMLInputElement>(null);
+  const [editNameError, setEditNameError] = useState<string | null>(null);
   const [promoting, setPromoting] = useState<string | null>(null);
   const [auditLogsOpen, setAuditLogsOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState<any[] | null>(null);
@@ -590,7 +638,7 @@ export default function ClanDetailClient({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al cancelar solicitud');
+        throw new Error(data.error || t('clanDetail.errorCancelRequest'));
       }
       setMyPendingRequest(null);
     } catch (err: any) {
@@ -605,7 +653,7 @@ export default function ClanDetailClient({
     setJoinRequestError(null);
     try {
       const res = await fetch(`/api/clans/${clan.id}/join-requests?all=1`);
-      if (!res.ok) throw new Error('Error al cargar solicitudes');
+      if (!res.ok) throw new Error(t('clanDetail.errorLoadRequests'));
       const data = await res.json();
       setJoinRequests(data.joinRequests || []);
     } catch (err: any) {
@@ -621,11 +669,11 @@ export default function ClanDetailClient({
       const res = await fetch(`/api/clans/${clan.id}/join-requests/${requestId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, reason: action === 'REJECTED' ? 'Solicitud rechazada' : undefined }),
+        body: JSON.stringify({ action, reason: action === 'REJECTED' ? t('clanDetail.requestRejected') : undefined }),
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al procesar solicitud');
+        throw new Error(data.error || t('clanDetail.errorProcessRequest'));
       }
       // Refresh the list
       loadJoinRequests();
@@ -671,19 +719,68 @@ export default function ClanDetailClient({
     }
   }
 
+  async function handleEmblemUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      setActionError(t('clanCreate.errorImageType'));
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setActionError(`${t('clanCreate.errorImageSize')}`);
+      return;
+    }
+
+    setEmblemUploading(true);
+    setActionError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || t('clanCreate.errorImageUpload'));
+      }
+
+      const data = await res.json();
+      setEditEmblemUrl(data.url);
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setEmblemUploading(false);
+      if (emblemInputRef.current) emblemInputRef.current.value = '';
+    }
+  }
+
   async function handleEdit() {
     setSaving(true);
     setActionError(null);
     try {
+      const payload: Record<string, string> = {};
+      if (editName !== clan.name) payload.name = editName;
+      if (editDescription !== (clan.description || '')) payload.description = editDescription;
+      if (editEmblemUrl !== (clan.emblemUrl || '')) payload.emblemUrl = editEmblemUrl;
+
       const res = await fetch(`/api/clans/${clan.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: editDescription, emblemUrl: editEmblemUrl }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al actualizar');
+        throw new Error(data.error || t('clanDetail.errorUpdate'));
       }
+      clan.name = editName;
       clan.description = editDescription;
       clan.emblemUrl = editEmblemUrl;
       setEditing(false);
@@ -701,7 +798,7 @@ export default function ClanDetailClient({
       const res = await fetch(`/api/clans/${clan.id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al eliminar');
+        throw new Error(data.error || t('clanDetail.errorDelete'));
       }
       window.location.href = '/community/clans';
     } catch (err: any) {
@@ -723,7 +820,7 @@ export default function ClanDetailClient({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al cambiar rol');
+        throw new Error(data.error || t('clanDetail.errorChangeRole'));
       }
       window.location.reload();
     } catch (err: any) {
@@ -790,7 +887,7 @@ export default function ClanDetailClient({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al enviar invitación');
+        throw new Error(data.error || t('clanDetail.errorSendInvite'));
       }
       setInviteSuccess(inviteeId);
       setTimeout(() => setInviteSuccess(null), 2000);
@@ -831,20 +928,21 @@ export default function ClanDetailClient({
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pb-16">
       {/* ═══ Hero Banner ═══ */}
-      <header className="relative bg-gradient-to-br from-[var(--accent-purple)]/20 via-[var(--primary)]/10 to-[var(--background)] border-b border-[var(--border)] overflow-hidden">
+      <header className="relative bg-gradient-to-br from-[var(--accent-purple)]/15 via-[var(--primary)]/8 to-[var(--surface)]/50 border-b border-[var(--border)] overflow-hidden">
         {/* Background pattern */}
         <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]"
+          className="absolute inset-0 opacity-[0.04] dark:opacity-[0.08]"
           style={{
             backgroundImage:
-              'radial-gradient(circle at 25% 25%, var(--accent-purple) 1px, transparent 1px), radial-gradient(circle at 75% 75%, var(--primary) 1px, transparent 1px)',
+              'radial-gradient(circle at 20% 30%, var(--accent-purple) 1px, transparent 1px), radial-gradient(circle at 80% 70%, var(--primary) 1px, transparent 1px)',
             backgroundSize: '48px 48px',
           }}
           aria-hidden="true"
         />
-        {/* Glow orbs */}
-        <div className="absolute top-10 left-10 w-72 h-72 bg-[var(--accent-purple)]/15 rounded-full blur-3xl" aria-hidden="true" />
-        <div className="absolute bottom-10 right-10 w-64 h-64 bg-[var(--primary)]/10 rounded-full blur-3xl" aria-hidden="true" />
+        {/* Glow orbs - enhanced */}
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-[var(--accent-purple)]/10 rounded-full blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-[var(--primary)]/10 rounded-full blur-3xl" aria-hidden="true" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[var(--primary)]/3 to-[var(--accent-purple)]/3 rounded-full blur-3xl" aria-hidden="true" />
 
         <div className="max-w-5xl mx-auto px-6 py-12 relative z-10">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-8">
@@ -872,24 +970,24 @@ export default function ClanDetailClient({
                 {clan.description || t('clanDetail.defaultDescription')}
               </p>
 
-              {/* Meta pills */}
+              {/* Meta pills - glass style */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-5">
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-full px-3 py-1.5">
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-200 rounded-full px-3 py-1.5">
                   <Users size={15} className="text-[var(--primary)]" />
                   {clan.memberCount} {t('clanDetail.members')}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-full px-3 py-1.5">
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] hover:border-[var(--accent-purple)]/30 transition-all duration-200 rounded-full px-3 py-1.5">
                   <Calendar size={15} className="text-[var(--accent-purple)]" />
-                  {t('clanDetail.founded')} {new Date(clan.createdAt).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                  {t('clanDetail.founded')} {new Date(clan.createdAt).toLocaleDateString(locale, { month: 'short', year: 'numeric' })}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-full px-3 py-1.5">
-                  <Hash size={15} className="text-[var(--text-muted)]" />
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] hover:border-[var(--warning)]/30 transition-all duration-200 rounded-full px-3 py-1.5">
+                  <Trophy size={15} className="text-[var(--warning)]" />
                   {clan.totalScore.toLocaleString()} {t('clanDetail.totalPts')}
                 </span>
               </div>
             </motion.div>
 
-            {/* Join/Leave Button */}
+            {/* Join/Leave Button - glass style */}
             <motion.div
               className="flex-shrink-0"
               initial={shouldReduceMotion ? {} : { opacity: 0, scale: 0.8 }}
@@ -962,48 +1060,61 @@ export default function ClanDetailClient({
               )}
             </motion.div>
 
-            {/* ═══ Leader & Officer Management ═══ */}
-            {userId && (isLeader || isOfficer) && (
-              <motion.div
-                className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6 pt-6 border-t border-[var(--border)]/50"
-                initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.3 }}
-              >
+          </div>
+
+          {/* ═══ Management Toolbar ═══ */}
+          {userId && (isLeader || isOfficer) && (
+            <motion.div
+              initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+              className="mt-6"
+            >
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 bg-[var(--surface)]/40 backdrop-blur-md border border-[var(--border)]/60 rounded-2xl px-4 py-3 shadow-sm">
+                <span className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mr-2 hidden sm:inline-flex items-center gap-1.5">
+                  <Shield size={12} />
+                  {t('clanDetail.management') || 'Gestión'}
+                </span>
+                <div className="w-px h-5 bg-[var(--border)]/50 hidden sm:block" />
+                
                 <button
-                  onClick={() => { setEditDescription(clan.description || ''); setEditEmblemUrl(clan.emblemUrl || ''); setEditing(true); }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 transition-all cursor-pointer"
+                  onClick={() => { setEditName(clan.name); setEditDescription(clan.description || ''); setEditEmblemUrl(clan.emblemUrl || ''); setEditNameError(null); setEditing(true); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                 >
-                  <Edit size={16} />
+                  <Edit size={14} />
                   {t('clanDetail.editClan')}
                 </button>
+                
                 <button
                   onClick={() => setDeleting(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--error)] hover:border-[var(--error)]/40 hover:bg-[var(--error)]/5 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--error)] hover:border-[var(--error)]/40 hover:bg-[var(--error)]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={14} />
                   {t('clanDetail.deleteClan')}
                 </button>
-                {/* ═══ Audit Logs Button ═══ */}
-                {/* ═══ Invite Button ═══ */}
+                
+                <div className="w-px h-5 bg-[var(--border)]/30" />
+                
                 {canInvite && (
                   <button
                     onClick={() => setInviteOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                   >
-                    <UserPlus size={16} />
+                    <UserPlus size={14} />
                     {t('clanDetail.inviteMembers')}
                   </button>
                 )}
+                
                 {(isLeader || isOfficer) && (
                   <button
                     onClick={() => { setJoinRequestsOpen(true); loadJoinRequests(); }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-amber-500 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all cursor-pointer relative"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-amber-500 hover:border-amber-500/40 hover:bg-amber-500/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer relative"
                   >
-                    <Clock size={16} />
+                    <Clock size={14} />
                     {t('clanDetail.manageRequests')}
                   </button>
                 )}
+                
                 {canViewAudit && (
                   <button
                     onClick={async () => {
@@ -1012,7 +1123,7 @@ export default function ClanDetailClient({
                       setAuditLogsError(null);
                       try {
                         const res = await fetch(`/api/clans/${clan.id}/audit-logs`);
-                        if (!res.ok) throw new Error((await res.json()).error || 'Error al cargar auditoría');
+                        if (!res.ok) throw new Error((await res.json()).error || t('clanDetail.errorLoadAudit'));
                         const data = await res.json();
                         setAuditLogs(data.logs || []);
                       } catch (err: any) {
@@ -1021,62 +1132,198 @@ export default function ClanDetailClient({
                         setAuditLogsLoading(false);
                       }
                     }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent-purple)] hover:border-[var(--accent-purple)]/40 hover:bg-[var(--accent-purple)]/5 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent-purple)] hover:border-[var(--accent-purple)]/40 hover:bg-[var(--accent-purple)]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                   >
-                    <ScrollText size={16} />
+                    <ScrollText size={14} />
                     {t('clanDetail.viewAuditLogs')}
                   </button>
                 )}
-              </motion.div>
-            )}
-          </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </header>
 
       {/* ═══ Edit Modal ═══ */}
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditing(false)}>
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">{t('clanDetail.editClan')}</h3>
-            <div className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-2xl w-full max-w-md mx-4 shadow-2xl shadow-black/20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)] bg-gradient-to-r from-[var(--primary)]/3 to-transparent">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/15 flex items-center justify-center">
+                  <Edit size={18} className="text-[var(--primary)]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('clanDetail.editClan')}</h3>
+                  <p className="text-xs text-[var(--text-muted)]">{t('clanDetail.editClanDesc') || 'Actualiza la información de tu clan'}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditing(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all cursor-pointer"
+                aria-label={t('common.close')}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
+              {/* Error */}
+              {editNameError && (
+                <div className="flex items-center gap-2 text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-3 py-2">
+                  <AlertTriangle size={14} />
+                  {editNameError}
+                </div>
+              )}
+
+              {/* Clan Name */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{t('clanDetail.description')}</label>
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                  {t('clanCreate.nameLabel') || 'Nombre del clan'} <span className="text-[var(--error)]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => {
+                    setEditName(e.target.value);
+                    setEditNameError(null);
+                    if (e.target.value.length > 50) {
+                      setEditNameError(t('clanCreate.nameMax') || 'Máximo 50 caracteres');
+                    }
+                  }}
+                  maxLength={50}
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all"
+                  placeholder={t('clanCreate.namePlaceholder') || 'Nombre de tu clan'}
+                />
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">{editName.length}/50</p>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                  {t('clanDetail.description')}
+                </label>
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] resize-none"
+                  maxLength={500}
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] resize-none transition-all"
                   placeholder={t('clanDetail.descriptionPlaceholder')}
                 />
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">{editDescription.length}/500</p>
               </div>
+
+              {/* Emblem Image */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{t('clanDetail.emblemUrl')}</label>
-                <input
-                  value={editEmblemUrl}
-                  onChange={(e) => setEditEmblemUrl(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="https://..."
-                />
+                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                  {t('clanCreate.emblemLabel') || 'Emblema del clan'}
+                </label>
+                <div className="flex items-center gap-4">
+                  {/* Preview */}
+                  <div
+                    className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-[var(--surface-sunken)] border border-[var(--border)]"
+                  >
+                    {editEmblemUrl ? (
+                      <img
+                        src={editEmblemUrl}
+                        alt="Emblema"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon size={24} className="text-[var(--text-tertiary)]" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Upload controls */}
+                  <div className="flex-1">
+                    <input
+                      ref={emblemInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                      onChange={handleEmblemUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => emblemInputRef.current?.click()}
+                      disabled={emblemUploading}
+                      className="w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                    >
+                      {emblemUploading ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Upload size={16} />
+                      )}
+                      {emblemUploading
+                        ? (t('clanCreate.emblemUploading') || 'Subiendo...')
+                        : (editEmblemUrl
+                          ? (t('clanCreate.emblemChange') || 'Cambiar imagen')
+                          : (t('clanCreate.emblemUpload') || 'Subir imagen'))}
+                    </button>
+                    {editEmblemUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setEditEmblemUrl('')}
+                        className="mt-1.5 w-full px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors cursor-pointer"
+                      >
+                        {t('clanDetail.removeEmblem') || 'Eliminar emblema'}
+                      </button>
+                    )}
+                    <p className="text-xs text-[var(--text-tertiary)] mt-1.5">
+                      {t('clanCreate.emblemHint') || 'PNG, JPG, WebP · Máx 5MB'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setEditing(false)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer">
+
+            {/* Footer */}
+            <div className="flex gap-3 p-5 border-t border-[var(--border)] bg-gradient-to-r from-transparent to-[var(--accent-purple)]/3">
+              <button
+                onClick={() => setEditing(false)}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--text-primary)]/30 hover:bg-[var(--surface-sunken)]/50 transition-all cursor-pointer active:scale-[0.98]"
+              >
                 {t('common.cancel')}
               </button>
-              <button onClick={handleEdit} disabled={saving} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--primary)] text-white hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer">
-                {saving ? t('common.saving') : t('common.save')}
+              <button
+                onClick={handleEdit}
+                disabled={saving || !!editNameError}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold bg-gradient-to-r from-[var(--accent-purple)] to-[var(--primary)] text-white hover:shadow-lg hover:shadow-[var(--accent-purple)]/20 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {saving ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Check size={16} />
+                )}
+                {saving ? (t('common.saving') || 'Guardando...') : (t('common.save') || 'Guardar')}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* ═══ Audit Logs Modal ═══ */}
       {auditLogsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => { setAuditLogsOpen(false); setAuditLogs(null); setAuditLogsError(null); }}>
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-2xl mx-4 shadow-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-2xl w-full max-w-2xl mx-4 shadow-2xl shadow-black/20 max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)] bg-gradient-to-r from-[var(--accent-purple)]/5 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[var(--accent-purple)]/15 flex items-center justify-center">
                   <ScrollText size={18} className="text-[var(--accent-purple)]" />
@@ -1098,38 +1345,56 @@ export default function ClanDetailClient({
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-5">
               {auditLogsLoading ? (
-                <div className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]"
+                >
                   <Loader2 size={32} className="animate-spin mb-3" />
                   <p className="text-sm">{t('clanDetail.auditLogsLoading')}</p>
-                </div>
+                </motion.div>
               ) : auditLogsError ? (
-                <div className="flex flex-col items-center justify-center py-16 text-[var(--error)]">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center py-16 text-[var(--error)]"
+                >
                   <AlertTriangle size={32} className="mb-3" />
                   <p className="text-sm font-medium">{auditLogsError}</p>
-                </div>
+                </motion.div>
               ) : auditLogs && auditLogs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]">
-                  <ScrollText size={40} className="mb-3 opacity-40" />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]"
+                >
+                  <div className="relative mb-4">
+                    <div className="absolute inset-0 rounded-full bg-[var(--accent-purple)]/10 blur-xl" />
+                    <ScrollText size={40} className="relative opacity-60 text-[var(--accent-purple)]" />
+                  </div>
                   <p className="text-sm">{t('clanDetail.auditLogsEmpty')}</p>
-                </div>
+                </motion.div>
               ) : (
                 <div className="space-y-2">
-                  {auditLogs?.map((log: any) => (
-                    <div
+                  {auditLogs?.map((log: any, idx: number) => (
+                    <motion.div
                       key={log.id}
-                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-[var(--surface-sunken)]/50 transition-colors"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.03 }}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-[var(--surface-sunken)]/50 hover:border hover:border-[var(--border)] transition-all duration-200"
                     >
                       {/* Action icon */}
-                      <div className="w-8 h-8 rounded-lg bg-[var(--surface-sunken)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Clock size={14} className="text-[var(--text-tertiary)]" />
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-purple)]/10 to-[var(--primary)]/5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Clock size={14} className="text-[var(--accent-purple)]" />
                       </div>
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] uppercase tracking-wider">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-purple)]/10 text-[var(--accent-purple)] uppercase tracking-wider border border-[var(--accent-purple)]/20">
                             {log.action}
                           </span>
-                          <span className="text-xs text-[var(--text-muted)]">
+                          <span className="text-xs text-[var(--text-tertiary)]">
                             {new Date(log.createdAt).toLocaleString()}
                           </span>
                         </div>
@@ -1137,26 +1402,33 @@ export default function ClanDetailClient({
                           {log.details || log.action}
                         </p>
                         {log.user && (
-                          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                            {t('clanDetail.auditLogsUser')}: {log.user.username || log.user.displayName}
+                          <p className="text-xs text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1">
+                            <Users size={11} />
+                            {log.user.username || log.user.displayName}
                           </p>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* ═══ Invite Members Modal ═══ */}
       {inviteOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 sm:items-center bg-black/60 backdrop-blur-sm" onClick={() => { setInviteOpen(false); setInviteSearch(''); setSearchResults([]); }}>
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[70vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-2xl w-full max-w-lg mx-4 shadow-2xl shadow-black/20 max-h-[70vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)] bg-gradient-to-r from-[var(--primary)]/3 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/15 flex items-center justify-center">
                   <UserPlus size={18} className="text-[var(--primary)]" />
@@ -1184,7 +1456,7 @@ export default function ClanDetailClient({
                   value={inviteSearch}
                   onChange={(e) => handleSearchUsers(e.target.value)}
                   placeholder={t('clanDetail.inviteSearchPlaceholder')}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-sunken)] pl-10 pr-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-sunken)]/80 backdrop-blur-sm pl-10 pr-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all"
                   autoFocus
                 />
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
@@ -1200,7 +1472,10 @@ export default function ClanDetailClient({
 
               {!searching && inviteSearch.length >= 2 && searchResults.length === 0 && (
                 <div className="text-center py-8 text-[var(--text-muted)]">
-                  <Users size={32} className="mx-auto mb-2 opacity-40" />
+                  <div className="relative inline-flex mb-3">
+                    <div className="absolute inset-0 rounded-full bg-[var(--primary)]/10 blur-xl" />
+                    <Users size={36} className="relative opacity-40 text-[var(--primary)]" />
+                  </div>
                   <p className="text-sm">{t('clanDetail.inviteNoResults')}</p>
                 </div>
               )}
@@ -1209,9 +1484,11 @@ export default function ClanDetailClient({
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t('clanDetail.inviteSearchResults')}</p>
                   {searchResults.map((user: any) => (
-                    <div
+                    <motion.div
                       key={user.id}
-                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--surface-sunken)]/50 transition-colors"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--surface-sunken)]/50 hover:border hover:border-[var(--border)] transition-all duration-200"
                     >
                       {/* Avatar */}
                       <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20">
@@ -1234,15 +1511,19 @@ export default function ClanDetailClient({
                       </div>
                       {/* Invite button */}
                       {inviteSuccess === user.id ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-500">
+                        <motion.span
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-500"
+                        >
                           <Check size={14} />
                           {t('clanDetail.inviteSent')}
-                        </span>
+                        </motion.span>
                       ) : (
                         <button
                           onClick={() => handleSendInvite(user.id)}
                           disabled={sendingInvite === user.id}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--primary)] text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                         >
                           {sendingInvite === user.id ? (
                             <Loader2 size={12} className="animate-spin" />
@@ -1251,7 +1532,7 @@ export default function ClanDetailClient({
                           )}
                         </button>
                       )}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               )}
@@ -1267,7 +1548,12 @@ export default function ClanDetailClient({
                   </div>
                   <div className="space-y-2">
                     {pendingInvites.map((inv: any) => (
-                      <div key={inv.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-[var(--surface-sunken)]/50">
+                      <motion.div
+                        key={inv.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-3 p-2.5 rounded-xl bg-[var(--surface-sunken)]/60 backdrop-blur-sm border border-[var(--border)]/50"
+                      >
                         <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--warning)]/10 text-[var(--warning)] flex-shrink-0">
                           <Clock size={14} />
                         </div>
@@ -1282,28 +1568,34 @@ export default function ClanDetailClient({
                         {(isLeader || inv.inviterId === userId) && (
                           <button
                             onClick={() => handleCancelInvite(inv.id)}
-                            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 transition-all cursor-pointer"
+                            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 transition-all cursor-pointer active:scale-90"
                             title={t('clanDetail.cancelInvite')}
                           >
                             <XCircle size={14} />
                           </button>
                         )}
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* ═══ Join Requests Modal ═══ */}
       {joinRequestsOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 sm:items-center bg-black/60 backdrop-blur-sm" onClick={() => { setJoinRequestsOpen(false); setJoinRequestMessage(''); setJoinRequestError(null); }}>
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[75vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-2xl w-full max-w-lg mx-4 shadow-2xl shadow-black/20 max-h-[75vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between p-5 border-b border-[var(--border)] bg-gradient-to-r from-amber-500/5 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
                   {isLeader || isOfficer ? (
@@ -1340,27 +1632,40 @@ export default function ClanDetailClient({
               {(isLeader || isOfficer) ? (
                 <>
                   {joinRequestsLoading ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]">
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]"
+                    >
                       <Loader2 size={24} className="animate-spin mb-2" />
                       <p className="text-sm">{t('common.loading')}</p>
-                    </div>
+                    </motion.div>
                   ) : joinRequests.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]">
-                      <UserPlus size={36} className="mb-2 opacity-40" />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]"
+                    >
+                      <div className="relative mb-3">
+                        <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-xl" />
+                        <UserPlus size={36} className="relative opacity-40 text-amber-500" />
+                      </div>
                       <p className="text-sm font-medium">{t('clanDetail.noPendingRequests')}</p>
                       <p className="text-xs mt-1">{t('clanDetail.noPendingRequestsDesc')}</p>
-                    </div>
+                    </motion.div>
                   ) : (
                     <div className="space-y-3">
                       <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                         {t('clanDetail.pendingRequests')} ({joinRequests.length})
                       </p>
                       {joinRequests.map((req: any) => (
-                        <div
+                        <motion.div
                           key={req.id}
-                          className={`flex items-start gap-3 p-4 rounded-xl transition-colors ${
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-200 hover:shadow-sm ${
                             req.status === 'PENDING'
-                              ? 'bg-amber-500/5 border border-amber-500/20'
+                              ? 'bg-amber-500/5 border border-amber-500/20 backdrop-blur-sm'
                               : 'bg-[var(--surface-sunken)]/50 border border-[var(--border)]'
                           }`}
                         >
@@ -1406,7 +1711,7 @@ export default function ClanDetailClient({
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-xs text-[var(--text-tertiary)]">
-                                {t('clanDetail.level')} {req.user.level} · {req.user.xpPoints.toLocaleString()} XP
+                                {t('clanDetail.level')} {req.user.level} · {req.user.xpPoints.toLocaleString()} {t('common.xp')}
                               </span>
                             </div>
                             {req.message && (
@@ -1441,7 +1746,7 @@ export default function ClanDetailClient({
                               </button>
                             </div>
                           )}
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   )}
@@ -1522,37 +1827,66 @@ export default function ClanDetailClient({
                 </>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* ═══ Delete Confirmation ═══ */}
       {deleting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setDeleting(false)}>
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-[var(--error)]/15 flex items-center justify-center">
-                <AlertTriangle size={20} className="text-[var(--error)]" />
-              </div>
-              <div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl shadow-black/20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.1 }}
+                className="w-12 h-12 rounded-full bg-[var(--error)]/15 flex items-center justify-center flex-shrink-0"
+              >
+                <AlertTriangle size={24} className="text-[var(--error)]" />
+              </motion.div>
+              <div className="flex-1">
                 <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('clanDetail.deleteConfirmTitle')}</h3>
-                <p className="text-sm text-[var(--text-secondary)]">{t('clanDetail.deleteConfirmDesc')}</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1 leading-relaxed">{t('clanDetail.deleteConfirmDesc')}</p>
               </div>
             </div>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleting(false)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer">
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setDeleting(false)}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]/50 transition-all cursor-pointer active:scale-[0.98]"
+              >
                 {t('common.cancel')}
               </button>
-              <button onClick={handleDelete} disabled={saving} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--error)] text-white hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer">
+              <button
+                onClick={handleDelete}
+                disabled={saving}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold bg-gradient-to-r from-[var(--error)] to-red-600 text-white hover:shadow-lg hover:shadow-[var(--error)]/20 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
+                )}
                 {saving ? t('common.deleting') : t('clanDetail.deleteClan')}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* ═══ Main Content ═══ */}
-      <div className="max-w-5xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <motion.div
+        className="max-w-5xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8"
+        initial={shouldReduceMotion ? {} : { opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         {/* Error banner */}
         {actionError && (
           <div className="lg:col-span-3 bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)] rounded-xl p-4 text-sm font-medium flex items-center gap-3">
@@ -1596,7 +1930,7 @@ export default function ClanDetailClient({
         <div className="lg:col-span-2">
           <MembersSection clan={clan} isLeader={isLeader} currentUserId={userId} onPromote={handlePromote} promoting={promoting} />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
-import { getIO } from '@/lib/socket';
 import { sanitizeText } from '@/lib/sanitize';
 import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
@@ -96,16 +95,7 @@ export async function PATCH(
       },
     });
 
-    // Emit socket event
-    const io = getIO();
-    if (io) {
-      io.to(`clan:${id}`).emit('clan:message-edited', {
-        id: updatedMessage.id,
-        clanId: id,
-        content: updatedMessage.content,
-        editedAt: updatedMessage.editedAt!.toISOString(),
-      });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({
       message: {
@@ -202,14 +192,7 @@ export async function DELETE(
       ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || undefined,
     });
 
-    // Emit socket event
-    const io = getIO();
-    if (io) {
-      io.to(`clan:${id}`).emit('clan:message-deleted', {
-        id: messageId,
-        clanId: id,
-      });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({ success: true });
   } catch (error) {

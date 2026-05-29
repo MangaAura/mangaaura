@@ -66,7 +66,7 @@ Más que badges triviales:
 | Cache | Redis + memory fallback | Rendimiento sin vendor lock-in |
 | Auth | NextAuth v5 + JWT | Autenticación moderna con 2FA |
 | Pagos | Stripe | Checkout embebido, webhooks, subscriptions |
-| Realtime | Socket.IO + Redis Adapter | Notificaciones y chat escalables |
+| Realtime | HTTP Polling (30s/5s) | Notificaciones y chat con polling automático |
 | Storage | Vercel Blob + filesystem | URLs firmadas, eliminación automática |
 | Email | Resend/SMTP | Transaccional y marketing |
 | AI | NVIDIA NIM + OpenAI | Fallback automático entre proveedores |

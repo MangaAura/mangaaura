@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
+import { toSlug } from '@/lib/slug';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 // GET /api/clans/[id] - Obtener detalle de un clan
@@ -107,14 +108,62 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { description, emblemUrl } = body;
+    const { name, description, emblemUrl } = body;
+
+    const updateData: any = {};
+
+    if (description !== undefined) {
+      updateData.description = description?.trim();
+    }
+    if (emblemUrl !== undefined) {
+      updateData.emblemUrl = emblemUrl?.trim();
+    }
+
+    // Handle name change: validate uniqueness and regenerate slug
+    if (name !== undefined && name?.trim()) {
+      const trimmedName = name.trim();
+
+      if (trimmedName.length < 3) {
+        return NextResponse.json(
+          { error: 'El nombre debe tener al menos 3 caracteres' },
+          { status: 400 }
+        );
+      }
+
+      if (trimmedName.length > 50) {
+        return NextResponse.json(
+          { error: 'El nombre no puede exceder 50 caracteres' },
+          { status: 400 }
+        );
+      }
+
+      // Check uniqueness (exclude current clan)
+      const existingClan = await prisma.clan.findFirst({
+        where: { name: trimmedName, id: { not: id } },
+      });
+
+      if (existingClan) {
+        return NextResponse.json(
+          { error: 'Ya existe un clan con ese nombre' },
+          { status: 400 }
+        );
+      }
+
+      // Generate new unique slug
+      const baseSlug = toSlug(trimmedName);
+      let slug = baseSlug;
+      let slugCounter = 1;
+      while (await prisma.clan.findFirst({ where: { slug, id: { not: id } } })) {
+        slug = `${baseSlug}-${slugCounter++}`;
+      }
+
+      updateData.name = trimmedName;
+      updateData.slug = slug;
+    }
 
     const clan = await prisma.clan.update({
       where: { id },
-      data: {
-        description: description?.trim(),
-        emblemUrl: emblemUrl?.trim(),
-      },
+      data: updateData,
     });
 
     // Audit log for description change
@@ -127,6 +176,21 @@ export async function PUT(
         metadata: {
           clanName: clan.name,
           newDescription: description?.trim().slice(0, 300) || null,
+        },
+        ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
+      });
+    }
+
+    // Audit log for name change
+    if (name !== undefined && name?.trim() !== clan.name) {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'CLAN_NAME_UPDATED',
+        targetId: id,
+        targetType: 'CLAN',
+        metadata: {
+          oldName: clan.name,
+          newName: name?.trim(),
         },
         ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
       });

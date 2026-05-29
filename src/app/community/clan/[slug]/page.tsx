@@ -31,21 +31,10 @@ const clanInclude = {
 } satisfies Prisma.ClanInclude;
 
 const getClan = cache(async (slug: string) => {
-  // Try by name first
-  let clan = await prisma.clan.findFirst({
-    where: { name: slug },
+  return prisma.clan.findFirst({
+    where: { slug },
     include: clanInclude,
   });
-
-  // If not found by name, try by id (UUID)
-  if (!clan) {
-    clan = await prisma.clan.findFirst({
-      where: { id: slug },
-      include: clanInclude,
-    });
-  }
-
-  return clan;
 });
 
 // ── Metadata ────────────────────────────────────────────

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
-import { getIO } from '@/lib/socket';
 import { prisma } from '@/lib/prisma';
 
 // POST /api/conversations/[id]/messages/reactions — Add a reaction
@@ -49,16 +48,7 @@ export async function POST(
       },
     });
 
-    // Emit socket event
-    const io = getIO();
-    if (io) {
-      io.to(`dm:${id}`).emit('dm:reaction', {
-        messageId,
-        emoji,
-        userId: session.user.id,
-        action: 'add',
-      });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -111,16 +101,7 @@ export async function DELETE(
       },
     });
 
-    // Emit socket event
-    const io = getIO();
-    if (io) {
-      io.to(`dm:${id}`).emit('dm:reaction', {
-        messageId,
-        emoji,
-        userId: session.user.id,
-        action: 'remove',
-      });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({ success: true });
   } catch (error) {

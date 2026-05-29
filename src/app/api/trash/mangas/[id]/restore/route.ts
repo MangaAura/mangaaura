@@ -16,7 +16,34 @@ export async function POST(
 
     const { id } = await params;
 
-    // Leer bundle de la papelera
+    // Check if manga is soft-deleted (in MangaSeries with deletedAt set)
+    const softDeletedManga = await prisma.mangaSeries.findUnique({
+      where: { id },
+      select: { authorId: true, title: true, deletedAt: true },
+    });
+
+    if (softDeletedManga?.deletedAt) {
+      // Handle soft-deleted manga: just clear deletedAt
+      if (softDeletedManga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+        return NextResponse.json({ error: 'No tienes permiso para restaurar este manga' }, { status: 403 });
+      }
+
+      await prisma.mangaSeries.update({
+        where: { id },
+        data: { deletedAt: null, restoredAt: new Date() },
+      });
+
+      await invalidateCache(`manga:${id}`);
+      await invalidateCache('manga:list');
+      await invalidateCache('user:mangas:list');
+
+      return NextResponse.json({
+        message: `Manga "${softDeletedManga.title}" restaurado exitosamente`,
+        restored: true,
+      });
+    }
+
+    // Otherwise, try to restore from bundle
     const bundle = await prisma.deletedMangaBundle.findUnique({
       where: { id },
     });

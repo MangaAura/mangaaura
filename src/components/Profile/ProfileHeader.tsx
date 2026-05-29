@@ -33,7 +33,7 @@ interface ProfileHeaderProps {
     xpPoints: number;
     readingStreak?: number;
     createdAt: Date | string;
-    clanMemberships?: Array<{ clan: { id: string; name: string; emblemUrl: string | null } }>;
+    clanMemberships?: Array<{ clan: { id: string; name: string; slug: string; emblemUrl: string | null } }>;
     emailVerified?: Date | string | null;
   };
   stats: StatItem[];
@@ -163,7 +163,7 @@ export function ProfileHeader({
             </span>
             {user.clanMemberships && user.clanMemberships.length > 0 && (
               <Link
-                href={`/community/clan/${user.clanMemberships[0].clan.id}`}
+                href={`/community/clan/${user.clanMemberships[0].clan.slug}`}
                 className="inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 px-2 py-0.5 rounded-full transition-colors"
               >
                 {user.clanMemberships[0].clan.emblemUrl ? (

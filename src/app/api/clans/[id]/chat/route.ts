@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
-import { getIO } from '@/lib/socket';
 import { sanitizeText } from '@/lib/sanitize';
 import type { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -10,7 +9,7 @@ import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 const messageSchema = z.object({
   content: z.string().min(1).max(2000),
-  replyToId: z.string().optional(),
+  replyToId: z.string().optional().nullable(),
 });
 
 // GET /api/clans/[id]/chat — Get clan chat messages
@@ -191,41 +190,7 @@ export async function POST(
       },
     });
 
-    // Emitir evento en tiempo real al room del clan
-    const io = getIO();
-    if (io) {
-      let replyToPayload = null;
-      if (replyToId) {
-        const repliedMsg = await prisma.clanChatMessage.findUnique({
-          where: { id: replyToId },
-          select: {
-            id: true,
-            content: true,
-            senderId: true,
-            sender: { select: { username: true, displayName: true } },
-          },
-        });
-        if (repliedMsg) {
-          replyToPayload = {
-            id: repliedMsg.id,
-            content: repliedMsg.content,
-            senderId: repliedMsg.senderId,
-            senderName: repliedMsg.sender.displayName || repliedMsg.sender.username,
-          };
-        }
-      }
-
-      io.to(`clan:${id}`).emit('clan:message', {
-        id: message.id,
-        content: message.content,
-        clanId: id,
-        senderId: message.senderId,
-        senderName: message.sender.displayName || message.sender.username,
-        senderAvatar: message.sender.avatarUrl,
-        createdAt: message.createdAt.toISOString(),
-        replyTo: replyToPayload,
-      });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({ message });
   } catch (error) {

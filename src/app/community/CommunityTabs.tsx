@@ -22,6 +22,7 @@ import { useT } from '@/i18n';
 interface ClanData {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   emblemUrl: string | null;
   totalScore: number;
@@ -33,7 +34,7 @@ interface CommunityTabsProps {
   topClans: ClanData[];
   activeEvents: EventData[];
   totalClans: number;
-  userClanId: string | null;
+  userClanSlug: string | null;
 }
 
 type Tab = 'clans' | 'events' | 'polls';
@@ -42,7 +43,7 @@ export default function CommunityTabs({
   topClans,
   activeEvents,
   totalClans,
-  userClanId,
+  userClanSlug,
 }: CommunityTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>('clans');
   const t = useT();
@@ -52,19 +53,19 @@ export default function CommunityTabs({
     if (hash === 'clans' || hash === 'events' || hash === 'polls') {
       setActiveTab(hash);
     }
-    const onHashChange = () => {
+    const onPopState = () => {
       const newHash = window.location.hash.replace('#', '') as Tab;
       if (newHash === 'clans' || newHash === 'events' || newHash === 'polls') {
         setActiveTab(newHash);
       }
     };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
-    window.location.hash = tab;
+    history.replaceState(null, '', `#${tab}`);
   };
 
   const tabCls = (tab: Tab, activeColor: string) =>
@@ -121,16 +122,16 @@ export default function CommunityTabs({
                 </p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
-                {userClanId && (
+                {userClanSlug && (
                   <Link
-                    href={`/community/clan/${userClanId}`}
+                    href={`/community/clan/${userClanSlug}`}
                     className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent-purple)]/50 text-[var(--text-primary)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"
                   >
                     <Trophy size={16} className="text-[var(--warning)]" aria-hidden="true" />
                     {t('community.myClan')}
                   </Link>
                 )}
-                {!userClanId && (
+                {!userClanSlug && (
                   <Link
                     href="/community/clans/create"
                     className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent-purple)]/50 text-[var(--primary)] px-4 py-2 rounded-xl font-semibold transition-all text-sm flex items-center gap-2"

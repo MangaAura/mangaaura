@@ -15,13 +15,15 @@ import {
   Volume2,
   Square,
   Mic,
+  MessageSquare,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ScrollArea } from '@/components/ui/ScrollArea';
-import { useSocket } from '@/hooks/useSocket';
+
 import { cn } from '@/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -68,7 +70,7 @@ interface ClanChatInterfaceProps {
   currentUserId: string;
   clan: ClanInfo;
   currentUserRole: string;
-  initialMessages: Message[];
+  initialMessages?: Message[];
 }
 
 // ─── Emoji categories ────────────────────────────────────────────────
@@ -143,7 +145,7 @@ function shouldShowDateSeparator(current: Date, previous: Date | null): boolean 
 function DateSeparator({ date }: { date: Date }) {
   return (
     <div className="flex items-center justify-center my-4">
-      <span className="px-3 py-1 text-xs font-medium text-[var(--text-tertiary)] bg-[var(--surface-elevated)]/70 rounded-full border border-[var(--border)]/50 backdrop-blur-sm">
+      <span className="px-4 py-1 text-xs font-medium text-[var(--text-tertiary)] bg-[var(--surface-elevated)]/80 backdrop-blur-md rounded-full border border-[var(--border)]/40 shadow-sm">
         {formatDateHeader(date)}
       </span>
     </div>
@@ -187,17 +189,25 @@ function MessageBubble({
     <div className={cn('flex items-start gap-2 group', isOwn ? 'flex-row-reverse' : 'flex-row')}>
       {/* Avatar column */}
       {!isOwn && showSender ? (
-        <Avatar className="w-8 h-8 flex-shrink-0 mt-1">
-          <AvatarImage src={senderAvatar || undefined} />
-          <AvatarFallback className="bg-[var(--primary)]/20 text-[var(--primary)] text-xs">
-            {senderName[0]}
-          </AvatarFallback>
-        </Avatar>
+        <div className="relative flex-shrink-0 mt-1">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 blur-sm scale-110" />
+          <Avatar className="w-8 h-8 relative ring-2 ring-[var(--primary)]/10 group-hover:ring-[var(--primary)]/30 transition-all duration-300">
+            <AvatarImage src={senderAvatar || undefined} />
+            <AvatarFallback className="bg-gradient-to-br from-[var(--primary)]/30 to-[var(--accent-purple)]/30 text-[var(--primary)] text-xs">
+              {senderName[0]}
+            </AvatarFallback>
+          </Avatar>
+        </div>
       ) : (
         <div className="w-8 flex-shrink-0" />
       )}
 
-      <div className={cn('max-w-[70%]', isOwn && 'items-end flex flex-col')}>
+      <motion.div
+        initial={{ opacity: 0, y: 8, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        className={cn('max-w-[70%]', isOwn && 'items-end flex flex-col')}
+      >
         {/* Sender name (only for others, first message in group) */}
         {!isOwn && showSender && (
           <p className="text-xs font-semibold text-[var(--primary)] mb-0.5 ml-1">
@@ -207,11 +217,13 @@ function MessageBubble({
 
         <div
           className={cn(
-            'relative px-3 py-2 text-sm leading-relaxed break-words',
+            'relative px-3 py-2 text-sm leading-relaxed break-words transition-all duration-200',
             isOwn
-              ? 'bg-[#005c4b] text-white rounded-[18px] rounded-br-[6px]'
-              : 'bg-[var(--surface-sunken)] text-[var(--text-primary)] rounded-[18px] rounded-bl-[6px]',
+              ? 'bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-white rounded-[18px] rounded-br-[6px] shadow-md shadow-[var(--primary)]/20'
+              : 'bg-[var(--surface-elevated)]/90 backdrop-blur-sm text-[var(--text-primary)] rounded-[18px] rounded-bl-[6px] border border-[var(--border)]/50 hover:border-[var(--border)] shadow-sm',
             isDeleted && 'opacity-60',
+            !isDeleted && isOwn && 'group-hover:shadow-lg group-hover:shadow-[var(--primary)]/25',
+            !isDeleted && !isOwn && 'group-hover:border-[var(--primary)]/20 hover:bg-[var(--surface-elevated)]',
           )}
         >
           {isDeleted ? (
@@ -254,10 +266,10 @@ function MessageBubble({
                       type="button"
                       onClick={() => onReactionClick?.(emoji)}
                       className={cn(
-                        'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs border transition-all',
+                        'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs border transition-all duration-150',
                         hasMine
-                          ? 'bg-[var(--primary)]/10 border-[var(--primary)]/30'
-                          : 'bg-[var(--surface)]/50 border-transparent hover:bg-[var(--surface)]',
+                          ? 'bg-[var(--primary)]/15 border-[var(--primary)]/30 text-[var(--primary)]'
+                          : 'bg-[var(--surface)]/60 border-transparent hover:bg-[var(--surface)] hover:border-[var(--border)] backdrop-blur-sm',
                         isOwn ? 'text-white/80' : 'text-[var(--text-secondary)]',
                       )}
                     >
@@ -270,21 +282,23 @@ function MessageBubble({
             </>
           )}
 
-          {showTimestamp && (
-            <span
+          {showTimestamp && (              <span
               className={cn(
                 'flex items-center justify-end gap-0.5 mt-1 text-[11px] leading-none select-none',
                 isOwn ? 'text-white/60' : 'text-[var(--text-tertiary)]',
               )}
             >
               {!isDeleted && isEdited && editedAt && (
-                <span className="mr-1 opacity-70">{formatRelativeTime(editedAt)}</span>
+                <span className="mr-1 opacity-70 flex items-center gap-0.5">
+                  <Pencil className="w-2.5 h-2.5" />
+                  {formatRelativeTime(editedAt)}
+                </span>
               )}
               {formatTime(time)}
             </span>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -315,8 +329,6 @@ export function ClanChatInterface({
   const [searchResults, setSearchResults] = useState<Message[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResultIndex, setSearchResultIndex] = useState(0);
-  const [typingUsers, setTypingUsers] = useState<Map<string, string>>(new Map());
-
   // Reply state
   const [replyTo, setReplyTo] = useState<ReplyTo | null>(null);
 
@@ -331,115 +343,19 @@ export function ClanChatInterface({
 
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevMessageCountRef = useRef(messages.length);
+  const hasMessagesRef = useRef(messages.length > 0);
 
-  const { isConnected, emit, on, joinRoom, leaveRoom } = useSocket();
 
-  // ── Join clan room ────────────────────────────────────────────────
-
-  useEffect(() => {
-    if (!isConnected) return;
-    joinRoom(`clan:${clanId}`);
-    return () => leaveRoom(`clan:${clanId}`);
-  }, [isConnected, clanId, joinRoom, leaveRoom]);
-
-  // ── Socket: listen for new messages ──────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('clan:message', (msg: Message) => {
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === msg.id)) return prev;
-        return [...prev, msg];
-      });
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for message edits ─────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('clan:message-edited', (data: { id: string; clanId: string; content: string; editedAt: string }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === data.id
-            ? { ...m, content: data.content, isEdited: true, editedAt: data.editedAt }
-            : m,
-        ),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for message deletions ─────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('clan:message-deleted', (data: { id: string; clanId: string }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === data.id ? { ...m, content: '', isDeleted: true } : m,
-        ),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for reactions ─────────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('clan:reaction', (data: { messageId: string; clanId: string; emoji: string; userId: string; action: 'add' | 'remove' }) => {
-      setMessages((prev) =>
-        prev.map((m) => {
-          if (m.id !== data.messageId) return m;
-          const reactions = m.reactions || [];
-          if (data.action === 'add') {
-            if (reactions.some((r) => r.userId === data.userId && r.emoji === data.emoji)) return m;
-            return {
-              ...m,
-              reactions: [...reactions, { id: crypto.randomUUID(), emoji: data.emoji, userId: data.userId }],
-            };
-          } else {
-            return {
-              ...m,
-              reactions: reactions.filter(
-                (r) => !(r.userId === data.userId && r.emoji === data.emoji),
-              ),
-            };
-          }
-        }),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for typing ────────────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('clan:typing-update', (data: { clanId: string; userId: string; username: string; isTyping: boolean }) => {
-      if (data.userId === currentUserId) return;
-      setTypingUsers((prev) => {
-        const next = new Map(prev);
-        if (data.isTyping) {
-          next.set(data.userId, data.username);
-        } else {
-          next.delete(data.userId);
-        }
-        return next;
-      });
-    });
-    return cleanup;
-  }, [on, currentUserId]);
 
   // ── Auto-scroll ──────────────────────────────────────────────────
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    messagesEndRef.current?.scrollIntoView({ behavior });
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
   }, []);
 
   useEffect(() => {
@@ -449,29 +365,77 @@ export function ClanChatInterface({
     prevMessageCountRef.current = messages.length;
   }, [messages.length, isScrolledUp, scrollToBottom]);
 
+  // ── Polling: fetch new messages every 5s ───────────────────────
+
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>;
+
+    const poll = async () => {
+      if (!hasMessagesRef.current) return;
+      try {
+        const res = await fetch(`/api/clans/${clanId}/chat?limit=50`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const serverMessages: Message[] = (data.messages || []).map(
+          (m: Record<string, unknown>) => {
+            const sender = m.sender as Record<string, unknown> | undefined;
+            return {
+              ...m,
+              senderName: (sender?.displayName || sender?.username || '') as string,
+              senderAvatar: (sender?.avatarUrl || null) as string | null,
+            } as Message;
+          },
+        );
+
+        setMessages((prev) => {
+          const serverIds = new Set<string>(serverMessages.map((m) => m.id));
+          const optimistic = prev.filter((m) => !serverIds.has(m.id));
+          const merged = [...serverMessages, ...optimistic];
+          merged.sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          );
+          return merged;
+        });
+      } catch {
+        // Silently fail
+      }
+    };
+
+    intervalId = setInterval(poll, 5000);
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(intervalId);
+      } else {
+        poll();
+        intervalId = setInterval(poll, 5000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [clanId]);
+
+  // Keep hasMessagesRef in sync with messages
+  useEffect(() => {
+    hasMessagesRef.current = messages.length > 0;
+  }, [messages.length]);
+
   // ── Scroll detection ─────────────────────────────────────────────
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+
     const el = e.currentTarget;
     const threshold = 150;
     const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
     setIsScrolledUp(!isBottom);
   }, []);
 
-  // ── Typing indicator ─────────────────────────────────────────────
 
-  const emitTyping = useCallback(() => {
-    emit('clan:typing', { clanId, isTyping: true });
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      emit('clan:typing', { clanId, isTyping: false });
-    }, 1500);
-  }, [emit, clanId]);
-
-  const stopTyping = useCallback(() => {
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    emit('clan:typing', { clanId, isTyping: false });
-  }, [emit, clanId]);
 
   // ── Send message ─────────────────────────────────────────────────
 
@@ -485,7 +449,6 @@ export function ClanChatInterface({
 
     setNewMessage('');
     setReplyTo(null);
-    stopTyping();
     setIsLoading(true);
 
     const optimistic: Message = {
@@ -688,7 +651,11 @@ export function ClanChatInterface({
     if (searchResults.length > 0 && searchResultIndex < searchResults.length) {
       const el = document.getElementById(`msg-${searchResults[searchResultIndex].id}`);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const scrollEl = scrollContainerRef.current;
+    if (scrollEl) {
+      const top = el.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top + scrollEl.scrollTop - scrollEl.clientHeight / 2 + el.clientHeight / 2;
+      scrollEl.scrollTo({ top, behavior: 'smooth' });
+    }
         el.classList.add('ring-2', 'ring-[var(--primary)]/40', 'rounded-xl');
         setTimeout(() => el.classList.remove('ring-2', 'ring-[var(--primary)]/40', 'rounded-xl'), 2000);
       }
@@ -854,12 +821,25 @@ export function ClanChatInterface({
     });
   }, [newMessage]);
 
+  // ── Auto-resize textarea (cross-browser, replaces fieldSizing:'content') ─
+
+  const autoResize = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }, []);
+
+  useEffect(() => {
+    autoResize();
+  }, [newMessage, autoResize]);
+
   // ── Keyboard shortcut ────────────────────────────────────────────
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend(e);
+      (e.currentTarget as HTMLTextAreaElement).form?.requestSubmit();
     }
   };
 
@@ -890,33 +870,32 @@ export function ClanChatInterface({
 
   const groupedMessages = groupMessages(messages);
 
-  // ── Typing text ──────────────────────────────────────────────────
 
-  const typingText = (() => {
-    if (typingUsers.size === 0) return null;
-    const names = Array.from(typingUsers.values());
-    if (names.length === 1) return `${names[0]} está escribiendo...`;
-    if (names.length === 2) return `${names[0]} y ${names[1]} están escribiendo...`;
-    return `${names[0]} y ${names.length - 1} más están escribiendo...`;
-  })();
 
   // ── Render ───────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col h-full bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden shadow-sm">
+    <div className="flex flex-col h-full bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden shadow-sm relative">
+      {/* Decorative blur orbs */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[var(--primary)]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-[var(--accent-purple)]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-gradient-to-r from-[var(--surface)] via-[var(--primary)]/5 to-[var(--surface)]">
+      <div className="relative flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-gradient-to-r from-[var(--surface)]/90 via-[var(--primary)]/8 to-[var(--surface)]/90 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)]/30 to-[var(--accent-purple)]/30 flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--primary)]/20">
-            {clan.emblemUrl ? (
-              <img src={clan.emblemUrl} alt={clan.name} className="w-full h-full rounded-full object-cover" />
-            ) : (
-              <Users className="w-5 h-5 text-[var(--primary)]" />
-            )}
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 blur-sm scale-110" />
+            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)]/30 to-[var(--accent-purple)]/30 flex items-center justify-center ring-2 ring-[var(--primary)]/20 group-hover:ring-[var(--primary)]/40 transition-all duration-300">
+              {clan.emblemUrl ? (
+                <img src={clan.emblemUrl} alt={clan.name} className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <Users className="w-5 h-5 text-[var(--primary)]" />
+              )}
+            </div>
           </div>
           <div className="min-w-0">
             <h3 className="font-semibold text-[var(--text-primary)] text-sm truncate flex items-center gap-1.5">
-              <span className="bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="bg-gradient-to-r from-[var(--primary)]/15 to-[var(--accent-purple)]/15 text-[var(--primary)] text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider border border-[var(--primary)]/10">
                 Clan
               </span>
               {clan.name}
@@ -927,7 +906,7 @@ export function ClanChatInterface({
               {currentUserRole && (
                 <>
                   <span className="mx-1">·</span>
-                  <span className="capitalize">{currentUserRole.toLowerCase()}</span>
+                  <span className={cn('capitalize font-medium', currentUserRole === 'LEADER' ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]')}>{currentUserRole.toLowerCase()}</span>
                 </>
               )}
             </p>
@@ -943,7 +922,7 @@ export function ClanChatInterface({
               setSearchResults([]);
             }}
             aria-label="Buscar en el chat del clan"
-            className={cn('w-9 h-9 rounded-full hover:bg-[var(--surface-sunken)]', isSearchOpen && 'bg-[var(--primary)]/10 text-[var(--primary)]')}
+            className={cn('w-9 h-9 rounded-full hover:bg-[var(--surface-sunken)] transition-all duration-200', isSearchOpen && 'bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]/20')}
           >
             <Search className="w-4 h-4" />
           </Button>
@@ -951,79 +930,85 @@ export function ClanChatInterface({
       </div>
 
       {/* ── Search bar ──────────────────────────────────────────── */}
+      <AnimatePresence>
       {isSearchOpen && (
-        <div className="px-4 py-2 border-b border-[var(--border)] bg-[var(--surface)]/60 backdrop-blur-sm">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar mensajes..."
-                autoFocus
-                className="w-full pl-9 pr-10 py-2 text-sm bg-[var(--surface-sunken)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:ring-2 focus:ring-[var(--primary)]/30 transition-all"
-              />
-              {isSearching && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <div className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden border-b border-[var(--border)]"
+        >
+          <div className="px-4 py-2 bg-gradient-to-r from-[var(--surface)]/80 via-[var(--primary)]/3 to-[var(--surface)]/80 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar mensajes..."
+                  autoFocus
+                  className="w-full pl-9 pr-10 py-2 text-sm bg-[var(--surface-sunken)]/80 backdrop-blur-sm border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/40 transition-all"
+                />
+                {isSearching && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              {searchResults.length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)] bg-[var(--surface-elevated)]/80 backdrop-blur-sm rounded-lg px-2 py-1 border border-[var(--border)]/50">
+                  <span className="font-medium">{searchResultIndex + 1}/{searchResults.length}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSearchResultIndex((prev) => Math.max(0, prev - 1))}
+                    className="p-0.5 hover:bg-[var(--surface-sunken)] rounded transition-colors"
+                    aria-label="Resultado anterior"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5 rotate-90" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchResultIndex((prev) => Math.min(searchResults.length - 1, prev + 1))}
+                    className="p-0.5 hover:bg-[var(--surface-sunken)] rounded transition-colors"
+                    aria-label="Siguiente resultado"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
+                  </button>
                 </div>
               )}
             </div>
-            {searchResults.length > 0 && (
-              <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
-                <span>{searchResultIndex + 1} de {searchResults.length}</span>
-                <button
-                  type="button"
-                  onClick={() => setSearchResultIndex((prev) => Math.max(0, prev - 1))}
-                  className="p-1 hover:bg-[var(--surface-sunken)] rounded-lg transition-colors"
-                  aria-label="Resultado anterior"
-                >
-                  <ChevronDown className="w-3.5 h-3.5 rotate-90" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSearchResultIndex((prev) => Math.min(searchResults.length - 1, prev + 1))}
-                  className="p-1 hover:bg-[var(--surface-sunken)] rounded-lg transition-colors"
-                  aria-label="Siguiente resultado"
-                >
-                  <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
-                </button>
-              </div>
-            )}
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
-      {/* ── Typing indicator ────────────────────────────────────── */}
-      {typingText && (
-        <div className="px-4 py-1.5 bg-[var(--surface)] border-b border-[var(--border)]/50">
-          <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
-            <div className="flex items-center gap-0.5">
-              <span className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.2s' }} />
-              <span className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.2s' }} />
-              <span className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.2s' }} />
-            </div>
-            <span>{typingText}</span>
-          </div>
-        </div>
-      )}
+
 
       {/* ── Messages area ───────────────────────────────────────── */}
       <div className="flex-1 relative">
-        <ScrollArea className="h-full px-4 py-3" onScroll={handleScroll}>
+        <ScrollArea ref={scrollContainerRef} className="h-full px-4 py-3" onScroll={handleScroll}>
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center mb-4">
-                <Users className="w-7 h-7 text-[var(--primary)]" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+              className="flex flex-col items-center justify-center h-full min-h-[300px] text-center"
+            >
+              <div className="relative mb-4">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 blur-xl scale-150" />
+                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)]/30 to-[var(--accent-purple)]/30 flex items-center justify-center ring-2 ring-[var(--primary)]/20">
+                  <MessageSquare className="w-7 h-7 text-[var(--primary)]" />
+                </div>
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
                 Chat de {clan.name}
               </h3>
-              <p className="text-sm text-[var(--text-tertiary)] max-w-xs">
+              <p className="text-sm text-[var(--text-tertiary)] max-w-xs leading-relaxed">
                 Este es el chat exclusivo para miembros del clan. Coordina con tu equipo, comparte mangas y planea estrategias.
               </p>
-            </div>
+            </motion.div>
           ) : (
             <div className="space-y-3">
               {(() => {
@@ -1076,7 +1061,7 @@ export function ClanChatInterface({
                                 }
                                 if (e.key === 'Escape') handleCancelEdit();
                               }}
-                              className="w-full bg-[var(--surface-elevated)] border border-[var(--primary)]/50 rounded-2xl px-3 py-2 text-sm text-[var(--text-primary)] resize-none outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
+                              className="w-full bg-[var(--surface-elevated)]/90 backdrop-blur-sm border border-[var(--primary)]/40 rounded-2xl px-3 py-2 text-sm text-[var(--text-primary)] resize-none outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/60 transition-all shadow-sm"
                               rows={2}
                               maxLength={2000}
                               autoFocus
@@ -1085,7 +1070,7 @@ export function ClanChatInterface({
                               <button
                                 type="button"
                                 onClick={handleCancelEdit}
-                                className="text-xs font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] px-2 py-1 rounded-lg hover:bg-[var(--surface-sunken)] transition-colors"
+                                className="text-xs font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] px-3 py-1.5 rounded-lg hover:bg-[var(--surface-sunken)] transition-all duration-200 active:scale-95"
                               >
                                 Cancelar
                               </button>
@@ -1093,7 +1078,7 @@ export function ClanChatInterface({
                                 type="button"
                                 onClick={() => handleSaveEdit(msg.id)}
                                 disabled={!editContent.trim()}
-                                className="text-xs font-medium bg-[var(--primary)] text-white px-3 py-1 rounded-lg hover:bg-[var(--primary-hover)] disabled:opacity-50 transition-colors"
+                                className="text-xs font-medium bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white px-3 py-1.5 rounded-lg hover:shadow-md hover:shadow-[var(--primary)]/20 disabled:opacity-50 transition-all duration-200 active:scale-95"
                               >
                                 Guardar
                               </button>
@@ -1117,7 +1102,11 @@ export function ClanChatInterface({
                             onReplyClick={() => {
                               if (msg.replyTo) {
                                 const el = document.getElementById(`msg-${msg.replyTo.id}`);
-                                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                const scrollEl = scrollContainerRef.current;
+                              if (scrollEl && el) {
+                                const top = el.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top + scrollEl.scrollTop - scrollEl.clientHeight / 2 + el.clientHeight / 2;
+                                scrollEl.scrollTo({ top, behavior: 'smooth' });
+                              }
                               }
                             }}
                             onReactionClick={(emoji) => handleToggleReaction(msg.id, emoji)}
@@ -1133,7 +1122,7 @@ export function ClanChatInterface({
                               e.stopPropagation();
                               handleDeleteMessage(msg.id);
                             }}
-                            className="opacity-0 group-hover:opacity-100 transition-all duration-150 self-start mt-1.5 flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10"
+                            className="opacity-0 group-hover:opacity-100 transition-all duration-200 self-start mt-1.5 flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 hover:shadow-sm hover:shadow-[var(--error)]/10 active:scale-90"
                             aria-label="Eliminar este mensaje"
                             title="Eliminar mensaje"
                           >
@@ -1155,91 +1144,142 @@ export function ClanChatInterface({
         </ScrollArea>
 
         {/* Scroll to bottom button */}
+        <AnimatePresence>
         {isScrolledUp && messages.length > 0 && (
-          <button
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             onClick={() => scrollToBottom('smooth')}
-            className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-[var(--primary)] text-white shadow-lg flex items-center justify-center hover:bg-[var(--primary-hover)] transition-all duration-200 z-10"
+            className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-white shadow-lg shadow-[var(--primary)]/20 flex items-center justify-center hover:shadow-xl hover:shadow-[var(--primary)]/30 hover:scale-105 active:scale-95 transition-all duration-200 z-10"
             aria-label="Ir al último mensaje"
           >
             <ChevronDown className="w-4 h-4" />
-          </button>
+          </motion.button>
         )}
+        </AnimatePresence>
       </div>
 
       {/* ── Reply preview ────────────────────────────────────────── */}
+      <AnimatePresence>
       {replyTo && (
-        <div className="px-3 pt-2 pb-0 border-t border-[var(--border)] bg-[var(--surface-elevated)]/80 backdrop-blur-sm">
-          <div className="flex items-center gap-2 pl-3 pr-2 py-2 bg-[var(--surface-sunken)] rounded-t-xl border-l-2 border-[var(--primary)]">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-[var(--primary)] truncate">
-                {replyTo.senderName}
-              </p>
-              <p className="text-sm text-[var(--text-tertiary)] truncate">{replyTo.content}</p>
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden border-t border-[var(--border)]"
+        >
+          <div className="px-3 pt-2 pb-0 bg-gradient-to-r from-[var(--surface-elevated)]/90 via-[var(--primary)]/3 to-[var(--surface-elevated)]/90 backdrop-blur-sm">
+            <div className="flex items-center gap-2 pl-3 pr-2 py-2 bg-[var(--surface-sunken)]/80 backdrop-blur-sm rounded-t-xl border-l-[3px] border-[var(--primary)] shadow-sm">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <ReplyIcon className="w-3.5 h-3.5 text-[var(--primary)]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[var(--primary)] truncate">
+                  {replyTo.senderName}
+                </p>
+                <p className="text-xs text-[var(--text-tertiary)] truncate leading-relaxed">{replyTo.content}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReplyTo(null)}
+                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-200 active:scale-90"
+                aria-label="Cancelar respuesta"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setReplyTo(null)}
-              className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-colors"
-              aria-label="Cancelar respuesta"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* ── Recording error ──────────────────────────────────────── */}
+      <AnimatePresence>
       {recordingError && (
-        <div className="px-3 py-1.5 bg-[var(--error)]/10 border-t border-[var(--error)]/20">
-          <p className="text-xs text-[var(--error)] flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--error)] animate-pulse" />
-            {recordingError}
-          </p>
-        </div>
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden"
+        >
+          <div className="px-3 py-1.5 bg-gradient-to-r from-[var(--error)]/10 to-transparent border-t border-[var(--error)]/20 backdrop-blur-sm">
+            <p className="text-xs text-[var(--error)] flex items-center gap-1.5 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--error)] animate-pulse" />
+              {recordingError}
+            </p>
+          </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* ── Audio preview ────────────────────────────────────────── */}
+      <AnimatePresence>
       {audioBlob && (
-        <div className="px-3 pt-2 pb-0 border-t border-[var(--border)] bg-[var(--surface-elevated)]/80 backdrop-blur-sm">
-          <div className="flex items-center gap-3 pl-3 pr-2 py-2 bg-[var(--surface-sunken)] rounded-t-xl">
-            <button
-              type="button"
-              onClick={() => {
-                const url = URL.createObjectURL(audioBlob);
-                const audio = new Audio(url);
-                audio.play();
-              }}
-              className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center hover:bg-[var(--primary-hover)] transition-colors"
-              aria-label="Reproducir audio"
-            >
-              <Volume2 className="w-4 h-4" />
-            </button>
-            <span className="text-sm text-[var(--text-primary)] font-medium">
-              Audio ({recordingDuration}s)
-            </span>
-            <div className="flex-1" />
-            <button
-              type="button"
-              onClick={handleSendAudio}
-              className="flex-shrink-0 px-3 py-1 rounded-full bg-[var(--primary)] text-white text-xs font-medium hover:bg-[var(--primary-hover)] transition-colors"
-            >
-              Enviar
-            </button>
-            <button
-              type="button"
-              onClick={handleCancelRecording}
-              className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
-              aria-label="Cancelar audio"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden border-t border-[var(--border)]"
+        >
+          <div className="px-3 pt-2 pb-0 bg-gradient-to-r from-[var(--surface-elevated)]/90 via-[var(--primary)]/3 to-[var(--surface-elevated)]/90 backdrop-blur-sm">
+            <div className="flex items-center gap-3 pl-3 pr-2 py-2 bg-[var(--surface-sunken)]/80 backdrop-blur-sm rounded-t-xl shadow-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  const url = URL.createObjectURL(audioBlob);
+                  const audio = new Audio(url);
+                  audio.play();
+                }}
+                className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-white flex items-center justify-center hover:shadow-md hover:shadow-[var(--primary)]/20 hover:scale-105 active:scale-95 transition-all duration-200"
+                aria-label="Reproducir audio"
+              >
+                <Volume2 className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-0.5 items-end h-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ height: [4, 12, 6, 14, 4][i] }}
+                      transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.15 }}
+                      className="w-0.5 rounded-full bg-[var(--primary)]/40"
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-[var(--text-primary)] font-medium">
+                  Audio ({recordingDuration}s)
+                </span>
+              </div>
+              <div className="flex-1" />
+              <button
+                type="button"
+                onClick={handleSendAudio}
+                className="flex-shrink-0 px-3 py-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white text-xs font-medium hover:shadow-md hover:shadow-[var(--primary)]/20 hover:scale-105 active:scale-95 transition-all duration-200"
+              >
+                Enviar
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelRecording}
+                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-all duration-200 active:scale-90"
+                aria-label="Cancelar audio"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* ── Input area ─────────────────────────────────────────── */}
-      <form onSubmit={handleSend} className="px-3 py-3 border-t border-[var(--border)] bg-[var(--surface)]">
-        <div className="flex items-end gap-2 bg-[var(--surface-sunken)] rounded-2xl px-3 py-1.5 border border-[var(--border)] focus-within:border-[var(--primary)]/40 focus-within:ring-1 focus-within:ring-[var(--primary)]/20 transition-all duration-200">
+      <form onSubmit={handleSend} className="px-3 py-3 border-t border-[var(--border)] bg-gradient-to-r from-[var(--surface)]/95 via-[var(--primary)]/3 to-[var(--surface)]/95 backdrop-blur-sm">
+        <div className="flex items-end gap-2 bg-[var(--surface-sunken)]/90 backdrop-blur-sm rounded-2xl px-3 py-1.5 border border-[var(--border)] focus-within:border-[var(--primary)]/50 focus-within:ring-2 focus-within:ring-[var(--primary)]/15 focus-within:shadow-sm focus-within:shadow-[var(--primary)]/5 transition-all duration-300 group">
           {isRecording ? (
             <div className="flex items-center gap-1.5">
               <button
@@ -1271,7 +1311,6 @@ export function ClanChatInterface({
             value={newMessage}
             onChange={(e) => {
               setNewMessage(e.target.value);
-              if (e.target.value) emitTyping();
             }}
             onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje en el clan..."
@@ -1279,7 +1318,7 @@ export function ClanChatInterface({
             disabled={isLoading}
             maxLength={2000}
             className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none resize-none py-1.5 max-h-[120px] scrollbar-thin"
-            style={{ fieldSizing: 'content' } as React.CSSProperties}
+            style={{ minHeight: '36px' }}
           />
 
           <div className="relative">

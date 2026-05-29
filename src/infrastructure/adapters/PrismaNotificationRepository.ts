@@ -7,7 +7,6 @@ import type {
 } from '@/core/services/INotificationRepository';
 import { prisma } from '@/lib/prisma';
 import { sendPushNotification } from '@/lib/push-notifications';
-import { emitNotification } from '@/lib/socket';
 
 export class PrismaNotificationRepository implements INotificationRepository {
   async create(data: CreateNotificationData): Promise<NotificationRecord> {
@@ -168,11 +167,7 @@ export class PushNotificationAdapter implements IPushNotificationService {
 }
 
 export class RealtimeNotificationAdapter implements IRealtimeNotificationService {
-  emitToUser(userId: string, notification: Record<string, unknown>): void {
-    try {
-      emitNotification(userId, notification);
-    } catch (error) {
-      console.info('[RealtimeNotificationAdapter] Socket emit failed (may be server-side)');
-    }
+  emitToUser(_userId: string, _notification: Record<string, unknown>): void {
+    // Socket notifications disabled — using polling instead
   }
 }

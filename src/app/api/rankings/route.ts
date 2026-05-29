@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         const dateFilter = getDateForRange(timeRange);
 
         // Build where clause with type safety
-        const where: any = {};
+        const where: any = { deletedAt: null };
 
         if (genre) {
           where.tags = { contains: genre };

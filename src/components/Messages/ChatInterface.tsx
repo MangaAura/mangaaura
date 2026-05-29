@@ -18,6 +18,7 @@ import {
   Reply as ReplyIcon,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { AccessibleModal } from '@/components/A11y/AccessibleModal';
@@ -25,7 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import { useT } from '@/i18n';
-import { useSocket } from '@/hooks/useSocket';
+
 import { cn } from '@/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ interface ChatInterfaceProps {
     displayName: string | null;
     avatarUrl: string | null;
   };
-  initialMessages: Message[];
+  initialMessages?: Message[];
 }
 
 // ─── Emoji categories ────────────────────────────────────────────────
@@ -509,16 +510,15 @@ export function ChatInterface({
   conversationId,
   currentUserId,
   participant,
-  initialMessages = [],
+  initialMessages,
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const loadedInitialMessages = initialMessages ?? [];
+  const [messages, setMessages] = useState<Message[]>(loadedInitialMessages);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [isScrolledUp, setIsScrolledUp] = useState(false);
-  const [isOnline, setIsOnline] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
@@ -579,13 +579,11 @@ export function ChatInterface({
   const t = useT();
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevMessageCountRef = useRef(messages.length);
-  const hasRequestedStatusRef = useRef(false);
-
-  const { isConnected, emit, on, joinRoom, leaveRoom } = useSocket();
+  const hasMessagesRef = useRef(messages.length > 0);
 
   // ── Derived state ──────────────────────────────────────────────────
 
@@ -594,7 +592,9 @@ export function ChatInterface({
   // ── Auto-scroll ────────────────────────────────────────────────────
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    messagesEndRef.current?.scrollIntoView({ behavior });
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
   }, []);
 
   // Auto-scroll when new messages arrive (only if not scrolled up)
@@ -605,134 +605,88 @@ export function ChatInterface({
     prevMessageCountRef.current = messages.length;
   }, [messages.length, isScrolledUp, scrollToBottom]);
 
-  // ── Socket: join room ──────────────────────────────────────────────
+
+
+  // ── Initial fetch: load messages when conversationId changes ──
+
+  const [initialLoading, setInitialLoading] = useState(false);
 
   useEffect(() => {
-    if (!isConnected) return;
-    joinRoom(`dm:${conversationId}`);
-    return () => leaveRoom(`dm:${conversationId}`);
-  }, [isConnected, conversationId, joinRoom, leaveRoom]);
+    if (!conversationId) return;
+    if (loadedInitialMessages.length > 0) return;
 
-  // ── Socket: listen for typing ──────────────────────────────────────
+    setInitialLoading(true);
+    (async () => {
+      try {
+        const res = await fetch(`/api/conversations/${conversationId}/messages?limit=50`);
+        if (res.ok) {
+          const data = await res.json();
+          const msgs = data.messages || [];
+          setMessages(msgs);
+          hasMessagesRef.current = msgs.length > 0;
+        }
+      } catch { /* silent */ }
+      setInitialLoading(false);
+    })();
+
+    return () => {
+      setMessages([]);
+      setNewMessage('');
+      setReplyTo(null);
+      setEditingMessageId(null);
+      setContextMenu(null);
+    };
+  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Polling: fetch new messages every 5s ───────────────────────
 
   useEffect(() => {
-    if (!on) return;
-    const cleanup = on('dm:typing-update', ({ userId, isTyping: typing }) => {
-      if (userId !== currentUserId) {
-        setIsTyping(typing && userId === participant.id);
-      }
-    });
-    return cleanup;
-  }, [on, currentUserId, participant.id]);
+    let intervalId: ReturnType<typeof setInterval>;
 
-  // ── Socket: listen for real-time messages ──────────────────────────
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/conversations/${conversationId}/messages?limit=50`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const serverMessages: Message[] = data.messages || [];
 
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('dm:message', (msg: Message) => {
-      // If the message is from the other person, add it
-      if (msg.senderId !== currentUserId) {
         setMessages((prev) => {
-          if (prev.some((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
+          const serverIds = new Set<string>(serverMessages.map((m) => m.id));
+          const optimistic = prev.filter((m) => !serverIds.has(m.id));
+          const merged = [...serverMessages, ...optimistic];
+          merged.sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          );
+          return merged;
         });
+      } catch {
+        // Silently fail — network issues or blocked conversation
       }
-    });
-    return cleanup;
-  }, [on, currentUserId]);
+    };
 
-  // ── Socket: listen for read receipts ───────────────────────────────
+    intervalId = setInterval(poll, 5000);
 
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('dm:read', ({ messageIds }: { messageIds: string[] }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          messageIds.includes(m.id) ? { ...m, isRead: true } : m,
-        ),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for message edits ───────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('dm:message-edited', (data: { id: string; content: string; editedAt: string }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === data.id
-            ? { ...m, content: data.content, isEdited: true, editedAt: data.editedAt }
-            : m,
-        ),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for message deletions ───────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('dm:message-deleted', (data: { id: string }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === data.id
-            ? { ...m, content: '', isDeleted: true }
-            : m,
-        ),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: listen for reactions ───────────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('dm:reaction', (data: { messageId: string; emoji: string; userId: string; action: 'add' | 'remove' }) => {
-      setMessages((prev) =>
-        prev.map((m) => {
-          if (m.id !== data.messageId) return m;
-          const reactions = m.reactions || [];
-          if (data.action === 'add') {
-            // Avoid duplicates
-            if (reactions.some((r) => r.userId === data.userId && r.emoji === data.emoji)) return m;
-            return {
-              ...m,
-              reactions: [...reactions, { id: crypto.randomUUID(), emoji: data.emoji, userId: data.userId }],
-            };
-          } else {
-            return {
-              ...m,
-              reactions: reactions.filter(
-                (r) => !(r.userId === data.userId && r.emoji === data.emoji),
-              ),
-            };
-          }
-        }),
-      );
-    });
-    return cleanup;
-  }, [on]);
-
-  // ── Socket: online status ─────────────────────────────────────────
-
-  useEffect(() => {
-    if (!on) return;
-    const cleanup = on('user:status', ({ userId, online }: { userId: string; online: boolean }) => {
-      if (userId === participant.id) {
-        setIsOnline(online);
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(intervalId);
+      } else {
+        poll();
+        intervalId = setInterval(poll, 5000);
       }
-    });
-    // Request initial status only once (ref guard avoids re-emit on re-render)
-    if (!hasRequestedStatusRef.current) {
-      hasRequestedStatusRef.current = true;
-      emit('user:get-status', { userId: participant.id });
-    }
-    return cleanup;
-  }, [on, emit, participant.id]);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [conversationId]);
+
+  // Keep hasMessagesRef in sync with messages
+  useEffect(() => {
+    hasMessagesRef.current = messages.length > 0;
+  }, [messages.length]);
 
   // ── Block state sync from server ──────────────────────────────────
 
@@ -755,7 +709,11 @@ export function ChatInterface({
     if (searchResults.length > 0 && searchResultIndex < searchResults.length) {
       const el = document.getElementById(`msg-${searchResults[searchResultIndex].id}`);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const scrollEl = scrollContainerRef.current;
+    if (scrollEl) {
+      const top = el.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top + scrollEl.scrollTop - scrollEl.clientHeight / 2 + el.clientHeight / 2;
+      scrollEl.scrollTo({ top, behavior: 'smooth' });
+    }
         // Highlight briefly
         el.classList.add('ring-2', 'ring-[var(--primary)]/40', 'rounded-xl');
         setTimeout(() => el.classList.remove('ring-2', 'ring-[var(--primary)]/40', 'rounded-xl'), 2000);
@@ -823,20 +781,7 @@ export function ChatInterface({
     setIsScrolledUp(!isBottom);
   }, []);
 
-  // ── Typing indicator ───────────────────────────────────────────────
 
-  const emitTyping = useCallback(() => {
-    emit('dm:typing', { conversationId, isTyping: true });
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      emit('dm:typing', { conversationId, isTyping: false });
-    }, 1500);
-  }, [emit, conversationId]);
-
-  const stopTyping = useCallback(() => {
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    emit('dm:typing', { conversationId, isTyping: false });
-  }, [emit, conversationId]);
 
   // ── Send message ───────────────────────────────────────────────────
 
@@ -850,7 +795,6 @@ export function ChatInterface({
     const replyPayload = replyTo;
     setNewMessage('');
     setReplyTo(null);
-    stopTyping();
     setIsLoading(true);
 
     const optimistic: Message = {
@@ -878,6 +822,7 @@ export function ChatInterface({
 
       const { message } = await response.json();
       setMessages((prev) => prev.map((m) => (m.id === tempId ? message : m)));
+      inputRef.current?.focus();
     } catch {
       // Remove optimistic message on failure
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
@@ -1239,12 +1184,25 @@ export function ChatInterface({
     });
   }, [newMessage]);
 
+  // ── Auto-resize textarea (cross-browser, replaces fieldSizing:'content') ─
+
+  const autoResize = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }, []);
+
+  useEffect(() => {
+    autoResize();
+  }, [newMessage, autoResize]);
+
   // ── Keyboard shortcut ──────────────────────────────────────────────
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend(e);
+      (e.currentTarget as HTMLTextAreaElement).form?.requestSubmit();
     }
   };
 
@@ -1262,27 +1220,16 @@ export function ChatInterface({
                 {participant.displayName?.[0] || participant.username[0]}
               </AvatarFallback>
             </Avatar>
-            {/* Online indicator */}
-            <span
-              className={cn(
-                'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[var(--surface)] transition-colors duration-300',
-                isOnline ? 'bg-emerald-500' : 'bg-[var(--text-tertiary)]',
-              )}
-              aria-label={isOnline ? 'En línea' : 'Desconectado'}
-            />
+
           </div>
-          <div className="min-w-0">
+          <Link href={`/user/${participant.username}`} className="min-w-0 hover:opacity-80 transition-opacity">
             <h3 className="font-semibold text-[var(--text-primary)] text-sm truncate">
               {participant.displayName || participant.username}
             </h3>
             <p className="text-[11px] text-[var(--text-tertiary)] truncate">
-              {isOnline ? (
-                <span className="text-emerald-500 font-medium">En línea</span>
-              ) : (
-                `@${participant.username}`
-              )}
+              @{participant.username}
             </p>
-          </div>
+          </Link>
         </div>
         <div className="flex items-center gap-1">
           {/* Search toggle */}
@@ -1390,27 +1337,20 @@ export function ChatInterface({
         </div>
       )}
 
-      {/* ── Typing indicator (above messages) ─────────────────── */}
-      {isTyping && (
-        <div className="px-4 py-1.5 bg-[var(--surface)] border-b border-[var(--border)]/50">
-          <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
-            <div className="flex items-center gap-0.5">
-              <span className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.2s' }} />
-              <span className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.2s' }} />
-              <span className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.2s' }} />
-            </div>
-            <span>{participant.displayName || participant.username} está escribiendo...</span>
-          </div>
-        </div>
-      )}
+
 
       {/* ── Messages area ─────────────────────────────────────── */}
       <div className="flex-1 relative">
         <ScrollArea
+          ref={scrollContainerRef}
           className="h-full px-4 py-3"
           onScroll={handleScroll}
         >
-          {messages.length === 0 ? (
+          {initialLoading ? (
+            <div className="flex items-center justify-center h-full min-h-[300px]">
+              <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
               <div className="w-16 h-16 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center mb-4">
                 <Send className="w-7 h-7 text-[var(--text-tertiary)]" />
@@ -1535,7 +1475,11 @@ export function ChatInterface({
                                   if (msg.replyTo) {
                                     // Scroll to replied message
                                     const el = document.getElementById(`msg-${msg.replyTo!.id}`);
-                                    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    const scrollEl = scrollContainerRef.current;
+                                    if (scrollEl && el) {
+                                      const top = el.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top + scrollEl.scrollTop - scrollEl.clientHeight / 2 + el.clientHeight / 2;
+                                      scrollEl.scrollTo({ top, behavior: 'smooth' });
+                                    }
                                   }
                                 }}
                                 onReactionClick={(emoji) => handleToggleReaction(msg.id, emoji)}
@@ -1690,15 +1634,13 @@ export function ChatInterface({
             value={newMessage}
             onChange={(e) => {
               setNewMessage(e.target.value);
-              if (e.target.value) emitTyping();
             }}
             onKeyDown={handleKeyDown}
             placeholder={t('chat.placeholder') || 'Escribe un mensaje...'}
             rows={1}
-            disabled={isLoading}
             maxLength={500}
             className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none resize-none py-1.5 max-h-[120px] scrollbar-thin"
-            style={{ fieldSizing: 'content' } as React.CSSProperties}
+            style={{ minHeight: '36px' }}
           />
 
           {/* Emoji button */}

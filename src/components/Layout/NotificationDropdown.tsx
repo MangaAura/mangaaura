@@ -89,21 +89,23 @@ export function NotificationDropdown({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     let cancelled = false;
-    const fetchNotifs = async () => {
+    const fetchNotifs = async (showLoading = false) => {
       try {
-        setFetchError(null);
+        if (showLoading) setFetchError(null);
         const res = await fetch('/api/notifications?limit=5');
-        if (!res.ok) return;
+        if (!res.ok || cancelled) return;
         const data = await res.json();
         if (!cancelled) setNotifications(data.notifications || []);
       } catch {
-        if (!cancelled) setFetchError(t('notifications.fetchError'));
+        if (!cancelled && showLoading) setFetchError(t('notifications.fetchError'));
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled && showLoading) setIsLoading(false);
       }
     };
-    fetchNotifs();
-    return () => { cancelled = true; };
+    fetchNotifs(true);
+    // Poll every 30 seconds for real-time updates
+    const interval = setInterval(() => fetchNotifs(false), 30000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
   const markAsRead = async (id: string) => {

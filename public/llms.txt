@@ -34,7 +34,7 @@
 - Offline reading support with full PWA capabilities
 - Creator revenue sharing with sponsorship subscriptions
 - Two-factor authentication (2FA) for account security
-- Real-time notifications via WebSocket and push notifications
+- Real-time notifications via HTTP polling (30s interval) and push notifications
 - Multi-language support (Spanish and English)
 - Social features: clans, forums, user profiles, and direct messaging
 - Image cropping and optimization for manga covers

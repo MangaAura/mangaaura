@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
-import { getIO } from '@/lib/socket';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
@@ -92,15 +91,7 @@ export async function PATCH(
       },
     });
 
-    // Emit socket event
-    const io = getIO();
-    if (io) {
-      io.to(`dm:${id}`).emit('dm:message-edited', {
-        id: updatedMessage.id,
-        content: updatedMessage.content,
-        editedAt: updatedMessage.editedAt!.toISOString(),
-      });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({
       message: {
@@ -181,11 +172,7 @@ export async function DELETE(
       },
     });
 
-    // Emit socket event
-    const io = getIO();
-    if (io) {
-      io.to(`dm:${id}`).emit('dm:message-deleted', { id: messageId });
-    }
+    // Socket notifications disabled (polling-only)
 
     return NextResponse.json({ success: true });
   } catch (error) {

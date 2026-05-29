@@ -198,8 +198,7 @@ class PartyService {
    */
   joinParty(
     partyId: string,
-    user: JoinPartyUser,
-    socketId: string
+    user: JoinPartyUser
   ): { success: boolean; member?: PartyMember; error?: string } {
     const party = this.parties.get(partyId);
 
@@ -210,7 +209,6 @@ class PartyService {
     const existingMember = party.members.find((m) => m.userId === user.userId);
     if (existingMember) {
       existingMember.isOnline = true;
-      existingMember.socketId = socketId;
       existingMember.lastSeen = new Date();
       this.userPartyMap.set(user.userId, partyId);
       this.persistParty(party);
@@ -237,7 +235,6 @@ class PartyService {
       currentPage: party.currentPage,
       isHost,
       isOnline: true,
-      socketId,
       joinedAt: now,
       lastSeen: now,
     };
@@ -301,7 +298,6 @@ class PartyService {
     if (!member) return false;
 
     member.isOnline = false;
-    member.socketId = undefined;
     this.persistParty(party);
 
     return true;
