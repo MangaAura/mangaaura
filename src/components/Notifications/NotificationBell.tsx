@@ -20,7 +20,7 @@ interface Notification {
   type: string;
   title: string;
   message: string;
-  link: string | null;
+  linkUrl: string | null;
   isRead: boolean;
   createdAt: string;
   sender?: {
@@ -179,10 +179,15 @@ function NotificationItem({
   onMarkAsRead: (id: string) => void;
   getIcon: (type: string) => React.ReactNode;
 }) {
+  const handleClick = () => {
+    if (!notification.isRead) onMarkAsRead(notification.id);
+  };
+
   const content = (
     <div
+      onClick={handleClick}
       className={cn(
-'flex items-start gap-3 p-3 hover:bg-[var(--surface-sunken)]/50 transition-colors',
+'flex items-start gap-3 p-3 hover:bg-[var(--surface-sunken)]/50 transition-colors cursor-pointer',
     !notification.isRead && 'bg-[var(--surface-sunken)]/30'
       )}
     >
@@ -225,11 +230,11 @@ function NotificationItem({
     </div>
   );
 
-  if (notification.link) {
+  if (notification.linkUrl) {
     return (
       <Link
-        href={notification.link}
-        onClick={() => !notification.isRead && onMarkAsRead(notification.id)}
+        href={notification.linkUrl}
+        onClick={handleClick}
       >
         {content}
       </Link>

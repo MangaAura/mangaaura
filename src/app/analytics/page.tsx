@@ -2,6 +2,7 @@
 
 import { Shield, Target, Award, AlertTriangle, BookOpen, BarChart, Users, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
@@ -76,16 +77,24 @@ function getDefaultDateRange(): DateRange {
   return { from, to };
 }
 
+function useDefaultDateRange() {
+  return useState(getDefaultDateRange);
+}
+
 export default function AnalyticsPage() {
   const { data: session } = useSession();
   const t = useT();
 
-  const [activeTab, setActiveTab] = useState<'creator' | 'reader'>('creator');
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'creator' | 'reader'>(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'reader' ? 'reader' : 'creator';
+  });
 
   const [creatorData, setCreatorData] = useState<CreatorData | null>(null);
   const [readerData, setReaderData] = useState<ReaderData | null>(null);
 
-  const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange());
+  const [dateRange, setDateRange] = useDefaultDateRange();
   const [datePreset, setDatePreset] = useState<DateRangePreset>('30d');
   const [selectedMangaId, setSelectedMangaId] = useState<string | null>(null);
   const [creatorMangas, setCreatorMangas] = useState<MangaOption[]>([]);
@@ -126,9 +135,15 @@ export default function AnalyticsPage() {
     setError(null);
 
     Promise.all([
-      fetchCreatorMangas().then((m) => { if (!cancelled) setCreatorMangas(m); }).catch(() => { if (!cancelled) setError(t('analytics.errorLoadingMangas')); }),
-      fetchCreatorData().then((d) => { if (!cancelled) setCreatorData(d); }).catch(() => { /* error handled by AnalyticsDashboard */ }),
-      fetchReaderData().then((d) => { if (!cancelled) setReaderData(d); }).catch(() => { /* not critical */ }),
+      fetchCreatorMangas()
+        .then((m) => { if (!cancelled) setCreatorMangas(m); })
+        .catch(() => { if (!cancelled) setCreatorMangas([]); }),
+      fetchCreatorData()
+        .then((d) => { if (!cancelled) setCreatorData(d); })
+        .catch(() => { if (!cancelled) setError(t('analytics.errorLoadingMangas')); }),
+      fetchReaderData()
+        .then((d) => { if (!cancelled) setReaderData(d); })
+        .catch(() => { /* not critical */ }),
     ]).finally(() => { if (!cancelled) setIsLoading(false); });
 
     return () => { cancelled = true; };

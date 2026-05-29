@@ -557,6 +557,7 @@ export default function ClanDetailClient({
   const [emblemUploading, setEmblemUploading] = useState(false);
   const emblemInputRef = useRef<HTMLInputElement>(null);
   const [editNameError, setEditNameError] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
   const [promoting, setPromoting] = useState<string | null>(null);
   const [auditLogsOpen, setAuditLogsOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState<any[] | null>(null);
@@ -725,18 +726,18 @@ export default function ClanDetailClient({
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
-      setActionError(t('clanCreate.errorImageType'));
+      setEditError(t('clanCreate.errorImageType'));
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setActionError(`${t('clanCreate.errorImageSize')}`);
+      setEditError(t('clanCreate.errorImageSize'));
       return;
     }
 
     setEmblemUploading(true);
-    setActionError('');
+    setEditError(null);
 
     try {
       const formData = new FormData();
@@ -755,7 +756,7 @@ export default function ClanDetailClient({
       const data = await res.json();
       setEditEmblemUrl(data.url);
     } catch (err: any) {
-      setActionError(err.message);
+      setEditError(err.message);
     } finally {
       setEmblemUploading(false);
       if (emblemInputRef.current) emblemInputRef.current.value = '';
@@ -764,7 +765,7 @@ export default function ClanDetailClient({
 
   async function handleEdit() {
     setSaving(true);
-    setActionError(null);
+    setEditError(null);
     try {
       const payload: Record<string, string> = {};
       if (editName !== clan.name) payload.name = editName;
@@ -785,7 +786,7 @@ export default function ClanDetailClient({
       clan.emblemUrl = editEmblemUrl;
       setEditing(false);
     } catch (err: any) {
-      setActionError(err.message);
+      setEditError(err.message);
     } finally {
       setSaving(false);
     }
@@ -1078,7 +1079,7 @@ export default function ClanDetailClient({
                 <div className="w-px h-5 bg-[var(--border)]/50 hidden sm:block" />
                 
                 <button
-                  onClick={() => { setEditName(clan.name); setEditDescription(clan.description || ''); setEditEmblemUrl(clan.emblemUrl || ''); setEditNameError(null); setEditing(true); }}
+                  onClick={() => { setEditName(clan.name); setEditDescription(clan.description || ''); setEditEmblemUrl(clan.emblemUrl || ''); setEditNameError(null); setEditError(null); setEditing(true); }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                 >
                   <Edit size={14} />
@@ -1146,7 +1147,7 @@ export default function ClanDetailClient({
 
       {/* ═══ Edit Modal ═══ */}
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditing(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => { setEditing(false); setEditError(null); }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1162,11 +1163,11 @@ export default function ClanDetailClient({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('clanDetail.editClan')}</h3>
-                  <p className="text-xs text-[var(--text-muted)]">{t('clanDetail.editClanDesc') || 'Actualiza la información de tu clan'}</p>
+                   <p className="text-xs text-[var(--text-muted)]">{t('clanDetail.editClanDesc')}</p>
                 </div>
               </div>
               <button
-                onClick={() => setEditing(false)}
+                onClick={() => { setEditing(false); setEditError(null); }}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all cursor-pointer"
                 aria-label={t('common.close')}
               >
@@ -1177,6 +1178,12 @@ export default function ClanDetailClient({
             {/* Body */}
             <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
               {/* Error */}
+              {editError && (
+                <div className="flex items-center gap-2 text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-3 py-2">
+                  <AlertTriangle size={14} />
+                  {editError}
+                </div>
+              )}
               {editNameError && (
                 <div className="flex items-center gap-2 text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-3 py-2">
                   <AlertTriangle size={14} />
@@ -1276,7 +1283,7 @@ export default function ClanDetailClient({
                         onClick={() => setEditEmblemUrl('')}
                         className="mt-1.5 w-full px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors cursor-pointer"
                       >
-                        {t('clanDetail.removeEmblem') || 'Eliminar emblema'}
+                        {t('clanDetail.removeEmblem')}
                       </button>
                     )}
                     <p className="text-xs text-[var(--text-tertiary)] mt-1.5">
@@ -1290,7 +1297,7 @@ export default function ClanDetailClient({
             {/* Footer */}
             <div className="flex gap-3 p-5 border-t border-[var(--border)] bg-gradient-to-r from-transparent to-[var(--accent-purple)]/3">
               <button
-                onClick={() => setEditing(false)}
+                onClick={() => { setEditing(false); setEditError(null); }}
                 className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--text-primary)]/30 hover:bg-[var(--surface-sunken)]/50 transition-all cursor-pointer active:scale-[0.98]"
               >
                 {t('common.cancel')}

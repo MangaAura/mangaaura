@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
     "coverage/**",
     ".vercel/**",
     "prisma/migrations/**",
+    "open-design/**",
     "*.config.*",
   ]),
   {

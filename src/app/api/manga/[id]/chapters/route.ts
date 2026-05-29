@@ -178,27 +178,13 @@ export async function POST(
       );
     }
 
-    // Validar pageUrls
-    if (!pageUrls || !Array.isArray(pageUrls) || pageUrls.length === 0) {
-      return NextResponse.json(
-        { error: 'Debe proporcionar al menos una página (pageUrls)' },
-        { status: 400 }
-      );
-    }
+    // Validar pageUrls (opcional en creación, se actualizará después)
+    const validUrls = Array.isArray(pageUrls)
+      ? pageUrls.filter((url: string) => typeof url === 'string' && url.trim() !== '')
+      : [];
 
-    // Validar que todas las URLs sean strings válidos
-    const validUrls = pageUrls.filter((url: string) => typeof url === 'string' && url.trim() !== '');
-    if (validUrls.length === 0) {
-      return NextResponse.json(
-        { error: 'Las URLs de páginas deben ser strings válidos' },
-        { status: 400 }
-      );
-    }
-
-    // Calcular totalPages automáticamente
     const totalPages = validUrls.length;
 
-    // Crear el capítulo
     const chapter = await prisma.chapter.create({
       data: {
         mangaId: id,

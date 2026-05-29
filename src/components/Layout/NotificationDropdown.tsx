@@ -12,7 +12,7 @@ interface Notification {
   id: string;
   title: string;
   message: string;
-  link?: string;
+  linkUrl?: string;
   isRead: boolean;
 }
 
@@ -53,10 +53,10 @@ function NotificationItem({
     </button>
   );
 
-  if (notification.link) {
+  if (notification.linkUrl) {
     return (
       <Link
-        href={notification.link}
+        href={notification.linkUrl}
         onClick={handleClick}
         className={
           'flex items-start gap-3 p-3 hover:bg-[var(--surface-elevated)] transition-colors' +

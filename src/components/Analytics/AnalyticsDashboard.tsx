@@ -151,9 +151,10 @@ export function AnalyticsDashboard({
               completionRate: result.reads > 0 ? Math.round((result.completions / result.reads) * 100) : 0,
             })),
           };
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setData(dashboardData);
           setLastUpdated(new Date());
+        } else {
+          setError('No se pudieron cargar tus estadísticas.');
         }
       } catch (err) {
         setError('Error al cargar los datos de analytics');
@@ -163,12 +164,12 @@ export function AnalyticsDashboard({
         setIsRefreshing(false);
       }
     },
-    [fetchAnalytics]
+    [fetchAnalytics, customData, handleError]
   );
 
   // Carga inicial y cuando cambian filtros
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData(false);
   }, [loadData]);
 
