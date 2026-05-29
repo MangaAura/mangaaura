@@ -130,6 +130,15 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
               />
               <div className="absolute right-0 top-full mt-1 w-48 bg-[var(--surface-elevated)] rounded-lg shadow-lg border border-[var(--border)] z-20 py-1">
                 <Link
+                  href={`/manga/${manga.slug}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]"
+                  target="_blank"
+                >
+                  <EyeIcon className="w-4 h-4" />
+                  Ver Página Pública
+                </Link>
+                <Link
                   href={`/creator/manga/${manga.slug}/edit`}
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]"
@@ -187,6 +196,12 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
 
         {/* Buttons */}
         <div className="flex gap-2 mt-4">
+          <Link href={`/manga/${manga.slug}`} className="flex-1" onClick={(e) => e.stopPropagation()} target="_blank">
+            <Button variant="ghost" size="sm" className="w-full">
+              <EyeIcon className="w-4 h-4 mr-1" />
+              Ver
+            </Button>
+          </Link>
           <Link href={`/creator/manga/${manga.slug}/edit`} className="flex-1" onClick={(e) => e.stopPropagation()}>
             <Button variant="outline" size="sm" className="w-full">
               <EditIcon className="w-4 h-4 mr-1" />
@@ -196,7 +211,7 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
           <Link href={`/creator/manga/${manga.slug}`} className="flex-1" onClick={(e) => e.stopPropagation()}>
             <Button variant="default" size="sm" className="w-full">
               <BookOpenIcon className="w-4 h-4 mr-1" />
-              Capítulos
+              Caps
             </Button>
           </Link>
         </div>

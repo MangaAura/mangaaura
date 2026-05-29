@@ -66,7 +66,7 @@ function DropdownMenu({ chapter, mangaId, mangaSlug, onDelete, onClose }: Dropdo
       className="absolute right-0 top-full mt-1 w-40 bg-[var(--surface-elevated)] rounded-lg shadow-lg border border-[var(--border)] z-[100] py-1"
     >
       <Link
-        href={`/reader/${mangaId}/chapter/${chapter.id}`}
+        href={mangaSlug ? `/manga/${mangaSlug}/chapter/${chapter.number}` : `/reader/${mangaId}/chapter/${chapter.id}`}
         className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface)]"
       >
         <EyeIcon className="w-4 h-4" />

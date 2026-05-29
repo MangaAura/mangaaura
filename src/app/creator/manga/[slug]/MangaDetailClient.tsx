@@ -119,6 +119,12 @@ export default function MangaDetailClient({ params }: PageProps) {
               </div>
             </div>
       <div className="flex gap-3">
+        <Link href={`/manga/${manga.slug}`} target="_blank">
+          <Button variant="ghost">
+            <EyeIcon className="w-4 h-4 mr-2" />
+            Ver Página
+          </Button>
+        </Link>
         <Link href={`/creator/manga/${manga.slug}/edit`}>
           <Button variant="outline">
             <EditIcon className="w-4 h-4 mr-2" />
