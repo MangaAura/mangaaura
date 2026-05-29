@@ -12,9 +12,15 @@ import {
   ArrowDown,
   Loader2,
   CheckCircle,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  LayoutGrid,
+  List,
+  ZoomIn,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
@@ -101,17 +107,16 @@ function EditPageSkeleton() {
 // ─── Page ────────────────────────────────────────────────────────
 
 interface PageProps {
-  params: Promise<{ slug: string; chapterId: string }>;
+  params: Promise<{ slug: string; chapterNumber: string }>;
 }
 
 export default function EditChapterClient({ params }: PageProps) {
-  const { slug, chapterId } = use(params);
-  const searchParams = useSearchParams();
-  const mangaId = searchParams.get('mangaId');
+  const { slug, chapterNumber: chapterNumberParam } = use(params);
   const router = useRouter();
 
   // State
   const [chapter, setChapter] = useState<ChapterData | null>(null);
+  const [mangaId, setMangaId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -132,20 +137,45 @@ export default function EditChapterClient({ params }: PageProps) {
   // Drag state
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
+  // View & preview state
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+
+  const previewSrc = previewIndex !== null ? pages[previewIndex]?.preview || pages[previewIndex]?.url : null;
+
+  // ─── Keyboard navigation for lightbox ──────────────────────
+
+  useEffect(() => {
+    if (previewIndex === null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewIndex(null);
+      if (e.key === 'ArrowLeft') setPreviewIndex((prev) => prev !== null && prev > 0 ? prev - 1 : prev);
+      if (e.key === 'ArrowRight') setPreviewIndex((prev) => prev !== null && prev < pages.length - 1 ? prev + 1 : prev);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewIndex, pages.length]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ─── Fetch chapter data ──────────────────────────────────────
 
   useEffect(() => {
-    if (!mangaId) {
-      setError('Falta el ID del manga');
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchChapter = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`/api/manga/${mangaId}/chapters/${chapterId}`);
+        // 1. Resolver slug del manga a su ID
+        const mangaRes = await fetch(`/api/manga/${slug}`);
+        if (!mangaRes.ok) {
+          throw new Error('Manga no encontrado');
+        }
+        const mangaData = await mangaRes.json();
+        const resolvedMangaId = mangaData.manga.id;
+        setMangaId(resolvedMangaId);
+
+        // 2. Obtener capítulo por número
+        const res = await fetch(`/api/manga/${resolvedMangaId}/chapters/${chapterNumberParam}`);
         if (!res.ok) {
           const data = await res.json();
           throw new Error(data.error || 'Error al cargar el capítulo');
@@ -168,8 +198,8 @@ export default function EditChapterClient({ params }: PageProps) {
       }
     };
 
-    fetchChapter();
-  }, [mangaId, chapterId]);
+    fetchData();
+  }, [slug, chapterNumberParam]);
 
   // ─── Cleanup previews on unmount ─────────────────────────────
 
@@ -299,7 +329,7 @@ export default function EditChapterClient({ params }: PageProps) {
       setIsUploadingPage(false);
 
       // 2. Update chapter metadata
-      const updateRes = await fetch(`/api/manga/${mangaId}/chapters/${chapterId}`, {
+      const updateRes = await fetch(`/api/manga/${mangaId}/chapters/${chapter.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -536,6 +566,36 @@ export default function EditChapterClient({ params }: PageProps) {
               </div>
             )}
 
+            {/* View toggle */}
+            {pages.length > 0 && (
+              <div className="flex items-center gap-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg p-0.5 w-fit">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                    viewMode === 'grid'
+                      ? 'bg-[var(--primary)] text-white shadow-sm'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                  )}
+                >
+                  <LayoutGrid size={14} />
+                  Cuadrícula
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                    viewMode === 'list'
+                      ? 'bg-[var(--primary)] text-white shadow-sm'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                  )}
+                >
+                  <List size={14} />
+                  Lista
+                </button>
+              </div>
+            )}
+
             {/* Page grid */}
             {pages.length === 0 ? (
               <div className="bg-[var(--surface)] border border-dashed border-[var(--border-strong)] rounded-2xl p-12 text-center">
@@ -548,7 +608,7 @@ export default function EditChapterClient({ params }: PageProps) {
                   Añadir páginas
                 </Button>
               </div>
-            ) : (
+            ) : viewMode === 'list' ? (
               <div className="space-y-2">
                 <AnimatePresence>
                   {pages.map((page, index) => (
@@ -583,26 +643,38 @@ export default function EditChapterClient({ params }: PageProps) {
                         {index + 1}
                       </div>
 
-                      {/* Preview */}
-                      <OptimizedImage
-                        src={page.preview || page.url}
-                        alt={`Página ${index + 1}`}
-                        width={72}
-                        height={96}
-                        className="w-[72px] h-24 object-cover rounded-lg border border-[var(--border)] flex-shrink-0"
-                      />
+                      {/* Preview - click to preview */}
+                      <button
+                        onClick={() => setPreviewIndex(index)}
+                        className="flex-shrink-0 rounded-lg overflow-hidden border border-[var(--border)] hover:ring-2 hover:ring-[var(--primary)]/50 transition-all"
+                        title="Ver página completa"
+                        aria-label={`Ver página ${index + 1}`}
+                      >
+                        <OptimizedImage
+                          src={page.preview || page.url}
+                          alt={`Página ${index + 1}`}
+                          width={72}
+                          height={96}
+                          className="w-[72px] h-24 object-cover"
+                        />
+                      </button>
 
                       {/* Label */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                      <button
+                        onClick={() => setPreviewIndex(index)}
+                        className="flex-1 min-w-0 text-left"
+                        title="Ver página completa"
+                      >
+                        <p className="text-sm font-medium text-[var(--text-primary)] truncate flex items-center gap-1.5">
                           Página {index + 1}
+                          <ZoomIn size={12} className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
                         </p>
                         {page.isNew && (
                           <span className="text-xs text-[var(--primary)] font-medium">
                             Nueva — se subirá al guardar
                           </span>
                         )}
-                      </div>
+                      </button>
 
                       {/* Actions */}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -638,6 +710,58 @@ export default function EditChapterClient({ params }: PageProps) {
                   ))}
                 </AnimatePresence>
               </div>
+            ) : (
+              /* Grid view */
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <AnimatePresence>
+                  {pages.map((page, index) => (
+                    <motion.button
+                      key={page.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={() => setPreviewIndex(index)}
+                      className={cn(
+                        'group relative aspect-[3/4] bg-[var(--surface)] border rounded-xl overflow-hidden',
+                        page.isNew
+                          ? 'border-[var(--primary)]/50 ring-1 ring-[var(--primary)]/20'
+                          : 'border-[var(--border)] hover:border-[var(--border-strong)]',
+                        'hover:ring-2 hover:ring-[var(--primary)]/30 transition-all'
+                      )}
+                      title={`Ver página ${index + 1}`}
+                    >
+                      <OptimizedImage
+                        src={page.preview || page.url}
+                        alt={`Página ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+
+                      {/* Overlay on hover */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <ZoomIn
+                          size={24}
+                          className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"
+                        />
+                      </div>
+
+                      {/* Page number badge */}
+                      <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md">
+                        #{index + 1}
+                      </div>
+
+                      {/* New badge */}
+                      {page.isNew && (
+                        <div className="absolute top-2 right-2 bg-[var(--primary)] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                          NUEVA
+                        </div>
+                      )}
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
+              </div>
             )}
 
             {/* Bottom save button */}
@@ -660,6 +784,88 @@ export default function EditChapterClient({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* ─── Lightbox / Full-page preview ──────────────────── */}
+      <AnimatePresence>
+        {previewIndex !== null && previewSrc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setPreviewIndex(null)}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setPreviewIndex(null)}
+              className="absolute top-4 right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-10"
+              title="Cerrar"
+              aria-label="Cerrar vista previa"
+            >
+              <X size={24} />
+            </button>
+
+            {/* Page counter */}
+            <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/50 backdrop-blur-sm text-white text-sm font-medium rounded-full">
+              {previewIndex + 1} / {pages.length}
+            </div>
+
+            {/* Previous button */}
+            {previewIndex > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreviewIndex(previewIndex - 1);
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 text-white/70 hover:text-white bg-black/30 hover:bg-black/50 rounded-full transition-all z-10"
+                title="Página anterior"
+                aria-label="Página anterior"
+              >
+                <ChevronLeft size={28} />
+              </button>
+            )}
+
+            {/* Next button */}
+            {previewIndex < pages.length - 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreviewIndex(previewIndex + 1);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 text-white/70 hover:text-white bg-black/30 hover:bg-black/50 rounded-full transition-all z-10"
+                title="Siguiente página"
+                aria-label="Siguiente página"
+              >
+                <ChevronRight size={28} />
+              </button>
+            )}
+
+            {/* Image */}
+            <motion.div
+              key={previewIndex}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full h-full max-w-[90vw] max-h-[90vh] flex items-center justify-center p-16"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewSrc}
+                alt={`Página ${previewIndex + 1}`}
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              />
+            </motion.div>
+
+            {/* Keyboard hint */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/50 backdrop-blur-sm text-white/50 text-xs rounded-full">
+              ← → Navegar &nbsp;·&nbsp; ESC Cerrar
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -73,7 +73,7 @@ function DropdownMenu({ chapter, mangaId, mangaSlug, onDelete, onClose }: Dropdo
         Ver
       </Link>
       <Link
-        href={mangaSlug ? `/creator/manga/${mangaSlug}/chapter/${chapter.id}/edit?mangaId=${mangaId}` : `/admin/chapters/${chapter.id}`}
+        href={mangaSlug ? `/creator/manga/${mangaSlug}/chapter/${chapter.number}/edit` : `/admin/chapters/${chapter.id}`}
         className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface)]"
       >
         <EditIcon className="w-4 h-4" />

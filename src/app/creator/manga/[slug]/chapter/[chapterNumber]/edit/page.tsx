@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/creator/manga/[slug]/chapter/[chapterId]/edit' },
+    alternates: { canonical: '/creator/manga/[slug]/chapter/[chapterNumber]/edit' },
   };
 }
 

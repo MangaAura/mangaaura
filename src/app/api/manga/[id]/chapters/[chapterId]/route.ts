@@ -26,12 +26,13 @@ export async function GET(
       );
     }
 
-    // Buscar el capítulo
+    // Buscar el capítulo — el chapterId puede ser UUID o número de capítulo
+    const isNumericChapter = /^\d+$/.test(chapterId);
+
     const chapter = await prisma.chapter.findFirst({
-      where: {
-        id: chapterId,
-        mangaId: id,
-      },
+      where: isNumericChapter
+        ? { mangaId: id, chapterNumber: parseInt(chapterId, 10) }
+        : { id: chapterId, mangaId: id },
     });
 
     if (!chapter) {
@@ -41,10 +42,10 @@ export async function GET(
       );
     }
 
-    // Incrementar views del capítulo y del manga
+    // Incrementar views del capítulo y del manga (usa chapter.id que siempre es UUID)
     await prisma.$transaction([
       prisma.chapter.update({
-        where: { id: chapterId },
+        where: { id: chapter.id },
         data: { viewCount: { increment: 1 } },
       }),
       prisma.mangaSeries.update({
@@ -130,12 +131,13 @@ export async function PUT(
       );
     }
 
-    // Verificar que el capítulo existe
+    // Buscar el capítulo — el chapterId puede ser UUID o número de capítulo
+    const isNumericChapter = /^\d+$/.test(chapterId);
+
     const chapter = await prisma.chapter.findFirst({
-      where: {
-        id: chapterId,
-        mangaId: id,
-      },
+      where: isNumericChapter
+        ? { mangaId: id, chapterNumber: parseInt(chapterId, 10) }
+        : { id: chapterId, mangaId: id },
     });
 
     if (!chapter) {
@@ -196,7 +198,7 @@ export async function PUT(
           },
         });
 
-        if (existingChapter && existingChapter.id !== chapterId) {
+        if (existingChapter && existingChapter.id !== chapter.id) {
           return NextResponse.json(
             { error: `El capítulo ${newChapterNum} ya existe en este manga` },
             { status: 409 }
@@ -222,7 +224,7 @@ export async function PUT(
     }
 
     const updated = await prisma.chapter.update({
-      where: { id: chapterId },
+      where: { id: chapter.id },
       data: updateData,
     });
 
@@ -235,7 +237,7 @@ export async function PUT(
     // Invalidar caches
     await invalidateCache('manga:chapters:list');
     await invalidateCache(`manga:${id}`);
-    await invalidateCache(`chapter:${chapterId}`);
+    await invalidateCache(`chapter:${chapter.id}`);
 
     return NextResponse.json({
       message: 'Capítulo actualizado exitosamente',
@@ -308,12 +310,13 @@ export async function DELETE(
       );
     }
 
-    // Verificar que el capítulo existe
+    // Buscar el capítulo — el chapterId puede ser UUID o número de capítulo
+    const isNumericChapter = /^\d+$/.test(chapterId);
+
     const chapter = await prisma.chapter.findFirst({
-      where: {
-        id: chapterId,
-        mangaId: id,
-      },
+      where: isNumericChapter
+        ? { mangaId: id, chapterNumber: parseInt(chapterId, 10) }
+        : { id: chapterId, mangaId: id },
       select: { id: true, chapterNumber: true, title: true },
     });
 
@@ -324,9 +327,9 @@ export async function DELETE(
       );
     }
 
-    // Eliminar el capítulo
+    // Eliminar el capítulo (usa chapter.id que siempre es UUID)
     await prisma.chapter.delete({
-      where: { id: chapterId },
+      where: { id: chapter.id },
     });
 
     // Actualizar fecha de actualización del manga
@@ -335,10 +338,10 @@ export async function DELETE(
       data: { updatedAt: new Date() },
     });
 
-    // Invalidar caches
+    // Invalidar caches (usa chapter.id que siempre es UUID)
     await invalidateCache('manga:chapters:list');
     await invalidateCache(`manga:${id}`);
-    await invalidateCache(`chapter:${chapterId}`);
+    await invalidateCache(`chapter:${chapter.id}`);
 
     return NextResponse.json({
       message: `Capítulo ${chapter.chapterNumber}${chapter.title ? ` - ${chapter.title}` : ''} eliminado exitosamente`,
