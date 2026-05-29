@@ -23,8 +23,8 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const manga = await prisma.mangaSeries.findUnique({
-      where: { id },
+    const manga = await prisma.mangaSeries.findFirst({
+      where: { OR: [{ id }, { slug: id }] },
     });
 
     if (!manga || manga.deletedAt) {
@@ -36,7 +36,7 @@ export async function GET(
 
     // Obtener capítulos del manga
     const chapters = await prisma.chapter.findMany({
-      where: { mangaId: id },
+      where: { mangaId: manga.id },
       orderBy: { chapterNumber: 'asc' },
       select: {
         id: true,
@@ -53,7 +53,7 @@ export async function GET(
 
     // Incrementar views (fire and forget, no await to not block response)
     prisma.mangaSeries.update({
-      where: { id },
+      where: { id: manga.id },
       data: { totalViews: { increment: 1 } },
     }).catch(err => console.error('[Manga] View count increment failed:', err));
 
@@ -92,7 +92,7 @@ export async function GET(
     }, {
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
-        'X-Cache-Tag': 'manga:' + id,
+        'X-Cache-Tag': 'manga:' + manga.id,
       },
     });
   } catch (error) {

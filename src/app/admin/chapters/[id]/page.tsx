@@ -29,6 +29,27 @@ import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Detalle del Capítulo | MangaAura',
+  description: 'Revisa y edita los detalles de un capítulo de manga en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Detalle del Capítulo | MangaAura',
+    description: 'Revisa y edita los detalles de un capítulo de manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Detalle del Capítulo | MangaAura',
+    description: 'Revisa los detalles de un capítulo en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/chapters/[id]' },
+};
+
 interface ChapterDetail {
   id: string;
   mangaId: string;

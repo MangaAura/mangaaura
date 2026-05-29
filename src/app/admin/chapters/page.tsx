@@ -46,6 +46,27 @@ import { Input } from '@/components/ui/Input';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetcher } from '@/lib/swr-config';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Administrar Capítulos | MangaAura',
+  description: 'Gestiona todos los capítulos de la plataforma MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Administrar Capítulos | MangaAura',
+    description: 'Gestiona todos los capítulos de la plataforma MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Administrar Capítulos | MangaAura',
+    description: 'Gestiona los capítulos en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/chapters' },
+};
+
 interface MangaInfo {
   id: string;
   title: string;

@@ -115,7 +115,7 @@ export function AdminSidebar() {
               </div>
               <div>
                 <h1 className="text-lg font-bold">Admin</h1>
-                <RepeatedChar text="MangaAura" className="text-xs text-[var(--text-secondary)]" />
+                <RepeatedChar text="MANGAAURA" className="text-xs text-[var(--text-secondary)]" />
               </div>
             </Link>
           </div>

@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { AppFooter } from "@/components/Layout/AppFooter";
 import { Providers } from "@/components/Providers";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
+import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
 import { detectLocale } from "@/i18n/server";
 import { ensureInfrastructure } from "@/infrastructure/init";
 import { validateEnv } from "@/lib/env";
@@ -46,7 +47,6 @@ export const metadata: Metadata = {
     languages: {
       'x-default': siteUrl,
       es: siteUrl,
-      en: `${siteUrl}/en`,
     },
     types: {
       'application/rss+xml': `${siteUrl}/api/feed/rss`,
@@ -74,6 +74,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MangaAura — Lee, crea y crowdfundea manga con IA",
     description: "La plataforma para leer manga online, crear y crowdfundear capítulos con IA.",
+    images: ["/og-image.webp"],
   },
   robots: {
     index: true,
@@ -183,6 +184,8 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bebas+Neue&display=swap" />
         <link rel="dns-prefetch" href="https://**.vercel-storage.com" />
+        <WebsiteStructuredData />
+        <OrganizationStructuredData />
       </head>
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <script

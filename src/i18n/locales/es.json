@@ -1595,6 +1595,8 @@
   },
   "creatorMangaEdit": {
     "notFound": "Manga no encontrado",
+    "notFoundSuggestion": "Es posible que este manga haya sido movido a la papelera. Puedes restaurarlo desde allí si aún no ha expirado.",
+    "checkTrash": "Ir a la Papelera",
     "backToDashboard": "Volver al Dashboard",
     "title": "Editar Manga",
     "subtitle": "Actualiza la información de tu manga",

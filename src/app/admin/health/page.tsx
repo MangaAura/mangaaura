@@ -16,6 +16,27 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { fetcher } from '@/lib/swr-config';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Salud del Sistema | MangaAura',
+  description: 'Monitorea el estado y rendimiento de los servidores de MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Salud del Sistema | MangaAura',
+    description: 'Monitorea el estado y rendimiento de los servidores de MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Salud del Sistema | MangaAura',
+    description: 'Monitorea el estado de los servidores de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/health' },
+};
+
 function formatUptime(seconds: number) {
   const d = Math.floor(seconds / 86400);
   const h = Math.floor((seconds % 86400) / 3600);

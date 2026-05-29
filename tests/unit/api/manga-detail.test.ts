@@ -12,6 +12,7 @@ const mockUpdate = vi.hoisted(() => vi.fn(() => ({
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     mangaSeries: {
+      findFirst: vi.fn(),
       findUnique: vi.fn(),
       update: mockUpdate,
     },
@@ -75,7 +76,7 @@ describe('GET /api/manga/[id]', () => {
   });
 
   it('returns manga with chapters', async () => {
-    vi.mocked(prisma.mangaSeries.findUnique).mockResolvedValue(mangaFixture);
+    vi.mocked(prisma.mangaSeries.findFirst).mockResolvedValue(mangaFixture);
     vi.mocked(prisma.chapter.findMany).mockResolvedValue(chaptersFixture as any);
 
     const request = new NextRequest('http://localhost:3000/api/manga/manga-1');
@@ -89,7 +90,7 @@ describe('GET /api/manga/[id]', () => {
   });
 
   it('returns 404 when manga not found', async () => {
-    vi.mocked(prisma.mangaSeries.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.mangaSeries.findFirst).mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost:3000/api/manga/nonexistent');
     const response = await GET(request, { params: Promise.resolve({ id: 'nonexistent' }) });
@@ -100,7 +101,7 @@ describe('GET /api/manga/[id]', () => {
   });
 
   it('includes crowdfunding info when available', async () => {
-    vi.mocked(prisma.mangaSeries.findUnique).mockResolvedValue(mangaFixture);
+    vi.mocked(prisma.mangaSeries.findFirst).mockResolvedValue(mangaFixture);
     vi.mocked(prisma.chapter.findMany).mockResolvedValue(chaptersFixture as any);
 
     const request = new NextRequest('http://localhost:3000/api/manga/manga-1');
@@ -115,7 +116,7 @@ describe('GET /api/manga/[id]', () => {
   });
 
   it('sets cache headers', async () => {
-    vi.mocked(prisma.mangaSeries.findUnique).mockResolvedValue(mangaFixture);
+    vi.mocked(prisma.mangaSeries.findFirst).mockResolvedValue(mangaFixture);
     vi.mocked(prisma.chapter.findMany).mockResolvedValue(chaptersFixture as any);
 
     const request = new NextRequest('http://localhost:3000/api/manga/manga-1');
@@ -127,7 +128,7 @@ describe('GET /api/manga/[id]', () => {
   });
 
   it('returns 500 on internal error', async () => {
-    vi.mocked(prisma.mangaSeries.findUnique).mockRejectedValue(new Error('DB error'));
+    vi.mocked(prisma.mangaSeries.findFirst).mockRejectedValue(new Error('DB error'));
 
     const request = new NextRequest('http://localhost:3000/api/manga/manga-1');
     const response = await GET(request, { params: Promise.resolve({ id: 'manga-1' }) });

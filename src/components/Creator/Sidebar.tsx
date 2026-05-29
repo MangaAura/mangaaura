@@ -49,7 +49,7 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="w-8 h-8 bg-gradient-to-br from-[var(--accent-purple)] to-[var(--primary)] rounded-lg flex items-center justify-center">
             <BookOpenIcon className="w-5 h-5 text-[var(--text-inverse)]" />
           </div>
-          <RepeatedChar text="MangaAura" className="font-bold text-lg" />
+          <RepeatedChar text="MANGAAURA" className="font-bold text-lg" />
         </Link>
         <p className="text-xs text-[var(--text-secondary)] mt-1">{t('creator.dashboard')}</p>
       </div>

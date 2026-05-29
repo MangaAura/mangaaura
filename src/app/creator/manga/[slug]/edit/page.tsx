@@ -2,6 +2,7 @@
 
 import {
   ArrowLeftIcon,
+  Trash2Icon,
   UploadIcon,
   XIcon,
   SaveIcon,
@@ -22,6 +23,27 @@ import { Input } from '@/components/ui/Input';
 import { useManga } from '@/hooks/useManga';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Editar Manga | MangaAura',
+  description: 'Edita los detalles de tu serie de manga en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Editar Manga | MangaAura',
+    description: 'Edita los detalles de tu serie de manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Editar Manga | MangaAura',
+    description: 'Edita tu manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/creator/manga/[slug]/edit' },
+};
 
 
 interface PageProps {
@@ -203,13 +225,24 @@ export default function EditMangaPage({ params }: PageProps) {
             <ErrorMessage
               message={error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}
             />
+            <p className="text-[var(--text-tertiary)] mt-2 text-sm">
+              {t('creatorMangaEdit.notFoundSuggestion')}
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <Link href="/creator/trash">
+                <Button variant="outline">
+                  <Trash2Icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                  {t('creatorMangaEdit.checkTrash')}
+                </Button>
+              </Link>
               <Link href="/creator/dashboard">
-                <Button variant="outline" className="mt-4">
+                <Button variant="ghost">
                   <ArrowLeftIcon className="w-4 h-4 mr-2" aria-hidden="true" />
                   {t('creatorMangaEdit.backToDashboard')}
                 </Button>
               </Link>
             </div>
+          </div>
         </main>
       </div>
     );

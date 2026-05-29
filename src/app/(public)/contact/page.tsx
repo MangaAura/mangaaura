@@ -10,6 +10,26 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contacto | MangaAura',
+  description: 'Ponte en contacto con el equipo de MangaAura. Estamos aquí para ayudarte.',
+  openGraph: {
+    title: 'Contacto | MangaAura',
+    description: 'Ponte en contacto con el equipo de MangaAura. Estamos aquí para ayudarte.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contacto | MangaAura',
+    description: 'Ponte en contacto con el equipo de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/contact' },
+};
+
 export default function ContactPage() {
   const t = useT();
   const [formData, setFormData] = useState({

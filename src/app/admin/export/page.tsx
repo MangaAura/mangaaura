@@ -20,6 +20,27 @@ import {
 } from '@/components/ui/Select';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Exportar Datos | MangaAura',
+  description: 'Exporta los datos de la plataforma MangaAura en varios formatos.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Exportar Datos | MangaAura',
+    description: 'Exporta los datos de la plataforma MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Exportar Datos | MangaAura',
+    description: 'Exporta los datos de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/export' },
+};
+
 const EXPORT_ENTITIES = [
   { value: 'users', label: 'Usuarios', icon: Database },
   { value: 'mangas', label: 'Mangas', icon: Database },

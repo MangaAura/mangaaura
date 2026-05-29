@@ -24,6 +24,27 @@ import { useCreateManga } from '@/hooks/useCreateManga';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Nuevo Manga | MangaAura',
+  description: 'Publica una nueva serie de manga en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Nuevo Manga | MangaAura',
+    description: 'Publica una nueva serie de manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nuevo Manga | MangaAura',
+    description: 'Publica un nuevo manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/creator/manga/new' },
+};
+
 
 export default function NewMangaPage() {
   const router = useRouter();

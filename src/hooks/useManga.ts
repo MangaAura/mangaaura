@@ -79,6 +79,8 @@ export interface CreateChapterInput {
 export interface UpdateChapterInput {
   title?: string;
   chapterNumber?: number;
+  pageUrls?: string[];
+  mangaId?: string;
 }
 
 export interface UseMangaOptions {
@@ -225,11 +227,13 @@ export function useManga(options: UseMangaOptions = {}): UseMangaReturn {
 
   const updateChapter = useCallback(async (id: string, input: UpdateChapterInput): Promise<Chapter | null> => {
     if (!session?.user) return null;
+    const mangaIdForUpdate = input.mangaId || manga?.id;
+    if (!mangaIdForUpdate) return null;
     setIsMutating(true);
     try {
-      const data = await fetchWithAuth<{ chapter: Chapter }>(`/api/chapters/${id}`, { method: 'PUT', body: JSON.stringify(input) });
+      const data = await fetchWithAuth<{ chapter: Chapter }>(`/api/manga/${mangaIdForUpdate}/chapters/${id}`, { method: 'PUT', body: JSON.stringify(input) });
       await mutateDetail((current) => current ? { ...current, chapters: current.chapters.map((c) => (c.id === id ? data.chapter : c)) } : current, false);
-      if (manga?.id) await invalidateMangaCache(manga.id);
+      await invalidateMangaCache(mangaIdForUpdate);
       return data.chapter;
     } catch (err) {
       handleError(err);

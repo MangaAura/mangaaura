@@ -12,6 +12,27 @@ import { useT } from '@/i18n';
 import { getAuthErrorMessage } from '@/lib/auth-errors';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Iniciar Sesión | MangaAura',
+  description: 'Accede a tu cuenta de MangaAura para disfrutar de todo el contenido.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Iniciar Sesión | MangaAura',
+    description: 'Accede a tu cuenta de MangaAura para disfrutar de todo el contenido.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Iniciar Sesión | MangaAura',
+    description: 'Accede a tu cuenta de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/auth/login' },
+};
+
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
   return (
     <div className="flex items-center justify-center" role="status">

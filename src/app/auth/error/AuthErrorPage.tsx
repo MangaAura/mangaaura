@@ -213,7 +213,7 @@ export default function AuthErrorPage() {
         <div className="text-center mt-8">
           <Link href="/" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
         <span className="text-xl font-bold text-accent-blue">
-          <RepeatedChar text="MangaAura" />
+          <RepeatedChar text="MANGAAURA" />
         </span>
           </Link>
         </div>

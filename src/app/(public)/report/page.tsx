@@ -24,6 +24,26 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Reportar Contenido | MangaAura',
+  description: 'Reporta contenido inapropiado, infracciones o violaciones en MangaAura.',
+  openGraph: {
+    title: 'Reportar Contenido | MangaAura',
+    description: 'Reporta contenido inapropiado, infracciones o violaciones en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Reportar Contenido | MangaAura',
+    description: 'Reporta contenido inapropiado en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/report' },
+};
+
 export default function ReportPage() {
   const t = useT();
   const { status } = useSession();

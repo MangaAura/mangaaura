@@ -4,7 +4,7 @@ import { Shield, Target, Award, AlertTriangle, BookOpen, BarChart, Users, Trendi
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback, useMemo } from 'react';
 
 import { AnalyticsDashboard } from '@/components/Analytics/AnalyticsDashboard';
 import { DateRangePicker, type DateRangePreset, type DateRange } from '@/components/Analytics/DateRangePicker';
@@ -12,6 +12,27 @@ import { ExportAnalyticsButton } from '@/components/Analytics/ExportAnalyticsBut
 import { MangaSelector, type MangaOption } from '@/components/Analytics/MangaSelector';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useT } from '@/i18n';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Analytics | MangaAura',
+  description: 'Panel de análisis y estadísticas para creadores en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Analytics | MangaAura',
+    description: 'Panel de análisis y estadísticas para creadores en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Analytics | MangaAura',
+    description: 'Panel de análisis y estadísticas en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/analytics' },
+};
 
 interface CreatorData {
   views: number;
@@ -81,7 +102,7 @@ function useDefaultDateRange() {
   return useState(getDefaultDateRange);
 }
 
-export default function AnalyticsPage() {
+function AnalyticsPageContent() {
   const { data: session } = useSession();
   const t = useT();
 
@@ -379,5 +400,13 @@ export default function AnalyticsPage() {
         )}
 
     </div>
+  );
+}
+
+export default function AnalyticsPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto space-y-8 p-6"><div className="h-80 bg-[var(--surface-sunken)] rounded-xl animate-pulse" /></div>}>
+      <AnalyticsPageContent />
+    </Suspense>
   );
 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Repeat2, Loader2, BookOpen, MessageSquare, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
@@ -8,6 +8,30 @@ import useSWR from 'swr';
 import { RepostButton } from '@/components/Repost/RepostButton';
 import { fetcher } from '@/lib/swr-config';
 
+
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Reposts | MangaAura',
+  description: 'Tus reposts y actividad reciente en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Reposts | MangaAura',
+    description: 'Tus reposts y actividad reciente en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Reposts | MangaAura',
+    description: 'Tus reposts y actividad reciente en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/reposts' },
+};
+
+
 const typeIcons: Record<string, typeof BookOpen> = {
   MANGA: BookOpen,
   CHAPTER: BookOpen,
@@ -16,7 +40,7 @@ const typeIcons: Record<string, typeof BookOpen> = {
 
 const typeLabels: Record<string, string> = {
   MANGA: 'Manga',
-  CHAPTER: 'Capítulo',
+  CHAPTER: 'Cap�tulo',
   COMMENT: 'Comentario',
 };
 
@@ -68,8 +92,8 @@ const { data, error } = useSWR<{ reposts: RepostItem[] }>('/api/reposts', fetche
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <Repeat2 size={48} className="mx-auto text-muted mb-4 opacity-50" />
-          <h2 className="text-xl font-bold mb-2">Sin reposts aún</h2>
-          <p className="text-muted mb-6">Compartí mangas y capítulos que te gusten</p>
+          <h2 className="text-xl font-bold mb-2">Sin reposts a�n</h2>
+          <p className="text-muted mb-6">Compart� mangas y cap�tulos que te gusten</p>
           <Link href="/explore" className="inline-flex items-center gap-2 bg-tertiary hover:bg-custom border border-custom px-6 py-3 rounded-xl font-semibold transition-colors">
             Explorar mangas
           </Link>

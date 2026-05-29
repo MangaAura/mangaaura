@@ -1,6 +1,26 @@
-﻿import Script from 'next/script';
+import Script from 'next/script';
 import { HomeContent } from '@/components/Home/HomeContent';
 import { prisma } from '@/lib/prisma';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'BIENVENIDO A MANGAAURA | MangaAura',
+  description: 'Descubre, lee y disfruta del mejor manga en MangaAura. La plataforma definitiva para los amantes del manga.',
+  openGraph: {
+    title: 'BIENVENIDO A MANGAAURA | MangaAura',
+    description: 'Descubre, lee y disfruta del mejor manga en MangaAura. La plataforma definitiva para los amantes del manga.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BIENVENIDO A MANGAAURA | MangaAura',
+    description: 'Descubre, lee y disfruta del mejor manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/' },
+};
 
 
 interface MangaItem {

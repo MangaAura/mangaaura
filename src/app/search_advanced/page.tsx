@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, AlertTriangle, Compass, Sparkles } from 'lucide-react';
@@ -11,6 +11,26 @@ import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { normalizeGenreKey } from '@/constants/genres';
 import { EmptySearch } from '@/components/ui/EmptyState';
 import { useT } from '@/i18n';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Búsqueda Avanzada | MangaAura',
+  description: 'Encuentra manga con filtros avanzados en MangaAura.',
+  openGraph: {
+    title: 'Búsqueda Avanzada | MangaAura',
+    description: 'Encuentra manga con filtros avanzados en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Búsqueda Avanzada | MangaAura',
+    description: 'Búsqueda avanzada de manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/search_advanced' },
+};
 
 const SORT_MAP: Record<string, string> = {
   popularity: 'popularity',

@@ -25,6 +25,26 @@ import { useRecentSearches } from '@/hooks/useRecentSearches';
 import { useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Explorar Manga | MangaAura',
+  description: 'Explora y descubre nuevos mangas en MangaAura. Filtra por género, popularidad y más.',
+  openGraph: {
+    title: 'Explorar Manga | MangaAura',
+    description: 'Explora y descubre nuevos mangas en MangaAura. Filtra por género, popularidad y más.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Explorar Manga | MangaAura',
+    description: 'Explora y descubre nuevos mangas en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/explore' },
+};
+
 
 // SORT_OPTIONS and STATUS_OPTIONS defined inside SearchPageContent using useT()
 

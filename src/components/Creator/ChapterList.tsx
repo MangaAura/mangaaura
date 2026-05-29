@@ -25,11 +25,12 @@ export interface ChapterListChapter {
 interface ChapterListProps {
   chapters: ChapterListChapter[];
   mangaId: string;
+  mangaSlug?: string;
   onDelete?: (chapterId: string) => void;
   className?: string;
 }
 
-export function ChapterList({ chapters, mangaId, onDelete, className }: ChapterListProps) {
+export function ChapterList({ chapters, mangaId, mangaSlug, onDelete, className }: ChapterListProps) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const handleDelete = (chapterId: string) => {
@@ -132,12 +133,13 @@ export function ChapterList({ chapters, mangaId, onDelete, className }: ChapterL
                               <EyeIcon className="w-4 h-4" />
                               Ver
                             </Link>
-                            <button
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] w-full text-left"
+                            <Link
+                              href={mangaSlug ? `/creator/manga/${mangaSlug}/chapter/${chapter.id}/edit?mangaId=${mangaId}` : `/admin/chapters/${chapter.id}`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]"
                             >
                               <EditIcon className="w-4 h-4" />
                               Editar
-                            </button>
+                            </Link>
                             <hr className="my-1" />
                             <button
                               onClick={() => handleDelete(chapter.id)}

@@ -8,6 +8,26 @@ import { Container } from '@/components/Layout/Container';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sobre Nosotros | MangaAura',
+  description: 'Conoce más sobre MangaAura, la plataforma definitiva para leer y descubrir manga.',
+  openGraph: {
+    title: 'Sobre Nosotros | MangaAura',
+    description: 'Conoce más sobre MangaAura, la plataforma definitiva para leer y descubrir manga.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sobre Nosotros | MangaAura',
+    description: 'Conoce más sobre MangaAura, la plataforma definitiva para leer y descubrir manga.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/sobre-nosotros' },
+};
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } }

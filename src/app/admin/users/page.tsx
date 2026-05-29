@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
   useReactTable,
@@ -48,6 +48,27 @@ import {
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Administrar Usuarios | MangaAura',
+  description: 'Gestiona todos los usuarios registrados en la plataforma MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Administrar Usuarios | MangaAura',
+    description: 'Gestiona todos los usuarios registrados en la plataforma MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Administrar Usuarios | MangaAura',
+    description: 'Gestiona los usuarios en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/users' },
+};
 
 interface UserData {
   id: string;

@@ -32,6 +32,26 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contacto | MangaAura',
+  description: 'Ponte en contacto con el equipo de MangaAura. Estamos aquí para ayudarte.',
+  openGraph: {
+    title: 'Contacto | MangaAura',
+    description: 'Ponte en contacto con el equipo de MangaAura. Estamos aquí para ayudarte.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contacto | MangaAura',
+    description: 'Ponte en contacto con el equipo de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/contacto' },
+};
+
 const socialLinks = [
   { name: 'X', icon: X, href: 'https://mangaaura.es', color: 'hover:bg-[#000]/20 hover:border-[#000]/50' },
   { name: 'Instagram', icon: Camera, href: 'https://mangaaura.es', color: 'hover:bg-[#E4405F]/20 hover:border-[#E4405F]/50' },

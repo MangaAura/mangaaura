@@ -7,6 +7,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Analytics de Registro | MangaAura',
+  description: 'Estadísticas detalladas del proceso de registro de usuarios en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Analytics de Registro | MangaAura',
+    description: 'Estadísticas del proceso de registro de usuarios en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Analytics de Registro | MangaAura',
+    description: 'Estadísticas de registro en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/analytics/signup' },
+};
+
 interface FieldMetric {
   field: string;
   completionRate: number;

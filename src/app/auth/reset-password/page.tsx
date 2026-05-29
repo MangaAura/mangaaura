@@ -18,6 +18,27 @@ import { z } from 'zod';
 
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Restablecer Contraseña | MangaAura',
+  description: 'Establece una nueva contraseña para tu cuenta de MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Restablecer Contraseña | MangaAura',
+    description: 'Establece una nueva contraseña para tu cuenta de MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Restablecer Contraseña | MangaAura',
+    description: 'Restablece tu contraseña en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/auth/reset-password' },
+};
 import { useAuthError } from '@/hooks/useAuthError';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';

@@ -8,6 +8,37 @@ import { prisma } from './prisma';
 import { rateLimit, getRateLimitKey } from './rate-limit';
 import { redis } from './redis';
 
+const LOCKOUT_THRESHOLD = 10;
+const LOCKOUT_WINDOW_MS = 15 * 60 * 1000;
+
+async function checkAccountLockout(email: string): Promise<boolean> {
+  try {
+    const recentFails = await prisma.loginAttempt.count({
+      where: {
+        email,
+        success: false,
+        createdAt: { gte: new Date(Date.now() - LOCKOUT_WINDOW_MS) },
+      },
+    });
+    if (recentFails >= LOCKOUT_THRESHOLD) {
+      return true;
+    }
+  } catch { }
+  return false;
+}
+
+async function recordLoginAttempt(params: {
+  email?: string;
+  userId?: string;
+  ipAddress: string;
+  userAgent?: string;
+  success: boolean;
+}) {
+  try {
+    await prisma.loginAttempt.create({ data: params });
+  } catch { }
+}
+
 // Nombre de la cookie de sesión, compartido entre auth y proxy/socket
 // Debe coincidir con la cookie que establece NextAuth v5 beta
 export const SESSION_COOKIE_NAME =
@@ -91,6 +122,13 @@ export const authConfig = {
           }
 
           const email = credentials.email.toLowerCase();
+
+          const isLocked = await checkAccountLockout(email);
+          if (isLocked) {
+            console.warn(`[AccountLockout] Account locked for ${email}`);
+            return null;
+          }
+
           const limiterKey = getRateLimitKey('login', email);
 
           const { allowed } = await rateLimit(limiterKey, 5, 300);
@@ -105,6 +143,11 @@ export const authConfig = {
           });
 
           if (!user || !user.passwordHash) {
+            await recordLoginAttempt({
+              email,
+              ipAddress: 'unknown',
+              success: false,
+            });
             return null;
           }
 
@@ -114,8 +157,21 @@ export const authConfig = {
           );
 
           if (!isValid) {
+            await recordLoginAttempt({
+              email,
+              userId: user.id,
+              ipAddress: 'unknown',
+              success: false,
+            });
             return null;
           }
+
+          await recordLoginAttempt({
+            email,
+            userId: user.id,
+            ipAddress: 'unknown',
+            success: true,
+          });
 
           return {
             id: user.id,

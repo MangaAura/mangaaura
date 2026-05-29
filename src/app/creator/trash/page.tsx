@@ -27,6 +27,27 @@ import {
 } from '@/components/ui/Dialog';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Papelera | MangaAura',
+  description: 'Recupera mangas y capítulos eliminados en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Papelera | MangaAura',
+    description: 'Recupera mangas y capítulos eliminados en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Papelera | MangaAura',
+    description: 'Recupera elementos eliminados en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/creator/trash' },
+};
+
 interface TrashManga {
   id: string;
   title: string;

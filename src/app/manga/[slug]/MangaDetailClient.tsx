@@ -140,20 +140,14 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
               whileHover={{ scale: 1.02 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
-              {manga.coverUrl ? (
-                <>
-                  <OptimizedImage
-                    src={manga.coverUrl}
-                    alt={manga.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                </>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-16 h-16 text-[var(--text-tertiary)]" />
-                </div>
+              <OptimizedImage
+                src={manga.coverUrl || '/placeholder-manga.svg'}
+                alt={manga.title}
+                fill
+                className="object-cover"
+              />
+              {manga.coverUrl && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               )}
             </motion.div>
           </motion.div>

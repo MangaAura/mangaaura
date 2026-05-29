@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { ArrowLeft, Lock, Globe, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+
 
 
 export default function CreateCollectionPage() {
@@ -36,7 +37,7 @@ export default function CreateCollectionPage() {
         }
         router.push('/collections');
       } catch {
-        setError('Error de conexión. Verifica tu internet e inténtalo de nuevo.');
+        setError('Error de conexi�n. Verifica tu internet e int�ntalo de nuevo.');
       }
     });
   };
@@ -56,10 +57,10 @@ export default function CreateCollectionPage() {
         <Card className="p-6">
           <div className="mb-6">
         <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
-          Crear colección
+          Crear colecci�n
         </h1>
         <p className="text-[var(--text-secondary)]">
-              Organiza tus mangas favoritos en una colección
+              Organiza tus mangas favoritos en una colecci�n
             </p>
           </div>
 
@@ -81,12 +82,12 @@ export default function CreateCollectionPage() {
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Descripción (opcional)</Label>
+              <Label htmlFor="description">Descripci�n (opcional)</Label>
             <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe qué mangas incluirás..."
+              placeholder="Describe qu� mangas incluir�s..."
               maxLength={500}
               rows={3}
               className="w-full px-3 py-2 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none"
@@ -115,7 +116,7 @@ export default function CreateCollectionPage() {
                   <Globe className={`w-5 h-5 ${isPublic ? 'text-[var(--primary)]' : 'text-[var(--text-tertiary)]'}`} aria-hidden="true" />
                   <div>
                     <p className={`font-medium ${isPublic ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                      Pública
+                      P�blica
                     </p>
                     <p className="text-xs text-[var(--text-tertiary)]">
                       Cualquiera puede ver y seguir
@@ -141,7 +142,7 @@ export default function CreateCollectionPage() {
                 Privada
               </p>
               <p className="text-xs text-[var(--text-tertiary)]">
-                        Solo tú puedes ver
+                        Solo t� puedes ver
                       </p>
                     </div>
                   </div>
@@ -170,7 +171,7 @@ export default function CreateCollectionPage() {
                 className="flex-1"
               >
                 <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
-                Crear colección
+                Crear colecci�n
               </Button>
             </div>
           </form>

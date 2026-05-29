@@ -1654,6 +1654,8 @@
   },
   "creatorMangaEdit": {
     "notFound": "Manga not found",
+    "notFoundSuggestion": "This manga may have been moved to the trash. You can restore it from there if it hasn't expired yet.",
+    "checkTrash": "Go to Trash",
     "backToDashboard": "Back to Dashboard",
     "title": "Edit Manga",
     "subtitle": "Update your manga information",

@@ -6,6 +6,26 @@ import { useLocale } from '@/i18n';
 import es from '@/i18n/locales/es.json';
 import en from '@/i18n/locales/en.json';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Reglas de la Comunidad | MangaAura',
+  description: 'Conoce las reglas y normas de convivencia de la comunidad MangaAura.',
+  openGraph: {
+    title: 'Reglas de la Comunidad | MangaAura',
+    description: 'Conoce las reglas y normas de convivencia de la comunidad MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Reglas de la Comunidad | MangaAura',
+    description: 'Reglas de la comunidad MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/community/rules' },
+};
+
 export default function CommunityRulesPage() {
   const { locale } = useLocale();
   const dict = locale === 'en' ? en : es;

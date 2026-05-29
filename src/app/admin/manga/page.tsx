@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
   useReactTable,
@@ -47,6 +47,27 @@ import {
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Administrar Mangas | MangaAura',
+  description: 'Gestiona todos los mangas y series en la plataforma MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Administrar Mangas | MangaAura',
+    description: 'Gestiona todos los mangas y series en la plataforma MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Administrar Mangas | MangaAura',
+    description: 'Gestiona los mangas en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/manga' },
+};
 
 interface MangaData {
   id: string;

@@ -1,13 +1,14 @@
+import { timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+// POST /api/cron/delete-expired-accounts - Delete accounts marked for deletion
+export async function POST(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const secret = searchParams.get('secret');
-
-    if (secret !== process.env.CRON_SECRET) {
+    const authHeader = request.headers.get('authorization');
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
+    if (!authHeader || !expectedAuth || authHeader.length !== expectedAuth.length || !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedAuth))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -9,6 +9,27 @@ import { Input } from '@/components/ui/Input';
 import { NoIndex } from '@/components/SEO/NoIndex';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Compartir | MangaAura',
+  description: 'Comparte contenido de MangaAura con otros usuarios.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Compartir | MangaAura',
+    description: 'Comparte contenido de MangaAura con otros usuarios.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Compartir | MangaAura',
+    description: 'Comparte contenido de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/share-target' },
+};
+
 interface SharedData {
   title: string;
   text: string;
@@ -70,7 +91,7 @@ export default function ShareTargetPage() {
         <div className="text-center">
           <Share2 className="w-16 h-16 text-muted mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">
-            {saved ? '¡Guardado!' : <>Compartir en <RepeatedChar text="MangaAura" /></>}
+            {saved ? '¡Guardado!' : <>Compartir en <RepeatedChar text="MANGAAURA" /></>}
           </h1>
           <p className="text-muted">
             {saved ? 'El contenido fue guardado en tu biblioteca' : 'No se recibió contenido para compartir'}

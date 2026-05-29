@@ -22,6 +22,27 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { extractApiError } from '@/lib/extract-api-error';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Administrar Géneros | MangaAura',
+  description: 'Gestiona los géneros y categorías de manga en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Administrar Géneros | MangaAura',
+    description: 'Gestiona los géneros y categorías de manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Administrar Géneros | MangaAura',
+    description: 'Gestiona los géneros en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/genres' },
+};
+
 interface Genre {
   id: string;
   name: string;

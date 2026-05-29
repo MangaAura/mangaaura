@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Checkout Page
  * 
  * Página para comprar Aura con Stripe.
@@ -23,6 +23,27 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useT } from '@/i18n';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Comprar Aura | MangaAura',
+  description: 'Adquiere Aura, la moneda virtual de MangaAura, y apoya a tus creadores favoritos.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Comprar Aura | MangaAura',
+    description: 'Adquiere Aura, la moneda virtual de MangaAura, y apoya a tus creadores favoritos.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Comprar Aura | MangaAura',
+    description: 'Adquiere Aura, la moneda virtual de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/checkout' },
+};
 import { AURA_PACKAGES, formatAmount } from '@/lib/stripe';
 import { cn } from '@/lib/utils';
 

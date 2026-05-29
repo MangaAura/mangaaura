@@ -37,6 +37,27 @@ import { Textarea } from '@/components/ui/Textarea';import { useT } from '@/i18n
 import { cn } from '@/lib/utils';
 import { fetcher } from '@/lib/swr-config';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Configuración del Creador | MangaAura',
+  description: 'Ajusta la configuración de tu perfil como creador en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Configuración del Creador | MangaAura',
+    description: 'Ajusta la configuración de tu perfil como creador en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Configuración del Creador | MangaAura',
+    description: 'Configuración de creador en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/creator/settings' },
+};
+
 interface CreatorProfile {
   username?: string;
   displayName?: string;

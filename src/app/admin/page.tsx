@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo } from 'react';
 import {
@@ -18,6 +18,27 @@ import Link from 'next/link';
 import useSWR from 'swr';
 
 import { ChartsSection } from '@/components/Admin/ChartsSection';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Panel de Administración | MangaAura',
+  description: 'Panel de administración de MangaAura. Gestiona usuarios, mangas, capítulos y más.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Panel de Administración | MangaAura',
+    description: 'Panel de administración de MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Panel de Administración | MangaAura',
+    description: 'Panel de administración de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin' },
+};
 import { StatCard } from '@/components/Admin/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

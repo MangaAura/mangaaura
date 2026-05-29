@@ -30,6 +30,26 @@ import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { useChapterComments } from '@/hooks/useChapterComments';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Lector de Manga | MangaAura',
+  description: 'Disfruta de la mejor experiencia de lectura de manga en MangaAura.',
+  openGraph: {
+    title: 'Lector de Manga | MangaAura',
+    description: 'Disfruta de la mejor experiencia de lectura de manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Lector de Manga | MangaAura',
+    description: 'Lee manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/reader/[slug]' },
+};
+
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });
 

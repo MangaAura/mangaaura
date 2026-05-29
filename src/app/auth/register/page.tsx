@@ -24,6 +24,27 @@ import { useT } from '@/i18n';
 import { getAuthErrorMessage, getRegisterApiErrorMessage } from '@/lib/auth-errors';
 import { cn } from '@/lib/utils';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Crear Cuenta | MangaAura',
+  description: 'Regístrate en MangaAura y descubre un mundo de manga.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Crear Cuenta | MangaAura',
+    description: 'Regístrate en MangaAura y descubre un mundo de manga.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Crear Cuenta | MangaAura',
+    description: 'Regístrate en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/auth/register' },
+};
+
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
   return (
     <div className="flex items-center justify-center" role="status">

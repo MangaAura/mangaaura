@@ -19,6 +19,27 @@ import { Input } from '@/components/ui/Input';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetcher } from '@/lib/swr-config';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Plantillas de Email | MangaAura',
+  description: 'Gestiona las plantillas de correo electrónico de MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Plantillas de Email | MangaAura',
+    description: 'Gestiona las plantillas de correo electrónico de MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Plantillas de Email | MangaAura',
+    description: 'Gestiona las plantillas de email de MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/email-templates' },
+};
+
 interface Template {
   key: string; name: string; description: string;
   subject: string; html: string; isCustom: boolean;

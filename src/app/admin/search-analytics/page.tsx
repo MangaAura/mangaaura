@@ -15,6 +15,27 @@ import useSWR from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { fetcher } from '@/lib/swr-config';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Analytics de Búsqueda | MangaAura',
+  description: 'Analiza las tendencias y estadísticas de búsqueda en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Analytics de Búsqueda | MangaAura',
+    description: 'Analiza las tendencias y estadísticas de búsqueda en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Analytics de Búsqueda | MangaAura',
+    description: 'Analiza las búsquedas en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/admin/search-analytics' },
+};
+
 interface SearchAnalytics {
   totalSearches: number;
   uniqueUsers: number;

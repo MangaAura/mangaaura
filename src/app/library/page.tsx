@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Library Page
  *
  * Página de biblioteca del usuario con filtros y organización.
@@ -30,6 +30,26 @@ import { EmptyLibrary } from '@/components/ui/EmptyState';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { useLibrary, LibraryStatus } from '@/hooks/useLibrary';
 import { cn } from '@/lib/utils';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Mi Biblioteca | MangaAura',
+  description: 'Gestiona tu biblioteca personal de manga en MangaAura.',
+  openGraph: {
+    title: 'Mi Biblioteca | MangaAura',
+    description: 'Gestiona tu biblioteca personal de manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Mi Biblioteca | MangaAura',
+    description: 'Gestiona tu biblioteca personal de manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/library' },
+};
 
 const STATUS_FILTERS: { value: LibraryStatus | ''; label: string; icon: React.ElementType; color: string }[] = [
   { value: '', label: 'Todos', icon: Library, color: 'text-[var(--text-tertiary)]' },

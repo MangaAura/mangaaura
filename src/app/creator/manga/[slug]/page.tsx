@@ -21,6 +21,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useManga } from '@/hooks/useManga';
 import { useT } from '@/i18n';
 import { cn, formatNumber } from '@/lib/utils';
+import { Trash2Icon } from 'lucide-react';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Detalle del Manga | MangaAura',
+  description: 'Gestiona los capítulos y detalles de tu manga en MangaAura.',
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: 'Detalle del Manga | MangaAura',
+    description: 'Gestiona los capítulos y detalles de tu manga en MangaAura.',
+    type: 'website',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Detalle del Manga | MangaAura',
+    description: 'Gestiona los detalles de tu manga en MangaAura.',
+    images: ['/og-image.png'],
+  },
+  alternates: { canonical: '/creator/manga/[slug]' },
+};
 
 
 interface PageProps {
@@ -53,14 +75,27 @@ export default function MangaDetailPage({ params }: PageProps) {
       <div className="min-h-screen bg-[var(--surface)]">
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-6xl mx-auto">
-      <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-8 text-center">
-        <p className="text-[var(--error)]">{error instanceof Error ? error.message : error || 'Manga no encontrado'}</p>
-              <Link href="/creator/dashboard">
-                <Button variant="outline" className="mt-4">
-                  <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                  Volver al Dashboard
-                </Button>
-              </Link>
+            <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-8 text-center">
+              <p className="text-[var(--error)] text-lg font-medium">
+                {error instanceof Error ? error.message : error || t('creatorMangaEdit.notFound')}
+              </p>
+              <p className="text-[var(--text-tertiary)] mt-2 text-sm">
+                {t('creatorMangaEdit.notFoundSuggestion')}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+                <Link href="/creator/trash">
+                  <Button variant="outline">
+                    <Trash2Icon className="w-4 h-4 mr-2" />
+                    {t('creatorMangaEdit.checkTrash')}
+                  </Button>
+                </Link>
+                <Link href="/creator/dashboard">
+                  <Button variant="ghost">
+                    <ArrowLeftIcon className="w-4 h-4 mr-2" />
+                    {t('creatorMangaEdit.backToDashboard')}
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </main>
@@ -266,6 +301,7 @@ export default function MangaDetailPage({ params }: PageProps) {
             status: 'PUBLISHED',
           }))}
           mangaId={manga.id}
+          mangaSlug={manga.slug}
           onDelete={deleteChapter}
         />
             </TabsContent>
