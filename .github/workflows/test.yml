@@ -37,6 +37,8 @@ jobs:
           DATABASE_URL: postgresql://localhost:5432/test
       - name: Build
         run: npm run build
+        env:
+          DATABASE_URL: postgresql://localhost:5432/test
       - name: Start server
         run: npm start &
         env:

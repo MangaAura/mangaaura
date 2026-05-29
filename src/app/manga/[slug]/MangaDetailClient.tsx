@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
 import { setLibraryStatus, removeFromLibrary } from './actions';
-import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
