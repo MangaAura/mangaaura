@@ -197,7 +197,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await safeDbQuery(
     () =>
       prisma.newsArticle.findMany({
-        where: { status: 'PUBLISHED' },
+        where: { isPublished: true },
         select: { slug: true, updatedAt: true },
         take: 200,
       }),
@@ -254,7 +254,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const announcements = await safeDbQuery(
     () =>
       prisma.announcement.findMany({
-        where: { active: true },
+        where: { isActive: true },
         select: { id: true, updatedAt: true },
         take: 50,
       }),
