@@ -2,12 +2,12 @@
 
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, Eye, Star, ChevronDown, CheckCircle2, PauseCircle, XCircle, User, Library, Tag } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
 import { setLibraryStatus, removeFromLibrary } from './actions';
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -141,12 +141,23 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
               whileHover={{ scale: 1.02 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
-              <OptimizedImage
-                src={manga.coverUrl || '/placeholder-manga.svg'}
-                alt={manga.title}
-                fill
-                className="object-cover"
-              />
+              {manga.coverUrl ? (
+                <Image
+                  src={manga.coverUrl}
+                  alt={manga.title}
+                  width={224}
+                  height={336}
+                  className="object-cover w-full h-full"
+                  sizes="(max-width: 640px) 192px, 224px"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)]">
+                  <span className="text-[var(--text-inverse)] text-4xl font-bold">
+                    {manga.title.charAt(0)}
+                  </span>
+                </div>
+              )}
               {manga.coverUrl && (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               )}
