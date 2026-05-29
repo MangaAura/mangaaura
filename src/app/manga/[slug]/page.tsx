@@ -109,14 +109,14 @@ export default async function MangaDetailPage({ params }: MangaPageProps) {
   const session = await auth();
   const userId = session?.user?.id || null;
 
-  let isInLibrary = false;
+  let libraryStatus: string | null = null;
   if (userId) {
     const entry = await prisma.userLibrary.findUnique({
       where: {
         userId_mangaId: { userId, mangaId: manga.id },
       },
     });
-    isInLibrary = !!entry;
+    libraryStatus = entry?.status || null;
   }
 
   return (
@@ -138,7 +138,7 @@ export default async function MangaDetailPage({ params }: MangaPageProps) {
           { name: manga.title, item: `/manga/${manga.slug}` },
         ]}
       />
-      <MangaDetailClient manga={manga} isInLibrary={isInLibrary} userId={userId} />
+      <MangaDetailClient manga={manga} libraryStatus={libraryStatus} userId={userId} />
     </>
   );
 }

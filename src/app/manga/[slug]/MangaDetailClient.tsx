@@ -1,12 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BookOpen, Clock, Eye, Star, ChevronDown, Plus, Check, User, Library, Tag } from 'lucide-react';
+import { BookOpen, Clock, Eye, Star, ChevronDown, CheckCircle2, PauseCircle, XCircle, User, Library, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import { toggleLibrary } from './actions';
+import { setLibraryStatus, removeFromLibrary } from './actions';
 import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
@@ -30,7 +30,7 @@ interface Props {
     createdAt: Date | string;
     chapters: { id: string; chapterNumber: number; title: string | null; viewCount: number; totalPages: number; createdAt: Date | string }[];
   };
-  isInLibrary: boolean;
+  libraryStatus: string | null;
   userId: string | null;
 }
 
@@ -48,9 +48,17 @@ const STATUS_COLORS: Record<string, string> = {
   DROPPED: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-800',
 };
 
-export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary, userId }: Props) {
+const LIBRARY_STATUSES = [
+  { value: 'READING', label: 'Siguiendo', icon: BookOpen, color: 'text-[var(--info)] border-[var(--info)] bg-[var(--info)]/10' },
+  { value: 'COMPLETED', label: 'Leido', icon: CheckCircle2, color: 'text-[var(--success)] border-[var(--success)] bg-[var(--success)]/10' },
+  { value: 'PLAN_TO_READ', label: 'Pendiente', icon: Clock, color: 'text-[var(--accent-purple)] border-[var(--accent-purple)] bg-[var(--accent-purple)]/10' },
+  { value: 'ON_HOLD', label: 'En espera', icon: PauseCircle, color: 'text-[var(--warning)] border-[var(--warning)] bg-[var(--warning)]/10' },
+  { value: 'DROPPED', label: 'Abandonado', icon: XCircle, color: 'text-[var(--error)] border-[var(--error)] bg-[var(--error)]/10' },
+];
+
+export default function MangaDetailClient({ manga, libraryStatus: initialStatus, userId }: Props) {
   const router = useRouter();
-  const [isInLibrary, setIsInLibrary] = useState(initialInLibrary);
+  const [libraryStatus, setLibraryStatus_] = useState(initialStatus);
   const { handleError } = useErrorHandler();
   const [showAllChapters, setShowAllChapters] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -78,7 +86,7 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
     color: STATUS_COLORS[manga.status] || 'bg-[var(--text-muted)]',
   };
 
-  const handleToggleLibrary = () => {
+  const handleStatusClick = (status: string) => {
     if (!userId) {
       router.push('/auth/login');
       return;
@@ -86,8 +94,13 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
 
     startTransition(async () => {
       try {
-        const result = await toggleLibrary(manga.id);
-        setIsInLibrary(result.isInLibrary);
+        if (libraryStatus === status) {
+          await removeFromLibrary(manga.id);
+          setLibraryStatus_(null);
+        } else {
+          const result = await setLibraryStatus(manga.id, status);
+          setLibraryStatus_(result.status);
+        }
       } catch (error) {
         handleError(error);
       }
@@ -212,22 +225,28 @@ export default function MangaDetailClient({ manga, isInLibrary: initialInLibrary
                   {t('manga.startReading')}
                 </Link>
               )}
-              <button
-                onClick={handleToggleLibrary}
-                disabled={isPending}
-                className={cn(
-                  'px-6 py-2.5 font-bold rounded-xl border transition-all flex items-center gap-2',
-                  isInLibrary
-                    ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-800'
-                    : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-                )}
-              >
-                {isInLibrary ? (
-                  <><Check className="w-5 h-5" /> {t('manga.inLibrary')}</>
-                ) : (
-                  <><Plus className="w-5 h-5" /> {t('manga.addToLibrary')}</>
-                )}
-              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {LIBRARY_STATUSES.map((s) => {
+                const Icon = s.icon;
+                const isActive = libraryStatus === s.value;
+                return (
+                  <button
+                    key={s.value}
+                    onClick={() => handleStatusClick(s.value)}
+                    disabled={isPending}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg border text-xs font-bold transition-all flex items-center gap-1.5',
+                      isActive
+                        ? s.color
+                        : 'border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] bg-[var(--surface)]'
+                    )}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {s.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Legacy Genre Tags */}
