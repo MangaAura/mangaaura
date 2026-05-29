@@ -136,7 +136,8 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
             transition={{ delay: 0.1, duration: 0.5 }}
           >
             <motion.div
-              className="relative w-48 md:w-56 aspect-[2/3] rounded-xl overflow-hidden shadow-2xl border border-[var(--border)] bg-[var(--surface)]"
+              className="relative w-48 md:w-56 rounded-xl overflow-hidden shadow-2xl border border-[var(--border)] bg-[var(--surface)]"
+              style={{ aspectRatio: '2/3' }}
               whileHover={{ scale: 1.02 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >

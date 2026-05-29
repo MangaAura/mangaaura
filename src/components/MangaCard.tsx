@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useT } from '@/i18n';
@@ -65,6 +65,7 @@ export const MangaCard = memo(function MangaCard({
   const statusColor = statusColors[manga.status || ''] || 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]';
   const t = useT();
   const router = useRouter();
+  const [hasError, setHasError] = useState(false);
   const statusLabel = t(STATUS_KEYS[manga.status || ''] || '') || manga.status || '';
   const displayGenreTag = (genre: string): string => {
     let slug = ENGLISH_TO_SLUG[genre];
@@ -104,7 +105,7 @@ export const MangaCard = memo(function MangaCard({
           )}
           style={{ aspectRatio: `${imageSize.width}/${imageSize.height}` }}
         >
-          {imageSrc ? (
+          {imageSrc && !hasError ? (
             <>
               <Image
                 src={imageSrc}
@@ -115,6 +116,7 @@ export const MangaCard = memo(function MangaCard({
                 sizes={`(max-width: 640px) 50vw, ${imageSize.width}px`}
                 loading={priority ? 'eager' : 'lazy'}
                 priority={priority}
+                onError={() => setHasError(true)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </>

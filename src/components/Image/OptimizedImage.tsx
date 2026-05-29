@@ -217,6 +217,13 @@ export function OptimizedImage({
           onLoad={handleLoad}
         />
       )}
+      
+      {/* Final fallback: neither source loaded — shows gradient placeholder */}
+      {hasError && !isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-[var(--text-inverse)] font-bold">
+          <span className="text-4xl opacity-30">{alt?.charAt(0) || '?'}</span>
+        </div>
+      )}
     </div>
   );
 }
