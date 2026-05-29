@@ -1,19 +1,28 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Blog de MangaAura | Guías, tutoriales y novedades',
-  description: 'Guías para crear manga, tutoriales de la plataforma, consejos de crowdfunding y novedades de la comunidad MangaAura. Aprende a publicar y monetizar tu manga.',
-  openGraph: {
-    title: 'Blog de MangaAura | Guías y tutoriales',
-    description: 'Aprende a crear, publicar y monetizar tu manga con las guías y tutoriales de MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/blog' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.blog.title');
+  const description = t('page.blog.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title: t('page.blogOg.title'),
+      description: t('page.blogOg.description'),
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/blog' },
+  };
+}
 
 export default async function BlogPage() {
   const articles = await prisma.newsArticle.findMany({

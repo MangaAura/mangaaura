@@ -1,5 +1,7 @@
-﻿import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+﻿import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -44,10 +46,17 @@ interface CollectionItem {
   };
 }
 
-export const metadata: Metadata = {
-  title: 'Mi Perfil | MangaAura',
-  description: 'Tu perfil y estadísticas',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.profile.title');
+  const description = t('page.profile.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function ProfilePage() {
   const session = await auth();

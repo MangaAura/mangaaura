@@ -19,6 +19,8 @@ import { Card } from '@/components/ui/Card';
 import type { Difficulty } from '@/hooks/useAchievements';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 
 // ─── Metadata ──────────────────────────────────────────────────────
 
@@ -28,9 +30,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const locale = await detectLocale();
+  const t = getT(locale);
   const achievement = await getAchievementBySlug(slug);
   if (!achievement) {
-    return { title: 'Logro no encontrado | MangaAura' };
+    return { title: `${t('page.achievementNotFound.title')} | MangaAura` };
   }
   return {
     title: `${achievement.name} | Logros | MangaAura`,

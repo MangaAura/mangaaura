@@ -1,14 +1,22 @@
 import { Wallet } from 'lucide-react';
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 
 import { WithdrawClient } from './WithdrawClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Retirar Aura | MangaAura',
-  description: 'Retira tu Aura a una cuenta bancaria',
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.economyWithdraw.title');
+
+  return {
+    title,
+  };
+}
 
 async function getWithdrawInfo(userId: string) {
   const user = await prisma.user.findUnique({

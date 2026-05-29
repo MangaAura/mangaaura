@@ -426,10 +426,49 @@
     "exploreMangas": "Explore mangas"
   },
   "collections": {
-    "noMangas": "No mangas"
+    "title": "Collections",
+    "description": "Discover and organize your favorite manga",
+    "all": "All",
+    "public": "Public",
+    "myCollections": "My collections",
+    "noCollections": "No collections yet",
+    "noCollectionsDesc": "Create a collection to organize your manga",
+    "createCollection": "Create collection",
+    "editCollection": "Edit collection",
+    "deleteCollection": "Delete collection",
+    "mangas": "manga",
+    "private": "Private",
+    "publicCollection": "Public"
   },
   "offline": {
-    "noConnection": "No connection"
+    "title": "Offline",
+    "reconnecting": "Connection restored!",
+    "noConnection": "No internet connection",
+    "reconnectingDesc": "Your connection is back. You can continue browsing normally.",
+    "noConnectionDesc": "It looks like you've lost connection. You can still read chapters you've saved for offline mode.",
+    "continue": "Continue",
+    "retry": "Retry",
+    "savedContent": "Available offline",
+    "noSavedContent": "No saved content",
+    "noSavedContentDesc": "When you have a connection, save your favorite manga to read them without internet.",
+    "cacheInfo": "Cache info",
+    "staticCache": "App Shell",
+    "imageCache": "Images",
+    "apiCache": "API",
+    "totalCached": "Total cached",
+    "loadingCache": "Loading cache info...",
+    "clearCache": "Clear cache",
+    "clearCacheDesc": "Remove all cached resources. The app will reload when reconnected.",
+    "cacheCleared": "Cache cleared",
+    "storageTitle": "Offline storage",
+    "storageMangas": "Saved manga",
+    "storageChapters": "Saved chapters",
+    "storageActions": "Pending actions",
+    "tips": "Offline mode tips",
+    "tip1": "Save chapters from the reader to read them offline",
+    "tip2": "Saved chapters expire after 7 days",
+    "tip3": "Your progress will sync when you reconnect",
+    "tip4": "Use WiFi to save chapters and save mobile data"
   },
   "errors": {
     "generic": "Something went wrong. Try again.",
@@ -448,8 +487,8 @@
     "connectionFailed": "Could not connect to the server. Check your internet connection and try again."
   },
   "home": {
-      "discoverFuture": "The only place to read, create and crowdfund manga with AI",
-      "description": "Read for free or create your own manga. AI-powered writing, drawing and translation. Crowdfund your chapters and earn Aura with every page.",
+    "discoverFuture": "The only place to read, create and crowdfund manga with AI",
+    "description": "Read for free or create your own manga. AI-powered writing, drawing and translation. Crowdfund your chapters and earn Aura with every page.",
     "exploreByGenre": "Explore by Genre",
     "topMangas": "Top manga",
     "latestUpdates": "Latest Updates",
@@ -503,7 +542,6 @@
     "newsSummerEvent": "Summer Reading Festival",
     "newsSummerEventDesc": "Join the Summer Reading Festival with exclusive badges, double XP weekends, and a grand prize of 10,000 Aura!",
     "newsSummerEventBody": "Summer is here and so is our biggest community event of the year — the MangaAura Summer Reading Festival! From June 1st to August 31st, readers and creators alike can participate in a season-long celebration of manga.\n\nWhat's in store? Double XP weekends every month, exclusive Summer Festival badges for participants who complete the reading challenges, daily login rewards including free Aura and cosmetic items, and a grand prize of 10,000 Aura awarded to the reader with the most chapters completed by the end of summer.\n\nCreators aren't left out either — we're hosting a 'Summer Special' one-shot contest with separate prizes. Publish a summer-themed chapter between June and August and you could win 5,000 Aura plus a permanent featured spot on the homepage.\n\nThe festival also features weekly community events, creator Q&A sessions, and collaborative reading parties. Check the Events page for the full calendar and start your summer reading journey today! Screenshot your reading stats and share with #MangaAuraSummer for a chance to be featured on our social media.",
-    "featured": "Featured",
     "welcome": "Welcome to MangaAura",
     "readNow": "Read Now",
     "exploreMangas": "Explore Manga",
@@ -642,22 +680,13 @@
     "emptyFollowers": "You have no followers yet"
   },
   "forum": {
-    "title": "Forum",
-    "community": "Community Forum",
+    "title": "Community Forum",
     "description": "Discuss drawing techniques, share tips and connect with other creators",
-    "noThreads": "No threads",
-    "noThreadsDesc": "There are no threads in the forum yet",
-    "noReplies": "No replies",
-    "noRepliesDesc": "There are no replies to this thread yet",
+    "newThread": "New Thread",
     "threads": "threads",
-    "locked": "Closed",
-    "reply": "Reply",
-    "replyPlaceholder": "Write your reply...",
-    "canOnlyReplyCreators": "Only creators and admins can reply in the forum",
-    "loginToReply": "Sign in to participate in the forum",
-    "backToForum": "Back to forum",
-    "closedThread": "This thread is closed",
-    "author": "Author"
+    "closed": "Closed",
+    "noThreads": "No threads",
+    "noThreadsDesc": "There are no threads in the forum yet"
   },
   "user": {
     "profile": "Profile",
@@ -1164,21 +1193,6 @@
     "purchase": "Aura purchase",
     "xpEarned": "XP earned"
   },
-  "collections": {
-    "title": "Collections",
-    "description": "Discover and organize your favorite manga",
-    "all": "All",
-    "public": "Public",
-    "myCollections": "My collections",
-    "noCollections": "No collections yet",
-    "noCollectionsDesc": "Create a collection to organize your manga",
-    "createCollection": "Create collection",
-    "editCollection": "Edit collection",
-    "deleteCollection": "Delete collection",
-    "mangas": "manga",
-    "private": "Private",
-    "publicCollection": "Public"
-  },
   "conversations": {
     "searchPlaceholder": "Search users by name...",
     "noUsersFound": "No users found",
@@ -1317,16 +1331,20 @@
     "crowdfundingDesc": "Enable chapter crowdfunding",
     "clanes": "Clans",
     "clanesDesc": "Enable clan creation and participation",
-    "uploadsEconomy": "Uploads & Economy",      "maxUploadSize": "Max upload size (MB)",
-      "maxUploadSizeMin": "Minimum 1 MB",
-      "maxUploadSizeMax": "Maximum 50 MB",
-      "maxUploadSizeValid": "Valid size",      "minimumPayout": "Minimum payout (Aura)",
-      "minimumPayoutMin": "Minimum 100 Aura",
-      "minimumPayoutValid": "Valid payout",      "auraPerChapter": "Aura per chapter read",
-      "auraPerChapterValid": "Valid value",
-      "auraPerChapterMin": "Minimum 0",      "xpPerChapter": "XP per chapter read",
-      "xpPerChapterValid": "Valid value",
-      "xpPerChapterMin": "Minimum 0",
+    "uploadsEconomy": "Uploads & Economy",
+    "maxUploadSize": "Max upload size (MB)",
+    "maxUploadSizeMin": "Minimum 1 MB",
+    "maxUploadSizeMax": "Maximum 50 MB",
+    "maxUploadSizeValid": "Valid size",
+    "minimumPayout": "Minimum payout (Aura)",
+    "minimumPayoutMin": "Minimum 100 Aura",
+    "minimumPayoutValid": "Valid payout",
+    "auraPerChapter": "Aura per chapter read",
+    "auraPerChapterValid": "Valid value",
+    "auraPerChapterMin": "Minimum 0",
+    "xpPerChapter": "XP per chapter read",
+    "xpPerChapterValid": "Valid value",
+    "xpPerChapterMin": "Minimum 0",
     "allowedImageTypes": "Allowed image types",
     "savedCorrectly": "Settings saved successfully",
     "errorLoadingSettings": "Error loading settings",
@@ -1419,7 +1437,6 @@
     "ctaButton": "Create free account",
     "ctaExplore": "Explore manga"
   },
-
   "pricing": {
     "heroBadge": "Transparent pricing",
     "heroTitle": "Buy Aura or go Premium",
@@ -1855,15 +1872,6 @@
       "confirmation": "By using MangaAura, you confirm that you have read, understood, and accepted these Terms of Service."
     }
   },
-  "forum": {
-    "title": "Community Forum",
-    "description": "Discuss drawing techniques, share tips and connect with other creators",
-    "newThread": "New Thread",
-    "threads": "threads",
-    "closed": "Closed",
-    "noThreads": "No threads",
-    "noThreadsDesc": "There are no threads in the forum yet"
-  },
   "quests": {
     "title": "Quests",
     "subtitle": "Complete quests to earn XP and coins",
@@ -2063,8 +2071,6 @@
   "forumReply": {
     "errorContentMin": "Reply must be at least 1 character",
     "errorContentMax": "Reply cannot exceed 10,000 characters",
-    "errorContentMin": "Reply must be at least 1 character",
-    "errorContentMax": "Reply cannot exceed 10,000 characters",
     "contentValid": "Valid reply",
     "errorSending": "Error sending reply",
     "errorGeneric": "Error sending",
@@ -2081,36 +2087,6 @@
     "recommendedUsers": "Recommended users",
     "trendingContent": "Trending content",
     "loginPrompt": "Sign in to interact with the community"
-  },
-  "offline": {
-    "title": "Offline",
-    "reconnecting": "Connection restored!",
-    "noConnection": "No internet connection",
-    "reconnectingDesc": "Your connection is back. You can continue browsing normally.",
-    "noConnectionDesc": "It looks like you've lost connection. You can still read chapters you've saved for offline mode.",
-    "continue": "Continue",
-    "retry": "Retry",
-    "savedContent": "Available offline",
-    "noSavedContent": "No saved content",
-    "noSavedContentDesc": "When you have a connection, save your favorite manga to read them without internet.",
-    "cacheInfo": "Cache info",
-    "staticCache": "App Shell",
-    "imageCache": "Images",
-    "apiCache": "API",
-    "totalCached": "Total cached",
-    "loadingCache": "Loading cache info...",
-    "clearCache": "Clear cache",
-    "clearCacheDesc": "Remove all cached resources. The app will reload when reconnected.",
-    "cacheCleared": "Cache cleared",
-    "storageTitle": "Offline storage",
-    "storageMangas": "Saved manga",
-    "storageChapters": "Saved chapters",
-    "storageActions": "Pending actions",
-    "tips": "Offline mode tips",
-    "tip1": "Save chapters from the reader to read them offline",
-    "tip2": "Saved chapters expire after 7 days",
-    "tip3": "Your progress will sync when you reconnect",
-    "tip4": "Use WiFi to save chapters and save mobile data"
   },
   "auraEconomy": {
     "title": "Aura Economy",
@@ -2213,6 +2189,399 @@
       "approved": "Identity verified",
       "rejected": "Verification rejected",
       "retry": "Retry"
+    }
+  },
+  "page": {
+    "authLogin": {
+      "title": "Sign In",
+      "description": "Access your MangaAura account to enjoy all content."
+    },
+    "authRegister": {
+      "title": "Create Account",
+      "description": "Sign up for MangaAura and discover a world of manga."
+    },
+    "authForgotPassword": {
+      "title": "Forgot Password",
+      "description": "Recover access to your MangaAura account."
+    },
+    "authResetPassword": {
+      "title": "Reset Password",
+      "description": "Set a new password for your MangaAura account."
+    },
+    "authLayout": {
+      "title": "Authentication",
+      "description": "Sign in or create an account on MangaAura."
+    },
+    "checkout": {
+      "title": "Buy Aura",
+      "description": "Purchase Aura, the virtual currency of MangaAura, and support your favorite creators."
+    },
+    "checkoutCancel": {
+      "title": "Purchase Cancelled",
+      "description": "The Aura purchase process on MangaAura has been cancelled."
+    },
+    "checkoutLayout": {
+      "title": "Checkout",
+      "description": "Complete your purchase of chapters or manga on MangaAura securely."
+    },
+    "creatorDashboard": {
+      "title": "Creator Dashboard",
+      "description": "Control panel for creators on MangaAura. Manage your manga and chapters."
+    },
+    "creatorCommunity": {
+      "title": "Creator Community",
+      "description": "Connect with other creators in the MangaAura community."
+    },
+    "creatorLayout": {
+      "title": "Creator Panel",
+      "description": "Manage your content as a creator on MangaAura. Upload chapters, edit manga info and more."
+    },
+    "creatorManga": {
+      "title": "My Manga",
+      "description": "Manage your published manga series on MangaAura."
+    },
+    "creatorMangaNew": {
+      "title": "New Manga",
+      "description": "Publish a new manga series on MangaAura."
+    },
+    "creatorMangaDetail": {
+      "title": "Manga Details",
+      "description": "Manage the chapters and details of your manga on MangaAura."
+    },
+    "creatorMangaEdit": {
+      "title": "Edit Manga",
+      "description": "Edit the details of your manga series on MangaAura."
+    },
+    "creatorChapterEdit": {
+      "title": "Edit Chapter",
+      "description": "Upload and edit the pages of your manga chapter on MangaAura."
+    },
+    "economy": {
+      "title": "Aura Economy",
+      "description": "Manage your Aura: transfers, withdrawals, referrals and history"
+    },
+    "economyHistory": {
+      "title": "Transaction History",
+      "description": "View all your Aura transactions"
+    },
+    "economyReferrals": {
+      "title": "Referral Program",
+      "description": "Invite friends and earn 10% of their first Aura purchase"
+    },
+    "economyTransfer": {
+      "title": "Send Aura",
+      "description": "Transfer Aura to other users"
+    },
+    "community": {
+      "title": "Community",
+      "description": "Connect with other manga readers. Join clans, participate in events and compete in rankings."
+    },
+    "communityLayout": {
+      "title": "Community",
+      "description": "Join the MangaAura community. Participate in forums, create clans and more."
+    },
+    "clans": {
+      "title": "Clans",
+      "description": "Join a clan and compete with other readers in seasons"
+    },
+    "clansCreate": {
+      "title": "Create Clan",
+      "description": "Create your own clan on MangaAura and gather other manga lovers."
+    },
+    "forum": {
+      "title": "Forum",
+      "description": "MangaAura creator community forum"
+    },
+    "forumCreate": {
+      "title": "New Thread | Forum",
+      "description": "Create a new thread in the forum"
+    },
+    "rules": {
+      "title": "Community Rules",
+      "description": "Learn the rules and guidelines of the MangaAura community."
+    },
+    "mangaLayout": {
+      "title": "Manga",
+      "description": "Read manga on MangaAura. Thousands of manga titles with daily updated chapters."
+    },
+    "achievements": {
+      "title": "Achievements",
+      "description": "Discover and unlock achievements while reading manga"
+    },
+    "bookmarks": {
+      "title": "Bookmarks",
+      "description": "Your bookmarked manga and chapters"
+    },
+    "collections": {
+      "title": "Collections",
+      "description": "Explore and discover manga collections created by the community"
+    },
+    "collectionsEdit": {
+      "title": "Edit Collection",
+      "description": "Edit the details of your manga collection on MangaAura."
+    },
+    "comments": {
+      "title": "My Comments",
+      "description": "Manage all your comments on MangaAura"
+    },
+    "corrections": {
+      "title": "Corrections",
+      "description": "Review and submit chapter corrections"
+    },
+    "feed": {
+      "title": "Activity",
+      "description": "See what's happening in the community"
+    },
+    "following": {
+      "title": "Following",
+      "description": "Manage the accounts you follow"
+    },
+    "protectedLayout": {
+      "title": "MangaAura",
+      "description": "Manga platform for creators and readers."
+    },
+    "messages": {
+      "title": "Messages",
+      "description": "Your conversations and direct messages"
+    },
+    "messagesConversation": {
+      "title": "Conversation",
+      "description": "Private conversation on MangaAura."
+    },
+    "messagesClan": {
+      "title": "Clan Chat",
+      "description": "Live chat for your clan on MangaAura."
+    },
+    "profile": {
+      "title": "My Profile",
+      "description": "Your profile and statistics"
+    },
+    "quests": {
+      "title": "Quests",
+      "description": "Complete daily and weekly quests to earn XP and coins"
+    },
+    "readingHistory": {
+      "title": "Reading History",
+      "description": "Review your entire reading history on MangaAura"
+    },
+    "reposts": {
+      "title": "Reposts",
+      "description": "Your reposts and recent activity on MangaAura."
+    },
+    "sponsorships": {
+      "title": "My Sponsorships",
+      "description": "Manage your sponsorships and chapter bids"
+    },
+    "tips": {
+      "title": "Tips",
+      "description": "History of tips sent and received"
+    },
+    "transactions": {
+      "title": "Transaction History",
+      "description": "Review your transaction history on MangaAura"
+    },
+    "announcements": {
+      "title": "Announcements",
+      "description": "Official announcements, maintenance updates and important news from MangaAura."
+    },
+    "blog": {
+      "title": "MangaAura Blog | Guides, tutorials and news",
+      "description": "Guides for creating manga, platform tutorials, crowdfunding tips and MangaAura community news. Learn to publish and monetize your manga."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Get in touch with the MangaAura team. We're here to help you."
+    },
+    "contacto": {
+      "title": "Contact",
+      "description": "Get in touch with the MangaAura team. We're here to help you."
+    },
+    "discover": {
+      "title": "Discover",
+      "description": "Discover new manga, trends and recommendations"
+    },
+    "genres": {
+      "title": "Manga Genres | Explore by category",
+      "description": "Explore manga by genre on MangaAura: yuri, action, adventure, romance, fantasy, full color and more. Find your next favorite manga."
+    },
+    "publicLayout": {
+      "title": "MangaAura",
+      "description": "Manga platform for creators and readers."
+    },
+    "help": {
+      "title": "Help",
+      "description": "Find answers to your questions about MangaAura. Guides, tutorials and support."
+    },
+    "news": {
+      "title": "MangaAura News",
+      "description": "Latest news, updates and releases from MangaAura - the AI-powered manga platform. Community news, new tools and more."
+    },
+    "rankings": {
+      "title": "Rankings",
+      "description": "The most active readers and creators in the community"
+    },
+    "report": {
+      "title": "Report Content",
+      "description": "Report inappropriate content, violations or abuse on MangaAura."
+    },
+    "sobreNosotros": {
+      "title": "About Us",
+      "description": "Learn more about MangaAura, the ultimate platform to read and discover manga."
+    },
+    "welcome": {
+      "title": "Welcome to MangaAura",
+      "description": "Start your adventure on MangaAura. Read, create and crowdfund manga with AI."
+    },
+    "guias": {
+      "title": "Manga Guides | Read, create and buy manga online",
+      "description": "Complete guides on where to read manga legally, best apps, purchase platforms in Spain, and tips for getting started in the world of manga."
+    },
+    "guiasDondeLeer": {
+      "title": "Where to read manga online legally and safely? | Guide 2026",
+      "description": "Discover the best legal platforms to read manga online in Spanish and English. Safe alternatives to pirate sites like MangaPlus, Shonen Jump, MangaAura and more."
+    },
+    "guiasMejoresApps": {
+      "title": "Best apps to read manga digitally | 2026",
+      "description": "Comparison of the best apps to read manga on Android, iOS and PC. Tachiyomi, Manga Plus, Shonen Jump, MangaAura and more."
+    },
+    "guiasComprarManga": {
+      "title": "Best platforms to buy digital manga in Spain | 2026",
+      "description": "Where to buy digital manga in Spain? Comparison of Amazon Kindle, ComiXology, Casa del Libro, FNAC and MangaAura. Prices, catalog and benefits."
+    },
+    "guiasRecomendaciones": {
+      "title": "Apps to follow manga with personalized recommendations",
+      "description": "Discover apps that recommend manga based on your tastes. AI recommendation systems, smart lists and new series discovery."
+    },
+    "guiasPrincipiantes": {
+      "title": "Beginner's guide to reading Japanese comics",
+      "description": "Everything you need to know to start reading manga: how to read it, popular genres, where to start, differences from anime, and recommended platforms."
+    },
+    "guiasMasVendido": {
+      "title": "What is the best-selling manga of all time? | Ranking 2026",
+      "description": "One Piece leads as the best-selling manga of all time with over 516 million copies. Check out the full ranking: Golgo 13, Dragon Ball, Naruto, Demon Slayer and more."
+    },
+    "reader": {
+      "title": "Manga Reader",
+      "description": "Enjoy the best manga reading experience on MangaAura."
+    },
+    "explore": {
+      "title": "Explore Manga",
+      "description": "Discover new manga created by the community, explore by genre and find your next favorite read on MangaAura."
+    },
+    "exploreLayout": {
+      "title": "Search Manga"
+    },
+    "offline": {
+      "title": "Offline Reading",
+      "description": "Manage your downloaded content for offline reading on MangaAura."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Check your notifications and recent activity on MangaAura."
+    },
+    "library": {
+      "title": "My Library",
+      "description": "Manage your manga collection, follow your favorite series and organize your reading list on MangaAura."
+    },
+    "events": {
+      "title": "Events"
+    },
+    "searchIa": {
+      "title": "AI Search",
+      "description": "Discover manga using AI-powered smart search on MangaAura."
+    },
+    "searchIaLayout": {
+      "title": "Explore Manga"
+    },
+    "searchAdvanced": {
+      "title": "Advanced Search",
+      "description": "Find manga using advanced filters by genre, status, popularity and more on MangaAura."
+    },
+    "social": {
+      "title": "Social"
+    },
+    "userLayout": {
+      "title": "Profile"
+    },
+    "prompts": {
+      "title": "AI Prompts",
+      "description": "Explore and share prompts for AI manga art generation on MangaAura."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Analytics dashboard and statistics for creators on MangaAura."
+    },
+    "analyticsLayout": {
+      "title": "Analytics"
+    },
+    "analyticsSignup": {
+      "title": "Signup Analytics",
+      "description": "Detailed statistics of the user registration process on MangaAura."
+    },
+    "authError": {
+      "title": "Authentication Error",
+      "description": "An error occurred during the authentication process. Please try again."
+    },
+    "checkoutSuccess": {
+      "title": "Purchase Successful",
+      "description": "Your purchase has been completed successfully. Thank you for supporting MangaAura creators."
+    },
+    "shareTarget": {
+      "title": "Share",
+      "description": "Share MangaAura content with your friends."
+    },
+    "creatorUpload": {
+      "title": "Upload Chapter",
+      "description": "Upload your new manga chapter and share it with the MangaAura community."
+    },
+    "creatorTrash": {
+      "title": "Trash",
+      "description": "Manage your deleted manga and chapters on MangaAura."
+    },
+    "creatorSettings": {
+      "title": "Creator Settings",
+      "description": "Manage your creator profile, monetization preferences and publishing settings on MangaAura."
+    },
+    "creatorSponsors": {
+      "title": "Sponsorships | Creator"
+    },
+    "economyWithdraw": {
+      "title": "Withdraw Aura"
+    },
+    "pricing": {
+      "title": "Pricing & Plans",
+      "description": "Buy Aura to support your favorite creators or subscribe to Premium for exclusive chapters, ad-free reading and offline mode. Prices from .00.",
+      "ogDescription": "Buy Aura to support your favorite creators or subscribe to Premium for exclusive chapters, ad-free reading and offline mode.",
+      "twitterDescription": "Buy Aura to support your favorite creators or subscribe to Premium."
+    },
+    "comparison": {
+      "title": "MangaAura vs Other Platforms | 2026 Comparison",
+      "description": "We compare MangaAura with Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex and INKR. Discover which platform offers more for manga readers and creators.",
+      "ogDescription": "We compare MangaAura with the leading manga platforms: Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex and INKR. Features for readers and creators.",
+      "twitterDescription": "Discover how MangaAura compares with other manga platforms. The most comprehensive comparison for readers and creators."
+    },
+    "userNotFound": {
+      "title": "User not found"
+    },
+    "userProfile": {
+      "description": "Profile of {name} on MangaAura · Level {level} · {count} manga created"
+    },
+    "mangaNotFound": {
+      "title": "Manga not found"
+    },
+    "mangaDetail": {
+      "description": "Read {title} on MangaAura. {count} chapters available."
+    },
+    "achievementNotFound": {
+      "title": "Achievement not found"
+    },
+    "blogOg": {
+      "title": "MangaAura Blog | Guides and tutorials",
+      "description": "Learn to create, publish and monetize your manga with MangaAura guides and tutorials."
+    },
+    "guiasOg": {
+      "title": "Manga Guides",
+      "description": "Complete guides on where to read manga legally, best apps and purchase platforms."
     }
   }
 }

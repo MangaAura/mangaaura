@@ -1,20 +1,30 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: 'Mejores aplicaciones para leer manga digitalmente | 2026',
-  description: 'Comparativa de las mejores apps para leer manga en Android, iOS y PC. Tachiyomi, Manga Plus, Shonen Jump, MangaAura y más.',
-  openGraph: {
-    title: 'Mejores aplicaciones para leer manga digitalmente | 2026',
-    description: 'Las mejores apps para leer manga en tu móvil, tablet u ordenador. Guía completa con lectores CBR/CBZ y plataformas oficiales.',
-    type: 'article',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias/mejores-apps-leer-manga' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guiasMejoresApps.title');
+  const description = t('page.guiasMejoresApps.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias/mejores-apps-leer-manga' },
+  };
+}
 
 const faqItems = [
   {

@@ -1,16 +1,23 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Activity, Globe, Users } from 'lucide-react';
-import type { Metadata } from 'next';
-
 import { ActivityFeed } from '@/components/Activity/ActivityFeed';
 import { Card } from '@/components/ui/Card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { auth } from '@/lib/auth';
 
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.feed.title');
+  const description = t('page.feed.description');
 
-export const metadata: Metadata = {
-  title: 'Actividad | MangaAura',
-  description: 'Mira lo que está pasando en la comunidad',
-};
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function FeedPage() {
   const session = await auth();

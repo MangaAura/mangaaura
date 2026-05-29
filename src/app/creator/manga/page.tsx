@@ -1,24 +1,33 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import MyMangaClient from './MyMangaClient';
 
-export const metadata: Metadata = {
-  title: 'Mis Mangas | MangaAura',
-  description: 'Gestiona tus series de manga publicadas en MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Mis Mangas | MangaAura',
-    description: 'Gestiona tus series de manga publicadas en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Mis Mangas | MangaAura',
-    description: 'Gestiona tus mangas en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/creator/manga' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.creatorManga.title');
+  const description = t('page.creatorManga.description');
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/creator/manga' },
+  };
+}
 
 export default function MyMangaPage(props: any) {
   return <MyMangaClient {...props} />;

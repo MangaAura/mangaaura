@@ -1,15 +1,24 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 import { BookOpen, Sparkles, Trophy, Users } from 'lucide-react';
 
 import { auth } from '@/lib/auth';
 import { WelcomeContent } from './WelcomeContent';
 
-export const metadata: Metadata = {
-  title: 'Bienvenido a MangaAura',
-  description: 'Comienza tu aventura en MangaAura. Lee, crea y crowdfundea manga con inteligencia artificial.',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.welcome.title');
+  const description = t('page.welcome.description');
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+  };
+}
 
 const steps = [
   {

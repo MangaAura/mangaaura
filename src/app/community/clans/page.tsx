@@ -1,3 +1,6 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import {
   Users,
   Plus,
@@ -8,7 +11,6 @@ import {
   Shield,
   Medal,
 } from 'lucide-react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -17,11 +19,17 @@ import ClanCard from '@/components/Clan/ClanCard';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.clans.title');
+  const description = t('page.clans.description');
 
-export const metadata: Metadata = {
-  title: 'Clanes | MangaAura',
-  description: 'Únete a un clan y compite con otros lectores en las temporadas',
-};
+  return {
+    title,
+    description,
+  };
+}
 
 interface ClansPageProps {
   searchParams: Promise<{

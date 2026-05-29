@@ -1,5 +1,7 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -8,11 +10,17 @@ import { Card } from '@/components/ui/Card';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.forumCreate.title');
+  const description = t('page.forumCreate.description');
 
-export const metadata: Metadata = {
-  title: 'Nuevo Hilo | Foro | MangaAura',
-  description: 'Crear un nuevo hilo en el foro',
-};
+  return {
+    title,
+    description,
+  };
+}
 
 async function getCategories() {
   return prisma.forumCategory.findMany({

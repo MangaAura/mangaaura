@@ -1,23 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import AdvancedSearchClient from './AdvancedSearchClient';
 
-export const metadata: Metadata = {
-  title: 'Búsqueda Avanzada | MangaAura',
-  description: 'Encuentra manga con filtros avanzados en MangaAura.',
-  openGraph: {
-    title: 'Búsqueda Avanzada | MangaAura',
-    description: 'Encuentra manga con filtros avanzados en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Búsqueda Avanzada | MangaAura',
-    description: 'Búsqueda avanzada de manga en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/search_advanced' },
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.searchAdvanced.title');
+  const description = t('page.searchAdvanced.description');
+  const fullTitle = `${title} | MangaAura`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: fullTitle,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fullTitle,
+      description,
+    },
+  };
+}
 
 export default function AdvancedSearchPage(props: any) {
   return <AdvancedSearchClient {...props} />;

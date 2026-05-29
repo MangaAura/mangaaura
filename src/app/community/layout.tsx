@@ -1,11 +1,17 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { AppShell } from '@/components/Layout/AppShell';
 
-export const metadata: Metadata = {
-  title: 'Comunidad | MangaAura',
-  description: 'Únete a la comunidad de MangaAura. Participa en foros, crea clans y más.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const description = t('page.communityLayout.description');
+
+  return {
+    description,
+  };
+}
 
 export default function CommunityLayout({
   children,

@@ -1,13 +1,21 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { ForumClient } from './ForumClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Foro | MangaAura',
-  description: 'Foro de la comunidad de creadores de MangaAura',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.forum.title');
+  const description = t('page.forum.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getForumData() {
   const [categories, threads] = await Promise.all([

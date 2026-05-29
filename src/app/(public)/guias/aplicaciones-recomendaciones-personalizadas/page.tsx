@@ -1,20 +1,30 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: 'Apps para seguir mangas con recomendaciones personalizadas',
-  description: 'Descubre aplicaciones que recomiendan mangas según tus gustos. Sistemas de recomendación IA, listas inteligentes y descubrimiento de nuevas series.',
-  openGraph: {
-    title: 'Apps para seguir mangas con recomendaciones personalizadas',
-    description: 'Las mejores aplicaciones que usan IA y algoritmos para recomendarte mangas basados en tus gustos. Encuentra tu próxima serie favorita.',
-    type: 'article',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias/aplicaciones-recomendaciones-personalizadas' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guiasRecomendaciones.title');
+  const description = t('page.guiasRecomendaciones.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias/aplicaciones-recomendaciones-personalizadas' },
+  };
+}
 
 const faqItems = [
   {

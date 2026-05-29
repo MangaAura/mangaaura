@@ -1,25 +1,33 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { redirect } from 'next/navigation';
 
-import type { Metadata } from 'next';
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.messagesClan.title');
+  const description = t('page.messagesClan.description');
 
-export const metadata: Metadata = {
-  title: 'Chat de Clán | MangaAura',
-  description: 'Chat en vivo para tu clán en MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Chat de Clán | MangaAura',
-    description: 'Chat en vivo para tu clán en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Chat de Clán | MangaAura',
-    description: 'Chat en vivo para tu clán en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/messages/clan/[clanId]' },
-};
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/messages/clan/[clanId]' },
+  };
+}
 
 export default async function ClanChatPage() {
   redirect('/messages');

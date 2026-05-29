@@ -1,20 +1,30 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: '¿Cuál es el manga más vendido de la historia? | Ranking 2026',
-  description: 'One Piece lidera como el manga más vendido de la historia con más de 516 millones de copias. Conoce el ranking completo: Golgo 13, Dragon Ball, Naruto, Demon Slayer y más.',
-  openGraph: {
-    title: '¿Cuál es el manga más vendido de la historia? | Ranking 2026',
-    description: 'Ranking actualizado de los mangas más vendidos de todos los tiempos. One Piece, Golgo 13, Dragon Ball, Naruto y sus impresionantes cifras de ventas.',
-    type: 'article',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias/manga-mas-vendido-historia' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guiasMasVendido.title');
+  const description = t('page.guiasMasVendido.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias/manga-mas-vendido-historia' },
+  };
+}
 
 const faqItems = [
   {

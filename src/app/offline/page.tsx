@@ -1,23 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import OfflineClient from './OfflineClient';
 
-export const metadata: Metadata = {
-  title: 'Lectura Offline | MangaAura',
-  description: 'Gestiona tu contenido descargado para leer sin conexión en MangaAura.',
-  openGraph: {
-    title: 'Lectura Offline | MangaAura',
-    description: 'Gestiona tu contenido descargado para leer sin conexión en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Lectura Offline | MangaAura',
-    description: 'Contenido offline en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/offline' },
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.offline.title');
+  const description = t('page.offline.description');
+  const fullTitle = `${title} | MangaAura`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: fullTitle,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fullTitle,
+      description,
+    },
+  };
+}
 
 export default function OfflinePage(props: any) {
   return <OfflineClient {...props} />;

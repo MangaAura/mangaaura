@@ -1,19 +1,29 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 
-export const metadata: Metadata = {
-  title: 'Guías de Manga | Leer, crear y comprar manga online',
-  description: 'Guías completas sobre dónde leer manga legal, mejores aplicaciones, plataformas de compra en España, y consejos para empezar en el mundo del manga.',
-  openGraph: {
-    title: 'Guías de Manga | MangaAura',
-    description: 'Guías completas sobre dónde leer manga legal, mejores aplicaciones y plataformas de compra.',
-    type: 'website',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guias.title');
+  const description = t('page.guias.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title: t('page.guiasOg.title'),
+      description: t('page.guiasOg.description'),
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias' },
+  };
+}
 
 const guides = [
   {

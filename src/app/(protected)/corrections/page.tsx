@@ -1,13 +1,23 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Suspense } from 'react';
 
 import { CorrectionsClient } from './CorrectionsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata = {
-  title: 'Correcciones | MangaAura',
-  description: 'Revisa y envía correcciones de capítulos',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.corrections.title');
+  const description = t('page.corrections.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 interface CorrectionItem {
   id: string;

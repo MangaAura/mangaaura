@@ -1,14 +1,22 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { ArrowRightLeft } from 'lucide-react';
-import type { Metadata } from 'next';
-
 import { TransferClient } from './TransferClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Enviar Aura | MangaAura',
-  description: 'Transfiere Aura a otros usuarios',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.economyTransfer.title');
+  const description = t('page.economyTransfer.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getBalanceInfo(userId: string) {
   const user = await prisma.user.findUnique({

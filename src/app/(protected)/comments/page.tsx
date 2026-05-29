@@ -1,3 +1,6 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { MessageSquare } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -6,10 +9,17 @@ import { CommentsClient } from './CommentsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata = {
-  title: 'Mis Comentarios | MangaAura',
-  description: 'Administra todos tus comentarios en MangaAura',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.comments.title');
+  const description = t('page.comments.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 interface CommentWithRelations {
   id: string;

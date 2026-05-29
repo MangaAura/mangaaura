@@ -1,14 +1,22 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { CreatorSponsors } from '@/components/Sponsorships/CreatorSponsors';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Patrocinios | Creador | MangaAura',
-  description: 'Gestiona los patrocinios de tus capítulos',
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.creatorSponsors.title');
+
+  return {
+    title,
+  };
+}
 
 async function getCreatorSponsors(userId: string) {
   const mangas = await prisma.mangaSeries.findMany({

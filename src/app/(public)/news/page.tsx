@@ -1,33 +1,35 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Suspense } from 'react';
 
 import { NewsClient } from './NewsClient';
 
-export const metadata: Metadata = {
-  title: 'Noticias de MangaAura | MangaAura',
-  description:
-    'Últimas noticias, novedades y actualizaciones de MangaAura - la plataforma de manga con inteligencia artificial. Novedades de la comunidad, nuevas herramientas y más.',
-  openGraph: {
-    title: 'Noticias de MangaAura | MangaAura',
-    description:
-      'Últimas noticias, novedades y actualizaciones de MangaAura - la plataforma de manga con IA.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Noticias de MangaAura | MangaAura',
-    description:
-      'Últimas noticias, novedades y actualizaciones de MangaAura.',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: '/news',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.news.title');
+  const description = t('page.news.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/news' },
+  };
+}
 
 export default function NewsPage() {
   return (

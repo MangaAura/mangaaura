@@ -1,15 +1,25 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import CollectionsPageContent from './CollectionsPageContent';
 
-export const metadata: Metadata = {
-  title: 'Colecciones | MangaAura',
-  description: 'Explora y descubre colecciones de manga creadas por la comunidad',
-  openGraph: {
-    title: 'Colecciones | MangaAura',
-    description: 'Explora colecciones de manga organizadas por la comunidad',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.collections.title');
+  const description = t('page.collections.description');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+  };
+}
 
 export default function CollectionsPage() {
   return <CollectionsPageContent />;

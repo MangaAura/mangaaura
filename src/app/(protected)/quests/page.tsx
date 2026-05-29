@@ -1,12 +1,20 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Target } from 'lucide-react';
-import type { Metadata } from 'next';
-
 import { QuestsPageClient } from './QuestsPageClient';
 
-export const metadata: Metadata = {
-  title: 'Misiones | MangaAura',
-  description: 'Completa misiones diarias y semanales para ganar XP y monedas',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.quests.title');
+  const description = t('page.quests.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 export default function QuestsPage() {
   return (

@@ -1,20 +1,30 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: 'Guía para principiantes en la lectura de cómics japoneses',
-  description: 'Todo lo que necesitas saber para empezar a leer manga: cómo se lee, géneros populares, dónde empezar, diferencias con el anime, y plataformas recomendadas.',
-  openGraph: {
-    title: 'Guía para principiantes en la lectura de cómics japoneses',
-    description: 'Aprende a leer manga desde cero: direccción de lectura, géneros, series imprescindibles y plataformas para empezar.',
-    type: 'article',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias/guia-principiantes-manga' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guiasPrincipiantes.title');
+  const description = t('page.guiasPrincipiantes.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias/guia-principiantes-manga' },
+  };
+}
 
 const faqItems = [
   {

@@ -1,15 +1,23 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { redirect } from 'next/navigation';
 
 import { BookmarksClient } from './BookmarksClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.bookmarks.title');
+  const description = t('page.bookmarks.description');
 
-export const metadata: Metadata = {
-  title: 'Marcadores | MangaAura',
-  description: 'Tus mangas y capítulos marcados',
-};
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function BookmarksPage() {
   const session = await auth();

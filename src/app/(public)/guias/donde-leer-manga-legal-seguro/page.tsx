@@ -1,20 +1,30 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: '¿Dónde leer manga online de forma legal y segura? | Guía 2026',
-  description: 'Descubre las mejores plataformas legales para leer manga online en español y inglés. Alternativas seguras a sitios piratas como MangaPlus, Shonen Jump, MangaAura y más.',
-  openGraph: {
-    title: '¿Dónde leer manga online de forma legal y segura? | Guía 2026',
-    description: 'Las mejores plataformas legales para leer manga online sin riesgos. MangaPlus, Shonen Jump, MangaAura y alternativas.',
-    type: 'article',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias/donde-leer-manga-legal-seguro' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guiasDondeLeer.title');
+  const description = t('page.guiasDondeLeer.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias/donde-leer-manga-legal-seguro' },
+  };
+}
 
 const faqItems = [
   {

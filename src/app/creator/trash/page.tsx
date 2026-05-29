@@ -1,24 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import TrashClient from './TrashClient';
 
-export const metadata: Metadata = {
-  title: 'Papelera | MangaAura',
-  description: 'Recupera mangas y capítulos eliminados en MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Papelera | MangaAura',
-    description: 'Recupera mangas y capítulos eliminados en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Papelera | MangaAura',
-    description: 'Recupera elementos eliminados en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/creator/trash' },
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.creatorTrash.title');
+  const description = t('page.creatorTrash.description');
+  const fullTitle = `${title} | MangaAura`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: fullTitle,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fullTitle,
+      description,
+    },
+  };
+}
 
 export default function TrashPage(props: any) {
   return <TrashClient {...props} />;

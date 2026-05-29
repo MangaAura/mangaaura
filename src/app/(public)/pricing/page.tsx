@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 
 import { BreadcrumbStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
 import Script from 'next/script';
@@ -9,26 +10,28 @@ import PricingClient from './PricingClient';
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const locale = headersList.get('x-locale') || 'es';
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.pricing.title');
+  const description = t('page.pricing.description');
+  const ogDescription = t('page.pricing.ogDescription');
+  const twitterDescription = t('page.pricing.twitterDescription');
+  const fullTitle = `${title} | MangaAura`;
 
   return {
-    title: 'Precios y Planes | MangaAura',
-    description:
-      'Compra Aura para apoyar a tus creadores favoritos o suscríbete a Premium para acceso a capítulos exclusivos, sin anuncios y modo offline. Precios desde $1.00.',
+    title,
+    description,
     openGraph: {
-      title: 'Precios y Planes | MangaAura',
-      description:
-        'Compra Aura para apoyar a tus creadores favoritos o suscríbete a Premium para acceso a capítulos exclusivos, sin anuncios y modo offline.',
+      title: fullTitle,
+      description: ogDescription,
       url: `${SITE_URL}/${locale}/pricing`,
       siteName: 'MangaAura',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Precios y Planes | MangaAura',
-      description:
-        'Compra Aura para apoyar a tus creadores favoritos o suscríbete a Premium.',
+      title: fullTitle,
+      description: twitterDescription,
     },
     robots: {
       index: true,

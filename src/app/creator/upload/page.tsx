@@ -1,24 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import CreatorUploadClient from './CreatorUploadClient';
 
-export const metadata: Metadata = {
-  title: 'Subir Capítulo | MangaAura',
-  description: 'Sube un nuevo capítulo de tu manga en MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Subir Capítulo | MangaAura',
-    description: 'Sube un nuevo capítulo de tu manga en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Subir Capítulo | MangaAura',
-    description: 'Sube un capítulo de tu manga en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/creator/upload' },
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.creatorUpload.title');
+  const description = t('page.creatorUpload.description');
+  const fullTitle = `${title} | MangaAura`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: fullTitle,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fullTitle,
+      description,
+    },
+  };
+}
 
 export default function CreatorUploadPage(props: any) {
   return <CreatorUploadClient {...props} />;

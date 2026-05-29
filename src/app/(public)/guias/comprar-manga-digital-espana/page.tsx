@@ -1,20 +1,30 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: 'Mejores plataformas para comprar manga digital en España | 2026',
-  description: '¿Dónde comprar manga digital en España? Comparativa de Amazon Kindle, ComiXology, Casa del Libro, FNAC y MangaAura. Precios, catálogo y ventajas.',
-  openGraph: {
-    title: 'Mejores plataformas para comprar manga digital en España | 2026',
-    description: 'Guía completa de plataformas para comprar manga digital en España. Comparativa de precios, catálogo y disponibilidad.',
-    type: 'article',
-  },
-  robots: { index: true, follow: true },
-  alternates: { canonical: '/guias/comprar-manga-digital-espana' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.guiasComprarManga.title');
+  const description = t('page.guiasComprarManga.description');
+
+  return {
+    title,
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/guias/comprar-manga-digital-espana' },
+  };
+}
 
 const faqItems = [
   {

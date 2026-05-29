@@ -1,10 +1,18 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Coins, ArrowRightLeft, Wallet, Users, History } from 'lucide-react';
-import type { Metadata } from 'next';
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.economy.title');
+  const description = t('page.economy.description');
 
-export const metadata: Metadata = {
-  title: 'Economía Aura | MangaAura',
-  description: 'Gestiona tu Aura: transferencias, retiros, referidos e historial',
-};
+  return {
+    title,
+    description,
+  };
+}
 
 const sections = [
   {

@@ -1,13 +1,23 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Suspense } from 'react';
 
 import { TransactionsClient } from './TransactionsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata = {
-  title: 'Historial de Transacciones | MangaAura',
-  description: 'Revisa tu historial de transacciones en MangaAura',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.transactions.title');
+  const description = t('page.transactions.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getTransactions(userId: string) {
   const transactions = await prisma.transaction.findMany({

@@ -1,13 +1,20 @@
 import { Metadata } from 'next';
-
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { prisma } from '@/lib/prisma';
 import { GenresListPageClient } from './GenresListPageClient';
 
-export const metadata: Metadata = {
-  title: 'Géneros de Manga | Explora por categoría',
-  description: 'Explora mangas por género en MangaAura: yuri, acción, aventura, romance, fantasía, a color y más. Encuentra tu próximo manga favorito.',
-  keywords: ['géneros de manga', 'manga yuri', 'manga a color', 'manga romance', 'manga acción', 'manga fantasía', 'tipos de manga', 'categorias manga'],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.genres.title');
+  const description = t('page.genres.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function GenresPage() {
   const genres = await prisma.genre.findMany({

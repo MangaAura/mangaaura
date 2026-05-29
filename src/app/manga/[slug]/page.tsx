@@ -5,6 +5,8 @@ import MangaDetailClient from './MangaDetailClient';
 import { MangaStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 
 interface MangaPageProps {
   params: Promise<{ slug: string }>;
@@ -57,14 +59,15 @@ async function getMangaData(slug: string) {
 
 export async function generateMetadata({ params }: MangaPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const locale = await detectLocale();
+  const t = getT(locale);
   const manga = await getMangaData(slug);
 
   if (!manga) {
-    return { title: 'Manga no encontrado | MangaAura' };
+    return { title: `${t('page.mangaNotFound.title')} | MangaAura` };
   }
-
   const title = `${manga.title} | MangaAura`;
-  const description = manga.description?.slice(0, 160) || `Lee ${manga.title} en MangaAura. ${manga.chapters.length} capítulos disponibles.`;
+  const description = manga.description?.slice(0, 160) || t('page.mangaDetail.description', { title: manga.title, count: manga.chapters.length });
   const keywords = manga.tags?.join(', ') || '';
   const ogImage = manga.coverUrl
     ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}&chapters=${manga.chapters.length}`
@@ -80,7 +83,7 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
       title,
       description,
       type: 'article',
-      locale: 'es_ES',
+      locale: locale === 'en' ? 'en_US' : 'es_ES',
       siteName: 'MangaAura',
       url: `/manga/${slug}`,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: manga.title }] : undefined,

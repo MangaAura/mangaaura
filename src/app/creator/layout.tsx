@@ -1,13 +1,19 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Sidebar } from '@/components/Creator/Sidebar';
 import { AppShell } from '@/components/Layout/AppShell';
 
-export const metadata: Metadata = {
-  title: 'Panel de Creador | MangaAura',
-  description: 'Gestiona tu contenido como creador en MangaAura. Sube capítulos, edita información de manga y más.',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const description = t('page.creatorLayout.description');
+
+  return {
+    description,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function CreatorLayout({
   children,

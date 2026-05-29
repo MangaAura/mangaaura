@@ -2190,5 +2190,398 @@
     "faq8A": "Usamos encriptación SSL, autenticación segura y cumplimos con las regulaciones de privacidad. Puedes revisar nuestra política de privacidad para más detalles.",
     "stillHaveQuestions": "¿Aún tienes preguntas?",
     "contactSupport": "Contactar Soporte"
+  },
+  "page": {
+    "authLogin": {
+      "title": "Iniciar Sesión",
+      "description": "Accede a tu cuenta de MangaAura para disfrutar de todo el contenido."
+    },
+    "authRegister": {
+      "title": "Crear Cuenta",
+      "description": "Regístrate en MangaAura y descubre un mundo de manga."
+    },
+    "authForgotPassword": {
+      "title": "Recuperar Contraseña",
+      "description": "Recupera el acceso a tu cuenta de MangaAura."
+    },
+    "authResetPassword": {
+      "title": "Restablecer Contraseña",
+      "description": "Establece una nueva contraseña para tu cuenta de MangaAura."
+    },
+    "authLayout": {
+      "title": "Autenticación",
+      "description": "Inicia sesión o regístrate en MangaAura."
+    },
+    "checkout": {
+      "title": "Comprar Aura",
+      "description": "Adquiere Aura, la moneda virtual de MangaAura, y apoya a tus creadores favoritos."
+    },
+    "checkoutCancel": {
+      "title": "Compra Cancelada",
+      "description": "El proceso de compra de Aura en MangaAura ha sido cancelado."
+    },
+    "checkoutLayout": {
+      "title": "Finalizar Compra",
+      "description": "Completa tu compra de capítulos o manga en MangaAura de forma segura."
+    },
+    "creatorDashboard": {
+      "title": "Panel del Creador",
+      "description": "Panel de control para creadores en MangaAura. Gestiona tus mangas y capítulos."
+    },
+    "creatorCommunity": {
+      "title": "Comunidad de Creadores",
+      "description": "Conecta con otros creadores en la comunidad de MangaAura."
+    },
+    "creatorLayout": {
+      "title": "Panel de Creador",
+      "description": "Gestiona tu contenido como creador en MangaAura. Sube capítulos, edita información de manga y más."
+    },
+    "creatorManga": {
+      "title": "Mis Mangas",
+      "description": "Gestiona tus series de manga publicadas en MangaAura."
+    },
+    "creatorMangaNew": {
+      "title": "Nuevo Manga",
+      "description": "Publica una nueva serie de manga en MangaAura."
+    },
+    "creatorMangaDetail": {
+      "title": "Detalle del Manga",
+      "description": "Gestiona los capítulos y detalles de tu manga en MangaAura."
+    },
+    "creatorMangaEdit": {
+      "title": "Editar Manga",
+      "description": "Edita los detalles de tu serie de manga en MangaAura."
+    },
+    "creatorChapterEdit": {
+      "title": "Editar Capítulo",
+      "description": "Sube y edita las páginas de un capítulo de tu manga en MangaAura."
+    },
+    "economy": {
+      "title": "Economía Aura",
+      "description": "Gestiona tu Aura: transferencias, retiros, referidos e historial"
+    },
+    "economyHistory": {
+      "title": "Historial de Transacciones",
+      "description": "Ver todas tus transacciones de Aura"
+    },
+    "economyReferrals": {
+      "title": "Programa de Referencias",
+      "description": "Invita amigos y gana 10% de su primera compra de Aura"
+    },
+    "economyTransfer": {
+      "title": "Enviar Aura",
+      "description": "Transfiere Aura a otros usuarios"
+    },
+    "community": {
+      "title": "Comunidad",
+      "description": "Conecta con otros lectores de manga. Únete a clanes, participa en eventos y compite en el ranking."
+    },
+    "communityLayout": {
+      "title": "Comunidad",
+      "description": "Únete a la comunidad de MangaAura. Participa en foros, crea clans y más."
+    },
+    "clans": {
+      "title": "Clanes",
+      "description": "Únete a un clan y compite con otros lectores en las temporadas"
+    },
+    "clansCreate": {
+      "title": "Crear Clán",
+      "description": "Crea tu propio clán en MangaAura y reúne a otros amantes del manga."
+    },
+    "forum": {
+      "title": "Foro",
+      "description": "Foro de la comunidad de creadores de MangaAura"
+    },
+    "forumCreate": {
+      "title": "Nuevo Hilo | Foro",
+      "description": "Crear un nuevo hilo en el foro"
+    },
+    "rules": {
+      "title": "Reglas de la Comunidad",
+      "description": "Conoce las reglas y normas de convivencia de la comunidad MangaAura."
+    },
+    "mangaLayout": {
+      "title": "Manga",
+      "description": "Lee manga en MangaAura. Miles de títulos de manga en español con capítulos actualizados daily."
+    },
+    "achievements": {
+      "title": "Logros",
+      "description": "Descubre y desbloquea logros mientras lees manga"
+    },
+    "bookmarks": {
+      "title": "Marcadores",
+      "description": "Tus mangas y capítulos marcados"
+    },
+    "collections": {
+      "title": "Colecciones",
+      "description": "Explora y descubre colecciones de manga creadas por la comunidad"
+    },
+    "collectionsEdit": {
+      "title": "Editar Colección",
+      "description": "Edita los detalles de tu colección de manga en MangaAura."
+    },
+    "comments": {
+      "title": "Mis Comentarios",
+      "description": "Administra todos tus comentarios en MangaAura"
+    },
+    "corrections": {
+      "title": "Correcciones",
+      "description": "Revisa y envía correcciones de capítulos"
+    },
+    "feed": {
+      "title": "Actividad",
+      "description": "Mira lo que está pasando en la comunidad"
+    },
+    "following": {
+      "title": "Siguiendo",
+      "description": "Gestiona las cuentas que sigues"
+    },
+    "protectedLayout": {
+      "title": "MangaAura",
+      "description": "Plataforma de manga para creadores y lectores."
+    },
+    "messages": {
+      "title": "Mensajes",
+      "description": "Tus conversaciones y mensajes directos"
+    },
+    "messagesConversation": {
+      "title": "Conversación",
+      "description": "Conversación privada en MangaAura."
+    },
+    "messagesClan": {
+      "title": "Chat de Clán",
+      "description": "Chat en vivo para tu clán en MangaAura."
+    },
+    "profile": {
+      "title": "Mi Perfil",
+      "description": "Tu perfil y estadísticas"
+    },
+    "quests": {
+      "title": "Misiones",
+      "description": "Completa misiones diarias y semanales para ganar XP y monedas"
+    },
+    "readingHistory": {
+      "title": "Historial de Lectura",
+      "description": "Revisa todo tu historial de lectura en MangaAura"
+    },
+    "reposts": {
+      "title": "Reposts",
+      "description": "Tus reposts y actividad reciente en MangaAura."
+    },
+    "sponsorships": {
+      "title": "Mis Patrocinios",
+      "description": "Gestiona tus patrocinios y pujas en capítulos"
+    },
+    "tips": {
+      "title": "Propinas",
+      "description": "Historial de propinas enviadas y recibidas"
+    },
+    "transactions": {
+      "title": "Historial de Transacciones",
+      "description": "Revisa tu historial de transacciones en MangaAura"
+    },
+    "announcements": {
+      "title": "Anuncios",
+      "description": "Anuncios oficiales, mantenimientos y novedades importantes de MangaAura."
+    },
+    "blog": {
+      "title": "Blog de MangaAura | Guías, tutoriales y novedades",
+      "description": "Guías para crear manga, tutoriales de la plataforma, consejos de crowdfunding y novedades de la comunidad MangaAura. Aprende a publicar y monetizar tu manga."
+    },
+    "contact": {
+      "title": "Contacto",
+      "description": "Ponte en contacto con el equipo de MangaAura. Estamos aquí para ayudarte."
+    },
+    "contacto": {
+      "title": "Contacto",
+      "description": "Ponte en contacto con el equipo de MangaAura. Estamos aquí para ayudarte."
+    },
+    "discover": {
+      "title": "Descubrir",
+      "description": "Descubre nuevos mangas, tendencias y recomendaciones"
+    },
+    "genres": {
+      "title": "Géneros de Manga | Explora por categoría",
+      "description": "Explora mangas por género en MangaAura: yuri, acción, aventura, romance, fantasía, a color y más. Encuentra tu próximo manga favorito."
+    },
+    "publicLayout": {
+      "title": "MangaAura",
+      "description": "Plataforma de manga para creadores y lectores."
+    },
+    "help": {
+      "title": "Ayuda",
+      "description": "Encuentra respuestas a tus preguntas sobre MangaAura. Guías, tutoriales y soporte."
+    },
+    "news": {
+      "title": "Noticias de MangaAura",
+      "description": "Últimas noticias, novedades y actualizaciones de MangaAura - la plataforma de manga con inteligencia artificial. Novedades de la comunidad, nuevas herramientas y más."
+    },
+    "rankings": {
+      "title": "Rankings",
+      "description": "Los lectores y creadores más activos de la comunidad"
+    },
+    "report": {
+      "title": "Reportar Contenido",
+      "description": "Reporta contenido inapropiado, infracciones o violaciones en MangaAura."
+    },
+    "sobreNosotros": {
+      "title": "Sobre Nosotros",
+      "description": "Conoce más sobre MangaAura, la plataforma definitiva para leer y descubrir manga."
+    },
+    "welcome": {
+      "title": "Bienvenido a MangaAura",
+      "description": "Comienza tu aventura en MangaAura. Lee, crea y crowdfundea manga con inteligencia artificial."
+    },
+    "guias": {
+      "title": "Guías de Manga | Leer, crear y comprar manga online",
+      "description": "Guías completas sobre dónde leer manga legal, mejores aplicaciones, plataformas de compra en España, y consejos para empezar en el mundo del manga."
+    },
+    "guiasDondeLeer": {
+      "title": "¿Dónde leer manga online de forma legal y segura? | Guía 2026",
+      "description": "Descubre las mejores plataformas legales para leer manga online en español y inglés. Alternativas seguras a sitios piratas como MangaPlus, Shonen Jump, MangaAura y más."
+    },
+    "guiasMejoresApps": {
+      "title": "Mejores aplicaciones para leer manga digitalmente | 2026",
+      "description": "Comparativa de las mejores apps para leer manga en Android, iOS y PC. Tachiyomi, Manga Plus, Shonen Jump, MangaAura y más."
+    },
+    "guiasComprarManga": {
+      "title": "Mejores plataformas para comprar manga digital en España | 2026",
+      "description": "¿Dónde comprar manga digital en España? Comparativa de Amazon Kindle, ComiXology, Casa del Libro, FNAC y MangaAura. Precios, catálogo y ventajas."
+    },
+    "guiasRecomendaciones": {
+      "title": "Apps para seguir mangas con recomendaciones personalizadas",
+      "description": "Descubre aplicaciones que recomiendan mangas según tus gustos. Sistemas de recomendación IA, listas inteligentes y descubrimiento de nuevas series."
+    },
+    "guiasPrincipiantes": {
+      "title": "Guía para principiantes en la lectura de cómics japoneses",
+      "description": "Todo lo que necesitas saber para empezar a leer manga: cómo se lee, géneros populares, dónde empezar, diferencias con el anime, y plataformas recomendadas."
+    },
+    "guiasMasVendido": {
+      "title": "¿Cuál es el manga más vendido de la historia? | Ranking 2026",
+      "description": "One Piece lidera como el manga más vendido de la historia con más de 516 millones de copias. Conoce el ranking completo: Golgo 13, Dragon Ball, Naruto, Demon Slayer y más."
+    },
+    "reader": {
+      "title": "Lector de Manga",
+      "description": "Disfruta de la mejor experiencia de lectura de manga en MangaAura."
+    },
+    "explore": {
+      "title": "Explorar Manga",
+      "description": "Descubre nuevos mangas creados por la comunidad, explora por género y encuentra tu próxima lectura favorita en MangaAura."
+    },
+    "exploreLayout": {
+      "title": "Buscar Mangas"
+    },
+    "offline": {
+      "title": "Lectura Offline",
+      "description": "Gestiona tu contenido descargado para leer sin conexión en MangaAura."
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "description": "Revisa tus notificaciones y actividad reciente en MangaAura."
+    },
+    "library": {
+      "title": "Mi Biblioteca",
+      "description": "Gestiona tu colección de mangas, sigue tus series favoritas y organiza tu lista de lectura en MangaAura."
+    },
+    "events": {
+      "title": "Eventos"
+    },
+    "searchIa": {
+      "title": "Búsqueda con IA",
+      "description": "Descubre manga usando búsqueda inteligente con IA en MangaAura."
+    },
+    "searchIaLayout": {
+      "title": "Explorar Mangas"
+    },
+    "searchAdvanced": {
+      "title": "Búsqueda Avanzada",
+      "description": "Encuentra mangas usando filtros avanzados por género, estado, popularidad y más en MangaAura."
+    },
+    "social": {
+      "title": "Social"
+    },
+    "userLayout": {
+      "title": "Perfil"
+    },
+    "prompts": {
+      "title": "Prompts de IA",
+      "description": "Explora y comparte prompts para generación de arte de manga con IA en MangaAura."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Panel de análisis y estadísticas para creadores en MangaAura."
+    },
+    "analyticsLayout": {
+      "title": "Analíticas"
+    },
+    "analyticsSignup": {
+      "title": "Analytics de Registro",
+      "description": "Estadísticas detalladas del proceso de registro de usuarios en MangaAura."
+    },
+    "authError": {
+      "title": "Error de Autenticación",
+      "description": "Ha ocurrido un error durante el proceso de autenticación. Por favor, inténtalo de nuevo."
+    },
+    "checkoutSuccess": {
+      "title": "Compra Exitosa",
+      "description": "Tu compra se ha completado con éxito. Gracias por tu apoyo a los creadores de MangaAura."
+    },
+    "shareTarget": {
+      "title": "Compartir",
+      "description": "Comparte contenido de MangaAura con tus amigos."
+    },
+    "creatorUpload": {
+      "title": "Subir Capítulo",
+      "description": "Sube tu nuevo capítulo de manga y compártelo con la comunidad de MangaAura."
+    },
+    "creatorTrash": {
+      "title": "Papelera",
+      "description": "Gestiona tus mangas y capítulos eliminados en MangaAura."
+    },
+    "creatorSettings": {
+      "title": "Configuración del Creador",
+      "description": "Administra tu perfil de creador, preferencias de monetización y configuración de publicación en MangaAura."
+    },
+    "creatorSponsors": {
+      "title": "Patrocinios | Creador"
+    },
+    "economyWithdraw": {
+      "title": "Retirar Aura"
+    },
+    "pricing": {
+      "title": "Precios y Planes",
+      "description": "Compra Aura para apoyar a tus creadores favoritos o suscríbete a Premium para acceso a capítulos exclusivos, sin anuncios y modo offline. Precios desde .00.",
+      "ogDescription": "Compra Aura para apoyar a tus creadores favoritos o suscríbete a Premium para acceso a capítulos exclusivos, sin anuncios y modo offline.",
+      "twitterDescription": "Compra Aura para apoyar a tus creadores favoritos o suscríbete a Premium."
+    },
+    "comparison": {
+      "title": "MangaAura vs Otras Plataformas | Comparativa 2026",
+      "description": "Comparamos MangaAura con Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex e INKR. Descubre qué plataforma ofrece más para lectores y creadores de manga.",
+      "ogDescription": "Comparamos MangaAura con las principales plataformas de manga: Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex e INKR. Características para lectores y creadores.",
+      "twitterDescription": "Descubre cómo se compara MangaAura con otras plataformas de manga. La comparativa más completa para lectores y creadores."
+    },
+    "userNotFound": {
+      "title": "Usuario no encontrado"
+    },
+    "userProfile": {
+      "description": "Perfil de {name} en MangaAura · Nivel {level} · {count} mangas creados"
+    },
+    "mangaNotFound": {
+      "title": "Manga no encontrado"
+    },
+    "mangaDetail": {
+      "description": "Lee {title} en MangaAura. {count} capítulos disponibles."
+    },
+    "achievementNotFound": {
+      "title": "Logro no encontrado"
+    },
+    "blogOg": {
+      "title": "Blog de MangaAura | Guías y tutoriales",
+      "description": "Aprende a crear, publicar y monetizar tu manga con las guías y tutoriales de MangaAura."
+    },
+    "guiasOg": {
+      "title": "Guías de Manga",
+      "description": "Guías completas sobre dónde leer manga legal, mejores aplicaciones y plataformas de compra."
+    }
   }
 }

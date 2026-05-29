@@ -7,7 +7,7 @@ import { AppFooter } from "@/components/Layout/AppFooter";
 import { Providers } from "@/components/Providers";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
 import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
-import { detectLocale } from "@/i18n/server";
+import { detectLocale } from '@/i18n/server';
 import { ensureInfrastructure } from "@/infrastructure/init";
 import { validateEnv } from "@/lib/env";
 import "./globals.css";
@@ -193,7 +193,7 @@ export default async function RootLayout({
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
+            __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme');if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)').matches))document.documentElement.classList.add("dark')}catch(e){}})()`
           }}
         />
         <Providers locale={htmlLang}>

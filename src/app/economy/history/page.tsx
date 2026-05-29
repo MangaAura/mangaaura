@@ -1,14 +1,22 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { History } from 'lucide-react';
-import type { Metadata } from 'next';
-
 import { HistoryClient } from './HistoryClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Historial de Transacciones | MangaAura',
-  description: 'Ver todas tus transacciones de Aura',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.economyHistory.title');
+  const description = t('page.economyHistory.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function HistoryPage() {
   const session = await auth();

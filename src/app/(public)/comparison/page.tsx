@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 
 import { BreadcrumbStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
 import Script from 'next/script';
@@ -9,26 +10,28 @@ import ComparisonClient from './ComparisonClient';
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const locale = headersList.get('x-locale') || 'es';
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.comparison.title');
+  const description = t('page.comparison.description');
+  const ogDescription = t('page.comparison.ogDescription');
+  const twitterDescription = t('page.comparison.twitterDescription');
+  const fullTitle = `${title} | MangaAura`;
 
   return {
-    title: 'MangaAura vs Otras Plataformas | Comparativa 2026',
-    description:
-      'Comparamos MangaAura con Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex e INKR. Descubre qué plataforma ofrece más para lectores y creadores de manga.',
+    title,
+    description,
     openGraph: {
-      title: 'MangaAura vs Otras Plataformas | Comparativa 2026',
-      description:
-        'Comparamos MangaAura con las principales plataformas de manga: Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex e INKR. Características para lectores y creadores.',
+      title: fullTitle,
+      description: ogDescription,
       url: `${SITE_URL}/${locale}/comparison`,
       siteName: 'MangaAura',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'MangaAura vs Otras Plataformas | Comparativa 2026',
-      description:
-        'Descubre cómo se compara MangaAura con otras plataformas de manga. La comparativa más completa para lectores y creadores.',
+      title: fullTitle,
+      description: twitterDescription,
     },
     robots: {
       index: true,

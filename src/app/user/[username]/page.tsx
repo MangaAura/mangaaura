@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { UserProfileClient } from './UserProfileClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 
 interface UserProfilePageProps {
   params: Promise<{ username: string }>;
@@ -85,15 +87,17 @@ async function getUserData(username: string) {
 
 export async function generateMetadata({ params }: UserProfilePageProps): Promise<Metadata> {
   const { username } = await params;
+  const locale = await detectLocale();
+  const t = getT(locale);
   const user = await getUserData(username);
 
   if (!user) {
-    return { title: 'Usuario no encontrado | MangaAura' };
+    return { title: `${t('page.userNotFound.title')} | MangaAura` };
   }
 
   const displayName = user.displayName || user.username;
   const title = `${displayName} | MangaAura`;
-  const description = `Perfil de ${displayName} en MangaAura · Nivel ${user.level} · ${user._count.createdMangas} mangas creados`;
+  const description = t('page.userProfile.description', { name: displayName, level: user.level, count: user._count.createdMangas });
   const ogImage = user.avatarUrl || undefined;
 
   return {

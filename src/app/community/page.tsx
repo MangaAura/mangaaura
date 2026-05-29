@@ -1,14 +1,21 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import CommunityTabs from './CommunityTabs';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Comunidad | MangaAura',
-  description:
-    'Conecta con otros lectores de manga. Únete a clanes, participa en eventos y compite en el ranking.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.community.title');
+  const description = t('page.community.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 export default async function CommunityPage() {
   const session = await auth();

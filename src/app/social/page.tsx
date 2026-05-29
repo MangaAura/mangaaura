@@ -1,5 +1,5 @@
 import { Activity, Globe, Sparkles, TrendingUp } from 'lucide-react';
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 
 import { ActivityFeed } from '@/components/Activity/ActivityFeed';
 import { Card } from '@/components/ui/Card';
@@ -8,10 +8,15 @@ import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 
-export const metadata: Metadata = {
-  title: 'Social | MangaAura',
-  description: 'Descubre nuevos usuarios, creadores y contenido popular en la comunidad',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t("page.social.title");
+
+  return {
+    title,
+  };
+}
 
 export default async function SocialPage() {
   const session = await auth();

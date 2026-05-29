@@ -1,6 +1,7 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Trophy, Target, Zap, Star, Lock, Sparkles, TrendingUp } from 'lucide-react';
-import type { Metadata } from 'next';
-
 import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
 import { AchievementGrid } from '@/components/Achievements/AchievementGrid';
 import { Card } from '@/components/ui/Card';
@@ -9,10 +10,17 @@ import type { Difficulty } from '@/hooks/useAchievements';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
-export const metadata: Metadata = {
-  title: 'Logros | MangaAura',
-  description: 'Descubre y desbloquea logros mientras lees manga',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.achievements.title');
+  const description = t('page.achievements.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getAchievements() {
   const session = await auth();

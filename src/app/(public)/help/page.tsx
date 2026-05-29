@@ -1,23 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import HelpClient from './HelpClient';
 
-export const metadata: Metadata = {
-  title: 'Ayuda | MangaAura',
-  description: 'Encuentra respuestas a tus preguntas sobre MangaAura. Guías, tutoriales y soporte.',
-  openGraph: {
-    title: 'Ayuda | MangaAura',
-    description: 'Encuentra respuestas a tus preguntas sobre MangaAura. Guías, tutoriales y soporte.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Ayuda | MangaAura',
-    description: 'Encuentra respuestas a tus preguntas sobre MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/help' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.help.title');
+  const description = t('page.help.description');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/help' },
+  };
+}
 
 export default function HelpPage(props: any) {
   return <HelpClient {...props} />;

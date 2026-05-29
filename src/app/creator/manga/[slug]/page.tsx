@@ -1,24 +1,33 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import MangaDetailClient from './MangaDetailClient';
 
-export const metadata: Metadata = {
-  title: 'Detalle del Manga | MangaAura',
-  description: 'Gestiona los capítulos y detalles de tu manga en MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Detalle del Manga | MangaAura',
-    description: 'Gestiona los capítulos y detalles de tu manga en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Detalle del Manga | MangaAura',
-    description: 'Gestiona los detalles de tu manga en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/creator/manga/[slug]' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.creatorMangaDetail.title');
+  const description = t('page.creatorMangaDetail.description');
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/creator/manga/[slug]' },
+  };
+}
 
 export default function MangaDetailPage(props: any) {
   return <MangaDetailClient {...props} />;

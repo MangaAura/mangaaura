@@ -1,24 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import CreatorSettingsClient from './CreatorSettingsClient';
 
-export const metadata: Metadata = {
-  title: 'Configuración del Creador | MangaAura',
-  description: 'Ajusta la configuración de tu perfil como creador en MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Configuración del Creador | MangaAura',
-    description: 'Ajusta la configuración de tu perfil como creador en MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Configuración del Creador | MangaAura',
-    description: 'Configuración de creador en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/creator/settings' },
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.creatorSettings.title');
+  const description = t('page.creatorSettings.description');
+  const fullTitle = `${title} | MangaAura`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: fullTitle,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fullTitle,
+      description,
+    },
+  };
+}
 
 export default function CreatorSettingsPage(props: any) {
   return <CreatorSettingsClient {...props} />;

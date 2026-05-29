@@ -1,14 +1,21 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import RankingsClient from './RankingsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.rankings.title');
+  const description = t('page.rankings.description');
 
-export const metadata: Metadata = {
-  title: 'Rankings | MangaAura',
-  description: 'Los lectores y creadores más activos de la comunidad',
-};
+  return {
+    title,
+    description,
+  };
+}
 
 async function getLeaderboards() {
   const [topReaders, topCreators, topClans, trendingManga] = await Promise.all([

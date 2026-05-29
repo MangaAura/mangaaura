@@ -1,3 +1,6 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Coins } from 'lucide-react';
 import { Suspense } from 'react';
 
@@ -5,10 +8,17 @@ import { TipsClient } from './TipsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata = {
-  title: 'Propinas | MangaAura',
-  description: 'Historial de propinas enviadas y recibidas',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.tips.title');
+  const description = t('page.tips.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getTips(userId: string) {
   const [sent, received] = await Promise.all([

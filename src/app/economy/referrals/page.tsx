@@ -1,14 +1,22 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Users } from 'lucide-react';
-import type { Metadata } from 'next';
-
 import { ReferralsClient } from './ReferralsClient';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Programa de Referencias | MangaAura',
-  description: 'Invita amigos y gana 10% de su primera compra de Aura',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.economyReferrals.title');
+  const description = t('page.economyReferrals.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getReferralStats(userId: string) {
   const claims = await prisma.referralClaim.findMany({

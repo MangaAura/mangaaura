@@ -1,24 +1,33 @@
-import type { Metadata } from 'next';
-
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { prisma } from '@/lib/prisma';
 import { AnnouncementsList } from './AnnouncementsList';
 
-export const metadata: Metadata = {
-  title: 'Anuncios | MangaAura',
-  description: 'Anuncios oficiales, mantenimientos y novedades importantes de MangaAura.',
-  openGraph: {
-    title: 'Anuncios | MangaAura',
-    description: 'Anuncios oficiales, mantenimientos y novedades importantes de MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Anuncios | MangaAura',
-    description: 'Anuncios oficiales, mantenimientos y novedades importantes de MangaAura.',
-  },
-  alternates: { canonical: '/announcements' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.announcements.title');
+  const description = t('page.announcements.description');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/announcements' },
+  };
+}
 
 export default async function AnnouncementsPage() {
   const announcements = await prisma.announcement.findMany({

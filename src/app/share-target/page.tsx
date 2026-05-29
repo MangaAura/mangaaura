@@ -1,24 +1,32 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import ShareTargetClient from './ShareTargetClient';
 
-export const metadata: Metadata = {
-  title: 'Compartir | MangaAura',
-  description: 'Comparte contenido de MangaAura con otros usuarios.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Compartir | MangaAura',
-    description: 'Comparte contenido de MangaAura con otros usuarios.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Compartir | MangaAura',
-    description: 'Comparte contenido de MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/share-target' },
-};
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.shareTarget.title');
+  const description = t('page.shareTarget.description');
+  const fullTitle = `${title} | MangaAura`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: fullTitle,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fullTitle,
+      description,
+    },
+  };
+}
 
 export default function ShareTargetPage(props: any) {
   return <ShareTargetClient {...props} />;

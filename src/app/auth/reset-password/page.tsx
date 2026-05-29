@@ -1,24 +1,33 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import ResetPasswordClient from './ResetPasswordClient';
 
-export const metadata: Metadata = {
-  title: 'Restablecer Contraseña | MangaAura',
-  description: 'Establece una nueva contraseña para tu cuenta de MangaAura.',
-  robots: { index: false, follow: false },
-  openGraph: {
-    title: 'Restablecer Contraseña | MangaAura',
-    description: 'Establece una nueva contraseña para tu cuenta de MangaAura.',
-    type: 'website',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Restablecer Contraseña | MangaAura',
-    description: 'Restablece tu contraseña en MangaAura.',
-    images: ['/og-image.png'],
-  },
-  alternates: { canonical: '/auth/reset-password' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.authResetPassword.title');
+  const description = t('page.authResetPassword.description');
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: { canonical: '/auth/reset-password' },
+  };
+}
 
 export default function ResetPasswordPage(props: any) {
   return <ResetPasswordClient {...props} />;

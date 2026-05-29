@@ -1,15 +1,24 @@
+import { Metadata } from 'next';
+import { detectLocale } from '@/i18n/server';
+import { getT } from '@/i18n/getT';
 import { Gem } from 'lucide-react';
-import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { SponsorshipsList } from '@/components/Sponsorships/SponsorshipsList';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Mis Patrocinios | MangaAura',
-  description: 'Gestiona tus patrocinios y pujas en capítulos',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('page.sponsorships.title');
+  const description = t('page.sponsorships.description');
+
+  return {
+    title,
+    description,
+  };
+}
 
 async function getSponsorships(userId: string) {
   const [activeBids, wonBids, history] = await Promise.all([
