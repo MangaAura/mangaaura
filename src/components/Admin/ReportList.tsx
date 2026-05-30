@@ -104,7 +104,7 @@ export function ReportList({
 
   useEffect(() => {
     let mounted = true;
-    if (mounted) fetchReports();
+    if (mounted) queueMicrotask(() => { void fetchReports(); });
     return () => { mounted = false; };
   }, [fetchReports]);
 

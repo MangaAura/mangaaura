@@ -29,7 +29,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
   }, []);
 
   useEffect(() => {
-    checkStatus();
+    queueMicrotask(() => { void checkStatus(); });
   }, [checkStatus]);
 
   const handleDeleteRequest = async () => {

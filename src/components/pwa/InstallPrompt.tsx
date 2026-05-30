@@ -18,7 +18,7 @@ export function InstallPrompt() {
 
   useEffect(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      if (!isInstalled) setIsInstalled(true);
+      if (!isInstalled) queueMicrotask(() => setIsInstalled(true));
       return;
     }
 

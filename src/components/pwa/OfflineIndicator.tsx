@@ -13,7 +13,7 @@ export function OfflineIndicator() {
 
   useEffect(() => {
     // Initial state
-    if (isOnline !== navigator.onLine) setIsOnline(navigator.onLine);
+    if (isOnline !== navigator.onLine) queueMicrotask(() => setIsOnline(navigator.onLine));
 
     const handleOnline = () => {
       setIsOnline(true);

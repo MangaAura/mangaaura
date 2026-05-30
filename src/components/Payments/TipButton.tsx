@@ -52,7 +52,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
   useEffect(() => {
     let mounted = true;
     if (isOpen && userBalance === null && mounted) {
-      fetchBalance();
+      queueMicrotask(() => { void fetchBalance(); });
     }
     return () => { mounted = false; };
   }, [isOpen]);

@@ -27,9 +27,9 @@ export function PushNotificationManager() {
 
   useEffect(() => {
     if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
-      if (!isSupported) setIsSupported(true);
+      if (!isSupported) queueMicrotask(() => setIsSupported(true));
       const perm = Notification.permission;
-      if (permission !== perm) setPermission(perm);
+      if (permission !== perm) queueMicrotask(() => setPermission(perm));
 
       if (perm === 'granted') {
         checkSubscription();

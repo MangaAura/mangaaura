@@ -42,10 +42,10 @@ export function useLazyImage({
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(0, 0, 20, 30);
         const url = canvas.toDataURL();
-        if (url !== blurUrl) setBlurUrl(url);
+        if (url !== blurUrl) queueMicrotask(() => { setBlurUrl(url); });
       }
     } else {
-      if (placeholderSrc !== blurUrl) setBlurUrl(placeholderSrc);
+      if (placeholderSrc !== blurUrl) queueMicrotask(() => { setBlurUrl(placeholderSrc); });
     }
   }, [placeholderSrc, blurUrl]);
 

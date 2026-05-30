@@ -289,7 +289,7 @@ export function useMangaNotifications(
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
       offsetRef.current = 0;
-      fetchNotifications(true);
+      queueMicrotask(() => { void fetchNotifications(true); });
     }
   }, [status, session?.user?.id, filter?.types, filter?.isRead]);
 
@@ -354,7 +354,7 @@ export function useNotificationListener(pollingInterval: number = 30000) {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      fetchCount();
+      queueMicrotask(() => { void fetchCount(); });
     }
   }, [status, fetchCount]);
 

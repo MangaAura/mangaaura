@@ -69,7 +69,7 @@ export default function ContributionModal({
   useEffect(() => {
     let mounted = true;
     if (isOpen && userBalance === null && mounted) {
-      fetchBalance();
+      queueMicrotask(() => { void fetchBalance(); });
     }
     return () => { mounted = false; };
   }, [isOpen]);

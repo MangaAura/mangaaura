@@ -35,7 +35,7 @@ export function useKeyboardShortcuts({
   }, [shortcuts]);
 
   useEffect(() => {
-    if (enabledState !== enabled) setEnabledState(enabled);
+    if (enabledState !== enabled) queueMicrotask(() => { setEnabledState(enabled); });
   }, [enabled, enabledState]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {

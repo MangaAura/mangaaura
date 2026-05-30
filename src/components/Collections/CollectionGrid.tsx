@@ -77,7 +77,7 @@ export function CollectionGrid({
 
   useEffect(() => {
     let mounted = true;
-    if (mounted) fetchCollections();
+    if (mounted) queueMicrotask(() => { void fetchCollections(); });
     return () => { mounted = false; };
   }, [userId, filter]);
 

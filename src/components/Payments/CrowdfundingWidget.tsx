@@ -82,7 +82,7 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
   useEffect(() => {
     let mounted = true;
-    if (mounted) fetchCrowdfundingData();
+    if (mounted) queueMicrotask(() => { void fetchCrowdfundingData(); });
     return () => { mounted = false; };
   }, [chapterId]);
 

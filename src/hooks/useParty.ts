@@ -283,7 +283,7 @@ export function useParty({
   // ── Auto-join ───────────────────────────────────────────────────
   useEffect(() => {
     if (autoJoin && partyId) {
-      joinParty();
+      queueMicrotask(() => { void joinParty(); });
     }
     return () => {
       if (joinedRef.current) {

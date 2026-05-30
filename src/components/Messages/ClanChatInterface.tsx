@@ -639,7 +639,7 @@ export function ClanChatInterface({
 
   useEffect(() => {
     if (!searchQuery.trim() || !isSearchOpen) {
-      setSearchResults([]);
+      queueMicrotask(() => setSearchResults([]));
       return;
     }
     let mounted = true;

@@ -55,15 +55,17 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
   // Fetch suggestions when debounced query changes
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) {
-      setSuggestions([]);
-      setIsOpen(false);
-      setHasFetched(false);
-      setSelectedIndex(-1);
+      queueMicrotask(() => {
+        setSuggestions([]);
+        setIsOpen(false);
+        setHasFetched(false);
+        setSelectedIndex(-1);
+      });
       return;
     }
 
     // Open dropdown immediately when query becomes valid
-    setIsOpen(true);
+    queueMicrotask(() => setIsOpen(true));
 
     // Abort previous request
     if (abortRef.current) {

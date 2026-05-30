@@ -227,7 +227,7 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
    
   useEffect(() => {
     if (chapterId) {
-      fetchComments(1);
+      queueMicrotask(() => { void fetchComments(1); });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId]);

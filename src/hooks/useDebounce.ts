@@ -59,13 +59,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
     [delay]
   );
 
-  // Attach cancel/flush methods stored in refs (avoids ref access during render)
-  const wrapper = Object.assign(debouncedFn, {
-    cancel: () => cancelRef.current(),
-    flush: () => flushRef.current(),
-  });
-
-  // Update ref values in an effect instead of during render
+  // Attach cancel/flush methods and update ref values in an effect (avoids ref access during render)
   useEffect(() => {
     cancelRef.current = () => {
       if (timeoutRef.current) {
@@ -79,6 +73,8 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
         timeoutRef.current = null;
       }
     };
+    (debouncedFn as { cancel?: () => void; flush?: () => void }).cancel = cancelRef.current;
+    (debouncedFn as { cancel?: () => void; flush?: () => void }).flush = flushRef.current;
   });
 
   useEffect(() => {
@@ -90,7 +86,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
     };
   }, []);
 
-  return wrapper;
+  return debouncedFn;
 }
 
 /**

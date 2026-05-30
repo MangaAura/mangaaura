@@ -75,7 +75,7 @@ export function NotificationBell({}: NotificationBellProps) {
   }, []);
 
   useEffect(() => {
-    fetchNotifications();
+    queueMicrotask(() => { void fetchNotifications(); });
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);

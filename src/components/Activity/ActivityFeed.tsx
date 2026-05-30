@@ -130,7 +130,7 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
 
   useEffect(() => {
     let mounted = true;
-    if (mounted) fetchActivities();
+    if (mounted) queueMicrotask(() => { void fetchActivities(); });
     return () => { mounted = false; };
   }, [fetchActivities]);
 

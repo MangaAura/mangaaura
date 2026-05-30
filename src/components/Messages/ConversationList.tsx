@@ -122,7 +122,7 @@ export function ConversationList({ activeConversationId, onSelectConversation, o
 
   useEffect(() => {
     let mounted = true;
-    if (mounted) fetchData();
+    if (mounted) queueMicrotask(() => { void fetchData(); });
     return () => { mounted = false; };
   }, []);
 
