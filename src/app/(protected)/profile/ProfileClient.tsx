@@ -273,7 +273,7 @@ function ReadingCard({ progress }: { progress: ReadingProgress }) {
         href={`/manga/${progress.manga.slug}/chapter/${progress.chapter?.chapterNumber || 1}`}
         className="flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--surface-sunken)] transition-colors group"
       >
-        <div className="w-14 h-20 rounded-lg bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0 ring-1 ring-[var(--border)]">
+        <div className="relative w-14 h-20 rounded-lg bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0 ring-1 ring-[var(--border)]">
           {progress.manga.coverUrl ? (
             <OptimizedImage
               src={progress.manga.coverUrl}

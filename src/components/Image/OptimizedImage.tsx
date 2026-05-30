@@ -168,8 +168,8 @@ export function OptimizedImage({
   return (
     <div
       className={`
-        relative overflow-hidden
-        ${fill ? 'absolute inset-0' : ''}
+        overflow-hidden
+        ${fill ? 'absolute inset-0' : 'relative'}
         ${className}
       `}
       style={!fill ? { width, height } : undefined}
