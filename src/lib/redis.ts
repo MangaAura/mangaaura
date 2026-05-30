@@ -350,6 +350,10 @@ function createUpstashRedis(): UpstashRedis {
   return new UpstashRedis({
     url: UPSTASH_URL || 'https://profound-python-134342.upstash.io',
     token: UPSTASH_TOKEN || '',
+    retry: {
+      retries: 3,
+      backoff: (retryCount) => Math.exp(retryCount) * 100,
+    },
   });
 }
 

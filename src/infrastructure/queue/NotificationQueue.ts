@@ -191,7 +191,7 @@ export class NotificationQueue {
    */
   private async addJob(
     data: NotificationJobData,
-    opts?: { delay?: number; priority?: number },
+    opts?: { delay?: number; priority?: number; jobId?: string },
   ): Promise<Job> {
     if (this.useInMemory) {
       const inMem = this.queue as InMemoryNotificationQueue;
@@ -202,6 +202,7 @@ export class NotificationQueue {
     const job = await bullQueue.add(data.type, data, {
       delay: opts?.delay,
       priority: opts?.priority,
+      jobId: opts?.jobId,
     });
 
     if (process.env.NODE_ENV === 'production' || process.env.DEBUG_QUEUE) {

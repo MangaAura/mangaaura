@@ -23,8 +23,8 @@ class InMemoryInboundQueue extends InMemoryQueue<InboundEmailJobData> {
     super('inbound')
   }
 
-  override async add(name: string, data: InboundEmailJobData): Promise<Job> {
-    const job = await super.add(name, data)
+  override async add(name: string, data: InboundEmailJobData, opts?: unknown): Promise<Job> {
+    const job = await super.add(name, data, opts)
 
     if (process.env.DEBUG_EMAIL) {
       console.log(`[InboundQueue] Job queued (in-memory): ${name} from ${data.email.fromEmail}`)
@@ -80,9 +80,9 @@ export class InboundEmailQueue {
     return this.addJob('process', { type: 'process', email, classification })
   }
 
-  private async addJob(type: InboundJobType, data: InboundEmailJobData, _callbacks?: JobCallbacks): Promise<Job> {
+  private async addJob(type: InboundJobType, data: InboundEmailJobData, _callbacks?: JobCallbacks, jobId?: string): Promise<Job> {
     try {
-      return await this.queue.add(type, data) as Job
+      return await this.queue.add(type, data, jobId ? { jobId } : undefined) as Job
     } catch (error) {
       if (process.env.NODE_ENV === 'production') throw error
       console.log(`[InboundQueue] Job would be added (queue unavailable): ${type}`)

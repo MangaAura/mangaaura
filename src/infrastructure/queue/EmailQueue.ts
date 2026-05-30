@@ -140,6 +140,11 @@ export interface EmailJobOptions {
     type: 'fixed' | 'exponential';
     delay: number;
   };
+  /**
+   * ID único para deduplicación.
+   * Si ya existe un job con este ID en la cola, BullMQ no lo agrega de nuevo.
+   */
+  jobId?: string;
 }
 
 export interface QueueStats {
@@ -246,6 +251,7 @@ export class EmailQueue {
         type: 'exponential' as const,
         delay: 2000,
       },
+      jobId: options?.jobId,
     };
 
     try {
