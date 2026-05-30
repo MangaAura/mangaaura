@@ -90,6 +90,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Log activity for feed
+    await prisma.userActivity.create({
+      data: {
+        userId: session.user.id,
+        activityType: 'CREATED_MANGA',
+        referenceId: manga.id,
+        metadata: JSON.stringify({
+          mangaTitle: manga.title,
+          mangaSlug: manga.slug,
+        }),
+      },
+    }).catch(err => console.error('[CreatorManga] Error logging activity:', err));
+
     await invalidateCache('creator:mangas');
 
     return NextResponse.json({ id: manga.id, slug: manga.slug }, { status: 201 });

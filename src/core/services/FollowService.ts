@@ -1,3 +1,5 @@
+import { prisma } from '@/lib/prisma';
+
 import type {
   IFollowRepository,
   FollowingType,
@@ -31,6 +33,18 @@ export class FollowService {
         followingId: params.followingId,
         followingType: params.followingType,
       });
+
+      // Log activity for feed (only for USER follows)
+      if (params.followingType === 'USER') {
+        prisma.userActivity.create({
+          data: {
+            userId: params.followerId,
+            activityType: 'FOLLOW_USER',
+            referenceId: params.followingId,
+            metadata: JSON.stringify({}),
+          },
+        }).catch((err) => console.error('[FollowService] Error logging activity:', err));
+      }
 
       await this.repo.logSecurityEvent(
         params.followerId,

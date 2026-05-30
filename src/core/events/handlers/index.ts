@@ -46,7 +46,33 @@ function register(): void {
   eventBus.subscribe('CHAPTER_COMPLETED', async (event: DomainEvent) => {
     try {
       const userId = event.payload.userId as string;
+      const mangaId = event.payload.mangaId as string;
+      const chapterId = event.payload.chapterId as string;
+      const chapterNumber = event.payload.chapterNumber as number || 0;
+
       if (userId) {
+        // Log activity for feed
+        if (mangaId) {
+          const manga = await prisma.mangaSeries.findUnique({
+            where: { id: mangaId },
+            select: { title: true, slug: true },
+          }).catch(() => null);
+
+          await prisma.userActivity.create({
+            data: {
+              userId,
+              activityType: 'READ_CHAPTER',
+              referenceId: mangaId,
+              metadata: JSON.stringify({
+                chapterNumber,
+                chapterId,
+                mangaTitle: manga?.title || '',
+                mangaSlug: manga?.slug || '',
+              }),
+            },
+          }).catch(err => console.error('[DomainEvents] Error logging chapter activity:', err));
+        }
+
         await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking achievements:', err)
         );
@@ -59,7 +85,29 @@ function register(): void {
   eventBus.subscribe('COMMENT_POSTED', async (event: DomainEvent) => {
     try {
       const userId = event.payload.userId as string;
+      const mangaId = event.payload.mangaId as string;
+
       if (userId) {
+        // Log activity for feed
+        if (mangaId) {
+          const manga = await prisma.mangaSeries.findUnique({
+            where: { id: mangaId },
+            select: { title: true, slug: true },
+          }).catch(() => null);
+
+          await prisma.userActivity.create({
+            data: {
+              userId,
+              activityType: 'COMMENT',
+              referenceId: mangaId,
+              metadata: JSON.stringify({
+                targetTitle: manga?.title || '',
+                targetSlug: manga?.slug || '',
+              }),
+            },
+          }).catch(err => console.error('[DomainEvents] Error logging comment activity:', err));
+        }
+
         await svc.checkAchievements(userId).catch(err =>
           console.error('[DomainEvents] Error checking achievements for comment:', err)
         );

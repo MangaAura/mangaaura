@@ -69,6 +69,19 @@ export async function POST(
       },
     });
 
+    // Log activity for feed
+    await prisma.userActivity.create({
+      data: {
+        userId,
+        activityType: 'JOINED_CLAN',
+        referenceId: id,
+        metadata: JSON.stringify({
+          clanName: clan.name,
+          clanSlug: clan.slug,
+        }),
+      },
+    }).catch(err => console.error('[ClanJoin] Error logging activity:', err));
+
     // Audit log
     await logSecurityEvent({
       userId,
