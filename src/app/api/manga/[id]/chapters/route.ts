@@ -221,8 +221,9 @@ export async function POST(
         });
 
         if (mangaData) {
-          // Notificacion push
           const followerIds = followers.map((f: any) => f.userId);
+
+          // Notificaciones in-app (batch insert en DB)
           (await getNotificationService()).notifyMultiple(
             followerIds,
             {
@@ -241,6 +242,20 @@ export async function POST(
               linkUrl: `/manga/${mangaData.slug}/chapter/${chapterNum}`,
             }
           ).catch(err => console.error('Error notifying followers:', err));
+
+          // Push notifications via BullMQ (asíncrono, con retries)
+          const { getNotificationQueue } = await import('@/infrastructure/queue/NotificationQueue');
+          getNotificationQueue().addBulkPushNotification({
+            userIds: followerIds,
+            payload: {
+              title: '📖 Nuevo Capítulo',
+              body: `${mangaData.title} - Capítulo ${chapterNum}${title ? `: ${title}` : ''}`,
+              url: `/manga/${mangaData.slug}/chapter/${chapterNum}`,
+              icon: '/icon-192x192.png',
+              badge: '/badge-72x72.png',
+              tag: `new-chapter-${chapter.id}`,
+            },
+          }).catch(err => console.error('[NewChapter] Error queueing push notifications:', err));
 
           // Emails a seguidores (asincrono)
           const { getEmailQueue } = await import('@/infrastructure/queue/EmailQueue');

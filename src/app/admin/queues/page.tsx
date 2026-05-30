@@ -47,7 +47,13 @@ function getStatusColor(count: number, type: 'waiting' | 'failed' | 'active'): s
 // Queue Stats Card
 // ============================================================================
 
-function QueueStatsCard({ queue, onRefresh }: { queue: QueueInfo; onRefresh: () => void }) {
+function QueueStatsCard({ queue, onRefresh, onCleanup, cleaning, cleanMessage }: {
+  queue: QueueInfo;
+  onRefresh: () => void;
+  onCleanup: (name: string) => void;
+  cleaning: string | null;
+  cleanMessage: string | null;
+}) {
   const { name, stats } = queue;
   const totalJobs = stats.waiting + stats.active + stats.completed + stats.failed;
 
@@ -55,14 +61,30 @@ function QueueStatsCard({ queue, onRefresh }: { queue: QueueInfo; onRefresh: () 
     <Card className="p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold capitalize text-[var(--text-primary)]">{name} Queue</h3>
-        <button
-          onClick={onRefresh}
-          className="text-xs px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
-          aria-label="Refresh stats"
-        >
-          ↻ Refresh
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => onCleanup(name)}
+            disabled={cleaning === name}
+            className="text-xs px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
+            aria-label="Clean queue"
+          >
+            {cleaning === name ? '⟳ Cleaning...' : '🗑 Clean'}
+          </button>
+          <button
+            onClick={onRefresh}
+            className="text-xs px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
+            aria-label="Refresh stats"
+          >
+            ↻ Refresh
+          </button>
+        </div>
       </div>
+
+      {cleanMessage && (
+        <div className="mb-3 text-xs text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] p-2 rounded">
+          {cleanMessage}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCell label="Waiting" value={fmt(stats.waiting)} color={getStatusColor(stats.waiting, 'waiting')} />
@@ -99,6 +121,9 @@ export default function QueuesAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [cleaning, setCleaning] = useState<string | null>(null);
+  const [cleanMessage, setCleanMessage] = useState<string | null>(null);
+
   const fetchStats = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -120,8 +145,38 @@ export default function QueuesAdminPage() {
     }
   }, []);
 
+  const triggerCleanup = useCallback(async (queueName: string) => {
+    setCleaning(queueName);
+    setCleanMessage(null);
+    try {
+      const res = await fetch('/api/admin/queues/cleanup', {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || `HTTP ${res.status}`);
+      }
+      const result = await res.json();
+      const queueKey = queueName.toLowerCase() === 'notifications' ? 'notificationQueue' : `${queueName.toLowerCase()}Queue`;
+      const queueResult = result.results?.[queueKey] as { before?: { waiting: number }; after?: { waiting: number } } | undefined;
+      if (queueResult) {
+        setCleanMessage(`${queueName} queue cleaned: ${queueResult.before?.waiting ?? 0} waiting → ${queueResult.after?.waiting ?? 0} waiting`);
+      } else {
+        setCleanMessage(`${queueName} queue cleaned successfully`);
+      }
+      // Refresh stats after cleanup
+      setTimeout(() => fetchStats(), 1000);
+    } catch (err) {
+      setCleanMessage(`Cleanup failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setCleaning(null);
+    }
+  }, [fetchStats]);
+
   useEffect(() => {
     fetchStats();
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
   }, [fetchStats]);
 
   return (
@@ -172,7 +227,14 @@ export default function QueuesAdminPage() {
 
       {/* Queue cards */}
       {data?.queues.map((queue) => (
-        <QueueStatsCard key={queue.name} queue={queue} onRefresh={fetchStats} />
+        <QueueStatsCard
+          key={queue.name}
+          queue={queue}
+          onRefresh={fetchStats}
+          onCleanup={triggerCleanup}
+          cleaning={cleaning}
+          cleanMessage={cleanMessage}
+        />
       ))}
 
       {/* Empty state */}
@@ -184,7 +246,7 @@ export default function QueuesAdminPage() {
 
       {/* Footer info */}
       <div className="text-xs text-[var(--text-tertiary)] text-center">
-        Auto-refresh every 30s &middot; Data from BullMQ + Redis
+        Auto-refresh every 30s &middot; Cron: <code className="px-1 py-0.5 bg-[var(--bg-tertiary)] rounded">/api/cron/cleanup-queues</code>
       </div>
     </div>
   );
