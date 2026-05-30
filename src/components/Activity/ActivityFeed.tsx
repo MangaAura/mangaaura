@@ -2,6 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import Image from 'next/image';
 import {
   Heart,
   MessageSquare,
@@ -198,14 +199,30 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
         return (
           <>
             <Icon className={cn('w-4 h-4 mr-2', config.color)} />
-            <span className="text-[var(--text-secondary)]">leyó</span>
-            {activity.manga && activity.chapter && (
-              <Link
-                href={`/manga/${activity.manga.slug}/chapter/${activity.chapter.chapterNumber}`}
-                className="font-medium text-[var(--text-primary)] hover:text-[var(--primary)] ml-1 truncate"
-              >
-                {activity.manga.title} - Cap. {activity.chapter.chapterNumber}
-              </Link>
+            {activity.chapter ? (
+              <>
+                <span className="text-[var(--text-secondary)]">leyó</span>
+                {activity.manga && (
+                  <Link
+                    href={`/manga/${activity.manga.slug}/chapter/${activity.chapter.chapterNumber}`}
+                    className="font-medium text-[var(--text-primary)] hover:text-[var(--primary)] ml-1 truncate"
+                  >
+                    {activity.manga.title} - Cap. {activity.chapter.chapterNumber}
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="text-[var(--text-secondary)]">completó</span>
+                {activity.manga && (
+                  <Link
+                    href={`/manga/${activity.manga.slug}`}
+                    className="font-medium text-[var(--text-primary)] hover:text-[var(--primary)] ml-1 truncate"
+                  >
+                    {activity.manga.title}
+                  </Link>
+                )}
+              </>
             )}
           </>
         );
@@ -277,10 +294,11 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
           <Card key={`activity-skeleton-${i}`} className="p-4">
             <div className="flex items-center gap-4">
               <Skeleton className="w-10 h-10 rounded-full" />
-              <Skeleton className="w-10 h-10 rounded-lg" />
               <div className="flex-1">
                 <Skeleton className="h-4 w-48" />
               </div>
+              <Skeleton className="w-9 h-[50px] rounded" />
+              <Skeleton className="w-10 h-10 rounded-lg" />
             </div>
           </Card>
         ))}
@@ -346,6 +364,21 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
                   })}
                 </p>
               </div>
+
+              {activity.manga?.coverUrl && (
+                <Link
+                  href={`/manga/${activity.manga.slug}`}
+                  className="relative w-9 h-[50px] rounded overflow-hidden flex-shrink-0 ring-1 ring-[var(--border)] hover:ring-[var(--primary)] transition-all"
+                >
+                  <Image
+                    src={activity.manga.coverUrl}
+                    alt={activity.manga.title}
+                    fill
+                    className="object-cover"
+                    sizes="36px"
+                  />
+                </Link>
+              )}
 
               <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', config.bgColor)}>
                 <config.icon className={cn('w-5 h-5', config.color)} />
