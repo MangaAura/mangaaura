@@ -26,9 +26,9 @@ export function useHomeStats(options: UseHomeStatsOptions = {}): UseHomeStatsRet
     fetcher,
     {
       fallbackData: options.fallbackData,
-      refreshInterval: 60_000, // 1 minuto
+      refreshInterval: 300_000, // 5 minutos (reduce Redis reads vs 60s)
       revalidateOnFocus: true,
-      dedupingInterval: 30_000, // 30 segundos
+      dedupingInterval: 60_000, // 1 minuto (reduce Redis reads vs 30s)
       keepPreviousData: true,
     },
   );

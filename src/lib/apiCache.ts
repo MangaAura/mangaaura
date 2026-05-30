@@ -10,12 +10,12 @@ const CACHE_TTL = {
   SEARCH_RESULTS: 60, // 1 minute (shorter for search)
   COMMENTS: 120, // 2 minutes
   ANALYTICS: 300, // 5 minutes
-  RANKINGS: 300, // 5 minutes
+  RANKINGS: 3600, // 1 hour (stats change infrequently, saves Redis reads)
 };
 
 // In-memory cache for frequently accessed data (SSR-safe)
 const memoryCache = new Map<string, { data: unknown; expiry: number }>();
-const MEMORY_CACHE_TTL = 5000; // 5 seconds for memory cache
+const MEMORY_CACHE_TTL = 60_000; // 60 seconds for memory cache (reduces Redis reads)
 
 // Generate cache key with optimization
 export function generateCacheKey(prefix: string, params: Record<string, unknown>): string {
