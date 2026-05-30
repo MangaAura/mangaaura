@@ -175,10 +175,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Invalidar cache de listas
+    // Invalidar cache de listas y stats
     await invalidateCache('user:mangas:list');
     await invalidateCache('manga:list');
     await invalidateCache('genres:list');
+    await invalidateCache('stats:homepage');
 
     return NextResponse.json(
       {

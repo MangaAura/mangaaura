@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { Email , InvalidEmailError } from '@/core/value-objects/Email';
 import { Password , WeakPasswordError } from '@/core/value-objects/Password';
+import { invalidateCache } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
@@ -214,6 +215,9 @@ export async function POST(request: NextRequest) {
     }).catch((verifyError: unknown) => {
       console.error('[Register] Error sending verification email:', verifyError);
     });
+
+    // Invalidar cache de stats (totalReaders cambió)
+    await invalidateCache('stats:homepage');
 
     return NextResponse.json(
       {

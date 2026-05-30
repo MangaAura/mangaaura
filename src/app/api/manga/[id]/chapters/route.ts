@@ -206,6 +206,7 @@ export async function POST(
     await invalidateCache('manga:chapters:list');
     await invalidateCache(`manga:${id}`);
     await invalidateCache('user:mangas:list');
+    await invalidateCache('stats:homepage');
 
     // Notificar a seguidores del manga
     try {
