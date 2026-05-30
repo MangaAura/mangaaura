@@ -10,7 +10,9 @@ import { notificationService, initializeNotificationService } from '@/core/servi
 import { readingAnalyticsService, initializeReadingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
 import { MongoReadingAnalyticsRepository } from '@/infrastructure/adapters/MongoReadingAnalyticsRepository';
 import { PrismaAchievementRepository } from '@/infrastructure/adapters/PrismaAchievementRepository';
-import { PrismaNotificationRepository, PushNotificationAdapter, RealtimeNotificationAdapter } from '@/infrastructure/adapters/PrismaNotificationRepository';
+import { PrismaNotificationRepository, RealtimeNotificationAdapter } from '@/infrastructure/adapters/PrismaNotificationRepository';
+import { QueuePushNotificationAdapter } from '@/infrastructure/adapters/QueuePushNotificationAdapter';
+import { EmailQueueProducer } from '@/infrastructure/adapters/EmailQueueProducer';
 import { getEventBus, DomainEvent } from '@/infrastructure/queue/LocalEventBus';
 import { prisma } from '@/lib/prisma';
 
@@ -19,12 +21,13 @@ if (!achievementService) {
   initializeAchievementService(new PrismaAchievementRepository(prisma));
 }
 
-// Initialize notification service with infrastructure adapters
+// Initialize notification service with queue-based infrastructure adapters
 if (!notificationService) {
   initializeNotificationService(
     new PrismaNotificationRepository(),
-    new PushNotificationAdapter(),
-    new RealtimeNotificationAdapter()
+    new QueuePushNotificationAdapter(),
+    new RealtimeNotificationAdapter(),
+    new EmailQueueProducer()
   );
 }
 

@@ -34,11 +34,45 @@ export interface CreateNotificationDTO {
 
 export type Notification = NotificationRecord;
 
+// ─── Email Producer Interface ────────────────────────────────────────
+
+/**
+ * Interfaz para encolar emails desde el servicio de notificaciones.
+ * El adapter en infrastructure resuelve userId -> email desde la BD.
+ */
+export interface IEmailQueueProducer {
+  sendAchievementEmail(userId: string, data: {
+    achievementId: string;
+    achievementName: string;
+    achievementDescription: string;
+    achievementIconUrl?: string | null;
+    xpReward: number;
+  }): Promise<void>;
+
+  sendTipReceivedEmail(userId: string, data: {
+    tipId: string;
+    amount: number;
+    message?: string | null;
+    fromUserId: string;
+    fromUsername: string;
+  }): Promise<void>;
+
+  sendCommentReplyEmail(userId: string, data: {
+    commentId: string;
+    replyContent: string;
+    replierUsername: string;
+    chapterId: string;
+    chapterNumber: number;
+    mangaTitle: string;
+  }): Promise<void>;
+}
+
 export class NotificationService {
   constructor(
     private readonly notificationRepo: INotificationRepository,
     private readonly pushService?: IPushNotificationService,
-    private readonly realtimeService?: IRealtimeNotificationService
+    private readonly realtimeService?: IRealtimeNotificationService,
+    private readonly emailProducer?: IEmailQueueProducer
   ) {}
 
   async createNotification(data: CreateNotificationDTO): Promise<Notification> {
@@ -80,7 +114,7 @@ export class NotificationService {
     userId: string,
     achievement: { id: string; badgeId: string; name: string; description: string; xpReward: number; iconUrl?: string | null; }
   ): Promise<Notification> {
-    return this.createNotification({
+    const notification = await this.createNotification({
       userId,
       type: 'ACHIEVEMENT_UNLOCKED',
       title: '🏆 ¡Logro Desbloqueado!',
@@ -96,6 +130,17 @@ export class NotificationService {
       imageUrl: achievement.iconUrl || undefined,
       linkUrl: '/achievements',
     });
+
+    // Queue achievement email via BullMQ
+    this.emailProducer?.sendAchievementEmail(userId, {
+      achievementId: achievement.id,
+      achievementName: achievement.name,
+      achievementDescription: achievement.description,
+      achievementIconUrl: achievement.iconUrl,
+      xpReward: achievement.xpReward,
+    }).catch(err => console.error('[NotificationService] Failed to queue achievement email:', err));
+
+    return notification;
   }
 
   async notifyNewChapter(
@@ -128,7 +173,8 @@ export class NotificationService {
     replier: { id: string; username: string; displayName: string | null; avatarUrl: string | null },
     mangaTitle?: string
   ): Promise<Notification> {
-    return this.createNotification({
+    const chapterId = comment.chapterId || '';
+    const notification = await this.createNotification({
       userId,
       type: 'COMMENT_REPLY',
       title: '💬 Nueva Respuesta',
@@ -136,15 +182,29 @@ export class NotificationService {
       data: {
         commentId: comment.id,
         parentCommentId: comment.parentId,
-        chapterId: comment.chapterId,
+        chapterId,
         replierId: replier.id,
         replierName: replier.displayName || replier.username,
         replierAvatar: replier.avatarUrl,
         content: comment.content.substring(0, 100),
       },
       imageUrl: replier.avatarUrl || undefined,
-      linkUrl: `/reader?chapterId=${comment.chapterId}#comment-${comment.id}`,
+      linkUrl: `/reader?chapterId=${chapterId}#comment-${comment.id}`,
     });
+
+    if (chapterId && mangaTitle) {
+      // Queue comment reply email via BullMQ
+      this.emailProducer?.sendCommentReplyEmail(userId, {
+        commentId: comment.id,
+        replyContent: comment.content.substring(0, 200),
+        replierUsername: replier.displayName || replier.username,
+        chapterId,
+        chapterNumber: 0, // Will be resolved in the email template
+        mangaTitle,
+      }).catch(err => console.error('[NotificationService] Failed to queue comment reply email:', err));
+    }
+
+    return notification;
   }
 
   async notifySponsorshipWon(
@@ -212,7 +272,7 @@ export class NotificationService {
     message?: string
   ): Promise<Notification> {
     const chapterTitle = chapter.title ? `: ${chapter.title}` : '';
-    return this.createNotification({
+    const notification = await this.createNotification({
       userId,
       type: 'TIP_RECEIVED',
       title: '💝 ¡Propina Recibida!',
@@ -228,6 +288,17 @@ export class NotificationService {
       },
       linkUrl: `/reader?chapterId=${chapter.id}`,
     });
+
+    // Queue tip email via BullMQ
+    this.emailProducer?.sendTipReceivedEmail(userId, {
+      tipId: chapter.id,
+      amount,
+      message: message || null,
+      fromUserId: sender.id,
+      fromUsername: sender.displayName || sender.username,
+    }).catch(err => console.error('[NotificationService] Failed to queue tip email:', err));
+
+    return notification;
   }
 
   async notifyCrowdfundingContribution(
@@ -463,9 +534,10 @@ export let notificationService: NotificationService | undefined;
 export function initializeNotificationService(
   repo: INotificationRepository,
   pushService?: IPushNotificationService,
-  realtimeService?: IRealtimeNotificationService
+  realtimeService?: IRealtimeNotificationService,
+  emailProducer?: IEmailQueueProducer
 ): NotificationService {
-  const service = new NotificationService(repo, pushService, realtimeService);
+  const service = new NotificationService(repo, pushService, realtimeService, emailProducer);
   notificationService = service;
   return service;
 }
@@ -474,10 +546,12 @@ export async function getNotificationService(): Promise<NotificationService> {
   if (notificationService) return notificationService;
   const { PrismaNotificationRepository, RealtimeNotificationAdapter } = await import('@/infrastructure/adapters/PrismaNotificationRepository');
   const { QueuePushNotificationAdapter } = await import('@/infrastructure/adapters/QueuePushNotificationAdapter');
+  const { EmailQueueProducer } = await import('@/infrastructure/adapters/EmailQueueProducer');
   return initializeNotificationService(
     new PrismaNotificationRepository(),
     new QueuePushNotificationAdapter(),
-    new RealtimeNotificationAdapter()
+    new RealtimeNotificationAdapter(),
+    new EmailQueueProducer()
   );
 }
 
