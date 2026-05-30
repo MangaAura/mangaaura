@@ -131,6 +131,21 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       },
     });
 
+    // Create COMPLETED_MANGA activity if status changed to completed
+    if (status === 'COMPLETED' && existing.status !== 'COMPLETED') {
+      prisma.userActivity.create({
+        data: {
+          userId: session.user.id,
+          activityType: 'COMPLETED_MANGA',
+          referenceId: mangaId,
+          metadata: JSON.stringify({
+            mangaTitle: entry.manga.title,
+            mangaSlug: entry.manga.slug,
+          }),
+        },
+      }).catch((err: Error) => console.error('[Library] Error creating COMPLETED_MANGA activity:', err));
+    }
+
     // Invalidate cache
     await invalidatePattern(`library:${session.user.id}:*`);
 

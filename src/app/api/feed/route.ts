@@ -55,6 +55,7 @@ const ACTIVITY_TYPE_MAP: Record<string, FeedActivity['type']> = {
   FOLLOW_USER: 'FOLLOW',
   CREATED_MANGA: 'CREATE_MANGA',
   JOINED_CLAN: 'JOIN_CLAN',
+  LIKE_COMMENT: 'LIKE',
 };
 
 // GET /api/feed - Get activity feed
@@ -123,6 +124,7 @@ export async function GET(request: NextRequest) {
     const followedUserIds = new Set<string>();
     const clanIds = new Set<string>();
     const achievementBadgeIds = new Set<string>();
+    const commentIds = new Set<string>();
 
     activities.forEach((a) => {
       userIds.add(a.userId);
@@ -136,6 +138,29 @@ export async function GET(request: NextRequest) {
         if (a.referenceId) clanIds.add(a.referenceId);
       } else if (a.activityType === 'ACHIEVEMENT_UNLOCKED') {
         if (a.referenceId) achievementBadgeIds.add(a.referenceId);
+      } else if (a.activityType === 'LIKE_COMMENT') {
+        if (a.referenceId) commentIds.add(a.referenceId);
+      }
+    });
+
+    // Fetch comment → manga mapping for likes
+    const commentsWithManga = commentIds.size > 0
+      ? await prisma.comment.findMany({
+          where: { id: { in: [...commentIds] } },
+          select: {
+            id: true,
+            chapterId: true,
+            chapter: {
+              select: { mangaId: true },
+            },
+          },
+        })
+      : [];
+    const commentMangaMap = new Map<string, string>();
+    commentsWithManga.forEach((c) => {
+      if (c.chapter?.mangaId) {
+        commentMangaMap.set(c.id, c.chapter.mangaId);
+        mangaIds.add(c.chapter.mangaId);
       }
     });
 
@@ -249,6 +274,12 @@ export async function GET(request: NextRequest) {
       } else if (activity.activityType === 'JOINED_CLAN') {
         const clan = activity.referenceId ? clanMap.get(activity.referenceId) : null;
         base.clan = clan ? { id: clan.id, name: clan.name, slug: clan.slug } : null;
+      } else if (activity.activityType === 'LIKE_COMMENT') {
+        const mangaId = activity.referenceId ? commentMangaMap.get(activity.referenceId) : null;
+        if (mangaId) {
+          const manga = mangaMap.get(mangaId);
+          base.manga = manga ? { id: manga.id, title: manga.title, slug: manga.slug, coverUrl: manga.coverUrl } : null;
+        }
       }
 
       return base;

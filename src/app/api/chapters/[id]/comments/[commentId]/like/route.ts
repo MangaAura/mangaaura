@@ -103,6 +103,19 @@ export async function POST(
       return { like, updatedComment };
     });
 
+  // Create LIKE_COMMENT activity (async, don't block)
+  prisma.userActivity.create({
+    data: {
+      userId,
+      activityType: 'LIKE_COMMENT',
+      referenceId: commentId,
+      metadata: JSON.stringify({
+        chapterId,
+        mangaId: comment.chapter?.mangaId || '',
+      }),
+    },
+  }).catch((err: Error) => console.error('[Like] Error creating activity:', err));
+
   // Notify comment owner (async, don't wait)
   if (comment.userId !== userId) {
     try {
