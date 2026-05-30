@@ -90,10 +90,25 @@ export function GenreSelector({ selected, onChange, error, max = 10 }: GenreSele
         })}
       </div>
 
-      {filtered.length === 0 && (
-        <p className="text-sm text-[var(--text-tertiary)] mt-3 text-center">
-          {t('creatorMangaNew.noGenresFound')}
-        </p>
+      {filtered.length === 0 && search.trim() && (
+        <div className="flex flex-col items-center gap-3 mt-4">
+          <p className="text-sm text-[var(--text-tertiary)]">
+            {t('creatorMangaNew.noGenresFound')}
+          </p>
+          {selected.length < max && (
+            <button
+              type="button"
+              onClick={() => {
+                onChange([...selected, search.trim()]);
+                setSearch('');
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 transition-all"
+            >
+              <span className="text-lg leading-none">+</span>
+              {t('creatorMangaNew.createGenre', { name: search.trim() })}
+            </button>
+          )}
+        </div>
       )}
 
       {/* Selected count */}
