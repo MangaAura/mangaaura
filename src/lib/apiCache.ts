@@ -136,6 +136,9 @@ export const cacheConfig = {
   analytics: {
     creator: { ttl: CACHE_TTL.ANALYTICS, prefix: 'analytics:creator' },
   },
+  stats: {
+    homepage: { ttl: CACHE_TTL.RANKINGS, prefix: 'stats:homepage' },
+  },
 };
 
 // Performance utility: Debounce function for frequent operations

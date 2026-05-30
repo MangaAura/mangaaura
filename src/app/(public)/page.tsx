@@ -4,6 +4,7 @@ import Script from 'next/script';
 import { HomeContent } from '@/components/Home/HomeContent';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 
 // ISR: revalidate every 5 min so manga/user/chapter counts stay fresh
@@ -79,7 +80,22 @@ function parseTags(tags: unknown): string[] {
 
 export default async function HomePage() {
   const whereActive = { deletedAt: null };
-  const [latestMangas, topMangas, updatingMangas, topUsers, featuredManga, totalMangas, totalReaders, totalChapters] = await Promise.all([
+
+  // Cache stats in Redis — runs in parallel with other queries below
+  const statsPromise = withCache(
+    generateCacheKey('stats:homepage', {}),
+    cacheConfig.stats.homepage.ttl,
+    async () => {
+    const [totalMangas, totalReaders, totalChapters] = await Promise.all([
+      prisma.mangaSeries.count({ where: whereActive }),
+      prisma.user.count(),
+      prisma.chapter.count(),
+    ]);
+      return { totalMangas, totalReaders, totalChapters };
+    },
+  );
+
+  const [latestMangas, topMangas, updatingMangas, topUsers, featuredManga, stats] = await Promise.all([
     prisma.mangaSeries.findMany({
       where: whereActive,
       take: 6,
@@ -120,10 +136,10 @@ export default async function HomePage() {
       orderBy: { totalViews: 'desc' },
       select: { id: true, title: true, slug: true, coverUrl: true, description: true, authorName: true },
     }),
-    prisma.mangaSeries.count({ where: whereActive }),
-    prisma.user.count(),
-    prisma.chapter.count(),
+    statsPromise,
   ]);
+
+  const { totalMangas, totalReaders, totalChapters } = stats;
 
   const faqSchema = {
     '@context': 'https://schema.org',
