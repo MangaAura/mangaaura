@@ -390,4 +390,57 @@ export class ResendEmailRepository implements IEmailRepository, IEmailTemplateSe
     });
     return { subject, html, text };
   }
+
+  renderLevelUpEmail(_username: string, oldLevel: number, newLevel: number): EmailTemplate {
+    const subject = `¡Has subido al nivel ${newLevel}!`;
+    const { html, text } = baseEmailTemplate({
+      title: '⭐ ¡Subida de Nivel!',
+      preview: `¡Felicidades! Has subido del nivel ${oldLevel} al nivel ${newLevel}`,
+      content: `
+        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px; margin-bottom: 20px;">
+          <span style="font-size: 48px;">⭐</span>
+          <h3 style="margin: 10px 0 0 0; color: white; font-size: 24px;">¡Nivel ${newLevel}!</h3>
+        </div>
+        <p>¡Felicidades! Has subido del nivel <strong>${oldLevel}</strong> al nivel <strong>${newLevel}</strong>.</p>
+        <p style="margin-top: 15px;">Sigue leyendo y participando para seguir subiendo de nivel y desbloquear más recompensas.</p>
+      `,
+      ctaText: 'Ver mi perfil',
+      ctaUrl: 'https://mangaaura.es/profile',
+    });
+    return { subject, html, text };
+  }
+
+  renderMentionEmail(_username: string, mentionerName: string, commentSnippet: string, link: string): EmailTemplate {
+    const subject = `${mentionerName} te mencionó en un comentario`;
+    const { html, text } = baseEmailTemplate({
+      title: `${mentionerName} te mencionó`,
+      preview: `${mentionerName} te mencionó en un comentario`,
+      content: `
+        <p><strong>${mentionerName}</strong> te mencionó en un comentario:</p>
+        <div style="margin: 15px 0; padding: 15px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #6366f1; color: #475569; font-style: italic;">
+          "${commentSnippet}"
+        </div>
+        <p>Haz clic en el botón para ver el comentario completo.</p>
+      `,
+      ctaText: 'Ver comentario',
+      ctaUrl: link,
+    });
+    return { subject, html, text };
+  }
+
+  renderClanInviteEmail(_username: string, clanName: string, inviterName: string, link: string): EmailTemplate {
+    const subject = `${inviterName} te invitó a unirte a ${clanName}`;
+    const { html, text } = baseEmailTemplate({
+      title: '🎮 ¡Invitación al Clan!',
+      preview: `${inviterName} te invitó a unirte a ${clanName}`,
+      content: `
+        <p><strong>${inviterName}</strong> te ha invitado a unirte al clan <strong>"${clanName}"</strong>.</p>
+        <p style="margin-top: 15px;">Los clanes te permiten conectar con otros miembros, participar en eventos exclusivos y ganar recompensas en equipo.</p>
+        <p style="margin-top: 15px;">¡No pierdas esta oportunidad!</p>
+      `,
+      ctaText: 'Ver invitación',
+      ctaUrl: link,
+    });
+    return { subject, html, text };
+  }
 }

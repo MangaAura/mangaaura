@@ -37,4 +37,7 @@ export interface IEmailTemplateService {
   renderTipReceivedEmail(username: string, senderName: string, amount: number, link: string): EmailTemplate;
   renderCrowdfundingGoalEmail(username: string, mangaTitle: string, goal: number, link: string): EmailTemplate;
   renderCommentReplyEmail(username: string, replierName: string, chapterTitle: string, link: string): EmailTemplate;
+  renderLevelUpEmail(username: string, oldLevel: number, newLevel: number): EmailTemplate;
+  renderMentionEmail(username: string, mentionerName: string, commentSnippet: string, link: string): EmailTemplate;
+  renderClanInviteEmail(username: string, clanName: string, inviterName: string, link: string): EmailTemplate;
 }

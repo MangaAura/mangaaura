@@ -162,6 +162,51 @@ export class EmailService {
     console.info(`[EmailService] Crowdfunding goal email sent to ${user.email}`);
   }
 
+  async sendLevelUpEmail(user: EmailUser, oldLevel: number, newLevel: number): Promise<void> {
+    const template = this.templateService.renderLevelUpEmail(
+      user.username, oldLevel, newLevel
+    );
+    await this.emailRepository.sendEmail(
+      user.email, template.subject, template.html, template.text
+    );
+    console.info(`[EmailService] Level-up email sent to ${user.email} (${oldLevel} -> ${newLevel})`);
+  }
+
+  async sendMentionEmail(
+    user: EmailUser,
+    mentionerName: string,
+    commentSnippet: string,
+    chapterId: string,
+    commentId: string
+  ): Promise<void> {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const link = `${baseUrl}/reader?chapterId=${chapterId}#comment-${commentId}`;
+    const template = this.templateService.renderMentionEmail(
+      user.username, mentionerName, commentSnippet, link
+    );
+    await this.emailRepository.sendEmail(
+      user.email, template.subject, template.html, template.text
+    );
+    console.info(`[EmailService] Mention email sent to ${user.email} from ${mentionerName}`);
+  }
+
+  async sendClanInviteEmail(
+    user: EmailUser,
+    clanName: string,
+    inviterName: string,
+    clanSlug: string
+  ): Promise<void> {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const link = `${baseUrl}/community/clan/${clanSlug}`;
+    const template = this.templateService.renderClanInviteEmail(
+      user.username, clanName, inviterName, link
+    );
+    await this.emailRepository.sendEmail(
+      user.email, template.subject, template.html, template.text
+    );
+    console.info(`[EmailService] Clan invite email sent to ${user.email} from ${inviterName}`);
+  }
+
   private async shouldSendEmail(userId: string, type: keyof EmailPreferences): Promise<boolean> {
     try {
       const preferences = await this.emailRepository.getEmailPreferences(userId);

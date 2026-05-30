@@ -121,6 +121,94 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       console.error('[EmailQueueProducer] Failed to queue comment reply email:', error);
     }
   }
+
+  async sendLevelUpEmail(
+    userId: string,
+    data: {
+      oldLevel: number;
+      newLevel: number;
+    },
+  ): Promise<void> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, username: true },
+      });
+      if (!user?.email) return;
+
+      await getEmailQueue().addLevelUpEmail({
+        to: user.email,
+        userId,
+        username: user.username,
+        oldLevel: data.oldLevel,
+        newLevel: data.newLevel,
+      });
+    } catch (error) {
+      console.error('[EmailQueueProducer] Failed to queue level-up email:', error);
+    }
+  }
+
+  async sendMentionEmail(
+    userId: string,
+    data: {
+      mentionerUsername: string;
+      commentContent: string;
+      chapterId: string;
+      commentId: string;
+      mangaTitle?: string;
+    },
+  ): Promise<void> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, username: true },
+      });
+      if (!user?.email) return;
+
+      await getEmailQueue().addMentionEmail({
+        to: user.email,
+        userId,
+        username: user.username,
+        mentionerUsername: data.mentionerUsername,
+        commentContent: data.commentContent,
+        mangaTitle: data.mangaTitle,
+        chapterId: data.chapterId,
+        commentId: data.commentId,
+      });
+    } catch (error) {
+      console.error('[EmailQueueProducer] Failed to queue mention email:', error);
+    }
+  }
+
+  async sendClanInviteEmail(
+    userId: string,
+    data: {
+      clanId: string;
+      clanName: string;
+      clanSlug: string;
+      inviterUsername: string;
+    },
+  ): Promise<void> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, username: true },
+      });
+      if (!user?.email) return;
+
+      await getEmailQueue().addClanInviteEmail({
+        to: user.email,
+        userId,
+        username: user.username,
+        clanId: data.clanId,
+        clanName: data.clanName,
+        clanSlug: data.clanSlug,
+        inviterUsername: data.inviterUsername,
+      });
+    } catch (error) {
+      console.error('[EmailQueueProducer] Failed to queue clan invite email:', error);
+    }
+  }
 }
 
 export default EmailQueueProducer;

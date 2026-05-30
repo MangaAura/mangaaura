@@ -65,6 +65,26 @@ export interface IEmailQueueProducer {
     chapterNumber: number;
     mangaTitle: string;
   }): Promise<void>;
+
+  sendLevelUpEmail(userId: string, data: {
+    oldLevel: number;
+    newLevel: number;
+  }): Promise<void>;
+
+  sendMentionEmail(userId: string, data: {
+    mentionerUsername: string;
+    commentContent: string;
+    chapterId: string;
+    commentId: string;
+    mangaTitle?: string;
+  }): Promise<void>;
+
+  sendClanInviteEmail(userId: string, data: {
+    clanId: string;
+    clanName: string;
+    clanSlug: string;
+    inviterUsername: string;
+  }): Promise<void>;
 }
 
 export class NotificationService {
@@ -233,7 +253,7 @@ export class NotificationService {
     oldLevel: number,
     newLevel: number
   ): Promise<Notification> {
-    return this.createNotification({
+    const notification = await this.createNotification({
       userId,
       type: 'LEVEL_UP',
       title: '⭐ ¡Subida de Nivel!',
@@ -244,6 +264,14 @@ export class NotificationService {
       },
       linkUrl: '/profile',
     });
+
+    // Queue level-up email via BullMQ
+    this.emailProducer?.sendLevelUpEmail(userId, {
+      oldLevel,
+      newLevel,
+    }).catch(err => console.error('[NotificationService] Failed to queue level-up email:', err));
+
+    return notification;
   }
 
   async notifyAuraReceived(
@@ -422,7 +450,7 @@ export class NotificationService {
     inviter: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null },
     invitationId: string
   ): Promise<Notification> {
-    return this.createNotification({
+    const notification = await this.createNotification({
       userId,
       type: 'CLAN_INVITE',
       title: '🎮 Invitación al Clan',
@@ -439,6 +467,16 @@ export class NotificationService {
       imageUrl: clan.emblemUrl || undefined,
       linkUrl: `/community/clan/${clan.slug}`,
     });
+
+    // Queue clan invite email via BullMQ
+    this.emailProducer?.sendClanInviteEmail(userId, {
+      clanId: clan.id,
+      clanName: clan.name,
+      clanSlug: clan.slug,
+      inviterUsername: inviter.displayName || inviter.username,
+    }).catch(err => console.error('[NotificationService] Failed to queue clan invite email:', err));
+
+    return notification;
   }
 
   async notifyMention(
@@ -447,7 +485,7 @@ export class NotificationService {
     mentioner: { id: string; username: string; displayName: string | null; avatarUrl: string | null },
     mangaTitle?: string
   ): Promise<Notification> {
-    return this.createNotification({
+    const notification = await this.createNotification({
       userId,
       type: 'MENTION',
       title: '@ Mención',
@@ -463,6 +501,20 @@ export class NotificationService {
       imageUrl: mentioner.avatarUrl || undefined,
       linkUrl: `/reader?chapterId=${comment.chapterId}#comment-${comment.id}`,
     });
+
+    const chapterId = comment.chapterId || '';
+    if (chapterId) {
+      // Queue mention email via BullMQ
+      this.emailProducer?.sendMentionEmail(userId, {
+        mentionerUsername: mentioner.displayName || mentioner.username,
+        commentContent: comment.content.substring(0, 200),
+        chapterId,
+        commentId: comment.id,
+        mangaTitle,
+      }).catch(err => console.error('[NotificationService] Failed to queue mention email:', err));
+    }
+
+    return notification;
   }
 
   async findById(notificationId: string): Promise<Notification | null> {

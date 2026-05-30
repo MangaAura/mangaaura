@@ -17,6 +17,9 @@ import type {
   TipReceivedData,
   CrowdfundingGoalData,
   CommentReplyData,
+  LevelUpData,
+  MentionData,
+  ClanInviteData,
 } from '@/infrastructure/queue/EmailQueue';
 import { getBullConnection } from '@/infrastructure/queue/connection';
 import { baseEmailTemplate } from '@/lib/email-templates';
@@ -178,6 +181,15 @@ export class EmailWorker {
           break;
         case 'comment-reply':
           await this.processCommentReplyEmail(job as Job<CommentReplyData>);
+          break;
+        case 'level-up':
+          await this.processLevelUpEmail(job as Job<LevelUpData>);
+          break;
+        case 'mention':
+          await this.processMentionEmail(job as Job<MentionData>);
+          break;
+        case 'clan-invite':
+          await this.processClanInviteEmail(job as Job<ClanInviteData>);
           break;
         case 'custom':
           await this.processCustomEmail(job);
@@ -348,6 +360,36 @@ export class EmailWorker {
     });
 
     console.info(`[EmailWorker] Comment reply email sent to ${to} from ${replierUsername}`);
+  }
+
+  private async processLevelUpEmail(job: Job<LevelUpData>): Promise<void> {
+    const { to, userId, username, oldLevel, newLevel } = job.data;
+    await emailService.sendLevelUpEmail(
+      { id: userId, email: to, username },
+      oldLevel,
+      newLevel
+    );
+  }
+
+  private async processMentionEmail(job: Job<MentionData>): Promise<void> {
+    const { to, userId, username, mentionerUsername, commentContent, chapterId, commentId } = job.data;
+    await emailService.sendMentionEmail(
+      { id: userId, email: to, username },
+      mentionerUsername,
+      commentContent.substring(0, 200),
+      chapterId,
+      commentId
+    );
+  }
+
+  private async processClanInviteEmail(job: Job<ClanInviteData>): Promise<void> {
+    const { to, userId, username, clanName, clanSlug, inviterUsername } = job.data;
+    await emailService.sendClanInviteEmail(
+      { id: userId, email: to, username },
+      clanName,
+      inviterUsername,
+      clanSlug
+    );
   }
 
   /**

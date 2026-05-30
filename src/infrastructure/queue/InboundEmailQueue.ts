@@ -1,8 +1,8 @@
 import { Queue, Job, type QueueOptions } from 'bullmq'
 
 import type { InboundEmailData, EmailClassification } from '@/core/services/IInboundEmailRepository'
+import { InMemoryQueue } from './InMemoryQueue'
 import { getBullConnection } from './connection'
-import { isMockRedis } from '@/lib/redis'
 
 export type InboundJobType = 'classify' | 'process' | 'reply'
 
@@ -17,59 +17,20 @@ interface JobCallbacks {
   onFailed?: (jobId: string, error: Error) => void
 }
 
-class InMemoryInboundQueue {
-  private jobs: Map<string, { data: InboundEmailJobData; addedAt: Date }> = new Map()
-  private jobCounter = 0
-  private isEnabled: boolean
-
+class InMemoryInboundQueue extends InMemoryQueue<InboundEmailJobData> {
   constructor() {
-    this.isEnabled = process.env.NODE_ENV !== 'production' && isMockRedis()
+    super('inbound')
   }
 
-  async add(name: string, data: InboundEmailJobData): Promise<Job> {
-    if (!this.isEnabled) throw new Error('In-memory queue not enabled')
-
-    this.jobCounter++
-    const id = `inbound-${this.jobCounter}`
-    this.jobs.set(id, { data, addedAt: new Date() })
+  override async add(name: string, data: InboundEmailJobData): Promise<Job> {
+    const job = await super.add(name, data)
 
     if (process.env.DEBUG_EMAIL) {
       console.log(`[InboundQueue] Job queued (in-memory): ${name} from ${data.email.fromEmail}`)
     }
 
-    return {
-      id,
-      name,
-      data,
-      opts: {},
-      returnvalue: null,
-      failedReason: null,
-      stacktrace: null,
-      attemptsMade: 0,
-      delay: 0,
-      progress: 0,
-      timestamp: Date.now(),
-      finishedOn: undefined,
-      processedOn: undefined,
-      getState: async () => 'completed',
-      retry: async () => {},
-      discard: async () => { this.jobs.delete(id) },
-      moveToCompleted: async () => {},
-      moveToFailed: async () => {},
-      changeDelay: async () => {},
-      changePriority: async () => {},
-      toJSON: () => ({ id, name, data, opts: {} }),
-      remove: async () => { this.jobs.delete(id) },
-      log: async () => {},
-    } as unknown as Job
+    return job
   }
-
-  async getWaitingCount(): Promise<number> { return this.jobs.size }
-  async getActiveCount(): Promise<number> { return 0 }
-  async getCompletedCount(): Promise<number> { return 0 }
-  async getFailedCount(): Promise<number> { return 0 }
-  async getDelayedCount(): Promise<number> { return 0 }
-  async close(): Promise<void> { this.jobs.clear() }
 }
 
 export class InboundEmailQueue {
@@ -78,9 +39,19 @@ export class InboundEmailQueue {
   private useInMemory: boolean
 
   constructor() {
-    this.useInMemory = process.env.NODE_ENV !== 'production' && isMockRedis()
+    this.useInMemory = process.env.NODE_ENV !== 'production'
 
     if (this.useInMemory) {
+      try {
+        const { isMockRedis } = require('@/lib/redis')
+        if (!isMockRedis()) {
+          this.useInMemory = false
+          this.queue = this.initializeQueue()
+          return
+        }
+      } catch {
+        // fall through
+      }
       this.queue = new InMemoryInboundQueue()
     } else {
       this.queue = this.initializeQueue()

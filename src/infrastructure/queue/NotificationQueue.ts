@@ -7,8 +7,8 @@
 
 import { Queue, Job, type QueueOptions } from 'bullmq';
 
+import { InMemoryQueue } from './InMemoryQueue';
 import { getBullConnection } from './connection';
-import { isMockRedis } from '@/lib/redis';
 
 // ============================================================================
 // Types & Interfaces
@@ -84,68 +84,19 @@ export interface NotificationQueueStats {
 // In-Memory Queue for Development (Mock)
 // ============================================================================
 
-class InMemoryNotificationQueue {
-  private jobs: Map<string, { data: NotificationJobData; addedAt: Date }> = new Map();
-  private jobCounter = 0;
-  private isEnabled: boolean;
-
+class InMemoryNotificationQueue extends InMemoryQueue<NotificationJobData> {
   constructor() {
-    this.isEnabled = process.env.NODE_ENV !== 'production' && isMockRedis();
+    super('notif');
   }
 
-  async add(name: string, data: NotificationJobData, _opts?: unknown): Promise<Job> {
-    if (!this.isEnabled) throw new Error('In-memory queue not enabled');
-
-    this.jobCounter++;
-    const id = `notif-local-${this.jobCounter}`;
-    const jobData = { data, addedAt: new Date() };
-    this.jobs.set(id, jobData);
+  override async add(name: string, data: NotificationJobData, _opts?: unknown): Promise<Job> {
+    const job = await super.add(name, data, _opts);
 
     if (process.env.DEBUG_QUEUE) {
       console.log(`[NotificationQueue] Job queued (in-memory): ${name} for user ${data.type === 'bulk-push' ? 'multiple' : (data as any).userId}`);
     }
 
-    return {
-      id,
-      name,
-      data,
-      opts: {},
-      returnvalue: null,
-      failedReason: null,
-      stacktrace: null,
-      attemptsMade: 0,
-      delay: 0,
-      progress: 0,
-      timestamp: Date.now(),
-      finishedOn: undefined,
-      processedOn: undefined,
-      getState: async () => 'completed',
-      retry: async () => {},
-      discard: async () => { this.jobs.delete(id); },
-      moveToCompleted: async () => {},
-      moveToFailed: async () => {},
-      changeDelay: async () => {},
-      changePriority: async () => {},
-      toJSON: () => ({ id, name, data }),
-      remove: async () => { this.jobs.delete(id); },
-      log: async () => {},
-    } as unknown as Job;
-  }
-
-  async getJobCounts(): Promise<{ waiting: number; active: number; completed: number; failed: number; delayed: number }> {
-    return { waiting: this.jobs.size, active: 0, completed: 0, failed: 0, delayed: 0 };
-  }
-
-  async getJobs(_types?: string[]): Promise<Job[]> {
-    return [];
-  }
-
-  async clean(_ms: number, _limit: number | string, _type?: string): Promise<void> {
-    // No-op
-  }
-
-  async close(): Promise<void> {
-    this.jobs.clear();
+    return job;
   }
 }
 
@@ -159,9 +110,19 @@ export class NotificationQueue {
   private useInMemory: boolean;
 
   constructor() {
-    this.useInMemory = process.env.NODE_ENV !== 'production' && isMockRedis();
+    this.useInMemory = process.env.NODE_ENV !== 'production';
 
     if (this.useInMemory) {
+      try {
+        const { isMockRedis } = require('@/lib/redis');
+        if (!isMockRedis()) {
+          this.useInMemory = false;
+          this.queue = this.initializeQueue();
+          return;
+        }
+      } catch {
+        // fall through
+      }
       this.queue = new InMemoryNotificationQueue();
       if (process.env.DEBUG_QUEUE) {
         console.log('[NotificationQueue] Using in-memory queue (Redis not available)');
@@ -282,7 +243,15 @@ export class NotificationQueue {
   async getJobs(state: 'waiting' | 'active' | 'completed' | 'failed' | 'delayed'): Promise<Job[]> {
     try {
       if (this.useInMemory) {
-        return [];
+        const inMem = this.queue as InMemoryNotificationQueue;
+        switch (state) {
+          case 'waiting': return inMem.getWaiting();
+          case 'active': return inMem.getActive();
+          case 'completed': return inMem.getCompleted();
+          case 'failed': return inMem.getFailed();
+          case 'delayed': return inMem.getDelayed();
+          default: return [];
+        }
       }
       const bullQueue = this.queue as Queue;
       return await bullQueue.getJobs([state]);
@@ -294,13 +263,18 @@ export class NotificationQueue {
 
   async clean(olderThanHours = 24): Promise<void> {
     try {
-      if (this.useInMemory) return;
-      const bullQueue = this.queue as Queue;
-      const olderThanMs = olderThanHours * 60 * 60 * 1000;
-      await Promise.all([
-        bullQueue.clean(olderThanMs, 500, 'completed'),
-        bullQueue.clean(olderThanMs, 200, 'failed'),
-      ]);
+      if (this.useInMemory) {
+        const inMem = this.queue as InMemoryNotificationQueue;
+        await inMem.clean(olderThanHours * 60 * 60 * 1000, 'completed');
+        await inMem.clean(olderThanHours * 60 * 60 * 1000, 'failed');
+      } else {
+        const bullQueue = this.queue as Queue;
+        const olderThanMs = olderThanHours * 60 * 60 * 1000;
+        await Promise.all([
+          bullQueue.clean(olderThanMs, 500, 'completed'),
+          bullQueue.clean(olderThanMs, 200, 'failed'),
+        ]);
+      }
       console.info(`[NotificationQueue] Cleaned jobs older than ${olderThanHours}h`);
     } catch (error) {
       console.error('[NotificationQueue] Failed to clean:', error);

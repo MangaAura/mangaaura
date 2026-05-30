@@ -6,8 +6,8 @@
 
 import { Queue, Job, type QueueOptions } from 'bullmq';
 
+import { InMemoryQueue } from './InMemoryQueue';
 import { getBullConnection } from './connection';
-import { isMockRedis } from '@/lib/redis';
 
 // ============================================================================
 // Types & Interfaces
@@ -22,6 +22,9 @@ export type EmailJobType =
   | 'tip-received'
   | 'crowdfunding-goal-reached'
   | 'comment-reply'
+  | 'level-up'
+  | 'mention'
+  | 'clan-invite'
   | 'marketing'
   | 'custom';
 
@@ -105,10 +108,33 @@ export interface CommentReplyData extends EmailJobData {
   mangaTitle: string;
 }
 
+export interface LevelUpData extends EmailJobData {
+  type: 'level-up';
+  oldLevel: number;
+  newLevel: number;
+}
+
+export interface MentionData extends EmailJobData {
+  type: 'mention';
+  mentionerUsername: string;
+  commentContent: string;
+  mangaTitle?: string;
+  chapterId: string;
+  commentId: string;
+}
+
+export interface ClanInviteData extends EmailJobData {
+  type: 'clan-invite';
+  clanId: string;
+  clanName: string;
+  clanSlug: string;
+  inviterUsername: string;
+}
+
 export interface EmailJobOptions {
-  delay?: number; // Delay en milisegundos
-  priority?: number; // Prioridad (1 = más alta)
-  attempts?: number; // Intentos de reenvío
+  delay?: number;
+  priority?: number;
+  attempts?: number;
   backoff?: {
     type: 'fixed' | 'exponential';
     delay: number;
@@ -127,121 +153,19 @@ export interface QueueStats {
 // In-Memory Queue for Development (Mock)
 // ============================================================================
 
-class InMemoryEmailQueue {
-  private jobs: Map<string, { data: EmailJobData; options: EmailJobOptions; addedAt: Date }> = new Map();
-  private jobCounter = 0;
-  private isEnabled: boolean;
-
+class InMemoryEmailQueue extends InMemoryQueue<EmailJobData> {
   constructor() {
-    this.isEnabled = process.env.NODE_ENV !== 'production' && isMockRedis();
+    super('local');
   }
 
-  async add(name: string, data: EmailJobData, opts?: EmailJobOptions): Promise<Job> {
-    if (!this.isEnabled) {
-      throw new Error('In-memory queue not enabled');
+  override async add(name: string, data: EmailJobData, opts?: EmailJobOptions): Promise<Job> {
+    const job = await super.add(name, data, opts);
+
+    if (process.env.DEBUG_EMAIL) {
+      console.log(`[EmailQueue] Job queued (in-memory): ${name} for ${data.to}`);
     }
 
-    this.jobCounter++;
-    const id = `local-${this.jobCounter}`;
-    const jobData = { data, options: opts || {}, addedAt: new Date() };
-    this.jobs.set(id, jobData);
-
-    // Log in development only
-    if (process.env.DEBUG_EMAIL) {
-    console.log(`[EmailQueue] Job queued (in-memory): ${name} for ${data.to}`);
-  }
-
-  // Return a mock Job object
-  return {
-    id,
-    name,
-    data,
-    opts: opts || {},
-    returnvalue: null,
-    failedReason: null,
-    stacktrace: null,
-    attemptsMade: 0,
-    delay: opts?.delay || 0,
-    progress: 0,
-    timestamp: Date.now(),
-    finishedOn: undefined,
-    processedOn: undefined,
-    getState: async () => 'completed',
-    retry: async () => this.retry(id),
-    discard: async () => { this.jobs.delete(id); },
-    moveToCompleted: async () => { },
-    moveToFailed: async () => { },
-    changeDelay: async () => { },
-    changePriority: async () => { },
-    toJSON: () => ({
-      id,
-      name,
-      data,
-      opts: opts || {},
-    }),
-      remove: async () => { this.jobs.delete(id); },
-      log: async () => { },
-    } as unknown as Job;
-  }
-
-  async getWaitingCount(): Promise<number> {
-    return this.jobs.size;
-  }
-
-  async getActiveCount(): Promise<number> {
-    return 0; // In-memory queue doesn't track active
-  }
-
-  async getCompletedCount(): Promise<number> {
-    return 0;
-  }
-
-  async getFailedCount(): Promise<number> {
-    return 0;
-  }
-
-  async getDelayedCount(): Promise<number> {
-    return 0;
-  }
-
-  async getWaiting(): Promise<Job[]> {
-    return [];
-  }
-
-  async getActive(): Promise<Job[]> {
-    return [];
-  }
-
-  async getCompleted(): Promise<Job[]> {
-    return [];
-  }
-
-  async getFailed(): Promise<Job[]> {
-    return [];
-  }
-
-  async getDelayed(): Promise<Job[]> {
-    return [];
-  }
-
-  async clean(_ms: number, _state: string): Promise<void> {
-    // No-op for in-memory
-  }
-
-  async pause(): Promise<void> {
-    // No-op
-  }
-
-  async resume(): Promise<void> {
-    // No-op
-  }
-
-  async close(): Promise<void> {
-    this.jobs.clear();
-  }
-
-  private async retry(_id: string): Promise<void> {
-    // No-op retry for in-memory
+    return job;
   }
 }
 
@@ -255,9 +179,20 @@ export class EmailQueue {
   private useInMemory: boolean;
 
   constructor() {
-    this.useInMemory = process.env.NODE_ENV !== 'production' && isMockRedis();
+    this.useInMemory = process.env.NODE_ENV !== 'production';
 
     if (this.useInMemory) {
+      try {
+        // Intenta crear InMemoryQueue — falla si no estamos en mock Redis
+        const { isMockRedis } = require('@/lib/redis');
+        if (!isMockRedis()) {
+          this.useInMemory = false;
+          this.queue = this.initializeQueue();
+          return;
+        }
+      } catch {
+        // fall through
+      }
       this.queue = new InMemoryEmailQueue();
       if (process.env.DEBUG_EMAIL) {
         console.log('[EmailQueue] Using in-memory queue (Redis not available)');
@@ -275,11 +210,11 @@ export class EmailQueue {
       connection: getBullConnection(),
       defaultJobOptions: {
         removeOnComplete: {
-          age: 24 * 3600, // Mantener completados por 24 horas
-          count: 1000, // Máximo 1000 jobs completados
+          age: 24 * 3600,
+          count: 1000,
         },
         removeOnFail: {
-          age: 7 * 24 * 3600, // Mantener fallidos por 7 días
+          age: 7 * 24 * 3600,
         },
         attempts: 3,
         backoff: {
@@ -312,10 +247,10 @@ export class EmailQueue {
       },
     };
 
-try {
+    try {
       const job = await this.queue.add(type, jobData, jobOptions);
 
-      if (!this.useInMemory) {
+      if (!this.useInMemory && process.env.NODE_ENV === 'production') {
         console.info(`[EmailQueue] Job added: ${type} for ${data.to} (Job ID: ${job.id})`);
       }
 
@@ -326,23 +261,15 @@ try {
     }
   }
 
-  /**
-   * Agrega email de bienvenida a la cola
-   */
+  // ─── Email type methods ─────────────────────────────────────────
+
   async addWelcomeEmail(data: Omit<WelcomeEmailData, 'type'>): Promise<Job> {
-    return this.addEmailJob('welcome', data, {
-      priority: 2, // Prioridad alta
-    });
+    return this.addEmailJob('welcome', data, { priority: 2 });
   }
 
-  /**
-   * Agrega email de recuperación de contraseña a la cola
-   */
   async addPasswordResetEmail(data: PasswordResetFields): Promise<Job> {
     try {
-      return await this.addEmailJob('password-reset', data, {
-        priority: 1,
-      });
+      return await this.addEmailJob('password-reset', data, { priority: 1 });
     } catch (error) {
       console.warn('[EmailQueue] Queue unavailable, sending email directly');
       await this.sendPasswordResetEmailDirect(data);
@@ -367,76 +294,63 @@ try {
   }
 
   async addVerificationEmail(data: Omit<VerificationEmailData, 'type'>): Promise<Job> {
-    return this.addEmailJob('verification', data, {
-      priority: 1,
-    });
+    return this.addEmailJob('verification', data, { priority: 1 });
   }
 
-  /**
-   * Agrega notificación de nuevo capítulo a la cola
-   */
   async addNewChapterEmail(data: Omit<NewChapterData, 'type'>): Promise<Job> {
     return this.addEmailJob('new-chapter', data, {
-      priority: 3, // Prioridad normal
-      delay: 5 * 60 * 1000, // Delay de 5 minutos para batch processing
+      priority: 3,
+      delay: 5 * 60 * 1000,
     });
   }
 
-  /**
-   * Agrega notificación de logro desbloqueado a la cola
-   */
   async addAchievementEmail(data: Omit<AchievementData, 'type'>): Promise<Job> {
-    return this.addEmailJob('achievement', data, {
-      priority: 2, // Prioridad alta
-    });
+    return this.addEmailJob('achievement', data, { priority: 2 });
   }
 
-  /**
-   * Agrega notificación de propina recibida a la cola
-   */
   async addTipReceivedEmail(data: Omit<TipReceivedData, 'type'>): Promise<Job> {
-    return this.addEmailJob('tip-received', data, {
-      priority: 2, // Prioridad alta
-    });
+    return this.addEmailJob('tip-received', data, { priority: 2 });
   }
 
-  /**
-   * Agrega notificación de meta de crowdfunding alcanzada a la cola
-   */
   async addCrowdfundingGoalEmail(data: Omit<CrowdfundingGoalData, 'type'>): Promise<Job> {
-    return this.addEmailJob('crowdfunding-goal-reached', data, {
-      priority: 2, // Prioridad alta
-    });
+    return this.addEmailJob('crowdfunding-goal-reached', data, { priority: 2 });
   }
 
-  /**
-   * Agrega notificación de respuesta a comentario a la cola
-   */
   async addCommentReplyEmail(data: Omit<CommentReplyData, 'type'>): Promise<Job> {
-    return this.addEmailJob('comment-reply', data, {
-      priority: 3, // Prioridad normal
-    });
+    return this.addEmailJob('comment-reply', data, { priority: 3 });
   }
 
-  /**
-   * Obtiene estadísticas de la cola
-   */
+  /** Email de subida de nivel */
+  async addLevelUpEmail(data: Omit<LevelUpData, 'type'>): Promise<Job> {
+    return this.addEmailJob('level-up', data, { priority: 2 });
+  }
+
+  /** Email de mención */
+  async addMentionEmail(data: Omit<MentionData, 'type'>): Promise<Job> {
+    return this.addEmailJob('mention', data, { priority: 3 });
+  }
+
+  /** Email de invitación a clan */
+  async addClanInviteEmail(data: Omit<ClanInviteData, 'type'>): Promise<Job> {
+    return this.addEmailJob('clan-invite', data, { priority: 2 });
+  }
+
+  // ─── Stats ─────────────────────────────────────────────────────
+
   async getStats(): Promise<QueueStats> {
     try {
       if (this.useInMemory) {
-        const inMemory = this.queue as InMemoryEmailQueue;
+        const inMem = this.queue as InMemoryEmailQueue;
         return {
-          waiting: await inMemory.getWaitingCount(),
-          active: await inMemory.getActiveCount(),
-          completed: await inMemory.getCompletedCount(),
-          failed: await inMemory.getFailedCount(),
-          delayed: await inMemory.getDelayedCount(),
+          waiting: await inMem.getWaitingCount(),
+          active: await inMem.getActiveCount(),
+          completed: await inMem.getCompletedCount(),
+          failed: await inMem.getFailedCount(),
+          delayed: await inMem.getDelayedCount(),
         };
       }
-
-  const bullQueue = this.queue as Queue;
-  const counts = await bullQueue.getJobCounts();
-
+      const bullQueue = this.queue as Queue;
+      const counts = await bullQueue.getJobCounts();
       return {
         waiting: counts.waiting ?? 0,
         active: counts.active ?? 0,
@@ -450,72 +364,54 @@ try {
     }
   }
 
-  /**
-   * Obtiene jobs por estado
-   */
   async getJobs(state: 'waiting' | 'active' | 'completed' | 'failed' | 'delayed'): Promise<Job[]> {
     try {
       if (this.useInMemory) {
-        const inMemory = this.queue as InMemoryEmailQueue;
+        const inMem = this.queue as InMemoryEmailQueue;
         switch (state) {
-          case 'waiting': return inMemory.getWaiting();
-          case 'active': return inMemory.getActive();
-          case 'completed': return inMemory.getCompleted();
-          case 'failed': return inMemory.getFailed();
-          case 'delayed': return inMemory.getDelayed();
+          case 'waiting': return inMem.getWaiting();
+          case 'active': return inMem.getActive();
+          case 'completed': return inMem.getCompleted();
+          case 'failed': return inMem.getFailed();
+          case 'delayed': return inMem.getDelayed();
           default: return [];
         }
       }
-
-  const bullQueue = this.queue as Queue;
-  switch (state) {
-  case 'waiting':
-  return bullQueue.getWaiting();
-  case 'active':
-  return bullQueue.getActive();
-  case 'completed':
-  return bullQueue.getCompleted();
-  case 'failed':
-  return bullQueue.getFailed();
-  case 'delayed':
-  return bullQueue.getDelayed();
-  default:
-  return [];
-  }
+      const bullQueue = this.queue as Queue;
+      switch (state) {
+        case 'waiting': return bullQueue.getWaiting();
+        case 'active': return bullQueue.getActive();
+        case 'completed': return bullQueue.getCompleted();
+        case 'failed': return bullQueue.getFailed();
+        case 'delayed': return bullQueue.getDelayed();
+        default: return [];
+      }
     } catch (error) {
       console.error('[EmailQueue] Failed to get jobs:', error);
       return [];
     }
   }
 
-  /**
-   * Limpia jobs completados y fallidos antiguos
-   */
   async cleanOldJobs(olderThanHours: number = 24): Promise<void> {
     try {
       if (this.useInMemory) {
-        const inMemory = this.queue as InMemoryEmailQueue;
-        await inMemory.clean(olderThanHours * 60 * 60 * 1000, 'completed');
-        await inMemory.clean(olderThanHours * 60 * 60 * 1000, 'failed');
+        const inMem = this.queue as InMemoryEmailQueue;
+        await inMem.clean(olderThanHours * 60 * 60 * 1000, 'completed');
+        await inMem.clean(olderThanHours * 60 * 60 * 1000, 'failed');
       } else {
-  const bullQueue = this.queue as Queue;
-  const olderThanMs = olderThanHours * 60 * 60 * 1000;
-
-  await Promise.all([
-  bullQueue.clean(olderThanMs, 1000, 'completed'),
-  bullQueue.clean(olderThanMs, 1000, 'failed'),
-  ]);
+        const bullQueue = this.queue as Queue;
+        const olderThanMs = olderThanHours * 60 * 60 * 1000;
+        await Promise.all([
+          bullQueue.clean(olderThanMs, 1000, 'completed'),
+          bullQueue.clean(olderThanMs, 1000, 'failed'),
+        ]);
       }
-
       console.info(`[EmailQueue] Cleaned jobs older than ${olderThanHours} hours`);
     } catch (error) {
       console.error('[EmailQueue] Failed to clean old jobs:', error);
     }
   }
 
-  /**
-   * Pausa la cola
-   */
   async pause(): Promise<void> {
     try {
       if (!this.useInMemory) {
@@ -527,9 +423,6 @@ try {
     }
   }
 
-  /**
-   * Reanuda la cola
-   */
   async resume(): Promise<void> {
     try {
       if (!this.useInMemory) {
@@ -565,22 +458,17 @@ try {
     }
   }
 
-  /**
-   * Obtiene el nombre de la cola
-   */
   get name(): string {
     return this.queueName;
   }
 
-  /**
-   * Cierra la conexión de la cola
-   */
   async close(): Promise<void> {
     try {
-  if (!this.useInMemory) {
-  const bullQueue = this.queue as Queue;
-  await bullQueue.close();
-  }
+      if (!this.useInMemory) {
+        await (this.queue as Queue).close();
+      } else {
+        await (this.queue as InMemoryEmailQueue).close();
+      }
     } catch (error) {
       console.error('[EmailQueue] Failed to close:', error);
     }
