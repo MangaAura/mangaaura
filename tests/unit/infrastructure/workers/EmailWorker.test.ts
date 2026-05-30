@@ -21,6 +21,9 @@ const emailServiceMock = {
   sendTipReceivedEmail: vi.fn().mockResolvedValue(undefined),
   sendCrowdfundingGoalReachedEmail: vi.fn().mockResolvedValue(undefined),
   sendEmail: vi.fn().mockResolvedValue(undefined),
+  sendLevelUpEmail: vi.fn().mockResolvedValue(undefined),
+  sendMentionEmail: vi.fn().mockResolvedValue(undefined),
+  sendClanInviteEmail: vi.fn().mockResolvedValue(undefined),
 };
 
 vi.mock('@/infrastructure/adapters/emailService', () => ({
@@ -185,6 +188,71 @@ describe('EmailWorker', () => {
       await worker.processJob(job);
 
       expect(emailServiceMock.sendEmail).toHaveBeenCalled();
+    });
+
+    it('debe procesar email de subida de nivel', async () => {
+      const job = makeJob({
+        type: 'level-up',
+        to: 'player@test.com',
+        userId: 'user-10',
+        username: 'leveler',
+        oldLevel: 4,
+        newLevel: 5,
+      });
+
+      await worker.processJob(job);
+
+      expect(emailServiceMock.sendLevelUpEmail).toHaveBeenCalledWith(
+        { id: 'user-10', email: 'player@test.com', username: 'leveler' },
+        4,
+        5
+      );
+    });
+
+    it('debe procesar email de mención', async () => {
+      const job = makeJob({
+        type: 'mention',
+        to: 'user@test.com',
+        userId: 'user-11',
+        username: 'mentioned',
+        mentionerUsername: 'someone',
+        commentContent: 'Great comment! You are amazing for this!',
+        chapterId: 'ch-1',
+        commentId: 'comment-42',
+        mangaTitle: 'Test Manga',
+      });
+
+      await worker.processJob(job);
+
+      expect(emailServiceMock.sendMentionEmail).toHaveBeenCalledWith(
+        { id: 'user-11', email: 'user@test.com', username: 'mentioned' },
+        'someone',
+        expect.any(String),
+        'ch-1',
+        'comment-42'
+      );
+    });
+
+    it('debe procesar email de invitación a clan', async () => {
+      const job = makeJob({
+        type: 'clan-invite',
+        to: 'user@test.com',
+        userId: 'user-12',
+        username: 'invited',
+        clanId: 'clan-1',
+        clanName: 'Samurai Warriors',
+        clanSlug: 'samurai-warriors',
+        inviterUsername: 'inviter',
+      });
+
+      await worker.processJob(job);
+
+      expect(emailServiceMock.sendClanInviteEmail).toHaveBeenCalledWith(
+        { id: 'user-12', email: 'user@test.com', username: 'invited' },
+        'Samurai Warriors',
+        'inviter',
+        'samurai-warriors'
+      );
     });
 
     it('debe procesar email personalizado', async () => {

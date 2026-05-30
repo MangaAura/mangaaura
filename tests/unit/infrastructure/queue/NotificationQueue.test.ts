@@ -7,7 +7,13 @@
  * @packageDocumentation
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
+// Mock isMockRedis to return true so InMemoryQueue is enabled
+vi.mock('@/lib/redis', () => ({
+  redis: {},
+  isMockRedis: () => true,
+}));
 
 import { NotificationQueue } from '@/infrastructure/queue/NotificationQueue';
 import type {
@@ -114,7 +120,6 @@ describe('NotificationQueue (in-memory mode)', () => {
   });
 
   it('returns stats after adding jobs', async () => {
-    // The in-memory queue should report waiting jobs
     const stats = await queue.getStats();
     expect(typeof stats.waiting).toBe('number');
     expect(typeof stats.active).toBe('number');
@@ -124,12 +129,30 @@ describe('NotificationQueue (in-memory mode)', () => {
     await expect(queue.clean(1)).resolves.toBeUndefined();
   });
 
-  it('returns empty jobs list for any state', async () => {
-    const jobs = await queue.getJobs('waiting');
-    expect(Array.isArray(jobs)).toBe(true);
+  it('returns jobs list for each state', async () => {
+    const waiting = await queue.getJobs('waiting');
+    expect(Array.isArray(waiting)).toBe(true);
+    const active = await queue.getJobs('active');
+    expect(Array.isArray(active)).toBe(true);
+    const completed = await queue.getJobs('completed');
+    expect(Array.isArray(completed)).toBe(true);
+    const failed = await queue.getJobs('failed');
+    expect(Array.isArray(failed)).toBe(true);
+    const delayed = await queue.getJobs('delayed');
+    expect(Array.isArray(delayed)).toBe(true);
   });
 
   it('returns correct queue name', () => {
     expect(queue.name).toBe('notifications');
+  });
+
+  it('pause and resume do not throw in in-memory mode', async () => {
+    await expect(queue.pause()).resolves.toBeUndefined();
+    await expect(queue.resume()).resolves.toBeUndefined();
+  });
+
+  it('retryFailed returns 0 in in-memory mode', async () => {
+    const retried = await queue.retryFailed();
+    expect(retried).toBe(0);
   });
 });

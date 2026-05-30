@@ -7,7 +7,13 @@
  * @packageDocumentation
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
+// Mock isMockRedis to return true so InMemoryQueue is enabled
+vi.mock('@/lib/redis', () => ({
+  redis: {},
+  isMockRedis: () => true,
+}));
 
 import { EmailQueue } from '@/infrastructure/queue/EmailQueue';
 import type {
@@ -19,6 +25,9 @@ import type {
   CrowdfundingGoalData,
   VerificationEmailData,
   CommentReplyData,
+  LevelUpData,
+  MentionData,
+  ClanInviteData,
 } from '@/infrastructure/queue/EmailQueue';
 
 describe('EmailQueue (in-memory mode)', () => {
@@ -196,5 +205,81 @@ describe('EmailQueue (in-memory mode)', () => {
   it('pause and resume do not throw in in-memory mode', async () => {
     await expect(queue.pause()).resolves.toBeUndefined();
     await expect(queue.resume()).resolves.toBeUndefined();
+  });
+
+  it('retryFailed returns 0 in in-memory mode', async () => {
+    const retried = await queue.retryFailed();
+    expect(retried).toBe(0);
+  });
+
+  // ─── New email types ────────────────────────────────────────
+
+  it('adds a level-up email job', async () => {
+    const data: Omit<LevelUpData, 'type'> = {
+      to: 'user@test.com',
+      userId: 'user-10',
+      username: 'leveler',
+      oldLevel: 4,
+      newLevel: 5,
+    };
+
+    const job = await queue.addLevelUpEmail(data);
+    expect(job).toBeDefined();
+    expect(job.id).toBeTruthy();
+    expect(job.data.type).toBe('level-up');
+    expect((job.data as LevelUpData).oldLevel).toBe(4);
+    expect((job.data as LevelUpData).newLevel).toBe(5);
+  });
+
+  it('adds a mention email job', async () => {
+    const data: Omit<MentionData, 'type'> = {
+      to: 'user@test.com',
+      userId: 'user-11',
+      username: 'mentioned',
+      mentionerUsername: 'someone',
+      commentContent: 'Great comment!',
+      chapterId: 'chapter-1',
+      commentId: 'comment-1',
+      mangaTitle: 'Test Manga',
+    };
+
+    const job = await queue.addMentionEmail(data);
+    expect(job).toBeDefined();
+    expect(job.id).toBeTruthy();
+    expect(job.data.type).toBe('mention');
+    expect((job.data as MentionData).mentionerUsername).toBe('someone');
+    expect((job.data as MentionData).commentId).toBe('comment-1');
+  });
+
+  it('adds a clan invite email job', async () => {
+    const data: Omit<ClanInviteData, 'type'> = {
+      to: 'user@test.com',
+      userId: 'user-12',
+      username: 'invited',
+      clanId: 'clan-1',
+      clanName: 'Samurai Warriors',
+      clanSlug: 'samurai-warriors',
+      inviterUsername: 'inviter',
+    };
+
+    const job = await queue.addClanInviteEmail(data);
+    expect(job).toBeDefined();
+    expect(job.id).toBeTruthy();
+    expect(job.data.type).toBe('clan-invite');
+    expect((job.data as ClanInviteData).clanName).toBe('Samurai Warriors');
+    expect((job.data as ClanInviteData).clanSlug).toBe('samurai-warriors');
+  });
+
+  it('returns jobs list for each state', async () => {
+    const waiting = await queue.getJobs('waiting');
+    expect(Array.isArray(waiting)).toBe(true);
+    const active = await queue.getJobs('active');
+    expect(Array.isArray(active)).toBe(true);
+    const completed = await queue.getJobs('completed');
+    expect(Array.isArray(completed)).toBe(true);
+    const failed = await queue.getJobs('failed');
+    expect(Array.isArray(failed)).toBe(true);
+    const delayed = await queue.getJobs('delayed');
+    expect(Array.isArray(delayed)).toBe(true);
   });
 });
