@@ -107,7 +107,9 @@ export class InMemoryQueue<T> {
   // ─── Job lists ──────────────────────────────────────────────────
 
   async getWaiting(): Promise<Job[]> {
-    return [];
+    return Array.from(this.jobs.entries()).map(([id, entry]) =>
+      this.createMockJob(id, 'pending', entry.data)
+    );
   }
 
   async getActive(): Promise<Job[]> {
@@ -126,8 +128,33 @@ export class InMemoryQueue<T> {
     return [];
   }
 
-  async getJobs(_types?: string[], _start?: number, _end?: number): Promise<Job[]> {
-    return [];
+  async getJobs(types?: string[], _start?: number, _end?: number): Promise<Job[]> {
+    if (!types || types.length === 0) {
+      return Array.from(this.jobs.entries()).map(([id, entry]) =>
+        this.createMockJob(id, 'pending', entry.data)
+      );
+    }
+    const results: Job[] = [];
+    for (const type of types) {
+      switch (type) {
+        case 'waiting':
+          results.push(...(await this.getWaiting()));
+          break;
+        case 'active':
+          results.push(...(await this.getActive()));
+          break;
+        case 'completed':
+          results.push(...(await this.getCompleted()));
+          break;
+        case 'failed':
+          results.push(...(await this.getFailed()));
+          break;
+        case 'delayed':
+          results.push(...(await this.getDelayed()));
+          break;
+      }
+    }
+    return results;
   }
 
   // ─── Lifecycle ──────────────────────────────────────────────────

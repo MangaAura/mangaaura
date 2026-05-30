@@ -14,23 +14,61 @@ import { getBullConnection } from '@/infrastructure/queue/connection';
 import type { InboundEmailJobData } from '@/infrastructure/queue/InboundEmailQueue';
 import { ResendInboundRepository } from '@/infrastructure/adapters/ResendInboundRepository';
 import { captureException } from '@/lib/sentry';
+import { isMockRedis } from '@/lib/redis';
+
+// ============================================================================
+// Mock Worker for Development (when Redis is not available)
+// ============================================================================
+
+class MockInboundEmailWorker {
+  async close(): Promise<void> {
+    if (process.env.DEBUG_EMAIL) {
+      console.log('[InboundEmailWorker] Mock worker stopped');
+    }
+  }
+
+  on(_event: string, _listener: (...args: unknown[]) => void): void {
+    // No-op
+  }
+}
 
 // ============================================================================
 // Inbound Email Worker
 // ============================================================================
 
 export class InboundEmailWorker {
-  private worker: Worker | null = null;
+  private worker: Worker | MockInboundEmailWorker | null = null;
   private readonly inboundRepo = new ResendInboundRepository();
+  private useMock: boolean;
 
   constructor() {
-    this.initializeWorker();
+    this.useMock = isMockRedis();
+    if (this.useMock) {
+      this.initializeMockWorker();
+    } else {
+      this.initializeRealWorker();
+    }
   }
 
   /**
-   * Inicializa el worker de emails entrantes con BullMQ
+   * Inicializa un worker mock para desarrollo sin Redis
    */
-  private initializeWorker(): void {
+  private initializeMockWorker(): void {
+    this.worker = new MockInboundEmailWorker();
+    if (process.env.DEBUG_EMAIL) {
+      console.log('[InboundEmailWorker] Running in mock mode (Redis not available)');
+    }
+  }
+
+  /**
+   * Inicializa el worker de emails entrantes real con BullMQ
+   */
+  private initializeRealWorker(): void {
+    if (isMockRedis()) {
+      this.useMock = true;
+      this.initializeMockWorker();
+      return;
+    }
     try {
       this.worker = new Worker(
         'inbound-emails',
@@ -52,6 +90,8 @@ export class InboundEmailWorker {
       this.setupEventHandlers();
     } catch (error) {
       console.error('[InboundEmailWorker] Failed to initialize:', error);
+      this.useMock = true;
+      this.initializeMockWorker();
     }
   }
 
@@ -59,16 +99,18 @@ export class InboundEmailWorker {
    * Configura los event handlers del worker
    */
   private setupEventHandlers(): void {
-    if (!this.worker) return;
+    if (!this.worker || this.useMock) return;
 
-    this.worker.on('completed', (job: Job) => {
+    const bullWorker = this.worker as Worker;
+
+    bullWorker.on('completed', (job: Job) => {
       const data = job.data as InboundEmailJobData;
       if (process.env.NODE_ENV === 'production' || process.env.DEBUG_EMAIL) {
         console.info(`[InboundEmailWorker] Job ${job.id} completed: ${data.type} from ${data.email.fromEmail}`);
       }
     });
 
-    this.worker.on('failed', (job: Job | undefined, err: Error) => {
+    bullWorker.on('failed', (job: Job | undefined, err: Error) => {
       if (job) {
         const data = job.data as InboundEmailJobData;
         console.error(`[InboundEmailWorker] Job ${job.id} failed (${data.type}):`, err.message);
@@ -87,14 +129,14 @@ export class InboundEmailWorker {
       }
     });
 
-    this.worker.on('error', (error: Error) => {
+    bullWorker.on('error', (error: Error) => {
       console.error('[InboundEmailWorker] Worker error:', error.message);
       captureException(error, {
         extra: { queue: 'inbound-emails' },
       });
     });
 
-    this.worker.on('stalled', (jobId: string) => {
+    bullWorker.on('stalled', (jobId: string) => {
       console.warn(`[InboundEmailWorker] Job ${jobId} stalled — possible worker crash`);
       captureException(new Error('InboundEmailWorker job stalled'), {
         extra: { jobId, queue: 'inbound-emails' },
@@ -107,6 +149,14 @@ export class InboundEmailWorker {
    */
   private async processJob(job: Job<InboundEmailJobData>): Promise<void> {
     const { data } = job;
+
+    // In mock mode, just log instead of processing
+    if (this.useMock) {
+      if (process.env.DEBUG_EMAIL) {
+        console.log('[InboundEmailWorker] MOCK job:', { type: data.type, from: data.email.fromEmail });
+      }
+      return;
+    }
 
     switch (data.type) {
       case 'classify':
@@ -141,6 +191,10 @@ export class InboundEmailWorker {
    */
   async close(): Promise<void> {
     await this.worker?.close();
+  }
+
+  get isMock(): boolean {
+    return this.useMock;
   }
 }
 

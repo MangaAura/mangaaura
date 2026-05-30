@@ -33,18 +33,19 @@ function CountUp({ value }: { value: number }) {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (shouldReduceMotion) { if (count !== value) queueMicrotask(() => setCount(value)); return; }
+    if (shouldReduceMotion) { queueMicrotask(() => setCount(value)); return; }
+    if (count === value) return;
     let start: number | null = null;
-    const duration = 1500;
+    const duration = Math.min(1500, value * 50);
     const step = (ts: number) => {
       if (!start) start = ts;
       const p = Math.min((ts - start) / duration, 1);
       const next = Math.floor(p * value);
-      if (next !== count) setCount(next);
+      setCount(next);
       if (p < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
-  }, [value, shouldReduceMotion, count]);
+  }, [value, shouldReduceMotion]);
 
   return <span>{count.toLocaleString()}</span>;
 }

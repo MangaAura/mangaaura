@@ -3,6 +3,7 @@ import { Queue, Job, type QueueOptions } from 'bullmq'
 import type { InboundEmailData, EmailClassification } from '@/core/services/IInboundEmailRepository'
 import { InMemoryQueue } from './InMemoryQueue'
 import { getBullConnection } from './connection'
+import type { WorkerMetrics } from './WorkerMetrics'
 
 export type InboundJobType = 'classify' | 'process' | 'reply'
 
@@ -118,14 +119,7 @@ export class InboundEmailQueue {
 
   // ─── Worker Metrics ────────────────────────────────────────────
 
-  async getWorkerMetrics(): Promise<{
-    failureRate: number;
-    avgProcessingTime: number;
-    jobsCompleted: number;
-    jobsFailed: number;
-    throughput1h: number;
-    byType: Record<string, { completed: number; failed: number; avgProcessingTime: number }>;
-  }> {
+  async getWorkerMetrics(): Promise<WorkerMetrics> {
     try {
       if (this.useInMemory) {
         return { failureRate: 0, avgProcessingTime: 0, jobsCompleted: 0, jobsFailed: 0, throughput1h: 0, byType: {} };

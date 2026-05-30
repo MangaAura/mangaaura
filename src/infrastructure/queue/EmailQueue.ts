@@ -8,6 +8,7 @@ import { Queue, Job, type QueueOptions } from 'bullmq';
 
 import { InMemoryQueue } from './InMemoryQueue';
 import { getBullConnection } from './connection';
+import type { WorkerMetrics } from './WorkerMetrics';
 
 // ============================================================================
 // Types & Interfaces
@@ -147,29 +148,6 @@ export interface QueueStats {
   completed: number;
   failed: number;
   delayed: number;
-}
-
-// ============================================================================
-// Worker Metrics
-// ============================================================================
-
-export interface WorkerMetrics {
-  /** Failure rate as percentage (0–100) */
-  failureRate: number;
-  /** Average processing time in milliseconds */
-  avgProcessingTime: number;
-  /** Total completed jobs tracked */
-  jobsCompleted: number;
-  /** Total failed jobs tracked */
-  jobsFailed: number;
-  /** Number of jobs completed in the last hour */
-  throughput1h: number;
-  /** Breakdown by job type (name) */
-  byType: Record<string, {
-    completed: number;
-    failed: number;
-    avgProcessingTime: number;
-  }>;
 }
 
 // ============================================================================
@@ -598,6 +576,10 @@ export class EmailQueue {
     } catch (error) {
       console.error('[EmailQueue] Failed to close:', error);
     }
+  }
+
+  get isMock(): boolean {
+    return this.useInMemory;
   }
 }
 

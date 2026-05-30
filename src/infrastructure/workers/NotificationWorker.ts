@@ -22,22 +22,60 @@ import type {
 import { getNotificationService } from '@/core/services/NotificationService';
 import { sendPushNotification, sendBulkPushNotifications } from '@/lib/push-notifications';
 import { captureException } from '@/lib/sentry';
+import { isMockRedis } from '@/lib/redis';
+
+// ============================================================================
+// Mock Worker for Development (when Redis is not available)
+// ============================================================================
+
+class MockNotificationWorker {
+  async close(): Promise<void> {
+    if (process.env.DEBUG_QUEUE) {
+      console.log('[NotificationWorker] Mock worker stopped');
+    }
+  }
+
+  on(_event: string, _listener: (...args: unknown[]) => void): void {
+    // No-op
+  }
+}
 
 // ============================================================================
 // Notification Worker
 // ============================================================================
 
 export class NotificationWorker {
-  private worker: Worker | null = null;
+  private worker: Worker | MockNotificationWorker | null = null;
+  private useMock: boolean;
 
   constructor() {
-    this.initializeWorker();
+    this.useMock = isMockRedis();
+    if (this.useMock) {
+      this.initializeMockWorker();
+    } else {
+      this.initializeRealWorker();
+    }
   }
 
   /**
-   * Inicializa el worker de notificaciones con BullMQ
+   * Inicializa un worker mock para desarrollo sin Redis
    */
-  private initializeWorker(): void {
+  private initializeMockWorker(): void {
+    this.worker = new MockNotificationWorker();
+    if (process.env.DEBUG_QUEUE) {
+      console.log('[NotificationWorker] Running in mock mode (Redis not available)');
+    }
+  }
+
+  /**
+   * Inicializa el worker de notificaciones real con BullMQ
+   */
+  private initializeRealWorker(): void {
+    if (isMockRedis()) {
+      this.useMock = true;
+      this.initializeMockWorker();
+      return;
+    }
     try {
       this.worker = new Worker(
         'notifications',
@@ -59,6 +97,8 @@ export class NotificationWorker {
       this.setupEventHandlers();
     } catch (error) {
       console.error('[NotificationWorker] Failed to initialize:', error);
+      this.useMock = true;
+      this.initializeMockWorker();
     }
   }
 
@@ -66,16 +106,18 @@ export class NotificationWorker {
    * Configura los event handlers del worker
    */
   private setupEventHandlers(): void {
-    if (!this.worker) return;
+    if (!this.worker || this.useMock) return;
 
-    this.worker.on('completed', (job: Job) => {
+    const bullWorker = this.worker as Worker;
+
+    bullWorker.on('completed', (job: Job) => {
       if (process.env.NODE_ENV === 'production' || process.env.DEBUG_QUEUE) {
         const data = job.data as NotificationJobData;
         console.info(`[NotificationWorker] Job ${job.id} completed: ${data.type}`);
       }
     });
 
-    this.worker.on('failed', (job: Job | undefined, err: Error) => {
+    bullWorker.on('failed', (job: Job | undefined, err: Error) => {
       if (job) {
         const data = job.data as NotificationJobData;
         console.error(`[NotificationWorker] Job ${job.id} failed (${data.type}):`, err.message);
@@ -93,14 +135,14 @@ export class NotificationWorker {
       }
     });
 
-    this.worker.on('error', (error: Error) => {
+    bullWorker.on('error', (error: Error) => {
       console.error('[NotificationWorker] Worker error:', error.message);
       captureException(error, {
         extra: { queue: 'notifications' },
       });
     });
 
-    this.worker.on('stalled', (jobId: string) => {
+    bullWorker.on('stalled', (jobId: string) => {
       console.warn(`[NotificationWorker] Job ${jobId} stalled — possible worker crash`);
       captureException(new Error('NotificationWorker job stalled'), {
         extra: { jobId, queue: 'notifications' },
@@ -113,6 +155,14 @@ export class NotificationWorker {
    */
   private async processJob(job: Job<NotificationJobData>): Promise<void> {
     const { data } = job;
+
+    // In mock mode, just log instead of processing
+    if (this.useMock) {
+      if (process.env.DEBUG_QUEUE) {
+        console.log('[NotificationWorker] MOCK job:', { type: data.type, userId: (data as any).userId });
+      }
+      return;
+    }
 
     switch (data.type) {
       case 'in-app':
@@ -199,6 +249,10 @@ export class NotificationWorker {
    */
   async close(): Promise<void> {
     await this.worker?.close();
+  }
+
+  get isMock(): boolean {
+    return this.useMock;
   }
 }
 

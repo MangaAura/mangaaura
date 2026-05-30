@@ -25,12 +25,6 @@ vi.mock('bullmq', () => {
   };
 });
 
-vi.mock('@/lib/redis', () => ({
-  isMockRedis: () => true,
-  redis: {},
-  getRedis: vi.fn(),
-}));
-
 vi.mock('@/infrastructure/queue/connection', () => ({
   getBullConnection: () => ({ status: 'ready' }),
   closeBullConnection: vi.fn(),

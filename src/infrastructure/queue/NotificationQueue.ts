@@ -9,6 +9,7 @@ import { Queue, Job, type QueueOptions } from 'bullmq';
 
 import { InMemoryQueue } from './InMemoryQueue';
 import { getBullConnection } from './connection';
+import type { WorkerMetrics } from './WorkerMetrics';
 
 // ============================================================================
 // Types & Interfaces
@@ -80,18 +81,6 @@ export interface NotificationQueueStats {
   delayed: number;
 }
 
-export interface WorkerMetrics {
-  failureRate: number;
-  avgProcessingTime: number;
-  jobsCompleted: number;
-  jobsFailed: number;
-  throughput1h: number;
-  byType: Record<string, {
-    completed: number;
-    failed: number;
-    avgProcessingTime: number;
-  }>;
-}
 
 // ============================================================================
 // In-Memory Queue for Development (Mock)

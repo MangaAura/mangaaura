@@ -99,32 +99,6 @@ class MockRedis {
     return this.sortedSets.get(key)?.length ?? 0;
   }
 
-  async scard(key: string): Promise<number> {
-    const set = this.sortedSets.get(key);
-    if (set) return set.length;
-    const item = this.store.get(key);
-    if (!item) return 0;
-    try {
-      const arr = JSON.parse(item.value);
-      return Array.isArray(arr) ? arr.length : 0;
-    } catch {
-      return 0;
-    }
-  }
-
-  async smembers(key: string): Promise<string[]> {
-    const set = this.sortedSets.get(key);
-    if (set) return set.map((item) => item.member);
-    const item = this.store.get(key);
-    if (!item) return [];
-    try {
-      const arr = JSON.parse(item.value);
-      return Array.isArray(arr) ? arr : [];
-    } catch {
-      return [];
-    }
-  }
-
   async zrange(key: string, start: number, stop: number, withScores?: string): Promise<string[]> {
     const set = this.sortedSets.get(key);
     if (!set) return [];
@@ -153,6 +127,128 @@ class MockRedis {
       return 1;
     }
     return 0;
+  }
+
+  // ─── Hash operations ──────────────────────────────────────────────
+
+  private hashes = new Map<string, Map<string, string>>();
+
+  async hset(key: string, field: string, value: string): Promise<number> {
+    if (!this.hashes.has(key)) this.hashes.set(key, new Map());
+    const hash = this.hashes.get(key)!;
+    const isNew = !hash.has(field);
+    hash.set(field, value);
+    return isNew ? 1 : 0;
+  }
+
+  async hget(key: string, field: string): Promise<string | null> {
+    return this.hashes.get(key)?.get(field) ?? null;
+  }
+
+  async hgetall(key: string): Promise<Record<string, string> | null> {
+    const hash = this.hashes.get(key);
+    if (!hash) return null;
+    const result: Record<string, string> = {};
+    for (const [k, v] of hash) result[k] = v;
+    return result;
+  }
+
+  async hlen(key: string): Promise<number> {
+    return this.hashes.get(key)?.size ?? 0;
+  }
+
+  async hdel(key: string, ...fields: string[]): Promise<number> {
+    const hash = this.hashes.get(key);
+    if (!hash) return 0;
+    let deleted = 0;
+    for (const field of fields) {
+      if (hash.delete(field)) deleted++;
+    }
+    return deleted;
+  }
+
+  // ─── List operations ───────────────────────────────────────────────
+
+  private lists = new Map<string, string[]>();
+
+  async lpush(key: string, ...values: string[]): Promise<number> {
+    if (!this.lists.has(key)) this.lists.set(key, []);
+    const list = this.lists.get(key)!;
+    list.unshift(...values);
+    return list.length;
+  }
+
+  async rpush(key: string, ...values: string[]): Promise<number> {
+    if (!this.lists.has(key)) this.lists.set(key, []);
+    const list = this.lists.get(key)!;
+    list.push(...values);
+    return list.length;
+  }
+
+  async lrange(key: string, start: number, stop: number): Promise<string[]> {
+    const list = this.lists.get(key);
+    if (!list) return [];
+    const end = stop < 0 ? list.length + stop + 1 : stop + 1;
+    return list.slice(start, end);
+  }
+
+  async llen(key: string): Promise<number> {
+    return this.lists.get(key)?.length ?? 0;
+  }
+
+  // ─── Set operations ────────────────────────────────────────────────
+
+  private sets = new Map<string, Set<string>>();
+
+  async sadd(key: string, ...members: string[]): Promise<number> {
+    if (!this.sets.has(key)) this.sets.set(key, new Set());
+    const set = this.sets.get(key)!;
+    let added = 0;
+    for (const member of members) {
+      if (!set.has(member)) { set.add(member); added++; }
+    }
+    return added;
+  }
+
+  async srem(key: string, ...members: string[]): Promise<number> {
+    const set = this.sets.get(key);
+    if (!set) return 0;
+    let removed = 0;
+    for (const member of members) {
+      if (set.delete(member)) removed++;
+    }
+    return removed;
+  }
+
+  async sismember(key: string, member: string): Promise<number> {
+    return this.sets.get(key)?.has(member) ? 1 : 0;
+  }
+
+  async smembers(key: string): Promise<string[]> {
+    const set = this.sets.get(key);
+    if (set) return Array.from(set);
+    // Fallback to store-based smembers
+    const item = this.store.get(key);
+    if (!item) return [];
+    try {
+      const arr = JSON.parse(item.value);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async scard(key: string): Promise<number> {
+    const set = this.sets.get(key);
+    if (set) return set.size;
+    const item = this.store.get(key);
+    if (!item) return 0;
+    try {
+      const arr = JSON.parse(item.value);
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch {
+      return 0;
+    }
   }
 
   async incr(key: string): Promise<number> {
