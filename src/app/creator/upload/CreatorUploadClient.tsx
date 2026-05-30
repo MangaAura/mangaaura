@@ -242,70 +242,95 @@ function CreatorUploadPageContent() {
       const chapterData = await chapterResponse.json();
       const chapterId = chapterData.id;
 
-      // Subir todas las imágenes en un solo request batch
-      const controller = new AbortController();
-      abortControllersRef.current = [controller];
+      // Subir imágenes individualmente (evitar límite 4.5MB de Vercel)
+      const abortControllers: AbortController[] = [];
+      abortControllersRef.current = abortControllers;
 
-      const formData = new FormData();
-      for (const fileData of validFiles) {
-        formData.append('files', fileData.file);
-      }
-
-      const uploadResponse = await fetch('/api/upload/images', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal,
-      });
-
-      if (!uploadResponse.ok) {
-        const errData = await uploadResponse.json().catch(() => ({}));
-        throw new Error(errData.error || `Error al subir imágenes (${uploadResponse.status})`);
-      }
-
-      const uploadData = await uploadResponse.json();
-
-      if (uploadData.totalFailed > 0 && uploadData.totalProcessed === 0) {
-        const firstError = uploadData.results?.find((r: any) => !r.success)?.error || 'Error desconocido';
-        throw new Error(`No se pudo subir ninguna imagen: ${firstError}`);
-      }
-
-      // Extraer URLs ordenadas por índice
       const uploadedUrls: string[] = [];
+      let totalFailed = 0;
 
-      for (const result of uploadData.results || []) {
-        if (result.success) {
-          uploadedUrls[result.index] = result.url;
+      // Concurrencia controlada: 3 archivos simultáneos máximo
+      const CONCURRENCY = 3;
+
+      for (let batchStart = 0; batchStart < validFiles.length; batchStart += CONCURRENCY) {
+        const batch = validFiles.slice(batchStart, batchStart + CONCURRENCY);
+
+        const batchResults = await Promise.allSettled(
+          batch.map(async (fileData, localIdx) => {
+            const globalIdx = batchStart + localIdx;
+            const controller = new AbortController();
+            abortControllers.push(controller);
+
+            const singleFormData = new FormData();
+            singleFormData.append('file', fileData.file);
+
+            const res = await fetch('/api/upload/image', {
+              method: 'POST',
+              body: singleFormData,
+              signal: controller.signal,
+            });
+
+            if (!res.ok) {
+              if (res.status === 413) {
+                throw new Error(
+                  `La imagen "${fileData.file.name}" es demasiado grande. Max: 4MB.`
+                );
+              }
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(
+                errData.error || `Error al subir "${fileData.file.name}" (${res.status})`
+              );
+            }
+
+            const data = await res.json();
+            uploadedUrls[globalIdx] = data.url;
+
+            // Actualizar progreso del archivo individual
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileData.id
+                  ? { ...f, uploadProgress: 100, uploadedUrl: data.url }
+                  : f
+              )
+            );
+
+            // Actualizar progreso total
+            const completed = uploadedUrls.filter(Boolean).length;
+            setUploadProgress(Math.round((completed / validFiles.length) * 100));
+          })
+        );
+
+        // Contabilizar fallos en este lote (ignorando AbortError por cancelación)
+        for (const result of batchResults) {
+          if (result.status === 'rejected') {
+            const reason = result.reason;
+            // No contar como fallo si fue cancelación del usuario
+            if (reason?.name === 'AbortError') continue;
+            totalFailed++;
+          }
         }
       }
 
-      // Actualizar progreso mapeando por identidad de objeto (validFiles.indexOf)
-      setUploadProgress(100);
-      setFiles((prev) =>
-        prev.map((f) => {
-          const validIdx = validFiles.indexOf(f);
-          if (validIdx === -1) return f; // archivo con error, se salta
-          const result = uploadData.results?.find(
-            (r: any) => r.index === validIdx && r.success
-          );
-          return result
-            ? { ...f, uploadProgress: 100, uploadedUrl: result.url }
-            : f;
-        })
-      );
-
-      if (uploadData.totalFailed > 0) {
-        setError(
-          uploadData.message ||
-            `Se subieron ${uploadData.totalProcessed} de ${validFiles.length} imágenes.`
-        );
+      // Si todas fallaron (y no fue cancelación)
+      const completedUrls = uploadedUrls.filter(Boolean);
+      if (completedUrls.length === 0) {
+        throw new Error('No se pudo subir ninguna imagen.');
       }
 
-      // Actualizar capítulo con las URLs
+      // Si algunas fallaron, mostrar advertencia
+      if (totalFailed > 0) {
+        setError(
+          `Se subieron ${completedUrls.length} de ${validFiles.length} imágenes.`
+        );
+        setUploadProgress(100);
+      }
+
+      // Actualizar capítulo con las URLs (filtrando errores)
       await fetch(`/api/manga/${selectedMangaId}/chapters/${chapterId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pageUrls: uploadedUrls,
+          pageUrls: uploadedUrls.filter(Boolean),
           coverUrl: chapterCoverUrl,
         }),
       });

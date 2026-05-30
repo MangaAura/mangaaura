@@ -5,8 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { uploadCover, deleteFile } from '@/lib/storage';
 
-// Tamaño máximo para portadas: 5MB
-const MAX_COVER_SIZE = 5 * 1024 * 1024;
+// Tamaño máximo para portadas: 4MB (límite Vercel: 4.5MB)
+const MAX_COVER_SIZE = 4 * 1024 * 1024;
 
 // Tipos de imagen permitidos
 const ALLOWED_TYPES = [

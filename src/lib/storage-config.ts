@@ -10,13 +10,13 @@ import { StorageConfig } from '../types/storage';
  * Maximum file size for individual images (10MB in bytes)
  * @constant {number}
  */
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB (Vercel body limit: 4.5MB)
 
 /**
- * Maximum total size for chapter uploads (100MB in bytes)
+ * Maximum total size for chapter uploads (50MB in bytes)
  * @constant {number}
  */
-export const MAX_CHAPTER_SIZE = 100 * 1024 * 1024; // 100MB
+export const MAX_CHAPTER_SIZE = 50 * 1024 * 1024; // 50MB
 
 /**
  * Accepted MIME types for image uploads

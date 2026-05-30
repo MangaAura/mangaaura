@@ -162,8 +162,8 @@ export function useMangaUpload(): UseMangaUploadReturn {
    * Validar archivo antes de subir
    */
   const validateFile = useCallback((file: File): UploadError | null => {
-    // Tamaño máximo: 10MB para imágenes individuales
-    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    // Tamaño máximo: 4MB para imágenes individuales (límite Vercel: 4.5MB)
+    const MAX_FILE_SIZE = 4 * 1024 * 1024;
     
     // Formatos aceptados
     const ACCEPTED_FORMATS = [

@@ -12,8 +12,8 @@ import {
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-// Tamaño máximo por archivo: 10MB
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+// Tamaño máximo por archivo: 4MB (límite Vercel: 4.5MB)
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
 const MAX_FILES = 200; // Máximo de páginas por capítulo
 
 // Tipos de imagen permitidos
@@ -130,6 +130,20 @@ async function processAndUploadImage(
  */
 export async function POST(request: NextRequest) {
   try {
+    // Guard: rechazar temprano si content-length excede el límite de Vercel (4.5MB)
+    // Nota: Para lotes grandes (>2 imágenes), usar subida individual /api/upload/image
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength, 10) > 4 * 1024 * 1024) {
+      return NextResponse.json(
+        {
+          error:
+            'El lote es demasiado grande. El límite de Vercel es 4.5MB por request. ' +
+            'Usa la subida individual (/api/upload/image) para archivos grandes.',
+        },
+        { status: 413 }
+      );
+    }
+
     // Verificar autenticación
     const session = await auth();
     if (!session?.user?.id) {

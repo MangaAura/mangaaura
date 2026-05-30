@@ -11,7 +11,7 @@ import {
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB (límite Vercel: 4.5MB)
 const AVATAR_SIZE = 512;
 const AVATAR_QUALITY = 85;
 

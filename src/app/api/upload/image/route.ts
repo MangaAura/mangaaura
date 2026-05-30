@@ -13,8 +13,8 @@ import {
 } from '@/lib/image-optimization';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
-// Tamaño máximo de archivo: 10MB
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+// Tamaño máximo de archivo: 4MB (límite Vercel: 4.5MB)
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 // Tipos de imagen permitidos
 const ALLOWED_TYPES = [

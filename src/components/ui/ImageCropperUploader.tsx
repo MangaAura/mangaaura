@@ -30,7 +30,7 @@ interface ImageCropperUploaderProps {
   cropperSubtitle?: string;
   /** Accepted MIME types, comma-separated. Default: 'image/jpeg,image/png,image/webp,image/gif,image/avif' */
   accept?: string;
-  /** Max file size in bytes. Default: 10MB (10 * 1024 * 1024) */
+  /** Max file size in bytes. Default: 4MB (Vercel body limit: 4.5MB) */
   maxSize?: number;
   /** Called when the crop is confirmed, with the resulting blob and a suggested filename */
   onCropComplete: (blob: Blob, fileName: string) => void | Promise<void>;
@@ -73,7 +73,7 @@ export const ImageCropperUploader = forwardRef<
     cropperTitle = 'Ajustar imagen',
     cropperSubtitle = 'Arrastra para encuadrar · Ratio 16:9',
     accept = 'image/jpeg,image/png,image/webp,image/gif,image/avif',
-    maxSize = 10 * 1024 * 1024,
+    maxSize = 4 * 1024 * 1024,
     onCropComplete,
     onError,
     inputId,
