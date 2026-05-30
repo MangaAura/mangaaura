@@ -118,6 +118,52 @@ export class InboundEmailQueue {
     }
   }
 
+  async getStats(): Promise<{ waiting: number; active: number; completed: number; failed: number; delayed: number }> {
+    try {
+      if (this.useInMemory) {
+        const inMem = this.queue as InMemoryInboundQueue
+        return {
+          waiting: await inMem.getWaitingCount(),
+          active: await inMem.getActiveCount(),
+          completed: await inMem.getCompletedCount(),
+          failed: await inMem.getFailedCount(),
+          delayed: await inMem.getDelayedCount(),
+        }
+      }
+      const bullQueue = this.queue as Queue
+      const counts = await bullQueue.getJobCounts()
+      return {
+        waiting: counts.waiting ?? 0,
+        active: counts.active ?? 0,
+        completed: counts.completed ?? 0,
+        failed: counts.failed ?? 0,
+        delayed: counts.delayed ?? 0,
+      }
+    } catch (error) {
+      console.error('[InboundEmailQueue] Failed to get stats:', error)
+      return { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 }
+    }
+  }
+
+  async clean(olderThanHours: number = 24): Promise<void> {
+    try {
+      if (this.useInMemory) return
+      const bullQueue = this.queue as Queue
+      const olderThanMs = olderThanHours * 60 * 60 * 1000
+      await Promise.all([
+        bullQueue.clean(olderThanMs, 500, 'completed'),
+        bullQueue.clean(olderThanMs, 200, 'failed'),
+      ])
+      console.info(`[InboundEmailQueue] Cleaned jobs older than ${olderThanHours}h`)
+    } catch (error) {
+      console.error('[InboundEmailQueue] Failed to clean:', error)
+    }
+  }
+
+  get name(): string {
+    return this.queueName
+  }
+
   async close(): Promise<void> {
     if (!this.useInMemory) {
       await (this.queue as Queue).close()

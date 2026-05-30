@@ -21,6 +21,7 @@ import type {
 } from '@/infrastructure/queue/NotificationQueue';
 import { getNotificationService } from '@/core/services/NotificationService';
 import { sendPushNotification, sendBulkPushNotifications } from '@/lib/push-notifications';
+import { captureException } from '@/lib/sentry';
 
 // ============================================================================
 // Notification Worker
@@ -78,17 +79,32 @@ export class NotificationWorker {
       if (job) {
         const data = job.data as NotificationJobData;
         console.error(`[NotificationWorker] Job ${job.id} failed (${data.type}):`, err.message);
+        captureException(err, {
+          extra: {
+            jobId: job.id,
+            jobType: data.type,
+            queue: 'notifications',
+          },
+        });
+      } else {
+        captureException(err, {
+          extra: { queue: 'notifications', jobId: 'unknown' },
+        });
       }
     });
 
     this.worker.on('error', (error: Error) => {
-      if (process.env.NODE_ENV === 'production' || process.env.DEBUG_QUEUE) {
-        console.error('[NotificationWorker] Worker error:', error.message);
-      }
+      console.error('[NotificationWorker] Worker error:', error.message);
+      captureException(error, {
+        extra: { queue: 'notifications' },
+      });
     });
 
     this.worker.on('stalled', (jobId: string) => {
       console.warn(`[NotificationWorker] Job ${jobId} stalled — possible worker crash`);
+      captureException(new Error('NotificationWorker job stalled'), {
+        extra: { jobId, queue: 'notifications' },
+      });
     });
   }
 

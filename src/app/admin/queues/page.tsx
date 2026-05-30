@@ -213,7 +213,13 @@ export default function QueuesAdminPage() {
         throw new Error(body?.error || `HTTP ${res.status}`);
       }
       const result = await res.json();
-      const queueKey = queueName.toLowerCase() === 'notifications' ? 'notificationQueue' : `${queueName.toLowerCase()}Queue`;
+      const queueKeyMap: Record<string, string> = {
+        notifications: 'notificationQueue',
+        emails: 'emailQueue',
+        inference: 'inferenceQueue',
+        'inbound-emails': 'inboundEmailQueue',
+      };
+      const queueKey = queueKeyMap[queueName.toLowerCase()] || `${queueName.toLowerCase()}Queue`;
       const queueResult = result.results?.[queueKey] as { before?: { waiting: number }; after?: { waiting: number } } | undefined;
       if (queueResult) {
         setCleanMessage(`${queueName} queue cleaned: ${queueResult.before?.waiting ?? 0} waiting → ${queueResult.after?.waiting ?? 0} waiting`);

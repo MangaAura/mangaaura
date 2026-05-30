@@ -7,6 +7,7 @@
 import { Worker, Job } from 'bullmq';
 
 import { emailService } from '@/infrastructure/adapters/emailService';
+import { captureException } from '@/lib/sentry';
 import type {
   EmailJobData,
   WelcomeEmailData,
@@ -118,13 +119,27 @@ export class EmailWorker {
 
     bullWorker.on('failed', (job: any, err: any) => {
       console.error(`[EmailWorker] Job ${job?.id} failed:`, err.message);
+      captureException(err, {
+        extra: {
+          jobId: job?.id,
+          jobType: job?.data?.type,
+          queue: 'emails',
+        },
+      });
     });
 
     bullWorker.on('error', (error: any) => {
-      // Only log errors in production or with DEBUG_EMAIL flag
-      if (process.env.NODE_ENV === 'production' || process.env.DEBUG_EMAIL) {
-        console.error('[EmailWorker] Worker error:', error);
-      }
+      console.error('[EmailWorker] Worker error:', error.message);
+      captureException(error, {
+        extra: { queue: 'emails' },
+      });
+    });
+
+    bullWorker.on('stalled', (jobId: string) => {
+      console.warn(`[EmailWorker] Job ${jobId} stalled — possible worker crash`);
+      captureException(new Error('EmailWorker job stalled'), {
+        extra: { jobId, queue: 'emails' },
+      });
     });
   }
 

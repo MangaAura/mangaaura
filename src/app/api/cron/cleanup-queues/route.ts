@@ -80,6 +80,22 @@ export async function POST(request: NextRequest) {
       results.inferenceQueue = { error: String(error) };
     }
 
+    // 4. Cleanup InboundEmailQueue
+    try {
+      const { getInboundEmailQueue } = await import('@/infrastructure/queue/InboundEmailQueue');
+      const q = getInboundEmailQueue();
+      const statsBefore = await q.getStats();
+      await q.clean(24);
+      const statsAfter = await q.getStats();
+      results.inboundEmailQueue = {
+        before: statsBefore,
+        after: statsAfter,
+      };
+    } catch (error) {
+      console.error('[CRON] Error cleaning InboundEmailQueue:', error);
+      results.inboundEmailQueue = { error: String(error) };
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Queues cleaned successfully',
