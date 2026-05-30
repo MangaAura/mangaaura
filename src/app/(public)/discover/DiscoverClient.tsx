@@ -3,6 +3,7 @@
 import { TrendingUp, Clock, Star, Sparkles, Eye, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { CoverImage } from '@/components/Image/OptimizedImage';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 
 interface MangaItem {
@@ -73,12 +74,15 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
         {manga.map((m) => (
           <StaggerItem key={m.id}>
             <Link href={`/manga/${m.slug}`} className="group">
-              <div className="aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
+              <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
                 {m.coverUrl ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={m.coverUrl} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <CoverImage
+                    src={m.coverUrl}
+                    alt={m.title}
+                    className="[&_img]:transition-transform [&_img]:duration-500 [&_img]:group-hover:scale-110"
+                  />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center">
                     <BookOpen size={24} className="text-muted" />
                   </div>
                 )}

@@ -139,8 +139,33 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Subir la portada
-  const result = await uploadCover(file, targetMangaId);
+  // Optimizar la imagen con Sharp antes de subir
+  let uploadFile = file;
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const inputBuffer = Buffer.from(arrayBuffer);
+    
+    const sharpModule = (await import('sharp')).default;
+    
+    // Redimensionar a máximo 1200px de ancho y convertir a WebP con calidad 85
+    const compressedBuffer = await sharpModule(inputBuffer)
+      .resize(1200, 1800, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 85 })
+      .toBuffer();
+    
+    // Crear nuevo archivo con la imagen optimizada
+    uploadFile = new File(
+      [new Uint8Array(compressedBuffer)],
+      file.name.replace(/\.\w+$/, '.webp'),
+      { type: 'image/webp' }
+    );
+  } catch {
+    // Si Sharp falla, usar el archivo original
+    console.warn('Sharp optimization failed, using original file');
+  }
+
+  // Subir la portada (optimizada o original)
+  const result = await uploadCover(uploadFile, targetMangaId);
 
     if (!result.success) {
       return NextResponse.json(
@@ -157,35 +182,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Intentar optimizar con sharp si está disponible
-    const finalUrl = result.url;
-    let optimized = false;
-
-    try {
-      // Verificar si sharp está instalado
-      const sharp = await import('sharp').catch(() => null);
-      
-      if (sharp) {
-        // La optimización se podría hacer aquí si es necesario
-        // Por ahora, Vercel Blob maneja la optimización automáticamente
-        optimized = true;
-      }
-    } catch {
-      // Sharp no está instalado, continuar sin optimización
-    }
-
     const response: CoverUploadResponse = {
       success: true,
-      url: finalUrl,
+      url: result.url,
       filename: result.filename,
       size: result.size,
+      message: 'Portada subida exitosamente',
     };
-
-    if (optimized) {
-      response.message = 'Portada subida y optimizada exitosamente';
-    } else if (!mangaId) {
-      response.message = 'Portada subida. Usa esta URL al crear el manga.';
-    }
 
     return NextResponse.json(response);
 
