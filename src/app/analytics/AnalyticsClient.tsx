@@ -44,11 +44,8 @@ interface ReaderData {
     level: number;
     xpPoints: number;
     auraBalance: number;
-  };
-  stats: {
+    libraryCount: number;
     totalChaptersRead: number;
-    totalMangaInLibrary: number;
-    totalAchievements: number;
     nextLevelXp: number;
   };
   achievements: Array<{
@@ -58,7 +55,7 @@ interface ReaderData {
     description: string;
     icon: string | null;
   }>;
-  clan: {
+  clan?: {
     name: string;
     totalScore: number;
     monthlyScore: number;
@@ -171,7 +168,7 @@ function AnalyticsPageContent() {
     return () => { cancelled = true; };
   }, [shouldFetch, fetchCreatorMangas, fetchCreatorData, fetchReaderData, t]);
 
-  const xpForNextLevel = readerData?.stats.nextLevelXp || 2000;
+  const xpForNextLevel = readerData?.user?.nextLevelXp || 2000;
   const currentXp = readerData?.user.xpPoints || 0;
   const prevLevelXp = xpForNextLevel - 500;
   const levelProgress = Math.min(((currentXp - prevLevelXp) / (xpForNextLevel - prevLevelXp)) * 100, 100);
@@ -332,17 +329,17 @@ function AnalyticsPageContent() {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
                         <BookOpen size={20} className="text-accent-blue mx-auto mb-1" aria-hidden="true" />
-                        <p className="text-lg font-bold">{readerData.stats.totalChaptersRead.toLocaleString('es')}</p>
+                        <p className="text-lg font-bold">{readerData.user.totalChaptersRead.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.chapters')}</p>
                       </div>
                       <div className="text-center">
                         <TrendingUp size={20} className="text-accent-green mx-auto mb-1" aria-hidden="true" />
-                        <p className="text-lg font-bold">{readerData.stats.totalMangaInLibrary.toLocaleString('es')}</p>
+                        <p className="text-lg font-bold">{readerData.user.libraryCount.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.inLibrary')}</p>
                       </div>
                       <div className="text-center">
                         <Award size={20} className="text-accent-orange mx-auto mb-1" aria-hidden="true" />
-                        <p className="text-lg font-bold">{readerData.stats.totalAchievements.toLocaleString('es')}</p>
+                        <p className="text-lg font-bold">{readerData.achievements.length.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.achievements')}</p>
                       </div>
                     </div>
@@ -351,7 +348,7 @@ function AnalyticsPageContent() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="card p-6 rounded-xl">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" aria-hidden="true" /> {t('analytics.unlockedAchievements')} ({readerData.stats.totalAchievements})</h3>
+                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" aria-hidden="true" /> {t('analytics.unlockedAchievements')} ({readerData.achievements.length})</h3>
                     {readerData.achievements.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {readerData.achievements.slice(0, 6).map((badge) => (
