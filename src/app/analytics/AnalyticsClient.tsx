@@ -134,10 +134,12 @@ function AnalyticsPageContent() {
     if (!shouldFetch) return;
     let cancelled = false;
 
-    if (!fetchRef.current) fetchRef.current = true;
+  if (!fetchRef.current) fetchRef.current = true;
+  queueMicrotask(() => {
     setIsLoading(prev => prev ? prev : true);
     setCreatorError(prev => prev ? prev : null);
     setReaderError(prev => prev ? prev : null);
+  });
 
     const doFetch = async () => {
       const [mangasResult, creatorResult, readerResult] = await Promise.allSettled([

@@ -78,7 +78,7 @@ export default function AdminGenresClient() {
   }, []);
 
   useEffect(() => {
-    loadGenres();
+    queueMicrotask(() => { void loadGenres(); });
   }, [loadGenres]);
 
   const filteredGenres = genres.filter((g) => {

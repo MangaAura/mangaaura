@@ -75,8 +75,10 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setIsFetching(true);
-    setHasFetched(true);
+    queueMicrotask(() => {
+      setIsFetching(true);
+      setHasFetched(true);
+    });
 
     let mounted = true;
 

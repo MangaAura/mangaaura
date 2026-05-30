@@ -32,7 +32,7 @@ export function PushNotificationManager() {
       if (permission !== perm) queueMicrotask(() => setPermission(perm));
 
       if (perm === 'granted') {
-        checkSubscription();
+        queueMicrotask(() => { void checkSubscription(); });
       }
 
       if (perm === 'default' && session?.user) {

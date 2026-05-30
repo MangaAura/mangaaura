@@ -38,44 +38,43 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
 } {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const callbackRef = useRef(callback);
-  const cancelRef = useRef<() => void>(() => {});
-  const flushRef = useRef<() => void>(() => {});
 
-  // Update callback ref when callback changes
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
 
-  const debouncedFn = useCallback(
-    (...args: Parameters<T>) => {
+  const noop = () => {};
+  const [result, setResult] = useState<{
+    fn: (...args: Parameters<T>) => void;
+    cancel: () => void;
+    flush: () => void;
+  }>(() => ({ fn: noop, cancel: noop, flush: noop }));
+
+  useEffect(() => {
+    const cancel = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+    const flush = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+    const fn = (...args: Parameters<T>) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-
       timeoutRef.current = setTimeout(() => {
         callbackRef.current(...args);
       }, delay);
-    },
-    [delay]
-  );
-
-  // Attach cancel/flush methods and update ref values in an effect (avoids ref access during render)
-  useEffect(() => {
-    cancelRef.current = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
     };
-    flushRef.current = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-    (debouncedFn as { cancel?: () => void; flush?: () => void }).cancel = cancelRef.current;
-    (debouncedFn as { cancel?: () => void; flush?: () => void }).flush = flushRef.current;
-  });
+    queueMicrotask(() => {
+      setResult({ fn, cancel, flush });
+    });
+  }, [delay]);
 
   useEffect(() => {
     return () => {
@@ -86,7 +85,12 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
     };
   }, []);
 
-  return debouncedFn;
+  const { fn, cancel, flush } = result;
+  return Object.assign(fn, { cancel, flush }) as {
+    (...args: Parameters<T>): void;
+    cancel: () => void;
+    flush: () => void;
+  };
 }
 
 /**
