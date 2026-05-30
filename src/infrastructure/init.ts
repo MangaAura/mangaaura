@@ -17,10 +17,35 @@ export async function initInfrastructure(): Promise<void> {
 
 let initialized = false;
 
+/**
+ * Initialize BullMQ workers lazily.
+ * Uses dynamic import to avoid pulling BullMQ/ioredis during static build or Edge runtime.
+ */
+async function initializeWorkers(): Promise<void> {
+  try {
+    const { initialize } = await import('@/lib/startup');
+    initialize();
+  } catch (err) {
+    console.warn('[Infrastructure] Worker startup failed (non-blocking):', err);
+  }
+}
+
+/**
+ * Ensure infrastructure is initialized.
+ * Called from root layout at server module scope.
+ * Runs once per server process.
+ */
 export function ensureInfrastructure(): void {
   if (initialized) return;
   initialized = true;
+
+  // Initialize infrastructure services (dynamic imports, lazy-loaded)
   initInfrastructure().catch((err) =>
     console.warn('[Infrastructure] Init failed (non-blocking):', err)
+  );
+
+  // Initialize BullMQ workers (dynamic import, lazy-loaded)
+  initializeWorkers().catch((err) =>
+    console.warn('[Infrastructure] Worker startup failed (non-blocking):', err)
   );
 }
