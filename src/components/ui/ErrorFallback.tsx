@@ -28,7 +28,7 @@ export function ErrorFallback({
       {showReset && reset && (
         <button
           onClick={reset}
-          className="px-4 py-2 rounded-lg bg-[var(--primary)] dark:bg-[#4f46e5] text-white font-medium text-sm hover:opacity-90 transition-opacity"
+          className="px-4 py-2 rounded-lg bg-[#4f46e5] text-white font-medium text-sm hover:opacity-90 transition-opacity"
         >
           Reintentar
         </button>

@@ -193,7 +193,7 @@ export default async function RootLayout({
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme');if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)').matches))document.documentElement.classList.add("dark')}catch(e){}})()`
+            __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
           }}
         />
         <Providers locale={htmlLang}>
