@@ -160,6 +160,28 @@ export class InboundEmailQueue {
     }
   }
 
+  async pause(): Promise<void> {
+    try {
+      if (!this.useInMemory) {
+        await (this.queue as Queue).pause()
+      }
+      console.info('[InboundEmailQueue] Queue paused')
+    } catch (error) {
+      console.error('[InboundEmailQueue] Failed to pause:', error)
+    }
+  }
+
+  async resume(): Promise<void> {
+    try {
+      if (!this.useInMemory) {
+        await (this.queue as Queue).resume()
+      }
+      console.info('[InboundEmailQueue] Queue resumed')
+    } catch (error) {
+      console.error('[InboundEmailQueue] Failed to resume:', error)
+    }
+  }
+
   get name(): string {
     return this.queueName
   }

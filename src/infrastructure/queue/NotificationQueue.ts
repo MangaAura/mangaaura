@@ -307,6 +307,52 @@ export class NotificationQueue {
     }
   }
 
+  async pause(): Promise<void> {
+    try {
+      if (!this.useInMemory) {
+        await (this.queue as Queue).pause();
+      }
+      console.info('[NotificationQueue] Queue paused');
+    } catch (error) {
+      console.error('[NotificationQueue] Failed to pause:', error);
+    }
+  }
+
+  async resume(): Promise<void> {
+    try {
+      if (!this.useInMemory) {
+        await (this.queue as Queue).resume();
+      }
+      console.info('[NotificationQueue] Queue resumed');
+    } catch (error) {
+      console.error('[NotificationQueue] Failed to resume:', error);
+    }
+  }
+
+  async retryFailed(limit = 50): Promise<number> {
+    try {
+      if (this.useInMemory) return 0;
+      const bullQueue = this.queue as Queue;
+      const failedJobs = await bullQueue.getJobs(['failed'], 0, limit);
+      let retried = 0;
+      for (const job of failedJobs) {
+        try {
+          await job.retry();
+          retried++;
+        } catch (e) {
+          console.warn(`[NotificationQueue] Failed to retry job ${job.id}:`, e);
+        }
+      }
+      if (retried > 0) {
+        console.info(`[NotificationQueue] Retried ${retried}/${failedJobs.length} failed jobs`);
+      }
+      return retried;
+    } catch (error) {
+      console.error('[NotificationQueue] Failed to retry jobs:', error);
+      return 0;
+    }
+  }
+
   async close(): Promise<void> {
     if (this.useInMemory) {
       const inMem = this.queue as InMemoryNotificationQueue;

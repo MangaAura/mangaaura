@@ -56,16 +56,18 @@ function getStatusColor(count: number, type: 'waiting' | 'failed' | 'active'): s
 // Queue Stats Card
 // ============================================================================
 
-function QueueStatsCard({ queue, onRefresh, onCleanup, cleaning, cleanMessage }: {
+function QueueStatsCard({ queue, onRefresh, onAction, actionLoading, actionMessage }: {
   queue: QueueInfo;
   onRefresh: () => void;
-  onCleanup: (name: string) => void;
-  cleaning: string | null;
-  cleanMessage: string | null;
+  onAction: (queueName: string, action: string) => void;
+  actionLoading: string | null;
+  actionMessage: string | null;
 }) {
   const { name, stats, rawStats } = queue;
   const totalJobs = stats.waiting + stats.active + stats.completed + stats.failed;
   const isInference = name === 'inference';
+  const isBullMQ = ['emails', 'notifications', 'inbound-emails'].includes(name);
+  const hasRetry = ['emails', 'notifications'].includes(name);
 
   return (
     <Card className="p-4 sm:p-6">
@@ -77,15 +79,54 @@ function QueueStatsCard({ queue, onRefresh, onCleanup, cleaning, cleanMessage }:
               Priority
             </span>
           )}
+          {!isBullMQ && !isInference && (
+            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--info)]/10 text-[var(--info)] font-medium">
+              Custom
+            </span>
+          )}
         </div>
         <div className="flex gap-2">
+          {isBullMQ && (
+            <>
+              <button
+                onClick={() => onAction(name, 'pause')}
+                disabled={actionLoading?.startsWith(name)}
+                className="text-xs px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
+                aria-label="Pause queue"
+                title="Pause processing"
+              >
+                ⏸ Pause
+              </button>
+              <button
+                onClick={() => onAction(name, 'resume')}
+                disabled={actionLoading?.startsWith(name)}
+                className="text-xs px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
+                aria-label="Resume queue"
+                title="Resume processing"
+              >
+                ▶ Resume
+              </button>
+            </>
+          )}
+          {hasRetry && (
+            <button
+              onClick={() => onAction(name, 'retry-failed')}
+              disabled={actionLoading?.startsWith(name)}
+              className="text-xs px-2 py-1 rounded-md bg-[var(--danger)]/10 text-[var(--danger)] hover:bg-[var(--danger)]/20 transition-colors disabled:opacity-50"
+              aria-label="Retry failed jobs"
+              title="Retry all failed jobs"
+            >
+              ⟳ Retry Failed
+            </button>
+          )}
           <button
-            onClick={() => onCleanup(name)}
-            disabled={cleaning === name}
+            onClick={() => onAction(name, 'clean')}
+            disabled={actionLoading?.startsWith(name)}
             className="text-xs px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
             aria-label="Clean queue"
+            title="Remove completed/failed jobs older than 24h"
           >
-            {cleaning === name ? '⟳ Cleaning...' : '🗑 Clean'}
+            {actionLoading === `${name}-clean` ? '⟳ Cleaning...' : '🗑 Clean'}
           </button>
           <button
             onClick={onRefresh}
@@ -97,9 +138,9 @@ function QueueStatsCard({ queue, onRefresh, onCleanup, cleaning, cleanMessage }:
         </div>
       </div>
 
-      {cleanMessage && (
+      {actionMessage && (
         <div className="mb-3 text-xs text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] p-2 rounded">
-          {cleanMessage}
+          {actionMessage}
         </div>
       )}
 
@@ -177,8 +218,8 @@ export default function QueuesAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [cleaning, setCleaning] = useState<string | null>(null);
-  const [cleanMessage, setCleanMessage] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -201,37 +242,36 @@ export default function QueuesAdminPage() {
     }
   }, []);
 
-  const triggerCleanup = useCallback(async (queueName: string) => {
-    setCleaning(queueName);
-    setCleanMessage(null);
+  const triggerAction = useCallback(async (queueName: string, action: string) => {
+    const actionId = `${queueName}-${action}`;
+    setActionLoading(actionId);
+    setActionMessage(null);
     try {
-      const res = await fetch('/api/admin/queues/cleanup', {
+      // Inference queue clean uses the old cleanup endpoint (clears dead letter + persistence)
+      const isInferenceClean = queueName === 'inference' && action === 'clean';
+      const url = isInferenceClean ? '/api/admin/queues/cleanup' : '/api/admin/queues/action';
+
+      const body = isInferenceClean
+        ? undefined
+        : JSON.stringify({ queue: queueName, action });
+
+      const res = await fetch(url, {
         method: 'POST',
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body,
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.error || `HTTP ${res.status}`);
+        const errBody = await res.json().catch(() => null);
+        throw new Error(errBody?.error || `HTTP ${res.status}`);
       }
       const result = await res.json();
-      const queueKeyMap: Record<string, string> = {
-        notifications: 'notificationQueue',
-        emails: 'emailQueue',
-        inference: 'inferenceQueue',
-        'inbound-emails': 'inboundEmailQueue',
-      };
-      const queueKey = queueKeyMap[queueName.toLowerCase()] || `${queueName.toLowerCase()}Queue`;
-      const queueResult = result.results?.[queueKey] as { before?: { waiting: number }; after?: { waiting: number } } | undefined;
-      if (queueResult) {
-        setCleanMessage(`${queueName} queue cleaned: ${queueResult.before?.waiting ?? 0} waiting → ${queueResult.after?.waiting ?? 0} waiting`);
-      } else {
-        setCleanMessage(`${queueName} queue cleaned successfully`);
-      }
-      // Refresh stats after cleanup
+      setActionMessage(result.message || `${action} completed for ${queueName}`);
+      // Refresh stats after action
       setTimeout(() => fetchStats(), 1000);
     } catch (err) {
-      setCleanMessage(`Cleanup failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setActionMessage(`Action failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
-      setCleaning(null);
+      setActionLoading(null);
     }
   }, [fetchStats]);
 
@@ -293,9 +333,9 @@ export default function QueuesAdminPage() {
           key={queue.name}
           queue={queue}
           onRefresh={fetchStats}
-          onCleanup={triggerCleanup}
-          cleaning={cleaning}
-          cleanMessage={cleanMessage}
+          onAction={triggerAction}
+          actionLoading={actionLoading}
+          actionMessage={actionMessage}
         />
       ))}
 

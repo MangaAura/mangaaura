@@ -518,10 +518,9 @@ try {
    */
   async pause(): Promise<void> {
     try {
-  if (!this.useInMemory) {
-  const bullQueue = this.queue as Queue;
-  await bullQueue.pause();
-  }
+      if (!this.useInMemory) {
+        await (this.queue as Queue).pause();
+      }
       console.info('[EmailQueue] Queue paused');
     } catch (error) {
       console.error('[EmailQueue] Failed to pause:', error);
@@ -533,13 +532,36 @@ try {
    */
   async resume(): Promise<void> {
     try {
-  if (!this.useInMemory) {
-  const bullQueue = this.queue as Queue;
-  await bullQueue.resume();
-  }
+      if (!this.useInMemory) {
+        await (this.queue as Queue).resume();
+      }
       console.info('[EmailQueue] Queue resumed');
     } catch (error) {
       console.error('[EmailQueue] Failed to resume:', error);
+    }
+  }
+
+  async retryFailed(limit = 50): Promise<number> {
+    try {
+      if (this.useInMemory) return 0;
+      const bullQueue = this.queue as Queue;
+      const failedJobs = await bullQueue.getJobs(['failed'], 0, limit);
+      let retried = 0;
+      for (const job of failedJobs) {
+        try {
+          await job.retry();
+          retried++;
+        } catch (e) {
+          console.warn(`[EmailQueue] Failed to retry job ${job.id}:`, e);
+        }
+      }
+      if (retried > 0) {
+        console.info(`[EmailQueue] Retried ${retried}/${failedJobs.length} failed jobs`);
+      }
+      return retried;
+    } catch (error) {
+      console.error('[EmailQueue] Failed to retry jobs:', error);
+      return 0;
     }
   }
 
