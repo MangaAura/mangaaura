@@ -124,7 +124,7 @@ interface UserData {
   readingProgress: ReadingProgressItem[];
   activitiesFeed: ActivityItem[];
   clanMemberships: { clan: { id: string; name: string; slug: string; emblemUrl: string | null } }[];
-  collections?: Array<{ id: string; name: string; description?: string | null; _count: { items: number; likes: number } }>;
+  collections?: Array<{ id: string; name: string; description?: string | null; coverUrl: string | null; _count: { items: number; likes: number } }>;
 }
 
 interface UserProfileClientProps {
@@ -843,7 +843,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
         collections={(user.collections || []).map((c) => ({
           id: c.id,
           title: c.name,
-          coverUrl: null,
+          coverUrl: c.coverUrl,
           description: c.description || null,
           _count: { items: c._count.items },
         }))}

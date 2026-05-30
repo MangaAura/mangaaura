@@ -3,6 +3,7 @@
 import { Star, FolderOpen, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import {
   Dialog,
   DialogContent,
@@ -52,8 +53,19 @@ export function CollectionsModal({ open, onOpenChange, collections }: Collection
                   onClick={() => onOpenChange(false)}
                   className="flex items-center gap-3 py-3 px-2 -mx-2 rounded-lg hover:bg-[var(--surface-sunken)] transition-colors group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+                  <div className="relative w-10 h-10 rounded-lg bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0 ring-1 ring-[var(--border)]">
+                    {col.coverUrl ? (
+                      <OptimizedImage
+                        src={col.coverUrl}
+                        alt={col.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
