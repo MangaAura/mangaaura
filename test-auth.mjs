@@ -1,5 +1,5 @@
-import { chromium } from 'playwright';
 import fs from 'fs';
+import { chromium } from 'playwright';
 
 const BASE = 'http://localhost:3000';
 

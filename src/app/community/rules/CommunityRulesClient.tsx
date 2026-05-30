@@ -3,8 +3,8 @@
 import { ShieldCheck } from 'lucide-react';
 
 import { useLocale } from '@/i18n';
-import es from '@/i18n/locales/es.json';
 import en from '@/i18n/locales/en.json';
+import es from '@/i18n/locales/es.json';
 
 export default function CommunityRulesClient() {
   const { locale } = useLocale();

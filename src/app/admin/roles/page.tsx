@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import RolesClient from './RolesClient';
 
 export const metadata: Metadata = {

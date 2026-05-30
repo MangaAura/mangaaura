@@ -31,9 +31,9 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Switch } from '@/components/ui/Switch';
+import { AVAILABLE_EVENTS } from '@/core/services/WebhookService';
 import { fetcher } from '@/lib/swr-config';
 
-import { AVAILABLE_EVENTS } from '@/core/services/WebhookService';
 
 interface WebhookDelivery {
   id: string;

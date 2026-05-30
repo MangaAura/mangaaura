@@ -3,10 +3,10 @@
 import { Sun, Moon, Monitor, Check, Palette, Layout, Type, Paintbrush } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
+import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
-import { useTheme } from '@/components/ThemeProvider';
 import { extractApiError } from '@/lib/extract-api-error';
 import { cn } from '@/lib/utils';
 
@@ -104,16 +104,19 @@ export function AppearanceSettings() {
     const savedLayout = localStorage.getItem('layoutDensity') as LayoutDensity;
     const savedColor = localStorage.getItem('primaryColor');
 
-    if (savedTheme) setTheme(savedTheme);
-    if (savedFontSize) setFontSize(savedFontSize);
-    if (savedLayout) setLayoutDensity(savedLayout);
-    if (savedColor) {
-      setPrimaryColor(savedColor);
-      const stored = localStorage.getItem('primaryColorDark');
-      const darkColor = stored || lighten(savedColor, 0.35);
-      applyPrimaryColor(savedColor, darkColor);
-    }
-  }, []);
+    const timer = setTimeout(() => {
+      if (savedTheme && savedTheme !== theme) setTheme(savedTheme);
+      if (savedFontSize && savedFontSize !== fontSize) setFontSize(savedFontSize);
+      if (savedLayout && savedLayout !== layoutDensity) setLayoutDensity(savedLayout);
+      if (savedColor && savedColor !== primaryColor) {
+        setPrimaryColor(savedColor);
+        const stored = localStorage.getItem('primaryColorDark');
+        const darkColor = stored || lighten(savedColor, 0.35);
+        applyPrimaryColor(savedColor, darkColor);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [theme, fontSize, layoutDensity, primaryColor]);
 
   useEffect(() => {
     fetch('/api/me/preferences')
@@ -163,10 +166,12 @@ export function AppearanceSettings() {
   const handleFontSizeChange = (size: FontSize) => {
     setFontSize(size);
     setIsDirty(true);
-
-    const sizes = { small: '14px', normal: '16px', large: '18px' };
-    document.documentElement.style.fontSize = sizes[size];
   };
+
+  useEffect(() => {
+    const sizes = { small: '14px', normal: '16px', large: '18px' };
+    document.documentElement.style.fontSize = sizes[fontSize];
+  }, [fontSize]);
 
   const handleLayoutChange = (density: LayoutDensity) => {
     setLayoutDensity(density);

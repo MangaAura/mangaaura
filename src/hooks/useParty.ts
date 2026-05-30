@@ -68,12 +68,9 @@ export function useParty({
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const msgPollingRef = useRef<NodeJS.Timeout | null>(null);
   const joinedRef = useRef(false);
-  const isHostRef = useRef(false);
-  const currentPageRef = useRef(1);
+  const isHostRef = useRef(isHost);
 
-  // Keep refs in sync
   useEffect(() => { isHostRef.current = isHost; }, [isHost]);
-  useEffect(() => { currentPageRef.current = currentPage; }, [currentPage]);
 
   // ── Join party ──────────────────────────────────────────────────
   const joinParty = useCallback(async () => {
@@ -115,7 +112,7 @@ export function useParty({
 
   // ── Change page (host only) ─────────────────────────────────────
   const changePage = useCallback(async (page: number) => {
-    if (!isHostRef.current) return;
+    if (!isHost) return;
     setCurrentPage(page);
     try {
       await fetch(`/api/party/${partyId}/page`, {
@@ -126,7 +123,7 @@ export function useParty({
     } catch {
       // Optimistic update already applied
     }
-  }, [partyId]);
+  }, [partyId, isHost]);
 
   // ── Sync page (non-host, for cursor position) ───────────────────
   const syncPage = useCallback(async (page: number) => {

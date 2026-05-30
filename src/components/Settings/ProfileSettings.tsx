@@ -13,9 +13,9 @@ import {
   MessageCircle,
   Image,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useRef, useState, useEffect } from 'react';
 
-import { useSession } from 'next-auth/react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@/generated/prisma/client';
 
+import { Prisma } from '@/generated/prisma/client';
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 

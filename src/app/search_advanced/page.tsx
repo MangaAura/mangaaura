@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import AdvancedSearchClient from './AdvancedSearchClient';
 
-import { detectLocale } from '@/i18n/server';
+import AdvancedSearchClient from './AdvancedSearchClient';
 import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

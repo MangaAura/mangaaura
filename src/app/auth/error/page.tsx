@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import AuthErrorClient from './AuthErrorClient';
 
-import { detectLocale } from '@/i18n/server';
+import AuthErrorClient from './AuthErrorClient';
 import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

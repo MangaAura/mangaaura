@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
-import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { logSecurityEvent } from '@/lib/security-audit';
 
 const kickSchema = z.object({
   userId: z.string().min(1),

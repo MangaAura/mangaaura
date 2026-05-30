@@ -4,8 +4,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Play, Compass, BookOpen, Users, BookMarked, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
 import { useT } from '@/i18n';
 
@@ -32,18 +32,18 @@ function CountUp({ value }: { value: number }) {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (shouldReduceMotion) { /* eslint-disable-next-line react-hooks/set-state-in-effect */ setCount(value); return; }
+    if (shouldReduceMotion) { if (count !== value) setCount(value); return; }
     let start: number | null = null;
     const duration = 1500;
     const step = (ts: number) => {
       if (!start) start = ts;
       const p = Math.min((ts - start) / duration, 1);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCount(Math.floor(p * value));
+      const next = Math.floor(p * value);
+      if (next !== count) setCount(next);
       if (p < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
-  }, [value, shouldReduceMotion]);
+  }, [value, shouldReduceMotion, count]);
 
   return <span>{count.toLocaleString()}</span>;
 }
@@ -84,11 +84,13 @@ export function AnimatedHero({
   };
 
   const floatingShapes = [
-    { size: 'w-24 h-24', x: '10%', y: '20%', delay: 0 },
-    { size: 'w-16 h-16', x: '80%', y: '15%', delay: 0.3 },
-    { size: 'w-20 h-20', x: '70%', y: '70%', delay: 0.6 },
-    { size: 'w-12 h-12', x: '25%', y: '75%', delay: 0.9 },
+    { size: 'w-24 h-24' as const, x: '10%' as const, y: '20%' as const, delay: 0 },
+    { size: 'w-16 h-16' as const, x: '80%' as const, y: '15%' as const, delay: 0.3 },
+    { size: 'w-20 h-20' as const, x: '70%' as const, y: '70%' as const, delay: 0.6 },
+    { size: 'w-12 h-12' as const, x: '25%' as const, y: '75%' as const, delay: 0.9 },
   ];
+  const hoverScale = { scale: 1.05 } as const;
+  const tapScale = { scale: 0.95 } as const;
 
   return (
     <section className="relative w-full min-h-[60vh] md:min-h-[70vh] flex items-center overflow-hidden rounded-2xl">
@@ -158,8 +160,8 @@ export function AnimatedHero({
           {coverUrl && mangaSlug ? (
             <Link href={`/manga/${mangaSlug}`}>
               <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={hoverScale}
+                whileTap={tapScale}
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white cursor-pointer"
               >
                 <Play className="w-5 h-5" />
@@ -169,8 +171,8 @@ export function AnimatedHero({
           ) : (
             <Link href={session?.user ? '/creator/manga/new' : '/auth/register'}>
               <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={hoverScale}
+                whileTap={tapScale}
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white cursor-pointer"
               >
                 <Sparkles className="w-5 h-5" />
@@ -180,8 +182,8 @@ export function AnimatedHero({
           )}
           <Link href="/explore">
             <motion.span
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={hoverScale}
+              whileTap={tapScale}
               className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-semibold border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-colors cursor-pointer"
             >
               <Compass className="w-5 h-5" />

@@ -1,8 +1,8 @@
 'use client';
 
+import { Trophy, Plus, Save, Trash2, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Trophy, Plus, Save, Trash2, Loader2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +15,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
 import {
   Select,
   SelectContent,
@@ -22,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
-import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetcher } from '@/lib/swr-config';

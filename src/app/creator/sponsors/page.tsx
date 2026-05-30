@@ -2,11 +2,11 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { CreatorSponsors } from '@/components/Sponsorships/CreatorSponsors';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

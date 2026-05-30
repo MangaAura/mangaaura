@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
-
 import { fetcher } from '@/lib/swr-config';
 
 interface SubscriptionData {

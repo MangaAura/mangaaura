@@ -55,7 +55,7 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
 
   const fetchCrowdfundingData = async () => {
     try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setIsLoading(true);
       setError(null);
       const response = await fetch(`/api/crowdfunding/chapter/${chapterId}`);
@@ -81,7 +81,9 @@ export default function CrowdfundingWidget({ chapterId, chapterTitle }: Crowdfun
   };
 
   useEffect(() => {
-    fetchCrowdfundingData();
+    let mounted = true;
+    if (mounted) fetchCrowdfundingData();
+    return () => { mounted = false; };
   }, [chapterId]);
 
   const handleContributionSuccess = () => {

@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Home, Library, BookOpen, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/Button';
 import { NoIndex } from '@/components/SEO/NoIndex';
+import { Button } from '@/components/ui/Button';
 import { useT } from '@/i18n';
 
 export default function AppNotFoundPage() {

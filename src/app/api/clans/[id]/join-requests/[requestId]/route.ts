@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
-import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { logSecurityEvent } from '@/lib/security-audit';
 
 // PATCH /api/clans/[id]/join-requests/[requestId] - Aprobar o rechazar solicitud (líder/officer)
 export async function PATCH(

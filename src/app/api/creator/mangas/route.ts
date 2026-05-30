@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import { syncGenresFromTags } from '@/lib/genres';
+import { prisma } from '@/lib/prisma';
 import { uploadImage } from '@/lib/storage';
 
 function generateSlug(text: string): string {

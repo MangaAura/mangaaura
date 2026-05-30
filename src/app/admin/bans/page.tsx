@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import BansClient from './BansClient';
 
 export const metadata: Metadata = {

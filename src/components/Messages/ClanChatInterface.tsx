@@ -2,6 +2,7 @@
 
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
   Smile,
@@ -17,13 +18,11 @@ import {
   Mic,
   MessageSquare,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ScrollArea } from '@/components/ui/ScrollArea';
-
 import { cn } from '@/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -368,13 +367,14 @@ export function ClanChatInterface({
   // ── Polling: fetch new messages every 5s ───────────────────────
 
   useEffect(() => {
+    let mounted = true;
     let intervalId: ReturnType<typeof setInterval>;
 
     const poll = async () => {
       if (!hasMessagesRef.current) return;
       try {
         const res = await fetch(`/api/clans/${clanId}/chat?limit=50`);
-        if (!res.ok) return;
+        if (!res.ok || !mounted) return;
         const data = await res.json();
         const serverMessages: Message[] = (data.messages || []).map(
           (m: Record<string, unknown>) => {
@@ -415,6 +415,7 @@ export function ClanChatInterface({
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
+      mounted = false;
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
@@ -641,8 +642,14 @@ export function ClanChatInterface({
       setSearchResults([]);
       return;
     }
-    const timer = setTimeout(() => handleSearch(searchQuery.trim()), 300);
-    return () => clearTimeout(timer);
+    let mounted = true;
+    const timer = setTimeout(() => {
+      if (mounted) handleSearch(searchQuery.trim());
+    }, 300);
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, [searchQuery, isSearchOpen, handleSearch]);
 
   // ── Scroll to search result ─────────────────────────────────────

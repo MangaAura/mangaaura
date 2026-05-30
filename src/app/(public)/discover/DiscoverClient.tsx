@@ -84,7 +84,7 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
                 )}
               </div>
               <h3 className="text-sm font-semibold truncate">{m.title}</h3>
-              <div className="flex items-center gap-2 text-xs text-muted">
+              <div className="flex items-center gap-2 text-xs text-text-secondary">
                 {m.rating && <span className="flex items-center gap-0.5"><Star size={10} />{m.rating.toFixed(1)}</span>}
                 <span className="flex items-center gap-0.5"><Eye size={10} />{m.totalViews}</span>
               </div>

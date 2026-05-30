@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import SearchAnalyticsClient from './SearchAnalyticsClient';
 
 export const metadata: Metadata = {

@@ -40,7 +40,6 @@ export default function AdminGenresClient() {
 
   const loadGenres = useCallback(async () => {
     try {
-      setIsLoading(true);
       setError(null);
       const response = await fetch('/api/genres');
       if (!response.ok) {
@@ -50,7 +49,7 @@ export default function AdminGenresClient() {
       const data = await response.json();
 
       // Fetch manga counts for all genres in a single request
-      let countsMap: Record<string, number> = {};
+      const countsMap: Record<string, number> = {};
       try {
         const countRes = await fetch('/api/genres/counts');
         if (countRes.ok) {
@@ -158,7 +157,7 @@ export default function AdminGenresClient() {
             </div>
           ) : error ? (
             <div className="p-6">
-              <ErrorMessage message={error} action={{ label: 'Reintentar', onClick: loadGenres }} />
+              <ErrorMessage message={error} action={{ label: 'Reintentar', onClick: () => { setIsLoading(true); loadGenres(); } }} />
             </div>
           ) : (
             <div className="overflow-x-auto">

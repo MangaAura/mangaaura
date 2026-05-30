@@ -18,7 +18,7 @@ export function InstallPrompt() {
 
   useEffect(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
+      if (!isInstalled) setIsInstalled(true);
       return;
     }
 
@@ -41,7 +41,7 @@ export function InstallPrompt() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [isInstalled]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;

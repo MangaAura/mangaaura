@@ -26,7 +26,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import { useT } from '@/i18n';
-
 import { cn } from '@/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -615,21 +614,26 @@ export function ChatInterface({
     if (!conversationId) return;
     if (loadedInitialMessages.length > 0) return;
 
-    setInitialLoading(true);
+    let mounted = true;
+    const loadingTimer = setTimeout(() => {
+      if (mounted) setInitialLoading(true);
+    }, 0);
     (async () => {
       try {
         const res = await fetch(`/api/conversations/${conversationId}/messages?limit=50`);
-        if (res.ok) {
+        if (res.ok && mounted) {
           const data = await res.json();
           const msgs = data.messages || [];
           setMessages(msgs);
           hasMessagesRef.current = msgs.length > 0;
         }
       } catch { /* silent */ }
-      setInitialLoading(false);
+      if (mounted) setInitialLoading(false);
     })();
 
     return () => {
+      mounted = false;
+      clearTimeout(loadingTimer);
       setMessages([]);
       setNewMessage('');
       setReplyTo(null);
@@ -641,12 +645,13 @@ export function ChatInterface({
   // ── Polling: fetch new messages every 5s ───────────────────────
 
   useEffect(() => {
+    let mounted = true;
     let intervalId: ReturnType<typeof setInterval>;
 
     const poll = async () => {
       try {
         const res = await fetch(`/api/conversations/${conversationId}/messages?limit=50`);
-        if (!res.ok) return;
+        if (!res.ok || !mounted) return;
         const data = await res.json();
         const serverMessages: Message[] = data.messages || [];
 
@@ -678,6 +683,7 @@ export function ChatInterface({
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
+      mounted = false;
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
@@ -691,16 +697,18 @@ export function ChatInterface({
   // ── Block state sync from server ──────────────────────────────────
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
       try {
         const res = await fetch(`/api/conversations/${conversationId}`);
-        if (res.ok) {
+        if (res.ok && mounted) {
           const data = await res.json();
           setIsBlocked(!!data.conversation?.isBlocked);
           setBlockedByMe(data.conversation?.blockedBy === currentUserId);
         }
       } catch { /* silent */ }
     })();
+    return () => { mounted = false; };
   }, [conversationId, currentUserId]);
 
   // ── Scroll to search result ───────────────────────────────────────
@@ -721,17 +729,48 @@ export function ChatInterface({
     }
   }, [searchResultIndex, searchResults]);
 
-  // ── Debounced auto-search ─────────────────────────────────────────
+  // ── Search messages ───────────────────────────────────────────────
 
-  useEffect(() => {
-    if (!searchQuery.trim() || !isSearchOpen) {
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
       setSearchResults([]);
       return;
     }
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/conversations/${conversationId}/messages?search=${encodeURIComponent(query)}&limit=50`);
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data.messages || []);
+        setSearchResultIndex(0);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setIsSearching(false);
+    }
+  }, [conversationId]);
+
+  // ── Debounced auto-search ─────────────────────────────────────────
+
+  const handleSearchRef = useRef(handleSearch);
+  useEffect(() => {
+    handleSearchRef.current = handleSearch;
+  }, [handleSearch]);
+
+  useEffect(() => {
+    if (!searchQuery.trim() || !isSearchOpen) {
+      const timer = setTimeout(() => setSearchResults([]), 0);
+      return () => clearTimeout(timer);
+    }
+    let mounted = true;
     const timer = setTimeout(() => {
-      handleSearch(searchQuery.trim());
+      if (mounted) handleSearchRef.current(searchQuery.trim());
     }, 300);
-    return () => clearTimeout(timer);
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, [searchQuery, isSearchOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Click outside emoji picker ────────────────────────────────────
@@ -963,9 +1002,17 @@ export function ChatInterface({
   // ── Fetch conversations when forward modal opens ─────────────────
 
   useEffect(() => {
+    let mounted = true;
     if (showForwardModal) {
-      handleFetchConversations();
+      const timer = setTimeout(() => {
+        if (mounted) handleFetchConversations();
+      }, 0);
+      return () => {
+        mounted = false;
+        clearTimeout(timer);
+      };
     }
+    return () => { mounted = false; };
   }, [showForwardModal, handleFetchConversations]);
 
   const handleForwardToConversation = useCallback(
@@ -984,28 +1031,6 @@ export function ChatInterface({
     },
     [forwardMessageContent],
   );
-
-  // ── Search messages ───────────────────────────────────────────────
-
-  const handleSearch = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    setIsSearching(true);
-    try {
-      const res = await fetch(`/api/conversations/${conversationId}/messages?search=${encodeURIComponent(query)}&limit=50`);
-      if (res.ok) {
-        const data = await res.json();
-        setSearchResults(data.messages || []);
-        setSearchResultIndex(0);
-      }
-    } catch {
-      // Silently fail
-    } finally {
-      setIsSearching(false);
-    }
-  }, [conversationId]);
 
   // ── Reactions ──────────────────────────────────────────────────────
 
@@ -1110,8 +1135,11 @@ export function ChatInterface({
 
   // ── Auto-stop recording at 5 min ──────────────────────────────────
 
+  const prevRecordingRef = useRef({ isRecording: false, duration: 0 });
+
   useEffect(() => {
-    if (isRecording && recordingDuration >= 300) {
+    if (isRecording && recordingDuration >= 300 && !prevRecordingRef.current.isRecording) {
+      prevRecordingRef.current = { isRecording: true, duration: recordingDuration };
       handleStopRecording();
     }
   }, [recordingDuration, isRecording, handleStopRecording]);

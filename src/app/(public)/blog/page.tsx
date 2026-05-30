@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import Link from 'next/link';
+
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {

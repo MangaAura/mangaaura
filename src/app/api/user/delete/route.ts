@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { sendEmail } from '@/lib/email';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
 
-import { sendEmail } from '@/lib/email';
 
 const DELETION_GRACE_PERIOD_DAYS = 30;
 

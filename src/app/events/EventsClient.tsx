@@ -52,6 +52,15 @@ interface EventsClientProps {
   types: readonly string[];
 }
 
+function typeLabel(typeVal: string, t: ReturnType<typeof useT>) {
+  switch (typeVal) {
+    case 'ART_CHALLENGE': return `🎨 ${t('events.typeLabel.artChallenge')}`;
+    case 'SPEEDREADING': return `⚡ ${t('events.typeLabel.speedReading')}`;
+    case 'COMMUNITY': return `👥 ${t('events.typeLabel.community')}`;
+    default: return typeVal;
+  }
+}
+
 export function EventsClient({
   initialTab,
   events,
@@ -71,49 +80,48 @@ export function EventsClient({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [votedId, setVotedId] = useState<string | null>(initialVotedId);
   const [localVoting, setLocalVoting] = useState<VotingData | null>(voting);
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    setActiveTab(initialTab);
-  }, [initialTab]);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [votingLoading, setVotingLoading] = useState(false);
 
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
   const totalPages = Math.ceil(totalEvents / limit);
 
-  const buildUrl = (overrides: Record<string, string>) => {
+  function buildUrl(overrides: Record<string, string>) {
     const p = new URLSearchParams(window.location.search);
     Object.entries(overrides).forEach(([k, v]) => {
       if (v) p.set(k, v);
       else p.delete(k);
     });
     return `?${p.toString()}`;
-  };
+  }
 
-  const navigateTab = (tab: string) => {
+  function navigateTab(tab: string) {
     setActiveTab(tab);
     const url = buildUrl({ tab, page: '1' });
     router.push(url);
-  };
+  }
 
-  const navigatePage = (newPage: number) => {
+  function navigatePage(newPage: number) {
     const url = buildUrl({ page: String(newPage) });
     router.push(url);
-  };
+  }
 
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  function handleTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const val = e.target.value;
     const url = buildUrl({ type: val, page: '1' });
     router.push(url);
-  };
+  }
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const q = formData.get('q') as string;
     const url = buildUrl({ search: q, page: '1' });
     router.push(url);
-  };
+  }
 
   const handleVote = async (submissionId: string, eventId: string) => {
     setVoteError(null);
@@ -148,15 +156,6 @@ export function EventsClient({
     }
   };
 
-  const typeLabel = (typeVal: string) => {
-    switch (typeVal) {
-      case 'ART_CHALLENGE': return `🎨 ${t('events.typeLabel.artChallenge')}`;
-      case 'SPEEDREADING': return `⚡ ${t('events.typeLabel.speedReading')}`;
-      case 'COMMUNITY': return `👥 ${t('events.typeLabel.community')}`;
-      default: return typeVal;
-    }
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
       <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 mb-8">
@@ -176,7 +175,7 @@ export function EventsClient({
               <option value="">{t('events.filter.allTypes')}</option>
               {types.map((tv) => (
                 <option key={tv} value={tv}>
-                  {typeLabel(tv)}
+                  {typeLabel(tv, t)}
                 </option>
               ))}
             </select>

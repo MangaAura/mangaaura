@@ -224,7 +224,7 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
   }, [chapterId]);
 
   // Cargar inicial
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     if (chapterId) {
       fetchComments(1);

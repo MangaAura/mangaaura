@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { auth } from '@/lib/auth';
-import { sanitizeText } from '@/lib/sanitize';
 import type { Prisma } from '@/generated/prisma/client';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { sanitizeText } from '@/lib/sanitize';
 
 const messageSchema = z.object({
   content: z.string().min(1).max(2000),

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
-import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
-import { toSlug } from '@/lib/slug';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { logSecurityEvent } from '@/lib/security-audit';
+import { toSlug } from '@/lib/slug';
 
 // GET /api/clans - Listar clanes
 export async function GET(req: NextRequest) {

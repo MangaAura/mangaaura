@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -75,7 +75,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setMounted(true);
     const savedTheme = localStorage.getItem('mangaaura-theme') as Theme | null;
     if (savedTheme) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setThemeState(savedTheme);
     }
     const savedColor = localStorage.getItem('primaryColor');

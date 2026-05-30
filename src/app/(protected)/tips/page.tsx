@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { Coins } from 'lucide-react';
+import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { TipsClient } from './TipsClient';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 

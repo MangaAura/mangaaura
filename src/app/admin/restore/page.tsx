@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import RestoreClient from './RestoreClient';
 
 export const metadata: Metadata = {

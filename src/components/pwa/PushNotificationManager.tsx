@@ -27,9 +27,9 @@ export function PushNotificationManager() {
 
   useEffect(() => {
     if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
-      setIsSupported(true);
+      if (!isSupported) setIsSupported(true);
       const perm = Notification.permission;
-      setPermission(perm);
+      if (permission !== perm) setPermission(perm);
 
       if (perm === 'granted') {
         checkSubscription();
@@ -44,7 +44,7 @@ export function PushNotificationManager() {
         return () => clearTimeout(timer);
       }
     }
-  }, [session]);
+  }, [session, isSupported, permission]);
 
   const subscribeToPush = async () => {
     try {

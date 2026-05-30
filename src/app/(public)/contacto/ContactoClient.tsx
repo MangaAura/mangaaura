@@ -23,8 +23,8 @@ import {
   Heart,
   Star,
 } from 'lucide-react';
-import React, { useState } from 'react';
 import Link from 'next/link';
+import React, { useState } from 'react';
 
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
@@ -261,7 +261,7 @@ export default function ContactoClient() {
                     {item.icon}
                   </div>
                   <h2 className="font-bold text-xl mb-2 text-[var(--text-primary)]">{item.title}</h2>
-                  <p className="text-[var(--text-secondary)]">{item.desc}</p>
+                  <p className="text-[var(--text-primary)]/80">{item.desc}</p>
                 </div>
               </motion.div>
             ))}

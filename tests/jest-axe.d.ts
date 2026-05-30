@@ -12,11 +12,11 @@ declare module 'jest-axe' {
 
 // Extend vitest's matchers
 declare module 'vitest' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface Assertion<T = unknown> {
     toHaveNoViolations(): void;
   }
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface AsymmetricMatchersContaining {
     toHaveNoViolations(): void;
   }

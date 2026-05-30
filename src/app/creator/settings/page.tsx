@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import CreatorSettingsClient from './CreatorSettingsClient';
 
-import { detectLocale } from '@/i18n/server';
+import CreatorSettingsClient from './CreatorSettingsClient';
 import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

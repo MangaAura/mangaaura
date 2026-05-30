@@ -12,7 +12,6 @@ import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 
 import { localeHref } from './NavLinks';
-
 import { NotificationDropdown } from './NotificationDropdown';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useT } from '@/i18n';
@@ -330,7 +329,7 @@ export function AuthSection({
     <div className="flex items-center gap-2">
       <Link
         href={localeHref(pathname, '/auth/login')}
-        className="hidden sm:block px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface)] transition-all duration-200"
+        className="hidden sm:block px-4 py-2 text-sm font-medium text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface)] transition-all duration-200"
       >
         {t('nav.login')}
       </Link>

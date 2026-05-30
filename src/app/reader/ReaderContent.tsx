@@ -74,37 +74,53 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
   const [isResolving, setIsResolving] = useState(!!mangaSlugParam);
 
   // Resolve mangaSlug → manga ID
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+
   useEffect(() => {
+    let mounted = true;
     if (!mangaSlugParam) return;
-    setIsResolving(true);
+    const timer = setTimeout(() => {
+      if (mounted) setIsResolving(true);
+    }, 0);
     fetch(`/api/manga/${mangaSlugParam}`)
       .then(r => r.json())
       .then(data => {
+        if (!mounted) return;
         if (data?.manga?.id) {
           setResolvedMangaId(data.manga.id);
           setMangaSlug(mangaSlugParam);
         }
       })
       .catch(() => {})
-      .finally(() => setIsResolving(false));
+      .finally(() => { if (mounted) setIsResolving(false); });
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, [mangaSlugParam]);
 
   // Resolve chapterId to mangaId + chapterNumber if needed
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+
   useEffect(() => {
+    let mounted = true;
     if (!chapterId || mangaSlugParam || mangaIdParam) return;
-    setIsResolving(true);
+    const timer = setTimeout(() => {
+      if (mounted) setIsResolving(true);
+    }, 0);
     fetch(`/api/manga/chapters/${chapterId}`)
       .then(r => r.json())
       .then(data => {
+        if (!mounted) return;
         if (data?.manga?.id && data?.chapterNumber != null) {
           setResolvedMangaId(data.manga.id);
           setResolvedChapterNumber(String(data.chapterNumber));
         }
       })
       .catch(() => {})
-      .finally(() => setIsResolving(false));
+      .finally(() => { if (mounted) setIsResolving(false); });
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, [chapterId, mangaIdParam, mangaSlugParam]);
 
   const [continuousReading, setContinuousReading] = useState(() => {
@@ -131,12 +147,13 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
   );
 
   // Extract slug from chapter data once loaded (backward compat for mangaId-only URLs)
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+
   useEffect(() => {
-    if (chapterData?.manga?.slug && !mangaSlug) {
+    if (!chapterData?.manga?.slug) return;
+    if (chapterData.manga.slug !== mangaSlug) {
       setMangaSlug(chapterData.manga.slug);
     }
-  }, [chapterData, mangaSlug]);
+  }, [chapterData?.manga?.slug, mangaSlug]);
 
   // Analytics
   const { trackPageTurn: trackPageView } = useReadingAnalytics({
@@ -166,7 +183,7 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
     if (currentPage < chapterData.totalPages - 1) {
       setCurrentPage(p => p + 1);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
   }, [currentPage, chapterData, continuousReading, nextChapter, mangaSlug, resolvedMangaId, router]);
 
   const prevPage = useCallback(() => {
@@ -187,9 +204,8 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
 
   // Track page views
   useEffect(() => {
-    if (chapterData) {
-      trackPageView(currentPage + 1);
-    }
+    if (!chapterData) return;
+    trackPageView(currentPage + 1);
   }, [currentPage, chapterData, trackPageView]);
 
   // Keyboard navigation

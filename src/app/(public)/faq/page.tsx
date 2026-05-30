@@ -73,9 +73,9 @@ export default async function FAQPage() {
           {/* Still have questions CTA */}
           <div className="mt-12 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 text-center">
             <MessageSquare className="w-10 h-10 mx-auto mb-3 text-[var(--primary)]" />
-            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
               {t('faqPage.stillHaveQuestions')}
-            </h3>
+            </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
               {t('help.notFoundDesc')}
             </p>

@@ -41,12 +41,13 @@ export function useLazyImage({
       if (ctx) {
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(0, 0, 20, 30);
-        setBlurUrl(canvas.toDataURL());
+        const url = canvas.toDataURL();
+        if (url !== blurUrl) setBlurUrl(url);
       }
     } else {
-      setBlurUrl(placeholderSrc);
+      if (placeholderSrc !== blurUrl) setBlurUrl(placeholderSrc);
     }
-  }, [placeholderSrc]);
+  }, [placeholderSrc, blurUrl]);
 
   useEffect(() => {
     const element = imgRef.current;

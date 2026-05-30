@@ -1,5 +1,9 @@
 'use client';
 
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale/en-US';
+import { es } from 'date-fns/locale/es';
+import { motion } from 'framer-motion';
 import {
   BookOpen,
   Trophy,
@@ -11,13 +15,12 @@ import {
   Activity,
 } from 'lucide-react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 
-import { es } from 'date-fns/locale/es';
-import { enUS } from 'date-fns/locale/en-US';
-
+import { AchievementsModal } from './AchievementsModal';
+import { CollectionsModal } from './CollectionsModal';
+import { FollowersModal } from './FollowersModal';
+import { LibraryModal } from './LibraryModal';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ProfileHeader, ProfileTimeline, ProfileCompletionMeter } from '@/components/Profile';
 import { Button } from '@/components/ui/Button';
@@ -26,10 +29,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Progress } from '@/components/ui/Progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { useT, useLocale } from '@/i18n';
-import { FollowersModal } from './FollowersModal';
-import { LibraryModal } from './LibraryModal';
-import { CollectionsModal } from './CollectionsModal';
-import { AchievementsModal } from './AchievementsModal';
 
 interface ReadingProgress {
   id: string;
@@ -320,7 +319,10 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false);
   const [achievementsModalOpen, setAchievementsModalOpen] = useState(false);
 
-  useEffect(() => { setReady(true); }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 0);
+    return () => clearTimeout(t);
+  }, []);
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 

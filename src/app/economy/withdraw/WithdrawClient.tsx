@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { AlertCircle, CheckCircle, Shield } from 'lucide-react';
+import { useState } from 'react';
 
 interface WithdrawInfo {
   auraBalance: number;

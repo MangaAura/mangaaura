@@ -1,7 +1,7 @@
 ﻿'use client';
 
-import dynamic from 'next/dynamic';
 import { Trophy, TrendingUp, Clock, Sparkles } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 

@@ -1,9 +1,15 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
-import EditCollectionClient from './EditCollectionClient';
 
-export async function generateMetadata(): Promise<Metadata> {
+import EditCollectionClient from './EditCollectionClient';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
+
+interface EditCollectionPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: EditCollectionPageProps): Promise<Metadata> {
+  const { id } = await params;
   const locale = await detectLocale();
   const t = getT(locale);
   const title = t('page.collectionsEdit.title');
@@ -25,10 +31,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/collections/[id]/edit' },
+    alternates: { canonical: `/collections/${id}/edit` },
   };
 }
 
-export default function EditCollectionPage(props: any) {
-  return <EditCollectionClient {...props} />;
+export default function EditCollectionPage() {
+  return <EditCollectionClient />;
 }

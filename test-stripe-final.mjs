@@ -1,8 +1,8 @@
 /**
  * Playwright test: Register → Login → Checkout → Verify CSP
  */
-import { chromium } from 'playwright';
 import fs from 'fs';
+import { chromium } from 'playwright';
 
 const BASE = 'http://localhost:3000';
 const SUFFIX = Date.now();

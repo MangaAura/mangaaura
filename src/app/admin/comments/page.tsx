@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import CommentModerationClient from './CommentModerationClient';
 
 export const metadata: Metadata = {

@@ -6,7 +6,7 @@ export default function AnalyticsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppShell showMobileBottomNav>
+    <AppShell showMobileBottomNav requireAuth>
       {children}
     </AppShell>
   );

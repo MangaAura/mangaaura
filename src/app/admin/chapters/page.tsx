@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import ChapterManagementClient from './ChapterManagementClient';
 
 export const metadata: Metadata = {

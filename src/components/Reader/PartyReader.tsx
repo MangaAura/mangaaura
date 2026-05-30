@@ -108,7 +108,7 @@ export default function PartyReader({
   // Manejar error de conexion
   useEffect(() => {
     if (error) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       toast({
         title: 'Connection Error',
         description: error,

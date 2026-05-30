@@ -65,29 +65,33 @@ export default function ChapterReaderClient() {
 
   // Cargar capítulo
   useEffect(() => {
+    let mounted = true;
+
     const fetchChapter = async () => {
       try {
         const response = await fetch(`/api/manga/chapters/${chapterId}`);
         if (!response.ok) throw new Error('Chapter not found');
         const data = await response.json();
+        if (!mounted) return;
         setChapter(data);
-        
-        // Track view
+
         trackEvent({
           type: 'page_view',
           mangaId: data.manga.id,
           chapterId: data.id,
         });
       } catch (err) {
-        setError('Capítulo no encontrado');
+        if (mounted) setError('Capítulo no encontrado');
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
     if (chapterId) {
       fetchChapter();
     }
+
+    return () => { mounted = false; };
   }, [chapterId]);
 
   // Track reading progress
@@ -104,19 +108,6 @@ export default function ChapterReaderClient() {
 
     return () => clearTimeout(timer);
   }, [chapter]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') nextPage();
-      if (e.key === 'ArrowLeft') prevPage();
-      if (e.key === 'Escape') setShowComments(false);
-      if (e.key === 'f') toggleFullscreen();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentPage, chapter]);
 
   const nextPage = useCallback(() => {
     if (!chapter) return;
@@ -140,6 +131,19 @@ export default function ChapterReaderClient() {
       setIsFullscreen(false);
     }
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') nextPage();
+      if (e.key === 'ArrowLeft') prevPage();
+      if (e.key === 'Escape') setShowComments(false);
+      if (e.key === 'f') toggleFullscreen();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextPage, prevPage, toggleFullscreen]);
 
   const handleZoomIn = () => setZoom(z => Math.min(z + 0.25, 3));
   const handleZoomOut = () => setZoom(z => Math.max(z - 0.25, 0.5));

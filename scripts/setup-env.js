@@ -5,7 +5,7 @@
  * Uso: node scripts/setup-env.js
  */
 
-/* eslint-disable @typescript-eslint/no-require-imports */
+ 
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';

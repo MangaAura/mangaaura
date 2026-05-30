@@ -1,34 +1,42 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await detectLocale();
-  const t = getT(locale);
-  const title = t('page.messagesClan.title');
-  const description = t('page.messagesClan.description');
+import { ClanChatClient } from './ClanChatClient';
+import { auth } from '@/lib/auth';
 
+interface ClanChatPageProps {
+  params: Promise<{ clanId: string }>;
+}
+
+export async function generateMetadata({ params }: ClanChatPageProps): Promise<Metadata> {
+  const { clanId } = await params;
   return {
-    title,
-    description,
+    title: 'Chat del Clan | MangaAura',
+    description: 'Chat del clan en MangaAura.',
     robots: { index: false, follow: false },
     openGraph: {
-      title,
-      description,
+      title: 'Chat del Clan | MangaAura',
+      description: 'Chat del clan en MangaAura.',
       type: 'website',
       images: ['/og-image.png'],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
+      title: 'Chat del Clan | MangaAura',
+      description: 'Chat del clan en MangaAura.',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/messages/clan/[clanId]' },
+    alternates: { canonical: `/messages/clan/${clanId}` },
   };
 }
 
-export default async function ClanChatPage() {
-  redirect('/messages');
+export default async function ClanChatPage({ params }: ClanChatPageProps) {
+  const { clanId } = await params;
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect('/auth/login?callbackUrl=/messages');
+  }
+
+  return <ClanChatClient clanId={clanId} currentUserId={session.user.id} />;
 }

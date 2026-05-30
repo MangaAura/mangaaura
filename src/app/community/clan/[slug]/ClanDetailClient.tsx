@@ -107,7 +107,7 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
     if (isInView) {
       spring.set(value);
     }
-  }, [isInView, value, spring]);
+  }, [isInView, value]);
 
   return (
     <motion.span ref={ref} className="tabular-nums">
@@ -594,7 +594,7 @@ export default function ClanDetailClient({
   // ── Fetch user's pending join request on mount ──
   useEffect(() => {
     if (userId && !userMembership) {
-      setLoadingMyRequest(true);
+      setLoadingMyRequest(prev => prev ? prev : true);
       fetch(`/api/clans/${clan.id}/join-requests?status=PENDING`)
         .then(res => res.ok ? res.json() : { joinRequests: [] })
         .then(data => {
@@ -781,10 +781,8 @@ export default function ClanDetailClient({
         const data = await res.json();
         throw new Error(data.error || t('clanDetail.errorUpdate'));
       }
-      clan.name = editName;
-      clan.description = editDescription;
-      clan.emblemUrl = editEmblemUrl;
       setEditing(false);
+      window.location.reload();
     } catch (err: any) {
       setEditError(err.message);
     } finally {
@@ -834,7 +832,7 @@ export default function ClanDetailClient({
   // ── Invitation Handlers ──
   const loadPendingInvites = useCallback(async () => {
     if (!canInvite) return;
-    setLoadingPendingInvites(true);
+    setLoadingPendingInvites(prev => prev ? prev : true);
     try {
       const res = await fetch(`/api/clans/${clan.id}/invitations/pending`);
       if (res.ok) {
@@ -917,6 +915,22 @@ export default function ClanDetailClient({
       // Silently fail
     }
   };
+
+  const handleViewAuditLogs = useCallback(async () => {
+    setAuditLogsOpen(true);
+    setAuditLogsLoading(true);
+    setAuditLogsError(null);
+    try {
+      const res = await fetch(`/api/clans/${clan.id}/audit-logs`);
+      if (!res.ok) throw new Error((await res.json()).error || t('clanDetail.errorLoadAudit'));
+      const data = await res.json();
+      setAuditLogs(data.logs || []);
+    } catch (err: any) {
+      setAuditLogsError(err.message);
+    } finally {
+      setAuditLogsLoading(false);
+    }
+  }, [clan.id, t]);
 
   const joinedLabel = userMembership
     ? userMembership.role === 'LEADER'
@@ -1118,21 +1132,7 @@ export default function ClanDetailClient({
                 
                 {canViewAudit && (
                   <button
-                    onClick={async () => {
-                      setAuditLogsOpen(true);
-                      setAuditLogsLoading(true);
-                      setAuditLogsError(null);
-                      try {
-                        const res = await fetch(`/api/clans/${clan.id}/audit-logs`);
-                        if (!res.ok) throw new Error((await res.json()).error || t('clanDetail.errorLoadAudit'));
-                        const data = await res.json();
-                        setAuditLogs(data.logs || []);
-                      } catch (err: any) {
-                        setAuditLogsError(err.message);
-                      } finally {
-                        setAuditLogsLoading(false);
-                      }
-                    }}
+                    onClick={handleViewAuditLogs}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent-purple)] hover:border-[var(--accent-purple)]/40 hover:bg-[var(--accent-purple)]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                   >
                     <ScrollText size={14} />

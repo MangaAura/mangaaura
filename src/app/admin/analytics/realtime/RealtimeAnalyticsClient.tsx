@@ -10,6 +10,7 @@
   WifiOff,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type { RealtimeAnalytics } from '@/types/socket';
 

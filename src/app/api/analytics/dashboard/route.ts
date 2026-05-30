@@ -44,47 +44,77 @@ export async function GET(request: Request) {
     authorizedMangaIds = userMangas.map((m) => m.id);
   }
 
-  const readingSessionWhere = authorizedMangaIds.length > 0
-    ? { chapter: { mangaId: { in: authorizedMangaIds } }, endedAt: { not: null } }
-    : { endedAt: { not: null } };
+  const readingSessionWhere = {
+    chapter: { mangaId: { in: authorizedMangaIds } },
+    endedAt: { not: null },
+  };
 
-    const [
-      views,
-      reads,
-      completions,
-      timeSpent,
-      allEvents,
-      popularChapters,
-    ] = await Promise.all([
-      prisma.analyticsEvent.count({
-        where: { ...dateWhere, eventType: 'page_view' },
-      }),
-      prisma.analyticsEvent.count({
-        where: { ...dateWhere, eventType: 'chapter_read' },
-      }),
-      prisma.analyticsEvent.count({
-        where: { ...dateWhere, eventType: 'chapter_complete' },
-      }),
-      prisma.readingSession.aggregate({
-        where: readingSessionWhere,
-        _avg: { durationSeconds: true },
-      }),
-      prisma.analyticsEvent.findMany({
-        where: { ...dateWhere, eventType: { in: ['page_view', 'chapter_read'] } },
-        select: { createdAt: true, eventType: true },
-        orderBy: { createdAt: 'asc' },
-      }),
-      prisma.chapter.findMany({
-        where: authorizedMangaIds.length > 0
-          ? { mangaId: { in: authorizedMangaIds } }
-          : { manga: { authorId: session.user.id } },
-        orderBy: { viewCount: 'desc' },
-        take: 10,
-        include: {
-          manga: { select: { title: true } },
-        },
-      }),
-    ]);
+    // Si el usuario no tiene mangas, devolver stats en cero (no stats globales)
+  if (authorizedMangaIds.length === 0) {
+    return NextResponse.json({
+      views: 0,
+      reads: 0,
+      completions: 0,
+      completionRate: 0,
+      avgTimeSpent: 0,
+      dailyStats: [],
+      popularChapters: [],
+    });
+  }
+
+  // Filtrar eventos analíticos por los IDs de manga del creador
+  // AnalyticsEvent almacena mangaId dentro del campo metadata (JSON string)
+  const mangaEventFilter = {
+    OR: authorizedMangaIds.map((id) => ({
+      metadata: { contains: `"mangaId":"${id}"` },
+    })),
+  };
+
+  const eventWhereWithAuthorFilter = (eventType: string) => ({
+    ...dateWhere,
+    eventType,
+    ...mangaEventFilter,
+  });
+
+  const [
+    views,
+    reads,
+    completions,
+    timeSpent,
+    allEvents,
+    popularChapters,
+  ] = await Promise.all([
+    prisma.analyticsEvent.count({
+      where: eventWhereWithAuthorFilter('page_view'),
+    }),
+    prisma.analyticsEvent.count({
+      where: eventWhereWithAuthorFilter('chapter_read'),
+    }),
+    prisma.analyticsEvent.count({
+      where: eventWhereWithAuthorFilter('chapter_complete'),
+    }),
+    prisma.readingSession.aggregate({
+      where: readingSessionWhere,
+      _avg: { durationSeconds: true },
+    }),
+    prisma.analyticsEvent.findMany({
+      where: {
+        ...dateWhere,
+        eventType: { in: ['page_view', 'chapter_read'] },
+        ...mangaEventFilter,
+      },
+      select: { createdAt: true, eventType: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+    prisma.chapter.findMany({
+      where: { mangaId: { in: authorizedMangaIds } },
+      orderBy: { viewCount: 'desc' },
+      take: 10,
+      include: {
+        manga: { select: { title: true } },
+      },
+    }),
+  ]);
 
   const completionRate = reads > 0 ? (completions / reads) * 100 : 0;
 

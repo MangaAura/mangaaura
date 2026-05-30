@@ -33,11 +33,11 @@ export default function PromptHunterClient() {
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+    
   const fetchPrompts = useCallback(async (searchQuery: string, newOffset: number = 0) => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setError(prev => prev ? prev : null);
+      setIsLoading(prev => prev ? prev : true);
       const params = new URLSearchParams({
         limit: '20',
         offset: String(newOffset),

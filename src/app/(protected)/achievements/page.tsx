@@ -1,12 +1,13 @@
-import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { Trophy, Target, Zap, Star, Lock, Sparkles, TrendingUp } from 'lucide-react';
+import { Metadata } from 'next';
+
 import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
 import { AchievementGrid } from '@/components/Achievements/AchievementGrid';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import type { Difficulty } from '@/hooks/useAchievements';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 

@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Home, BookOpen, Search } from 'lucide-react';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/Button';
 import { NoIndex } from '@/components/SEO/NoIndex';
+import { Button } from '@/components/ui/Button';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 

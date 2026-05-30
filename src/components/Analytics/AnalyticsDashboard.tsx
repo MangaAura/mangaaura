@@ -114,7 +114,7 @@ export function AnalyticsDashboard({
       };
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setData(dashboardData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setIsLoading(false);
     }
   }, [customData]);

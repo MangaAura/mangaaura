@@ -35,6 +35,23 @@ interface NotificationBellProps {
   userId: string;
 }
 
+function getIcon(type: string) {
+  switch (type) {
+    case 'FOLLOW':
+      return <Heart className="w-4 h-4 text-[var(--accent-purple)]" />;
+    case 'COMMENT':
+    case 'REPLY':
+      return <MessageSquare className="w-4 h-4 text-[var(--info)]" />;
+    case 'ACHIEVEMENT':
+      return <Trophy className="w-4 h-4 text-[var(--warning)]" />;
+    case 'REPORT_CREATED':
+    case 'REPORT_RESOLVED':
+      return <AlertCircle className="w-4 h-4 text-[var(--warning)]" />;
+    default:
+      return <Bell className="w-4 h-4 text-[var(--text-secondary)]" />;
+  }
+}
+
 export function NotificationBell({}: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -59,7 +76,6 @@ export function NotificationBell({}: NotificationBellProps) {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
@@ -83,23 +99,6 @@ export function NotificationBell({}: NotificationBellProps) {
       setUnreadCount(0);
     } catch (error) {
       handleError(error);
-    }
-  };
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'FOLLOW':
-        return <Heart className="w-4 h-4 text-[var(--accent-purple)]" />;
-      case 'COMMENT':
-      case 'REPLY':
-        return <MessageSquare className="w-4 h-4 text-[var(--info)]" />;
-      case 'ACHIEVEMENT':
-        return <Trophy className="w-4 h-4 text-[var(--warning)]" />;
-      case 'REPORT_CREATED':
-      case 'REPORT_RESOLVED':
-        return <AlertCircle className="w-4 h-4 text-[var(--warning)]" />;
-      default:
-        return <Bell className="w-4 h-4 text-[var(--text-secondary)]" />;
     }
   };
 

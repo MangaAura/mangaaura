@@ -264,215 +264,218 @@ async function loadCoverImage(url: string | null): Promise<string | null> {
 // ── Main OG Image Handler ────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+
+  const title = searchParams.get('title') || 'MangaAura';
+  const author = searchParams.get('author') || '';
+  const coverUrl = searchParams.get('cover') || '';
+  const rating = searchParams.get('rating') || '';
+  const totalChapters = searchParams.get('chapters') || '';
+  const type = searchParams.get('type') || 'manga';
+
+  let interRegular: ArrayBuffer, interBold: ArrayBuffer, interSemiBold: ArrayBuffer, bebasNeue: ArrayBuffer;
+  let coverImage: string | null = null;
+
+  // Load fonts and cover image in parallel
   try {
-    const { searchParams } = new URL(request.url);
-
-    const title = searchParams.get('title') || 'MangaAura';
-    const author = searchParams.get('author') || '';
-    const coverUrl = searchParams.get('cover') || '';
-    const rating = searchParams.get('rating') || '';
-    const totalChapters = searchParams.get('chapters') || '';
-    const type = searchParams.get('type') || 'manga';
-
-    // Load fonts and cover image in parallel
-    const [interRegular, interBold, interSemiBold, bebasNeue, coverImage] = await Promise.all([
+    [interRegular, interBold, interSemiBold, bebasNeue, coverImage] = await Promise.all([
       loadGoogleFont('Inter', 400).catch(() => new ArrayBuffer(0)),
       loadGoogleFont('Inter', 700).catch(() => new ArrayBuffer(0)),
       loadGoogleFont('Inter', 600).catch(() => new ArrayBuffer(0)),
       loadGoogleFont('Bebas Neue', 400).catch(() => new ArrayBuffer(0)),
       loadCoverImage(coverUrl),
     ]);
-
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #0b1120 0%, #0f172a 40%, #1a2332 70%, #0f172a 100%)',
-            padding: '50px 60px',
-            position: 'relative',
-            fontFamily: 'Inter',
-          }}
-        >
-          {/* Background effects */}
-          <BackgroundGradient type={type} />
-          <DecorativeCorners />
-
-          {/* Branding - top left */}
-          <div style={{ position: 'absolute', top: '36px', left: '60px', display: 'flex', zIndex: 1 }}>
-            <Logo />
-          </div>
-
-          {/* Domain - top right */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '44px',
-              right: '60px',
-              fontSize: '18px',
-              color: 'rgba(148, 163, 184, 0.7)',
-              fontFamily: 'Inter',
-              zIndex: 1,
-            }}
-          >
-            mangaaura.es
-          </div>
-
-          {/* Main content */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '56px',
-              zIndex: 1,
-              marginTop: '20px',
-            }}
-          >
-            {/* Cover image */}
-            {coverImage ? (
-              <img
-                src={coverImage}
-                alt=""
-                width={300}
-                height={450}
-                style={{
-                  objectFit: 'cover',
-                  borderRadius: '16px',
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.04)',
-                }}
-              />
-            ) : (
-              <FallbackCover type={type} />
-            )}
-
-            {/* Info column */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '20px',
-                maxWidth: '620px',
-              }}
-            >
-              {/* Type + Rating badges */}
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <TypeBadge type={type} />
-                {rating && <RatingBadge rating={rating} />}
-                {totalChapters && <ChapterCountBadge count={parseInt(totalChapters, 10)} />}
-              </div>
-
-              {/* Title */}
-              <h1
-                style={{
-                  fontSize: '52px',
-                  fontWeight: '700',
-                  color: 'white',
-                  margin: 0,
-                  lineHeight: 1.15,
-                  fontFamily: 'Inter',
-                  letterSpacing: '-0.02em',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-              >
-                {title.length > 70 ? title.substring(0, 70) + '...' : title}
-              </h1>
-
-              {/* Author */}
-              {author && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      background: BRAND_GRADIENT,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '16px',
-                      color: 'white',
-                      fontWeight: '700',
-                      fontFamily: 'Inter',
-                    }}
-                  >
-                    {author.charAt(0).toUpperCase()}
-                  </div>
-                  <p
-                    style={{
-                      fontSize: '24px',
-                      color: '#94a3b8',
-                      margin: 0,
-                      fontFamily: 'Inter',
-                    }}
-                  >
-                    por {author}
-                  </p>
-                </div>
-              )}
-
-              {/* CTA */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                  marginTop: '10px',
-                }}
-              >
-                <div
-                  style={{
-                    background: 'white',
-                    color: '#0f172a',
-                    padding: '14px 32px',
-                    borderRadius: '12px',
-                    fontSize: '20px',
-                    fontWeight: '600',
-                    fontFamily: 'Inter',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  {type === 'chapter' ? '📖 Leer capítulo' : type === 'news' ? '📰 Leer noticia' : type === 'forum' ? '💬 Ver hilo' : '📖 Leer ahora'}
-                </div>
-                <span
-                  style={{
-                    fontSize: '17px',
-                    color: 'rgba(148, 163, 184, 0.6)',
-                    fontFamily: 'Inter',
-                  }}
-                >
-                  Comparte este contenido
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-      {
-        width: 1200,
-        height: 630,
-        fonts: [
-          interRegular.byteLength > 0 ? { name: 'Inter', data: interRegular, weight: 400, style: 'normal' as const } : null,
-          interSemiBold.byteLength > 0 ? { name: 'Inter', data: interSemiBold, weight: 600, style: 'normal' as const } : null,
-          interBold.byteLength > 0 ? { name: 'Inter', data: interBold, weight: 700, style: 'normal' as const } : null,
-          bebasNeue.byteLength > 0 ? { name: 'Bebas Neue', data: bebasNeue, weight: 400, style: 'normal' as const } : null,
-        ].filter(Boolean) as { name: string; data: ArrayBuffer; weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900; style: 'normal' }[],
-        headers: { 'Cache-Control': 'public, max-age=31536000, immutable' },
-      }
-    );
   } catch (error) {
     console.error('[OG Image Error]', error);
     return generateFallbackOG();
   }
+
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #0b1120 0%, #0f172a 40%, #1a2332 70%, #0f172a 100%)',
+          padding: '50px 60px',
+          position: 'relative',
+          fontFamily: 'Inter',
+        }}
+      >
+        {/* Background effects */}
+        <BackgroundGradient type={type} />
+        <DecorativeCorners />
+
+        {/* Branding - top left */}
+        <div style={{ position: 'absolute', top: '36px', left: '60px', display: 'flex', zIndex: 1 }}>
+          <Logo />
+        </div>
+
+        {/* Domain - top right */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '44px',
+            right: '60px',
+            fontSize: '18px',
+            color: 'rgba(148, 163, 184, 0.7)',
+            fontFamily: 'Inter',
+            zIndex: 1,
+          }}
+        >
+          mangaaura.es
+        </div>
+
+        {/* Main content */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '56px',
+            zIndex: 1,
+            marginTop: '20px',
+          }}
+        >
+          {/* Cover image */}
+          {coverImage ? (
+            <img
+              src={coverImage}
+              alt=""
+              width={300}
+              height={450}
+              style={{
+                objectFit: 'cover',
+                borderRadius: '16px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.04)',
+              }}
+            />
+          ) : (
+            <FallbackCover type={type} />
+          )}
+
+          {/* Info column */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              maxWidth: '620px',
+            }}
+          >
+            {/* Type + Rating badges */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <TypeBadge type={type} />
+              {rating && <RatingBadge rating={rating} />}
+              {totalChapters && <ChapterCountBadge count={parseInt(totalChapters, 10)} />}
+            </div>
+
+            {/* Title */}
+            <h1
+              style={{
+                fontSize: '52px',
+                fontWeight: '700',
+                color: 'white',
+                margin: 0,
+                lineHeight: 1.15,
+                fontFamily: 'Inter',
+                letterSpacing: '-0.02em',
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              {title.length > 70 ? title.substring(0, 70) + '...' : title}
+            </h1>
+
+            {/* Author */}
+            {author && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: BRAND_GRADIENT,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    color: 'white',
+                    fontWeight: '700',
+                    fontFamily: 'Inter',
+                  }}
+                >
+                  {author.charAt(0).toUpperCase()}
+                </div>
+                <p
+                  style={{
+                    fontSize: '24px',
+                    color: '#94a3b8',
+                    margin: 0,
+                    fontFamily: 'Inter',
+                  }}
+                >
+                  por {author}
+                </p>
+              </div>
+            )}
+
+            {/* CTA */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                marginTop: '10px',
+              }}
+            >
+              <div
+                style={{
+                  background: 'white',
+                  color: '#0f172a',
+                  padding: '14px 32px',
+                  borderRadius: '12px',
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  fontFamily: 'Inter',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                {type === 'chapter' ? '📖 Leer capítulo' : type === 'news' ? '📰 Leer noticia' : type === 'forum' ? '💬 Ver hilo' : '📖 Leer ahora'}
+              </div>
+              <span
+                style={{
+                  fontSize: '17px',
+                  color: 'rgba(148, 163, 184, 0.6)',
+                  fontFamily: 'Inter',
+                }}
+              >
+                Comparte este contenido
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
+    {
+      width: 1200,
+      height: 630,
+      fonts: [
+        interRegular.byteLength > 0 ? { name: 'Inter', data: interRegular, weight: 400, style: 'normal' as const } : null,
+        interSemiBold.byteLength > 0 ? { name: 'Inter', data: interSemiBold, weight: 600, style: 'normal' as const } : null,
+        interBold.byteLength > 0 ? { name: 'Inter', data: interBold, weight: 700, style: 'normal' as const } : null,
+        bebasNeue.byteLength > 0 ? { name: 'Bebas Neue', data: bebasNeue, weight: 400, style: 'normal' as const } : null,
+      ].filter(Boolean) as { name: string; data: ArrayBuffer; weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900; style: 'normal' }[],
+      headers: { 'Cache-Control': 'public, max-age=31536000, immutable' },
+    }
+  );
 }
 
 // ── Fallback OG Image (branded, never show error text) ───────────

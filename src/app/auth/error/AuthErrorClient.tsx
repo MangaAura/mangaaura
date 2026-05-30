@@ -2,8 +2,8 @@
 
 import { Suspense } from 'react';
 
-import { NoIndex } from '@/components/SEO/NoIndex';
 import AuthErrorPage from './AuthErrorPage';
+import { NoIndex } from '@/components/SEO/NoIndex';
 
 export default function AuthErrorClient() {
   return (

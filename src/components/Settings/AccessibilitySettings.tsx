@@ -19,9 +19,9 @@ export function AccessibilitySettings() {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedMotion === 'true') setReducedMotion(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     if (savedContrast === 'true') setHighContrast(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     if (savedFocus) setFocusRing(savedFocus);
   }, []);
 

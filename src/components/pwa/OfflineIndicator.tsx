@@ -13,7 +13,7 @@ export function OfflineIndicator() {
 
   useEffect(() => {
     // Initial state
-    setIsOnline(navigator.onLine);
+    if (isOnline !== navigator.onLine) setIsOnline(navigator.onLine);
 
     const handleOnline = () => {
       setIsOnline(true);
@@ -33,7 +33,7 @@ export function OfflineIndicator() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [isOnline]);
 
   if (!showIndicator) return null;
 

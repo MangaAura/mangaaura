@@ -21,7 +21,6 @@ import { useState, useMemo } from 'react';
 import useSWR from 'swr';
 
 import { Badge } from '@/components/ui/Badge';
-
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
@@ -32,13 +31,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
-import { Textarea } from '@/components/ui/Textarea';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetcher } from '@/lib/swr-config';
 

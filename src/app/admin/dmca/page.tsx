@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import DMCAClient from './DMCAClient';
 
 export const metadata: Metadata = {

@@ -35,8 +35,8 @@ export function useKeyboardShortcuts({
   }, [shortcuts]);
 
   useEffect(() => {
-    setEnabledState(enabled);
-  }, [enabled]);
+    if (enabledState !== enabled) setEnabledState(enabled);
+  }, [enabled, enabledState]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const activeElement = document.activeElement;

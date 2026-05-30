@@ -1,6 +1,7 @@
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+
+import { PrismaClient } from "../src/generated/prisma/client";
 
 async function main() {
   console.log("=== Test: /api/genres endpoint logic ===\n");

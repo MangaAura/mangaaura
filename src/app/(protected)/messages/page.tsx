@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { redirect } from 'next/navigation';
 
 import { MessagesPageClient } from './MessagesPageClient';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 
 export async function generateMetadata(): Promise<Metadata> {

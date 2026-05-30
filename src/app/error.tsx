@@ -4,9 +4,9 @@ import { RefreshCw, Home, Bug } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
 
+import { NoIndex } from '@/components/SEO/NoIndex';
 import { Button } from '@/components/ui/Button';
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
-import { NoIndex } from '@/components/SEO/NoIndex';
 
 export default function ErrorPage({
   error,

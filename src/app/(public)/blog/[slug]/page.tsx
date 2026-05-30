@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { BlogArticleClient } from './BlogArticleClient';
 import { ArticleStructuredData } from '@/components/SEO/StructuredData';
 import { dbArticleToDisplayItem } from '@/lib/news';
 import { prisma } from '@/lib/prisma';
-import { BlogArticleClient } from './BlogArticleClient';
 
 interface Props {
   params: Promise<{ slug: string }>;

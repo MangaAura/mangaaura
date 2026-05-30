@@ -34,8 +34,8 @@ import {
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { useT } from '@/i18n';
-import { cn } from '@/lib/utils';
 import { fetcher } from '@/lib/swr-config';
+import { cn } from '@/lib/utils';
 
 interface SiteSettings {
   siteName: string;

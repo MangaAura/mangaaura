@@ -103,7 +103,9 @@ export function ReportList({
   }, [filters, page]);
 
   useEffect(() => {
-    fetchReports();
+    let mounted = true;
+    if (mounted) fetchReports();
+    return () => { mounted = false; };
   }, [fetchReports]);
 
   const handleUpdateStatus = async (

@@ -15,8 +15,8 @@ import { useState, useEffect } from 'react';
 
 import ClanCard from '@/components/Clan/ClanCard';
 import { EventCard, eventStatusBadge } from '@/components/Event/EventCard';
-import { PollsSection } from '@/components/polls/PollsSection';
 import type { EventData } from '@/components/Event/EventCard';
+import { PollsSection } from '@/components/polls/PollsSection';
 import { useT } from '@/i18n';
 
 interface ClanData {
@@ -51,12 +51,12 @@ export default function CommunityTabs({
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as Tab;
     if (hash === 'clans' || hash === 'events' || hash === 'polls') {
-      setActiveTab(hash);
+      setActiveTab(prev => prev === hash ? prev : hash);
     }
     const onPopState = () => {
       const newHash = window.location.hash.replace('#', '') as Tab;
       if (newHash === 'clans' || newHash === 'events' || newHash === 'polls') {
-        setActiveTab(newHash);
+        setActiveTab(prev => prev === newHash ? prev : newHash);
       }
     };
     window.addEventListener('popstate', onPopState);

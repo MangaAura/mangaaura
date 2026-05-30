@@ -1,17 +1,17 @@
 'use client';
 
+import type { Locale } from 'date-fns';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Calendar, Crown, Flame, Users } from 'lucide-react';
-import type { Locale } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Avatar, AvatarImage } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
 import { ProfileCover } from './ProfileCover';
 import { ProfileSocialLinks } from './ProfileSocialLinks';
 import { ProfileStatsRow } from './ProfileStatsRow';
+import { Avatar, AvatarImage } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 
 interface StatItem {
   value: number;

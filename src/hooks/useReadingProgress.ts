@@ -4,8 +4,8 @@
  * Maneja el progreso de lectura del usuario.
  */
 
-import { useCallback, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import AdminTagsClient from './AdminTagsClient';
 
 export const metadata: Metadata = {

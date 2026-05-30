@@ -4,9 +4,10 @@
  * Run: npx tsx scripts/deploy/migrate-to-postgres.ts
  */
 
-import { PrismaClient } from '../../src/generated/prisma/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { PrismaPg } from '@prisma/adapter-pg';
+
+import { PrismaClient } from '../../src/generated/prisma/client';
 
 const sqliteAdapter = new PrismaBetterSqlite3({ url: process.env.SQLITE_URL || 'file:./prisma/dev.db' });
 const sqlitePrisma = new PrismaClient({ adapter: sqliteAdapter });

@@ -87,7 +87,7 @@ export function Footer({ className }: { className?: string }) {
     <footer
       role="contentinfo"
       className={cn(
-        'relative w-full bg-[var(--surface)]/50 backdrop-blur-xl',
+        'relative w-full bg-[var(--surface)]',
         className
       )}
     >
@@ -100,7 +100,7 @@ export function Footer({ className }: { className?: string }) {
               <Image src="/MangaAura_logo_circular.svg" alt="" width={32} height={32} className="flex-shrink-0" />
               <RepeatedChar text="MANGAAURA" className="text-xl font-bold text-[var(--text-primary)]" />
             </Link>
-            <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-sm">
+            <p className="text-[var(--text-primary)]/70 text-sm mb-6 max-w-sm">
               {t('footer.tagline')}
             </p>
 
@@ -140,7 +140,7 @@ export function Footer({ className }: { className?: string }) {
                     <li key={link.labelKey}>
                       <Link
                         href={link.href}
-                        className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                        className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
                       >
                         <Icon className="w-4 h-4" />
                         {t(link.labelKey)}
@@ -160,7 +160,7 @@ export function Footer({ className }: { className?: string }) {
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                      className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
                     >
                       <Icon className="w-4 h-4" />
                       {t(link.labelKey)}
@@ -180,7 +180,7 @@ export function Footer({ className }: { className?: string }) {
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                      className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
                     >
                       <Icon className="w-4 h-4" />
                       {t(link.labelKey)}
@@ -193,25 +193,25 @@ export function Footer({ className }: { className?: string }) {
         </div>
 
         <div className="mt-12 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[var(--text-tertiary)] text-sm">
+          <p className="text-[var(--text-primary)]/60 text-sm">
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex items-center gap-6">
             <Link
               href="/legal/terms"
-              className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm transition-colors"
+              className="text-[var(--text-primary)]/60 hover:text-[var(--text-primary)]/80 text-sm transition-colors"
             >
               {t('footer.termsOfService')}
             </Link>
             <Link
               href="/legal/privacy"
-              className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm transition-colors"
+              className="text-[var(--text-primary)]/60 hover:text-[var(--text-primary)]/80 text-sm transition-colors"
             >
               {t('footer.privacyPolicy')}
             </Link>
             <Link
               href="/legal/dmca"
-              className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm transition-colors"
+              className="text-[var(--text-primary)]/60 hover:text-[var(--text-primary)]/80 text-sm transition-colors"
             >
               {t('footer.dmca')}
             </Link>

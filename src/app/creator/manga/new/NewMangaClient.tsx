@@ -14,12 +14,12 @@ import { useRouter } from 'next/navigation';
 import { useState, useCallback, useRef } from 'react';
 
 import { GenreSelector } from '@/components/Creator/GenreSelector';
+import { HowToStructuredData } from '@/components/SEO/StructuredData';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { Input } from '@/components/ui/Input';
-import { HowToStructuredData } from '@/components/SEO/StructuredData';
 import { useCreateManga } from '@/hooks/useCreateManga';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';

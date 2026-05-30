@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeftIcon,
   SaveIcon,
@@ -18,18 +18,17 @@ import {
   LayoutGrid,
   List,
   ZoomIn,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { use, useCallback, useEffect, useRef, useState } from 'react';
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 
+import { ChapterCoverUpload } from "@/components/Creator/ChapterCoverUpload";
+import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
+import { ACCEPTED_FORMATS, MAX_FILE_SIZE } from "@/lib/storage-config";
+import { cn } from "@/lib/utils";
 
-import { Button } from '@/components/ui/Button';
-import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { ACCEPTED_FORMATS, MAX_FILE_SIZE } from '@/lib/storage-config';
-import { cn } from '@/lib/utils';
-
-import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -69,7 +68,7 @@ function generateId() {
 
 function validateFile(file: File): string | null {
   if (!(ACCEPTED_FORMATS as readonly string[]).includes(file.type)) {
-    return 'Formato no soportado. Usa JPEG, PNG o WebP.';
+    return "Formato no soportado. Usa JPEG, PNG o WebP.";
   }
   if (file.size > MAX_FILE_SIZE) {
     return `Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB.`;
@@ -82,7 +81,7 @@ function validateFile(file: File): string | null {
 function SkeletonBar({ className }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded bg-[var(--border)]/60 ${className ?? ''}`}
+      className={`animate-pulse rounded bg-[var(--border)]/60 ${className ?? ""}`}
       aria-hidden="true"
     />
   );
@@ -124,8 +123,8 @@ export default function EditChapterClient({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Form state
-  const [chapterNumber, setChapterNumber] = useState('');
-  const [chapterTitle, setChapterTitle] = useState('');
+  const [chapterNumber, setChapterNumber] = useState("");
+  const [chapterTitle, setChapterTitle] = useState("");
   const [chapterCoverUrl, setChapterCoverUrl] = useState<string | null>(null);
   const [pages, setPages] = useState<PageItem[]>([]);
 
@@ -138,29 +137,55 @@ export default function EditChapterClient({ params }: PageProps) {
   const [isUploadingPage, setIsUploadingPage] = useState(false);
   const [uploadPageError, setUploadPageError] = useState<string | null>(null);
 
+  // File drop zone
+  const [isFileDragging, setIsFileDragging] = useState(false);
+  const fileDragCounter = useRef(0);
+
   // Drag state
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
   // View & preview state
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
-  const previewSrc = previewIndex !== null ? pages[previewIndex]?.preview || pages[previewIndex]?.url : null;
+  // Grid reorder state
+  const [selectedGridIndex, setSelectedGridIndex] = useState<number | null>(
+    null,
+  );
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
-  // ─── Keyboard navigation for lightbox ──────────────────────
+  const previewSrc =
+    previewIndex !== null
+      ? pages[previewIndex]?.preview || pages[previewIndex]?.url
+      : null;
+
+  // ─── Keyboard navigation for lightbox & grid reorder ─────
 
   useEffect(() => {
-    if (previewIndex === null) return;
+    if (previewIndex !== null) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setPreviewIndex(null);
+        if (e.key === "ArrowLeft")
+          setPreviewIndex((prev) =>
+            prev !== null && prev > 0 ? prev - 1 : prev,
+          );
+        if (e.key === "ArrowRight")
+          setPreviewIndex((prev) =>
+            prev !== null && prev < pages.length - 1 ? prev + 1 : prev,
+          );
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPreviewIndex(null);
-      if (e.key === 'ArrowLeft') setPreviewIndex((prev) => prev !== null && prev > 0 ? prev - 1 : prev);
-      if (e.key === 'ArrowRight') setPreviewIndex((prev) => prev !== null && prev < pages.length - 1 ? prev + 1 : prev);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [previewIndex, pages.length]);
+    if (selectedGridIndex !== null) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setSelectedGridIndex(null);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [previewIndex, selectedGridIndex, pages.length]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -172,32 +197,34 @@ export default function EditChapterClient({ params }: PageProps) {
         // 1. Resolver slug del manga a su ID
         const mangaRes = await fetch(`/api/manga/${slug}`);
         if (!mangaRes.ok) {
-          throw new Error('Manga no encontrado');
+          throw new Error("Manga no encontrado");
         }
         const mangaData = await mangaRes.json();
         const resolvedMangaId = mangaData.manga.id;
         setMangaId(resolvedMangaId);
 
         // 2. Obtener capítulo por número
-        const res = await fetch(`/api/manga/${resolvedMangaId}/chapters/${chapterNumberParam}`);
+        const res = await fetch(
+          `/api/manga/${resolvedMangaId}/chapters/${chapterNumberParam}`,
+        );
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || 'Error al cargar el capítulo');
+          throw new Error(data.error || "Error al cargar el capítulo");
         }
         const data: ChapterData = await res.json();
 
         setChapter(data);
         setChapterNumber(String(data.chapterNumber));
-        setChapterTitle(data.title || '');
+        setChapterTitle(data.title || "");
         setChapterCoverUrl(data.coverUrl || null);
         setPages(
           (data.pageUrls || []).map((url) => ({
             id: generateId(),
             url,
-          }))
+          })),
         );
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
+        setError(err instanceof Error ? err.message : "Error desconocido");
       } finally {
         setIsLoading(false);
       }
@@ -218,15 +245,18 @@ export default function EditChapterClient({ params }: PageProps) {
 
   // ─── Page reordering ─────────────────────────────────────────
 
-  const movePage = useCallback((fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= pages.length) return;
-    setPages((prev) => {
-      const newPages = [...prev];
-      const [moved] = newPages.splice(fromIndex, 1);
-      newPages.splice(toIndex, 0, moved);
-      return newPages;
-    });
-  }, [pages.length]);
+  const movePage = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || toIndex >= pages.length) return;
+      setPages((prev) => {
+        const newPages = [...prev];
+        const [moved] = newPages.splice(fromIndex, 1);
+        newPages.splice(toIndex, 0, moved);
+        return newPages;
+      });
+    },
+    [pages.length],
+  );
 
   const removePage = useCallback((index: number) => {
     setPages((prev) => {
@@ -247,6 +277,33 @@ export default function EditChapterClient({ params }: PageProps) {
 
   const handleDragEnd = () => setDraggedItem(null);
 
+  // ─── Grid click-to-move ──────────────────────────────────────
+
+  const handleGridClick = useCallback(
+    (index: number) => {
+      if (selectedGridIndex === null) {
+        // Nothing selected → select this card
+        setSelectedGridIndex(index);
+      } else if (selectedGridIndex === index) {
+        // Same card clicked → deselect
+        setSelectedGridIndex(null);
+      } else {
+        // Different card clicked → move selected to this position
+        movePage(selectedGridIndex, index);
+        setSelectedGridIndex(null);
+      }
+    },
+    [selectedGridIndex, movePage],
+  );
+
+  const handleImageError = useCallback((pageId: string) => {
+    setImageErrors((prev) => {
+      const next = new Set(prev);
+      next.add(pageId);
+      return next;
+    });
+  }, []);
+
   // ─── Add new pages ───────────────────────────────────────────
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,7 +320,7 @@ export default function EditChapterClient({ params }: PageProps) {
       }
       newPages.push({
         id: generateId(),
-        url: '',
+        url: "",
         isNew: true,
         file,
         preview: URL.createObjectURL(file),
@@ -272,16 +329,91 @@ export default function EditChapterClient({ params }: PageProps) {
 
     if (invalidCount > 0) {
       setUploadPageError(
-        `${invalidCount} archivo(s) ignorado(s): formato no válido o tamaño excedido (máx ${MAX_FILE_SIZE / 1024 / 1024}MB)`
+        `${invalidCount} archivo(s) ignorado(s): formato no válido o tamaño excedido (máx ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
       );
     }
 
     setPages((prev) => [...prev, ...newPages]);
     // Reset input so same file can be re-selected
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const addNewPages = () => fileInputRef.current?.click();
+
+  // ─── File drop from OS ───────────────────────────────────────
+
+  const isFileDragEvent = useCallback((e: React.DragEvent) => {
+    return Array.from(e.dataTransfer.types || []).includes("Files");
+  }, []);
+
+  const handleFileDragEnter = useCallback((e: React.DragEvent) => {
+    if (!isFileDragEvent(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    fileDragCounter.current++;
+    setIsFileDragging(true);
+  }, [isFileDragEvent]);
+
+  const handleFileDragOver = useCallback((e: React.DragEvent) => {
+    if (!isFileDragEvent(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }, [isFileDragEvent]);
+
+  const handleFileDragLeave = useCallback((e: React.DragEvent) => {
+    if (!isFileDragEvent(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    fileDragCounter.current--;
+    if (fileDragCounter.current <= 0) {
+      fileDragCounter.current = 0;
+      setIsFileDragging(false);
+    }
+  }, [isFileDragEvent]);
+
+  const handleFileDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFileDragging(false);
+    fileDragCounter.current = 0;
+
+    if (!isFileDragEvent(e)) return;
+
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const newPages: PageItem[] = [];
+    let invalidCount = 0;
+    for (const file of Array.from(files)) {
+      // Skip non-image files silently (e.g. folders, .txt, etc.)
+      if (!file.type.startsWith("image/")) {
+        invalidCount++;
+        continue;
+      }
+      const fileError = validateFile(file);
+      if (fileError) {
+        invalidCount++;
+        continue;
+      }
+      newPages.push({
+        id: generateId(),
+        url: "",
+        isNew: true,
+        file,
+        preview: URL.createObjectURL(file),
+      });
+    }
+
+    if (newPages.length > 0) {
+      setPages((prev) => [...prev, ...newPages]);
+    }
+
+    if (invalidCount > 0) {
+      setUploadPageError(
+        `${invalidCount} archivo(s) ignorado(s): formato no válido o tamaño excedido (máx ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+      );
+    }
+  }, []);
 
   // ─── Save ────────────────────────────────────────────────────
 
@@ -290,12 +422,12 @@ export default function EditChapterClient({ params }: PageProps) {
 
     const chapterNum = parseInt(chapterNumber);
     if (isNaN(chapterNum) || chapterNum < 1) {
-      setSaveError('El número de capítulo debe ser un entero positivo');
+      setSaveError("El número de capítulo debe ser un entero positivo");
       return;
     }
 
     if (pages.length === 0) {
-      setSaveError('El capítulo debe tener al menos una página');
+      setSaveError("El capítulo debe tener al menos una página");
       return;
     }
 
@@ -312,16 +444,16 @@ export default function EditChapterClient({ params }: PageProps) {
           setUploadPageError(null);
 
           const formData = new FormData();
-          formData.append('file', page.file);
+          formData.append("file", page.file);
 
-          const uploadRes = await fetch('/api/upload/image', {
-            method: 'POST',
+          const uploadRes = await fetch("/api/upload/image", {
+            method: "POST",
             body: formData,
           });
 
           if (!uploadRes.ok) {
             const errData = await uploadRes.json();
-            throw new Error(errData.error || 'Error al subir imagen');
+            throw new Error(errData.error || "Error al subir imagen");
           }
 
           const uploadData = await uploadRes.json();
@@ -334,25 +466,28 @@ export default function EditChapterClient({ params }: PageProps) {
       setIsUploadingPage(false);
 
       // 2. Update chapter metadata
-      const updateRes = await fetch(`/api/manga/${mangaId}/chapters/${chapter.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chapterNumber: chapterNum,
-          title: chapterTitle.trim() || null,
-          coverUrl: chapterCoverUrl,
-          pageUrls: finalUrls,
-        }),
-      });
+      const updateRes = await fetch(
+        `/api/manga/${mangaId}/chapters/${chapter.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chapterNumber: chapterNum,
+            title: chapterTitle.trim() || null,
+            coverUrl: chapterCoverUrl,
+            pageUrls: finalUrls,
+          }),
+        },
+      );
 
       if (!updateRes.ok) {
         const errData = await updateRes.json();
-        throw new Error(errData.error || 'Error al actualizar el capítulo');
+        throw new Error(errData.error || "Error al actualizar el capítulo");
       }
 
       setIsSuccess(true);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Error al guardar');
+      setSaveError(err instanceof Error ? err.message : "Error al guardar");
     } finally {
       setIsSaving(false);
       setIsUploadingPage(false);
@@ -369,7 +504,9 @@ export default function EditChapterClient({ params }: PageProps) {
         <main className="p-6">
           <div className="max-w-5xl mx-auto">
             <div className="bg-[var(--error)]/10 border border-[var(--error)]/30 rounded-xl p-8 text-center">
-              <p className="text-[var(--error)]">{error || 'Capítulo no encontrado'}</p>
+              <p className="text-[var(--error)]">
+                {error || "Capítulo no encontrado"}
+              </p>
               <Link href="/creator/dashboard">
                 <Button variant="outline" className="mt-4">
                   <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -454,7 +591,7 @@ export default function EditChapterClient({ params }: PageProps) {
             ) : (
               <SaveIcon className="w-4 h-4 mr-2" />
             )}
-            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+            {isSaving ? "Guardando..." : "Guardar Cambios"}
           </Button>
         </header>
 
@@ -536,7 +673,7 @@ export default function EditChapterClient({ params }: PageProps) {
                 <div className="flex justify-between">
                   <span className="text-[var(--text-tertiary)]">Creado</span>
                   <span className="text-[var(--text-primary)] font-medium">
-                    {new Date(chapter.createdAt).toLocaleDateString('es-ES')}
+                    {new Date(chapter.createdAt).toLocaleDateString("es-ES")}
                   </span>
                 </div>
               </div>
@@ -544,7 +681,38 @@ export default function EditChapterClient({ params }: PageProps) {
           </div>
 
           {/* Main: Pages */}
-          <div className="col-span-1 lg:col-span-2 space-y-4">
+          <div
+            className="col-span-1 lg:col-span-2 space-y-4 relative"
+            onDragEnter={handleFileDragEnter}
+            onDragOver={handleFileDragOver}
+            onDragLeave={handleFileDragLeave}
+            onDrop={handleFileDrop}
+          >
+            {/* Drop zone overlay */}
+            <AnimatePresence>
+              {isFileDragging && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-[var(--primary)]/10 border-2 border-dashed border-[var(--primary)]/60 rounded-2xl pointer-events-none"
+                >
+                  <UploadCloud
+                    size={48}
+                    className="text-[var(--primary)]/80"
+                  />
+                  <p className="text-lg font-bold text-[var(--primary)]">
+                    Suelta tus imágenes aquí
+                  </p>
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    JPEG, PNG o WebP — Máximo{" "}
+                    {MAX_FILE_SIZE / 1024 / 1024}MB por archivo
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Add new pages */}
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
@@ -582,24 +750,24 @@ export default function EditChapterClient({ params }: PageProps) {
             {pages.length > 0 && (
               <div className="flex items-center gap-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg p-0.5 w-fit">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
-                    viewMode === 'grid'
-                      ? 'bg-[var(--primary)] text-white shadow-sm'
-                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                    viewMode === "grid"
+                      ? "bg-[var(--primary)] text-white shadow-sm"
+                      : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]",
                   )}
                 >
                   <LayoutGrid size={14} />
                   Cuadrícula
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode("list")}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
-                    viewMode === 'list'
-                      ? 'bg-[var(--primary)] text-white shadow-sm'
-                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                    viewMode === "list"
+                      ? "bg-[var(--primary)] text-white shadow-sm"
+                      : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]",
                   )}
                 >
                   <List size={14} />
@@ -620,7 +788,7 @@ export default function EditChapterClient({ params }: PageProps) {
                   Añadir páginas
                 </Button>
               </div>
-            ) : viewMode === 'list' ? (
+            ) : viewMode === "list" ? (
               <div className="space-y-2">
                 <AnimatePresence>
                   {pages.map((page, index) => (
@@ -636,12 +804,12 @@ export default function EditChapterClient({ params }: PageProps) {
                       onDragOver={(e) => handleDragOverItem(e, index)}
                       onDragEnd={handleDragEnd}
                       className={cn(
-                        'flex items-center gap-3 bg-[var(--surface)] border rounded-xl p-3 group cursor-move transition-all',
+                        "flex items-center gap-3 bg-[var(--surface)] border rounded-xl p-3 group cursor-move transition-all",
                         page.isNew
-                          ? 'border-[var(--primary)]/50 bg-[var(--primary)]/5'
+                          ? "border-[var(--primary)]/50 bg-[var(--primary)]/5"
                           : draggedItem === index
-                          ? 'border-[var(--primary)] opacity-50'
-                          : 'border-[var(--border)] hover:border-[var(--border-strong)]'
+                            ? "border-[var(--primary)] opacity-50"
+                            : "border-[var(--border)] hover:border-[var(--border-strong)]",
                       )}
                     >
                       {/* Drag handle */}
@@ -679,7 +847,10 @@ export default function EditChapterClient({ params }: PageProps) {
                       >
                         <p className="text-sm font-medium text-[var(--text-primary)] truncate flex items-center gap-1.5">
                           Página {index + 1}
-                          <ZoomIn size={12} className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ZoomIn
+                            size={12}
+                            className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity"
+                          />
                         </p>
                         {page.isNew && (
                           <span className="text-xs text-[var(--primary)] font-medium">
@@ -726,53 +897,134 @@ export default function EditChapterClient({ params }: PageProps) {
               /* Grid view */
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 <AnimatePresence>
-                  {pages.map((page, index) => (
-                    <motion.button
-                      key={page.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.15 }}
-                      onClick={() => setPreviewIndex(index)}
-                      className={cn(
-                        'group relative aspect-[3/4] bg-[var(--surface)] border rounded-xl overflow-hidden',
-                        page.isNew
-                          ? 'border-[var(--primary)]/50 ring-1 ring-[var(--primary)]/20'
-                          : 'border-[var(--border)] hover:border-[var(--border-strong)]',
-                        'hover:ring-2 hover:ring-[var(--primary)]/30 transition-all'
-                      )}
-                      title={`Ver página ${index + 1}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={page.preview || page.url}
-                        alt={`Página ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
-                      />
+                  {pages.map((page, index) => {
+                    const isSelected = selectedGridIndex === index;
+                    const isImageBroken = imageErrors.has(page.id);
+                    const isDragging = draggedItem === index;
 
-                      {/* Overlay on hover */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <ZoomIn
-                          size={24}
-                          className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"
-                        />
-                      </div>
-
-                      {/* Page number badge */}
-                      <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md">
-                        #{index + 1}
-                      </div>
-
-                      {/* New badge */}
-                      {page.isNew && (
-                        <div className="absolute top-2 right-2 bg-[var(--primary)] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-                          NUEVA
+                    return (
+                      <motion.div
+                        key={page.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{
+                          opacity: isDragging ? 0.5 : 1,
+                          scale: isDragging ? 0.92 : 1,
+                        }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.15 }}
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={(e) => handleDragOverItem(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className={cn(
+                          "group relative aspect-[3/4] bg-[var(--surface)] border rounded-xl overflow-hidden cursor-grab active:cursor-grabbing transition-all select-none",
+                          page.isNew
+                            ? "border-[var(--primary)]/50"
+                            : isSelected
+                              ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/50"
+                              : "border-[var(--border)]",
+                          isSelected
+                            ? "shadow-lg shadow-[var(--primary)]/20"
+                            : isDragging
+                              ? "shadow-lg shadow-[var(--primary)]/10 border-[var(--primary)]/40"
+                              : "hover:border-[var(--border-strong)] hover:ring-2 hover:ring-[var(--primary)]/20",
+                        )}
+                      >
+                        {/* Drag handle dot indicator */}
+                        <div className="absolute top-2 right-2 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <GripVertical size={12} className="text-white" />
                         </div>
-                      )}
-                    </motion.button>
-                  ))}
+
+                        {/* Click area (select/move) */}
+                        <div
+                          onClick={() => {
+                            if (draggedItem !== null) return; // was a drag, not a click
+                            handleGridClick(index);
+                          }}
+                          className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"
+                          title={
+                            selectedGridIndex === null
+                              ? `Seleccionar página ${index + 1} para mover`
+                              : selectedGridIndex === index
+                                ? "Deseleccionar"
+                                : `Mover página ${selectedGridIndex! + 1} aquí`
+                          }
+                        />
+
+                        {/* Image */}
+                        {isImageBroken ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-[var(--surface-sunken)]">
+                            <div className="text-center">
+                              <ImageIcon
+                                size={24}
+                                className="mx-auto text-[var(--text-muted)] mb-1"
+                              />
+                              <span className="text-xs text-[var(--text-muted)] font-mono">
+                                #{index + 1}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={page.preview || page.url}
+                            alt={`Página ${index + 1}`}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            loading="lazy"
+                            onError={() => handleImageError(page.id)}
+                          />
+                        )}
+
+                        {/* Hover overlay with preview button */}
+                        <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedGridIndex(null);
+                              setPreviewIndex(index);
+                            }}
+                            className="p-2 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white rounded-full transition-all hover:scale-110"
+                            title={`Ver página ${index + 1}`}
+                            aria-label={`Ver página ${index + 1}`}
+                          >
+                            <ZoomIn size={20} />
+                          </button>
+                        </div>
+
+                        {/* Selected indicator */}
+                        {isSelected && (
+                          <div className="absolute inset-0 z-20 bg-[var(--primary)]/10 border-2 border-[var(--primary)] rounded-xl pointer-events-none" />
+                        )}
+
+                        {/* Page number badge */}
+                        <div
+                          className={cn(
+                            "absolute top-2 left-2 z-20 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md",
+                            isSelected
+                              ? "bg-[var(--primary)] text-white"
+                              : "bg-black/60 backdrop-blur-sm text-white",
+                          )}
+                        >
+                          #{index + 1}
+                        </div>
+
+                        {/* New badge */}
+                        {page.isNew && (
+                          <div className="absolute top-2 right-2 z-20 bg-[var(--primary)] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                            NUEVA
+                          </div>
+                        )}
+
+                        {/* Reorder hint */}
+                        {isSelected && (
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 bg-[var(--primary)] text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                            Click destino →
+                          </div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
             )}
@@ -790,7 +1042,7 @@ export default function EditChapterClient({ params }: PageProps) {
                   ) : (
                     <SaveIcon className="w-4 h-4 mr-2" />
                   )}
-                  {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                  {isSaving ? "Guardando..." : "Guardar Cambios"}
                 </Button>
               </div>
             )}

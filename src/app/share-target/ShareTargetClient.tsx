@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
-import { Input } from '@/components/ui/Input';
 import { NoIndex } from '@/components/SEO/NoIndex';
+import { Input } from '@/components/ui/Input';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
 interface SharedData {
@@ -23,14 +23,14 @@ export default function ShareTargetClient() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const title = params.get('title') || '';
     const text = params.get('text') || '';
     const url = params.get('url') || params.get('link') || '';
 
-    if (title || text || url) {
+    if ((title || text || url) && !sharedData) {
       setSharedData({ title, text, url });
       setShowModal(true);
     }

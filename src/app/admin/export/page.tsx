@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import ExportClient from './ExportClient';
 
 export const metadata: Metadata = {

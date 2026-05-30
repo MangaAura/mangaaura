@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
+
 import { Sidebar } from '@/components/Creator/Sidebar';
 import { AppShell } from '@/components/Layout/AppShell';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

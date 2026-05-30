@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import CrowdfundingClient from './CrowdfundingClient';
 
 export const metadata: Metadata = {

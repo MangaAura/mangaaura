@@ -76,7 +76,6 @@ export default function UsersClient() {
   // Always call useT first before any conditional logic
   const t = useT();
   const { handleError } = useErrorHandler();
-  const [users, setUsers] = useState<UserData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
@@ -93,16 +92,10 @@ export default function UsersClient() {
   const { data: _data, error, isLoading, mutate } = useSWR<{ users: UserData[] }>(
     '/api/admin/users',
     fetcher,
-    {
-      refreshInterval: 60000,
-      onSuccess: (data) => {
-        if (data?.users) {
-          setUsers(data.users);
-        }
-      },
-    }
+    { refreshInterval: 60000 }
   );
 
+  const users = useMemo(() => _data?.users || [], [_data]);
   const filteredData = useMemo(() => {
     if (!searchQuery) return users;
     const query = searchQuery.toLowerCase();

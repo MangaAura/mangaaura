@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import AdminGenresClient from './AdminGenresClient';
 
 export const metadata: Metadata = {

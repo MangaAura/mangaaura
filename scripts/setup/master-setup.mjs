@@ -18,12 +18,12 @@
 
 import 'dotenv/config';
 import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
 import crypto from 'crypto';
+import fs from 'fs';
 import os from 'os';
-import { fileURLToPath } from 'url';
+import path from 'path';
 import readline from 'readline';
+import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
@@ -52,7 +52,7 @@ function loadEnv() {
 }
 
 function saveEnv(updates) {
-  let env = {};
+  const env = {};
   if (fs.existsSync(ENV_PATH)) {
     const content = fs.readFileSync(ENV_PATH, 'utf-8');
     for (const line of content.split('\n')) {

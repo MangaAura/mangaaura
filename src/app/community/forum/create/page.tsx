@@ -1,12 +1,12 @@
-import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { NewThreadForm } from './NewThreadForm';
 import { Card } from '@/components/ui/Card';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 

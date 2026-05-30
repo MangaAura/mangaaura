@@ -104,16 +104,21 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
   });
 
   // Populate form when manga data loads from SWR
+  const dataInitialized = useRef(false);
   useEffect(() => {
-    if (manga) {
-      setFormData({
-        title: manga.title,
-        description: manga.description || '',
-        coverUrl: manga.coverUrl || '',
-        status: manga.status,
-        tags: manga.tags,
-      });
-      setCoverPreview(manga.coverUrl || null);
+    if (manga && !dataInitialized.current) {
+      dataInitialized.current = true;
+      const timer = setTimeout(() => {
+        setFormData({
+          title: manga.title,
+          description: manga.description || '',
+          coverUrl: manga.coverUrl || '',
+          status: manga.status,
+          tags: manga.tags,
+        });
+        setCoverPreview(manga.coverUrl || null);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [manga]);
 

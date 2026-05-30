@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Users, Copy, CheckCircle, Clock, Gift } from 'lucide-react';
+import { useState } from 'react';
 
 interface ReferralStats {
   referralCode: string | null;

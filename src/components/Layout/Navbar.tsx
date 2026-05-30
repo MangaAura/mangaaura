@@ -4,20 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Rss, MessageCircle, FolderOpen, Sparkles, Plus, Menu, X, ChevronDown,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 
-import Image from 'next/image';
 
 import { AuthSection } from './AuthSection';
 import { MobileMenu } from './MobileMenu';
 import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive, localeHref, getLocaleFromPath } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useScrolled } from '@/hooks/useScrolled';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -236,13 +236,13 @@ export default function Navbar() {
                 </div>
               )}
 
+              <div className="hidden sm:block w-48 lg:w-64">
+                <SearchBar onSearch={handleSearch} placeholder={t('common.search')} />
+              </div>
+
               <div className="flex items-center gap-1">
                 <LanguageSwitcher className="hidden sm:flex" />
                 <ThemeToggle />
-              </div>
-
-              <div className="hidden sm:block w-48 lg:w-64">
-                <SearchBar onSearch={handleSearch} placeholder={t('common.search')} />
               </div>
 
               {mounted && isLoggedIn && (

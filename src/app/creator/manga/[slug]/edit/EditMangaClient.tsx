@@ -56,16 +56,13 @@ export default function EditMangaClient({ params }: PageProps) {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Initialize form when manga loads
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     if (manga) {
-      setFormData({
-        title: manga.title,
-        description: manga.description,
-      });
+      setFormData(prev => prev.title === manga.title && prev.description === manga.description ? prev : { title: manga.title, description: manga.description });
       setTagList(manga.tags);
-      setSelectedStatus(manga.status);
-      setCoverPreview(manga.coverUrl || null);
+      setSelectedStatus(prev => prev === manga.status ? prev : manga.status);
+      setCoverPreview(prev => prev === (manga.coverUrl || null) ? prev : (manga.coverUrl || null));
     }
   }, [manga]);
 

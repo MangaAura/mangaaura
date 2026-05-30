@@ -4,7 +4,7 @@ import { Shield, Target, Award, AlertTriangle, BookOpen, BarChart, Users, Trendi
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { Suspense, useState, useEffect, useCallback, useMemo } from 'react';
+import { Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import { AnalyticsDashboard } from '@/components/Analytics/AnalyticsDashboard';
 import { DateRangePicker, type DateRangePreset, type DateRange } from '@/components/Analytics/DateRangePicker';
@@ -98,7 +98,8 @@ function AnalyticsPageContent() {
   const [datePreset, setDatePreset] = useState<DateRangePreset>('30d');
   const [selectedMangaId, setSelectedMangaId] = useState<string | null>(null);
   const [creatorMangas, setCreatorMangas] = useState<MangaOption[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [creatorError, setCreatorError] = useState<string | null>(null);
+  const [readerError, setReaderError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchCreatorData = useCallback(async () => {
@@ -127,24 +128,43 @@ function AnalyticsPageContent() {
   // Data fetching
   const shouldFetch = session?.user?.id;
 
+  const fetchRef = useRef(false);
+
   useEffect(() => {
     if (!shouldFetch) return;
     let cancelled = false;
 
-    setIsLoading(true);
-    setError(null);
+    if (!fetchRef.current) fetchRef.current = true;
+    setIsLoading(prev => prev ? prev : true);
+    setCreatorError(prev => prev ? prev : null);
+    setReaderError(prev => prev ? prev : null);
 
-    Promise.all([
-      fetchCreatorMangas()
-        .then((m) => { if (!cancelled) setCreatorMangas(m); })
-        .catch(() => { if (!cancelled) setCreatorMangas([]); }),
-      fetchCreatorData()
-        .then((d) => { if (!cancelled) setCreatorData(d); })
-        .catch(() => { if (!cancelled) setError(t('analytics.errorLoadingMangas')); }),
-      fetchReaderData()
-        .then((d) => { if (!cancelled) setReaderData(d); })
-        .catch(() => { /* not critical */ }),
-    ]).finally(() => { if (!cancelled) setIsLoading(false); });
+    const doFetch = async () => {
+      const [mangasResult, creatorResult, readerResult] = await Promise.allSettled([
+        fetchCreatorMangas(),
+        fetchCreatorData(),
+        fetchReaderData(),
+      ]);
+      if (cancelled) return;
+
+      if (mangasResult.status === 'fulfilled') {
+        setCreatorMangas(mangasResult.value);
+      } else {
+        setCreatorMangas([]);
+      }
+      if (creatorResult.status === 'fulfilled') {
+        setCreatorData(creatorResult.value);
+      } else {
+        setCreatorError(t('analytics.errorLoadingMangas'));
+      }
+      if (readerResult.status === 'fulfilled') {
+        setReaderData(readerResult.value);
+      } else {
+        setReaderError(t('analytics.profileLoadError'));
+      }
+      setIsLoading(false);
+    };
+    doFetch();
 
     return () => { cancelled = true; };
   }, [shouldFetch, fetchCreatorMangas, fetchCreatorData, fetchReaderData, t]);
@@ -214,10 +234,20 @@ function AnalyticsPageContent() {
 
 
 
-        {error && (
+        {creatorError && activeTab === 'creator' && (
           <div className="card p-8 rounded-xl text-center" role="alert">
             <AlertTriangle size={32} className="text-accent-red mx-auto mb-3" aria-hidden="true" />
-            <p className="text-muted mb-4">{error}</p>
+            <p className="text-muted mb-4">{creatorError}</p>
+            <button onClick={() => window.location.reload()} className="px-6 py-2 bg-accent-blue text-[var(--text-inverse)] rounded-lg hover:opacity-90 transition-opacity font-bold text-sm">
+              {t('analytics.retry')}
+            </button>
+          </div>
+        )}
+
+        {readerError && activeTab === 'reader' && (
+          <div className="card p-8 rounded-xl text-center" role="alert">
+            <AlertTriangle size={32} className="text-accent-red mx-auto mb-3" aria-hidden="true" />
+            <p className="text-muted mb-4">{readerError}</p>
             <button onClick={() => window.location.reload()} className="px-6 py-2 bg-accent-blue text-[var(--text-inverse)] rounded-lg hover:opacity-90 transition-opacity font-bold text-sm">
               {t('analytics.retry')}
             </button>
@@ -231,7 +261,7 @@ function AnalyticsPageContent() {
           </div>
         )}
 
-        {activeTab === 'creator' && session?.user?.id && !error && (
+        {activeTab === 'creator' && session?.user?.id && !creatorError && (
           <div id="analytics-creator-panel" role="tabpanel" aria-labelledby="analytics-creator-tab" className="space-y-6 animate-fade-in-up">
             {creatorMangas.length > 0 && (
               <div className="flex flex-col sm:flex-row gap-4">
@@ -262,7 +292,7 @@ function AnalyticsPageContent() {
           </div>
         )}
 
-        {activeTab === 'reader' && session?.user?.id && !error && (
+        {activeTab === 'reader' && session?.user?.id && !readerError && (
           <div id="analytics-reader-panel" role="tabpanel" aria-labelledby="analytics-reader-tab" className="space-y-6 animate-fade-in-up">
             {readerData ? (
               <>

@@ -62,7 +62,7 @@ const DEFAULT_TEMPLATES: Record<string, { name: string; description: string; sub
   },
 };
 
-let customTemplates: Record<string, { subject: string; html: string }> = {};
+const customTemplates: Record<string, { subject: string; html: string }> = {};
 
 export async function GET() {
   try {

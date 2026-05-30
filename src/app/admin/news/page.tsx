@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import AdminNewsClient from './AdminNewsClient';
 
 export const metadata: Metadata = {

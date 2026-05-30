@@ -21,7 +21,6 @@ import {
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { usePolls, type Poll } from '@/hooks/usePolls';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -31,6 +30,7 @@ import { Input } from '@/components/ui/Input';
 import { SectionTitle } from '@/components/ui/SectionTitle';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { Textarea } from '@/components/ui/Textarea';
+import { usePolls, type Poll } from '@/hooks/usePolls';
 
 interface PollsSectionProps {
   limit?: number;

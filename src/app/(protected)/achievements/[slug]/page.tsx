@@ -17,10 +17,10 @@ import { getAchievementBySlug } from './getAchievementBySlug';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import type { Difficulty } from '@/hooks/useAchievements';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 
 // ─── Metadata ──────────────────────────────────────────────────────
 

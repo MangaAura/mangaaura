@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { ArticleStructuredData } from '@/components/SEO/StructuredData';
 import { NewsArticleClient } from './NewsArticleClient';
+import { ArticleStructuredData } from '@/components/SEO/StructuredData';
 import { dbArticleToDisplayItem } from '@/lib/news';
 import { prisma } from '@/lib/prisma';
 

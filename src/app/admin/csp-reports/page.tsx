@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import CspReportsClient from './CspReportsClient';
 
 export const metadata: Metadata = {

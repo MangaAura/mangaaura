@@ -1,11 +1,10 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
-
-import { BreadcrumbStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
 import Script from 'next/script';
 
 import ComparisonClient from './ComparisonClient';
+import { BreadcrumbStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 

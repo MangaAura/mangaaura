@@ -39,8 +39,12 @@ export function useMongoAnalytics(options: UseMongoAnalyticsOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const mangaIdsStr = options.mangaIds?.join(',') ?? '';
+  const dateFromStr = options.dateFrom?.toISOString() ?? '';
+  const dateToStr = options.dateTo?.toISOString() ?? '';
+
   const fetchStats = useCallback(async () => {
-    if (!options.mangaIds || options.mangaIds.length === 0) {
+    if (!mangaIdsStr) {
       setData(null);
       return;
     }
@@ -49,13 +53,14 @@ export function useMongoAnalytics(options: UseMongoAnalyticsOptions = {}) {
     setError(null);
 
     try {
+      const mangaIds = mangaIdsStr.split(',').filter(Boolean);
       const params = new URLSearchParams();
-      options.mangaIds.forEach((id) => params.append('mangaIds', id));
-      if (options.dateFrom) {
-        params.append('dateFrom', options.dateFrom.toISOString());
+      mangaIds.forEach((id) => params.append('mangaIds', id));
+      if (dateFromStr) {
+        params.append('dateFrom', dateFromStr);
       }
-      if (options.dateTo) {
-        params.append('dateTo', options.dateTo.toISOString());
+      if (dateToStr) {
+        params.append('dateTo', dateToStr);
       }
 
       const response = await fetch(`/api/analytics/creator?${params.toString()}`);
@@ -72,10 +77,11 @@ export function useMongoAnalytics(options: UseMongoAnalyticsOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, [options.mangaIds?.join(','), options.dateFrom?.toISOString(), options.dateTo?.toISOString()]);
+  }, [mangaIdsStr, dateFromStr, dateToStr]);
 
   useEffect(() => {
-    fetchStats();
+    const timer = setTimeout(() => fetchStats(), 0);
+    return () => clearTimeout(timer);
   }, [fetchStats]);
 
   return {

@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

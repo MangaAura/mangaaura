@@ -34,7 +34,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
   const { handleError } = useErrorHandler();
 
   const fetchBalance = async () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setIsLoadingBalance(true);
     try {
       const response = await fetch('/api/economy/balance');
@@ -50,9 +50,11 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
   };
 
   useEffect(() => {
-    if (isOpen && userBalance === null) {
+    let mounted = true;
+    if (isOpen && userBalance === null && mounted) {
       fetchBalance();
     }
+    return () => { mounted = false; };
   }, [isOpen]);
 
   const getAmount = (): number => {

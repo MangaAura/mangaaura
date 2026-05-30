@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import KYCClient from './KYCClient';
 
 export const metadata: Metadata = {

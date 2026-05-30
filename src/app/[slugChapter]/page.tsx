@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import ReaderContent from '@/app/reader/ReaderContent';
-import { detectLocale } from '@/i18n/server';
 import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
 
 interface PageProps {

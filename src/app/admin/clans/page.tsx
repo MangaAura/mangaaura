@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import ClanManagementClient from './ClanManagementClient';
 
 export const metadata: Metadata = {

@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 
+import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -27,7 +28,6 @@ import { useT } from '@/i18n';
 import { MAX_FILE_SIZE, ACCEPTED_FORMATS } from '@/lib/storage-config';
 import { cn } from '@/lib/utils';
 
-import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
 
 interface Manga {
   id: string;

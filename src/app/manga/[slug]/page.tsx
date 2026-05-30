@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 
 import MangaDetailClient from './MangaDetailClient';
 import { MangaStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 
 interface MangaPageProps {
   params: Promise<{ slug: string }>;

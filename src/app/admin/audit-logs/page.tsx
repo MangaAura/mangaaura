@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import AuditLogsClient from './AuditLogsClient';
 
 export const metadata: Metadata = {

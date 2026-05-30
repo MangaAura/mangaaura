@@ -34,8 +34,8 @@ import {
 } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';import { useT } from '@/i18n';
-import { cn } from '@/lib/utils';
 import { fetcher } from '@/lib/swr-config';
+import { cn } from '@/lib/utils';
 
 interface CreatorProfile {
   username?: string;
@@ -104,10 +104,10 @@ export default function CreatorSettingsClient() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+    
   useEffect(() => {
-    if (data?.profile) setProfile(data.profile);
-    if (data?.publishing) setPublishing(data.publishing);
+    if (data?.profile) setProfile(prev => JSON.stringify(prev) === JSON.stringify(data.profile) ? prev : data.profile);
+    if (data?.publishing) setPublishing(prev => JSON.stringify(prev) === JSON.stringify(data.publishing) ? prev : data.publishing);
   }, [data]);
 
   const handleProfileChange = (key: keyof CreatorProfile, value: any) => {

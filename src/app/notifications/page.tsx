@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import NotificationsClient from './NotificationsClient';
 
-import { detectLocale } from '@/i18n/server';
+import NotificationsClient from './NotificationsClient';
 import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

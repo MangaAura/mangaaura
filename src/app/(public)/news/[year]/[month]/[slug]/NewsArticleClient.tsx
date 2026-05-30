@@ -183,7 +183,7 @@ export function NewsArticleClient({
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-[var(--surface-sunken)]">
             <Image
               src={article.coverUrl}
-              alt=""
+              alt={title || article.title}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 800px"

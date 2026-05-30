@@ -82,7 +82,7 @@ function EventsPageInner() {
   // Fetch events data
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
+      setIsLoading(prev => prev ? prev : true);
       setError(null);
       try {
         const params = new URLSearchParams({
@@ -115,7 +115,7 @@ function EventsPageInner() {
   // Fetch user's voted submission (for voting tab)
   useEffect(() => {
     if (tab !== 'voting' || !userId) {
-      setVotedId(null);
+      setVotedId(prev => prev === null ? prev : null);
       return;
     }
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -15,10 +14,10 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 import useSWR from 'swr';
 
 import { ChartsSection } from '@/components/Admin/ChartsSection';
-
 import { StatCard } from '@/components/Admin/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

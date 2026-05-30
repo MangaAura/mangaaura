@@ -38,25 +38,13 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
 } {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const callbackRef = useRef(callback);
+  const cancelRef = useRef<() => void>(() => {});
+  const flushRef = useRef<() => void>(() => {});
 
   // Update callback ref when callback changes
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
-
-  const cancel = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }, []);
-
-  const flush = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }, []);
 
   const debouncedFn = useCallback(
     (...args: Parameters<T>) => {
@@ -71,15 +59,36 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
     [delay]
   );
 
-  // Wrap to add cancel/flush without mutating the function
-  const wrapper = Object.assign(debouncedFn, { cancel, flush });
+  // Attach cancel/flush methods stored in refs (avoids ref access during render)
+  const wrapper = Object.assign(debouncedFn, {
+    cancel: () => cancelRef.current(),
+    flush: () => flushRef.current(),
+  });
 
-  // Cleanup on unmount
+  // Update ref values in an effect instead of during render
+  useEffect(() => {
+    cancelRef.current = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+    flushRef.current = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  });
+
   useEffect(() => {
     return () => {
-      cancel();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
-  }, [cancel]);
+  }, []);
 
   return wrapper;
 }
@@ -101,16 +110,21 @@ export function useDebouncedSearch(
   const [isSearching, setIsSearching] = useState(false);
 
    
-  // setIsSearching is unavoidable for debounce pattern with loading state
   useEffect(() => {
-    setIsSearching(true);
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
       setIsSearching(false);
     }, delay);
 
-    return () => clearTimeout(timer);
-  }, [query, delay]);
+    const timer2 = setTimeout(() => {
+      if (!isSearching) setIsSearching(true);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(timer2);
+    };
+  }, [query, delay, isSearching]);
 
   return { query, debouncedQuery, setQuery, isSearching };
 }

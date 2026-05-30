@@ -18,7 +18,6 @@ import useSWR from 'swr';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
-
 import {
   Dialog,
   DialogContent,
@@ -152,10 +151,11 @@ export default function AnnouncementsClient() {
     finally { setIsDeleting(false); }
   };
 
-  const AnnounceDialog = ({ ann, onSave }: { ann?: Announcement | null; onSave: () => void }) => {
+  const renderAnnounceDialog = (ann: Announcement | null | undefined, onSave: () => void) => {
     const isEdit = !!ann;
+    const open = isEdit ? !!ann : showCreateDialog;
     return (
-      <Dialog open={isEdit || showCreateDialog} onOpenChange={(o) => {
+      <Dialog open={open} onOpenChange={(o) => {
         if (!o) {
           isEdit ? setEditingAnnouncement(null) : setShowCreateDialog(false);
           resetForm();
@@ -307,8 +307,8 @@ export default function AnnouncementsClient() {
         </div>
       )}
 
-      <AnnounceDialog ann={undefined} onSave={handleCreate} />
-      <AnnounceDialog ann={editingAnnouncement} onSave={handleEdit} />
+      {renderAnnounceDialog(undefined, handleCreate)}
+      {renderAnnounceDialog(editingAnnouncement, handleEdit)}
 
       <Dialog open={!!deletingAnnouncement} onOpenChange={(o) => { if (!o) setDeletingAnnouncement(null); }}>
         <DialogContent>

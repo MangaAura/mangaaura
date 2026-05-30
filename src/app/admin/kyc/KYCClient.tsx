@@ -1,8 +1,8 @@
 'use client';
 
+import { ShieldCheck, Check, X, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { ShieldCheck, Check, X, RotateCcw } from 'lucide-react';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -15,7 +15,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
-
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetcher } from '@/lib/swr-config';
 

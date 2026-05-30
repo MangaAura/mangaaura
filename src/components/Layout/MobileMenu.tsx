@@ -72,12 +72,7 @@ export function MobileMenu({
             id="mobile-menu"
           >
             <div className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <SearchBar
-                  onSearch={handleSearch}
-                  placeholder={t('common.search')}
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-end">
                 <button onClick={onClose} aria-label={t('common.close')} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-1">
                   <X className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -237,7 +232,12 @@ export function MobileMenu({
                 )}
               </nav>
 
-              <div className="pt-3 border-t border-[var(--border)]">
+              <div className="pt-3 border-t border-[var(--border)] space-y-3">
+                <SearchBar
+                  onSearch={handleSearch}
+                  placeholder={t('common.search')}
+                  className="w-full"
+                />
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-[var(--text-secondary)]">{t('common.theme')}</span>
                   <ThemeToggle />

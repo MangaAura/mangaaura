@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { prisma } from '@/lib/prisma';
 import { GenrePageClient } from './GenrePageClient';
+import { prisma } from '@/lib/prisma';
 
 interface Props {
   params: Promise<{ slug: string }>;

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import EmailTemplatesClient from './EmailTemplatesClient';
 
 export const metadata: Metadata = {

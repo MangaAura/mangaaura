@@ -48,6 +48,8 @@ next-env.d.ts
 
 # axe audit results
 *-axe.json
+report-*.json
+errors.json
 
 # test results
 /test-results/

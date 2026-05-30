@@ -8,8 +8,8 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { normalizeGenreKey } from '@/constants/genres';
 import { EmptySearch } from '@/components/ui/EmptyState';
+import { normalizeGenreKey } from '@/constants/genres';
 import { useT } from '@/i18n';
 
 const SORT_MAP: Record<string, string> = {
@@ -32,6 +32,34 @@ interface MangaResult {
   chapterCount: number;
   totalViews: number;
   description?: string | null;
+}
+
+function SearchResultsSkeleton(props: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div {...props} className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 ${props.className || ''}`.trim()} aria-hidden="true">
+      {Array.from({ length: 24 }).map((_, i) => (
+        <div key={`skel-${i}`} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden h-full flex flex-col animate-pulse">
+          <div className="relative aspect-[16/9] bg-[var(--surface-elevated)]">
+            <div className="absolute top-3 left-3 w-16 h-5 bg-[var(--surface-sunken)] rounded-full" />
+            <div className="absolute top-3 right-3 w-12 h-5 bg-[var(--surface-sunken)] rounded-lg" />
+          </div>
+          <div className="p-4 flex flex-col flex-1">
+            <div className="h-4 bg-[var(--surface-elevated)] rounded w-3/4 mb-1" />
+            <div className="h-3 bg-[var(--surface-elevated)] rounded w-1/2 mb-3" />
+            <div className="flex gap-1.5 mb-auto">
+              <div className="h-5 w-14 bg-[var(--surface-elevated)] rounded-full" />
+              <div className="h-5 w-16 bg-[var(--surface-elevated)] rounded-full" />
+              <div className="h-5 w-12 bg-[var(--surface-elevated)] rounded-full" />
+            </div>
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--border)]">
+              <div className="h-3 w-20 bg-[var(--surface-elevated)] rounded" />
+              <div className="h-3 w-16 bg-[var(--surface-elevated)] rounded" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function AdvancedSearchClient() {
@@ -93,22 +121,34 @@ export default function AdvancedSearchClient() {
   }
 
   useEffect(() => {
-    doSearch();
+    let mounted = true;
+    const timer = setTimeout(() => doSearch(), 0);
     fetch('/api/genres').then(r => r.json()).then(data => {
-      if (data.genres) setGenres(data.genres);
+      if (mounted && data.genres) setGenres(data.genres);
     }).catch(() => {});
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, []);
-
-  useEffect(() => {
-    setPage(1);
-  }, [query, selectedGenres, selectedStatus, sortBy]);
 
   useLayoutEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    setLoading(true);
-    timerRef.current = setTimeout(doSearch, 300);
+    const filtersChanged = query !== queryRef.current || selectedGenres !== genresRef.current || selectedStatus !== statusRef.current || sortBy !== sortRef.current;
+    queryRef.current = query;
+    genresRef.current = selectedGenres;
+    statusRef.current = selectedStatus;
+    sortRef.current = sortBy;
+    if (filtersChanged && page !== 1) {
+      setPage(1);
+    }
+    if (page !== pageRef.current || filtersChanged) {
+      pageRef.current = page;
+      setLoading(true);
+      timerRef.current = setTimeout(doSearch, 300);
+    }
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [page, query, selectedGenres, selectedStatus, sortBy]);
+  }, [page, query, selectedGenres, selectedStatus, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getGenreName = (slug: string): string => {
     const genre = genres.find(g => g.slug === slug);
@@ -119,34 +159,7 @@ export default function AdvancedSearchClient() {
     setSelectedGenres(prev => prev.includes(slug) ? prev.filter(g => g !== slug) : [...prev, slug]);
   };
 
-  // Skeleton loader matching the result card layout
-  function SearchResultsSkeleton(props: React.HTMLAttributes<HTMLDivElement>) {
-    return (
-      <div {...props} className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 ${props.className || ''}`.trim()} aria-hidden="true">
-        {Array.from({ length: 24 }).map((_, i) => (
-          <div key={`skel-${i}`} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden h-full flex flex-col animate-pulse">
-            <div className="relative aspect-[16/9] bg-[var(--surface-elevated)]">
-              <div className="absolute top-3 left-3 w-16 h-5 bg-[var(--surface-sunken)] rounded-full" />
-              <div className="absolute top-3 right-3 w-12 h-5 bg-[var(--surface-sunken)] rounded-lg" />
-            </div>
-            <div className="p-4 flex flex-col flex-1">
-              <div className="h-4 bg-[var(--surface-elevated)] rounded w-3/4 mb-1" />
-              <div className="h-3 bg-[var(--surface-elevated)] rounded w-1/2 mb-3" />
-              <div className="flex gap-1.5 mb-auto">
-                <div className="h-5 w-14 bg-[var(--surface-elevated)] rounded-full" />
-                <div className="h-5 w-16 bg-[var(--surface-elevated)] rounded-full" />
-                <div className="h-5 w-12 bg-[var(--surface-elevated)] rounded-full" />
-              </div>
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--border)]">
-                <div className="h-3 w-20 bg-[var(--surface-elevated)] rounded" />
-                <div className="h-3 w-16 bg-[var(--surface-elevated)] rounded" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
+
 
   const mangaStatusLabel = (status: string) => {
     switch (status) {

@@ -44,6 +44,37 @@ async function sendReadingEvent(
   }
 }
 
+function ActionButtons({ pageUrl, onOpenMeme, onOpenEditor, onOpenSponsor }: { pageUrl: string; onOpenMeme?: (url: string) => void; onOpenEditor?: (url: string) => void; onOpenSponsor?: () => void }) {
+  return (
+    <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <button
+        onClick={(e) => { e.stopPropagation(); onOpenMeme?.(pageUrl); }}
+        className="bg-black/70 hover:bg-accent-blue text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+        title="Crear Meme"
+        aria-label="Crear meme"
+      >
+        <ImageIcon size={18} />
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); onOpenEditor?.(pageUrl); }}
+        className="bg-black/70 hover:bg-accent-red text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+        title="Reportar Error (Crowdsourcing)"
+        aria-label="Reportar error"
+      >
+        <MousePointerClick size={18} />
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); onOpenSponsor?.(); }}
+        className="bg-black/70 hover:bg-[var(--warning)] text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+        title="Patrocinar Próximo Capítulo"
+        aria-label="Patrocinar capítulo"
+      >
+        <Crown size={18} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
 export default function ReaderViewer({
   pages,
   viewMode,
@@ -147,35 +178,6 @@ export default function ReaderViewer({
     }
   };
 
-  const ActionButtons = ({ pageUrl }: { pageUrl: string }) => (
-    <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-    <button
-      onClick={(e) => { e.stopPropagation(); onOpenMeme?.(pageUrl); }}
-      className="bg-black/70 hover:bg-accent-blue text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
-      title="Crear Meme"
-      aria-label="Crear meme"
-    >
-        <ImageIcon size={18} />
-      </button>
-    <button
-      onClick={(e) => { e.stopPropagation(); onOpenEditor?.(pageUrl); }}
-      className="bg-black/70 hover:bg-accent-red text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
-      title="Reportar Error (Crowdsourcing)"
-      aria-label="Reportar error"
-    >
-        <MousePointerClick size={18} />
-      </button>
-      <button
-        onClick={(e) => { e.stopPropagation(); onOpenSponsor?.(); }}
-      className="bg-black/70 hover:bg-[var(--warning)] text-[var(--text-inverse)] p-2 rounded-full shadow-lg transition-colors cursor-pointer"
-      title="Patrocinar Próximo Capítulo"
-      aria-label="Patrocinar capítulo"
-    >
-        <Crown size={18} aria-hidden="true" />
-      </button>
-    </div>
-  );
-
   return (
     <div
       ref={containerRef}
@@ -197,7 +199,7 @@ export default function ReaderViewer({
               className="w-full h-auto bg-secondary"
               fallbackOnError={true}
             />
-                <ActionButtons pageUrl={page} />
+                <ActionButtons pageUrl={page} onOpenMeme={onOpenMeme} onOpenEditor={onOpenEditor} onOpenSponsor={onOpenSponsor} />
                 <div className="absolute bottom-2 right-2 bg-black/70 text-[var(--text-inverse)] px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                   {index + 1} / {pages.length}
                 </div>
@@ -215,7 +217,7 @@ export default function ReaderViewer({
             className="max-w-full max-h-full shadow-lg"
             fallbackOnError={true}
           />
-            <ActionButtons pageUrl={pages[currentPage]} />
+            <ActionButtons pageUrl={pages[currentPage]} onOpenMeme={onOpenMeme} onOpenEditor={onOpenEditor} onOpenSponsor={onOpenSponsor} />
 
             {/* Navigation Controls for Paged Mode */}
             <div className="absolute inset-0 flex justify-between items-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">

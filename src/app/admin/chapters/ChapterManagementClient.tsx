@@ -35,6 +35,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
 import {
   Select,
   SelectContent,
@@ -42,7 +43,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
-import { Input } from '@/components/ui/Input';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetcher } from '@/lib/swr-config';
 

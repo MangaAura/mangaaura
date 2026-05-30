@@ -22,8 +22,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-
-
 interface CollectionDetailPageProps {
   params: Promise<{ id: string }>;
 }

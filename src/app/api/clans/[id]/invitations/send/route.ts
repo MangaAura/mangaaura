@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { getNotificationService } from '@/core/services/NotificationService';
 import { auth } from '@/lib/auth';
-import { logSecurityEvent } from '@/lib/security-audit';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
-import { getNotificationService } from '@/core/services/NotificationService';
+import { logSecurityEvent } from '@/lib/security-audit';
 
 // POST /api/clans/[id]/invitations/send - Invitar a un usuario al clan
 export async function POST(

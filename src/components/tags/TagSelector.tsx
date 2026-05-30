@@ -15,9 +15,6 @@ import {
   Tag,
   X,
 } from 'lucide-react';
-
-import { useTags } from '@/hooks/useTags';
-import type { Tag as TagType } from '@/hooks/useTags';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -28,6 +25,8 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { SectionTitle } from '@/components/ui/SectionTitle';
+import type { Tag as TagType } from '@/hooks/useTags';
+import { useTags } from '@/hooks/useTags';
 
 interface TagSelectorProps {
   selectedTagIds?: string[];

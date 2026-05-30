@@ -42,16 +42,17 @@ function AnimatedCount({ value }: { value: number }) {
 
   useEffect(() => {
     count.set(0);
-    setDisplay('0');
+    if (display !== '0') setDisplay('0');
     const controls = animate(count, value, { duration: 1, ease: 'easeOut' });
     const unsubscribe = count.on('change', (v) => {
-      setDisplay(formatViews(Math.round(v)));
+      const formatted = formatViews(Math.round(v));
+      setDisplay((prev) => prev !== formatted ? formatted : prev);
     });
     return () => {
       controls.stop();
       unsubscribe();
     };
-  }, [value, count]);
+  }, [value, count, display]);
 
   return <span>{display}</span>;
 }

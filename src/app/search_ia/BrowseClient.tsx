@@ -6,8 +6,8 @@ import Link from 'next/link';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
-import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
@@ -82,7 +82,7 @@ export default function BrowseClient() {
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     fetchMangas(undefined, selectedTag, sort, 1);
   }, [selectedTag, sort, fetchMangas]);

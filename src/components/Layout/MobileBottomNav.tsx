@@ -37,7 +37,7 @@ export function MobileBottomNav() {
                 'flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1 rounded-lg transition-colors duration-150 relative',
                 active
                   ? 'text-[var(--primary)]'
-                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               )}
               aria-current={active ? 'page' : undefined}
             >

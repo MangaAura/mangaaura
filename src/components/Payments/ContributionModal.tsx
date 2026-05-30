@@ -50,7 +50,7 @@ export default function ContributionModal({
   const [result, setResult] = useState<{ newTotal: number; goalReached: boolean } | null>(null);
 
   const fetchBalance = async () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setIsLoadingBalance(true);
     try {
       const response = await fetch('/api/economy/balance');
@@ -67,9 +67,11 @@ export default function ContributionModal({
 
   // Load user balance when modal opens
   useEffect(() => {
-    if (isOpen && userBalance === null) {
+    let mounted = true;
+    if (isOpen && userBalance === null && mounted) {
       fetchBalance();
     }
+    return () => { mounted = false; };
   }, [isOpen]);
 
   const getAmount = (): number => {

@@ -73,10 +73,10 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
     const controller = new AbortController();
     abortRef.current = controller;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsFetching(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasFetched(true);
+
+    let mounted = true;
 
     const params = new URLSearchParams({ q: debouncedQuery, limit: '6', sort: 'popularity' });
 
@@ -89,22 +89,23 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
         return res.json();
       })
       .then((data) => {
+        if (!mounted) return;
         const results = (data.results || data.mangas || []) as MangaSuggestion[];
         setSuggestions(results.slice(0, 6));
-        // isOpen already set to true above — no need to toggle
         setSelectedIndex(-1);
       })
       .catch((err: unknown) => {
+        if (!mounted) return;
         if (err instanceof DOMException && err.name === 'AbortError') return;
         setSuggestions([]);
         setValidationError(t('search.errorConnection'));
-        // Keep dropdown open so user sees the empty state
       })
       .finally(() => {
-        setIsFetching(false);
+        if (mounted) setIsFetching(false);
       });
 
     return () => {
+      mounted = false;
       controller.abort();
     };
   }, [debouncedQuery]);

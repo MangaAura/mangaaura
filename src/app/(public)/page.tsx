@@ -1,10 +1,11 @@
-import Script from 'next/script';
-import { HomeContent } from '@/components/Home/HomeContent';
-import { prisma } from '@/lib/prisma';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
-
 import type { Metadata } from 'next';
+import Script from 'next/script';
+
+import { HomeContent } from '@/components/Home/HomeContent';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
+import { prisma } from '@/lib/prisma';
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();

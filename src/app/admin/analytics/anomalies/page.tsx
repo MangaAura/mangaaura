@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import AnomaliesClient from './AnomaliesClient';
 
 export const metadata: Metadata = {

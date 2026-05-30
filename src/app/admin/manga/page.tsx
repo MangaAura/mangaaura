@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import MangaManagementClient from './MangaManagementClient';
 
 export const metadata: Metadata = {

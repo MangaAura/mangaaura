@@ -25,19 +25,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { AchievementsModal } from '@/app/(protected)/profile/AchievementsModal';
+import { CollectionsModal } from '@/app/(protected)/profile/CollectionsModal';
+import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
+import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
+import { ProfileHeader, ProfileTimeline } from '@/components/Profile';
 import { FollowButton } from '@/components/Social/FollowButton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import { ProfileHeader, ProfileTimeline } from '@/components/Profile';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useT, useLocale } from '@/i18n';
-import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
-import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
-import { CollectionsModal } from '@/app/(protected)/profile/CollectionsModal';
-import { AchievementsModal } from '@/app/(protected)/profile/AchievementsModal';
 
 // ─── Types ───────────────────────────────────────────────────────────────────────
 
@@ -535,7 +535,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
   const unreadCount = useUnreadMessages();
   const router = useRouter();
 
-  useEffect(() => { setReady(true); }, []);
+  useEffect(() => { if (!ready) setReady(true); }, []);
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 

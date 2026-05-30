@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import ForumModerationClient from './ForumModerationClient';
 
 export const metadata: Metadata = {

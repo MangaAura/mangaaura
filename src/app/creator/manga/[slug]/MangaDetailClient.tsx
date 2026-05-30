@@ -10,7 +10,7 @@ import {
   UsersIcon,
   TrendingUpIcon,
   BarChart3Icon,
-} from 'lucide-react';
+ Trash2Icon } from 'lucide-react';
 import Link from 'next/link';
 import { use , useState } from 'react';
 
@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useManga } from '@/hooks/useManga';
 import { useT } from '@/i18n';
 import { cn, formatNumber } from '@/lib/utils';
-import { Trash2Icon } from 'lucide-react';
+
 
 interface PageProps {
   params: Promise<{ slug: string }>;

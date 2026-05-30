@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { getAuthErrorMessage, getRegisterApiErrorMessage } from '@/lib/auth-errors';
 
 // ---------------------------------------------------------------------------

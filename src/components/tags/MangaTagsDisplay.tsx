@@ -12,8 +12,8 @@ import { Hash } from 'lucide-react';
 import Link from 'next/link';
 import useSWR from 'swr';
 
-import { cn } from '@/lib/utils';
 import { fetcher } from '@/lib/swr-config';
+import { cn } from '@/lib/utils';
 
 interface MangaTag {
   id: string;

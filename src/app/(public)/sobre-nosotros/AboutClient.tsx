@@ -465,12 +465,12 @@ function CTASection() {
 
 export default function AboutClient() {
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <HeroSection />
       <StorySection />
       <TeamSection />
       <ValuesSection />
       <CTASection />
-    </main>
+    </div>
   );
 }

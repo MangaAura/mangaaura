@@ -1,34 +1,42 @@
 import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await detectLocale();
-  const t = getT(locale);
-  const title = t('page.messagesConversation.title');
-  const description = t('page.messagesConversation.description');
+import { ChatClient } from './ChatClient';
+import { auth } from '@/lib/auth';
 
+interface ConversationPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: ConversationPageProps): Promise<Metadata> {
+  const { id } = await params;
   return {
-    title,
-    description,
+    title: 'Conversación | MangaAura',
+    description: 'Mensajes directos en MangaAura.',
     robots: { index: false, follow: false },
     openGraph: {
-      title,
-      description,
+      title: 'Conversación | MangaAura',
+      description: 'Mensajes directos en MangaAura.',
       type: 'website',
       images: ['/og-image.png'],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
+      title: 'Conversación | MangaAura',
+      description: 'Mensajes directos en MangaAura.',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/messages/[id]' },
+    alternates: { canonical: `/messages/${id}` },
   };
 }
 
-export default async function ConversationPage() {
-  redirect('/messages');
+export default async function ConversationPage({ params }: ConversationPageProps) {
+  const { id } = await params;
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect('/auth/login?callbackUrl=/messages');
+  }
+
+  return <ChatClient conversationId={id} currentUserId={session.user.id} />;
 }

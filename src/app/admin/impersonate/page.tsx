@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import ImpersonateClient from './ImpersonateClient';
 
 export const metadata: Metadata = {

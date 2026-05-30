@@ -17,7 +17,7 @@ export async function DELETE(
     const { id } = await params;
 
     // Try to find in DeletedMangaBundle first
-    let bundle = await prisma.deletedMangaBundle.findUnique({
+    const bundle = await prisma.deletedMangaBundle.findUnique({
       where: { id },
       select: { authorId: true, title: true },
     });

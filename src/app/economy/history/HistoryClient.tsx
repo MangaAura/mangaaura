@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { History, ArrowRight, ArrowLeft, ShoppingBag, Gift, Wallet } from 'lucide-react';
+import { useState } from 'react';
 
 interface Transaction {
   id: string;

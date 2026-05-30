@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import AchievementManagementClient from './AchievementManagementClient';
 
 export const metadata: Metadata = {

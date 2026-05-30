@@ -166,7 +166,7 @@ export function usePolls(): UsePollsReturn {
     }
   }, [session?.user?.id]);
 
-  const vote = useCallback(async (pollId: string, optionId: string): Promise<boolean> => {
+  const vote = async (pollId: string, optionId: string): Promise<boolean> => {
     if (!session?.user?.id) return false;
 
     try {
@@ -183,21 +183,18 @@ export function usePolls(): UsePollsReturn {
         throw new Error(message);
       }
 
-      // Optimistic update for current poll
       if (currentPoll?.id === pollId) {
         setCurrentPoll((prev) => prev ? { ...prev, userVotedOptionId: optionId } : prev);
       }
 
-      // Refresh poll to get updated counts
-      await fetchPoll(pollId);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al votar');
       return false;
     }
-  }, [session?.user?.id, currentPoll?.id, fetchPoll]);
+  };
 
-  const removeVote = useCallback(async (pollId: string): Promise<boolean> => {
+  const removeVote = async (pollId: string): Promise<boolean> => {
     if (!session?.user?.id) return false;
 
     try {
@@ -216,15 +213,14 @@ export function usePolls(): UsePollsReturn {
         setCurrentPoll((prev) => prev ? { ...prev, userVotedOptionId: null } : prev);
       }
 
-      await fetchPoll(pollId);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al retirar voto');
       return false;
     }
-  }, [session?.user?.id, currentPoll?.id, fetchPoll]);
+  };
 
-  const deletePoll = useCallback(async (id: string): Promise<boolean> => {
+  const deletePoll = async (id: string): Promise<boolean> => {
     if (!session?.user?.id) return false;
 
     try {
@@ -246,9 +242,9 @@ export function usePolls(): UsePollsReturn {
       setError(err instanceof Error ? err.message : 'Error al eliminar encuesta');
       return false;
     }
-  }, [session?.user?.id, currentPoll?.id]);
+  };
 
-  const updatePoll = useCallback(async (id: string, data: Partial<{
+  const updatePoll = async (id: string, data: Partial<{
     question: string;
     description: string;
     status: string;
@@ -278,7 +274,7 @@ export function usePolls(): UsePollsReturn {
       setError(err instanceof Error ? err.message : 'Error al actualizar encuesta');
       return null;
     }
-  }, [session?.user?.id, currentPoll?.id]);
+  };
 
   return {
     polls,

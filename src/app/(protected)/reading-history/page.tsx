@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { BookOpen } from 'lucide-react';
+import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { ReadingHistoryClient, type ReadingEntry } from './ReadingHistoryClient';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 

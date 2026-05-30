@@ -129,7 +129,9 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
   }, [page, limit, type, userId]);
 
   useEffect(() => {
-    fetchActivities();
+    let mounted = true;
+    if (mounted) fetchActivities();
+    return () => { mounted = false; };
   }, [fetchActivities]);
 
   const loadMore = () => {

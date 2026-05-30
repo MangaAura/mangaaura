@@ -1,8 +1,8 @@
 'use client';
 
+import { Shield, Plus, Save, Trash2, Loader2, Users, Check } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Shield, Plus, Save, Trash2, Loader2, Users, Check } from 'lucide-react';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

@@ -51,7 +51,7 @@ export function CollectionGrid({
 
   const fetchCollections = async () => {
     try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setIsLoading(true);
       setError(null);
 
@@ -76,7 +76,9 @@ export function CollectionGrid({
   };
 
   useEffect(() => {
-    fetchCollections();
+    let mounted = true;
+    if (mounted) fetchCollections();
+    return () => { mounted = false; };
   }, [userId, filter]);
 
   const handleDelete = (deletedId: string) => {

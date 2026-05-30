@@ -1,10 +1,11 @@
-import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
 import { Activity, Globe, Users } from 'lucide-react';
+import { Metadata } from 'next';
+
 import { ActivityFeed } from '@/components/Activity/ActivityFeed';
 import { Card } from '@/components/ui/Card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 
 export async function generateMetadata(): Promise<Metadata> {

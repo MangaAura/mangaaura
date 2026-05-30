@@ -121,7 +121,9 @@ export function ConversationList({ activeConversationId, onSelectConversation, o
   };
 
   useEffect(() => {
-    fetchData();
+    let mounted = true;
+    if (mounted) fetchData();
+    return () => { mounted = false; };
   }, []);
 
   if (isLoading) {

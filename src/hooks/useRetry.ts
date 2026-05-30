@@ -155,23 +155,27 @@ export function useAutoRetry<T>(
    
   // auto-retry pattern uses ref + effect to avoid cascading renders
   const hasRetriedRef = useRef(false);
-  
+   
   useEffect(() => {
     if (error && autoRetry && retryCount < (options.maxRetries || 3) && !hasRetriedRef.current) {
       hasRetriedRef.current = true;
-      setHasRetried(true);
-      retryHook.retry();
+      const timer = setTimeout(() => {
+        if (!hasRetried) setHasRetried(true);
+        retryHook.retry();
+      }, 0);
+      return () => clearTimeout(timer);
     }
     // retryHook.retry() intentionally triggers state changes for auto-retry
   }, [error, autoRetry, retryCount, options.maxRetries, hasRetried, retryHook]);
 
   // Reset flag when successful
   useEffect(() => {
-    if (!error) {
+    if (!error && hasRetried) {
       hasRetriedRef.current = false;
-      setHasRetried(false);
+      const timer = setTimeout(() => setHasRetried(false), 0);
+      return () => clearTimeout(timer);
     }
-  }, [error]);
+  }, [error, hasRetried]);
 
   return retryHook;
 }
