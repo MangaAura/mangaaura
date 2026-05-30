@@ -16,16 +16,23 @@ import { NextRequest, NextResponse } from 'next/server';
 // POST /api/cron/cleanup-queues - Cleanup old queue jobs
 export async function POST(request: NextRequest) {
   try {
-    // Verify cron secret
-    const authHeader = request.headers.get('authorization');
-    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-    if (
-      !authHeader ||
-      !expectedAuth ||
-      authHeader.length !== expectedAuth.length ||
-      !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedAuth))
-    ) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // ── Auth ──────────────────────────────────────────────────────
+    // Vercel Cron Jobs set x-vercel-cron automatically — this header
+    // is stripped from external requests by Vercel's edge, so it's
+    // safe from spoofing.
+    const isVercelCron = request.headers.get('x-vercel-cron') === '1';
+    if (!isVercelCron) {
+      // Fallback: Bearer token for manual/API testing
+      const authHeader = request.headers.get('authorization');
+      const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
+      if (
+        !authHeader ||
+        !expectedAuth ||
+        authHeader.length !== expectedAuth.length ||
+        !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedAuth))
+      ) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
 
     const results: Record<string, unknown> = {};
