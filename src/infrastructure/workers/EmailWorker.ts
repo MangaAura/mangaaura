@@ -5,7 +5,6 @@
  */
 
 import { Worker, Job } from 'bullmq';
-import type { Redis } from 'ioredis';
 
 import { emailService } from '@/infrastructure/adapters/emailService';
 import type {
@@ -18,8 +17,9 @@ import type {
   CrowdfundingGoalData,
   CommentReplyData,
 } from '@/infrastructure/queue/EmailQueue';
+import { getBullConnection } from '@/infrastructure/queue/connection';
 import { baseEmailTemplate } from '@/lib/email-templates';
-import { redis, isMockRedis } from '@/lib/redis';
+import { isMockRedis } from '@/lib/redis';
 
 // ============================================================================
 // Mock Worker for Development (when Redis is not available)
@@ -84,7 +84,7 @@ export class EmailWorker {
           await this.processJob(job);
         },
         {
-          connection: redis as Redis,
+          connection: getBullConnection(),
           concurrency: 5,
           limiter: {
             max: 10,

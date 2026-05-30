@@ -1,8 +1,8 @@
 import { Queue, Job, type QueueOptions } from 'bullmq'
-import { Redis } from 'ioredis'
 
 import type { InboundEmailData, EmailClassification } from '@/core/services/IInboundEmailRepository'
-import { redis, isMockRedis } from '@/lib/redis'
+import { getBullConnection } from './connection'
+import { isMockRedis } from '@/lib/redis'
 
 export type InboundJobType = 'classify' | 'process' | 'reply'
 
@@ -74,12 +74,10 @@ class InMemoryInboundQueue {
 
 export class InboundEmailQueue {
   private queue: Queue | InMemoryInboundQueue
-  private redisConnection: Redis
   private readonly queueName = 'inbound-emails'
   private useInMemory: boolean
 
   constructor() {
-    this.redisConnection = redis as Redis
     this.useInMemory = process.env.NODE_ENV !== 'production' && isMockRedis()
 
     if (this.useInMemory) {
@@ -91,7 +89,7 @@ export class InboundEmailQueue {
 
   private initializeQueue(): Queue {
     const options: QueueOptions = {
-      connection: this.redisConnection,
+      connection: getBullConnection(),
       defaultJobOptions: {
         removeOnComplete: { age: 24 * 3600, count: 1000 },
         removeOnFail: { age: 7 * 24 * 3600 },

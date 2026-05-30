@@ -5,9 +5,9 @@
  */
 
 import { Queue, Job, type QueueOptions } from 'bullmq';
-import { Redis } from 'ioredis';
 
-import { redis, isMockRedis } from '@/lib/redis';
+import { getBullConnection } from './connection';
+import { isMockRedis } from '@/lib/redis';
 
 // ============================================================================
 // Types & Interfaces
@@ -251,12 +251,10 @@ class InMemoryEmailQueue {
 
 export class EmailQueue {
   private queue: Queue | InMemoryEmailQueue;
-  private redisConnection: Redis;
   private readonly queueName = 'emails';
   private useInMemory: boolean;
 
   constructor() {
-    this.redisConnection = redis as Redis;
     this.useInMemory = process.env.NODE_ENV !== 'production' && isMockRedis();
 
     if (this.useInMemory) {
@@ -274,7 +272,7 @@ export class EmailQueue {
    */
   private initializeQueue(): Queue {
     const options: QueueOptions = {
-      connection: this.redisConnection,
+      connection: getBullConnection(),
       defaultJobOptions: {
         removeOnComplete: {
           age: 24 * 3600, // Mantener completados por 24 horas
