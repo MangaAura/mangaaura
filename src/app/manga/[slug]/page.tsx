@@ -22,6 +22,7 @@ async function getMangaData(slug: string) {
           id: true,
           chapterNumber: true,
           title: true,
+          coverUrl: true,
           totalPages: true,
           viewCount: true,
           createdAt: true,

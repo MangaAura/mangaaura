@@ -28,7 +28,7 @@ interface Props {
     rating: number | null;
     authorName: string | null;
     createdAt: Date | string;
-    chapters: { id: string; chapterNumber: number; title: string | null; viewCount: number; totalPages: number; createdAt: Date | string }[];
+    chapters: { id: string; chapterNumber: number; title: string | null; coverUrl: string | null; viewCount: number; totalPages: number; createdAt: Date | string }[];
   };
   libraryStatus: string | null;
   userId: string | null;
@@ -332,9 +332,21 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                     className="flex items-center justify-between p-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl hover:bg-[var(--surface-elevated)] hover:border-[var(--primary)]/30 transition-all group"
                   >
                     <div className="flex items-center gap-4">
-                      <span className="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] font-bold text-sm">
-                        {chapter.chapterNumber}
-                      </span>
+                      {/* Chapter cover thumbnail */}
+                      <div className="relative w-12 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-[var(--surface-sunken)] border border-[var(--border)]">
+                        {chapter.coverUrl ? (
+                          <img
+                            src={chapter.coverUrl}
+                            alt={`Portada Cap. ${chapter.chapterNumber}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)] font-bold text-sm">
+                            {chapter.chapterNumber}
+                          </span>
+                        )}
+                      </div>
                       <div>
                         <p className="font-semibold text-sm group-hover:text-[var(--primary)] transition-colors">
                           {t('manga.chapter')} {chapter.chapterNumber}

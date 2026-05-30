@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 
-import { OptimizedImage } from '@/components/Image/OptimizedImage';
+
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { ACCEPTED_FORMATS, MAX_FILE_SIZE } from '@/lib/storage-config';
@@ -662,12 +662,12 @@ export default function EditChapterClient({ params }: PageProps) {
                         title="Ver página completa"
                         aria-label={`Ver página ${index + 1}`}
                       >
-                        <OptimizedImage
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
                           src={page.preview || page.url}
                           alt={`Página ${index + 1}`}
-                          width={72}
-                          height={96}
-                          className="w-[72px] h-24 object-cover"
+                          className="w-[72px] h-24 object-cover rounded"
+                          loading="lazy"
                         />
                       </button>
 
@@ -744,11 +744,12 @@ export default function EditChapterClient({ params }: PageProps) {
                       )}
                       title={`Ver página ${index + 1}`}
                     >
-                      <OptimizedImage
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={page.preview || page.url}
                         alt={`Página ${index + 1}`}
-                        fill
-                        className="object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
                       />
 
                       {/* Overlay on hover */}
