@@ -66,7 +66,7 @@ export default function PromptHunterClient() {
   }, []);
 
   useEffect(() => {
-    fetchPrompts('');
+    queueMicrotask(() => { void fetchPrompts(''); });
   }, [fetchPrompts]);
 
   const handleSearch = (e: React.FormEvent) => {

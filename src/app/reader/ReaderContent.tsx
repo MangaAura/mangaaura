@@ -151,7 +151,7 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
   useEffect(() => {
     if (!chapterData?.manga?.slug) return;
     if (chapterData.manga.slug !== mangaSlug) {
-      setMangaSlug(chapterData.manga.slug);
+      queueMicrotask(() => setMangaSlug(chapterData.manga.slug));
     }
   }, [chapterData?.manga?.slug, mangaSlug]);
 

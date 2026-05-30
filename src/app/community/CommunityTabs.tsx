@@ -51,7 +51,7 @@ export default function CommunityTabs({
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as Tab;
     if (hash === 'clans' || hash === 'events' || hash === 'polls') {
-      setActiveTab(prev => prev === hash ? prev : hash);
+      queueMicrotask(() => setActiveTab(prev => prev === hash ? prev : hash));
     }
     const onPopState = () => {
       const newHash = window.location.hash.replace('#', '') as Tab;

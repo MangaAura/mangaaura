@@ -535,7 +535,7 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
   const unreadCount = useUnreadMessages();
   const router = useRouter();
 
-  useEffect(() => { if (!ready) setReady(true); }, []);
+  useEffect(() => { if (!ready) queueMicrotask(() => setReady(true)); }, []);
 
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 

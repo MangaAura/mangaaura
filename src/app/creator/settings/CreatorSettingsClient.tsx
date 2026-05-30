@@ -106,8 +106,10 @@ export default function CreatorSettingsClient() {
 
     
   useEffect(() => {
-    if (data?.profile) setProfile(prev => JSON.stringify(prev) === JSON.stringify(data.profile) ? prev : data.profile);
-    if (data?.publishing) setPublishing(prev => JSON.stringify(prev) === JSON.stringify(data.publishing) ? prev : data.publishing);
+    queueMicrotask(() => {
+      if (data?.profile) setProfile(prev => JSON.stringify(prev) === JSON.stringify(data.profile) ? prev : data.profile);
+      if (data?.publishing) setPublishing(prev => JSON.stringify(prev) === JSON.stringify(data.publishing) ? prev : data.publishing);
+    });
   }, [data]);
 
   const handleProfileChange = (key: keyof CreatorProfile, value: any) => {

@@ -594,7 +594,7 @@ export default function ClanDetailClient({
   // ── Fetch user's pending join request on mount ──
   useEffect(() => {
     if (userId && !userMembership) {
-      setLoadingMyRequest(prev => prev ? prev : true);
+      queueMicrotask(() => setLoadingMyRequest(prev => prev ? prev : true));
       fetch(`/api/clans/${clan.id}/join-requests?status=PENDING`)
         .then(res => res.ok ? res.json() : { joinRequests: [] })
         .then(data => {
@@ -848,7 +848,7 @@ export default function ClanDetailClient({
 
   useEffect(() => {
     if (inviteOpen) {
-      loadPendingInvites();
+      queueMicrotask(() => { void loadPendingInvites(); });
     }
   }, [inviteOpen, loadPendingInvites]);
 

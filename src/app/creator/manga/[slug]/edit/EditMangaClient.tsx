@@ -59,10 +59,12 @@ export default function EditMangaClient({ params }: PageProps) {
    
   useEffect(() => {
     if (manga) {
-      setFormData(prev => prev.title === manga.title && prev.description === manga.description ? prev : { title: manga.title, description: manga.description });
-      setTagList(manga.tags);
-      setSelectedStatus(prev => prev === manga.status ? prev : manga.status);
-      setCoverPreview(prev => prev === (manga.coverUrl || null) ? prev : (manga.coverUrl || null));
+      queueMicrotask(() => {
+        setFormData(prev => prev.title === manga.title && prev.description === manga.description ? prev : { title: manga.title, description: manga.description });
+        setTagList(manga.tags);
+        setSelectedStatus(prev => prev === manga.status ? prev : manga.status);
+        setCoverPreview(prev => prev === (manga.coverUrl || null) ? prev : (manga.coverUrl || null));
+      });
     }
   }, [manga]);
 

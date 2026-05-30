@@ -32,7 +32,7 @@ function CountUp({ value }: { value: number }) {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (shouldReduceMotion) { if (count !== value) queueMicrotask(() => setCount(value)); return; }
+    if (shouldReduceMotion) { if (count !== value) setCount(value); return; }
     let start: number | null = null;
     const duration = 1500;
     const step = (ts: number) => {

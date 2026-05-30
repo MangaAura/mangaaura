@@ -31,8 +31,10 @@ export default function ShareTargetClient() {
     const url = params.get('url') || params.get('link') || '';
 
     if ((title || text || url) && !sharedData) {
-      setSharedData({ title, text, url });
-      setShowModal(true);
+      queueMicrotask(() => {
+        setSharedData({ title, text, url });
+        setShowModal(true);
+      });
     }
   }, []);
 

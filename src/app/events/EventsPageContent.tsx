@@ -115,7 +115,7 @@ function EventsPageInner() {
   // Fetch user's voted submission (for voting tab)
   useEffect(() => {
     if (tab !== 'voting' || !userId) {
-      setVotedId(prev => prev === null ? prev : null);
+      queueMicrotask(() => setVotedId(prev => prev === null ? prev : null));
       return;
     }
 

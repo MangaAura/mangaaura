@@ -84,7 +84,7 @@ export default function BrowseClient() {
 
    
   useEffect(() => {
-    fetchMangas(undefined, selectedTag, sort, 1);
+    queueMicrotask(() => { void fetchMangas(undefined, selectedTag, sort, 1); });
   }, [selectedTag, sort, fetchMangas]);
 
   const handleSearch = (e: React.FormEvent) => {

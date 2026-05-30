@@ -42,7 +42,7 @@ function AnimatedCount({ value }: { value: number }) {
 
   useEffect(() => {
     count.set(0);
-    if (display !== '0') queueMicrotask(() => setDisplay('0'));
+    if (display !== '0') setDisplay('0');
     const controls = animate(count, value, { duration: 1, ease: 'easeOut' });
     const unsubscribe = count.on('change', (v) => {
       const formatted = formatViews(Math.round(v));

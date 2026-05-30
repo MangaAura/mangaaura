@@ -84,7 +84,7 @@ export function EventsClient({
   const [votingLoading, setVotingLoading] = useState(false);
 
   useEffect(() => {
-    setActiveTab(initialTab);
+    queueMicrotask(() => setActiveTab(initialTab));
   }, [initialTab]);
 
   const totalPages = Math.ceil(totalEvents / limit);
