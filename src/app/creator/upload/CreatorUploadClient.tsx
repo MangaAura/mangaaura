@@ -23,6 +23,7 @@ import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { compressImage } from '@/lib/compress-image';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { MAX_FILE_SIZE, ACCEPTED_FORMATS } from '@/lib/storage-config';
@@ -69,6 +70,7 @@ function CreatorUploadPageContent() {
   const [chapterNumber, setChapterNumber] = useState('');
   const [chapterNumberTouched, setChapterNumberTouched] = useState(false);
   const [chapterTitle, setChapterTitle] = useState('');
+  const [isCompressing, setIsCompressing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -113,13 +115,10 @@ function CreatorUploadPageContent() {
   const chapterNumberError = chapterNumberTouched ? validateChapterNumber(chapterNumber) : null;
   const chapterNumberValid = chapterNumberTouched && chapterNumber !== '' && !chapterNumberError;
 
-  // Validar archivo
+  // Validar formato (el tamaño se maneja con compresión)
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_FORMATS.includes(file.type as typeof ACCEPTED_FORMATS[number])) {
       return 'Formato no soportado. Usa JPEG, PNG o WebP.';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return `Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB.`;
     }
     return null;
   };
@@ -130,21 +129,51 @@ function CreatorUploadPageContent() {
   };
 
   // Agregar archivos
-  const addFiles = (newFiles: FileList | File[]) => {
+  const addFiles = async (newFiles: FileList | File[]) => {
+    setIsCompressing(true);
     const filesArray = Array.from(newFiles);
     const validFiles: UploadedFile[] = [];
 
-    filesArray.forEach((file) => {
-      const errorMsg = validateFile(file);
-      validFiles.push({
-        file,
-        id: generateId(),
-        preview: createPreview(file),
-        uploadProgress: 0,
-        error: errorMsg || undefined,
-      });
-    });
+    for (const file of filesArray) {
+      // Validar formato
+      const formatError = validateFile(file);
+      if (formatError) {
+        validFiles.push({
+          file,
+          id: generateId(),
+          preview: createPreview(file),
+          uploadProgress: 0,
+          error: formatError,
+        });
+        continue;
+      }
 
+      // Comprimir si excede el límite
+      let processedFile = file;
+      if (file.size > MAX_FILE_SIZE) {
+        try {
+          processedFile = await compressImage(file, { maxByteSize: MAX_FILE_SIZE });
+        } catch {
+          validFiles.push({
+            file,
+            id: generateId(),
+            preview: createPreview(file),
+            uploadProgress: 0,
+            error: 'Error al comprimir la imagen',
+          });
+          continue;
+        }
+      }
+
+      validFiles.push({
+        file: processedFile,
+        id: generateId(),
+        preview: URL.createObjectURL(processedFile),
+        uploadProgress: 0,
+      });
+    }
+
+    setIsCompressing(false);
     setFiles((prev) => [...prev, ...validFiles]);
   };
 
@@ -394,6 +423,14 @@ function CreatorUploadPageContent() {
           </button>
         </header>
 
+        {/* Compression indicator */}
+        {isCompressing && (
+          <div className="flex items-center gap-2 p-4 bg-[var(--accent-blue)]/10 border border-[var(--accent-blue)]/20 rounded-xl text-sm text-[var(--accent-blue)]">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Comprimiendo imágenes grandes antes de subir...
+          </div>
+        )}
+
         {/* Error */}
         {error && (
           <ErrorMessage message={error} />
@@ -556,7 +593,7 @@ function CreatorUploadPageContent() {
                 <h3 className="text-sm font-semibold text-[var(--info)] mb-2">Formatos soportados</h3>
                 <ul className="text-xs text-[var(--info)] space-y-1">
                   <li>• JPEG, PNG, WebP</li>
-                  <li>• Máx: {(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB por imagen</li>
+                  <li>• Máx: {(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB por imagen (se comprimen automáticamente si pesan más)</li>
                   <li>• Arrastra para reordenar páginas</li>
                 </ul>
               </div>

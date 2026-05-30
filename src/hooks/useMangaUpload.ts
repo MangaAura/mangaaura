@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { compressImage } from '@/lib/compress-image';
 import { extractApiError } from '@/lib/extract-api-error';
 import { UploadResult, UploadError } from '@/types/storage';
 
@@ -162,9 +163,6 @@ export function useMangaUpload(): UseMangaUploadReturn {
    * Validar archivo antes de subir
    */
   const validateFile = useCallback((file: File): UploadError | null => {
-    // Tamaño máximo: 4MB para imágenes individuales (límite Vercel: 4.5MB)
-    const MAX_FILE_SIZE = 4 * 1024 * 1024;
-    
     // Formatos aceptados
     const ACCEPTED_FORMATS = [
       'image/jpeg',
@@ -177,14 +175,6 @@ export function useMangaUpload(): UseMangaUploadReturn {
       return {
         code: 'EMPTY_FILE',
         message: 'El archivo está vacío',
-      };
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      return {
-        code: 'FILE_TOO_LARGE',
-        message: `El archivo excede el tamaño máximo de ${MAX_FILE_SIZE / 1024 / 1024}MB`,
-        details: { maxSize: MAX_FILE_SIZE, actualSize: file.size },
       };
     }
 
@@ -218,14 +208,26 @@ export function useMangaUpload(): UseMangaUploadReturn {
 
       setIsUploading(true);
       setError(null);
-      
+
+      // Comprimir si excede el límite (Vercel: 4.5MB serverless body)
+      let uploadFile = file;
+      const MAX_FILE_SIZE = 4 * 1024 * 1024;
+      if (file.size > MAX_FILE_SIZE) {
+        try {
+          uploadFile = await compressImage(file, { maxByteSize: MAX_FILE_SIZE });
+        } catch (err) {
+          // Si falla la compresión, intentar con el original
+          console.warn('Client compression failed, uploading original:', err);
+        }
+      }
+
       const controller = createAbortController();
       const uploadId = crypto.randomUUID();
       activeUploadsRef.current.set(uploadId, controller);
 
       try {
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', uploadFile);
         
         if (fileName) {
           formData.append('fileName', fileName);
@@ -389,12 +391,23 @@ export function useMangaUpload(): UseMangaUploadReturn {
         retries = 0
       ): Promise<UploadResult | null> => {
         try {
+          // Comprimir si excede el límite (Vercel: 4.5MB serverless body)
+          let uploadFile = file;
+          const UPLOAD_MAX_SIZE = 4 * 1024 * 1024;
+          if (file.size > UPLOAD_MAX_SIZE) {
+            try {
+              uploadFile = await compressImage(file, { maxByteSize: UPLOAD_MAX_SIZE });
+            } catch (err) {
+              console.warn('Client compression failed, uploading original:', err);
+            }
+          }
+
           const controller = new AbortController();
           const uploadId = `${chapterId}-${pageNumber}`;
           activeUploadsRef.current.set(uploadId, controller);
 
           const formData = new FormData();
-          formData.append('file', file);
+          formData.append('file', uploadFile);
           formData.append('chapterId', chapterId!);
           formData.append('pageNumber', pageNumber.toString());
           formData.append('mangaId', mangaId);

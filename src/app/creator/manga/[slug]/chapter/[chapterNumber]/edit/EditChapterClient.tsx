@@ -26,6 +26,7 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import { ChapterCoverUpload } from "@/components/Creator/ChapterCoverUpload";
 import { Button } from "@/components/ui/Button";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
+import { compressImage } from "@/lib/compress-image";
 import { ACCEPTED_FORMATS, MAX_FILE_SIZE } from "@/lib/storage-config";
 import { cn } from "@/lib/utils";
 
@@ -58,22 +59,10 @@ interface PageItem {
   isNew?: boolean;
   file?: File;
   preview?: string;
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────
+}  // ─── Helpers ─────────────────────────────────────────────────────
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9);
-}
-
-function validateFile(file: File): string | null {
-  if (!(ACCEPTED_FORMATS as readonly string[]).includes(file.type)) {
-    return "Formato no soportado. Usa JPEG, PNG o WebP.";
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return `Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB.`;
-  }
-  return null;
 }
 
 // ─── Skeleton ────────────────────────────────────────────────────
@@ -136,6 +125,9 @@ export default function EditChapterClient({ params }: PageProps) {
   // Upload state
   const [isUploadingPage, setIsUploadingPage] = useState(false);
   const [uploadPageError, setUploadPageError] = useState<string | null>(null);
+
+  // Compression state
+  const [isCompressing, setIsCompressing] = useState(false);
 
   // File drop zone
   const [isFileDragging, setIsFileDragging] = useState(false);
@@ -306,35 +298,50 @@ export default function EditChapterClient({ params }: PageProps) {
 
   // ─── Add new pages ───────────────────────────────────────────
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
+    setIsCompressing(true);
     const newPages: PageItem[] = [];
     let invalidCount = 0;
+
     for (const file of Array.from(files)) {
-      const fileError = validateFile(file);
-      if (fileError) {
+      // 1. Validate format — reject non-image formats
+      if (!(ACCEPTED_FORMATS as readonly string[]).includes(file.type)) {
         invalidCount++;
         continue;
       }
+
+      // 2. Compress if oversized (client-side, bypass Vercel's 4.5MB limit)
+      let processedFile = file;
+      if (file.size > MAX_FILE_SIZE) {
+        try {
+          processedFile = await compressImage(file, { maxByteSize: MAX_FILE_SIZE });
+        } catch {
+          invalidCount++;
+          continue;
+        }
+      }
+
       newPages.push({
         id: generateId(),
         url: "",
         isNew: true,
-        file,
-        preview: URL.createObjectURL(file),
+        file: processedFile,
+        preview: URL.createObjectURL(processedFile),
       });
     }
 
+    setIsCompressing(false);
+
     if (invalidCount > 0) {
       setUploadPageError(
-        `${invalidCount} archivo(s) ignorado(s): formato no válido o tamaño excedido (máx ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        `${invalidCount} archivo(s) ignorado(s): formato no válido`,
       );
     }
 
     setPages((prev) => [...prev, ...newPages]);
-    // Reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -371,7 +378,7 @@ export default function EditChapterClient({ params }: PageProps) {
     }
   }, [isFileDragEvent]);
 
-  const handleFileDrop = useCallback((e: React.DragEvent) => {
+  const handleFileDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsFileDragging(false);
@@ -382,27 +389,36 @@ export default function EditChapterClient({ params }: PageProps) {
     const files = e.dataTransfer.files;
     if (!files || files.length === 0) return;
 
+    setIsCompressing(true);
     const newPages: PageItem[] = [];
     let invalidCount = 0;
+
     for (const file of Array.from(files)) {
-      // Skip non-image files silently (e.g. folders, .txt, etc.)
       if (!file.type.startsWith("image/")) {
         invalidCount++;
         continue;
       }
-      const fileError = validateFile(file);
-      if (fileError) {
-        invalidCount++;
-        continue;
+
+      let processedFile = file;
+      if (file.size > MAX_FILE_SIZE) {
+        try {
+          processedFile = await compressImage(file, { maxByteSize: MAX_FILE_SIZE });
+        } catch {
+          invalidCount++;
+          continue;
+        }
       }
+
       newPages.push({
         id: generateId(),
         url: "",
         isNew: true,
-        file,
-        preview: URL.createObjectURL(file),
+        file: processedFile,
+        preview: URL.createObjectURL(processedFile),
       });
     }
+
+    setIsCompressing(false);
 
     if (newPages.length > 0) {
       setPages((prev) => [...prev, ...newPages]);
@@ -410,7 +426,7 @@ export default function EditChapterClient({ params }: PageProps) {
 
     if (invalidCount > 0) {
       setUploadPageError(
-        `${invalidCount} archivo(s) ignorado(s): formato no válido o tamaño excedido (máx ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        `${invalidCount} archivo(s) ignorado(s): formato no válido`,
       );
     }
   }, []);
@@ -738,7 +754,13 @@ export default function EditChapterClient({ params }: PageProps) {
               />
             </div>
 
-            {/* Uploading indicator */}
+            {/* Compression / uploading indicator */}
+            {isCompressing && (
+              <div className="flex items-center gap-2 p-3 bg-[var(--accent-blue)]/10 border border-[var(--accent-blue)]/20 rounded-lg text-sm text-[var(--accent-blue)]">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Comprimiendo imágenes grandes...
+              </div>
+            )}
             {isUploadingPage && (
               <div className="flex items-center gap-2 p-3 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-lg text-sm text-[var(--primary)]">
                 <Loader2 className="w-4 h-4 animate-spin" />
