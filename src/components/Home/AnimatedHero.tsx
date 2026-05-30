@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
+import { useHomeStats } from '@/hooks/useHomeStats';
 import { useT } from '@/i18n';
 
 function WelcomeLabel({ text }: { text: string }) {
@@ -63,13 +64,24 @@ export function AnimatedHero({
   description,
   coverUrl,
   mangaSlug,
-  totalMangas = 0,
-  totalReaders = 0,
-  totalChapters = 0,
+  totalMangas: initialMangas = 0,
+  totalReaders: initialReaders = 0,
+  totalChapters: initialChapters = 0,
 }: AnimatedHeroProps) {
   const { data: session } = useSession();
   const t = useT();
   const shouldReduceMotion = useReducedMotion();
+
+  // SWR refreshes stats from /api/stats in the background
+  const { stats } = useHomeStats({
+    fallbackData: {
+      totalMangas: initialMangas,
+      totalReaders: initialReaders,
+      totalChapters: initialChapters,
+    },
+  });
+
+  const { totalMangas, totalReaders, totalChapters } = stats;
 
   const containerVariants = {
     hidden: {},
