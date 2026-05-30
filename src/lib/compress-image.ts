@@ -15,10 +15,6 @@ export interface CompressOptions {
   quality?: number;
   /** Output format. Default: 'image/webp' */
   format?: 'image/webp' | 'image/jpeg' | 'image/png';
-  /** Maximum width. Default: 2048 */
-  maxWidth?: number;
-  /** Maximum height. Default: 2048 */
-  maxHeight?: number;
 }
 
 /**
@@ -42,8 +38,6 @@ export async function compressImage(
     maxByteSize = 4 * 1024 * 1024,
     quality: initialQuality = 0.85,
     format = 'image/webp',
-    maxWidth = 2048,
-    maxHeight = 2048,
   } = options;
 
   // If the file is already under the limit, return as-is (no unnecessary re-encode)
@@ -57,8 +51,9 @@ export async function compressImage(
   // Load the image into an Image element
   const img = await loadImage(file);
 
-  // Start with the original dimensions
-  let { width, height } = fitDimensions(img.naturalWidth, img.naturalHeight, maxWidth, maxHeight);
+  // Start with ORIGINAL dimensions — never pre-resize.
+  // Only dimensions are reduced as a last resort inside the while loop.
+  let { width, height } = { width: img.naturalWidth, height: img.naturalHeight };
 
   // Progressive compression: reduce quality first, then dimensions
   let quality = initialQuality;
@@ -68,11 +63,14 @@ export async function compressImage(
     if (quality > 0.2) {
       // Reduce quality
       quality = Math.max(quality - 0.1, 0.1);
-    } else {
-      // Shrink dimensions by 10%
+    } else if (width > 800 || height > 800) {
+      // Shrink dimensions by 10% (preserving aspect ratio)
       width = Math.round(width * 0.9);
       height = Math.round(height * 0.9);
       quality = initialQuality; // reset quality
+    } else {
+      // Already at minimum quality and minimum dimensions — return what we have
+      break;
     }
     blob = await encodeImage(img, width, height, format, quality);
   }
@@ -97,27 +95,6 @@ function loadImage(file: File): Promise<HTMLImageElement> {
     };
     img.src = url;
   });
-}
-
-function fitDimensions(
-  natW: number,
-  natH: number,
-  maxW: number,
-  maxH: number
-): { width: number; height: number } {
-  let width = natW;
-  let height = natH;
-
-  if (width > maxW) {
-    height = Math.round(height * (maxW / width));
-    width = maxW;
-  }
-  if (height > maxH) {
-    width = Math.round(width * (maxH / height));
-    height = maxH;
-  }
-
-  return { width, height };
 }
 
 function encodeImage(
