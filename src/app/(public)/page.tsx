@@ -6,6 +6,11 @@ import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
 
+// ISR: revalidate every 5 min so manga/user/chapter counts stay fresh
+// without hitting the DB on every request (Next.js would statically render
+// this page at build time if not for this export, baking in 0s)
+export const revalidate = 300;
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
