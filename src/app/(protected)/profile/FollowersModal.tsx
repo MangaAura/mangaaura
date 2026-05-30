@@ -4,7 +4,7 @@ import { Users, UserPlus, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Avatar, AvatarImage } from '@/components/ui/Avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import {
   Dialog,
@@ -98,6 +98,7 @@ export function FollowersModal({ open, onOpenChange, following, followers }: Fol
                   >
                     <Avatar className="w-10 h-10 ring-1 ring-[var(--border)]">
                       <AvatarImage src={user.avatarUrl || undefined} />
+                      <AvatarFallback>{user.displayName?.[0] || user.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
