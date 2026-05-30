@@ -472,10 +472,11 @@ export function initializeNotificationService(
 
 export async function getNotificationService(): Promise<NotificationService> {
   if (notificationService) return notificationService;
-  const { PrismaNotificationRepository, PushNotificationAdapter, RealtimeNotificationAdapter } = await import('@/infrastructure/adapters/PrismaNotificationRepository');
+  const { PrismaNotificationRepository, RealtimeNotificationAdapter } = await import('@/infrastructure/adapters/PrismaNotificationRepository');
+  const { QueuePushNotificationAdapter } = await import('@/infrastructure/adapters/QueuePushNotificationAdapter');
   return initializeNotificationService(
     new PrismaNotificationRepository(),
-    new PushNotificationAdapter(),
+    new QueuePushNotificationAdapter(),
     new RealtimeNotificationAdapter()
   );
 }
