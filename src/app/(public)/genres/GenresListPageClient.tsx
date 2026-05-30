@@ -54,16 +54,16 @@ export function GenresListPageClient({
                   href={`/genres/${genre.slug}`}
                   className="group block"
                 >
-                  <div className={`relative p-6 rounded-2xl border border-[var(--border)] ${display.color.split(' ')[0]} bg-opacity-5 hover:bg-opacity-10 transition-all hover:shadow-lg`}>
+                  <div className={`relative p-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-elevated)] transition-all hover:shadow-lg`}>
                     <div className="flex items-center gap-4">
                       <div className={`p-3 rounded-xl ${display.color.split(' ').slice(0, 3).join(' ')} bg-opacity-20`}>
                         <Icon className="w-6 h-6" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors capitalize">
+                        <h2 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors capitalize text-base">
                           {t(`genres.${genre.slug}`)}
-                        </h3>
-                        <p className="text-sm text-[var(--text-tertiary)]">
+                        </h2>
+                        <p className="text-sm text-[var(--text-secondary)]">
                           {count} mangas
                         </p>
                       </div>

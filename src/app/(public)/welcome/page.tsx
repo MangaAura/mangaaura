@@ -81,7 +81,7 @@ export default async function WelcomePage() {
             <div className="flex items-center justify-center gap-4">
               <Link
                 href="/auth/login"
-                className="inline-flex items-center px-6 py-3 rounded-full bg-primary text-primary-fg font-medium hover:opacity-90 transition-opacity"
+                className="inline-flex items-center px-6 py-3 rounded-full bg-[var(--primary)] dark:bg-[var(--primary)] dark:brightness-[0.85] text-primary-fg font-medium hover:opacity-90 transition-opacity"
               >
                 Iniciar sesión
               </Link>

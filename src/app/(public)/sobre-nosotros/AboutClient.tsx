@@ -173,19 +173,21 @@ function HeroSection() {
             </motion.div>
 
             <motion.div variants={fadeInUp} className="mt-16 flex items-center justify-center gap-8 text-[var(--text-muted)]">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[var(--text-primary)]">500K+</div>
-                <div className="text-sm">{t('about.stats.readers')}</div>
-              </div>
-              <div className="w-px h-12 bg-[var(--border)]" />
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[var(--text-primary)]">2,000+</div>
-                <div className="text-sm">{t('about.stats.creators')}</div>
-              </div>
-              <div className="w-px h-12 bg-[var(--border)]" />
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[var(--text-primary)]">50K+</div>
-                <div className="text-sm">{t('about.stats.manga')}</div>
+              <div className="flex items-center justify-center gap-8 bg-[var(--surface-elevated)]/80 rounded-xl px-8 py-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[var(--text-primary)]">500K+</div>
+                  <div className="text-sm text-[var(--text-secondary)]">{t('about.stats.readers')}</div>
+                </div>
+                <div className="w-px h-12 bg-[var(--border)]" />
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[var(--text-primary)]">2,000+</div>
+                  <div className="text-sm text-[var(--text-secondary)]">{t('about.stats.creators')}</div>
+                </div>
+                <div className="w-px h-12 bg-[var(--border)]" />
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[var(--text-primary)]">50K+</div>
+                  <div className="text-sm text-[var(--text-secondary)]">{t('about.stats.manga')}</div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
