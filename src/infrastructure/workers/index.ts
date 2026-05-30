@@ -4,13 +4,16 @@
  */
 
 import { EmailWorker, getEmailWorker, stopEmailWorker } from './EmailWorker';
+import { InboundEmailWorker, getInboundEmailWorker, stopInboundEmailWorker } from './InboundEmailWorker';
 import { NotificationWorker, getNotificationWorker, stopNotificationWorker } from './NotificationWorker';
 import { resetEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { resetInboundEmailQueue } from '@/infrastructure/queue/InboundEmailQueue';
 import { resetNotificationQueue } from '@/infrastructure/queue/NotificationQueue';
 import { closeBullConnection } from '@/infrastructure/queue/connection';
 import { closeRedisConnection } from '@/lib/redis';
 
 export { EmailWorker, getEmailWorker, stopEmailWorker };
+export { InboundEmailWorker, getInboundEmailWorker, stopInboundEmailWorker };
 export { NotificationWorker, getNotificationWorker, stopNotificationWorker };
 
 let started = false;
@@ -36,6 +39,13 @@ export function startWorkers(): void {
     console.info('[Workers] NotificationWorker started');
   } catch (error) {
     console.error('[Workers] Failed to start NotificationWorker:', error);
+  }
+
+  try {
+    getInboundEmailWorker();
+    console.info('[Workers] InboundEmailWorker started');
+  } catch (error) {
+    console.error('[Workers] Failed to start InboundEmailWorker:', error);
   }
 }
 
@@ -71,6 +81,20 @@ export async function stopWorkers(): Promise<void> {
     console.info('[Workers] NotificationQueue closed');
   } catch (error) {
     console.error('[Workers] Error closing NotificationQueue:', error);
+  }
+
+  try {
+    stopInboundEmailWorker();
+    console.info('[Workers] InboundEmailWorker stopped');
+  } catch (error) {
+    console.error('[Workers] Error stopping InboundEmailWorker:', error);
+  }
+
+  try {
+    resetInboundEmailQueue();
+    console.info('[Workers] InboundEmailQueue closed');
+  } catch (error) {
+    console.error('[Workers] Error closing InboundEmailQueue:', error);
   }
 
   try {
