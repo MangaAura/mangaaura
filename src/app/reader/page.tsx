@@ -1,32 +1,25 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
 import ReaderContent from './ReaderContent';
 
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
+interface ReaderPageProps {
+  searchParams: Promise<{ mangaSlug?: string; chapterNumber?: string; chapterId?: string }>;
+}
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await detectLocale();
-  const t = getT(locale);
-  const title = t('page.reader.title');
-  const description = t('page.reader.description');
-  const fullTitle = `${title} | MangaAura`;
+export async function generateMetadata({ searchParams }: ReaderPageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
+
+  const title = sp.mangaSlug && sp.chapterNumber
+    ? `Capítulo ${sp.chapterNumber} | MangaAura`
+    : 'Lector | MangaAura';
 
   return {
     title,
-    description,
-    openGraph: {
-      title: fullTitle,
-      description,
-      type: 'website',
-      images: ['/og-image.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: fullTitle,
-      description,
-    },
+    alternates: { canonical: `${baseUrl}/reader` },
+    robots: { index: false },
   };
 }
 
@@ -38,7 +31,15 @@ function LoadingSpinner() {
   );
 }
 
-export default function ReaderPage() {
+export default async function ReaderPage({ searchParams }: ReaderPageProps) {
+  const sp = await searchParams;
+
+  // Redirect to clean URL when possible
+  if (sp.mangaSlug && sp.chapterNumber) {
+    redirect(`/${sp.mangaSlug}-${sp.chapterNumber}`);
+  }
+
+  // For chapterId-only URLs (notifications, etc.), keep the /reader route
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <ReaderContent />

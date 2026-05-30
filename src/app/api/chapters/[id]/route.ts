@@ -38,6 +38,7 @@ export async function GET(
       mangaId: chapter.mangaId,
       chapterNumber: chapter.chapterNumber,
       title: chapter.title,
+      coverUrl: chapter.coverUrl,
       totalPages: chapter.totalPages,
       pageUrls,
       viewCount: chapter.viewCount,

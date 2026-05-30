@@ -144,9 +144,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       });
 
-      // Add reader URL
+      // Add reader URL (clean format)
       routes.push({
-        url: `${BASE_URL}/reader/${manga.slug}?chapter=${chapter.chapterNumber}`,
+        url: `${BASE_URL}/${manga.slug}-${chapter.chapterNumber}`,
         lastModified: chapter.updatedAt,
         changeFrequency: 'monthly',
         priority: 0.5,

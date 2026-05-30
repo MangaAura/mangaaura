@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { mangaId, chapterNumber, title, totalPages, pageUrls, status, scheduledAt } = body;
+    const { mangaId, chapterNumber, title, totalPages, pageUrls, coverUrl, status, scheduledAt } = body;
 
     if (!mangaId || chapterNumber === undefined) {
       return NextResponse.json({ error: 'mangaId and chapterNumber are required' }, { status: 400 });
@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
         title: title || null,
         totalPages: totalPages || 0,
         pageUrls: pageUrls ? JSON.stringify(pageUrls) : '[]',
+        coverUrl: coverUrl || null,
         status: status || 'PUBLISHED',
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
       },

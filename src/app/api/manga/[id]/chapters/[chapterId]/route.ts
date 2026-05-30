@@ -59,6 +59,7 @@ export async function GET(
       mangaId: chapter.mangaId,
       chapterNumber: chapter.chapterNumber,
       title: chapter.title,
+      coverUrl: chapter.coverUrl,
       totalPages: chapter.totalPages,
       pageUrls: chapter.pageUrls ? JSON.parse(chapter.pageUrls) : [],
       createdAt: chapter.createdAt,
@@ -155,6 +156,15 @@ export async function PUT(
       updateData.title = body.title ? body.title.trim() : null;
     }
 
+    // Actualizar portada del capítulo
+    if (body.coverUrl !== undefined) {
+      if (body.coverUrl !== null && typeof body.coverUrl === 'string' && body.coverUrl.trim() !== '') {
+        updateData.coverUrl = body.coverUrl.trim();
+      } else {
+        updateData.coverUrl = null;
+      }
+    }
+
     // Reordenar páginas
     if (body.pageUrls !== undefined) {
       if (!Array.isArray(body.pageUrls) || body.pageUrls.length === 0) {
@@ -246,6 +256,7 @@ export async function PUT(
         mangaId: updated.mangaId,
         chapterNumber: updated.chapterNumber,
         title: updated.title,
+        coverUrl: updated.coverUrl,
         totalPages: updated.totalPages,
         pageUrls: updated.pageUrls ? JSON.parse(updated.pageUrls) : [],
         createdAt: updated.createdAt,

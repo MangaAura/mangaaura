@@ -123,7 +123,7 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { chapterNumber, title, pageUrls } = body;
+    const { chapterNumber, title, pageUrls, coverUrl } = body;
 
     // Verificar que el manga existe y el usuario es el autor
     const manga = await prisma.mangaSeries.findUnique({
@@ -192,6 +192,7 @@ export async function POST(
         title: title || null,
         totalPages,
         pageUrls: JSON.stringify(validUrls),
+        coverUrl: coverUrl || null,
       },
     });
 
@@ -281,6 +282,7 @@ export async function POST(
           mangaId: chapter.mangaId,
           chapterNumber: chapter.chapterNumber,
           title: chapter.title,
+          coverUrl: chapter.coverUrl,
           totalPages: chapter.totalPages,
           pageUrls: validUrls,
           createdAt: chapter.createdAt,

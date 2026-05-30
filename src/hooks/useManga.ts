@@ -64,7 +64,7 @@ export interface CreateMangaInput {
 export interface UpdateMangaInput {
   title?: string;
   description?: string;
-  coverUrl?: string;
+  coverUrl?: string | null;
   status?: Manga['status'];
   tags?: string[];
 }

@@ -9,15 +9,15 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (globalThis.process as any).emit === 'function') {
   try {
     const nodeProcess = globalThis.process as any;
-    const originalEmit = nodeProcess.emit;
-    nodeProcess.emit = function (this: typeof nodeProcess, event: string | symbol, ...args: unknown[]): boolean {
+    const originalEmit = nodeProcess.emit.bind(nodeProcess);
+    nodeProcess.emit = function (event: string | symbol, ...args: unknown[]): boolean {
       if (event === 'warning' && args[0] instanceof Error) {
         const warning = args[0] as Error;
         if (warning.message?.includes('ioredis') || warning.message?.includes('Unhandled error event') || warning.message?.includes('SSL modes') || warning.message?.includes('pg-connection-string')) {
           return false;
         }
       }
-      return originalEmit.call(this, event, ...args);
+      return originalEmit(event, ...args);
     };
   } catch {
   }

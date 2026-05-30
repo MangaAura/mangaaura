@@ -35,6 +35,7 @@ interface ChapterDetail {
   manga: { id: string; title: string; slug: string; coverUrl: string | null; authorName: string };
   chapterNumber: number;
   title: string | null;
+  coverUrl: string | null;
   totalPages: number;
   pageUrls: string[];
   viewCount: number;
@@ -70,6 +71,7 @@ export default function EditChapterClient({ params }: { params: { id: string } }
     totalPages: chapter?.totalPages || 0,
     status: chapter?.status || 'PUBLISHED',
     pageUrls: chapter?.pageUrls?.join('\n') || '',
+    coverUrl: chapter?.coverUrl || '',
   });
 
   useState(() => {
@@ -80,6 +82,7 @@ export default function EditChapterClient({ params }: { params: { id: string } }
         totalPages: chapter.totalPages,
         status: chapter.status,
         pageUrls: Array.isArray(chapter.pageUrls) ? chapter.pageUrls.join('\n') : '',
+        coverUrl: chapter.coverUrl || '',
       });
     }
   });
@@ -93,6 +96,7 @@ export default function EditChapterClient({ params }: { params: { id: string } }
         body: JSON.stringify({
           ...formData,
           pageUrls: formData.pageUrls.split('\n').filter(Boolean),
+          coverUrl: formData.coverUrl || null,
         }),
       });
       if (response.ok) {
@@ -219,6 +223,16 @@ export default function EditChapterClient({ params }: { params: { id: string } }
                     <SelectItem value="SCHEDULED">Scheduled</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[var(--text-secondary)]">
+                  Cover URL <span className="text-[var(--text-tertiary)]">(optional)</span>
+                </label>
+                <Input
+                  value={formData.coverUrl}
+                  onChange={(e) => setFormData({ ...formData, coverUrl: e.target.value })}
+                  placeholder="https://..."
+                />
               </div>
               <div>
                 <label className="text-sm font-medium text-[var(--text-secondary)]">

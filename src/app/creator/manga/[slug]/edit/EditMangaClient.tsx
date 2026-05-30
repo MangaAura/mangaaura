@@ -50,6 +50,7 @@ export default function EditMangaClient({ params }: PageProps) {
   const [selectedStatus, setSelectedStatus] = useState('ONGOING');
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [_coverFile, setCoverFile] = useState<File | null>(null);
+  const [_isUploadingCover, setIsUploadingCover] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -105,6 +106,25 @@ export default function EditMangaClient({ params }: PageProps) {
     }
   };
 
+  const [coverUploadedUrl, setCoverUploadedUrl] = useState<string | null>(null);
+
+  const uploadCoverToServer = async (file: File): Promise<string | null> => {
+    setIsUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload/image', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      return data.url || data.imageUrl || null;
+    } catch {
+      setErrors((prev) => ({ ...prev, cover: 'Error al subir la imagen' }));
+      return null;
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -125,12 +145,18 @@ export default function EditMangaClient({ params }: PageProps) {
       };
       reader.readAsDataURL(file);
       setErrors((prev) => ({ ...prev, cover: '' }));
+      
+      // Upload to server immediately so we have the URL ready for save
+      uploadCoverToServer(file).then((url) => {
+        if (url) setCoverUploadedUrl(url);
+      });
     }
   };
 
   const removeCover = () => {
     setCoverPreview(null);
     setCoverFile(null);
+    setCoverUploadedUrl(null);
     setHasChanges(true);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -158,6 +184,8 @@ export default function EditMangaClient({ params }: PageProps) {
         description: formData.description,
         tags: tagList,
         status: selectedStatus as 'ONGOING' | 'COMPLETED' | 'HIATUS' | 'DROPPED',
+        ...(coverUploadedUrl ? { coverUrl: coverUploadedUrl } : {}),
+        ...(coverPreview === null && manga?.coverUrl ? { coverUrl: null } : {}),
       });
       
       setHasChanges(false);

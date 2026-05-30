@@ -29,6 +29,8 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { ACCEPTED_FORMATS, MAX_FILE_SIZE } from '@/lib/storage-config';
 import { cn } from '@/lib/utils';
 
+import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
+
 // ─── Types ───────────────────────────────────────────────────────
 
 interface ChapterData {
@@ -36,6 +38,7 @@ interface ChapterData {
   mangaId: string;
   chapterNumber: number;
   title: string | null;
+  coverUrl: string | null;
   totalPages: number;
   pageUrls: string[];
   createdAt: string;
@@ -123,6 +126,7 @@ export default function EditChapterClient({ params }: PageProps) {
   // Form state
   const [chapterNumber, setChapterNumber] = useState('');
   const [chapterTitle, setChapterTitle] = useState('');
+  const [chapterCoverUrl, setChapterCoverUrl] = useState<string | null>(null);
   const [pages, setPages] = useState<PageItem[]>([]);
 
   // Save state
@@ -185,6 +189,7 @@ export default function EditChapterClient({ params }: PageProps) {
         setChapter(data);
         setChapterNumber(String(data.chapterNumber));
         setChapterTitle(data.title || '');
+        setChapterCoverUrl(data.coverUrl || null);
         setPages(
           (data.pageUrls || []).map((url) => ({
             id: generateId(),
@@ -335,6 +340,7 @@ export default function EditChapterClient({ params }: PageProps) {
         body: JSON.stringify({
           chapterNumber: chapterNum,
           title: chapterTitle.trim() || null,
+          coverUrl: chapterCoverUrl,
           pageUrls: finalUrls,
         }),
       });
@@ -500,6 +506,12 @@ export default function EditChapterClient({ params }: PageProps) {
                     className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
                   />
                 </div>
+
+                {/* Chapter Cover */}
+                <ChapterCoverUpload
+                  onCoverChange={(url) => setChapterCoverUrl(url)}
+                  currentCover={chapterCoverUrl}
+                />
               </div>
             </div>
 

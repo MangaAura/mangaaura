@@ -49,8 +49,8 @@ function setInMemoryCache<T>(key: string, data: T): void {
   
   // Limit memory cache size
   if (memoryCache.size > 1000) {
-const firstKey = memoryCache.keys().next().value as string;
-memoryCache.delete(firstKey!);
+    const firstKey = memoryCache.keys().next().value;
+    if (firstKey) memoryCache.delete(firstKey);
   }
 }
 

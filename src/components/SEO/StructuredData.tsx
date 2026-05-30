@@ -129,7 +129,7 @@ export function ChapterStructuredData({
       name: author,
     },
     image: coverUrl,
-    url: `https://mangaaura.es/manga/${mangaSlug}/chapter/${chapterNumber}`,
+    url: `https://mangaaura.es/${mangaSlug}-${chapterNumber}`,
     datePublished: publishedAt,
     pageStart: 1,
     pageEnd: pageCount,

@@ -754,7 +754,24 @@ export interface QueueEvents {
   'job:completed': { jobId: string; type: JobType; priority: number; duration: number; result?: Record<string, unknown> };
   'job:failed': { jobId: string; type: JobType; priority: number; attempts: number; error: string; deadLettered: boolean };
   'job:retry': { jobId: string; type: JobType; attempts: number; maxRetries: number };
+  'job:queued': { jobId: string; type: JobType; priority: number; timestamp: Date };
   'queue:empty': { timestamp: Date };
+  'alert:updated': { id: string; type: string; severity: string; title: string; message: string };
+  'alert:cleared': { id: string; type: string };
+  'config:updated': { thresholds: Record<string, unknown> };
+  'model:health-changed': { modelId: string; modelName: string; previousHealth: string; newHealth: string };
+  'pool:event': { event: string; data?: unknown };
+  'model:registered': { modelId: string; name: string };
+  'model:unregistered': { modelId: string };
+  'strategy:changed': { strategy: string };
+  'alert:model-degraded': { modelId: string; modelName: string };
+  'alert:model-unhealthy': { modelId: string; modelName: string; consecutiveFailures: number };
+  'alert:model-recovered': { modelId: string; modelName: string; previousHealth: string };
+  'alert:high-error-rate': { errorRate: number; threshold: number };
+  'alert:queue-backlog': { queueDepth: number; threshold: number };
+  'service:started': undefined;
+  'service:stopped': undefined;
+  'health:check-completed': undefined;
 }
 
 // Type augmentation for EventEmitter

@@ -96,7 +96,7 @@ export default async function ChapterReaderPage({ params }: ChapterPageProps) {
           { name: `Capítulo ${chapterNum}`, item: `/manga/${slug}/chapter/${chapterNum}` },
         ]}
       />
-      {redirect(`/reader?mangaId=${manga.id}&chapterNumber=${chapterNum}`)}
+      {redirect(`/${slug}-${chapterNum}`)}
     </>
   );
 }

@@ -37,7 +37,7 @@ export function ContinueReadingSection() {
             {inProgressMangas.map((p) => (
               <Link
                 key={`${p.mangaId}-${p.chapterId}`}
-                href={`/reader/${p.chapterId}`}
+                href={`/${p.manga?.slug || ''}-${p.chapter?.chapterNumber || ''}`}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--surface)] transition-colors group"
               >
                 <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 relative bg-[var(--surface-sunken)]">

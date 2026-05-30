@@ -310,7 +310,7 @@ export class EmailWorker {
   private async processCommentReplyEmail(job: Job<CommentReplyData>): Promise<void> {
     const { to, commentId, replyContent, replierUsername, chapterId, chapterNumber, mangaTitle } = job.data;
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const chapterLink = `${baseUrl}/chapter/${chapterId}#comment-${commentId}`;
+    const chapterLink = `${baseUrl}/reader?chapterId=${chapterId}#comment-${commentId}`;
 
     const { html, text } = baseEmailTemplate({
       title: `${replierUsername} respondió a tu comentario`,

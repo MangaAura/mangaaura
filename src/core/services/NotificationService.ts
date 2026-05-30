@@ -110,6 +110,7 @@ export class NotificationService {
       message: `${manga.title} - Capítulo ${chapter.chapterNumber}${chapter.title ? `: ${chapter.title}` : ''}`,
       data: {
         mangaId: manga.id,
+        mangaSlug: manga.slug,
         mangaTitle: manga.title,
         chapterId: chapter.id,
         chapterNumber: chapter.chapterNumber,
@@ -117,7 +118,7 @@ export class NotificationService {
         coverUrl: manga.coverUrl,
       },
       imageUrl: manga.coverUrl || undefined,
-      linkUrl: `/manga/${manga.slug}/chapter/${chapter.chapterNumber}`,
+      linkUrl: `/${manga.slug}-${chapter.chapterNumber}`,
     });
   }
 
@@ -142,7 +143,7 @@ export class NotificationService {
         content: comment.content.substring(0, 100),
       },
       imageUrl: replier.avatarUrl || undefined,
-      linkUrl: `/chapter/${comment.chapterId}#comment-${comment.id}`,
+      linkUrl: `/reader?chapterId=${comment.chapterId}#comment-${comment.id}`,
     });
   }
 
@@ -163,7 +164,7 @@ export class NotificationService {
         bidAmount,
         mangaTitle,
       },
-      linkUrl: `/chapter/${chapter.id}`,
+      linkUrl: `/reader?chapterId=${chapter.id}`,
     });
   }
 
@@ -225,7 +226,7 @@ export class NotificationService {
         senderName: sender.displayName || sender.username,
         message: message?.substring(0, 200),
       },
-      linkUrl: `/chapter/${chapter.id}`,
+      linkUrl: `/reader?chapterId=${chapter.id}`,
     });
   }
 
@@ -264,7 +265,7 @@ export class NotificationService {
         percentage,
         goalReached,
       },
-      linkUrl: `/chapter/${chapter.id}`,
+      linkUrl: `/reader?chapterId=${chapter.id}`,
     });
   }
 
@@ -389,7 +390,7 @@ export class NotificationService {
         content: comment.content.substring(0, 100),
       },
       imageUrl: mentioner.avatarUrl || undefined,
-      linkUrl: `/chapter/${comment.chapterId}#comment-${comment.id}`,
+      linkUrl: `/reader?chapterId=${comment.chapterId}#comment-${comment.id}`,
     });
   }
 

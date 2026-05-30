@@ -233,12 +233,30 @@ function stripLocalePrefix(pathname: string): string {
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const originalPath = request.nextUrl.pathname;
-  const { search } = request.nextUrl;
+  const { search, searchParams } = request.nextUrl;
   const method = request.method;
   const startTime = Date.now();
   const requestId = generateRequestId();
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
+
+  // ── Legacy /reader/:slug redirects (replaces old middleware.ts) ──────
+  // Old format: /reader/{manga-slug}?chapter={num} → /{slug}-{num}
+  // Old format: /reader/{uuid} → handled by next.config.ts redirect
+  if (originalPath.startsWith('/reader/')) {
+    const segments = originalPath.split('/').filter(Boolean);
+    // Only handle single-segment paths like /reader/slug, NOT sub-routes like /reader/party/uuid
+    if (segments.length === 2) {
+      const slug = segments[1];
+      if (slug) {
+        const chapter = searchParams.get('chapter');
+        if (chapter) {
+          const newUrl = new URL(`/${slug}-${chapter}`, request.url);
+          return NextResponse.redirect(newUrl, 301);
+        }
+      }
+    }
+  }
 
   // ── Locale routing for page routes ──────────────────────────
   // Next.js 16: proxy.ts replaces middleware.ts

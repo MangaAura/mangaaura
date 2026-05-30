@@ -1,33 +1,27 @@
-import { Metadata } from 'next';
-import { detectLocale } from '@/i18n/server';
-import { getT } from '@/i18n/getT';
-import ChapterReaderClient from './ChapterReaderClient';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await detectLocale();
-  const t = getT(locale);
-  const title = t('page.reader.title');
-  const description = t('page.reader.description');
-
   return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-      images: ['/og-image.png'],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ['/og-image.png'],
-    },
-    alternates: { canonical: '/reader/[slug]' },
+    robots: { index: false },
   };
 }
 
-export default function ChapterReaderPage(props: any) {
-  return <ChapterReaderClient {...props} />;
+export default async function ChapterReaderPage({ params, searchParams }: PageProps) {
+  const { slug } = await params;
+  const sp = await searchParams;
+
+  // Old format: /reader/{slug}?chapter=N → /{slug}-N
+  if (sp.chapter) {
+    redirect(`/${slug}-${sp.chapter}`);
+    return;
+  }
+
+  // Old format: /reader/{uuid} → /reader?chapterId={uuid} (client-side resolution)
+  redirect(`/reader?chapterId=${slug}`);
 }

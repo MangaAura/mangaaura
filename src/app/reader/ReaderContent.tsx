@@ -55,26 +55,45 @@ function LoadingSpinner() {
   );
 }
 
-export default function ReaderContent() {
+export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNumberProp }: { slug?: string | null; chapterNumber?: string | null } = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mangaId = searchParams.get('mangaId');
-  const chapterNumber = searchParams.get('chapterNumber');
+  const mangaIdParam = searchParams.get('mangaId');
+  const chapterNumber = chapterNumberProp || searchParams.get('chapterNumber');
   const chapterId = searchParams.get('chapterId');
+  const mangaSlugParam = slugProp || searchParams.get('mangaSlug');
 
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [viewMode] = useState<'scroll' | 'paged'>('scroll');
-  const [resolvedMangaId, setResolvedMangaId] = useState<string | null>(mangaId);
+  const [resolvedMangaId, setResolvedMangaId] = useState<string | null>(mangaSlugParam ? null : mangaIdParam);
+  const [mangaSlug, setMangaSlug] = useState<string | null>(mangaSlugParam);
   const [resolvedChapterNumber, setResolvedChapterNumber] = useState<string | null>(chapterNumber);
-  const [isResolving, setIsResolving] = useState(false);
+  const [isResolving, setIsResolving] = useState(!!mangaSlugParam);
+
+  // Resolve mangaSlug → manga ID
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    if (!mangaSlugParam) return;
+    setIsResolving(true);
+    fetch(`/api/manga/${mangaSlugParam}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.manga?.id) {
+          setResolvedMangaId(data.manga.id);
+          setMangaSlug(mangaSlugParam);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsResolving(false));
+  }, [mangaSlugParam]);
 
   // Resolve chapterId to mangaId + chapterNumber if needed
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    if (!chapterId || mangaId) return;
+    if (!chapterId || mangaSlugParam || mangaIdParam) return;
     setIsResolving(true);
     fetch(`/api/manga/chapters/${chapterId}`)
       .then(r => r.json())
@@ -86,7 +105,7 @@ export default function ReaderContent() {
       })
       .catch(() => {})
       .finally(() => setIsResolving(false));
-  }, [chapterId, mangaId]);
+  }, [chapterId, mangaIdParam, mangaSlugParam]);
 
   const [continuousReading, setContinuousReading] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -111,6 +130,14 @@ export default function ReaderContent() {
     fetcher
   );
 
+  // Extract slug from chapter data once loaded (backward compat for mangaId-only URLs)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    if (chapterData?.manga?.slug && !mangaSlug) {
+      setMangaSlug(chapterData.manga.slug);
+    }
+  }, [chapterData, mangaSlug]);
+
   // Analytics
   const { trackPageTurn: trackPageView } = useReadingAnalytics({
     mangaId: chapterData?.mangaId ?? '',
@@ -132,7 +159,7 @@ export default function ReaderContent() {
     // Continuous reading: auto-advance to next chapter
     if (isLastPage && continuousReading && nextChapter && resolvedMangaId && !continuousNavPending.current) {
       continuousNavPending.current = true;
-    router.push(`/reader?mangaId=${resolvedMangaId}&chapterNumber=${nextChapter.chapterNumber}`);
+    router.push(`/${mangaSlug || resolvedMangaId}-${nextChapter.chapterNumber}`);
       return;
     }
     
@@ -140,7 +167,7 @@ export default function ReaderContent() {
       setCurrentPage(p => p + 1);
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-  }, [currentPage, chapterData, continuousReading, nextChapter, mangaId, router]);
+  }, [currentPage, chapterData, continuousReading, nextChapter, mangaSlug, resolvedMangaId, router]);
 
   const prevPage = useCallback(() => {
     if (currentPage > 0) {
@@ -282,7 +309,7 @@ export default function ReaderContent() {
           {/* Navigation Controls */}
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[var(--background)]/90 backdrop-blur px-4 py-2 rounded-full border border-[var(--border-strong)]">
             <Link
-              href={prevChapter && resolvedMangaId ? `/reader?mangaId=${resolvedMangaId}&chapterNumber=${prevChapter.chapterNumber}` : '#'}
+              href={prevChapter && (mangaSlug || resolvedMangaId) ? `/${mangaSlug || resolvedMangaId}-${prevChapter.chapterNumber}` : '#'}
               className={cn(
                 "p-2 rounded-full transition-colors",
                 prevChapter
@@ -298,7 +325,7 @@ export default function ReaderContent() {
             </span>
 
             <Link
-              href={nextChapter && resolvedMangaId ? `/reader?mangaId=${resolvedMangaId}&chapterNumber=${nextChapter.chapterNumber}` : '#'}
+              href={nextChapter && (mangaSlug || resolvedMangaId) ? `/${mangaSlug || resolvedMangaId}-${nextChapter.chapterNumber}` : '#'}
               className={cn(
                 "p-2 rounded-full transition-colors",
                 nextChapter
@@ -332,8 +359,8 @@ export default function ReaderContent() {
         totalPages={chapterData.totalPages}
         onChapterChange={(chapterNum) => {
             const chapter = chaptersList?.chapters.find(c => c.chapterNumber === chapterNum);
-            if (chapter && resolvedMangaId) {
-              window.location.href = `/reader?mangaId=${resolvedMangaId}&chapterNumber=${chapterNum}`;
+            if (chapter && (mangaSlug || resolvedMangaId)) {
+              window.location.href = `/${mangaSlug || resolvedMangaId}-${chapterNum}`;
           }
         }}
       />

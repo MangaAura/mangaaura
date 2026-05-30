@@ -1,9 +1,16 @@
+import { put } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import {
+  optimizeImage,
+  generateBlurHash,
+  isValidImage,
+  OUTPUT_CONTENT_TYPES,
+  OptimizedImageResult,
+} from '@/lib/image-optimization';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { uploadChapterImages } from '@/lib/storage';
 
 // Tamaño máximo por archivo: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -15,7 +22,20 @@ const ALLOWED_TYPES = [
   'image/png',
   'image/webp',
   'image/gif',
+  'image/avif',
 ];
+
+interface UploadResult {
+  url: string;
+  thumbnailUrl?: string;
+  filename: string;
+  size: number;
+  originalSize: number;
+  format: string;
+  blurHash?: string;
+  width?: number;
+  height?: number;
+}
 
 interface ChapterUploadResponse {
   success: boolean;
@@ -27,8 +47,81 @@ interface ChapterUploadResponse {
 }
 
 /**
+ * Procesa y sube una sola imagen con optimización Sharp
+ */
+async function processAndUploadImage(
+  file: File,
+  userId: string,
+  index: number
+): Promise<UploadResult> {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  // Validar que sea una imagen válida
+  const validImage = await isValidImage(buffer);
+  if (!validImage) {
+    throw new Error('El archivo no es una imagen válida');
+  }
+
+  // Optimizar imagen (convertir a WebP, calidad 85%)
+  const optimizedImage = await optimizeImage(buffer, {
+    quality: 85,
+    format: 'webp',
+  });
+
+  // Generar thumbnail (200px width)
+  let thumbnailResult: OptimizedImageResult | undefined;
+  thumbnailResult = await optimizeImage(buffer, {
+    width: 200,
+    quality: 80,
+    format: 'webp',
+  });
+
+  // Generar blur hash
+  const blurHashResult = await generateBlurHash(buffer);
+
+  // Subir imagen principal a Vercel Blob
+  const timestamp = Date.now() + index;
+  const filename = `page-${index + 1}-${timestamp}.webp`;
+  const pathname = `uploads/${userId}/chapter-pages/${filename}`;
+
+  const blob = await put(pathname, optimizedImage.buffer, {
+    access: 'public',
+    contentType: OUTPUT_CONTENT_TYPES.webp,
+    cacheControlMaxAge: 31536000,
+  });
+
+  // Subir thumbnail
+  let thumbnailUrl: string | undefined;
+  if (thumbnailResult) {
+    const thumbFilename = `thumb-${index + 1}-${timestamp}.webp`;
+    const thumbPathname = `uploads/${userId}/thumbnails/${thumbFilename}`;
+
+    const thumbBlob = await put(thumbPathname, thumbnailResult.buffer, {
+      access: 'public',
+      contentType: OUTPUT_CONTENT_TYPES.webp,
+      cacheControlMaxAge: 31536000,
+    });
+
+    thumbnailUrl = thumbBlob.url;
+  }
+
+  return {
+    url: blob.url,
+    thumbnailUrl,
+    filename: blob.pathname,
+    size: optimizedImage.info.size,
+    originalSize: file.size,
+    format: 'webp',
+    blurHash: blurHashResult.hash,
+    width: optimizedImage.info.width,
+    height: optimizedImage.info.height,
+  };
+}
+
+/**
  * POST /api/upload/chapter
- * Sube múltiples imágenes para un capítulo
+ * Sube múltiples imágenes para un capítulo con optimización Sharp
  * Requiere autenticación y ser el dueño del manga
  * Body: multipart/form-data
  *   - mangaId: string
@@ -49,7 +142,7 @@ export async function POST(request: NextRequest) {
     const identifier = session.user.id;
     const { allowed } = await rateLimit(
       getRateLimitKey('upload-chapter', identifier),
-      10,
+      50,
       3600
     );
     if (!allowed) {
@@ -148,23 +241,42 @@ export async function POST(request: NextRequest) {
       validFiles.push(file);
     }
 
-    // Subir archivos en paralelo
-    const uploadResults = await uploadChapterImages(validFiles, mangaId, chapterNumber);
-
-    // Procesar resultados
+    // Subir y optimizar imágenes en lotes de 5 concurrentes
     const successful: string[] = [];
     const failed: Array<{ filename: string; error: string }> = [...validationErrors];
+    const CONCURRENCY = 5;
 
-    uploadResults.successful.forEach((result) => {
-      successful.push(result.url);
-    });
+    for (let batchStart = 0; batchStart < validFiles.length; batchStart += CONCURRENCY) {
+      const batch = validFiles.slice(batchStart, batchStart + CONCURRENCY);
 
-    uploadResults.failed.forEach((failure) => {
-      failed.push({
-        filename: failure.fileName || 'unknown',
-        error: failure.error.message || 'Unknown error',
+      const batchPromises = batch.map(async (file, batchIndex) => {
+        const index = batchStart + batchIndex;
+        try {
+          const result = await processAndUploadImage(file, userId, index);
+          return { index, success: true as const, url: result.url };
+        } catch (err) {
+          return {
+            index,
+            success: false as const,
+            error: err instanceof Error ? err.message : 'Error al procesar imagen',
+            fileName: file.name,
+          };
+        }
       });
-    });
+
+      const batchResults = await Promise.all(batchPromises);
+
+      for (const result of batchResults) {
+        if (result.success) {
+          successful[result.index] = result.url;
+        } else {
+          failed.push({
+            filename: result.fileName,
+            error: result.error,
+          });
+        }
+      }
+    }
 
     // Si no se subió ningún archivo exitosamente
     if (successful.length === 0) {
@@ -179,6 +291,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar o crear el capítulo
+    const uploadedUrls = successful.filter(Boolean);
     let chapter = await prisma.chapter.findUnique({
       where: {
         mangaId_chapterNumber: {
@@ -189,25 +302,44 @@ export async function POST(request: NextRequest) {
     });
 
     if (chapter) {
-      // Actualizar capítulo existente con nuevas URLs
-      const existingUrls = JSON.parse(chapter.pageUrls || '[]');
-      const allUrls = [...existingUrls, ...successful];
-      
+      // Reemplazar URLs del capítulo existente (no append)
       chapter = await prisma.chapter.update({
         where: { id: chapter.id },
         data: {
-          pageUrls: JSON.stringify(allUrls),
-          totalPages: allUrls.length,
+          pageUrls: JSON.stringify(uploadedUrls),
+          totalPages: uploadedUrls.length,
         },
       });
     } else {
+      // Validar que no se salten números de capítulo
+      if (chapterNumber > 1) {
+        const prevChapter = await prisma.chapter.findUnique({
+          where: {
+            mangaId_chapterNumber: {
+              mangaId,
+              chapterNumber: chapterNumber - 1,
+            },
+          },
+          select: { id: true },
+        });
+
+        if (!prevChapter) {
+          return NextResponse.json(
+            {
+              error: `No puedes saltarte números de capítulo. Debes crear el capítulo ${chapterNumber - 1} primero.`,
+            },
+            { status: 400 }
+          );
+        }
+      }
+
       // Crear nuevo capítulo
       chapter = await prisma.chapter.create({
         data: {
           mangaId,
           chapterNumber,
-          pageUrls: JSON.stringify(successful),
-          totalPages: successful.length,
+          pageUrls: JSON.stringify(uploadedUrls),
+          totalPages: uploadedUrls.length,
         },
       });
     }
@@ -215,7 +347,7 @@ export async function POST(request: NextRequest) {
     // Respuesta
     const response: ChapterUploadResponse = {
       success: true,
-      urls: successful,
+      urls: uploadedUrls,
       chapterId: chapter.id,
       totalPages: chapter.totalPages,
     };
@@ -223,7 +355,7 @@ export async function POST(request: NextRequest) {
     // Incluir información de fallos si hay algunos
     if (failed.length > 0) {
       response.failed = failed;
-      response.message = `Subida parcial: ${successful.length} de ${files.length} archivos subidos exitosamente`;
+      response.message = `Subida parcial: ${uploadedUrls.length} de ${files.length} archivos subidos exitosamente`;
     }
 
     return NextResponse.json(response);

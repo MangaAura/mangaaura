@@ -36,7 +36,7 @@ export default function ForgotPasswordClient() {
       return true;
     } catch (err) {
       if (err instanceof z.ZodError) {
-        const message = (err as any).issues?.[0]?.message || (err as any).errors?.[0]?.message || t('auth.validation.emailInvalid');
+        const message = (err as any).issues?.[0]?.message || t('auth.validation.emailInvalid');
         setValidationError(message);
         return false;
       }

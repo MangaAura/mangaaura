@@ -27,6 +27,8 @@ import { useT } from '@/i18n';
 import { MAX_FILE_SIZE, ACCEPTED_FORMATS } from '@/lib/storage-config';
 import { cn } from '@/lib/utils';
 
+import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
+
 interface Manga {
   id: string;
   title: string;
@@ -75,7 +77,7 @@ function CreatorUploadPageContent() {
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const abortControllersRef = useRef<AbortController[]>([]);
 
   // Cargar mangas del creador
   useEffect(() => {
@@ -200,6 +202,9 @@ function CreatorUploadPageContent() {
     setDraggedItem(null);
   };
 
+  // Portada del capítulo
+  const [chapterCoverUrl, setChapterCoverUrl] = useState<string | null>(null);
+
   // Subir capítulo
   const handleUpload = async () => {
     if (files.length === 0 || !chapterNumber || !selectedMangaId) {
@@ -237,38 +242,61 @@ function CreatorUploadPageContent() {
       const chapterData = await chapterResponse.json();
       const chapterId = chapterData.id;
 
-      // Subir imágenes
+      // Subir todas las imágenes en un solo request batch
+      const controller = new AbortController();
+      abortControllersRef.current = [controller];
+
+      const formData = new FormData();
+      for (const fileData of validFiles) {
+        formData.append('files', fileData.file);
+      }
+
+      const uploadResponse = await fetch('/api/upload/images', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+
+      if (!uploadResponse.ok) {
+        const errData = await uploadResponse.json().catch(() => ({}));
+        throw new Error(errData.error || `Error al subir imágenes (${uploadResponse.status})`);
+      }
+
+      const uploadData = await uploadResponse.json();
+
+      if (uploadData.totalFailed > 0 && uploadData.totalProcessed === 0) {
+        const firstError = uploadData.results?.find((r: any) => !r.success)?.error || 'Error desconocido';
+        throw new Error(`No se pudo subir ninguna imagen: ${firstError}`);
+      }
+
+      // Extraer URLs ordenadas por índice
       const uploadedUrls: string[] = [];
-      const totalFiles = validFiles.length;
 
-      for (let i = 0; i < validFiles.length; i++) {
-        const fileData = validFiles[i];
-        const formData = new FormData();
-        formData.append('file', fileData.file);
-
-        abortControllerRef.current = new AbortController();
-
-        const response = await fetch('/api/upload/image', {
-          method: 'POST',
-          body: formData,
-          signal: abortControllerRef.current.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error al subir imagen ${i + 1}`);
+      for (const result of uploadData.results || []) {
+        if (result.success) {
+          uploadedUrls[result.index] = result.url;
         }
+      }
 
-        const data = await response.json();
-        uploadedUrls.push(data.url);
+      // Actualizar progreso mapeando por identidad de objeto (validFiles.indexOf)
+      setUploadProgress(100);
+      setFiles((prev) =>
+        prev.map((f) => {
+          const validIdx = validFiles.indexOf(f);
+          if (validIdx === -1) return f; // archivo con error, se salta
+          const result = uploadData.results?.find(
+            (r: any) => r.index === validIdx && r.success
+          );
+          return result
+            ? { ...f, uploadProgress: 100, uploadedUrl: result.url }
+            : f;
+        })
+      );
 
-        // Actualizar progreso
-        setUploadProgress(((i + 1) / totalFiles) * 100);
-        setFiles((prev) =>
-          prev.map((f, idx) =>
-            idx === files.indexOf(fileData)
-              ? { ...f, uploadProgress: 100, uploadedUrl: data.url }
-              : f
-          )
+      if (uploadData.totalFailed > 0) {
+        setError(
+          uploadData.message ||
+            `Se subieron ${uploadData.totalProcessed} de ${validFiles.length} imágenes.`
         );
       }
 
@@ -276,7 +304,10 @@ function CreatorUploadPageContent() {
       await fetch(`/api/manga/${selectedMangaId}/chapters/${chapterId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageUrls: uploadedUrls }),
+        body: JSON.stringify({
+          pageUrls: uploadedUrls,
+          coverUrl: chapterCoverUrl,
+        }),
       });
 
       setIsSuccess(true);
@@ -288,7 +319,10 @@ function CreatorUploadPageContent() {
 
   // Cancelar subida
   const handleCancel = () => {
-    abortControllerRef.current?.abort();
+    for (const controller of abortControllersRef.current) {
+      controller.abort();
+    }
+    abortControllersRef.current = [];
     setIsUploading(false);
     setUploadProgress(0);
   };
@@ -483,6 +517,12 @@ function CreatorUploadPageContent() {
                       className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
                     />
                   </div>
+
+                  {/* Portada del Capítulo */}
+                  <ChapterCoverUpload
+                    onCoverChange={(url) => setChapterCoverUrl(url)}
+                    currentCover={chapterCoverUrl}
+                  />
                 </div>
               </div>
 

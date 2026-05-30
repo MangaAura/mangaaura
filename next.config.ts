@@ -144,6 +144,12 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/reader',
+        has: [{ type: 'query', key: 'mangaSlug' }, { type: 'query', key: 'chapterNumber' }],
+        destination: '/:mangaSlug-:chapterNumber',
+        permanent: true,
+      },
+      {
         source: '/creator/analytics',
         destination: '/analytics?tab=creator',
         permanent: true,

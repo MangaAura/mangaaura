@@ -57,13 +57,14 @@ export async function PATCH(
     if (rlResponse) return rlResponse;
 
     const body = await request.json();
-    const { title, chapterNumber, totalPages, pageUrls, status, scheduledAt } = body;
+    const { title, chapterNumber, totalPages, pageUrls, coverUrl, status, scheduledAt } = body;
 
     const updateData: Record<string, unknown> = {};
     if (title !== undefined) updateData.title = title;
     if (chapterNumber !== undefined) updateData.chapterNumber = chapterNumber;
     if (totalPages !== undefined) updateData.totalPages = totalPages;
     if (pageUrls !== undefined) updateData.pageUrls = typeof pageUrls === 'string' ? pageUrls : JSON.stringify(pageUrls);
+    if (coverUrl !== undefined) updateData.coverUrl = coverUrl || null;
     if (status !== undefined) updateData.status = status;
     if (scheduledAt !== undefined) updateData.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
 

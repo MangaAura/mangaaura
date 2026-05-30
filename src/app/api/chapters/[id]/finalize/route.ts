@@ -85,15 +85,29 @@ export async function PATCH(
       );
     }
 
+    // Parse optional coverUrl from request body
+    let chapterCoverUrl: string | undefined | null;
+    try {
+      const body = await request.clone().json();
+      chapterCoverUrl = body.coverUrl;
+    } catch {
+      chapterCoverUrl = undefined;
+    }
+
+    const updateData: Record<string, unknown> = {
+      totalPages: validUrls.length,
+      pageUrls: JSON.stringify(validUrls),
+    };
+    if (chapterCoverUrl !== undefined) {
+      updateData.coverUrl = chapterCoverUrl || null;
+    }
+
     // Update chapter and manga in a transaction
     const [updatedChapter] = await prisma.$transaction([
       // Update chapter
       prisma.chapter.update({
         where: { id: chapterId },
-        data: {
-          totalPages: validUrls.length,
-          pageUrls: JSON.stringify(validUrls),
-        },
+        data: updateData,
       }),
       // Update manga's updatedAt timestamp
       prisma.mangaSeries.update({
@@ -139,8 +153,7 @@ export async function PATCH(
               chapterTitle: chapter.title,
               coverUrl: chapter.manga.coverUrl,
             },
-            imageUrl: chapter.manga.coverUrl || undefined,
-            linkUrl: `/manga/${chapter.manga.slug}/chapter/${chapter.chapterNumber}`,
+            imageUrl: chapter.manga.coverUrl || undefined,              linkUrl: `/${chapter.manga.slug}-${chapter.chapterNumber}`,
           })
           .catch((err) => console.error('Error notifying followers:', err));
 

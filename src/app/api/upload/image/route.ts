@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const identifier = session.user.id;
     const { allowed } = await rateLimit(
       getRateLimitKey('upload-image', identifier),
-      20,
+      200,
       3600
     );
     if (!allowed) {

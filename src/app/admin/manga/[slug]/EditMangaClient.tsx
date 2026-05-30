@@ -10,10 +10,12 @@ import {
   Loader2,
   Trash2,
   AlertTriangle,
+  XIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
@@ -82,6 +84,9 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [_coverFile, setCoverFile] = useState<File | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR<{ manga: MangaData }>(
     `/api/admin/manga/${params.slug}`,
@@ -91,15 +96,15 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
   const manga = data?.manga;
 
   const [formData, setFormData] = useState({
-    title: manga?.title || '',
-    description: manga?.description || '',
-    coverUrl: manga?.coverUrl || '',
-    status: manga?.status || 'ONGOING',
-    tags: manga?.tags || [],
+    title: '',
+    description: '',
+    coverUrl: '',
+    status: 'ONGOING',
+    tags: [] as string[],
   });
 
-  // Update form when data loads
-  useState(() => {
+  // Populate form when manga data loads from SWR
+  useEffect(() => {
     if (manga) {
       setFormData({
         title: manga.title,
@@ -108,8 +113,45 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
         status: manga.status,
         tags: manga.tags,
       });
+      setCoverPreview(manga.coverUrl || null);
     }
-  });
+  }, [manga]);
+
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) return;
+
+    setCoverFile(file);
+    // Show local preview immediately
+    const reader = new FileReader();
+    reader.onloadend = () => setCoverPreview(reader.result as string);
+    reader.readAsDataURL(file);
+
+    // Upload to server
+    try {
+      const uploadForm = new FormData();
+      uploadForm.append('file', file);
+      const res = await fetch('/api/upload/image', { method: 'POST', body: uploadForm });
+      if (res.ok) {
+        const data = await res.json();
+        const uploadedUrl = data.url || data.imageUrl;
+        if (uploadedUrl) {
+          setFormData((prev) => ({ ...prev, coverUrl: uploadedUrl }));
+        }
+      }
+    } catch {
+      // Upload failed, but local preview still shows
+    }
+  };
+
+  const handleRemoveCover = () => {
+    setCoverPreview(null);
+    setCoverFile(null);
+    setFormData((prev) => ({ ...prev, coverUrl: '' }));
+    if (coverInputRef.current) coverInputRef.current.value = '';
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -122,7 +164,6 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
 
       if (response.ok) {
         await mutate();
-        // Show success toast or notification
       }
     } catch (error) {
       handleError(error);
@@ -256,15 +297,59 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[var(--text-secondary)]">Cover URL</label>
-                <div className="flex gap-2">
-                  <Input
-                    value={formData.coverUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, coverUrl: e.target.value })
-                    }
-                    placeholder="https://..."
-                  />
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Cover Image</label>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      value={formData.coverUrl}
+                      onChange={(e) => {
+                        setFormData({ ...formData, coverUrl: e.target.value });
+                        setCoverPreview(e.target.value || null);
+                      }}
+                      placeholder="https://..."
+                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => coverInputRef.current?.click()}
+                      >
+                        <ImageIcon className="w-4 h-4 mr-1" />
+                        Subir archivo
+                      </Button>
+                      {coverPreview && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveCover}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <XIcon className="w-4 h-4 mr-1" />
+                          Eliminar
+                        </Button>
+                      )}
+                    </div>
+                    <input
+                      ref={coverInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverFileChange}
+                      className="hidden"
+                    />
+                    {/* Inline preview */}
+                    {coverPreview && (
+                      <div className="relative w-32 aspect-[3/4] rounded-lg overflow-hidden border border-[var(--border)]">
+                        <Image
+                          src={coverPreview}
+                          alt="Cover preview"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div>

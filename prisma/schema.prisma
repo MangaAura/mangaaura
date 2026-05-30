@@ -175,6 +175,7 @@ model Chapter {
   title               String?
   totalPages          Int      @default(0)
   pageUrls            String
+  coverUrl            String?
   crowdfundingGoal    Int?
   crowdfundingCurrent Int      @default(0)
   isCrowdfunded       Boolean  @default(false)

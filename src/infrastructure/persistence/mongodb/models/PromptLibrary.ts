@@ -85,4 +85,4 @@ PromptLibrarySchema.methods.fork = function(userId: string) {
 
 export const PromptLibraryModel =
   mongoose.models.PromptLibrary ||
-  mongoose.model<IPromptLibrary>('PromptLibrary', PromptLibrarySchema) as mongoose.Model<IPromptLibrary, {}, {}, {}>;
+  mongoose.model('PromptLibrary', PromptLibrarySchema) as any;

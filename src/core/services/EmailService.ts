@@ -41,6 +41,7 @@ export interface EmailAchievement {
   name: string;
   description?: string | null;
   xpReward: number;
+  category?: string;
 }
 
 export class EmailService {
@@ -94,7 +95,7 @@ export class EmailService {
     if (!await this.shouldSendEmail(user.id, 'newChapters')) return;
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const chapterLink = `${baseUrl}/manga/${manga.slug}/chapter/${chapter.chapterNumber}`;
+    const chapterLink = `${baseUrl}/${manga.slug}-${chapter.chapterNumber}`;
 
     const template = this.templateService.renderNewChapterNotification(
       user.username,
@@ -148,7 +149,7 @@ export class EmailService {
     if (!await this.shouldSendEmail(user.id, 'crowdfundingUpdates')) return;
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const chapterLink = `${baseUrl}/manga/${manga.slug}/chapter/${chapter.chapterNumber}`;
+    const chapterLink = `${baseUrl}/${manga.slug}-${chapter.chapterNumber}`;
 
     const template = this.templateService.renderCrowdfundingGoalEmail(
       user.username,

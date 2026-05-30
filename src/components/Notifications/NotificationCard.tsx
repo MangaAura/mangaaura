@@ -109,11 +109,14 @@ export function NotificationCard({
         : notification.data;
       
     if (data.chapterId && data.mangaId) {
-      router.push(`/reader?mangaId=${data.mangaId}&chapterId=${data.chapterId}`);
+      const slug = data.mangaSlug || data.mangaId;
+      const chapterNum = data.chapterNumber || data.chapterId;
+      router.push(`/${slug}-${chapterNum}`);
     } else if (data.mangaId) {
-      router.push(`/manga/${data.mangaId}`);
+      const slug = data.mangaSlug || data.mangaId;
+      router.push(`/manga/${slug}`);
     } else if (data.chapterId) {
-      router.push(`/manga/${data.chapterId}`);
+      router.push(`/reader?chapterId=${data.chapterId}`);
     } else if (data.achievementId) {
         router.push('/achievements');
       }
