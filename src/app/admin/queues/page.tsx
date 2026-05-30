@@ -16,9 +16,23 @@ interface QueueStats {
   delayed: number;
 }
 
+interface WorkerMetrics {
+  failureRate: number;
+  avgProcessingTime: number;
+  jobsCompleted: number;
+  jobsFailed: number;
+  throughput1h: number;
+  byType: Record<string, {
+    completed: number;
+    failed: number;
+    avgProcessingTime: number;
+  }>;
+}
+
 interface QueueInfo {
   name: string;
   stats: QueueStats;
+  workerMetrics?: WorkerMetrics | null;
   rawStats?: {
     length: number;
     processing: number;
@@ -45,6 +59,18 @@ function fmt(num: number): string {
   return num.toLocaleString();
 }
 
+function fmtMs(ms: number): string {
+  if (ms === 0) return '—';
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${ms}ms`;
+}
+
+function getFailureColor(rate: number): string {
+  if (rate > 10) return 'var(--danger, #ef4444)';
+  if (rate > 3) return 'var(--warning, #f59e0b)';
+  return 'var(--success, #22c55e)';
+}
+
 function getStatusColor(count: number, type: 'waiting' | 'failed' | 'active'): string {
   if (type === 'failed' && count > 0) return 'var(--danger, #ef4444)';
   if (type === 'waiting' && count > 100) return 'var(--warning, #f59e0b)';
@@ -63,11 +89,16 @@ function QueueStatsCard({ queue, onRefresh, onAction, actionLoading, actionMessa
   actionLoading: string | null;
   actionMessage: string | null;
 }) {
-  const { name, stats, rawStats } = queue;
+  const { name, stats, rawStats, workerMetrics } = queue;
   const totalJobs = stats.waiting + stats.active + stats.completed + stats.failed;
   const isInference = name === 'inference';
   const isBullMQ = ['emails', 'notifications', 'inbound-emails'].includes(name);
   const hasRetry = ['emails', 'notifications'].includes(name);
+  const hasWorkerMetrics = workerMetrics && (workerMetrics.jobsCompleted > 0 || workerMetrics.jobsFailed > 0);
+
+  // Determine if failure rate is elevated
+  const failureRate = workerMetrics?.failureRate ?? 0;
+  const showFailureWarning = failureRate > 3;
 
   return (
     <Card className="p-4 sm:p-6">
@@ -138,6 +169,92 @@ function QueueStatsCard({ queue, onRefresh, onAction, actionLoading, actionMessa
         </div>
       </div>
 
+      {/* Worker Metrics Section */}
+      {workerMetrics && hasWorkerMetrics && (
+        <div className="mb-4 p-3 rounded-lg bg-[var(--bg-tertiary)]/50 border border-[var(--border-color)]">
+          <div className="flex items-center gap-2 mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+              Worker Metrics
+            </h4>
+            {showFailureWarning && failureRate > 10 && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--danger)]/15 text-[var(--danger)] font-semibold">
+                CRITICAL
+              </span>
+            )}
+            {showFailureWarning && failureRate > 3 && failureRate <= 10 && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--warning)]/15 text-[var(--warning)] font-semibold">
+                WARNING
+              </span>
+            )}
+          </div>
+
+          {/* Main metrics row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+            <MetricCell
+              label="Failure Rate"
+              value={`${failureRate}%`}
+              color={getFailureColor(failureRate)}
+              subtitle={`${workerMetrics.jobsFailed} failed / ${workerMetrics.jobsCompleted + workerMetrics.jobsFailed} total`}
+            />
+            <MetricCell
+              label="Avg Processing Time"
+              value={fmtMs(workerMetrics.avgProcessingTime)}
+              color="var(--text-primary)"
+            />
+            <MetricCell
+              label="Throughput (1h)"
+              value={`${workerMetrics.throughput1h}/h`}
+              color={workerMetrics.throughput1h > 0 ? 'var(--success, #22c55e)' : 'var(--text-secondary)'}
+            />
+            <MetricCell
+              label="Jobs Completed"
+              value={fmt(workerMetrics.jobsCompleted)}
+              color="var(--text-secondary)"
+              subtitle={`${fmt(workerMetrics.jobsFailed)} failed`}
+            />
+          </div>
+
+          {/* Breakdown by job type */}
+          {Object.keys(workerMetrics.byType).length > 0 && (
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] mb-1.5">
+                Per type
+              </div>
+              <div className="space-y-1">
+                {Object.entries(workerMetrics.byType).map(([type, data]) => {
+                  const typeTotal = data.completed + data.failed;
+                  const typeFailureRate = typeTotal > 0 ? ((data.failed / typeTotal) * 100).toFixed(1) : '0.0';
+                  const typeFailureColor = Number(typeFailureRate) > 10 ? 'var(--danger, #ef4444)' : Number(typeFailureRate) > 3 ? 'var(--warning, #f59e0b)' : 'var(--text-secondary)';
+                  return (
+                    <div
+                      key={type}
+                      className="flex items-center justify-between text-xs py-1 px-2 rounded bg-[var(--bg-secondary)]/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-[var(--text-primary)] capitalize">{type.replace(/-/g, ' ')}</span>
+                        <span className="text-[var(--text-tertiary)]">
+                          {data.completed}✓ {data.failed > 0 && <span style={{ color: 'var(--danger, #ef4444)' }}>{data.failed}✗</span>}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {data.avgProcessingTime > 0 && (
+                          <span className="font-mono tabular-nums text-[var(--text-tertiary)]">
+                            {fmtMs(data.avgProcessingTime)}
+                          </span>
+                        )}
+                        <span className="font-mono tabular-nums" style={{ color: typeFailureColor }}>
+                          {typeFailureRate}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {actionMessage && (
         <div className="mb-3 text-xs text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] p-2 rounded">
           {actionMessage}
@@ -205,6 +322,20 @@ function StatCell({ label, value, color }: { label: string; value: string; color
       <div className="text-xl sm:text-2xl font-bold tabular-nums" style={{ color }}>
         {value}
       </div>
+    </div>
+  );
+}
+
+function MetricCell({ label, value, color, subtitle }: { label: string; value: string; color: string; subtitle?: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] mb-0.5">{label}</div>
+      <div className="text-base sm:text-lg font-bold tabular-nums" style={{ color }}>
+        {value}
+      </div>
+      {subtitle && (
+        <div className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{subtitle}</div>
+      )}
     </div>
   );
 }

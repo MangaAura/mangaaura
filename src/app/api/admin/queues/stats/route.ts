@@ -20,11 +20,19 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [emailStats, notificationStats, inferenceStats, inboundStats] = await Promise.all([
-      getEmailQueue().getStats().catch(() => null),
-      getNotificationQueue().getStats().catch(() => null),
-      getInferenceJobQueue().getStats(),
-      getInboundEmailQueue().getStats().catch(() => null),
+    const emailQueue = getEmailQueue();
+    const notificationQueue = getNotificationQueue();
+    const inferenceQueue = getInferenceJobQueue();
+    const inboundQueue = getInboundEmailQueue();
+
+    const [emailStats, notificationStats, inferenceStats, inboundStats, emailMetrics, notificationMetrics, inboundMetrics] = await Promise.all([
+      emailQueue.getStats().catch(() => null),
+      notificationQueue.getStats().catch(() => null),
+      inferenceQueue.getStats(),
+      inboundQueue.getStats().catch(() => null),
+      emailQueue.getWorkerMetrics().catch(() => null),
+      notificationQueue.getWorkerMetrics().catch(() => null),
+      inboundQueue.getWorkerMetrics().catch(() => null),
     ]);
 
     return NextResponse.json({
@@ -32,14 +40,17 @@ export async function GET() {
         {
           name: 'emails',
           stats: emailStats ?? { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 },
+          workerMetrics: emailMetrics,
         },
         {
           name: 'notifications',
           stats: notificationStats ?? { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 },
+          workerMetrics: notificationMetrics,
         },
         {
           name: 'inbound-emails',
           stats: inboundStats ?? { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 },
+          workerMetrics: inboundMetrics,
         },
         {
           name: 'inference',

@@ -116,6 +116,92 @@ export class InboundEmailQueue {
     }
   }
 
+  // ─── Worker Metrics ────────────────────────────────────────────
+
+  async getWorkerMetrics(): Promise<{
+    failureRate: number;
+    avgProcessingTime: number;
+    jobsCompleted: number;
+    jobsFailed: number;
+    throughput1h: number;
+    byType: Record<string, { completed: number; failed: number; avgProcessingTime: number }>;
+  }> {
+    try {
+      if (this.useInMemory) {
+        return { failureRate: 0, avgProcessingTime: 0, jobsCompleted: 0, jobsFailed: 0, throughput1h: 0, byType: {} };
+      }
+
+      const bullQueue = this.queue as Queue;
+      const [completedJobs, failedJobs] = await Promise.all([
+        bullQueue.getJobs(['completed'], 0, 200),
+        bullQueue.getJobs(['failed'], 0, 100),
+      ]);
+
+      const now = Date.now();
+      const oneHourAgo = now - 3600_000;
+
+      const jobsCompleted = completedJobs.length;
+      const jobsFailed = failedJobs.length;
+      const totalJobs = jobsCompleted + jobsFailed;
+      const failureRate = totalJobs > 0 ? (jobsFailed / totalJobs) * 100 : 0;
+
+      let totalProcessingTime = 0;
+      let processedWithTime = 0;
+      let throughput1h = 0;
+
+      const byType: Record<string, { completed: number; failed: number; avgProcessingTime: number }> = {};
+
+      for (const job of completedJobs) {
+        const typeName = job.name || 'unknown';
+        if (!byType[typeName]) byType[typeName] = { completed: 0, failed: 0, avgProcessingTime: 0 };
+        byType[typeName].completed++;
+
+        if (job.finishedOn && job.processedOn) {
+          const duration = job.finishedOn - job.processedOn;
+          totalProcessingTime += duration;
+          processedWithTime++;
+          byType[typeName].avgProcessingTime += duration;
+        }
+
+        if (job.finishedOn && job.finishedOn > oneHourAgo) {
+          throughput1h++;
+        }
+      }
+
+      for (const job of failedJobs) {
+        const typeName = job.name || 'unknown';
+        if (!byType[typeName]) byType[typeName] = { completed: 0, failed: 0, avgProcessingTime: 0 };
+        byType[typeName].failed++;
+
+        if (job.finishedOn && job.processedOn) {
+          totalProcessingTime += job.finishedOn - job.processedOn;
+          processedWithTime++;
+          byType[typeName].avgProcessingTime += job.finishedOn - job.processedOn;
+        }
+      }
+
+      for (const key of Object.keys(byType)) {
+        const type = byType[key];
+        const typeTotal = type.completed + type.failed;
+        if (typeTotal > 0) {
+          type.avgProcessingTime = Math.round(type.avgProcessingTime / typeTotal);
+        }
+      }
+
+      return {
+        failureRate: Math.round(failureRate * 10) / 10,
+        avgProcessingTime: processedWithTime > 0 ? Math.round(totalProcessingTime / processedWithTime) : 0,
+        jobsCompleted,
+        jobsFailed,
+        throughput1h,
+        byType,
+      };
+    } catch (error) {
+      console.error('[InboundEmailQueue] Failed to get worker metrics:', error);
+      return { failureRate: 0, avgProcessingTime: 0, jobsCompleted: 0, jobsFailed: 0, throughput1h: 0, byType: {} };
+    }
+  }
+
   async clean(olderThanHours: number = 24): Promise<void> {
     try {
       if (this.useInMemory) return
