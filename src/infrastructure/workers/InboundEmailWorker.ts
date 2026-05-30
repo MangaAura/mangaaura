@@ -15,6 +15,8 @@ import type { InboundEmailJobData } from '@/infrastructure/queue/InboundEmailQue
 import { ResendInboundRepository } from '@/infrastructure/adapters/ResendInboundRepository';
 import { captureException } from '@/lib/sentry';
 import { isMockRedis } from '@/lib/redis';
+import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
 
 // ============================================================================
 // Mock Worker for Development (when Redis is not available)
@@ -158,6 +160,30 @@ export class InboundEmailWorker {
       return;
     }
 
+    // Circuit breaker: si Redis está caído, degradar gracefulmente
+    const breaker = getRedisCircuitBreaker();
+    if (breaker.getState() !== 'CLOSED') {
+      console.warn(`[InboundEmailWorker] Redis circuit open — skipping job ${job.id} (${data.type})`);
+      return;
+    }
+
+    const timeout = this.getTimeoutForType(data.type);
+
+    try {
+      await withTimeout(this.processByType(data), timeout, `inbound:${data.type}`);
+      breaker.recordSuccess();
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'TimeoutError') {
+        breaker.recordFailure(error);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Enruta el job al handler correspondiente
+   */
+  private async processByType(data: InboundEmailJobData): Promise<void> {
     switch (data.type) {
       case 'classify':
         await this.processClassify(data);
@@ -167,6 +193,20 @@ export class InboundEmailWorker {
         break;
       default:
         throw new Error(`Unknown inbound email job type: ${(data as InboundEmailJobData).type}`);
+    }
+  }
+
+  /**
+   * Obtiene el timeout apropiado según el tipo
+   */
+  private getTimeoutForType(type: string): number {
+    switch (type) {
+      case 'classify':
+        return WORKER_TIMEOUTS.INBOUND_CLASSIFY;
+      case 'process':
+        return WORKER_TIMEOUTS.INBOUND_PROCESS;
+      default:
+        return WORKER_TIMEOUTS.DEFAULT;
     }
   }
 

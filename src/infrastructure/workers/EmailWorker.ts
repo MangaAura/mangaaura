@@ -24,6 +24,8 @@ import type {
 import { getBullConnection } from '@/infrastructure/queue/connection';
 import { baseEmailTemplate } from '@/lib/email-templates';
 import { isMockRedis } from '@/lib/redis';
+import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
 
 // ============================================================================
 // Mock Worker for Development (when Redis is not available)
@@ -153,56 +155,107 @@ export class EmailWorker {
     const { data } = job;
     console.info(`[EmailWorker] Processing job ${job.id}: ${data.type}`);
 
-    try {
-      // In mock mode, just log the email instead of sending
-      if (this.useMock) {
-        this.logMockEmail(data);
-        return;
-      }
+    // In mock mode, just log the email instead of sending
+    if (this.useMock) {
+      this.logMockEmail(data);
+      return;
+    }
 
-      switch (data.type) {
-        case 'welcome':
-          await this.processWelcomeEmail(job as Job<WelcomeEmailData>);
-          break;
-        case 'password-reset':
-          await this.processPasswordResetEmail(job as Job<PasswordResetData>);
-          break;
-        case 'new-chapter':
-          await this.processNewChapterEmail(job as Job<NewChapterData>);
-          break;
-        case 'achievement':
-          await this.processAchievementEmail(job as Job<AchievementData>);
-          break;
-        case 'tip-received':
-          await this.processTipReceivedEmail(job as Job<TipReceivedData>);
-          break;
-        case 'crowdfunding-goal-reached':
-          await this.processCrowdfundingGoalEmail(job as Job<CrowdfundingGoalData>);
-          break;
-        case 'comment-reply':
-          await this.processCommentReplyEmail(job as Job<CommentReplyData>);
-          break;
-        case 'level-up':
-          await this.processLevelUpEmail(job as Job<LevelUpData>);
-          break;
-        case 'mention':
-          await this.processMentionEmail(job as Job<MentionData>);
-          break;
-        case 'clan-invite':
-          await this.processClanInviteEmail(job as Job<ClanInviteData>);
-          break;
-        case 'custom':
-          await this.processCustomEmail(job);
-          break;
-        case 'marketing':
-          await this.processMarketingEmail(job);
-          break;
-        default:
-          throw new Error(`Unknown job type: ${(data as EmailJobData).type}`);
-      }
+    // Circuit breaker: si Redis está caído, degradar gracefulmente
+    const breaker = getRedisCircuitBreaker();
+    if (breaker.getState() !== 'CLOSED') {
+      console.warn(`[EmailWorker] Redis circuit open — skipping job ${job.id} (${data.type})`);
+      this.logMockEmail(data);
+      return;
+    }
+
+    const timeout = this.getTimeoutForType(data.type);
+
+    try {
+      await withTimeout(this.processByType(job), timeout, `email:${data.type}`);
+      breaker.recordSuccess();
     } catch (error) {
+      // TimeoutError no cuenta como fallo de Redis
+      if (error instanceof Error && error.name !== 'TimeoutError') {
+        breaker.recordFailure(error);
+      }
       console.error(`[EmailWorker] Error processing job ${job.id}:`, error);
       throw error;
+    }
+  }
+
+  /**
+   * Enruta el job al handler correspondiente según su tipo
+   */
+  private async processByType(job: Job<EmailJobData>): Promise<void> {
+    const { data } = job;
+
+    switch (data.type) {
+      case 'welcome':
+        await this.processWelcomeEmail(job as Job<WelcomeEmailData>);
+        break;
+      case 'password-reset':
+        await this.processPasswordResetEmail(job as Job<PasswordResetData>);
+        break;
+      case 'new-chapter':
+        await this.processNewChapterEmail(job as Job<NewChapterData>);
+        break;
+      case 'achievement':
+        await this.processAchievementEmail(job as Job<AchievementData>);
+        break;
+      case 'tip-received':
+        await this.processTipReceivedEmail(job as Job<TipReceivedData>);
+        break;
+      case 'crowdfunding-goal-reached':
+        await this.processCrowdfundingGoalEmail(job as Job<CrowdfundingGoalData>);
+        break;
+      case 'comment-reply':
+        await this.processCommentReplyEmail(job as Job<CommentReplyData>);
+        break;
+      case 'level-up':
+        await this.processLevelUpEmail(job as Job<LevelUpData>);
+        break;
+      case 'mention':
+        await this.processMentionEmail(job as Job<MentionData>);
+        break;
+      case 'clan-invite':
+        await this.processClanInviteEmail(job as Job<ClanInviteData>);
+        break;
+      case 'custom':
+        await this.processCustomEmail(job);
+        break;
+      case 'marketing':
+        await this.processMarketingEmail(job);
+        break;
+      default:
+        throw new Error(`Unknown job type: ${(data as EmailJobData).type}`);
+    }
+  }
+
+  /**
+   * Obtiene el timeout apropiado según el tipo de email
+   */
+  private getTimeoutForType(type: string): number {
+    switch (type) {
+      case 'welcome':
+      case 'password-reset':
+      case 'achievement':
+      case 'tip-received':
+      case 'crowdfunding-goal-reached':
+      case 'level-up':
+      case 'mention':
+      case 'clan-invite':
+        return WORKER_TIMEOUTS.EMAIL_WELCOME;
+      case 'new-chapter':
+        return WORKER_TIMEOUTS.EMAIL_NEW_CHAPTER;
+      case 'comment-reply':
+        return WORKER_TIMEOUTS.EMAIL_COMMENT_REPLY;
+      case 'custom':
+        return WORKER_TIMEOUTS.EMAIL_CUSTOM;
+      case 'marketing':
+        return WORKER_TIMEOUTS.EMAIL_MARKETING;
+      default:
+        return WORKER_TIMEOUTS.DEFAULT;
     }
   }
 
@@ -397,6 +450,10 @@ export class EmailWorker {
    */
   async close(): Promise<void> {
     await this.worker?.close();
+  }
+
+  get isMock(): boolean {
+    return this.useMock;
   }
 }
 

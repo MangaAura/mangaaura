@@ -23,6 +23,8 @@ import { getNotificationService } from '@/core/services/NotificationService';
 import { sendPushNotification, sendBulkPushNotifications } from '@/lib/push-notifications';
 import { captureException } from '@/lib/sentry';
 import { isMockRedis } from '@/lib/redis';
+import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
 
 // ============================================================================
 // Mock Worker for Development (when Redis is not available)
@@ -164,6 +166,30 @@ export class NotificationWorker {
       return;
     }
 
+    // Circuit breaker: si Redis está caído, degradar gracefulmente
+    const breaker = getRedisCircuitBreaker();
+    if (breaker.getState() !== 'CLOSED') {
+      console.warn(`[NotificationWorker] Redis circuit open — skipping job ${job.id} (${data.type})`);
+      return;
+    }
+
+    const timeout = this.getTimeoutForType(data.type);
+
+    try {
+      await withTimeout(this.processByType(data), timeout, `notification:${data.type}`);
+      breaker.recordSuccess();
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'TimeoutError') {
+        breaker.recordFailure(error);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Enruta el job al handler correspondiente
+   */
+  private async processByType(data: NotificationJobData): Promise<void> {
     switch (data.type) {
       case 'in-app':
         await this.processInAppNotification(data);
@@ -179,6 +205,24 @@ export class NotificationWorker {
         break;
       default:
         throw new Error(`Unknown notification job type: ${(data as NotificationJobData).type}`);
+    }
+  }
+
+  /**
+   * Obtiene el timeout apropiado según el tipo de notificación
+   */
+  private getTimeoutForType(type: string): number {
+    switch (type) {
+      case 'in-app':
+        return WORKER_TIMEOUTS.NOTIFICATION_IN_APP;
+      case 'push':
+        return WORKER_TIMEOUTS.NOTIFICATION_PUSH;
+      case 'in-app-with-push':
+        return WORKER_TIMEOUTS.NOTIFICATION_COMBINED;
+      case 'bulk-push':
+        return WORKER_TIMEOUTS.NOTIFICATION_BULK_PUSH;
+      default:
+        return WORKER_TIMEOUTS.DEFAULT;
     }
   }
 
