@@ -3,7 +3,7 @@
 import { TrendingUp, Clock, Star, Sparkles, Eye, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-import { CoverImage } from '@/components/Image/OptimizedImage';
+import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 
 interface MangaItem {
@@ -71,15 +71,19 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
         <Link href="/explore" className="text-sm text-accent-blue hover:underline font-semibold">Ver todo</Link>
       </div>
       <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" staggerDelay={0.04}>
-        {manga.map((m) => (
+        {manga.map((m, i) => (
           <StaggerItem key={m.id}>
             <Link href={`/manga/${m.slug}`} className="group">
               <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
                 {m.coverUrl ? (
-                  <CoverImage
+                  <OptimizedImage
                     src={m.coverUrl}
                     alt={m.title}
-                    className="[&_img]:transition-transform [&_img]:duration-500 [&_img]:group-hover:scale-110"
+                    fill
+                    objectFit="cover"
+                    priority={i === 0}
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
+                    className="[&_img]:transition-transform [&_img]:duration-300 [&_img]:group-hover:scale-110"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
