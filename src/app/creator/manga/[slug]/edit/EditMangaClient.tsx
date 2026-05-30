@@ -41,6 +41,7 @@ export default function EditMangaClient({ params }: PageProps) {
   const router = useRouter();
   const { manga, isLoading, error, updateManga } = useManga({ mangaId: slug });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingCoverRef = useRef<Promise<string | null> | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -112,12 +113,16 @@ export default function EditMangaClient({ params }: PageProps) {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/upload/image', { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Upload failed');
+      if (manga?.id) formData.append('mangaId', manga.id);
+      const res = await fetch('/api/upload/cover', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Upload failed');
+      }
       const data = await res.json();
-      return data.url || data.imageUrl || null;
-    } catch {
-      setErrors((prev) => ({ ...prev, cover: 'Error al subir la imagen' }));
+      return data.url || null;
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, cover: err instanceof Error ? err.message : 'Error al subir la imagen' }));
       return null;
     } finally {
       setIsUploadingCover(false);
@@ -145,9 +150,12 @@ export default function EditMangaClient({ params }: PageProps) {
       reader.readAsDataURL(file);
       setErrors((prev) => ({ ...prev, cover: '' }));
       
-      // Upload to server immediately so we have the URL ready for save
-      uploadCoverToServer(file).then((url) => {
+      // Upload to server — store promise so handleSubmit can await it
+      const uploadPromise = uploadCoverToServer(file);
+      pendingCoverRef.current = uploadPromise;
+      uploadPromise.then((url) => {
         if (url) setCoverUploadedUrl(url);
+        pendingCoverRef.current = null;
       });
     }
   };
@@ -156,6 +164,7 @@ export default function EditMangaClient({ params }: PageProps) {
     setCoverPreview(null);
     setCoverFile(null);
     setCoverUploadedUrl(null);
+    pendingCoverRef.current = null;
     setHasChanges(true);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -176,6 +185,12 @@ export default function EditMangaClient({ params }: PageProps) {
       return;
     }
 
+    // If cover upload is still pending, wait for it
+    let finalCoverUrl = coverUploadedUrl;
+    if (!finalCoverUrl && _coverFile && pendingCoverRef.current) {
+      finalCoverUrl = await pendingCoverRef.current;
+    }
+
     setIsSaving(true);
     try {
       await updateManga(manga.id, {
@@ -183,7 +198,7 @@ export default function EditMangaClient({ params }: PageProps) {
         description: formData.description,
         tags: tagList,
         status: selectedStatus as 'ONGOING' | 'COMPLETED' | 'HIATUS' | 'DROPPED',
-        ...(coverUploadedUrl ? { coverUrl: coverUploadedUrl } : {}),
+        ...(finalCoverUrl ? { coverUrl: finalCoverUrl } : {}),
         ...(coverPreview === null && manga?.coverUrl ? { coverUrl: null } : {}),
       });
       
