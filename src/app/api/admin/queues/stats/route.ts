@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { getNotificationQueue } from '@/infrastructure/queue/NotificationQueue';
+import { getInferenceJobQueue } from '@/infrastructure/queue/InferenceJobQueue';
 
 export async function GET() {
   try {
@@ -18,9 +19,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [emailStats, notificationStats] = await Promise.all([
+    const [emailStats, notificationStats, inferenceStats] = await Promise.all([
       getEmailQueue().getStats().catch(() => null),
       getNotificationQueue().getStats().catch(() => null),
+      getInferenceJobQueue().getStats(),
     ]);
 
     return NextResponse.json({
@@ -32,6 +34,19 @@ export async function GET() {
         {
           name: 'notifications',
           stats: notificationStats ?? { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 },
+        },
+        {
+          name: 'inference',
+          stats: inferenceStats
+            ? {
+                waiting: inferenceStats.length,
+                active: inferenceStats.processing,
+                completed: inferenceStats.completed,
+                failed: inferenceStats.failed,
+                delayed: 0,
+              }
+            : { waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 },
+          rawStats: inferenceStats,
         },
       ],
       timestamp: new Date().toISOString(),

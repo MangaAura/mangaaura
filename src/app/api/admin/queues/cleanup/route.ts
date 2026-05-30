@@ -58,6 +58,24 @@ export async function POST(_request: NextRequest) {
       results.emailQueue = { error: String(error) };
     }
 
+    // 3. Cleanup InferenceJobQueue (clear dead letter queue + persistence)
+    try {
+      const { getInferenceJobQueue } = await import('@/infrastructure/queue/InferenceJobQueue');
+      const iq = getInferenceJobQueue();
+      const statsBefore = iq.getStats();
+      const deadLetterCleared = iq.clearDeadLetterQueue();
+      await iq.clearPersistence();
+      const statsAfter = iq.getStats();
+      results.inferenceQueue = {
+        before: statsBefore,
+        after: statsAfter,
+        deadLetterCleared,
+      };
+    } catch (error) {
+      console.error('[Admin] Error cleaning InferenceJobQueue:', error);
+      results.inferenceQueue = { error: String(error) };
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Queues cleaned successfully',

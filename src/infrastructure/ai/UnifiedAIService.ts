@@ -1054,9 +1054,11 @@ export function getUnifiedAIService(config?: ServiceConfig): UnifiedAIService {
   return globalService;
 }
 
-export function resetUnifiedAIService(): void {
-  globalService?.stop();
-  globalService = null;
+export async function resetUnifiedAIService(): Promise<void> {
+  if (globalService) {
+    await globalService.stop();
+    globalService = null;
+  }
 }
 
 export default UnifiedAIService;

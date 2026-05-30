@@ -18,8 +18,25 @@ export function initialize(): void {
   console.info('[Startup] Initializing application...');
   startWorkers();
 
+  // Start AI service (lazy, non-blocking)
+  startAIService();
+
   // Register graceful shutdown handlers once (gated by `initialized`)
   registerShutdownHandlers();
+}
+
+/**
+ * Start the UnifiedAIService (lazy import, non-blocking).
+ * Starts health checks and processing loop that never ran before.
+ */
+async function startAIService(): Promise<void> {
+  try {
+    const { getUnifiedAIService } = await import('@/infrastructure/ai');
+    await getUnifiedAIService().start();
+    console.info('[Startup] AI service started');
+  } catch (err) {
+    console.warn('[Startup] AI service startup failed (non-blocking):', err);
+  }
 }
 
 /**
@@ -31,8 +48,26 @@ export async function shutdown(): Promise<void> {
   initialized = false;
 
   console.info('[Startup] Shutting down...');
+
   await stopWorkers();
+
+  // Stop AI service gracefully
+  await stopAIService();
+
   console.info('[Startup] Shutdown complete');
+}
+
+/**
+ * Stop the UnifiedAIService (lazy import, non-blocking).
+ */
+async function stopAIService(): Promise<void> {
+  try {
+    const { resetUnifiedAIService } = await import('@/infrastructure/ai');
+    await resetUnifiedAIService();
+    console.info('[Startup] AI service stopped');
+  } catch (err) {
+    console.warn('[Startup] AI service shutdown failed (non-blocking):', err);
+  }
 }
 
 /**

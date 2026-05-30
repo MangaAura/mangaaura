@@ -19,6 +19,15 @@ interface QueueStats {
 interface QueueInfo {
   name: string;
   stats: QueueStats;
+  rawStats?: {
+    length: number;
+    processing: number;
+    completed: number;
+    failed: number;
+    avgWaitTime: number;
+    byPriority?: Record<number, number>;
+    byType?: Record<string, number>;
+  };
 }
 
 interface QueueStatsResponse {
@@ -54,13 +63,21 @@ function QueueStatsCard({ queue, onRefresh, onCleanup, cleaning, cleanMessage }:
   cleaning: string | null;
   cleanMessage: string | null;
 }) {
-  const { name, stats } = queue;
+  const { name, stats, rawStats } = queue;
   const totalJobs = stats.waiting + stats.active + stats.completed + stats.failed;
+  const isInference = name === 'inference';
 
   return (
     <Card className="p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold capitalize text-[var(--text-primary)]">{name} Queue</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold capitalize text-[var(--text-primary)]">{name} Queue</h3>
+          {isInference && (
+            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--warning)]/10 text-[var(--warning)] font-medium">
+              Priority
+            </span>
+          )}
+        </div>
         <div className="flex gap-2">
           <button
             onClick={() => onCleanup(name)}
@@ -93,6 +110,45 @@ function QueueStatsCard({ queue, onRefresh, onCleanup, cleaning, cleanMessage }:
         <StatCell label="Failed" value={fmt(stats.failed)} color={getStatusColor(stats.failed, 'failed')} />
         <StatCell label="Delayed" value={fmt(stats.delayed)} color="var(--text-secondary)" />
       </div>
+
+      {/* Inference queue extra stats */}
+      {isInference && rawStats && (
+        <div className="mt-3 pt-3 border-t border-[var(--border-color)] space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[var(--text-tertiary)]">Avg wait time</span>
+            <span className="font-mono tabular-nums text-[var(--text-primary)]">
+              {rawStats.avgWaitTime > 1000
+                ? `${(rawStats.avgWaitTime / 1000).toFixed(1)}s`
+                : `${rawStats.avgWaitTime}ms`}
+            </span>
+          </div>
+          {rawStats.byPriority && Object.keys(rawStats.byPriority).length > 0 && (
+            <div>
+              <span className="text-xs text-[var(--text-tertiary)]">By priority: </span>
+              <span className="text-xs font-mono tabular-nums text-[var(--text-primary)]">
+                {Object.entries(rawStats.byPriority)
+                  .sort(([a], [b]) => Number(a) - Number(b))
+                  .map(([p, c]) => {
+                    const labels: Record<string, string> = { '1': 'Critical', '2': 'High', '3': 'Normal', '4': 'Low', '5': 'Bg' };
+                    return `${labels[p] || `P${p}`}: ${c}`;
+                  })
+                  .join(', ')}
+              </span>
+            </div>
+          )}
+          {rawStats.byType && Object.keys(rawStats.byType).length > 0 && (
+            <div>
+              <span className="text-xs text-[var(--text-tertiary)]">By type: </span>
+              <span className="text-xs font-mono tabular-nums text-[var(--text-primary)]">
+                {Object.entries(rawStats.byType)
+                  .filter(([, c]) => c > 0)
+                  .map(([t, c]) => `${t}: ${c}`)
+                  .join(', ')}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-3 text-xs text-[var(--text-tertiary)]">
         Total jobs tracked: {fmt(totalJobs)}
