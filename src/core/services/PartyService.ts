@@ -3,10 +3,12 @@
  *
  * Servicio para gestionar salas de lectura en grupo (Party Reading).
  * Almacena parties en memoria con límite de miembros y auto-cierre por inactividad.
- * Persistencia en Redis para sobrevivir a reinicios del servidor.
+ * 
+ * NOTA: No usa Redis. Las parties son efímeras y viven solo en memoria.
+ * Si el servidor se reinicia, las parties se pierden (lo cual es aceptable
+ * para salas de lectura en grupo).
  */
 
-import { redis, isRedisConnected } from '@/lib/redis';
 import {
   PartyState,
   PartyMember,
@@ -19,10 +21,7 @@ import {
 const MAX_MEMBERS_PER_PARTY = 10;
 const PARTY_INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 hora
 const MEMBER_INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutos
-const CLEANUP_INTERVAL = 60 * 1000; // 1 minuto
-const REDIS_PARTY_PREFIX = 'party:';
-const REDIS_MESSAGES_PREFIX = 'party_messages:';
-const REDIS_USER_MAP_PREFIX = 'party_user:';
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutos (desde 1 min, menos agresivo)
 
 // ==================== Party Service Class ====================
 
@@ -31,87 +30,9 @@ class PartyService {
   private messages: Map<string, PartyMessage[]> = new Map();
   private userPartyMap: Map<string, string> = new Map(); // userId -> partyId
   private cleanupInterval: NodeJS.Timeout | null = null;
-  private redisAvailable: boolean = false;
 
   constructor() {
-    this.redisAvailable = isRedisConnected();
     this.startCleanupInterval();
-    if (this.redisAvailable) {
-      this.loadPartiesFromRedis();
-    }
-  }
-
-  private async loadPartiesFromRedis(): Promise<void> {
-    try {
-      const keys = await redis.keys(`${REDIS_PARTY_PREFIX}*`);
-      for (const key of keys) {
-        const data = await redis.get(key);
-        if (data) {
-          const party = JSON.parse(data as string) as PartyState;
-          party.lastActivity = new Date(party.lastActivity);
-          party.startedAt = new Date(party.startedAt);
-          this.parties.set(party.partyId, party);
-
-          const msgKey = `${REDIS_MESSAGES_PREFIX}${party.partyId}`;
-          const msgData = await redis.get(msgKey);
-          if (msgData) {
-            const messages = JSON.parse(msgData as string) as PartyMessage[];
-            this.messages.set(party.partyId, messages);
-          }
-
-          for (const member of party.members) {
-            this.userPartyMap.set(member.userId, party.partyId);
-          }
-        }
-      }
-      console.info(`[PartyService] Loaded ${this.parties.size} parties from Redis`);
-    } catch (error) {
-      console.error('[PartyService] Failed to load parties from Redis:', error);
-    }
-  }
-
-  private async persistParty(party: PartyState): Promise<void> {
-    if (!this.redisAvailable) return;
-    try {
-      const key = `${REDIS_PARTY_PREFIX}${party.partyId}`;
-      await redis.set(key, JSON.stringify(party));
-    } catch (error) {
-      console.error('[PartyService] Failed to persist party:', error);
-    }
-  }
-
-  private async persistMessages(partyId: string, messages: PartyMessage[]): Promise<void> {
-    if (!this.redisAvailable) return;
-    try {
-      const key = `${REDIS_MESSAGES_PREFIX}${partyId}`;
-      await redis.set(key, JSON.stringify(messages));
-    } catch (error) {
-      console.error('[PartyService] Failed to persist messages:', error);
-    }
-  }
-
-  private async persistUserMapping(userId: string, partyId: string | null): Promise<void> {
-    if (!this.redisAvailable) return;
-    try {
-      const key = `${REDIS_USER_MAP_PREFIX}${userId}`;
-      if (partyId) {
-        await redis.set(key, partyId);
-      } else {
-        await redis.del(key);
-      }
-    } catch (error) {
-      console.error('[PartyService] Failed to persist user mapping:', error);
-    }
-  }
-
-  private async removePartyFromRedis(partyId: string): Promise<void> {
-    if (!this.redisAvailable) return;
-    try {
-      await redis.del(`${REDIS_PARTY_PREFIX}${partyId}`);
-      await redis.del(`${REDIS_MESSAGES_PREFIX}${partyId}`);
-    } catch (error) {
-      console.error('[PartyService] Failed to remove party from Redis:', error);
-    }
   }
 
   // ==================== Party Management ====================
@@ -142,8 +63,6 @@ class PartyService {
 
     this.parties.set(partyId, party);
     this.messages.set(partyId, []);
-    this.persistParty(party);
-    this.persistMessages(partyId, []);
 
     console.info(`[PartyService] Party ${partyId} created for manga ${data.mangaId}`);
 
@@ -180,12 +99,10 @@ class PartyService {
 
     party.members.forEach((member) => {
       this.userPartyMap.delete(member.userId);
-      this.persistUserMapping(member.userId, null);
     });
 
     this.parties.delete(partyId);
     this.messages.delete(partyId);
-    this.removePartyFromRedis(partyId);
 
     console.info(`[PartyService] Party ${partyId} closed`);
     return true;
@@ -211,8 +128,6 @@ class PartyService {
       existingMember.isOnline = true;
       existingMember.lastSeen = new Date();
       this.userPartyMap.set(user.userId, partyId);
-      this.persistParty(party);
-      this.persistUserMapping(user.userId, partyId);
       return { success: true, member: existingMember };
     }
 
@@ -242,8 +157,6 @@ class PartyService {
     party.members.push(member);
     party.lastActivity = now;
     this.userPartyMap.set(user.userId, partyId);
-    this.persistParty(party);
-    this.persistUserMapping(user.userId, partyId);
 
     if (isHost) {
       party.hostId = user.userId;
@@ -268,7 +181,6 @@ class PartyService {
 
     party.members.splice(memberIndex, 1);
     this.userPartyMap.delete(userId);
-    this.persistUserMapping(userId, null);
 
     if (wasHost && party.members.length > 0) {
       const newHost = party.members.find((m) => m.isOnline) || party.members[0];
@@ -278,8 +190,6 @@ class PartyService {
 
     if (party.members.length === 0) {
       this.closeParty(partyId);
-    } else {
-      this.persistParty(party);
     }
 
     console.info(`[PartyService] User ${userId} left party ${partyId}`);
@@ -298,7 +208,6 @@ class PartyService {
     if (!member) return false;
 
     member.isOnline = false;
-    this.persistParty(party);
 
     return true;
   }
@@ -329,7 +238,6 @@ class PartyService {
 
     newHost.isHost = true;
     party.hostId = newHostId;
-    this.persistParty(party);
 
     return true;
   }
@@ -362,7 +270,6 @@ class PartyService {
       member.currentPage = page;
     });
 
-    this.persistParty(party);
     return { success: true };
   }
 
@@ -378,7 +285,6 @@ class PartyService {
 
     member.currentPage = page;
     member.lastSeen = new Date();
-    this.persistParty(party);
 
     return true;
   }
@@ -420,7 +326,6 @@ class PartyService {
     }
 
     party.lastActivity = new Date();
-    this.persistMessages(partyId, partyMessages || []);
 
     return message;
   }

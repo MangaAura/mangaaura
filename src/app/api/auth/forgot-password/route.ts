@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { setToken } from '@/lib/auth-store';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { redis } from '@/lib/redis';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -49,15 +49,15 @@ export async function POST(request: NextRequest) {
     const tokenKey = `password-reset:${resetToken}`;
 
     if (user) {
-      // Guardar token en Redis con expiracion
-      await redis.setex(
+      // Guardar token en memoria (ephemeral — nunca toca Redis)
+      setToken(
         tokenKey,
-        TOKEN_EXPIRY_SECONDS,
         JSON.stringify({
           userId: user.id,
           email: user.email,
           createdAt: new Date().toISOString(),
-        })
+        }),
+        TOKEN_EXPIRY_SECONDS
       );
 
       // Construir el link de reset

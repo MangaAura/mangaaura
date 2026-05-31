@@ -15,7 +15,7 @@ const CACHE_TTL = {
 
 // In-memory cache for frequently accessed data (SSR-safe)
 const memoryCache = new Map<string, { data: unknown; expiry: number }>();
-const MEMORY_CACHE_TTL = 60_000; // 60 seconds for memory cache (reduces Redis reads)
+const MEMORY_CACHE_TTL = 300_000; // 5 minutes for memory cache (dramatically reduces Redis reads)
 
 // Generate cache key with optimization
 export function generateCacheKey(prefix: string, params: Record<string, unknown>): string {
@@ -140,6 +140,21 @@ export const cacheConfig = {
     homepage: { ttl: CACHE_TTL.RANKINGS, prefix: 'stats:homepage' },
   },
 };
+
+/**
+ * Schedule periodic memory cache cleanup to prevent unbounded growth.
+ * Runs every 60 seconds in long-running server environments.
+ */
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of memoryCache) {
+      if (entry.expiry <= now) {
+        memoryCache.delete(key);
+      }
+    }
+  }, 60_000).unref();
+}
 
 // Performance utility: Debounce function for frequent operations
 export function debounce<T extends (...args: unknown[]) => unknown>(

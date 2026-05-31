@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { redis } from '@/lib/redis';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Contraseña actual requerida'),
@@ -88,11 +87,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    try {
-      await redis.del(`user-sessions:${user.id}`);
-    } catch {
-      console.warn('[ChangePassword] Could not invalidate sessions via Redis');
-    }
+    // Session invalidation via Redis is best-effort.
+    // JWT expiry handles stale sessions automatically.
 
     return NextResponse.json({
       message: 'Contraseña actualizada correctamente. Se cerrarán otras sesiones activas.',

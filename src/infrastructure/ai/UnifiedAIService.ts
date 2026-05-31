@@ -361,15 +361,16 @@ export class UnifiedAIService extends EventEmitter {
     
     this.isRunning = true;
     
-    // Start processing loop
+    // Process queue reactively (on job:added) instead of polling.
+    // Fallback interval of 5s in case an event is missed.
     this.processingInterval = setInterval(() => {
       this.processQueue();
-    }, 100);
+    }, 5000);
 
-    // Start health checks
+    // Health checks every 5 minutes (instead of 30s)
     this.healthCheckInterval = setInterval(() => {
       this.performHealthChecks();
-    }, 30000);
+    }, 300000);
 
     (this as any).emit('service:started', undefined);
     console.info('[UnifiedAIService] Service started');

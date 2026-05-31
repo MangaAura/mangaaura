@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { emailService } from '@/infrastructure/adapters/emailService';
 import { auth } from '@/lib/auth';
+import { baseEmailTemplate } from '@/lib/email-templates';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
@@ -47,6 +49,58 @@ export async function POST(request: NextRequest) {
         userId,
       },
     });
+
+    const categoryLabels: Record<string, string> = {
+      general: 'General',
+      support: 'Soporte',
+      dmca: 'DMCA',
+      business: 'Negocios',
+    };
+
+    const { html: emailHtml, text: emailText } = baseEmailTemplate({
+      title: `📩 Nuevo mensaje de contacto`,
+      preview: `De: ${parsed.data.name} <${parsed.data.email}>`,
+      content: `
+        <p><strong>Nombre:</strong> ${parsed.data.name}</p>
+        <p><strong>Email:</strong> <a href="mailto:${parsed.data.email}">${parsed.data.email}</a></p>
+        <p><strong>Categoría:</strong> ${categoryLabels[parsed.data.category] || parsed.data.category}</p>
+        <p><strong>Asunto:</strong> ${parsed.data.subject}</p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+        <p style="white-space: pre-wrap;">${parsed.data.message}</p>
+      `,
+      ctaText: 'Ver en panel admin',
+      ctaUrl: `https://mangaaura.es/admin/contact?id=${contactMessage.id}`,
+    });
+
+    await emailService.sendEmail(
+      'contact@mangaaura.es',
+      `[MangaAura] ${parsed.data.subject} (${categoryLabels[parsed.data.category] || parsed.data.category})`,
+      emailHtml,
+      emailText
+    );
+
+    const { html: confirmHtml, text: confirmText } = baseEmailTemplate({
+      title: `✅ Mensaje recibido`,
+      preview: `Gracias por contactarnos, ${parsed.data.name}`,
+      content: `
+        <p>Hola <strong>${parsed.data.name}</strong>,</p>
+        <p style="margin-top: 15px;">Hemos recibido tu mensaje y te responderemos lo antes posible.</p>
+        <p style="margin-top: 15px;"><strong>Asunto:</strong> ${parsed.data.subject}</p>
+        <p><strong>Categoría:</strong> ${categoryLabels[parsed.data.category] || parsed.data.category}</p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+        <p style="white-space: pre-wrap; color: #64748b;">${parsed.data.message}</p>
+        <p style="margin-top: 20px; font-size: 12px; color: #94a3b8;">Este es un email automático de confirmación. No respondas a este email.</p>
+      `,
+      ctaText: 'Visitar MangaAura',
+      ctaUrl: 'https://mangaaura.es',
+    });
+
+    await emailService.sendEmail(
+      parsed.data.email,
+      `✅ Hemos recibido tu mensaje - MangaAura`,
+      confirmHtml,
+      confirmText
+    );
 
     return NextResponse.json({ success: true, id: contactMessage.id });
   } catch (error) {

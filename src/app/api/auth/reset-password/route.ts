@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { getToken, deleteToken } from '@/lib/auth-store';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { redis } from '@/lib/redis';
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token requerido'),
@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
 
     const tokenKey = `password-reset:${token}`;
 
-    // Buscar el token en Redis
-    const tokenData = await redis.get<string>(tokenKey);
+    // Buscar el token en memoria (zero Redis cost)
+    const tokenData = getToken(tokenKey);
 
     if (!tokenData) {
       return NextResponse.json(
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     if (tokenAgeSeconds > TOKEN_EXPIRY_SECONDS) {
       // Eliminar token expirado
-      await redis.del(tokenKey);
+      deleteToken(tokenKey);
       return NextResponse.json(
         { error: 'El token ha expirado. Por favor solicita un nuevo enlace.' },
         { status: 400 }
@@ -122,12 +122,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Invalidar el token (eliminar de Redis)
-    await redis.del(tokenKey);
+    // Invalidar el token (eliminar de memoria — cero Redis)
+    deleteToken(tokenKey);
 
-    // Opcional: Invalidar todas las sesiones activas del usuario
-    // Esto obliga al usuario a iniciar sesión nuevamente con la nueva contraseña
-    await redis.del(`user-sessions:${user.id}`);
+    // Invalidar sesiones activas (best-effort, skip if Redis unavailable)
+    try {
+      const { redis } = await import('@/lib/redis');
+      await redis.del(`user-sessions:${user.id}`);
+    } catch {
+      // Redis no disponible — el usuario cerrará sesión por expiración de JWT
+    }
 
  console.info('[ResetPassword] Password reset successful for user ID:', user.id);
 

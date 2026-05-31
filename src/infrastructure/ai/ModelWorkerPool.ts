@@ -128,7 +128,7 @@ export class ModelWorkerPool {
    * Configuración por defecto
    */
   private static readonly DEFAULT_CONFIG: Omit<Required<PoolConfig>, 'minWorkers' | 'maxWorkers' | 'idleTimeoutMs' | 'maxJobsPerWorker'> = {
-    healthCheckIntervalMs: 30000,
+    healthCheckIntervalMs: 300000, // 5 min (antes 30s)
     jobTimeoutMs: 60000,
   };
 
@@ -649,7 +649,7 @@ export class ModelWorkerPool {
   private startIdleCleanup(): void {
     const interval = setInterval(() => {
       this.cleanupIdleWorkers();
-    }, Math.min(this.config.idleTimeoutMs, 60000)); // Máximo cada minuto
+    }, Math.min(this.config.idleTimeoutMs, 300000)); // Máximo cada 5 minutos
 
     this.timers.push(interval);
   }

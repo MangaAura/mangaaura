@@ -1,27 +1,18 @@
-import { Redis } from '@upstash/redis';
+import { redis as appRedis, isQuotaExceeded, isMockRedis } from './redis';
 
-// Check if Redis is configured
-const isRedisConfigured = !!(
-  process.env.UPSTASH_REDIS_REST_URL && 
-  process.env.UPSTASH_REDIS_REST_TOKEN
-);
+/**
+ * Usamos la instancia compartida de redis.ts que incluye el Proxy
+ * de detección de cuota. Cuando la cuota se excede, todas las
+ * operaciones Redis se redirigen automáticamente a MockRedis.
+ *
+ * Hacemos un cast a `any` porque los tipos de `@upstash/redis`,
+ * `ioredis` y nuestro `MockRedis` son incompatibles entre sí.
+ * Todas las operaciones están envueltas en try-catch.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const redis: any = appRedis;
 
-// Initialize Redis client with Upstash only if configured
-let redis: Redis | null = null;
-
-if (isRedisConfigured) {
-  try {
-    redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    });
-    console.info('[Cache] Redis configured successfully');
-  } catch (error) {
-    console.error('[Cache] Failed to initialize Redis:', error);
-  }
-} else {
-  console.info('[Cache] Redis not configured - using memory fallback');
-}
+const isRedisConfigured = !isMockRedis() && !isQuotaExceeded();
 
 // Default TTL values (in seconds)
 const DEFAULT_TTL = 3600; // 1 hour
@@ -54,58 +45,79 @@ export function generateCacheKey(prefix: string, identifier: string | Record<str
 }
 
 /**
- * Get data from cache (Redis or memory fallback)
+ * Get data from cache (memory first, then Redis)
+ *
+ * ✅ Memory-First Strategy:
+ *    Checks the in-memory cache BEFORE Redis, dramatically reducing
+ *    Upstash free-tier command usage. Redis is only consulted on a
+ *    memory miss or when the memory entry has expired.
  */
 export async function getCache<T>(key: string): Promise<T | null> {
-  try {
-    // Try Redis first
-    if (redis) {
-      const data = await redis.get<T>(key);
-      if (data) return data;
-    }
-    
-    // Fallback to memory cache
-    const cached = memoryCache.get(key);
-    if (cached && cached.expires > Date.now()) {
-      return cached.value as T;
-    }
-    
-    // Expired or not found - clean up
-    memoryCache.delete(key);
-    return null;
-  } catch (error) {
-    console.error('[Cache] Get error:', error);
-    return null;
+  // 1. Memory cache first (fast, free, no Upstash quota consumed)
+  const cached = memoryCache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return cached.value as T;
   }
+  if (cached) {
+    memoryCache.delete(key);
+  }
+
+  // 2. Redis fallback on miss (consumes Upstash quota)
+  try {
+    if (redis) {
+      const data = await redis.get(key) as T | null;
+      if (data !== null) {
+        // Backfill memory cache so subsequent reads don't hit Redis
+        memoryCache.set(key, {
+          value: data,
+          expires: Date.now() + (DEFAULT_TTL * 1000),
+        });
+        return data;
+      }
+    }
+  } catch (error) {
+    // Silenciar errores en producción para no llenar logs si Redis está caído
+    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_REDIS) {
+      console.warn('[Cache] Redis get error (non-fatal):', error);
+    }
+  }
+
+  return null;
 }
 
 /**
  * Set data in cache with optional TTL
+ *
+ * ✅ Memory-First Strategy:
+ *    Always writes to the in-memory cache. Redis write is fire-and-forget
+ *    so a failure never blocks the caller or wastes user time.
  */
 export async function setCache<T>(
   key: string,
   value: T,
   ttl: number = DEFAULT_TTL
 ): Promise<void> {
+  // 1. Always write to memory cache immediately
+  memoryCache.set(key, {
+    value,
+    expires: Date.now() + (ttl * 1000),
+  });
+
+  // Periodic cleanup to prevent unbounded growth
+  if (memoryCache.size > 1000) {
+    cleanupMemoryCache();
+  }
+
+  // 2. Fire-and-forget to Redis (non-blocking, best-effort)
   try {
-    // Try Redis first
     if (redis) {
       await redis.set(key, JSON.stringify(value), { ex: ttl });
-      return;
-    }
-    
-    // Fallback to memory cache
-    memoryCache.set(key, {
-      value,
-      expires: Date.now() + (ttl * 1000),
-    });
-    
-    // Clean up old entries periodically
-    if (memoryCache.size > 1000) {
-      cleanupMemoryCache();
     }
   } catch (error) {
-    console.error('[Cache] Set error:', error);
+    // Silenciar en producción
+    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_REDIS) {
+      console.warn('[Cache] Redis set error (non-fatal):', error);
+    }
   }
 }
 
@@ -133,48 +145,45 @@ export async function deleteCache(key: string): Promise<void> {
     // Also remove from memory
     memoryCache.delete(key);
   } catch (error) {
-    console.error('[Cache] Delete error:', error);
+    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_REDIS) {
+      console.warn('[Cache] Delete error (non-fatal):', error);
+    }
   }
 }
 
 /**
  * Invalidate cache by pattern
+ *
+ * ✅ Memory-Only Strategy:
+ *    Only clears the in-memory cache. The Redis TTL handles stale entries
+ *    automatically — no need for expensive SCAN+DEL. This saves thousands
+ *    of Redis commands per day and eliminates the biggest source of
+ *    read-after-invalidation Redis calls.
  */
 export async function invalidatePattern(pattern: string): Promise<void> {
   try {
-    // Try Redis
-    if (redis) {
-      let cursor = 0;
-      const keysToDelete: string[] = [];
-
-      do {
-        const result = await redis.scan(cursor, { match: pattern, count: 100 });
-        cursor = Number(result[0]);
-        keysToDelete.push(...result[1]);
-      } while (cursor !== 0);
-
-      if (keysToDelete.length > 0) {
-        for (let i = 0; i < keysToDelete.length; i += 100) {
-          const batch = keysToDelete.slice(i, i + 100);
-          await redis.del(...batch);
-        }
-      }
-    }
-    
-    // Also clean memory cache matching pattern
-    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+    // Clean memory cache matching pattern (fast, zero Redis cost)
+    const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/[+?^${}()|[\]\\]/g, '\\$&'));
     for (const key of memoryCache.keys()) {
       if (regex.test(key)) {
         memoryCache.delete(key);
       }
     }
+    // Redis invalidation is skipped intentionally.
+    // The TTL will expire stale entries naturally.
+    // This saves ~2-10+ Redis commands per invalidation.
   } catch (error) {
-    console.error('[Cache] Invalidation error:', error);
+    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_REDIS) {
+      console.warn('[Cache] Invalidation error (non-fatal):', error);
+    }
   }
 }
 
 /**
  * Get or set cache - wrapper for cache-aside pattern
+ *
+ * ✅ Memory-First Strategy:
+ *    Reads hit memory first. Redis is only involved on a cold cache.
  */
 export async function getOrSetCache<T>(
   key: string,
@@ -187,6 +196,7 @@ export async function getOrSetCache<T>(
   }
 
   const data = await fetchFn();
+  // Fire-and-forget — setCache handles both memory and Redis
   await setCache(key, data, ttl);
   return data;
 }
@@ -255,7 +265,7 @@ export async function invalidateUserCache(userId?: string): Promise<void> {
 }
 
 // Export redis instance for direct access if needed
-export { redis, CACHE_PREFIXES, isRedisConfigured };
+export { CACHE_PREFIXES, isRedisConfigured };
 
 // Aliases for backward compatibility
 export { getCache as getCached, setCache as setCached, deleteCache as deleteCached, invalidateUserCache as invalidateCache };

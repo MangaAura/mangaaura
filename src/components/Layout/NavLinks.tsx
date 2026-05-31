@@ -26,7 +26,6 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Explorar', path: '/explore', iconName: 'Compass', i18nKey: 'nav.explore' },
   { name: 'Rankings', path: '/rankings', iconName: 'Trophy', i18nKey: 'nav.rankings' },
   { name: 'Blog', path: '/blog', iconName: 'Newspaper', i18nKey: 'nav.blog' },
-  { name: 'Géneros', path: '/genres', iconName: 'Tags', i18nKey: 'nav.genres' },
   { name: 'Noticias', path: '/news', iconName: 'CalendarDays', i18nKey: 'nav.news' },
   { name: 'Precios', path: '/pricing', iconName: 'CreditCard', i18nKey: 'nav.pricing' },
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
@@ -46,7 +45,6 @@ export const MAIN_NAV_LINKS: NavLinkDef[] = [
 export const MORE_NAV_LINKS: NavLinkDef[] = [
   { name: 'Economía', path: '/economy', iconName: 'Coins', i18nKey: 'nav.economy', hideWhenLoggedOut: true },
   { name: 'Blog', path: '/blog', iconName: 'Newspaper', i18nKey: 'nav.blog' },
-  { name: 'Géneros', path: '/genres', iconName: 'Tags', i18nKey: 'nav.genres' },
   { name: 'Noticias', path: '/news', iconName: 'CalendarDays', i18nKey: 'nav.news' },
   { name: 'Precios', path: '/pricing', iconName: 'CreditCard', i18nKey: 'nav.pricing' },
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },

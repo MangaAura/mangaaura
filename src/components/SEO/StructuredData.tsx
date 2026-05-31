@@ -372,7 +372,6 @@ export function SearchResultsPageStructuredData() {
     },
     significantLink: [
       'https://mangaaura.es/rankings',
-      'https://mangaaura.es/genres',
       'https://mangaaura.es/discover',
     ],
   };

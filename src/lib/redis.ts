@@ -6,6 +6,49 @@ const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+/**
+ * 🛡️ Upstash Free-Tier Guardian
+ *
+ * When Upstash returns ERR max requests limit exceeded, this flag flips
+ * and all subsequent Redis calls short-circuit to MockRedis instead of
+ * burning precious retries or returning 500s.
+ *
+ * This keeps the app running on in-memory fallbacks (cache, rate-limit,
+ * party service) without needing to pay for a plan upgrade.
+ */
+let quotaExceeded = false;
+
+/**
+ * Regex to detect Upstash quota-exceeded errors across various formats.
+ */
+const QUOTA_ERROR_PATTERNS = [
+  /max requests? limit exceeded/i,
+  /MAX_REQUESTS/i,
+  /quota/i,
+  /^429$/,
+  /too many requests/i,
+];
+
+function isQuotaError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return QUOTA_ERROR_PATTERNS.some(p => p.test(msg));
+}
+
+/**
+ * Mark quota as exceeded and log a warning. Once set, all subsequent
+ * Redis operations are skipped (isMockRedis returns true).
+ */
+function setQuotaExceeded(): void {
+  if (quotaExceeded) return;
+  quotaExceeded = true;
+  redisAvailable = false;
+  console.warn(
+    '[Redis] ⚠️ Upstash quota exceeded — switched to MockRedis fallback. ' +
+    'In-memory cache and rate-limiting will continue working. Auth flows ' +
+    'that require Redis will fail until the quota resets or you call resetQuotaFlag().'
+  );
+}
+
 if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (globalThis.process as any).emit === 'function') {
   try {
     const nodeProcess = globalThis.process as any;
@@ -362,7 +405,7 @@ function createUpstashRedis(): UpstashRedis {
     url: UPSTASH_URL || 'https://profound-python-134342.upstash.io',
     token: UPSTASH_TOKEN || '',
     retry: {
-      retries: 3,
+      retries: 1, // Only 1 retry — if quota is exceeded, fail fast
       backoff: (retryCount) => Math.exp(retryCount) * 100,
     },
   });
@@ -398,11 +441,55 @@ function getRedisInstance(): RedisClient {
   return mockRedisInstance;
 }
 
-export const redis =
+const _redis =
   globalForRedis.upstash ||
   globalForRedis.redis ||
   globalForRedis.mockRedis ||
   getRedisInstance();
+
+/**
+ * Wrapped redis instance with automatic quota-error detection.
+ *
+ * Every method call is proxied through a handler that checks for
+ * Upstash quota-exceeded errors. Once detected, `isMockRedis()`
+ * returns true and all high-volume paths (cache, rate-limit,
+ * PartyService, queues) gracefully fall back to in-memory storage.
+ *
+ * Auth routes that use redis directly will still throw errors
+ * after quota is exceeded — this is intentional (auth should fail
+ * rather than silently skip verifications).
+ */
+export const redis = new Proxy(_redis, {
+  get(target, prop, receiver) {
+    const value = Reflect.get(target, prop, receiver);
+    if (typeof value !== 'function') return value;
+
+    return function (this: unknown, ...args: unknown[]) {
+      if (quotaExceeded) {
+        // Short-circuit: reject as promise (all Redis methods return promises)
+        return Promise.reject(new Error('[Redis] Quota exceeded — operation skipped'));
+      }
+
+      try {
+        const result: unknown = Reflect.apply(value, target, args);
+        if (result !== null && result !== undefined && typeof (result as Record<string, unknown>).then === 'function') {
+          return (result as Promise<unknown>).catch((error: unknown) => {
+            if (isQuotaError(error)) {
+              setQuotaExceeded();
+            }
+            throw error;
+          });
+        }
+        return result;
+      } catch (error) {
+        if (isQuotaError(error)) {
+          setQuotaExceeded();
+        }
+        throw error;
+      }
+    };
+  },
+});
 
 if (isDevelopment) {
   if (redis instanceof IoRedis) {
@@ -415,24 +502,49 @@ if (isDevelopment) {
 }
 
 export function isRedisConnected(): boolean {
-  return redisAvailable;
+  return redisAvailable && !quotaExceeded;
 }
 
 export function isMockRedis(): boolean {
-  return redis instanceof MockRedis;
+  return redis instanceof MockRedis || quotaExceeded;
+}
+
+export function isQuotaExceeded(): boolean {
+  return quotaExceeded;
+}
+
+/**
+ * Reset the quota-exceeded flag (useful after a new billing cycle or
+ * configuration change).
+ */
+export function resetQuotaFlag(): void {
+  quotaExceeded = false;
+  console.info('[Redis] Quota flag reset — will attempt Redis operations again.');
 }
 
 export async function getRedisStatus(): Promise<{
   connected: boolean;
   isMock: boolean;
   mode: string;
+  quotaExceeded: boolean;
 }> {
   const isMock = isMockRedis();
   const isUpstash = !isMock && !(redis instanceof IoRedis);
+  let mode: string;
+  if (quotaExceeded) {
+    mode = 'quota_exceeded';
+  } else if (isMock) {
+    mode = 'mock';
+  } else if (isUpstash || redisAvailable) {
+    mode = 'connected';
+  } else {
+    mode = 'disconnected';
+  }
   return {
     connected: isMock || redisAvailable || isUpstash,
     isMock,
-    mode: isMock ? 'mock' : isUpstash ? 'connected' : redisAvailable ? 'connected' : 'disconnected',
+    mode,
+    quotaExceeded,
   };
 }
 

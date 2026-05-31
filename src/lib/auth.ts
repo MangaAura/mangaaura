@@ -4,9 +4,9 @@ import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
 
+import { getToken, deleteToken } from './auth-store';
 import { prisma } from './prisma';
 import { rateLimit, getRateLimitKey } from './rate-limit';
-import { redis } from './redis';
 
 const LOCKOUT_THRESHOLD = 10;
 const LOCKOUT_WINDOW_MS = 15 * 60 * 1000;
@@ -344,16 +344,12 @@ if (user) {
         }
       }
 
-      // ── Login 2FA: check if user confirmed via Redis ─────────────
+      // ── Login 2FA: check if user confirmed (in-memory, zero Redis) ────
       if (token.twoFactorPending && token.id) {
-        try {
-          const confirmed = await redis.get(`2fa:confirmed:${token.id}`);
-          if (confirmed === 'true') {
-            token.twoFactorPending = false;
-            await redis.del(`2fa:confirmed:${token.id}`);
-          }
-        } catch {
-          // Redis unavailable – keep pending state
+        const confirmed = getToken(`2fa:confirmed:${token.id}`);
+        if (confirmed === 'true') {
+          token.twoFactorPending = false;
+          deleteToken(`2fa:confirmed:${token.id}`);
         }
       }
 

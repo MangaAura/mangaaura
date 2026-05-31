@@ -87,7 +87,7 @@ export class AlertManager extends EventEmitter {
     this.enableAutoCleanup = config.enableAutoCleanup ?? true;
 
     if (this.enableAutoCleanup) {
-      this.startCleanupTimer(config.cleanupIntervalMs ?? 60000);
+      this.startCleanupTimer(config.cleanupIntervalMs ?? 600000); // 10 min
     }
   }
 
@@ -429,9 +429,10 @@ export class AlertManager extends EventEmitter {
   }
 
   private startCleanupTimer(intervalMs: number): void {
+    // Rate-limit cleanup: at most once per 10 seconds
     this.cleanupInterval = setInterval(() => {
       this.clearResolvedAlerts();
-    }, intervalMs);
+    }, Math.max(intervalMs, 10000));
   }
 
   // ===========================================================================

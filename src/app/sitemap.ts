@@ -13,7 +13,6 @@ const staticRoutes = [
   { path: '/search_advanced', priority: 0.7, changefreq: 'weekly' },
   { path: '/rankings', priority: 0.8, changefreq: 'daily' },
   { path: '/discover', priority: 0.8, changefreq: 'daily' },
-  { path: '/genres', priority: 0.8, changefreq: 'weekly' },
   { path: '/pricing', priority: 0.7, changefreq: 'monthly' },
 
   // Community
@@ -209,24 +208,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     routes.push({
       url: `${BASE_URL}/blog/${article.slug}`,
       lastModified: article.updatedAt,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    });
-  }
-
-  // Get genres - with safe error handling
-  const genres = await safeDbQuery(
-    () =>
-      prisma.genre.findMany({
-        select: { slug: true, updatedAt: true },
-      }),
-    []
-  );
-
-  for (const genre of genres) {
-    routes.push({
-      url: `${BASE_URL}/genres/${genre.slug}`,
-      lastModified: genre.updatedAt,
       changeFrequency: 'monthly',
       priority: 0.6,
     });

@@ -129,7 +129,7 @@ function PricingCard({
         </div>
 
         <div className="mb-4">
-          <h3 className="text-xl font-bold mb-1">{pack.aura.toLocaleString()} Aura</h3>
+          <h3 className="text-xl font-bold mb-1">{String(pack.aura)} Aura</h3>
           <p className="text-sm text-[var(--text-secondary)]">{t(`pricing.${pack.descKey}`)}</p>
         </div>
 

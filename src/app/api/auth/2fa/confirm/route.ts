@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { setToken } from '@/lib/auth-store';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { redis } from '@/lib/redis';
 import { verifyTwoFactorLogin } from '@/lib/two-factor';
 
 export async function POST(request: NextRequest) {
@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error || 'Código inválido' }, { status: 401 });
     }
 
-    await redis.setex(`2fa:confirmed:${session.user.id}`, 1800, 'true');
+    // Store in memory — zero Redis cost. Cleared after 30 min or when consumed by jwt callback.
+    setToken(`2fa:confirmed:${session.user.id}`, 'true', 1800);
 
     return NextResponse.json({ success: true });
   } catch (error) {

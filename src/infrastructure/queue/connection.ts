@@ -138,34 +138,75 @@ export function getConnectionMetrics(): {
 }
 
 /**
+ * Cache de resultados de health check para evitar hacer ping a Redis
+ * en cada llamada. Esto es crítico porque las rutas de health (/api/health,
+ * /api/health/workers) pueden ser consultadas por monitores externos
+ * cada 30-60s, generando cientos de comandos Redis innecesarios al día.
+ * 
+ * El caché tiene un TTL de 30 segundos — suficientemente rápido para
+ * detectar caídas pero sin saturar Redis.
+ */
+let cachedHealthResult: boolean | null = null;
+let cachedHealthTime = 0;
+const HEALTH_CACHE_TTL_MS = 30000; // 30s
+
+/**
  * Health check manual de la conexión Redis.
  * Retorna true si la conexión responde.
+ * El resultado se cachea por HEALTH_CACHE_TTL_MS para reducir comandos.
  */
 export async function checkRedisHealth(): Promise<boolean> {
-  lastHealthCheckTime = Date.now();
+  const now = Date.now();
+  
+  // Return cached result if still fresh
+  if (cachedHealthResult !== null && (now - cachedHealthTime) < HEALTH_CACHE_TTL_MS) {
+    return cachedHealthResult;
+  }
+  
+  lastHealthCheckTime = now;
 
-  if (isMockRedis()) return true;
+  if (isMockRedis()) {
+    cachedHealthResult = true;
+    cachedHealthTime = now;
+    return true;
+  }
 
   try {
     const conn = getBullConnection();
     if (!conn) {
       connectionHealthy = false;
+      cachedHealthResult = false;
+      cachedHealthTime = now;
       return false;
     }
 
     // En mock mode, siempre responde
     if ((conn as any).constructor?.name === 'MockRedis') {
       connectionHealthy = true;
+      cachedHealthResult = true;
+      cachedHealthTime = now;
       return true;
     }
 
     // Ping real
     await conn.ping();
     connectionHealthy = true;
+    cachedHealthResult = true;
+    cachedHealthTime = now;
     return true;
   } catch (error) {
     connectionHealthy = false;
     lastConnectionError = error instanceof Error ? error.message : 'Unknown error';
+    cachedHealthResult = false;
+    cachedHealthTime = now;
     return false;
   }
+}
+
+/**
+ * Invalida el caché de health check (útil cuando se reconecta Redis).
+ */
+export function invalidateHealthCache(): void {
+  cachedHealthResult = null;
+  cachedHealthTime = 0;
 }

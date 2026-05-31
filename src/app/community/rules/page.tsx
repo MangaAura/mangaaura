@@ -29,6 +29,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function CommunityRulesPage(props: any) {
-  return <CommunityRulesClient {...props} />;
+export default function CommunityRulesPage() {
+  return <CommunityRulesClient />;
 }

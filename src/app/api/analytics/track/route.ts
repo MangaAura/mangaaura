@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { redis } from '@/lib/redis';
+import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
 type _Output<T> = T extends { _zod: { output: infer O } } ? O : never;
 
@@ -32,20 +32,6 @@ const trackRequestSchema = z.object({
   event: eventSchema.optional(),
   events: z.array(eventSchema).optional(),
 });
-
-// Rate limiting: max 100 events per minute per user/IP
-async function checkRateLimit(key: string): Promise<boolean> {
-  const rateLimitKey = `rate_limit:analytics:${key}`;
-  const current = await redis.incr(rateLimitKey);
-
-  if (current === 1) {
-    await redis.expire(rateLimitKey, 60); // 1 minute window
-  }
-
-  return current <= 100;
-}
-
-
 
 // Process and save events
 async function processEvents(
@@ -88,12 +74,11 @@ async function processEvents(
 // POST /api/analytics/track - Track analytics events
 export async function POST(request: NextRequest) {
   try {
-    // Check rate limit by IP
+    // Check rate limit by IP (in-memory first, Redis best-effort)
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown';
-    const isAllowed = await checkRateLimit(ip);
-
-    if (!isAllowed) {
+    const rlResult = await rateLimit(getRateLimitKey('analytics', ip), 100, 60);
+    if (!rlResult.allowed) {
       return NextResponse.json(
         { error: 'Rate limit exceeded' },
         { status: 429 }

@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
-import Redis from 'ioredis';
+
+import { redis as appRedis } from '@/lib/redis';
 
 // ============================================================================
 // Types & Interfaces
@@ -61,7 +62,8 @@ export interface QueueConfig {
   maxRetries?: number;
   retryDelayMs?: number;
   enablePersistence?: boolean;
-  redis?: Redis;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  redis?: any;
   rateLimits?: Partial<Record<JobType, RateLimitConfig>>;
 }
 
@@ -198,7 +200,9 @@ export class InferenceJobQueue extends EventEmitter {
   // Configuration
   private maxRetries: number;
   private enablePersistence: boolean;
-  private redis?: Redis;
+  // Usamos el redis compartido de @/lib/redis que tiene Proxy de cuota
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private redis?: any;
 
   // Statistics tracking
   private totalWaitTime: number = 0;
@@ -228,7 +232,9 @@ export class InferenceJobQueue extends EventEmitter {
 
     this.maxRetries = config.maxRetries ?? 3;
     this.enablePersistence = config.enablePersistence ?? false;
-    this.redis = config.redis;
+    // Usar el redis compartido de la app en lugar de una instancia ioredis separada.
+    // Esto asegura que InferenceJobQueue pase por el Proxy de detección de cuota.
+    this.redis = config.redis || appRedis;
 
     // Initialize rate limiters for all job types
     const jobTypes: JobType[] = ['analyze', 'generate', 'summarize', 'classify', 'embed'];
@@ -599,6 +605,13 @@ export class InferenceJobQueue extends EventEmitter {
     const count = this.deadLetterQueue.length;
     this.deadLetterQueue = [];
     return count;
+  }
+
+  /**
+   * Unregister all event listeners
+   */
+  removeAllListeners(): this {
+    return super.removeAllListeners();
   }
 
   // ============================================================================

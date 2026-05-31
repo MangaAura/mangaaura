@@ -1,42 +1,29 @@
 /**
  * Application Startup
- * Initializes background workers and other startup tasks.
+ * 
+ * Now purely for graceful shutdown handling.
+ * No background workers or AI services are started automatically.
+ * They start lazily on first use (first job enqueue, first AI submission).
  */
-
-import { startWorkers, stopWorkers } from '@/infrastructure/workers';
 
 let initialized = false;
 
 /**
  * Initialize the application startup sequence.
  * Called once during server initialization via ensureInfrastructure().
+ * No longer starts workers or AI service — they are lazy-initialized.
  */
 export function initialize(): void {
   if (initialized) return;
   initialized = true;
 
-  console.info('[Startup] Initializing application...');
-  startWorkers();
+  // Workers and AI service are NOT started here anymore.
+  // They start lazily on first job enqueue or first API call.
+  //
+  // This eliminates all background Redis connections and intervals
+  // when there is no traffic.
 
-  // Start AI service (lazy, non-blocking)
-  startAIService();
-
-  // Register graceful shutdown handlers once (gated by `initialized`)
   registerShutdownHandlers();
-}
-
-/**
- * Start the UnifiedAIService (lazy import, non-blocking).
- * Starts health checks and processing loop that never ran before.
- */
-async function startAIService(): Promise<void> {
-  try {
-    const { getUnifiedAIService } = await import('@/infrastructure/ai');
-    await getUnifiedAIService().start();
-    console.info('[Startup] AI service started');
-  } catch (err) {
-    console.warn('[Startup] AI service startup failed (non-blocking):', err);
-  }
 }
 
 /**
@@ -49,25 +36,23 @@ export async function shutdown(): Promise<void> {
 
   console.info('[Startup] Shutting down...');
 
-  await stopWorkers();
+  // Stop any running workers (lazy-imported, may not be loaded)
+  try {
+    const { stopWorkers } = await import('@/infrastructure/workers');
+    await stopWorkers();
+  } catch {
+    // Workers may not have been started
+  }
 
-  // Stop AI service gracefully
-  await stopAIService();
-
-  console.info('[Startup] Shutdown complete');
-}
-
-/**
- * Stop the UnifiedAIService (lazy import, non-blocking).
- */
-async function stopAIService(): Promise<void> {
+  // Stop AI service if running
   try {
     const { resetUnifiedAIService } = await import('@/infrastructure/ai');
     await resetUnifiedAIService();
-    console.info('[Startup] AI service stopped');
-  } catch (err) {
-    console.warn('[Startup] AI service shutdown failed (non-blocking):', err);
+  } catch {
+    // AI service may not have been started
   }
+
+  console.info('[Startup] Shutdown complete');
 }
 
 /**

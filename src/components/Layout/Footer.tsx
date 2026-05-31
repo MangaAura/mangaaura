@@ -60,7 +60,6 @@ const footerLinks = {
   platform: [
     { labelKey: 'nav.explore', href: '/explore', icon: BookOpen },
     { labelKey: 'nav.rankings', href: '/rankings', icon: Trophy },
-    { labelKey: 'nav.genres', href: '/genres', icon: Tags },
     { labelKey: 'nav.news', href: '/news', icon: CalendarDays },
     { labelKey: 'nav.pricing', href: '/pricing', icon: CreditCard },
     { labelKey: 'nav.community', href: '/community', icon: Users },
