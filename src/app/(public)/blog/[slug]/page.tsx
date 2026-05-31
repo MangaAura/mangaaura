@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { BlogArticleClient } from './BlogArticleClient';
-import { ArticleStructuredData } from '@/components/SEO/StructuredData';
+import { ArticleStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { dbArticleToDisplayItem } from '@/lib/news';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description,
         images: [ogImage],
       },
-      alternates: { canonical: `/blog/${article.slug}` },
+      ...withHreflang(`/blog/${article.slug}`),
     };
   }
 
@@ -65,6 +66,13 @@ export default async function BlogArticlePage({ params }: Props) {
 
   return (
     <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Blog', item: '/blog' },
+          { name: displayItem.title, item: `/blog/${displayItem.slug}` },
+        ]}
+      />
       <ArticleStructuredData
         title={`${displayItem.title} | MangaAura`}
         description={displayItem.description}

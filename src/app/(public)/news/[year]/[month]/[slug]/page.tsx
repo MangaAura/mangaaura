@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { NewsArticleClient } from './NewsArticleClient';
-import { ArticleStructuredData } from '@/components/SEO/StructuredData';
+import { ArticleStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { dbArticleToDisplayItem } from '@/lib/news';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ year: string; month: string; slug: string }>;
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const dbArticle = await prisma.newsArticle.findUnique({
     where: { slug, isPublished: true },
-    select: { title: true, slug: true, excerpt: true, coverUrl: true, publishedAt: true, updatedAt: true },
+    select: { title: true, slug: true, excerpt: true, coverUrl: true, publishedAt: true, updatedAt: true, category: true },
   });
 
   if (dbArticle) {
@@ -29,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${dbArticle.title} | MangaAura`,
       description,
+      keywords: ['noticias manga', 'manga', dbArticle.category || 'noticias', dbArticle.title],
       openGraph: {
         title: `${dbArticle.title} | MangaAura`,
         description,
@@ -43,7 +45,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description,
         images: [ogImage],
       },
-      alternates: { canonical },
+      ...withHreflang(canonical),
+      other: {
+        'news_keywords': [dbArticle.category || 'manga', 'noticias manga', 'mangaaura'].join(','),
+      },
     };
   }
 
@@ -74,6 +79,13 @@ export default async function NewsArticlePage({ params }: Props) {
 
   return (
     <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Noticias', item: '/news' },
+          { name: displayItem.title, item: canonical },
+        ]}
+      />
       <ArticleStructuredData
         title={`${displayItem.title} | MangaAura`}
         description={displayItem.description}

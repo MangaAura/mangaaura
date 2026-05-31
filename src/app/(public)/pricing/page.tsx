@@ -5,6 +5,7 @@ import PricingClient from './PricingClient';
 import { BreadcrumbStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
@@ -36,9 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
-    alternates: {
-      canonical: `${SITE_URL}/${locale}/pricing`,
-    },
+    ...withHreflang('/pricing'),
   };
 }
 

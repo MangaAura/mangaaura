@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
-import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { FAQPageStructuredData, BreadcrumbStructuredData, WebPageStructuredData, HowToStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias/comprar-manga-digital-espana' },
+    ...withHreflang('/guias/comprar-manga-digital-espana'),
   };
 }
 
@@ -48,10 +49,29 @@ const faqItems = [
 export default function ComprarMangaPage() {
   return (
     <>
+      <WebPageStructuredData
+        name="Mejores plataformas para comprar manga digital en España | MangaAura"
+        description="Cada vez más lectores españoles optan por el formato digital para disfrutar de sus series favoritas. Más económico, ocupa menos espacio y lo tienes siempre disponible."
+        url="/guias/comprar-manga-digital-espana"
+        lastReviewed="2026-01-15"
+        datePublished="2025-01-01"
+        dateModified="2026-01-15"
+      />
       <BreadcrumbStructuredData
         items={[
           { name: 'Guías', item: '/guias' },
           { name: 'Comprar manga digital España', item: '/guias/comprar-manga-digital-espana' },
+        ]}
+      />
+      <HowToStructuredData
+        name="Cómo comprar manga digital en España"
+        description="Guía paso a paso para comprar manga digital en las mejores plataformas españolas. Ahorra dinero y elige la mejor opción para ti."
+        estimatedCost="5€-10€ por volumen"
+        steps={[
+          { name: 'Elige una plataforma de confianza', text: 'Las mejores opciones en España incluyen Amazon Kindle (gran catálogo, desde 5.99€), ComiXology (desde 4.99€), Casa del Libro (desde 6.99€), Google Play Libros y MangaAura. Cada plataforma tiene su propio catálogo y sistema de lectura.' },
+          { name: 'Compara precios entre plataformas', text: 'Un mismo volumen puede costar entre 4.99€ y 9.99€ dependiendo de la plataforma. ComiXology suele tener los precios más bajos, mientras que Casa del Libro ofrece envío a España.' },
+          { name: 'Verifica el DRM antes de comprar', text: 'Algunas plataformas usan DRM que limita la lectura a sus dispositivos (Kindle, Google Play). Si quieres leer en múltiples dispositivos, elige plataformas sin DRM como MangaAura.' },
+          { name: 'Espera ofertas y bundles', text: 'ComiXology y Amazon tienen descuentos frecuentes en Black Friday, rebajas de verano y bundles de sagas completas. Puedes ahorrar hasta un 50% en colecciones.' },
         ]}
       />
       <FAQPageStructuredData items={faqItems} />

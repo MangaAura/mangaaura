@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { AlertCircle, Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
+import { AlertCircle, Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download, RefreshCw, CheckCircle2, XCircle, Mail } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 
@@ -59,6 +59,9 @@ export function SecuritySettings({}: SecuritySettingsProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [isGeneratingQR, setIsGeneratingQR] = useState(false);
   const [isRegeneratingCodes, setIsRegeneratingCodes] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [regenerateCooldown, setRegenerateCooldown] = useState(0);
 
   const t = useT();
 
@@ -78,17 +81,27 @@ export function SecuritySettings({}: SecuritySettingsProps) {
     }
   }, [session]);
 
+  // Cooldown timers for resend and regenerate buttons
+  useEffect(() => {
+    if (resendCooldown <= 0 && regenerateCooldown <= 0) return;
+    const id = setInterval(() => {
+      setResendCooldown((prev) => Math.max(0, prev - 1));
+      setRegenerateCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown, regenerateCooldown]);
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
+      setMessage({ type: 'error', text: t('settings.security.passwordsDoNotMatch') });
       return;
     }
 
     const allPatternsMet = Object.values(passwordPatterns).every(Boolean);
     if (!allPatternsMet) {
-      setMessage({ type: 'error', text: 'La contraseña no cumple los requisitos de seguridad' });
+      setMessage({ type: 'error', text: t('settings.security.passwordRequirements') });
       return;
     }
 
@@ -115,18 +128,18 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           }
           if (Object.keys(mapped).length > 0) {
             setFieldErrors(mapped);
-            throw new Error('Corrige los errores marcados en los campos');
+            throw new Error(t('settings.security.fixFieldErrors'));
           }
         }
         throw new Error(message);
       }
 
-      setMessage({ type: 'success', text: 'Contraseña actualizada correctamente' });
+      setMessage({ type: 'success', text: t('settings.security.passwordChanged') });
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Error al cambiar contraseña',
+        text: error instanceof Error ? error.message : t('settings.security.passwordError'),
       });
     } finally {
       setIsLoading(false);
@@ -189,7 +202,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       setShow2FASetup(false);
       setVerificationToken('');
       await update({ twoFactorEnabled: true });
-      setMessage({ type: 'success', text: '2FA activado correctamente. ¡Guarda tus códigos de respaldo!' });
+      setMessage({ type: 'success', text: t('settings.security.twoFactorActivated') });
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
     } finally {
@@ -216,7 +229,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       setDisablePassword('');
       setBackupCodes(null);
       await update({ twoFactorEnabled: false });
-      setMessage({ type: 'success', text: '2FA deshabilitado correctamente' });
+      setMessage({ type: 'success', text: t('settings.security.twoFactorDisabled') });
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
     } finally {
@@ -227,7 +240,27 @@ export function SecuritySettings({}: SecuritySettingsProps) {
   const copyBackupCodes = () => {
     if (backupCodes) {
       navigator.clipboard.writeText(backupCodes.join('\n'));
-      setMessage({ type: 'success', text: 'Códigos copiados al portapapeles' });
+      setMessage({ type: 'success', text: t('settings.security.copied') });
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setIsResendingVerification(true);
+    setMessage(null);
+    try {
+      const response = await fetch('/api/auth/verify/resend', {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
+      setMessage({ type: 'success', text: t('settings.security.verificationResent') });
+      setResendCooldown(60);
+    } catch (error) {
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : t('settings.security.verificationError') });
+    } finally {
+      setIsResendingVerification(false);
     }
   };
 
@@ -242,7 +275,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       }
       const data = await response.json();
       setBackupCodes(data.backupCodes);
-      setMessage({ type: 'success', text: 'Códigos de respaldo regenerados correctamente' });
+      setMessage({ type: 'success', text: t('settings.security.backupRegenerated') });
+      setRegenerateCooldown(60);
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error' });
     } finally {
@@ -252,10 +286,49 @@ export function SecuritySettings({}: SecuritySettingsProps) {
 
   return (
     <div className="space-y-8">
+      {/* Email Verification Section */}
+      {(session?.user as any)?.emailVerified === false && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Mail className="w-5 h-5 text-[var(--primary)]" aria-hidden="true" />
+            <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('settings.security.verificationTitle')}</h2>
+          </div>
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[var(--warning)]/20 rounded-lg flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-[var(--text-primary)]">
+                  {session?.user?.email || t('settings.security.verificationTitle')}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--warning)]/10 text-[var(--warning)]">
+                    {t('settings.security.notVerified')}
+                  </span>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResendVerification}
+                disabled={resendCooldown > 0}
+                isLoading={isResendingVerification}
+              >
+                <Mail className="w-4 h-4 mr-1" />
+                {resendCooldown > 0
+                  ? `${t('settings.security.resendVerification')} (${resendCooldown}s)`
+                  : t('settings.security.resendVerification')}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Lock className="w-5 h-5 text-[var(--primary)]" aria-hidden="true" />
-          <h2 className="text-xl font-semibold text-[var(--text-primary)]">Cambiar contraseña</h2>
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('settings.security.changePasswordTitle')}</h2>
         </div>
 
         {message && (
@@ -282,7 +355,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
 
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Contraseña actual</Label>
+            <Label htmlFor="currentPassword">{t('settings.security.currentPassword')}</Label>
             <Input
               id="currentPassword"
               type="password"
@@ -302,7 +375,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword">Nueva contraseña</Label>
+            <Label htmlFor="newPassword">{t('settings.security.newPassword')}</Label>
             <Input
               id="newPassword"
               type="password"
@@ -320,7 +393,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
             {fieldErrors.newPassword && (
               <p className="text-xs text-[var(--error)]">{fieldErrors.newPassword}</p>
             )}
-            <ul id="new-password-hint" className="space-y-1" aria-label="Requisitos de contraseña">
+            <ul id="new-password-hint" className="space-y-1" aria-label={t('settings.security.passwordRequirementsLabel')}>
               {PATTERN_RULES.map((rule) => {
                 const met = passwordPatterns[rule.key as keyof typeof passwordPatterns];
                 const Icon = met ? CheckCircle2 : XCircle;
@@ -342,7 +415,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+            <Label htmlFor="confirmPassword">{t('settings.security.confirmPassword')}</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -371,7 +444,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
             }
           >
             <Key className="w-4 h-4 mr-2" aria-hidden="true" />
-            Cambiar contraseña
+            {t('settings.security.changePasswordButton')}
           </Button>
         </form>
       </div>
@@ -379,7 +452,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
       <div className="pt-6 border-t border-[var(--border)]">
         <div className="flex items-center gap-2 mb-4">
           <Shield className="w-5 h-5 text-[var(--success)]" aria-hidden="true" />
-          <h2 className="text-xl font-semibold text-[var(--text-primary)]">Seguridad de la cuenta</h2>
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('settings.security.sectionTitle')}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -389,8 +462,8 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 <Check className="w-5 h-5 text-[var(--success)]" aria-hidden="true" />
               </div>
               <div>
-                <p className="font-medium text-[var(--text-primary)]">Contraseña segura</p>
-                <p className="text-sm text-[var(--text-tertiary)]">Usa bcrypt con 12 rondas</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('settings.security.passwordSecure')}</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('settings.security.passwordBcrypt')}</p>
               </div>
             </div>
           </Card>
@@ -405,18 +478,18 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 }`} aria-hidden="true" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-[var(--text-primary)]">Autenticación de dos factores</p>
+                <p className="font-medium text-[var(--text-primary)]">{t('settings.security.twoFactorAuth')}</p>
                 <p className="text-sm text-[var(--text-tertiary)]">
-                  {twoFactorEnabled ? 'Configurada' : 'No configurada'}
+                  {twoFactorEnabled ? t('settings.security.twoFactorEnabled') : t('settings.security.twoFactorDisabled')}
                 </p>
               </div>
               {twoFactorEnabled ? (
                 <Button variant="outline" size="sm" onClick={() => setShowDisableConfirm(true)}>
-                  Deshabilitar
+                  {t('settings.security.twoFactorDisable')}
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={handle2FASetup} isLoading={isLoading}>
-                  Configurar
+                  {t('settings.security.twoFactorSetup')}
                 </Button>
               )}
             </div>
@@ -425,16 +498,16 @@ export function SecuritySettings({}: SecuritySettingsProps) {
 
         {show2FASetup && (
           <Card className="mt-4 p-6">
-            <h3 className="text-lg font-semibold mb-4">Configurar 2FA</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('settings.security.setupTitle')}</h3>
 
             {/* Step 1: Scan QR code */}
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs font-bold flex items-center justify-center">1</span>
-                <span className="font-medium text-sm">Escanea el código QR</span>
+                <span className="font-medium text-sm">{t('settings.security.step1ScanQR')}</span>
               </div>
               <p className="text-sm text-[var(--text-tertiary)] mb-4 pl-8">
-                Abre tu aplicación de autenticación (Google Authenticator, Authy, etc.) y escanea este código:
+                {t('settings.security.step1Description')}
               </p>
               <div className="flex justify-center mb-4">
                 {isGeneratingQR ? (
@@ -445,25 +518,25 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={qrDataUrl}
-                    alt="Código QR para 2FA"
+                    alt={t('settings.security.qrAlt')}
                     className="rounded-lg border border-[var(--border)]"
                     width={200}
                     height={200}
                   />
                 ) : (
                   <div className="p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
-                    <p className="text-xs text-[var(--text-tertiary)] mb-2 text-center">No se pudo generar el QR</p>
+                    <p className="text-xs text-[var(--text-tertiary)] mb-2 text-center">{t('settings.security.qrFallback')}</p>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUrl)}`}
-                      alt="Código QR para 2FA"
+                      alt={t('settings.security.qrAlt')}
                       className="rounded-lg"
                     />
                   </div>
                 )}
               </div>
               <p className="text-xs text-center text-[var(--text-tertiary)]">
-                O ingresa manualmente:{' '}
+                {t('settings.security.orEnterManually')}{' '}
                 <code className="text-[var(--primary)] font-mono text-xs break-all select-all">{twoFactorSecret}</code>
               </p>
             </div>
@@ -472,17 +545,17 @@ export function SecuritySettings({}: SecuritySettingsProps) {
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs font-bold flex items-center justify-center">2</span>
-                <span className="font-medium text-sm">Verifica el código</span>
+                <span className="font-medium text-sm">{t('settings.security.step2Verify')}</span>
               </div>
               <p className="text-sm text-[var(--text-tertiary)] mb-4 pl-8">
-                Ingresa el código de 6 dígitos que aparece en tu aplicación:
+                {t('settings.security.step2Description')}
               </p>
               <div className="pl-8 space-y-3">
                 <Input
                   id="2fa-code"
                   type="text"
                   inputMode="numeric"
-                  placeholder="000000"
+                  placeholder={t('settings.security.placeholderCode')}
                   maxLength={6}
                   value={verificationToken}
                   onChange={(e) => setVerificationToken(e.target.value.replace(/\D/g, ''))}
@@ -490,7 +563,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                   className="text-center text-lg tracking-[0.3em]"
                 />
                 <Button onClick={handle2FAVerify} disabled={verificationToken.length < 6} isLoading={isLoading}>
-                  Verificar y activar
+                  {t('settings.security.verifyAndActivate')}
                 </Button>
               </div>
             </div>
@@ -501,11 +574,10 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           <Card className="mt-4 p-6 border-[var(--warning)]/30">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
-              <h3 className="text-lg font-semibold">Códigos de respaldo</h3>
+              <h3 className="text-lg font-semibold">{t('settings.security.backupCodesTitle')}</h3>
             </div>
             <p className="text-sm text-[var(--text-tertiary)] mb-3">
-              Guarda estos códigos en un lugar seguro. Cada código solo puede usarse una vez y
-              perderás acceso a tu cuenta si pierdes el acceso a tu aplicación de autenticación.
+              {t('settings.security.backupCodesDescription')}
             </p>
             <div className="bg-[var(--surface-sunken)] p-4 rounded-lg font-mono text-sm mb-3 border border-[var(--border)]">
               {backupCodes.map((code, i) => (
@@ -514,7 +586,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={copyBackupCodes}>
-                <Copy className="w-4 h-4 mr-1" /> Copiar
+                <Copy className="w-4 h-4 mr-1" /> {t('settings.security.copy')}
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
                 const blob = new Blob([backupCodes.join('\n')], { type: 'text/plain' });
@@ -523,16 +595,20 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                 a.href = url; a.download = 'mangaaura-backup-codes.txt'; a.click();
                 URL.revokeObjectURL(url);
               }}>
-                <Download className="w-4 h-4 mr-1" /> Descargar
+                <Download className="w-4 h-4 mr-1" /> {t('settings.security.download')}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRegenerateBackupCodes}
                 isLoading={isRegeneratingCodes}
+                disabled={regenerateCooldown > 0}
                 className="ml-auto"
               >
-                <RefreshCw className="w-4 h-4 mr-1" /> Regenerar
+                <RefreshCw className="w-4 h-4 mr-1" />
+                {regenerateCooldown > 0
+                  ? `${t('settings.security.regenerate')} (${regenerateCooldown}s)`
+                  : t('settings.security.regenerate')}
               </Button>
             </div>
           </Card>
@@ -542,26 +618,26 @@ export function SecuritySettings({}: SecuritySettingsProps) {
           <Card className="mt-4 p-6 border-[var(--error)]/30">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle className="w-5 h-5 text-[var(--error)]" aria-hidden="true" />
-              <h3 className="text-lg font-semibold">Deshabilitar 2FA</h3>
+              <h3 className="text-lg font-semibold">{t('settings.security.disableTitle')}</h3>
             </div>
             <p className="text-sm text-[var(--text-tertiary)] mb-3">
-              Ingresa tu contraseña para deshabilitar la autenticación de dos factores.
+              {t('settings.security.disableDescription')}
             </p>
             <div className="space-y-3">
               <Input
                 id="disable-2fa-password"
                 type="password"
-                placeholder="Contraseña actual"
+                placeholder={t('settings.security.currentPasswordPlaceholder')}
                 value={disablePassword}
                 onChange={(e) => setDisablePassword(e.target.value)}
                 autoComplete="current-password"
               />
               <div className="flex gap-2">
                 <Button onClick={handle2FADisable} disabled={!disablePassword} isLoading={isLoading}>
-                  Deshabilitar 2FA
+                  {t('settings.security.disableButton')}
                 </Button>
                 <Button variant="outline" onClick={() => { setShowDisableConfirm(false); setDisablePassword(''); }}>
-                  Cancelar
+                  {t('settings.security.cancel')}
                 </Button>
               </div>
             </div>
@@ -571,7 +647,7 @@ export function SecuritySettings({}: SecuritySettingsProps) {
         <Alert className="mt-6 bg-[var(--warning)]/10 border-[var(--warning)]/20">
           <AlertTriangle className="w-4 h-4 text-[var(--warning)]" aria-hidden="true" />
           <AlertDescription className="text-[var(--warning)]">
-            Por seguridad, te recomendamos cambiar tu contraseña cada 3 meses y activar 2FA
+            {t('settings.security.securityRecommendation')}
           </AlertDescription>
         </Alert>
       </div>

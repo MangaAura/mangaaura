@@ -10,12 +10,12 @@
 
 import { Worker, Job } from 'bullmq';
 
+import { ResendInboundRepository } from '@/infrastructure/adapters/ResendInboundRepository';
 import { getBullConnection } from '@/infrastructure/queue/connection';
 import type { InboundEmailJobData } from '@/infrastructure/queue/InboundEmailQueue';
-import { ResendInboundRepository } from '@/infrastructure/adapters/ResendInboundRepository';
-import { captureException } from '@/lib/sentry';
-import { isMockRedis } from '@/lib/redis';
 import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { isMockRedis } from '@/lib/redis';
+import { captureException } from '@/lib/sentry';
 import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
 
 // ============================================================================

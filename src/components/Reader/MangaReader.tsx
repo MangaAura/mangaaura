@@ -21,6 +21,8 @@ import {
   Crown,
   Type,
   Infinity,
+  Play,
+  Pause,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -86,6 +88,8 @@ export const MangaReader = memo(function MangaReader({
   const [showEditor, setShowEditor] = useState(false);
   const [showSponsor, setShowSponsor] = useState(false);
   const [showMeme, setShowMeme] = useState(false);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
+  const [autoScrollSpeed, setAutoScrollSpeed] = useState(5000);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastPageRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
@@ -96,6 +100,7 @@ export const MangaReader = memo(function MangaReader({
   const lastTapRef = useRef(0);
   const continuousNavPending = useRef(false);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const autoScrollTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useAutoSaveProgress(mangaId, chapterId, currentPage, pages.length);
 
@@ -165,6 +170,35 @@ export const MangaReader = memo(function MangaReader({
       observer.disconnect();
     };
   }, [scrollMode, continuousReading, nextChapter, navigateToChapter]);
+
+  // Auto-scroll effect for slideshow mode
+  useEffect(() => {
+    if (!autoScrollEnabled || scrollMode !== 'continuous') {
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current);
+        autoScrollTimerRef.current = undefined;
+      }
+      return;
+    }
+
+    autoScrollTimerRef.current = setInterval(() => {
+      const next = currentPage + 1;
+      if (next < pages.length) {
+        const el = containerRef.current?.children[next] as HTMLElement | undefined;
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setCurrentPage(next);
+      } else {
+        setAutoScrollEnabled(false);
+      }
+    }, autoScrollSpeed);
+
+    return () => {
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current);
+        autoScrollTimerRef.current = undefined;
+      }
+    };
+  }, [autoScrollEnabled, autoScrollSpeed, currentPage, pages.length, scrollMode]);
 
   const nextPage = useCallback(() => {
     const step = viewMode === 'double' ? 2 : 1;
@@ -325,8 +359,13 @@ export const MangaReader = memo(function MangaReader({
         e.preventDefault();
         setViewMode(v => v === 'single' ? 'double' : 'single');
         break;
+      case 'p':
+      case 'P':
+        e.preventDefault();
+        setAutoScrollEnabled(v => !v);
+        break;
     }
-  }, [nextPage, prevPage, zoomIn, zoomOut, resetZoom, toggleControls, toggleFullscreen, readingDirection]);
+  }, [nextPage, prevPage, zoomIn, zoomOut, resetZoom, toggleControls, toggleFullscreen, readingDirection, autoScrollEnabled]);
 
   const getPinchDistance = useCallback((touches: React.TouchList | TouchList) => {
     if (touches.length < 2) return 0;
@@ -553,6 +592,14 @@ export const MangaReader = memo(function MangaReader({
               <Infinity className={cn('w-5 h-5', continuousReading && 'text-[var(--success)]')} />
             </ControlButton>
             <div className="w-px h-6 bg-[var(--text-inverse)]/10 mx-2" />
+            <ControlButton
+              onClick={() => setAutoScrollEnabled(v => !v)}
+              disabled={scrollMode !== 'continuous'}
+              title={scrollMode !== 'continuous' ? 'Cambia a modo continuo para auto-scroll' : `Auto-scroll (P): ${autoScrollEnabled ? `${(autoScrollSpeed / 1000).toFixed(1)}s` : 'Desactivado'}`}
+              aria-label={autoScrollEnabled ? 'Desactivar auto-scroll' : 'Activar auto-scroll'}
+            >
+              {autoScrollEnabled ? <Pause className="w-5 h-5 text-[var(--success)]" /> : <Play className="w-5 h-5" />}
+            </ControlButton>
             <ControlButton onClick={() => setShowQuiz(true)} title="Pop Quiz" aria-label="Pop Quiz">
               <HelpCircle className="w-5 h-5" />
             </ControlButton>
@@ -934,6 +981,52 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
+                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                  Auto-scroll
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    variant={autoScrollEnabled ? 'default' : 'outline'}
+                    onClick={() => setAutoScrollEnabled(true)}
+                    disabled={scrollMode !== 'continuous'}
+                    className="flex-1"
+                  >
+                    <Play className="w-4 h-4 mr-1" /> Activar
+                  </Button>
+                  <Button
+                    variant={!autoScrollEnabled ? 'default' : 'outline'}
+                    onClick={() => setAutoScrollEnabled(false)}
+                    className="flex-1"
+                  >
+                    <Pause className="w-4 h-4 mr-1" /> Desactivar
+                  </Button>
+                </div>
+                {autoScrollEnabled && (
+                  <div className="mt-3">
+                    <label className="text-xs text-[var(--text-tertiary)] block mb-2">
+                      Velocidad: {(autoScrollSpeed / 1000).toFixed(1)}s por página
+                    </label>
+                    <input
+                      type="range"
+                      min={1500}
+                      max={15000}
+                      step={500}
+                      value={autoScrollSpeed}
+                      onChange={(e) => setAutoScrollSpeed(Number(e.target.value))}
+                      className="w-full accent-[var(--primary)]"
+                    />
+                    <div className="flex justify-between text-xs text-[var(--text-tertiary)]">
+                      <span>Rápido</span>
+                      <span>Lento</span>
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-[var(--text-tertiary)] mt-2">
+                  El auto-scroll avanza automáticamente entre páginas en modo continuo.
+                </p>
+              </div>
+
+              <div>
                 <p className="text-sm text-[var(--text-secondary)]">Capítulos disponibles: {totalChapters}</p>
               </div>
             </div>
@@ -1002,6 +1095,10 @@ export const MangaReader = memo(function MangaReader({
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">I</span>
                 <span className="text-[var(--text-primary)]">Lectura continua (auto-siguiente capítulo)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--text-secondary)]">P</span>
+                <span className="text-[var(--text-primary)]">Auto-scroll (slideshow automático)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Esc</span>

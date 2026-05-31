@@ -134,6 +134,20 @@ export class AchievementService {
       console.error('Error sending achievement notification:', notifyError);
     }
 
+    try {
+      const { sendPushNotification } = await import('@/lib/push-notifications');
+      await sendPushNotification(userId, {
+        title: '🎉 Nuevo Logro',
+        body: `Has desbloqueado: ${achievement.name}`,
+        url: '/achievements',
+        icon: '/icon-192x192.png',
+        badge: '/badge-72x72.png',
+        tag: `achievement-${achievement.badgeId}`,
+      });
+    } catch (pushError) {
+      console.error('Error sending achievement push notification:', pushError);
+    }
+
     return event;
   }
 
@@ -205,6 +219,8 @@ export class AchievementService {
         return stats.readingStreak >= (condition.days || 1);
       case 'QUESTS_COMPLETED':
         return stats.questsCompleted >= (condition.count || 1);
+      case 'GENRE_CHAPTERS_READ':
+        return (stats.genreChaptersRead?.[condition.genre || ''] || 0) >= (condition.count || 1);
       default:
         return false;
     }
@@ -235,6 +251,8 @@ export class AchievementService {
         return stats.readingStreak;
       case 'QUESTS_COMPLETED':
         return stats.questsCompleted;
+      case 'GENRE_CHAPTERS_READ':
+        return stats.genreChaptersRead?.[condition.genre || ''] || 0;
       default:
         return 0;
     }
@@ -249,6 +267,9 @@ export class AchievementService {
     }
     if ('days' in condition && condition.days !== undefined) {
       return condition.days;
+    }
+    if ('genre' in condition) {
+      return condition.count || 1;
     }
     return 1;
   }

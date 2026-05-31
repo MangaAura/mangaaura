@@ -11,6 +11,7 @@
 import { Worker, Job } from 'bullmq';
 
 import type { NotificationType } from '@/core/services/NotificationService';
+import { getNotificationService } from '@/core/services/NotificationService';
 import { getBullConnection } from '@/infrastructure/queue/connection';
 import type {
   NotificationJobData,
@@ -19,11 +20,10 @@ import type {
   CombinedNotificationData,
   BulkPushNotificationData,
 } from '@/infrastructure/queue/NotificationQueue';
-import { getNotificationService } from '@/core/services/NotificationService';
-import { sendPushNotification, sendBulkPushNotifications } from '@/lib/push-notifications';
-import { captureException } from '@/lib/sentry';
-import { isMockRedis } from '@/lib/redis';
 import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { sendPushNotification, sendBulkPushNotifications } from '@/lib/push-notifications';
+import { isMockRedis } from '@/lib/redis';
+import { captureException } from '@/lib/sentry';
 import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
 
 // ============================================================================

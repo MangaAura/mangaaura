@@ -12,8 +12,8 @@
 
 import IORedis from 'ioredis';
 
-import { isMockRedis, redis as appRedis } from '@/lib/redis';
 import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { isMockRedis, redis as appRedis } from '@/lib/redis';
 
 let bullConnection: IORedis | null = null;
 let connectionHealthy = false;

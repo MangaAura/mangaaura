@@ -3,8 +3,8 @@
 import { SessionProvider } from 'next-auth/react';
 import { SWRConfig } from 'swr';
 
-import { AxeCoreProvider } from '@/components/A11y/AxeCoreProvider';
 import { ThemeProvider } from './ThemeProvider';
+import { AxeCoreProvider } from '@/components/A11y/AxeCoreProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { I18nProvider, type Locale } from '@/i18n/index';
 import { swrConfig } from '@/lib/swr-config';

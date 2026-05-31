@@ -1,0 +1,266 @@
+# MangaAura — Full Site Content for AI Assistants
+
+> **La plataforma de manga con IA para leer, crear y crowdfundear capítulos.**
+> **Price:** Free for readers. Creators earn through Aura crowdfunding and sponsorships.
+> **Languages:** Spanish (primary), English (secondary)
+> **Platform:** Web (PWA), installable on mobile and desktop
+> **Audience:** Manga readers, manga creators, anime fans, Spanish-speaking LATAM + Spain
+
+---
+
+## About MangaAura
+
+MangaAura is a manga platform powered by AI that lets you read manga for free, create your own series with AI tools, crowdfund chapters using Aura virtual currency, and earn XP while reading. With thousands of manga series, chapters published and an active community of readers, it's the most comprehensive manga platform for Spanish-speaking audiences.
+
+### Key Statistics
+- Thousands of manga series available for free reading
+- Hundreds of thousands of chapters published
+- Active community of readers and creators
+- XP, levels, achievements and reading streaks gamification system
+- Real-time rankings and leaderboards
+
+### Core Features
+- **AI-powered manga discovery** — Personalized recommendations based on reading history
+- **AI-generated descriptions** — Automatic manga descriptions powered by AI
+- **Crowdfunding** — Readers contribute Aura to chapters they want published
+- **Gamification** — XP, levels, 50+ achievements, reading streaks, global rankings
+- **PWA with offline reading** — Install as app, read without internet
+- **Creator dashboard** — Analytics, chapter upload, sponsorship management
+- **Multi-language** — Full Spanish and English support
+- **Clans & Community** — User-created reading groups, forums, direct messaging
+- **2FA Security** — Two-factor authentication for account protection
+
+---
+
+## Key Pages
+
+### Homepage
+**URL:** https://mangaaura.es/
+**Description:** Platform overview with featured manga, latest releases, top-ranked series, trending manga, top readers by XP, and platform statistics. Includes FAQ section about the platform.
+
+### Explore / Search
+**URL:** https://mangaaura.es/explore
+**Description:** Browse and discover manga by genre, popularity, latest updates, and ratings. Search functionality with AI-powered recommendations. Filter by genre, status, and more.
+
+### Rankings
+**URL:** https://mangaaura.es/rankings
+**Description:** Top manga and readers ranked by monthly XP, total views, ratings, and reading streaks. Weekly and all-time leaderboards.
+
+### AI Search
+**URL:** https://mangaaura.es/search_ia
+**Description:** AI-powered semantic search for manga. Find series by describing what you want to read in natural language.
+
+### Manga Detail
+**URL:** https://mangaaura.es/manga/{slug}
+**Description:** Individual manga series pages with full description, author info, chapter list, ratings, tags, cover image, and related manga recommendations.
+
+### Chapter Reader
+**URL:** https://mangaaura.es/{slug}-{chapterNumber}
+**Description:** Immersive manga chapter reader with page-by-page navigation, save progress, keyboard shortcuts, and reading mode options.
+
+### Library
+**URL:** https://mangaaura.es/library
+**Description:** Personal reading library with reading progress tracking, bookmarks, and reading history. Organized by series with last-read chapter indicators.
+
+### Genres
+**URL:** https://mangaaura.es/genres
+**Description:** Browse manga by genre categories. Dedicated pages for each genre with filtered manga listings.
+
+### Pricing
+**URL:** https://mangaaura.es/pricing
+**Description:** Aura virtual currency packs and Premium subscription plans. Aura: 100 ($1.00), 500 ($4.50), 1000 ($8.50), 5000 ($40.00). Premium Monthly: $4.99. Premium Annual: $49.99 ($10 savings).
+
+### Community
+**URL:** https://mangaaura.es/community
+**Description:** Community hub with forums, clans, events, and social features.
+
+### Clans
+**URL:** https://mangaaura.es/community/clans
+**Description:** User-created reading groups with shared goals, clan chat, and clan rankings.
+
+### Forum
+**URL:** https://mangaaura.es/community/forum
+**Description:** Discussion forums organized by category. Topics include manga recommendations, creation tips, platform feedback, and general discussion.
+
+### Events
+**URL:** https://mangaaura.es/events
+**Description:** Seasonal reading events and competitions with rewards, XP bonuses, and exclusive achievements.
+
+### Guides
+**URL:** https://mangaaura.es/guias
+**Description:** Comprehensive guides about manga reading, creation, and platform features. Topics include: how to start reading manga, best manga apps, where to read manga legally, how to buy manga in Spain, beginner's guide to manga, most sold manga in history, and personalized recommendations.
+
+### News
+**URL:** https://mangaaura.es/news
+**Description:** Platform news, updates, and manga industry announcements.
+
+### Blog
+**URL:** https://mangaaura.es/blog
+**Description:** Tutorials, guides, and insights for manga creators and readers. Tips on creating manga, crowdfunding strategies, and platform features.
+
+### FAQ
+**URL:** https://mangaaura.es/faq
+**Description:** Frequently asked questions about MangaAura covering reading, creation, monetization, Aura currency, clans, achievements, and technical support.
+
+### Comparison
+**URL:** https://mangaaura.es/comparison
+**Description:** Side-by-side comparison of MangaAura vs other manga platforms (Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex, INKR Comics). Features, pricing, and audience comparison.
+
+### About
+**URL:** https://mangaaura.es/sobre-nosotros
+**Description:** About MangaAura, the team behind the platform, mission to democratize manga creation and reading with AI.
+
+### Contact
+**URL:** https://mangaaura.es/contacto (Spanish) / https://mangaaura.es/contact (English)
+**Description:** Contact form and support information.
+
+---
+
+## For Creators
+
+### Creator Dashboard
+**URL:** https://mangaaura.es/creator/dashboard
+**Description:** Full analytics dashboard for manga creators. Track views, readers, earnings from crowdfunding, and audience demographics.
+
+### Create Manga
+**URL:** https://mangaaura.es/creator/manga/new
+**Description:** Create a new manga series. Add title, description, cover image, tags, and set up crowdfunding goals. AI-assisted description generation available.
+
+### Upload Chapter
+**URL:** https://mangaaura.es/creator/upload
+**Description:** Upload new manga chapters with drag-and-drop page ordering. Set chapter title, number, and crowdfunding goal.
+
+### Sponsorships
+**URL:** https://mangaaura.es/creator/sponsors
+**Description:** Manage reader sponsorships. Set sponsorship tiers, manage subscribers, and track sponsorship revenue.
+
+### Creator Community
+**URL:** https://mangaaura.es/creator/community
+**Description:** Community features for creators including creator forums, collaboration tools, and creator spotlights.
+
+### How to Create Manga on MangaAura
+1. **Register as a creator** — Create an account and select the creator role from settings
+2. **Create your series** — Fill in title, description, cover image, and set your genre tags
+3. **Upload your first chapter** — Drag and drop pages, order them, and set a crowdfunding goal
+4. **Publish and share** — Review and publish your chapter for readers to discover
+5. **Engage with readers** — Respond to comments, build your audience, and earn Aura through crowdfunding
+
+---
+
+## Economy
+
+### Aura Virtual Currency
+Aura is the in-app currency used for:
+- **Crowdfunding chapters** — Readers pool Aura to fund new chapter releases
+- **Tips** — Support creators directly with Aura tips
+- **Sponsorships** — Subscribe to creators' exclusive content
+- **Events** — Participate in special events and competitions
+
+**Aura Packs:**
+| Pack | Aura | Price | Discount |
+|------|------|-------|----------|
+| 100 Aura | 100 | $1.00 | — |
+| 500 Aura | 500 | $4.50 | 10% off |
+| 1000 Aura | 1000 | $8.50 | 15% off |
+| 5000 Aura | 5000 | $40.00 | 20% off |
+
+### Premium Subscription
+| Plan | Price | Interval | Features |
+|------|-------|----------|----------|
+| Premium Monthly | $4.99 | Monthly | Exclusive chapters, ad-free, offline mode, premium badges |
+| Premium Annual | $49.99 | Yearly | All monthly features + priority support, $10 savings |
+
+### Transactions
+**URL:** https://mangaaura.es/transactions
+**Description:** View your Aura transaction history, tips sent and received, and crowdfunding contributions.
+
+### Referrals
+**URL:** https://mangaaura.es/economy/referrals
+**Description:** Refer friends to earn bonus Aura. Track referrals and rewards.
+
+---
+
+## Gamification System
+
+### XP & Levels
+- Earn XP by reading chapters, commenting, maintaining reading streaks, and participating in events
+- Level up to unlock new features, badges, and rewards
+- Weekly XP leaderboards showcase top readers
+
+### Achievements (50+)
+- Reading milestones (10, 50, 100, 500, 1000 chapters)
+- Streak achievements (7, 30, 60, 100, 365 day streaks)
+- Social achievements (first comment, first follower milestone)
+- Creator achievements (first chapter, first crowdfunded chapter)
+- Special event achievements (seasonal)
+
+### Reading Streaks
+- Daily streaks for consecutive reading days
+- Streak freezes available through the economy system
+- Longer streaks earn bonus XP and exclusive badges
+
+### Quests
+**URL:** https://mangaaura.es/quests
+**Description:** Daily and weekly quests with XP rewards. Complete challenges to earn bonus XP and special rewards.
+
+---
+
+## Security & Privacy
+
+- **Two-factor authentication (2FA)** via authenticator apps
+- **Session management** — View and revoke active sessions
+- **Data encryption** — All sensitive data encrypted at rest and in transit
+- **GDPR compliance** — Full data privacy controls, export and delete options
+- **Content moderation** — AI-powered moderation for community safety
+- **Rate limiting** — API protection against abuse
+
+---
+
+## Technical Specifications
+
+- **Framework:** Next.js (React) with TypeScript
+- **Database:** PostgreSQL (primary) + MongoDB (analytics)
+- **Caching:** Redis (Upstash)
+- **Storage:** Vercel Blob Storage
+- **Authentication:** NextAuth.js v5 with OAuth (Google, GitHub, Discord)
+- **Payments:** Stripe
+- **AI:** NVIDIA API for AI-powered features
+- **Monitoring:** Sentry for error tracking and performance
+- **PWA:** Full Progressive Web App with offline support, service worker, install prompt
+- **CDN:** Vercel Edge Network
+
+---
+
+## FAQ
+
+- **Q: Is MangaAura free?** A: Yes, reading manga is completely free. No subscription required.
+- **Q: What is Aura?** A: Aura is the virtual currency used for crowdfunding chapters, tipping creators, and participating in events. Purchase via Stripe.
+- **Q: How do I create manga?** A: Register as a creator (free) and use the creator dashboard to upload chapters with drag-and-drop.
+- **Q: What is crowdfunding?** A: Readers contribute Aura to chapters they want to see published. When the goal is met, the chapter is released for everyone.
+- **Q: Can I read offline?** A: Yes. MangaAura is a full PWA with offline reading support. Install from any browser.
+- **Q: Is there a mobile app?** A: Not in app stores, but the PWA works identically and can be installed from Chrome, Safari, Firefox, or Edge.
+- **Q: How does XP work?** A: Earn XP by reading chapters, maintaining streaks, commenting, and completing quests. Level up for badges and rewards.
+- **Q: How do clans work?** A: Create or join reading groups. Clans have shared goals, chat, and rankings.
+- **Q: What languages are supported?** A: Spanish (primary) and English. More languages coming soon.
+- **Q: How do I contact support?** A: Email support@mangaaura.es or use the contact form at /contacto.
+- **Q: Is my data secure?** A: Yes. We use encryption, secure authentication, and follow GDPR guidelines.
+- **Q: Can I delete my account?** A: Yes. Go to Settings > Account to request deletion.
+
+---
+
+## Pricing Summary
+
+**For Readers:** Free (no subscription required to read manga)
+**For Creators:** Free (no platform fees, creators keep 100% of crowdfunding)
+**Aura Packs:** Starting at $1.00 for 100 Aura
+**Premium:** $4.99/month or $49.99/year
+**Payment Methods:** Credit/debit card via Stripe
+
+---
+
+## Content Policies
+
+- All manga content is available for free reading
+- Creators retain full ownership of their content
+- Content is moderated for safety and compliance
+- Manga categories include: action, romance, fantasy, horror, comedy, drama, sci-fi, slice of life, yuri, isekai, seinen, shonen, shojo, josei, and more

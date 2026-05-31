@@ -10,6 +10,11 @@ import {
   FileText,
   HelpCircle,
   Disc,
+  Tags,
+  CalendarDays,
+  CreditCard,
+  Info,
+  Megaphone,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -55,13 +60,23 @@ const footerLinks = {
   platform: [
     { labelKey: 'nav.explore', href: '/explore', icon: BookOpen },
     { labelKey: 'nav.rankings', href: '/rankings', icon: Trophy },
+    { labelKey: 'nav.genres', href: '/genres', icon: Tags },
+    { labelKey: 'nav.news', href: '/news', icon: CalendarDays },
+    { labelKey: 'nav.pricing', href: '/pricing', icon: CreditCard },
     { labelKey: 'nav.community', href: '/community', icon: Users },
     { labelKey: 'nav.library', href: '/library', icon: Heart },
   ],
   support: [
     { labelKey: 'footer.help', href: '/help', icon: HelpCircle },
+    { labelKey: 'footer.faq', href: '/faq', icon: HelpCircle },
     { labelKey: 'footer.contact', href: '/contact', icon: Mail },
+    { labelKey: 'footer.contacto', href: '/contacto', icon: Mail },
     { labelKey: 'footer.report', href: '/report', icon: Shield },
+  ],
+  resources: [
+    { labelKey: 'footer.guides', href: '/guias', icon: FileText },
+    { labelKey: 'footer.aboutUs', href: '/sobre-nosotros', icon: Info },
+    { labelKey: 'footer.announcements', href: '/announcements', icon: Megaphone },
   ],
   legal: [
     { labelKey: 'footer.terms', href: '/legal/terms', icon: FileText },
@@ -155,6 +170,26 @@ export function Footer({ className }: { className?: string }) {
             <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionSupport')}</h2>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <li key={link.labelKey}>
+                    <Link
+                      href={link.href}
+                      className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                    >
+                      <Icon className="w-4 h-4" />
+                      {t(link.labelKey)}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <nav aria-label={t('footer.sectionResources')}>
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionResources')}</h2>
+            <ul className="space-y-3">
+              {footerLinks.resources.map((link) => {
                 const Icon = link.icon;
                 return (
                   <li key={link.labelKey}>

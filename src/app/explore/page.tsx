@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 
+
 import SearchClient from './SearchClient';
+import { SearchResultsPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 
@@ -18,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: fullTitle,
       description,
       type: 'website',
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
       images: ['/og-image.png'],
     },
     twitter: {
@@ -30,5 +33,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function SearchPage(props: any) {
-  return <SearchClient {...props} />;
+  return (
+    <>
+      <SearchResultsPageStructuredData />
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Explorar', item: '/explore' },
+        ]}
+      />
+      <SearchClient {...props} />
+    </>
+  );
 }

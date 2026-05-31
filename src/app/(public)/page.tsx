@@ -2,10 +2,12 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 
 import { HomeContent } from '@/components/Home/HomeContent';
+import { BreadcrumbStructuredData, WebPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 // ISR: revalidate every 5 min so manga/user/chapter counts stay fresh
 // without hitting the DB on every request (Next.js would statically render
@@ -35,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/' },
+    ...withHreflang('/'),
   };
 }
 
@@ -79,6 +81,10 @@ function parseTags(tags: unknown): string[] {
 }
 
 export default async function HomePage() {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('nav.home');
+  const description = t('home.description');
   const whereActive = { deletedAt: null };
 
   // Cache stats in Redis — runs in parallel with other queries below
@@ -189,6 +195,17 @@ export default async function HomePage() {
 
   return (
     <>
+      <WebPageStructuredData
+        name={title}
+        description={description}
+        url="/"
+        lastReviewed={new Date().toISOString().split('T')[0]}
+      />
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+        ]}
+      />
       <Script
         id="faq-schema"
         type="application/ld+json"

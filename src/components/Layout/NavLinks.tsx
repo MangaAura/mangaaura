@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import {
   BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
   Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
-  Coins,
+  Coins, Newspaper, Tags, CalendarDays, CreditCard,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -25,6 +25,10 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Inicio', path: '/', iconName: 'BookOpen', i18nKey: 'nav.home' },
   { name: 'Explorar', path: '/explore', iconName: 'Compass', i18nKey: 'nav.explore' },
   { name: 'Rankings', path: '/rankings', iconName: 'Trophy', i18nKey: 'nav.rankings' },
+  { name: 'Blog', path: '/blog', iconName: 'Newspaper', i18nKey: 'nav.blog' },
+  { name: 'Géneros', path: '/genres', iconName: 'Tags', i18nKey: 'nav.genres' },
+  { name: 'Noticias', path: '/news', iconName: 'CalendarDays', i18nKey: 'nav.news' },
+  { name: 'Precios', path: '/pricing', iconName: 'CreditCard', i18nKey: 'nav.pricing' },
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
@@ -41,6 +45,10 @@ export const MAIN_NAV_LINKS: NavLinkDef[] = [
 
 export const MORE_NAV_LINKS: NavLinkDef[] = [
   { name: 'Economía', path: '/economy', iconName: 'Coins', i18nKey: 'nav.economy', hideWhenLoggedOut: true },
+  { name: 'Blog', path: '/blog', iconName: 'Newspaper', i18nKey: 'nav.blog' },
+  { name: 'Géneros', path: '/genres', iconName: 'Tags', i18nKey: 'nav.genres' },
+  { name: 'Noticias', path: '/news', iconName: 'CalendarDays', i18nKey: 'nav.news' },
+  { name: 'Precios', path: '/pricing', iconName: 'CreditCard', i18nKey: 'nav.pricing' },
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
@@ -51,7 +59,7 @@ export const MORE_NAV_LINKS: NavLinkDef[] = [
 const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
   MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
-  Coins,
+  Coins, Newspaper, Tags, CalendarDays, CreditCard,
 };
 
 /** Strip locale prefix from a pathname */

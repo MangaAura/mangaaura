@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
 
 import { DiscoverClient } from './DiscoverClient';
+import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -14,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: '/discover' },
+    ...withHreflang('/discover'),
   };
 }
 
@@ -33,5 +35,15 @@ async function getDiscoverData() {
 export default async function DiscoverPage() {
   const data = await getDiscoverData();
 
-  return <DiscoverClient {...data} />;
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Descubrir', item: '/discover' },
+        ]}
+      />
+      <DiscoverClient {...data} />
+    </>
+  );
 }

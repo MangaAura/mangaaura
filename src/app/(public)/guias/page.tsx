@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Container } from '@/components/Layout/Container';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias' },
+    ...withHreflang('/guias'),
   };
 }
 

@@ -26,6 +26,13 @@ jobs:
         env:
           DATABASE_URL: postgresql://localhost:5432/test
 
+      - name: TypeScript type check
+        run: npm run type-check
+
+      - name: Commitlint (PR title)
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.title }}" | npx commitlint
+
       - name: Run lint
         run: npm run lint
         continue-on-error: true

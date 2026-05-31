@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
-import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { FAQPageStructuredData, BreadcrumbStructuredData, WebPageStructuredData, HowToStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias/guia-principiantes-manga' },
+    ...withHreflang('/guias/guia-principiantes-manga'),
   };
 }
 
@@ -61,10 +62,30 @@ const genres = [
 export default function GuiaPrincipiantesPage() {
   return (
     <>
+      <WebPageStructuredData
+        name="Guía para principiantes: cómo leer manga | MangaAura"
+        description="Bienvenido al mundo del manga. Esta guía te enseña todo lo básico: cómo se lee, qué géneros existen, por dónde empezar y dónde encontrar tus primeras series."
+        url="/guias/guia-principiantes-manga"
+        lastReviewed="2026-01-15"
+        datePublished="2025-01-01"
+        dateModified="2026-01-15"
+      />
       <BreadcrumbStructuredData
         items={[
           { name: 'Guías', item: '/guias' },
           { name: 'Guía para principiantes', item: '/guias/guia-principiantes-manga' },
+        ]}
+      />
+      <HowToStructuredData
+        name="Cómo leer manga: guía completa para principiantes"
+        description="Aprende todo lo básico sobre el manga: cómo se lee, qué géneros existen, por dónde empezar y dónde encontrar tus primeras series."
+        totalTime="PT30M"
+        steps={[
+          { name: 'Elige un género que te guste', text: 'Explora los principales géneros: Shonen (acción, aventura), Shojo (romance), Seinen (adultos), Josei (mujeres adultas), Isekai (mundos alternativos) y Slice of Life (costumbrismo). Elige el que más resuene contigo.' },
+          { name: 'Encuentra una plataforma de lectura', text: 'Regístrate en plataformas legales como MangaAura (gratis), Manga Plus by Shueisha (gratis) o Shonen Jump (2.99€/mes) para acceder a miles de capítulos.' },
+          { name: 'Empieza con series cortas', text: 'Comienza con series de pocos tomos como Death Note (12 tomos) o Frieren antes de embarcarte en sagas largas como One Piece (100+ tomos).' },
+          { name: 'Acostúmbrate a la lectura inversa', text: 'El manga se lee de derecha a izquierda, al revés de los cómics occidentales. Tus ojos se adaptarán naturalmente después de unos pocos capítulos.' },
+          { name: 'Únete a la comunidad', text: 'Comenta capítulos, comparte recomendaciones y descubre nuevos títulos en la comunidad de MangaAura. La experiencia de leer manga es mejor cuando la compartes.' },
         ]}
       />
       <FAQPageStructuredData items={faqItems} />

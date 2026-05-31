@@ -1,9 +1,9 @@
 import { Queue, Job, type QueueOptions } from 'bullmq'
 
-import type { InboundEmailData, EmailClassification } from '@/core/services/IInboundEmailRepository'
-import { InMemoryQueue } from './InMemoryQueue'
 import { getBullConnection } from './connection'
+import { InMemoryQueue } from './InMemoryQueue'
 import type { WorkerMetrics } from './WorkerMetrics'
+import type { InboundEmailData, EmailClassification } from '@/core/services/IInboundEmailRepository'
 
 export type InboundJobType = 'classify' | 'process' | 'reply'
 
@@ -44,6 +44,7 @@ export class InboundEmailQueue {
 
     if (this.useInMemory) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { isMockRedis } = require('@/lib/redis')
         if (!isMockRedis()) {
           this.useInMemory = false

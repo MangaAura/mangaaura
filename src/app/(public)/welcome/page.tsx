@@ -6,6 +6,7 @@ import { WelcomeContent } from './WelcomeContent';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     robots: { index: false, follow: false },
-    alternates: { canonical: '/welcome' },
+    ...withHreflang('/welcome'),
   };
 }
 

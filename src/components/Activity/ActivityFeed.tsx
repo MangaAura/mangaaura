@@ -2,7 +2,6 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import Image from 'next/image';
 import {
   Heart,
   MessageSquare,
@@ -14,6 +13,7 @@ import {
   Crown,
   AlertCircle,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 

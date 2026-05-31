@@ -24,6 +24,8 @@ export interface Comment {
   parentId?: string;
   likesCount: number;
   isLiked?: boolean;
+  voteCount?: number;
+  userVote?: number | null;
   replies?: Comment[];
   createdAt: string;
   updatedAt: string;
@@ -40,6 +42,7 @@ interface UseChapterCommentsReturn {
   deleteComment: (commentId: string) => Promise<void>;
   likeComment: (commentId: string) => Promise<void>;
   unlikeComment: (commentId: string) => Promise<void>;
+  voteComment: (commentId: string, value: 1 | -1) => Promise<void>;
 }
 
 export function useChapterComments(chapterId: string): UseChapterCommentsReturn {
@@ -223,8 +226,54 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
     }
   }, [chapterId]);
 
+  function updateNested(comment: Comment, targetId: string, data: { voted: boolean; value: number | null }, currentValue: 1 | -1): Comment {
+    if (comment.id === targetId) {
+      const prevVote = comment.userVote ?? 0;
+      const prevCount = comment.voteCount ?? 0;
+      if (data.voted) {
+        const diff = data.value! - prevVote;
+        return { ...comment, userVote: data.value, voteCount: prevCount + diff };
+      }
+      return { ...comment, userVote: null, voteCount: prevCount - prevVote };
+    }
+    if (comment.replies) {
+      return { ...comment, replies: comment.replies.map((r) => updateNested(r, targetId, data, currentValue)) };
+    }
+    return comment;
+  }
+
+  // Vote comment
+  const voteComment = useCallback(async (commentId: string, value: 1 | -1) => {
+    try {
+      const response = await fetch(`/api/votes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetId: commentId,
+          targetType: 'COMMENT',
+          value,
+        }),
+      });
+
+      if (!response.ok) {
+        const { message } = await extractApiError(response);
+        throw new Error(message);
+      }
+
+      const data = await response.json();
+
+      setComments((prev) =>
+        prev.map((c) => {
+          const updated = updateNested(c, commentId, data, value);
+          return updated;
+        })
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }, []);
+
   // Cargar inicial
-   
   useEffect(() => {
     if (chapterId) {
       queueMicrotask(() => { void fetchComments(1); });
@@ -243,6 +292,7 @@ export function useChapterComments(chapterId: string): UseChapterCommentsReturn 
     deleteComment,
     likeComment,
     unlikeComment,
+    voteComment,
   };
 }
 

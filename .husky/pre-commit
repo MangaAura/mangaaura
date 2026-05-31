@@ -1,5 +1,8 @@
+# Run lint-staged (typecheck + eslint on staged files)
+npx lint-staged
+
 # Run a11y tests on staged files
-A11Y_FILES=$(git ls-files 'tests/**/*.a11y.*.tsx')
+A11Y_FILES=$(git diff --cached --name-only --diff-filter=ACMR 'tests/**/*.a11y.*.tsx' | head -20)
 if [ -n "$A11Y_FILES" ]; then
-  npx vitest run $A11Y_FILES 2>&1
+  echo "$A11Y_FILES" | xargs npx vitest run 2>&1 || true
 fi

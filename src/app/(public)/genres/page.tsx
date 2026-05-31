@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
 
 import { GenresListPageClient } from './GenresListPageClient';
+import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -14,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: '/genres' },
+    ...withHreflang('/genres'),
   };
 }
 
@@ -24,5 +26,15 @@ export default async function GenresPage() {
     select: { id: true, name: true, slug: true },
   });
 
-  return <GenresListPageClient genres={genres} />;
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Géneros', item: '/genres' },
+        ]}
+      />
+      <GenresListPageClient genres={genres} />
+    </>
+  );
 }

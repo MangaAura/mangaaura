@@ -7,11 +7,11 @@
 
 import { NextResponse } from 'next/server';
 
-import { auth } from '@/lib/auth';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
-import { getNotificationQueue } from '@/infrastructure/queue/NotificationQueue';
-import { getInferenceJobQueue } from '@/infrastructure/queue/InferenceJobQueue';
 import { getInboundEmailQueue } from '@/infrastructure/queue/InboundEmailQueue';
+import { getInferenceJobQueue } from '@/infrastructure/queue/InferenceJobQueue';
+import { getNotificationQueue } from '@/infrastructure/queue/NotificationQueue';
+import { auth } from '@/lib/auth';
 
 export async function GET() {
   try {

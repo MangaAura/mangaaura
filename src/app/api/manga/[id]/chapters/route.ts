@@ -123,7 +123,7 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json();
-    const { chapterNumber, title, pageUrls, coverUrl } = body;
+    const { chapterNumber, title, pageUrls, coverUrl, scheduledAt } = body;
 
     // Verificar que el manga existe y el usuario es el autor
     const manga = await prisma.mangaSeries.findUnique({
@@ -185,6 +185,8 @@ export async function POST(
 
     const totalPages = validUrls.length;
 
+    const isScheduled = scheduledAt ? new Date(scheduledAt) > new Date() : false;
+
     const chapter = await prisma.chapter.create({
       data: {
         mangaId: id,
@@ -193,6 +195,8 @@ export async function POST(
         totalPages,
         pageUrls: JSON.stringify(validUrls),
         coverUrl: coverUrl || null,
+        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+        status: isScheduled ? 'SCHEDULED' : 'PUBLISHED',
       },
     });
 
@@ -207,6 +211,29 @@ export async function POST(
     await invalidateCache(`manga:${id}`);
     await invalidateCache('user:mangas:list');
     await invalidateCache('stats:homepage');
+
+    // Skip notifications if scheduled (cron handles it)
+    if (isScheduled) {
+      return NextResponse.json(
+        {
+          message: 'Capítulo programado exitosamente',
+          chapter: {
+            id: chapter.id,
+            mangaId: chapter.mangaId,
+            chapterNumber: chapter.chapterNumber,
+            title: chapter.title,
+            coverUrl: chapter.coverUrl,
+            totalPages: chapter.totalPages,
+            pageUrls: validUrls,
+            scheduledAt: chapter.scheduledAt,
+            createdAt: chapter.createdAt,
+            viewCount: chapter.viewCount,
+            status: chapter.status,
+          },
+        },
+        { status: 201 }
+      );
+    }
 
     // Notificar a seguidores del manga
     try {

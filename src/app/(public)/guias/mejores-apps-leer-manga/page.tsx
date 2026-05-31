@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
-import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { FAQPageStructuredData, BreadcrumbStructuredData, WebPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias/mejores-apps-leer-manga' },
+    ...withHreflang('/guias/mejores-apps-leer-manga'),
   };
 }
 
@@ -52,6 +53,14 @@ const faqItems = [
 export default function MejoresAppsPage() {
   return (
     <>
+      <WebPageStructuredData
+        name="Mejores aplicaciones para leer manga digitalmente | MangaAura"
+        description="Tanto si eres nuevo en el mundo del manga como si ya eres un lector veterano, tener la aplicación adecuada marca la diferencia. Esta guía compara las mejores apps para Android, iOS y PC."
+        url="/guias/mejores-apps-leer-manga"
+        lastReviewed="2026-01-15"
+        datePublished="2025-01-01"
+        dateModified="2026-01-15"
+      />
       <BreadcrumbStructuredData
         items={[
           { name: 'Guías', item: '/guias' },

@@ -149,9 +149,9 @@ export async function GET(
                 level: true,
               },
             },
-            _count: {
-              select: { likes: true },
-            },
+        _count: {
+          select: { likes: true },
+        },
           },
           orderBy: { createdAt: 'asc' },
           take: 10, // Limitar replies
@@ -192,6 +192,38 @@ export async function GET(
       userLikes = likes.map((l) => l.commentId);
     }
 
+    // Obtener votes del usuario actual y conteos
+    const userVotes: Record<string, number> = {};
+    
+    if (session?.user?.id) {
+      const allIds = comments.flatMap((c) => [c.id, ...c.replies.map((r) => r.id)]);
+      const votes = await prisma.vote.findMany({
+        where: {
+          userId: session.user.id,
+          targetId: { in: allIds },
+          targetType: 'COMMENT',
+        },
+        select: { targetId: true, value: true },
+      });
+      for (const v of votes) {
+        userVotes[v.targetId] = v.value;
+      }
+    }
+
+    // Calcular conteos de votes agrupados por targetId
+    const voteCounts: Record<string, number> = {};
+    const allIds = comments.flatMap((c) => [c.id, ...c.replies.map((r) => r.id)]);
+    if (allIds.length > 0) {
+      const groups = await prisma.vote.groupBy({
+        by: ['targetId'],
+        where: { targetId: { in: allIds }, targetType: 'COMMENT' },
+        _sum: { value: true },
+      });
+      for (const g of groups) {
+        voteCounts[g.targetId] = g._sum.value ?? 0;
+      }
+    }
+
     // Transformar respuesta
     const transformedComments = comments.map((comment) => ({
       id: comment.id,
@@ -202,6 +234,8 @@ export async function GET(
       likesCount: comment._count.likes,
       repliesCount: comment._count.replies,
       isLikedByUser: userLikes.includes(comment.id),
+      voteCount: voteCounts[comment.id] ?? 0,
+      userVote: userVotes[comment.id] ?? null,
       user: {
         id: comment.user.id,
         username: comment.user.username,
@@ -217,6 +251,8 @@ export async function GET(
         updatedAt: reply.updatedAt,
         likesCount: reply._count.likes,
         isLikedByUser: userLikes.includes(reply.id),
+        voteCount: voteCounts[reply.id] ?? 0,
+        userVote: userVotes[reply.id] ?? null,
         user: {
           id: reply.user.id,
           username: reply.user.username,
@@ -432,6 +468,8 @@ export async function POST(
         likesCount: 0,
         repliesCount: 0,
         isLikedByUser: false,
+        voteCount: 0,
+        userVote: null,
         user: {
           id: comment.user.id,
           username: comment.user.username,

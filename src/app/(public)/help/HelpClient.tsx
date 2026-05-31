@@ -18,6 +18,7 @@ import { useState } from 'react';
 
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
+import { FAQPageStructuredData } from '@/components/SEO/StructuredData';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
@@ -141,8 +142,14 @@ export default function HelpClient() {
 
   const totalResults = filteredFAQs.reduce((acc, cat) => acc + cat.questions.length, 0);
 
+  const allFaqItems = faqCategories.flatMap((cat) =>
+    cat.questions.map((q) => ({ question: q.q, answer: q.a }))
+  );
+
   return (
-    <Container className="py-12">
+    <>
+      <FAQPageStructuredData items={allFaqItems} />
+      <Container className="py-12">
       <PageHeader
         title={t('help.title')}
         description={t('help.description')}
@@ -245,5 +252,6 @@ export default function HelpClient() {
         </div>
       </div>
     </Container>
+    </>
   );
 }

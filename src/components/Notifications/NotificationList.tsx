@@ -7,7 +7,7 @@
 
 'use client';
 
-import { Loader2, Filter, Check } from 'lucide-react';
+import { Loader2, Filter } from 'lucide-react';
 import { useRef, useCallback } from 'react';
 
 import { EmptyState } from './EmptyState';
@@ -45,7 +45,6 @@ export function NotificationList({
   hasMore,
   onLoadMore,
   onMarkAsRead,
-  onMarkAllAsRead,
   onDelete,
   filterType = 'all',
   onFilterChange,
@@ -76,15 +75,18 @@ export function NotificationList({
   const grouped = notifications.reduce((acc, notification) => {
     const date = new Date(notification.createdAt);
     const today = new Date();
+    today.setHours(23, 59, 59, 999);
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
+    const thisWeek = new Date(today);
+    thisWeek.setDate(thisWeek.getDate() - 7);
 
     let group = 'Anteriores';
     if (date.toDateString() === today.toDateString()) {
       group = 'Hoy';
     } else if (date.toDateString() === yesterday.toDateString()) {
       group = 'Ayer';
-    } else if (date > new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)) {
+    } else if (date >= thisWeek) {
       group = 'Esta semana';
     }
 
@@ -94,7 +96,6 @@ export function NotificationList({
   }, {} as Record<string, Notification[]>);
 
   const groups = ['Hoy', 'Ayer', 'Esta semana', 'Anteriores'];
-  const hasUnread = notifications.some(n => !n.isRead);
 
   if (isLoading && notifications.length === 0) {
     return (
@@ -121,32 +122,36 @@ export function NotificationList({
         {onFilterChange && (
           <div className="flex items-center gap-2 flex-wrap">
             <Filter className="w-4 h-4 text-[var(--text-tertiary)]" />
-            {filterOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => onFilterChange(option.value)}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
-                  filterType === option.value
-                    ? 'bg-[var(--primary)] text-[var(--text-inverse)]'
-                    : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
+            {filterOptions.map((option) => {
+              const count = option.value === 'all'
+                ? notifications.length
+                : notifications.filter((n) => n.type === option.value).length;
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => onFilterChange(option.value)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+                    filterType === option.value
+                      ? 'bg-[var(--primary)] text-[var(--text-inverse)]'
+                      : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
+                  )}
+                >
+                  {option.label}
+                  {count > 0 && (
+                    <span className={cn(
+                      'text-[10px] px-1.5 py-0.5 rounded-full',
+                      filterType === option.value
+                        ? 'bg-[var(--primary-light)]/30'
+                        : 'bg-[var(--border)]'
+                    )}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
-        )}
-
-        {/* Actions */}
-        {hasUnread && onMarkAllAsRead && (
-          <button
-            onClick={onMarkAllAsRead}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors self-start sm:self-auto"
-          >
-            <Check className="w-4 h-4" />
-            Marcar todas como leídas
-          </button>
         )}
       </div>
 

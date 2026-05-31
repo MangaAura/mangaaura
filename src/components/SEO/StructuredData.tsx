@@ -305,6 +305,87 @@ export function WebsiteStructuredData() {
   );
 }
 
+interface WebPageStructuredDataProps {
+  name: string;
+  description: string;
+  url: string;
+  lastReviewed?: string;
+  datePublished?: string;
+  dateModified?: string;
+  breadcrumbs?: Array<{ name: string; item: string }>;
+}
+
+export function WebPageStructuredData({
+  name,
+  description,
+  url,
+  lastReviewed,
+  datePublished,
+  dateModified,
+  breadcrumbs,
+}: WebPageStructuredDataProps) {
+  const graph = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name,
+      description,
+      url: `https://mangaaura.es${url}`,
+      ...(lastReviewed && { lastReviewed }),
+      ...(datePublished && { datePublished }),
+      ...(dateModified && { dateModified }),
+      ...(breadcrumbs && breadcrumbs.length > 0
+        ? {
+            breadcrumb: {
+              '@type': 'BreadcrumbList',
+              itemListElement: breadcrumbs.map((item, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                name: item.name,
+                item: `https://mangaaura.es${item.item}`,
+              })),
+            },
+          }
+        : {}),
+    },
+  ];
+
+  return (
+    <Script
+      id="webpage-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graph[0]) }}
+    />
+  );
+}
+
+export function SearchResultsPageStructuredData() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SearchResultsPage',
+    name: 'Explorar Manga | MangaAura',
+    description: 'Descubre y explora mangas por género, popularidad, últimas actualizaciones y calificaciones.',
+    url: 'https://mangaaura.es/explore',
+    mainEntity: {
+      '@type': 'ItemList',
+      name: 'Manga disponibles',
+    },
+    significantLink: [
+      'https://mangaaura.es/rankings',
+      'https://mangaaura.es/genres',
+      'https://mangaaura.es/discover',
+    ],
+  };
+
+  return (
+    <Script
+      id="search-results-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
 export function OrganizationStructuredData() {
   const structuredData = {
     '@context': 'https://schema.org',

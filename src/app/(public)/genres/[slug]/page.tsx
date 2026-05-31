@@ -2,7 +2,9 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { GenrePageClient } from './GenrePageClient';
+import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -35,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: seo.title,
       description: seo.description,
       keywords: [genre.name, slug, `manga ${genre.name.toLowerCase()}`, `manga ${slug}`],
-      alternates: { canonical: `${siteUrl}/genres/${genre.slug}` },
+      ...withHreflang(`/genres/${genre.slug}`),
       openGraph: {
         title: seo.title,
         description: seo.description,
@@ -47,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Manga de ${genre.name}`,
     description: `Explora los mejores mangas de ${genre.name} en MangaAura. Lee, descubre y disfruta del género ${genre.name}.`,
-    alternates: { canonical: `${siteUrl}/genres/${genre.slug}` },
+    ...withHreflang(`/genres/${genre.slug}`),
     openGraph: {
       title: `Manga de ${genre.name} | MangaAura`,
       description: `Explora los mejores mangas de ${genre.name} en MangaAura.`,
@@ -64,5 +66,16 @@ export default async function GenrePage({ params }: Props) {
   });
   if (!genre) notFound();
 
-  return <GenrePageClient slug={slug} />;
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Géneros', item: '/genres' },
+          { name: genre.name, item: `/genres/${slug}` },
+        ]}
+      />
+      <GenrePageClient slug={slug} />
+    </>
+  );
 }

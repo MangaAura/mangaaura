@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
-import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { FAQPageStructuredData, BreadcrumbStructuredData, WebPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias/manga-mas-vendido-historia' },
+    ...withHreflang('/guias/manga-mas-vendido-historia'),
   };
 }
 
@@ -52,6 +53,14 @@ const faqItems = [
 export default function MangaMasVendidoPage() {
   return (
     <>
+      <WebPageStructuredData
+        name="El manga más vendido de la historia: ranking 2025-2026 | MangaAura"
+        description="El manga es una industria global que mueve miles de millones. Estas son las series que han marcado un antes y un después en ventas, con cifras actualizadas a 2025-2026."
+        url="/guias/manga-mas-vendido-historia"
+        lastReviewed="2026-01-15"
+        datePublished="2025-01-01"
+        dateModified="2026-01-15"
+      />
       <BreadcrumbStructuredData
         items={[
           { name: 'Guías', item: '/guias' },

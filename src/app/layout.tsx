@@ -32,7 +32,9 @@ const displayFont = Bebas_Neue({
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
-export const metadata: Metadata = {
+// Dynamic OG locale detection — updated in generateMetadata below
+// Root level metadata is static, locale-aware updates happen in the layout function
+const baseMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "MangaAura — Lee, crea y crowdfundea manga con IA",
@@ -47,6 +49,7 @@ export const metadata: Metadata = {
     languages: {
       'x-default': siteUrl,
       es: siteUrl,
+      en: siteUrl,
     },
     types: {
       'application/rss+xml': `${siteUrl}/api/feed/rss`,
@@ -94,6 +97,17 @@ export const metadata: Metadata = {
     telephone: false,
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  return {
+    ...baseMetadata,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

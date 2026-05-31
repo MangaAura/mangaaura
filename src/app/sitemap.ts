@@ -75,6 +75,7 @@ const staticRoutes = [
 
   // Onboarding
   { path: '/welcome', priority: 0.4, changefreq: 'monthly' },
+  { path: '/como-funciona', priority: 0.8, changefreq: 'monthly' },
 ];
 
 // Safe DB query wrapper that suppresses Prisma errors during build

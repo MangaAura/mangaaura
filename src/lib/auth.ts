@@ -291,12 +291,13 @@ if (user) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { twoFactorEnabled: true },
+            select: { twoFactorEnabled: true, emailVerified: true },
           });
           token.twoFactorEnabled = dbUser?.twoFactorEnabled ?? false;
           if (token.twoFactorEnabled) {
             token.twoFactorPending = true;
           }
+          token.emailVerified = dbUser?.emailVerified?.toISOString() ?? null;
         } catch {
           token.twoFactorEnabled = false;
         }
@@ -368,6 +369,7 @@ if (user) {
         session.user.role = token.role as string;
         session.user.twoFactorEnabled = token.twoFactorEnabled as boolean;
         session.user.twoFactorPending = token.twoFactorPending as boolean | undefined;
+        session.user.emailVerified = token.emailVerified as string | null | undefined;
       }
       return session;
     },

@@ -8,11 +8,11 @@
 import { achievementService, initializeAchievementService } from '@/core/services/AchievementService';
 import { notificationService, initializeNotificationService } from '@/core/services/NotificationService';
 import { readingAnalyticsService, initializeReadingAnalyticsService } from '@/core/services/ReadingAnalyticsService';
+import { EmailQueueProducer } from '@/infrastructure/adapters/EmailQueueProducer';
 import { MongoReadingAnalyticsRepository } from '@/infrastructure/adapters/MongoReadingAnalyticsRepository';
 import { PrismaAchievementRepository } from '@/infrastructure/adapters/PrismaAchievementRepository';
 import { PrismaNotificationRepository, RealtimeNotificationAdapter } from '@/infrastructure/adapters/PrismaNotificationRepository';
 import { QueuePushNotificationAdapter } from '@/infrastructure/adapters/QueuePushNotificationAdapter';
-import { EmailQueueProducer } from '@/infrastructure/adapters/EmailQueueProducer';
 import { getEventBus, DomainEvent } from '@/infrastructure/queue/LocalEventBus';
 import { prisma } from '@/lib/prisma';
 

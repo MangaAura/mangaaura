@@ -2,15 +2,20 @@ import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }));
-vi.mock('@/lib/prisma', () => ({ prisma: { userLibrary: { findUnique: vi.fn(), update: vi.fn(), delete: vi.fn() } } }));
+vi.mock('@/lib/prisma', () => ({ prisma: { userLibrary: { findUnique: vi.fn(), update: vi.fn(), delete: vi.fn() }, userActivity: { create: vi.fn().mockResolvedValue({}) } } }));
 vi.mock('@/lib/cache', () => ({ invalidatePattern: vi.fn() }));
+vi.mock('@/lib/rate-limit-middleware', () => ({ withRateLimit: vi.fn() }));
 
 import { GET, PATCH, DELETE } from '@/app/api/library/[mangaId]/route';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withRateLimit } from '@/lib/rate-limit-middleware';
 
 describe('/api/library/[mangaId]', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(withRateLimit).mockResolvedValue(null as any);
+  });
 
   const mockSession = { user: { id: 'user1' } };
 

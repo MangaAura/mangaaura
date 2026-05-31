@@ -37,6 +37,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
     deleteComment,
     likeComment,
     unlikeComment,
+    voteComment,
   } = useChapterComments(chapterId);
 
   const handleSubmit = async (content: string) => {
@@ -102,6 +103,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
                 onDelete={deleteComment}
                 onLike={likeComment}
                 onUnlike={unlikeComment}
+                onVote={voteComment}
                 replyingTo={replyingTo}
                 onSubmitReply={handleSubmit}
                 onCancelReply={() => setReplyingTo(null)}

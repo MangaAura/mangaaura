@@ -1,45 +1,75 @@
-/**
- * Socket.IO Server Configuration (STUB)
- *
- * WebSockets fueron removidos. Este archivo es un stub que mantiene
- * compatibilidad con el código existente. getIO() siempre retorna null.
- * Las funciones emit* son no-ops.
- */
+import type { Server as HTTPServer } from 'http';
+import type { Socket as NetSocket } from 'net';
+import { Server as IOServer } from 'socket.io';
 
-// Re-exportar tipos para mantener compatibilidad
-export * from '@/types/socket';
+import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '@/types/socket';
 
-// Singleton (siempre null)
-export type IOServer = null;
+interface SocketServer extends HTTPServer {
+  io?: IOServer<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData> | null;
+}
 
-export const getIO = (): null => null;
+interface SocketWithIO extends NetSocket {
+  server: SocketServer;
+}
 
-export const initIO = (): null => {
-  console.info('[Socket] WebSockets disabled — running in HTTP-only mode');
-  return null;
-};
+let io: IOServer<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData> | null = null;
 
-/** No-op: WebSockets están deshabilitados */
-export const emitNotification = (
-  _userId: string,
-  _notification: unknown,
-) => {
-  // No-op
-};
+export function initIO(httpServer?: HTTPServer) {
+  if (io) return io;
 
-/** No-op: WebSockets están deshabilitados */
-export const emitToRoom = (
-  _room: string,
-  _event: string,
-  _data: unknown,
-) => {
-  // No-op
-};
+  if (!httpServer) {
+    console.warn('[Socket] No HTTP server provided — running in HTTP-only mode');
+    return null;
+  }
 
-/** No-op: WebSockets están deshabilitados */
-export const broadcastNotification = (
-  _event: string,
-  _data: unknown,
-) => {
-  // No-op
-};
+  io = new IOServer<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
+    cors: {
+      origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      methods: ['GET', 'POST'],
+    },
+    pingInterval: 25000,
+    pingTimeout: 20000,
+  });
+
+  io.on('connection', (socket) => {
+    const userId = socket.handshake.query.userId as string | undefined;
+    if (userId) {
+      socket.join(`user:${userId}`);
+    }
+
+    socket.on('join:room', (room) => {
+      socket.join(room as string);
+    });
+
+    socket.on('leave:room', (room) => {
+      socket.leave(room as string);
+    });
+
+    socket.on('disconnect', () => {});
+  });
+
+  console.info('[Socket] IO server initialized');
+  return io;
+}
+
+export function getIO() {
+  return io;
+}
+
+export function emitNotification(userId: string, notification: unknown) {
+  if (!io) return;
+  io.to(`user:${userId}`).emit('notification', notification);
+}
+
+export function emitToRoom(room: string, event: string, data: unknown) {
+  if (!io) return;
+  io.to(room).emit(event, data);
+}
+
+export function broadcastNotification(event: string, data: unknown) {
+  if (!io) return;
+  io.emit(event, data);
+}
+
+export type { SocketServer, SocketWithIO };
+export type { IOServer };

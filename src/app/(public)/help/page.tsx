@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 
 import HelpClient from './HelpClient';
+import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -25,10 +27,20 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/help' },
+    ...withHreflang('/help'),
   };
 }
 
 export default function HelpPage(props: any) {
-  return <HelpClient {...props} />;
+  return (
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Ayuda', item: '/help' },
+        ]}
+      />
+      <HelpClient {...props} />
+    </>
+  );
 }

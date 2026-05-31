@@ -7,8 +7,8 @@
 
 import { Queue, Job, type QueueOptions } from 'bullmq';
 
-import { InMemoryQueue } from './InMemoryQueue';
 import { getBullConnection } from './connection';
+import { InMemoryQueue } from './InMemoryQueue';
 import type { WorkerMetrics } from './WorkerMetrics';
 
 // ============================================================================
@@ -116,6 +116,7 @@ export class NotificationQueue {
 
     if (this.useInMemory) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { isMockRedis } = require('@/lib/redis');
         if (!isMockRedis()) {
           this.useInMemory = false;

@@ -148,7 +148,7 @@ export default function AdvancedSearchClient() {
       timerRef.current = setTimeout(doSearch, 300);
     }
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [page, query, selectedGenres, selectedStatus, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, query, selectedGenres, selectedStatus, sortBy]);  
 
   const getGenreName = (slug: string): string => {
     const genre = genres.find(g => g.slug === slug);

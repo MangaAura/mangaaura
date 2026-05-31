@@ -36,8 +36,8 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'Googlebot',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings'],
       },
       {
         userAgent: 'Bingbot',
@@ -46,28 +46,28 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'GPTBot',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
       {
         userAgent: 'ClaudeBot',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
       {
         userAgent: 'anthropic-ai',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
       {
         userAgent: 'PerplexityBot',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
       {
         userAgent: 'ChatGPT-User',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
       {
         userAgent: 'AhrefsBot',
@@ -79,16 +79,47 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'Applebot',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
       {
         userAgent: 'Google-Extended',
-        allow: '/',
-        disallow: ['/api', '/admin', '/creator', '/auth'],
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
+      },
+      // AI search crawlers
+      {
+        userAgent: 'OAI-SearchBot',
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
+      },
+      {
+        userAgent: 'CCBot',
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
+      },
+      {
+        userAgent: 'Bytespider',
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
+      },
+      {
+        userAgent: 'cohere-ai',
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
+      },
+      {
+        userAgent: 'YouBot',
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
+      },
+      {
+        userAgent: 'GoogleOther',
+        allow: ['/', '/creator/manga/new', '/creator/sponsors'],
+        disallow: ['/api', '/admin', '/creator/dashboard', '/creator/upload', '/creator/settings', '/auth'],
       },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: [`${BASE_URL}/sitemap.xml`, `${BASE_URL}/news-sitemap.xml`],
     host: BASE_URL,
   };
 }

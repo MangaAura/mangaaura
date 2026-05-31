@@ -4,6 +4,7 @@ import { AnnouncementsList } from './AnnouncementsList';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -26,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/announcements' },
+    ...withHreflang('/announcements'),
   };
 }
 

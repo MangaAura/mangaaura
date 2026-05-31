@@ -1,31 +1,46 @@
 # MangaAura
 > La plataforma de manga con IA para leer, crear y crowdfundear capítulos.
 
-## Explore
-- /explore: Discover manga by genre, popularity, and latest updates.
-- /rankings: Top ranked manga and readers.
-- /manga/[slug]: Individual manga series pages with chapters.
-- /reader/[slug]: Manga chapter reader.
-- /library: Personal reading library with reading progress tracking.
+## Quick facts
+- **Price**: Free for readers. Creators earn through Aura crowdfunding and sponsorships.
+- **Language**: Spanish (primary), English (secondary)
+- **Platform**: Web (PWA) — installable on mobile and desktop
+- **Audience**: Manga readers, manga creators, anime fans, Spanish-speaking LATAM + Spain
+- **Content**: User-generated manga, community forums, creator tools
 
-## Community
-- /community: Community hub with forums and clans.
-- /community/forum: Discussion forums by category.
-- /community/clans: User-created clans and groups.
-- /events: Seasonal events and competitions.
-- /news: Platform news and updates.
+## Pricing
+- **Reading**: Free (no subscription required)
+- **Aura packs**: 100 Aura ($1.00), 500 Aura ($4.50), 1000 Aura ($8.50), 5000 Aura ($40.00)
+- **Premium monthly**: $4.99/month — exclusive chapters, ad-free reading, offline mode, premium badges
+- **Premium annual**: $49.99/year (save ~$10)
+- **Creator fees**: Zero platform fee — creators keep 100% of crowdfunding
+- **Payment**: Stripe (credit/debit card)
 
-## For Creators
-- /creator/dashboard: Creator analytics and management.
-- /creator/manga/new: Create a new manga series.
-- /creator/upload: Upload new manga chapters.
-- /creator/sponsors: Sponsorship management for creators.
+## Key pages
+- Homepage: https://mangaaura.es — Platform overview and featured manga
+- Explore: https://mangaaura.es/explore — Discover manga by genre, popularity, and latest updates
+- Rankings: https://mangaaura.es/rankings — Top ranked manga and readers
+- Pricing: https://mangaaura.es/pricing — Aura packs and premium subscriptions
+- Library: https://mangaaura.es/library — Personal reading library with reading progress tracking
+- News: https://mangaaura.es/news — Platform news and manga industry updates
+- Blog: https://mangaaura.es/blog — Guides, tutorials and platform insights
+- Help: https://mangaaura.es/help — Frequently asked questions and support
+- Community: https://mangaaura.es/community — Community hub with forums and clans
+- Events: https://mangaaura.es/events — Seasonal events and competitions
+- Comparison: https://mangaaura.es/comparison — Compare MangaAura with other platforms
+- Announcements: https://mangaaura.es/announcements — Platform announcements
+
+## For creators
+- Create manga: https://mangaaura.es/creator/manga/new — Publish a new series
+- Dashboard: https://mangaaura.es/creator/dashboard — Creator analytics and management
+- Upload chapter: https://mangaaura.es/creator/upload — Upload new manga chapters
+- Sponsorships: https://mangaaura.es/creator/sponsors — Sponsorship management for creators
 
 ## API & Integration
-- /api/og: Dynamic Open Graph image generation.
-- /api/analytics/web-vitals: Core Web Vitals reporting endpoint.
-- PWA support with offline reading via Service Worker at /sw.js.
-- Manifest at /manifest.json for installable web app.
+- /api/og: Dynamic Open Graph image generation
+- /api/analytics/web-vitals: Core Web Vitals reporting endpoint
+- PWA support with offline reading via Service Worker at /sw.js
+- Manifest at /manifest.json for installable web app
 
 ## Key Features
 - AI-powered manga discovery, recommendations, and automated descriptions
@@ -38,15 +53,27 @@
 - Multi-language support (Spanish and English)
 - Social features: clans, forums, user profiles, and direct messaging
 - Image cropping and optimization for manga covers
+- Dynamic OG images at /api/og
+- Reading history tracking with progress sync across devices
+- Weekly rankings for manga and readers based on XP
 
 ## Content Policies
 - Content is user-generated from creators
 - All manga is available for free reading
 - Creators earn through Aura crowdfunding and sponsorships
 - Manga categories include standard genres (action, romance, fantasy, etc.)
+- Content moderation with AI-assisted comment analysis and spoiler detection
 
 ## FAQ
-- Q: Is MangaAura free? A: Yes, reading manga is completely free.
-- Q: How does Aura work? A: Aura is the virtual currency for crowdfunding chapters and supporting creators.
-- Q: How can I create manga? A: Register as a creator and upload your chapters from the creator dashboard.
+- Q: Is MangaAura free? A: Yes, reading manga is completely free. No subscription required.
+- Q: How does Aura work? A: Aura is the virtual currency for crowdfunding chapters and supporting creators. Readers buy Aura via Stripe.
+- Q: How can I create manga? A: Register as a creator (free) and use the creator dashboard to upload chapters with drag & drop.
 - Q: What is crowdfunding? A: Readers contribute Aura to chapters they want published. When the goal is met, the chapter is released for everyone.
+- Q: How do creators earn money? A: Creators receive 100% of crowdfunding and sponsorships. Zero platform fees.
+- Q: How does the XP system work? A: Readers earn XP by reading chapters (+2 XP), commenting (+5 XP), and submitting corrections (+20 XP). Levels range from Novice (0 XP) to Manga Legend (10000+ XP).
+- Q: What are clans? A: Clans are user-created reading groups with rankings, chat, and collaborative goals. Join or create a clan from the community page.
+- Q: Can I read offline? A: Yes. MangaAura is a PWA with offline reading support.
+- Q: What platforms support MangaAura? A: Any modern browser. Installable as a PWA on mobile and desktop.
+- Q: Is there a mobile app? A: Not in app stores, but the PWA works identically and can be installed from any browser.
+- Q: How do I contact support? A: Visit https://mangaaura.es/help or email support@mangaaura.es
+- Q: Is my account secure? A: Yes. We support two-factor authentication (2FA) and all connections are encrypted via HTTPS.

@@ -6,10 +6,10 @@
 import { EmailWorker, getEmailWorker, stopEmailWorker } from './EmailWorker';
 import { InboundEmailWorker, getInboundEmailWorker, stopInboundEmailWorker } from './InboundEmailWorker';
 import { NotificationWorker, getNotificationWorker, stopNotificationWorker } from './NotificationWorker';
+import { closeBullConnection } from '@/infrastructure/queue/connection';
 import { resetEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { resetInboundEmailQueue } from '@/infrastructure/queue/InboundEmailQueue';
 import { resetNotificationQueue } from '@/infrastructure/queue/NotificationQueue';
-import { closeBullConnection } from '@/infrastructure/queue/connection';
 import { closeRedisConnection } from '@/lib/redis';
 
 export { EmailWorker, getEmailWorker, stopEmailWorker };

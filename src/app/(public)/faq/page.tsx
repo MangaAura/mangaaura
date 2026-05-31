@@ -4,21 +4,25 @@ import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
-import { FAQPageStructuredData } from '@/components/SEO/StructuredData';
+import { BreadcrumbStructuredData, FAQPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Preguntas Frecuentes - MangaAura',
-  description: 'Encuentra respuestas a las preguntas más comunes sobre MangaAura: lectura, creación, monetización, Aura y más.',
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  return {
     title: 'Preguntas Frecuentes - MangaAura',
-    description: 'Encuentra respuestas a las preguntas más comunes sobre MangaAura.',
-    type: 'website',
-    siteName: 'MangaAura',
-    locale: 'es_ES',
-  },
-};
+    description: 'Encuentra respuestas a las preguntas más comunes sobre MangaAura: lectura, creación, monetización, Aura y más.',
+    openGraph: {
+      title: 'Preguntas Frecuentes - MangaAura',
+      description: 'Encuentra respuestas a las preguntas más comunes sobre MangaAura.',
+      type: 'website',
+      siteName: 'MangaAura',
+      locale: 'es_ES',
+    },
+    ...withHreflang('/faq'),
+  };
+}
 
 const faqItems = [
   { qKey: 'faq1Q', aKey: 'faq1A' },
@@ -42,6 +46,12 @@ export default async function FAQPage() {
 
   return (
     <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'FAQ', item: '/faq' },
+        ]}
+      />
       <FAQPageStructuredData items={structuredItems} />
       <Container className="py-12">
         <PageHeader

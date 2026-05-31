@@ -1,10 +1,10 @@
-import { prisma } from '@/lib/prisma';
-
 import type {
   IFollowRepository,
   FollowingType,
   FollowQuery,
 } from './IFollowRepository';
+import { prisma } from '@/lib/prisma';
+
 
 export { FollowingType };
 

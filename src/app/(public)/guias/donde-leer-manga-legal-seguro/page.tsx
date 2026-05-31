@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
-import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { FAQPageStructuredData, BreadcrumbStructuredData, WebPageStructuredData, HowToStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias/donde-leer-manga-legal-seguro' },
+    ...withHreflang('/guias/donde-leer-manga-legal-seguro'),
   };
 }
 
@@ -52,10 +53,28 @@ const faqItems = [
 export default function DondeLeerMangaPage() {
   return (
     <>
+      <WebPageStructuredData
+        name="¿Dónde leer manga online de forma legal y segura? | MangaAura"
+        description="Leer manga online es más fácil que nunca, pero no todos los sitios son seguros ni legales. Esta guía te muestra las mejores plataformas donde puedes disfrutar de tus series favoritas sin riesgos y apoyando a la industria."
+        url="/guias/donde-leer-manga-legal-seguro"
+        lastReviewed="2026-01-15"
+        datePublished="2025-01-01"
+        dateModified="2026-01-15"
+      />
       <BreadcrumbStructuredData
         items={[
           { name: 'Guías', item: '/guias' },
           { name: 'Dónde leer manga legal', item: '/guias/donde-leer-manga-legal-seguro' },
+        ]}
+      />
+      <HowToStructuredData
+        name="Cómo leer manga online de forma legal y segura"
+        description="Encuentra las mejores plataformas legales para leer manga online sin riesgos. Apoya a los creadores y disfruta de contenido de calidad."
+        steps={[
+          { name: 'Elige una plataforma legal', text: 'Las mejores opciones legales incluyen Manga Plus by Shueisha (gratis, capítulos simultáneos con Japón), Shonen Jump (2.99€/mes, +15,000 capítulos), MangaAura (gratis, contenido original de creadores), Webtoon (webcomics gratis) y ComiXology.' },
+          { name: 'Verifica que sea una fuente oficial', text: 'Las plataformas legales tienen licencias de las editoriales. Manga Plus es de Shueisha, Shonen Jump de VIZ Media, MangaAura tiene contenido original. Busca el sello "oficial" o "licenciado".' },
+          { name: 'Evita sitios piratas', text: 'Los sitios piratas contienen malware (43% según Digital Citizens Alliance), anuncios invasivos y pueden exponerte a riesgos de seguridad. Además, leer en plataformas legales apoya a los creadores.' },
+          { name: 'Disfruta de las ventajas del contenido legal', text: 'Las plataformas legales ofrecen traducciones oficiales, imágenes en alta resolución, lectura offline, actualizaciones simultáneas con Japón y la satisfacción de apoyar a la industria del manga.' },
         ]}
       />
       <FAQPageStructuredData items={faqItems} />

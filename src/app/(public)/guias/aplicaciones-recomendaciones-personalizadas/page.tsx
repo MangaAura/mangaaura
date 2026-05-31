@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
-import { FAQPageStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { FAQPageStructuredData, BreadcrumbStructuredData, WebPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/guias/aplicaciones-recomendaciones-personalizadas' },
+    ...withHreflang('/guias/aplicaciones-recomendaciones-personalizadas'),
   };
 }
 
@@ -48,6 +49,14 @@ const faqItems = [
 export default function AppsRecomendacionesPage() {
   return (
     <>
+      <WebPageStructuredData
+        name="Apps para seguir mangas con recomendaciones personalizadas | MangaAura"
+        description="Encontrar tu próxima serie favorita puede ser abrumador con tantas opciones. Las apps con recomendaciones personalizadas hacen el trabajo por ti."
+        url="/guias/aplicaciones-recomendaciones-personalizadas"
+        lastReviewed="2026-01-15"
+        datePublished="2025-01-01"
+        dateModified="2026-01-15"
+      />
       <BreadcrumbStructuredData
         items={[
           { name: 'Guías', item: '/guias' },

@@ -7,7 +7,7 @@
 import { Worker, Job } from 'bullmq';
 
 import { emailService } from '@/infrastructure/adapters/emailService';
-import { captureException } from '@/lib/sentry';
+import { getBullConnection } from '@/infrastructure/queue/connection';
 import type {
   EmailJobData,
   WelcomeEmailData,
@@ -21,10 +21,10 @@ import type {
   MentionData,
   ClanInviteData,
 } from '@/infrastructure/queue/EmailQueue';
-import { getBullConnection } from '@/infrastructure/queue/connection';
+import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
 import { baseEmailTemplate } from '@/lib/email-templates';
 import { isMockRedis } from '@/lib/redis';
-import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
+import { captureException } from '@/lib/sentry';
 import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
 
 // ============================================================================

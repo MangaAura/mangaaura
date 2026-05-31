@@ -4,7 +4,9 @@ import type { ReactNode } from 'react';
 
 import { AuthGuard } from '@/components/AuthGuard';
 import { SkipToContent } from '@/components/Layout/SkipToContent';
+import { VerificationBanner } from '@/components/Layout/VerificationBanner';
 import { PageTransition } from '@/components/ui/PageTransition';
+import { auth } from '@/lib/auth';
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), {
   ssr: true,
@@ -91,6 +93,11 @@ export async function AppShell({
     return content;
   }
 
+  // Check email verification status for banner
+  const session = requireAuth ? await auth().catch(() => null) : null;
+  const showVerificationBanner =
+    session?.user?.id && !session?.user?.emailVerified;
+
   // Standard layout: Navbar at top, optional MobileBottomNav
   const content = (
     <div
@@ -100,6 +107,9 @@ export async function AppShell({
         <SkipToContent />
       </div>
       <Navbar />
+      {showVerificationBanner && (
+        <VerificationBanner email={session.user.email as string} />
+      )}
       {mainContent}
       {showMobileBottomNav && <MobileBottomNav />}
     </div>

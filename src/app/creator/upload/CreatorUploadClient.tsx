@@ -23,9 +23,9 @@ import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { ChapterCoverUpload } from '@/components/Creator/ChapterCoverUpload';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { compressImage } from '@/lib/compress-image';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
+import { compressImage } from '@/lib/compress-image';
 import { MAX_FILE_SIZE, ACCEPTED_FORMATS } from '@/lib/storage-config';
 import { cn } from '@/lib/utils';
 
@@ -70,6 +70,7 @@ function CreatorUploadPageContent() {
   const [chapterNumber, setChapterNumber] = useState('');
   const [chapterNumberTouched, setChapterNumberTouched] = useState(false);
   const [chapterTitle, setChapterTitle] = useState('');
+  const [scheduledAt, setScheduledAt] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -260,6 +261,7 @@ function CreatorUploadPageContent() {
           chapterNumber: parseInt(chapterNumber),
           title: chapterTitle,
           pageUrls: [], // Se actualizará después
+          scheduledAt: scheduledAt || undefined,
         }),
       });
 
@@ -578,6 +580,24 @@ function CreatorUploadPageContent() {
                       placeholder="Ej: El regreso del Rey"
                       className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
                     />
+                  </div>
+
+                  {/* Programar publicación */}
+                  <div>
+                    <label htmlFor="scheduled-at" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 uppercase">
+                      Programar publicación (Opcional)
+                    </label>
+                    <input
+                      id="scheduled-at"
+                      type="datetime-local"
+                      value={scheduledAt}
+                      onChange={(e) => setScheduledAt(e.target.value)}
+                      className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--primary)] rounded-lg outline-none text-sm transition-all text-[var(--text-primary)]"
+                      min={new Date().toISOString().slice(0, 16)}
+                    />
+                    <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                      Si se programa, el capítulo se publicará automáticamente en la fecha indicada. Los seguidores recibirán la notificación en ese momento.
+                    </p>
                   </div>
 
                   {/* Portada del Capítulo */}

@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 
+import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -21,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: ['/og-image.png'],
     },
-    alternates: { canonical: '/blog' },
+    ...withHreflang('/blog'),
   };
 }
 
@@ -32,7 +34,14 @@ export default async function BlogPage() {
   });
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12">
+    <>
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Blog', item: '/blog' },
+        ]}
+      />
+      <div className="max-w-5xl mx-auto px-6 py-12">
       <h1 className="text-4xl font-bold mb-2">Blog de MangaAura</h1>
       <p className="text-lg text-fg-secondary mb-10">Guías, tutoriales y novedades para creadores y lectores de manga.</p>
 
@@ -43,7 +52,7 @@ export default async function BlogPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((a) => (
-            <Link key={a.id} href={`/news/${a.slug}`} className="group">
+              <Link key={a.id} href={`/blog/${a.slug}`} className="group">
               <article className="border border-border rounded-xl overflow-hidden hover:border-primary transition-colors">
                 <div className="aspect-video bg-muted flex items-center justify-center text-fg-tertiary overflow-hidden">
                   {a.coverUrl ? (
@@ -63,5 +72,6 @@ export default async function BlogPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

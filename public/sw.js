@@ -312,23 +312,27 @@ async function networkFirst(request) {
 }
 
 // Background Sync para acciones pendientes
+// El SW recibe el evento sync y lo reenvía a todas las páginas abiertas.
+// La página es responsable de leer IndexedDB y hacer POST a /api/sync.
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-pending-actions') {
-    event.waitUntil(syncPendingActions());
+    event.waitUntil(notifyClientsToSync());
   }
 });
 
-async function syncPendingActions() {
+async function notifyClientsToSync() {
   try {
-    // Enviar mensaje a la página para que sincronice
-    const clients = await self.clients.matchAll();
+    const clients = await self.clients.matchAll({ type: 'window' });
     for (const client of clients) {
       client.postMessage({ type: 'SYNC_NOW' });
     }
   } catch (error) {
-    console.error('[SW] Background sync failed:', error);
+    console.error('[SW] Failed to notify clients for sync:', error);
+    throw error;
   }
 }
+
+// Periodic sync para limpiar caches viejos
 
 // Periodic sync para limpiar caches viejos
 self.addEventListener('periodicsync', (event) => {

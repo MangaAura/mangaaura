@@ -50,6 +50,7 @@ export class PrismaAchievementRepository implements IAchievementRepository {
       sponsorshipsWon,
       questsCompleted,
       user,
+      genreProgress,
     ] = await Promise.all([
       this.prisma.readingSession.count({ where: { userId } }),
       this.prisma.comment.count({ where: { userId } }),
@@ -60,7 +61,16 @@ export class PrismaAchievementRepository implements IAchievementRepository {
       this.prisma.sponsorshipBid.count({ where: { userId, isWinning: true } }),
       this.prisma.userQuest.count({ where: { userId, completed: true } }),
       this.prisma.user.findUnique({ where: { id: userId }, select: { level: true, readingStreak: true } }),
+      this.prisma.userGenreProgress.findMany({
+        where: { userId },
+        select: { genre: true, chaptersRead: true },
+      }),
     ]);
+
+    const genreChaptersRead: Record<string, number> = {};
+    for (const gp of genreProgress) {
+      genreChaptersRead[gp.genre] = gp.chaptersRead;
+    }
 
     return {
       chaptersRead,
@@ -73,6 +83,7 @@ export class PrismaAchievementRepository implements IAchievementRepository {
       questsCompleted,
       currentLevel: user?.level || 1,
       readingStreak: user?.readingStreak || 0,
+      genreChaptersRead,
     };
   }
 

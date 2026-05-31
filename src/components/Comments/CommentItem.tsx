@@ -7,7 +7,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Edit2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, MessageCircle, Edit2, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
@@ -23,6 +23,7 @@ interface CommentItemProps {
   onDelete: (id: string) => Promise<void>;
   onLike: (id: string) => Promise<void>;
   onUnlike: (id: string) => Promise<void>;
+  onVote: (id: string, value: 1 | -1) => Promise<void>;
   replyingTo: string | null;
   onSubmitReply: (content: string) => Promise<void>;
   onCancelReply: () => void;
@@ -36,6 +37,7 @@ export function CommentItem({
   onDelete,
   onLike,
   onUnlike,
+  onVote,
   replyingTo,
   onSubmitReply,
   onCancelReply,
@@ -149,6 +151,41 @@ export function CommentItem({
           {/* Actions */}
           {!isEditing && (
             <div className="flex items-center gap-4 mt-2">
+              <div className="flex items-center gap-0.5">
+                <motion.button
+                  onClick={() => onVote(comment.id, 1)}
+                  whileTap={{ scale: 0.85 }}
+                  aria-label="Upvote"
+                  className={cn(
+                    'p-1 rounded transition-colors',
+                    comment.userVote === 1
+                      ? 'text-[var(--primary)]'
+                      : 'text-[var(--text-muted)] hover:text-[var(--primary)]'
+                  )}
+                >
+                  <ArrowUp className="w-4 h-4" />
+                </motion.button>
+                <span className={cn(
+                  'text-xs font-medium min-w-[1.2rem] text-center',
+                  (comment.voteCount ?? 0) > 0 && 'text-[var(--text-primary)]'
+                )}>
+                  {comment.voteCount ?? 0}
+                </span>
+                <motion.button
+                  onClick={() => onVote(comment.id, -1)}
+                  whileTap={{ scale: 0.85 }}
+                  aria-label="Downvote"
+                  className={cn(
+                    'p-1 rounded transition-colors',
+                    comment.userVote === -1
+                      ? 'text-[var(--error)]'
+                      : 'text-[var(--text-muted)] hover:text-[var(--error)]'
+                  )}
+                >
+                  <ArrowDown className="w-4 h-4" />
+                </motion.button>
+              </div>
+
               <motion.button
                 onClick={handleLike}
                 whileTap={{ scale: 0.85 }}
@@ -227,6 +264,7 @@ export function CommentItem({
                       onDelete={onDelete}
                       onLike={onLike}
                       onUnlike={onUnlike}
+                      onVote={onVote}
                       replyingTo={replyingTo}
                       onSubmitReply={onSubmitReply}
                       onCancelReply={onCancelReply}

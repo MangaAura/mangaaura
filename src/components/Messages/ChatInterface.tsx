@@ -771,7 +771,7 @@ export function ChatInterface({
       mounted = false;
       clearTimeout(timer);
     };
-  }, [searchQuery, isSearchOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchQuery, isSearchOpen]);  
 
   // ── Click outside emoji picker ────────────────────────────────────
 

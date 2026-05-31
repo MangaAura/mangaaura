@@ -10,10 +10,11 @@ import {
   Loader2,
   UserPlus,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Send
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import React, { useState, Suspense, useMemo, useEffect, useRef } from 'react';
 import { z } from 'zod';
@@ -21,7 +22,7 @@ import { z } from 'zod';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
 import { useT } from '@/i18n';
-import { getAuthErrorMessage, getRegisterApiErrorMessage } from '@/lib/auth-errors';
+import { getRegisterApiErrorMessage } from '@/lib/auth-errors';
 import { cn } from '@/lib/utils';
 
 function LoadingSpinner({ t }: { t: (key: string) => string }) {
@@ -66,7 +67,6 @@ interface FormData {
 }
 
 function Content() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get('callbackUrl') || '/';
   const { toast } = useToast();
@@ -86,6 +86,9 @@ function Content() {
   const [oauthProviders, setOauthProviders] = useState<string[]>([]);
   const [usernameChecking, setUsernameChecking] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [registered, setRegistered] = useState<{ email: string } | null>(null);
+  const [resending, setResending] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
   const [idPrefix] = useState(() => `register-${Math.random().toString(36).substr(2, 6)}`);
   const usernameErrorId = `${idPrefix}-username-error`;
   const emailErrorId = `${idPrefix}-email-error`;
@@ -238,31 +241,9 @@ function Content() {
 
       toast({ title: t('auth.accountCreated'), variant: 'default' });
 
-      const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-        callbackUrl,
-      });
-
-      // Auth.js v5: signIn returns SignInResponse object, ok=true on success
-      if (result?.ok) {
-        router.push(callbackUrl);
-        router.refresh();
-      } else if (result?.error) {
-        // Show specific signIn error (e.g. CredentialsSignin, Configuration)
-        const signInError = getAuthErrorMessage(result.error, t);
-        setAuthError({
-          ...signInError,
-          message: t('auth.accountCreatedWarning') || signInError.message,
-        });
-        setIsLoading(false);
-        // Redirect to login after short delay since account was created
-        if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
-        redirectTimerRef.current = setTimeout(() => router.push('/auth/login?registered=true'), 3000);
-      } else {
-        router.push('/auth/login?registered=true');
-      }
+      // Show verification screen instead of auto-login
+      setRegistered({ email: formData.email });
+      setIsLoading(false);
     } catch (err: unknown) {
       setAuthError({
         title: t('errors.networkError'),
@@ -288,6 +269,28 @@ function Content() {
       }
     };
   }, []);
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    setResendSent(false);
+    try {
+      const res = await fetch('/api/auth/verify/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: registered?.email }),
+      });
+      if (res.ok) {
+        setResendSent(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast({ title: data.error || t('auth.verify.resendError'), variant: 'error' });
+      }
+    } catch {
+      toast({ title: t('errors.connectionFailed'), variant: 'error' });
+    } finally {
+      setResending(false);
+    }
+  };
 
   const validateField = (field: keyof FormData, value: string) => {
     if (field === 'username') {
@@ -330,6 +333,82 @@ function Content() {
   const inputBorderNormal = 'border-custom focus:border-accent-blue focus:ring-[3px] focus:ring-[var(--accent-blue)]/20';
   const inputBorderError = 'border-[var(--error)] focus:border-[var(--error)] focus:ring-[3px] focus:ring-[var(--error)]/20';
   const inputBorderSuccess = 'border-[var(--success)] focus:border-[var(--success)] focus:ring-[3px] focus:ring-[var(--success)]/20';
+
+  // ─── Email verification screen ──────────────────────────────
+  if (registered) {
+    return (
+      <div className="flex flex-col">
+        <div className="p-6">
+          <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
+            <ArrowLeft size={20} /> {t('common.back')}
+          </Link>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-md [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)]">
+            <div className="text-center mb-8 [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.1s_both]">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                <Send className="h-10 w-10 text-primary" />
+              </div>
+              <h1 className="text-[2rem] font-bold leading-[2.5rem] tracking-[-0.02em] mb-2 text-[var(--text-primary)]">{t('auth.verifyEmailTitle')}</h1>
+              <p className="text-[var(--text-secondary)]">
+                {t('auth.verifyEmailSent')} <strong className="text-fg-primary">{registered.email}</strong>
+              </p>
+            </div>
+
+            <div className="bg-[var(--surface-elevated)] rounded-[16px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border border-[var(--border-subtle)] [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.2s_both]">
+              <div className="space-y-4 text-sm text-[var(--text-secondary)]">
+                <p className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
+                  {t('auth.verifyStep1')}
+                </p>
+                <p className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
+                  {t('auth.verifyStep2')}
+                </p>
+                <p className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">3</span>
+                  {t('auth.verifyStep3')}
+                </p>
+              </div>
+
+              {resendSent ? (
+                <div className="mt-6 flex items-center justify-center gap-2 rounded-lg bg-green-500/10 px-4 py-3 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {t('auth.verify.resendSent')}
+                </div>
+              ) : (
+                <button
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  type="button"
+                  className="mt-6 w-full bg-accent-blue hover:bg-accent-blue-hover active:scale-[0.98] text-[var(--text-inverse)] font-semibold py-[14px] rounded-[9999px] transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                >
+                  {resending ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      {t('auth.verify.resending')}
+                    </>
+                  ) : (
+                    <>
+                      <Send size={18} />
+                      {t('auth.verify.resendButton')}
+                    </>
+                  )}
+                </button>
+              )}
+
+              <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
+                {t('auth.verifyAlreadyVerified')}{' '}
+                <Link href="/auth/login" className="text-accent-blue font-semibold hover:underline">
+                  {t('auth.signIn')}
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">

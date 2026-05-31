@@ -6,6 +6,7 @@
 
 'use client';
 
+import { loadStripe } from '@stripe/stripe-js/pure';
 import {
   Coins,
   CreditCard,
@@ -25,7 +26,6 @@ import { useT } from '@/i18n';
 import { AURA_PACKAGES, formatAmount } from '@/lib/stripe';
 import { cn } from '@/lib/utils';
 
-import { loadStripe } from '@stripe/stripe-js/pure';
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function CheckoutClient() {

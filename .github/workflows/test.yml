@@ -2,6 +2,27 @@ name: Test
 on: [push, pull_request]
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://localhost:5432/test
+      - name: TypeScript type check
+        run: npm run type-check
+      - name: Commitlint (PR title)
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.title }}" | npx commitlint
+      - name: npm audit
+        run: npm audit --audit-level=high || true
+        continue-on-error: true
+
   unit:
     runs-on: ubuntu-latest
     steps:

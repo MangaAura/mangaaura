@@ -7,9 +7,9 @@
  * @packageDocumentation
  */
 
+import type { IEmailQueueProducer } from '@/core/services/NotificationService';
 import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { prisma } from '@/lib/prisma';
-import type { IEmailQueueProducer } from '@/core/services/NotificationService';
 
 export class EmailQueueProducer implements IEmailQueueProducer {
   async sendAchievementEmail(
