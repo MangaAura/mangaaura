@@ -48,12 +48,11 @@ export async function POST(request: NextRequest) {
       ctaUrl: 'https://mangaaura.es',
     });
 
-    await emailService.sendEmail(
-      parsed.data.to,
-      `Re: ${parsed.data.subject}`,
+    await emailService.sendEmail(parsed.data.to, {
+      subject: `Re: ${parsed.data.subject}`,
       html,
-      text
-    );
+      text,
+    });
 
     if (parsed.data.replyToId) {
       await prisma.contactMessage.update({

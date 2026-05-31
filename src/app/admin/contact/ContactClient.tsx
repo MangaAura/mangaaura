@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Send, Search, ChevronLeft, ChevronRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Send, ChevronLeft, ChevronRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
 
@@ -16,10 +16,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
-import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
-import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 import { cn } from '@/lib/utils';
 
@@ -54,8 +52,17 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   CLOSED: { label: 'Cerrado', color: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
 };
 
+interface ContactApiResponse {
+  messages: ContactMessage[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export default function ContactClient() {
-  const t = useT();
   const [page, setPage] = useState(1);
   const [searchCategory, setSearchCategory] = useState<string>('all');
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
@@ -64,7 +71,7 @@ export default function ContactClient() {
   const [sendSuccess, setSendSuccess] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  const { data, isLoading, mutate } = useSWR(
+  const { data, isLoading, mutate } = useSWR<ContactApiResponse>(
     `/api/contact?page=${page}&limit=10&${searchCategory !== 'all' ? `category=${searchCategory}` : ''}`,
     fetcher
   );

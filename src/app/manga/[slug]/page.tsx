@@ -146,7 +146,7 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
   const description = manga.description?.slice(0, 160) || t('page.mangaDetail.description', { title: manga.title, count: manga.totalChapterCount });
   const keywords = manga.tags?.join(', ') || '';
   const ogImage = manga.coverUrl
-    ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}&chapters=${manga.totalChapterCount}`
+    ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName ?? '')}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}&chapters=${manga.totalChapterCount}`
     : undefined;
 
   return {

@@ -72,12 +72,11 @@ export async function POST(request: NextRequest) {
       ctaUrl: `https://mangaaura.es/admin/contact?id=${contactMessage.id}`,
     });
 
-    await emailService.sendEmail(
-      'contact@mangaaura.es',
-      `[MangaAura] ${parsed.data.subject} (${categoryLabels[parsed.data.category] || parsed.data.category})`,
-      emailHtml,
-      emailText
-    );
+    await emailService.sendEmail('contact@mangaaura.es', {
+      subject: `[MangaAura] ${parsed.data.subject} (${categoryLabels[parsed.data.category] || parsed.data.category})`,
+      html: emailHtml,
+      text: emailText,
+    });
 
     const { html: confirmHtml, text: confirmText } = baseEmailTemplate({
       title: `✅ Mensaje recibido`,
@@ -95,12 +94,11 @@ export async function POST(request: NextRequest) {
       ctaUrl: 'https://mangaaura.es',
     });
 
-    await emailService.sendEmail(
-      parsed.data.email,
-      `✅ Hemos recibido tu mensaje - MangaAura`,
-      confirmHtml,
-      confirmText
-    );
+    await emailService.sendEmail(parsed.data.email, {
+      subject: `✅ Hemos recibido tu mensaje - MangaAura`,
+      html: confirmHtml,
+      text: confirmText,
+    });
 
     return NextResponse.json({ success: true, id: contactMessage.id });
   } catch (error) {

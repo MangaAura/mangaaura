@@ -10,7 +10,6 @@ import {
   FileText,
   HelpCircle,
   Disc,
-  Tags,
   CalendarDays,
   CreditCard,
   Info,
