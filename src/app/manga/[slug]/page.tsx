@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 
 import MangaDetailClient from './MangaDetailClient';
 import { MangaStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withCache, cacheConfig, generateCacheKey } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -12,51 +14,122 @@ interface MangaPageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getMangaData(slug: string) {
-  const manga = await prisma.mangaSeries.findUnique({
-    where: { slug },
-    include: {
-      chapters: {
-        orderBy: { chapterNumber: 'desc' },
-        select: {
-          id: true,
-          chapterNumber: true,
-          title: true,
-          coverUrl: true,
-          totalPages: true,
-          viewCount: true,
-          createdAt: true,
-        },
-      },
-      libraryEntries: {
-        select: { id: true },
-      },
-    },
-  });
-
-  if (!manga) return null;
-
-  const totalViews = manga.chapters.reduce((sum: number, ch: any) => sum + ch.viewCount, 0);
-  const tags = JSON.parse(manga.tags || '[]') as string[];
-
-  return {
-    id: manga.id,
-    title: manga.title,
-    slug: manga.slug,
-    description: manga.description || '',
-    coverUrl: manga.coverUrl,
-    authorId: manga.authorId,
-    authorName: manga.authorName,
-    status: manga.status,
-    tags,
-    rating: manga.rating,
-    totalViews: totalViews + manga.totalViews,
-    createdAt: manga.createdAt,
-    updatedAt: manga.updatedAt,
-    chapters: manga.chapters,
-    libraryCount: manga.libraryEntries.length,
-  };
+interface MangaTagData {
+  id: string;
+  slug: string;
+  name: string;
+  color: string | null;
+  description: string | null;
 }
+
+interface MangaData {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  coverUrl: string | null;
+  authorId: string;
+  authorName: string | null;
+  status: string;
+  tags: string[];
+  systemTags: MangaTagData[];
+  rating: number | null;
+  totalViews: number;
+  createdAt: Date;
+  updatedAt: Date;
+  chapters: {
+    id: string;
+    chapterNumber: number;
+    title: string | null;
+    coverUrl: string | null;
+    totalPages: number;
+    viewCount: number;
+    createdAt: Date;
+  }[];
+  totalChapterCount: number;
+  libraryCount: number;
+}
+
+const getMangaData = cache(async (slug: string): Promise<MangaData | null> => {
+  const cacheKey = generateCacheKey('manga:detail', { slug });
+
+  return withCache<MangaData | null>(
+    cacheKey,
+    cacheConfig.manga.detail.ttl,
+    async () => {
+      const manga = await prisma.mangaSeries.findUnique({
+        where: { slug },
+        include: {
+          chapters: {
+            orderBy: { chapterNumber: 'desc' },
+            take: 50,
+            select: {
+              id: true,
+              chapterNumber: true,
+              title: true,
+              coverUrl: true,
+              totalPages: true,
+              viewCount: true,
+              createdAt: true,
+            },
+          },
+          libraryEntries: {
+            select: { id: true },
+          },
+          mangaTags: {
+            include: {
+              tag: {
+                select: {
+                  id: true,
+                  slug: true,
+                  name: true,
+                  color: true,
+                  description: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: { chapters: true },
+          },
+        },
+      });
+
+      if (!manga) return null;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const totalViews = manga.chapters.reduce((sum: number, ch: any) => sum + ch.viewCount, 0);
+      const tags = JSON.parse(manga.tags || '[]') as string[];
+      const systemTags = manga.mangaTags.map((mt) => ({
+        id: mt.tag.id,
+        slug: mt.tag.slug,
+        name: mt.tag.name,
+        color: mt.tag.color,
+        description: mt.tag.description,
+      }));
+
+      return {
+        id: manga.id,
+        title: manga.title,
+        slug: manga.slug,
+        description: manga.description || '',
+        coverUrl: manga.coverUrl,
+        authorId: manga.authorId,
+        authorName: manga.authorName,
+        status: manga.status,
+        tags,
+        systemTags,
+        rating: manga.rating,
+        totalViews: totalViews + manga.totalViews,
+        createdAt: manga.createdAt,
+        updatedAt: manga.updatedAt,
+        chapters: manga.chapters,
+        totalChapterCount: manga._count.chapters,
+        libraryCount: manga.libraryEntries.length,
+      };
+    },
+  );
+});
 
 export async function generateMetadata({ params }: MangaPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -67,11 +140,13 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
   if (!manga) {
     return { title: `${t('page.mangaNotFound.title')} | MangaAura` };
   }
+
   const title = `${manga.title} | MangaAura`;
-  const description = manga.description?.slice(0, 160) || t('page.mangaDetail.description', { title: manga.title, count: manga.chapters.length });
+  // Use the real total chapter count (not limited by take: 50) for SEO accuracy
+  const description = manga.description?.slice(0, 160) || t('page.mangaDetail.description', { title: manga.title, count: manga.totalChapterCount });
   const keywords = manga.tags?.join(', ') || '';
   const ogImage = manga.coverUrl
-    ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}&chapters=${manga.chapters.length}`
+    ? `/api/og?type=manga&title=${encodeURIComponent(manga.title)}&author=${encodeURIComponent(manga.authorName)}&cover=${encodeURIComponent(manga.coverUrl)}${manga.rating ? `&rating=${manga.rating}` : ''}&chapters=${manga.totalChapterCount}`
     : undefined;
 
   return {
@@ -88,8 +163,10 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
       siteName: 'MangaAura',
       url: `/manga/${slug}`,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: manga.title }] : undefined,
-      publishedTime: manga.createdAt?.toISOString(),
-      modifiedTime: manga.updatedAt?.toISOString(),
+      // createdAt/updatedAt can be Date (fresh query) or string (from Redis cache).
+      // JSON.stringify converts Date to ISO strings, so handle both safely.
+      publishedTime: manga.createdAt ? new Date(manga.createdAt).toISOString() : undefined,
+      modifiedTime: manga.updatedAt ? new Date(manga.updatedAt).toISOString() : undefined,
       tags: manga.tags,
     },
     twitter: {
@@ -104,13 +181,17 @@ export async function generateMetadata({ params }: MangaPageProps): Promise<Meta
 
 export default async function MangaDetailPage({ params }: MangaPageProps) {
   const { slug } = await params;
-  const manga = await getMangaData(slug);
+
+  // Run auth and manga data fetching in parallel
+  const [manga, session] = await Promise.all([
+    getMangaData(slug),
+    auth(),
+  ]);
 
   if (!manga) {
     notFound();
   }
 
-  const session = await auth();
   const userId = session?.user?.id || null;
 
   let libraryStatus: string | null = null;
@@ -133,7 +214,7 @@ export default async function MangaDetailPage({ params }: MangaPageProps) {
         slug={manga.slug}
         rating={manga.rating || undefined}
         tags={manga.tags}
-        totalChapters={manga.chapters.length}
+        totalChapters={manga.totalChapterCount}
       />
       <BreadcrumbStructuredData
         items={[

@@ -2,7 +2,8 @@
  * MangaTagsDisplay Component
  *
  * Displays tags from the new MangaTag/Tag system on the manga detail page.
- * Fetches tags via the API and renders them as color-coded clickable badges.
+ * Accepts pre-fetched tags from the server (SSR) to avoid an extra API round-trip.
+ * Falls back to fetching via API if no tags are provided (for legacy usage).
  */
 
 'use client';
@@ -15,27 +16,29 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/swr-config';
 import { cn } from '@/lib/utils';
 
-interface MangaTag {
+export interface MangaTag {
   id: string;
   slug: string;
   name: string;
-  color?: string;
-  description?: string;
+  color?: string | null;
+  description?: string | null;
 }
 
 interface MangaTagsDisplayProps {
   mangaId: string;
+  tags?: MangaTag[];
   className?: string;
 }
 
-export function MangaTagsDisplay({ mangaId, className }: MangaTagsDisplayProps) {
+export function MangaTagsDisplay({ mangaId, tags: initialTags, className }: MangaTagsDisplayProps) {
+  // Pass null key when SSR tags provided — SWR won't fetch with null key
   const { data, error, isLoading } = useSWR<{ tags: MangaTag[] }>(
-    `/api/mangas/${mangaId}/tags`,
+    initialTags ? null : `/api/mangas/${mangaId}/tags`,
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 60000 }
   );
 
-  const tags = data?.tags || [];
+  const tags = initialTags || data?.tags || [];
 
   if (isLoading) {
     return (

@@ -23,12 +23,14 @@ interface Props {
     description: string | null;
     status: string;
     tags: string[];
+    systemTags: { id: string; slug: string; name: string; color: string | null; description: string | null }[];
     totalViews: number;
     libraryCount: number;
     rating: number | null;
     authorName: string | null;
     createdAt: Date | string;
     chapters: { id: string; chapterNumber: number; title: string | null; coverUrl: string | null; viewCount: number; totalPages: number; createdAt: Date | string }[];
+    totalChapterCount: number;
   };
   libraryStatus: string | null;
   userId: string | null;
@@ -210,7 +212,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                 <Eye className="w-4 h-4" /> {formatNumber(manga.totalViews)} {t('manga.views')}
               </span>
               <span className="flex items-center gap-1">
-                <BookOpen className="w-4 h-4" /> {manga.chapters.length} {t('manga.chapters')}
+                <BookOpen className="w-4 h-4" /> {manga.totalChapterCount} {t('manga.chapters')}
               </span>
               <span className="flex items-center gap-1">
                 <Library className="w-4 h-4" /> {formatNumber(manga.libraryCount)} {t('manga.inLibrary')}
@@ -279,7 +281,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
             )}
 
             {/* New Tag System Tags */}
-            <MangaTagsDisplay mangaId={manga.id} className="mb-6" />
+            <MangaTagsDisplay mangaId={manga.id} tags={manga.systemTags} className="mb-6" />
 
             {/* Description */}
             {manga.description && (
@@ -309,7 +311,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
             <BookOpen className="w-6 h-6 text-[var(--primary)]" />
             {t('manga.chaptersTitle')}
             <span className="text-sm font-normal text-[var(--text-secondary)]">
-              ({manga.chapters.length})
+              ({manga.totalChapterCount})
             </span>
           </h2>
 
@@ -335,11 +337,13 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                       {/* Chapter cover thumbnail */}
                       <div className="relative w-12 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-[var(--surface-sunken)] border border-[var(--border)]">
                         {chapter.coverUrl ? (
-                          <img
+                          <Image
                             src={chapter.coverUrl}
                             alt={`Portada Cap. ${chapter.chapterNumber}`}
+                            width={96}
+                            height={128}
                             className="w-full h-full object-cover"
-                            loading="lazy"
+                            sizes="96px"
                           />
                         ) : (
                           <span className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)] font-bold text-sm">
@@ -374,7 +378,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
               className="w-full mt-4 py-3 text-[var(--primary)] hover:bg-[var(--primary)]/5 border border-[var(--border)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
             >
               <ChevronDown className="w-5 h-5" />
-              {t('manga.viewAllChapters', { count: manga.chapters.length })}
+              {t('manga.viewAllChapters', { count: manga.totalChapterCount })}
             </button>
           )}
         </motion.div>

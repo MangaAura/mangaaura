@@ -8,11 +8,6 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ mangaId: string }> }
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
   const { mangaId } = await params;
 
   const manga = await prisma.mangaSeries.findUnique({
