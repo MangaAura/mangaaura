@@ -112,7 +112,7 @@
     "react-focus-lock": "^2.13.7",
     "recharts": "^3.8.1",
     "redis": "^5.12.1",
-    "resend": "^6.12.2",
+    "resend": "^6.12.4",
     "sanitize-html": "^2.17.4",
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
