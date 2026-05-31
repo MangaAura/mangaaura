@@ -59,10 +59,21 @@ class MockRedis {
     this.store.set(key, { value });
   }
 
+  async exists(key: string): Promise<number> {
+    if (this.store.has(key) || this.sortedSets.has(key) || this.hashes.has(key) || this.lists.has(key) || this.sets.has(key)) {
+      return 1;
+    }
+    return 0;
+  }
+
   async del(...keys: string[]): Promise<number> {
     let deleted = 0;
     for (const key of keys) {
       if (this.store.delete(key)) deleted++;
+      else if (this.sortedSets.delete(key)) deleted++;
+      else if (this.hashes.delete(key)) deleted++;
+      else if (this.lists.delete(key)) deleted++;
+      else if (this.sets.delete(key)) deleted++;
     }
     return deleted;
   }

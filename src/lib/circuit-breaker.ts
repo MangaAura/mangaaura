@@ -54,16 +54,78 @@ export class RedisCircuitBreaker {
     return this.state;
   }
 
-  /** Registra un fallo — puede abrir el circuito si se excede el threshold */
+  /**
+   * Clasifica un error como transitorio (puede recuperarse) vs permanente.
+   * Errores permanentes abren el circuito inmediatamente.
+   */
+  private classifyError(error: Error | string): 'transient' | 'permanent' {
+    const message = typeof error === 'string' ? error : error.message;
+    const lowerMsg = message.toLowerCase();
+
+    // Errores de conexión/red → transitorios
+    if (
+      lowerMsg.includes('econnrefused') ||
+      lowerMsg.includes('etimedout') ||
+      lowerMsg.includes('econnreset') ||
+      lowerMsg.includes('enotfound') ||
+      lowerMsg.includes('connection refused') ||
+      lowerMsg.includes('connection timeout') ||
+      lowerMsg.includes('socket') ||
+      lowerMsg.includes('network') ||
+      lowerMsg.includes('max retries') ||
+      lowerMsg.includes('reconnect')
+    ) {
+      return 'transient';
+    }
+
+    // Errores de autenticación/config → permanentes
+    if (
+      lowerMsg.includes('auth') ||
+      lowerMsg.includes('unauthorized') ||
+      lowerMsg.includes('forbidden') ||
+      lowerMsg.includes('permission') ||
+      lowerMsg.includes('invalid password') ||
+      lowerMsg.includes('wrongtype') ||
+      lowerMsg.includes('noauth') ||
+      lowerMsg.includes('readycheck')
+    ) {
+      return 'permanent';
+    }
+
+    // Por defecto, cualquier error de Redis se considera transitorio
+    return 'transient';
+  }
+
+  /**
+   * Registra un fallo — puede abrir el circuito si se excede el threshold.
+   * Los errores de tipo 'permanent' abren el circuito inmediatamente.
+   */
   recordFailure(error: Error | string): void {
+    const classification = this.classifyError(error);
+
     this.failureCount++;
     this.totalFailures++;
     this.lastFailureTime = Date.now();
     this.lastError = typeof error === 'string' ? error : error.message;
 
+    // Errores permanentes: abrir inmediatamente
+    if (classification === 'permanent') {
+      this.state = 'OPEN';
+      this.lastHealthCheckTime = Date.now(); // Reset health check timer
+      return;
+    }
+
+    // Errores transitorios: abrir solo si se excede el threshold
     if (this.failureCount >= this.config.failureThreshold) {
       this.state = 'OPEN';
+      this.lastHealthCheckTime = Date.now(); // Reset health check timer
     }
+  }
+
+  /** Obtiene la última clasificación de error */
+  getLastErrorClassification(): 'transient' | 'permanent' | null {
+    if (!this.lastError) return null;
+    return this.classifyError(this.lastError);
   }
 
   /** Registra un éxito — cierra el circuito */
@@ -118,6 +180,7 @@ export class RedisCircuitBreaker {
     totalFailures: number;
     totalRecoveries: number;
     lastError: string | null;
+    lastErrorClassification: 'transient' | 'permanent' | null;
     lastFailureTime: number;
     uptimeSinceLastRecovery: number;
   } {
@@ -127,6 +190,7 @@ export class RedisCircuitBreaker {
       totalFailures: this.totalFailures,
       totalRecoveries: this.totalRecoveries,
       lastError: this.lastError,
+      lastErrorClassification: this.getLastErrorClassification(),
       lastFailureTime: this.lastFailureTime,
       uptimeSinceLastRecovery:
         this.state === 'CLOSED' && this.totalRecoveries > 0
