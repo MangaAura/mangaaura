@@ -25,6 +25,7 @@
     "setup:env": "node scripts/setup-env.js",
     "verify:env": "node -e \"console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅' : '❌'); console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '✅' : '❌'); console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL ? '✅' : '❌');\"",
     "audit": "npm audit --audit-level=high",
+    "redis:status": "tsx scripts/redis-status.ts",
     "check:i18n": "tsx scripts/check-i18n.ts",
     "auto-translate": "tsx scripts/auto-translate.ts",
     "design:lint": "npx @google/design.md lint DESIGN.md",

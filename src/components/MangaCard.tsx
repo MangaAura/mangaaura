@@ -110,8 +110,7 @@ export const MangaCard = memo(function MangaCard({
               <Image
                 src={imageSrc}
                 alt={manga.title}
-                width={imageSize.width}
-                height={imageSize.height}
+                fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 sizes={`(max-width: 640px) 50vw, ${imageSize.width}px`}
                 loading={priority ? 'eager' : 'lazy'}

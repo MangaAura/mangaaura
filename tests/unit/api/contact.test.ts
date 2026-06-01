@@ -6,6 +6,8 @@ const mockRateLimit = vi.hoisted(() => vi.fn());
 const mockContactCreate = vi.hoisted(() => vi.fn());
 const mockContactFindMany = vi.hoisted(() => vi.fn());
 const mockContactCount = vi.hoisted(() => vi.fn());
+const mockSendEmail = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true, messageId: 'mock-id' }));
+const mockBaseEmailTemplate = vi.hoisted(() => vi.fn().mockReturnValue({ html: '<p>mock html</p>', text: 'mock text' }));
 
 vi.mock('@/lib/auth', () => ({ auth: mockAuth }));
 vi.mock('@/lib/rate-limit', () => ({
@@ -20,6 +22,12 @@ vi.mock('@/lib/prisma', () => ({
       count: mockContactCount,
     },
   },
+}));
+vi.mock('@/infrastructure/adapters/emailService', () => ({
+  emailService: { sendEmail: mockSendEmail },
+}));
+vi.mock('@/lib/email-templates', () => ({
+  baseEmailTemplate: mockBaseEmailTemplate,
 }));
 
 import { GET, POST } from '@/app/api/contact/route';

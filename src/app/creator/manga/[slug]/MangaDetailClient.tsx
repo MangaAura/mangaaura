@@ -146,7 +146,7 @@ export default function MangaDetailClient({ params }: PageProps) {
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Cover */}
                 <div className="w-full md:w-48 flex-shrink-0">
-                  <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden">
+                  <div className="aspect-[3/4] bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative">
                     {manga.coverUrl ? (
                       <OptimizedImage
                         src={manga.coverUrl}
