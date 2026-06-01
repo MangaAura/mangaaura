@@ -21,7 +21,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api',
           '/admin',
-          '/creator',
           '/checkout',
           '/auth',
           '/_next',
@@ -30,8 +29,6 @@ export default function robots(): MetadataRoute.Robots {
           '/conversations',
           '/notifications',
           '/settings',
-          '/*.json$',
-          '/*.xml$',
         ],
       },
       {

@@ -1,29 +1,34 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-interface AlertProps {
-  children?: React.ReactNode;
-  className?: string;
-  variant?: 'default' | 'destructive' | 'warning';
-}
+const alertVariants = cva(
+  'relative w-full rounded-lg border p-4 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7',
+  {
+    variants: {
+      variant: {
+        default: 'border-[var(--border)] bg-[var(--surface)]',
+        destructive: 'border-[var(--error)] bg-[var(--error)]/10 text-[var(--error)]',
+        warning: 'border-yellow-500/50 bg-yellow-500/10 text-yellow-600',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+);
 
-const variantStyles: Record<string, string> = {
-  default: 'border-[var(--border)] bg-[var(--surface)]',
-  destructive: 'border-[var(--error)] bg-[var(--error)]/10 text-[var(--error)]',
-  warning: 'border-yellow-500/50 bg-yellow-500/10 text-yellow-600',
-};
+interface AlertProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof alertVariants> {}
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, children, variant = 'default', ...props }, ref) => (
+  ({ className, children, variant, ...props }, ref) => (
     <div
       ref={ref}
       role="alert"
-      className={cn(
-        'relative w-full rounded-lg border p-4 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7',
-        variantStyles[variant],
-        className
-      )}
+      className={cn(alertVariants({ variant }), className)}
       {...props}
     >
       {children}

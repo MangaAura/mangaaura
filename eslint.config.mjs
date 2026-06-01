@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
     "prisma/migrations/**",
     "open-design/**",
     "*.config.*",
+    "redis-backup/**",
   ]),
   {
     name: "mangaaura-custom-rules",

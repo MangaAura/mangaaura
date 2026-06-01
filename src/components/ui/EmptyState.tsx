@@ -1,5 +1,6 @@
 'use client';
 
+import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import { Search, Bell, Users, MessageSquare, AlertTriangle, Library } from 'lucide-react';
 import Link from 'next/link';
@@ -8,7 +9,54 @@ import { ReactNode } from 'react';
 import { Button } from './Button';
 import { cn } from '@/lib/utils';
 
-interface EmptyStateProps {
+const containerVariants = cva('flex flex-col items-center justify-center text-center px-4', {
+  variants: {
+    size: {
+      sm: 'py-8',
+      md: 'py-12',
+      lg: 'py-16',
+    },
+  },
+  defaultVariants: { size: 'md' },
+});
+
+const iconWrapperVariants = cva(
+  'mb-4 bg-[var(--surface-sunken)]/50 rounded-2xl flex items-center justify-center text-[var(--text-muted)]',
+  {
+    variants: {
+      size: {
+        sm: 'w-12 h-12 text-2xl',
+        md: 'w-16 h-16 text-3xl',
+        lg: 'w-20 h-20 text-4xl',
+      },
+    },
+    defaultVariants: { size: 'md' },
+  }
+);
+
+const titleVariants = cva('font-semibold text-[var(--text-primary)] mb-2', {
+  variants: {
+    size: {
+      sm: 'text-lg',
+      md: 'text-xl',
+      lg: 'text-2xl',
+    },
+  },
+  defaultVariants: { size: 'md' },
+});
+
+const descriptionVariants = cva('text-[var(--text-secondary)] max-w-md mb-6', {
+  variants: {
+    size: {
+      sm: 'text-sm',
+      md: 'text-base',
+      lg: 'text-lg',
+    },
+  },
+  defaultVariants: { size: 'md' },
+});
+
+interface EmptyStateProps extends VariantProps<typeof containerVariants> {
   icon?: ReactNode;
   preset?: 'default' | 'empty' | 'error' | 'search' | 'library' | 'custom';
   title?: string;
@@ -24,7 +72,6 @@ interface EmptyStateProps {
     href?: string;
   };
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
 }
 
 export function EmptyState({
@@ -47,57 +94,30 @@ export function EmptyState({
   const finalIcon = icon ?? resolved?.icon;
   const finalTitle = title ?? resolved?.title ?? 'Sin contenido';
   const finalDescription = description ?? resolved?.description ?? 'No hay nada que mostrar aquí';
-  const sizes = {
-    sm: {
-      container: 'py-8',
-      icon: 'w-12 h-12 text-2xl',
-      title: 'text-lg',
-      description: 'text-sm',
-    },
-    md: {
-      container: 'py-12',
-      icon: 'w-16 h-16 text-3xl',
-      title: 'text-xl',
-      description: 'text-base',
-    },
-    lg: {
-      container: 'py-16',
-      icon: 'w-20 h-20 text-4xl',
-      title: 'text-2xl',
-      description: 'text-lg',
-    },
-  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-      className={cn(
-        'flex flex-col items-center justify-center text-center px-4',
-        sizes[size].container,
-        className
-      )}
+      className={cn(containerVariants({ size }), className)}
     >
       {finalIcon && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-          className={cn(
-            'mb-4 bg-[var(--surface-sunken)]/50 rounded-2xl flex items-center justify-center text-[var(--text-muted)]',
-            sizes[size].icon
-          )}
+          className={cn(iconWrapperVariants({ size }))}
         >
           {finalIcon}
         </motion.div>
       )}
-      <h2 className={cn('font-semibold text-[var(--text-primary)] mb-2', sizes[size].title)}>
+      <h2 className={cn(titleVariants({ size }))}>
         {finalTitle}
       </h2>
 
       {finalDescription && (
-        <p className={cn('text-[var(--text-secondary)] max-w-md mb-6', sizes[size].description)}>
+        <p className={cn(descriptionVariants({ size }))}>
           {finalDescription}
         </p>
       )}

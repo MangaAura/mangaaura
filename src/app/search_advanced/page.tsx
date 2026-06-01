@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import AdvancedSearchClient from './AdvancedSearchClient';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -25,6 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: fullTitle,
       description,
     },
+    ...withHreflang('/search_advanced'),
   };
 }
 

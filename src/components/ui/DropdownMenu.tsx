@@ -16,9 +16,14 @@ const itemVariants = cva(
         default: 'focus:bg-[var(--surface-sunken)] focus:text-[var(--text-primary)]',
         destructive: 'text-[var(--error)] focus:bg-[var(--error)]/10 focus:text-[var(--error)]',
       },
+      inset: {
+        false: '',
+        true: 'pl-8',
+      },
     },
     defaultVariants: {
       variant: 'default',
+      inset: false,
     },
   }
 );
@@ -124,14 +129,13 @@ DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 const DropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
-  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & { inset?: boolean }
->(({ className, inset, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & VariantProps<typeof itemVariants>
+>(({ className, variant, inset, children, ...props }, ref) => (
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      itemVariants(),
+      itemVariants({ variant, inset }),
       'data-[state=open]:bg-[var(--surface-sunken)]',
-      inset && 'pl-8',
       className
     )}
     {...props}

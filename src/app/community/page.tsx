@@ -5,6 +5,7 @@ import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -15,6 +16,19 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    ...withHreflang('/community'),
   };
 }
 

@@ -2566,7 +2566,8 @@
       "description": "Gestiona tu colección de mangas, sigue tus series favoritas y organiza tu lista de lectura en MangaAura."
     },
     "events": {
-      "title": "Eventos"
+      "title": "Eventos",
+      "description": "Descubre y participa en eventos, torneos y actividades especiales de la comunidad de MangaAura."
     },
     "searchIa": {
       "title": "Búsqueda con IA",
@@ -2580,7 +2581,8 @@
       "description": "Encuentra mangas usando filtros avanzados por género, estado, popularidad y más en MangaAura."
     },
     "social": {
-      "title": "Social"
+      "title": "Social",
+      "description": "Conecta con otros lectores, descubre actividades y comparte tu pasión por el manga en MangaAura."
     },
     "userLayout": {
       "title": "Perfil"

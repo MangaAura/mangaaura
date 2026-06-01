@@ -38,21 +38,19 @@ const formatViews = (views: number): string => {
 
 function AnimatedCount({ value }: { value: number }) {
   const count = useMotionValue(0);
-  const [display, setDisplay] = useState(formatViews(value));
+  const [display, setDisplay] = useState(formatViews(0));
 
   useEffect(() => {
     count.set(0);
-    if (display !== '0') queueMicrotask(() => setDisplay('0'));
     const controls = animate(count, value, { duration: 1, ease: 'easeOut' });
     const unsubscribe = count.on('change', (v) => {
-      const formatted = formatViews(Math.round(v));
-      setDisplay((prev) => prev !== formatted ? formatted : prev);
+      setDisplay(formatViews(Math.round(v)));
     });
     return () => {
       controls.stop();
       unsubscribe();
     };
-  }, [value, count, display]);
+  }, [value]);
 
   return <span>{display}</span>;
 }

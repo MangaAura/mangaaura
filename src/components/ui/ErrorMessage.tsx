@@ -4,17 +4,70 @@
  * Componente reutilizable para mostrar mensajes de error amigables y accionables.
  */
 
+import { cva, type VariantProps } from 'class-variance-authority';
 import { AlertCircle, X, Info, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
 
-type ErrorSeverity = 'error' | 'warning' | 'info' | 'success';
+const severityConfig = {
+  error: {
+    icon: AlertCircle,
+    title: 'Error',
+  },
+  warning: {
+    icon: AlertTriangle,
+    title: 'Advertencia',
+  },
+  info: {
+    icon: Info,
+    title: 'Información',
+  },
+  success: {
+    icon: CheckCircle2,
+    title: 'Éxito',
+  },
+};
 
-interface ErrorMessageProps {
+const containerVariants = cva('relative rounded-xl border p-4', {
+  variants: {
+    severity: {
+      error: 'bg-[var(--error)]/10 border-[var(--error)]/20',
+      warning: 'bg-[var(--warning)]/10 border-[var(--warning)]/20',
+      info: 'bg-[var(--primary)]/10 border-[var(--primary)]/20',
+      success: 'bg-[var(--success)]/10 border-[var(--success)]/20',
+    },
+  },
+  defaultVariants: { severity: 'error' },
+});
+
+const iconVariants = cva('h-5 w-5', {
+  variants: {
+    severity: {
+      error: 'text-[var(--error)]',
+      warning: 'text-[var(--warning)]',
+      info: 'text-[var(--primary)]',
+      success: 'text-[var(--success)]',
+    },
+  },
+  defaultVariants: { severity: 'error' },
+});
+
+const textVariants = cva('text-sm', {
+  variants: {
+    severity: {
+      error: 'text-[var(--error)]',
+      warning: 'text-[var(--warning)]',
+      info: 'text-[var(--primary)]',
+      success: 'text-[var(--success)]',
+    },
+  },
+  defaultVariants: { severity: 'error' },
+});
+
+interface ErrorMessageProps extends VariantProps<typeof containerVariants> {
   title?: string;
   message: string;
-  severity?: ErrorSeverity;
   icon?: React.ReactNode;
   action?: {
     label: string;
@@ -24,41 +77,6 @@ interface ErrorMessageProps {
   className?: string;
   children?: React.ReactNode;
 }
-
-const severityConfig = {
-  error: {
-    icon: AlertCircle,
-    bgColor: 'bg-[var(--error)]/10',
-    borderColor: 'border-[var(--error)]/20',
-    textColor: 'text-[var(--error)]',
-    iconColor: 'text-[var(--error)]',
-    title: 'Error',
-  },
-  warning: {
-    icon: AlertTriangle,
-    bgColor: 'bg-[var(--warning)]/10',
-    borderColor: 'border-[var(--warning)]/20',
-    textColor: 'text-[var(--warning)]',
-    iconColor: 'text-[var(--warning)]',
-    title: 'Advertencia',
-  },
-  info: {
-    icon: Info,
-    bgColor: 'bg-[var(--primary)]/10',
-    borderColor: 'border-[var(--primary)]/20',
-    textColor: 'text-[var(--primary)]',
-    iconColor: 'text-[var(--primary)]',
-    title: 'Información',
-  },
-  success: {
-    icon: CheckCircle2,
-    bgColor: 'bg-[var(--success)]/10',
-    borderColor: 'border-[var(--success)]/20',
-    textColor: 'text-[var(--success)]',
-    iconColor: 'text-[var(--success)]',
-    title: 'Éxito',
-  },
-};
 
 export function ErrorMessage({
   title,
@@ -70,37 +88,32 @@ export function ErrorMessage({
   className,
   children,
 }: ErrorMessageProps) {
-  const config = severityConfig[severity];
+  const config = severityConfig[severity ?? 'error'];
   const Icon = config.icon;
 
   return (
     <div
-      className={cn(
-        'relative rounded-xl border p-4',
-        config.bgColor,
-        config.borderColor,
-        className
-      )}
+      className={cn(containerVariants({ severity }), className)}
       role="alert"
     >
       <div className="flex gap-3">
         <div className="flex-shrink-0">
-          {icon || <Icon className={cn('h-5 w-5', config.iconColor)} />}
+          {icon || <Icon className={cn(iconVariants({ severity }))} />}
         </div>
         <div className="flex-1 min-w-0">
           {(title || config.title) && (
-            <h2 className={cn('text-sm font-semibold mb-1', config.textColor)}>
+            <h2 className={cn('text-sm font-semibold mb-1', textVariants({ severity }))}>
               {title || config.title}
             </h2>
           )}
-          <p className={cn('text-sm', config.textColor)}>{message}</p>
+          <p className={cn(textVariants({ severity }))}>{message}</p>
           {children && <div className="mt-2">{children}</div>}
           {action && (
             <button
               onClick={action.onClick}
               className={cn(
                 'mt-3 text-sm font-medium underline underline-offset-2 hover:no-underline',
-                config.textColor
+                textVariants({ severity })
               )}
             >
               {action.label}
@@ -113,7 +126,7 @@ export function ErrorMessage({
             className={cn(
               'flex-shrink-0 -mr-1 -mt-1 p-1 rounded-lg transition-colors',
               'hover:bg-[var(--surface)]',
-              config.textColor
+              textVariants({ severity })
             )}
             aria-label="Cerrar"
           >

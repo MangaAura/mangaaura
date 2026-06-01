@@ -2566,7 +2566,8 @@
       "description": "Manage your manga collection, follow your favorite series and organize your reading list on MangaAura."
     },
     "events": {
-      "title": "Events"
+      "title": "Events",
+      "description": "Discover and participate in events, tournaments and special community activities on MangaAura."
     },
     "searchIa": {
       "title": "AI Search",
@@ -2580,7 +2581,8 @@
       "description": "Find manga using advanced filters by genre, status, popularity and more on MangaAura."
     },
     "social": {
-      "title": "Social"
+      "title": "Social",
+      "description": "Connect with other readers, discover activities and share your passion for manga on MangaAura."
     },
     "userLayout": {
       "title": "Profile"

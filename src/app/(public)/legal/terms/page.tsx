@@ -5,18 +5,34 @@ import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Términos de Servicio - MangaAura',
-  description: 'Términos y condiciones de uso de MangaAura',
-  openGraph: {
-    title: 'Términos de Servicio - MangaAura',
-    description: 'Términos y condiciones de uso de MangaAura',
-    type: 'website',
-    siteName: 'MangaAura',
-    locale: 'es_ES',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('legal.terms.title');
+  const description = t('legal.terms.description');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      siteName: 'MangaAura',
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    ...withHreflang('/legal/terms'),
+  };
+}
 
 export default async function TermsPage() {
   const locale = await detectLocale();

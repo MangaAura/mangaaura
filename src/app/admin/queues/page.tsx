@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 
 import { Card } from '@/components/ui/Card';
 
@@ -353,8 +353,6 @@ export default function QueuesAdminPage() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await fetch('/api/admin/queues/stats');
       if (!res.ok) {
@@ -366,10 +364,13 @@ export default function QueuesAdminPage() {
       }
       const json: QueueStatsResponse = await res.json();
       setData(json);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch queue stats');
     } finally {
-      setLoading(false);
+      startTransition(() => {
+        setLoading(false);
+      });
     }
   }, []);
 
@@ -407,9 +408,12 @@ export default function QueuesAdminPage() {
   }, [fetchStats]);
 
   useEffect(() => {
-    fetchStats();
+    const timer = setTimeout(() => fetchStats(), 0);
     const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [fetchStats]);
 
   return (

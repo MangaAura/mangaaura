@@ -6,18 +6,34 @@ import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withHreflang } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Política DMCA - MangaAura',
-  description: 'Procedimiento para reportar contenido que infringe derechos de autor',
-  openGraph: {
-    title: 'Política DMCA - MangaAura',
-    description: 'Procedimiento para reportar contenido que infringe derechos de autor',
-    type: 'website',
-    siteName: 'MangaAura',
-    locale: 'es_ES',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const title = t('legal.dmca.title');
+  const description = t('legal.dmca.description');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      siteName: 'MangaAura',
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
+      images: ['/og-image.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    ...withHreflang('/legal/dmca'),
+  };
+}
 
 export default async function DMCAPage() {
   const locale = await detectLocale();
