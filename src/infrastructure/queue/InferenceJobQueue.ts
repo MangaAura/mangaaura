@@ -1,70 +1,27 @@
 import { EventEmitter } from 'events';
 
-import { redis as appRedis } from '@/lib/redis';
+import type {
+  InferenceJob,
+  JobType,
+  QueuedJob,
+  QueueConfig,
+  QueueStats,
+  RateLimitConfig,
+  PriorityConfig,
+  JobStatus,
+ QueueEvents } from './types';
 
-// ============================================================================
-// Types & Interfaces
-// ============================================================================
+// Re-export types for backward compatibility (other modules import from InferenceJobQueue)
+export type { JobType, QueueStats } from './types';
 
-export type JobType = 'analyze' | 'generate' | 'summarize' | 'classify' | 'embed';
-export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
-
-export interface InferenceJob {
-  id: string;
-  type: JobType;
-  payload: Record<string, unknown>;
-  userId?: string;
-  metadata?: {
-    model?: string;
-    temperature?: number;
-    maxTokens?: number;
-    timeout?: number;
-  };
-}
-
-export interface QueuedJob {
-  id: string;
-  job: InferenceJob;
-  priority: number;
-  timestamp: Date;
-  attempts: number;
-  status: JobStatus;
-  startedAt?: Date;
-  completedAt?: Date;
-  error?: string;
-  type: JobType;
-}
-
-export interface QueueStats {
-  length: number;
-  processing: number;
-  completed: number;
-  failed: number;
-  avgWaitTime: number; // milliseconds
-  byPriority: Record<number, number>;
-  byType: Record<JobType, number>;
-}
-
-export interface PriorityConfig {
-  critical: 1;   // Priority 1: Critical - Urgent user-facing operations
-  high: 2;       // Priority 2: High - Important user requests
-  normal: 3;     // Priority 3: Normal - Standard operations
-  low: 4;        // Priority 4: Low - Background tasks
-  background: 5; // Priority 5: Background - Non-urgent processing
-}
-
-export interface RateLimitConfig {
-  windowMs: number;      // Time window in milliseconds
-  maxRequests: number;   // Max requests per window
-}
-
-export interface QueueConfig {
-  maxRetries?: number;
-  retryDelayMs?: number;
-  enablePersistence?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  redis?: any;
-  rateLimits?: Partial<Record<JobType, RateLimitConfig>>;
+// Dynamic/lazy import of redis — avoids bundling ioredis into client components
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _redisPromise: Promise<any> | null = null;
+async function ensureAppRedis(): Promise<any> {
+  if (!_redisPromise) {
+    _redisPromise = import('@/lib/redis').then(mod => mod.redis);
+  }
+  return _redisPromise;
 }
 
 // ============================================================================
@@ -200,9 +157,11 @@ export class InferenceJobQueue extends EventEmitter {
   // Configuration
   private maxRetries: number;
   private enablePersistence: boolean;
-  // Usamos el redis compartido de @/lib/redis que tiene Proxy de cuota
+  // Usamos el redis compartido de @/lib/redis que tiene Proxy de cuota.
+  // Se inicializa lazy para evitar que ioredis se bundlee en client components.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private redis?: any;
+  private _redisInitPromise: Promise<void> | null = null;
 
   // Statistics tracking
   private totalWaitTime: number = 0;
@@ -233,8 +192,9 @@ export class InferenceJobQueue extends EventEmitter {
     this.maxRetries = config.maxRetries ?? 3;
     this.enablePersistence = config.enablePersistence ?? false;
     // Usar el redis compartido de la app en lugar de una instancia ioredis separada.
-    // Esto asegura que InferenceJobQueue pase por el Proxy de detección de cuota.
-    this.redis = config.redis || appRedis;
+    // Import lazy para evitar bundlear ioredis en client components.
+    this.redis = config.redis || null;
+    this._lazyInitRedis();
 
     // Initialize rate limiters for all job types
     const jobTypes: JobType[] = ['analyze', 'generate', 'summarize', 'classify', 'embed'];
@@ -654,7 +614,25 @@ export class InferenceJobQueue extends EventEmitter {
   // Persistence
   // ============================================================================
 
+  private _lazyInitRedis(): void {
+    if (!this._redisInitPromise && !this.redis) {
+      this._redisInitPromise = ensureAppRedis().then(redis => {
+        this.redis = redis;
+      }).catch(err => {
+        console.warn('[InferenceJobQueue] Failed to lazy-load redis:', err);
+      });
+    }
+  }
+
+  private async ensureRedisReady(): Promise<void> {
+    if (this.redis) return;
+    if (this._redisInitPromise) {
+      await this._redisInitPromise;
+    }
+  }
+
   private async persistJob(job: QueuedJob): Promise<void> {
+    await this.ensureRedisReady();
     if (!this.redis) return;
 
     try {
@@ -669,6 +647,7 @@ export class InferenceJobQueue extends EventEmitter {
    * Restore jobs from Redis (call on startup if using persistence)
    */
   async restoreFromPersistence(): Promise<void> {
+    await this.ensureRedisReady();
     if (!this.redis) return;
 
     try {
@@ -697,6 +676,7 @@ export class InferenceJobQueue extends EventEmitter {
    * Clear all persisted jobs from Redis
    */
   async clearPersistence(): Promise<void> {
+    await this.ensureRedisReady();
     if (!this.redis) return;
 
     try {
@@ -757,48 +737,20 @@ export class InferenceJobQueue extends EventEmitter {
   }
 }
 
-// ============================================================================
-// Event Types (for TypeScript support)
-// ============================================================================
 
-export interface QueueEvents {
-  'job:added': { jobId: string; type: JobType; priority: number; timestamp: Date };
-  'job:started': { jobId: string; type: JobType; priority: number; waitTime: number; attempts: number };
-  'job:completed': { jobId: string; type: JobType; priority: number; duration: number; result?: Record<string, unknown> };
-  'job:failed': { jobId: string; type: JobType; priority: number; attempts: number; error: string; deadLettered: boolean };
-  'job:retry': { jobId: string; type: JobType; attempts: number; maxRetries: number };
-  'job:queued': { jobId: string; type: JobType; priority: number; timestamp: Date };
-  'queue:empty': { timestamp: Date };
-  'alert:updated': { id: string; type: string; severity: string; title: string; message: string };
-  'alert:cleared': { id: string; type: string };
-  'config:updated': { thresholds: Record<string, unknown> };
-  'model:health-changed': { modelId: string; modelName: string; previousHealth: string; newHealth: string };
-  'pool:event': { event: string; data?: unknown };
-  'model:registered': { modelId: string; name: string };
-  'model:unregistered': { modelId: string };
-  'strategy:changed': { strategy: string };
-  'alert:model-degraded': { modelId: string; modelName: string };
-  'alert:model-unhealthy': { modelId: string; modelName: string; consecutiveFailures: number };
-  'alert:model-recovered': { modelId: string; modelName: string; previousHealth: string };
-  'alert:high-error-rate': { errorRate: number; threshold: number };
-  'alert:queue-backlog': { queueDepth: number; threshold: number };
-  'service:started': undefined;
-  'service:stopped': undefined;
-  'health:check-completed': undefined;
-}
 
 // Type augmentation for EventEmitter
 declare module 'events' {
-interface EventEmitter {
-emit<K extends keyof QueueEvents>(event: K, payload: QueueEvents[K]): boolean;
-emit(event: string, ...args: unknown[]): boolean;
-on<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
-on(event: string, listener: (...args: unknown[]) => void): this;
-once<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
-once(event: string, listener: (...args: unknown[]) => void): this;
-off<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
-off(event: string, listener: (...args: unknown[]) => void): this;
-}
+  interface EventEmitter {
+    emit<K extends keyof QueueEvents>(event: K, payload: QueueEvents[K]): boolean;
+    emit(event: string, ...args: unknown[]): boolean;
+    on<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
+    on(event: string, listener: (...args: unknown[]) => void): this;
+    once<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
+    once(event: string, listener: (...args: unknown[]) => void): this;
+    off<K extends keyof QueueEvents>(event: K, listener: (payload: QueueEvents[K]) => void): this;
+    off(event: string, listener: (...args: unknown[]) => void): this;
+  }
 }
 
 // ============================================================================

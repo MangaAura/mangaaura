@@ -30,7 +30,24 @@ import {
   InferenceResult as EngineResult,
   InferenceProvider
 } from '@/infrastructure/ai/ParallelInferenceEngine';
-import { InferenceJobQueue, JobType, QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
+import type { JobType, QueueStats } from '@/infrastructure/queue/types';
+
+// Dynamic/lazy import of InferenceJobQueue — prevents ioredis from being bundled
+// into client components (Turbopack traces static imports even if the target
+// module only uses dynamic imports for server-only deps).
+let _QueueCtor: any = null;
+let _queueModPromise: Promise<void> | null = null;
+async function _ensureQueueModule(): Promise<any> {
+  if (!_queueModPromise) {
+    _queueModPromise = import('@/infrastructure/queue/InferenceJobQueue').then(mod => {
+      _QueueCtor = mod.default;
+    }).catch(err => {
+      console.warn('[UnifiedAIService] Failed to lazy-load queue module:', err);
+    });
+  }
+  await _queueModPromise;
+  return _QueueCtor;
+}
 
 // ============================================================================
 // Types & Interfaces
@@ -164,7 +181,12 @@ class IAProviderAdapter implements InferenceProvider {
 // ============================================================================
 
 export class UnifiedAIService extends EventEmitter {
-  private queue: InferenceJobQueue;
+  // Lazy-initialized via dynamic import to avoid bundling ioredis into client components
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private queue: any | null = null;
+  private _queueConfig: { maxRetries: number; retryDelayMs: number; enablePersistence: boolean };
+  private _queueReadyPromise: Promise<void>;
+  private _queueReadyResolve!: () => void;
   private pool: ModelWorkerPool;
   private engine: ParallelInferenceEngine;
   private registry: ModelRegistry;
@@ -213,13 +235,19 @@ export class UnifiedAIService extends EventEmitter {
       useInMemoryFallback: config.useInMemoryFallback ?? true,
     };
 
-    // Initialize components
-    this.queue = new InferenceJobQueue({
+    // Store queue config for lazy initialization
+    this._queueConfig = {
       maxRetries: this.config.maxRetries,
       retryDelayMs: this.config.retryDelayMs,
       enablePersistence: this.config.enablePersistence,
+    };
+
+    // Promise that resolves when the queue is fully initialized (lazy/dynamic)
+    this._queueReadyPromise = new Promise(resolve => {
+      this._queueReadyResolve = resolve;
     });
 
+    // Initialize other components synchronously (no server-only deps)
     this.pool = new ModelWorkerPool({
       minWorkers: this.config.minWorkers,
       maxWorkers: this.config.maxWorkers,
@@ -238,44 +266,71 @@ export class UnifiedAIService extends EventEmitter {
     this.registry = new ModelRegistry();
     this.alertManager = getAlertManager();
 
-    this.setupEventListeners();
+    // Setup non-queue event listeners
+    this.pool.onEvent((event: PoolEvent) => {
+      (this as any).emit('pool:event', event);
+    });
+
     this.registerDefaultModels();
     this.setupAlertListeners();
+
+    // Kick off async queue initialization (does NOT block constructor)
+    this._initQueueAsync();
   }
 
   // ==========================================================================
   // Initialization
   // ==========================================================================
 
-  private setupEventListeners(): void {
-    // Queue events
-    this.queue.on('job:added', (payload) => {
-      (this as any).emit('job:queued', payload);
-      this.processQueue();
-    });
+  /**
+   * Ensures the queue has finished initializing (lazy/dynamic import resolved).
+   * Call before any operation that accesses `this.queue`.
+   */
+  private async _ensureQueueReady(): Promise<void> {
+    await this._queueReadyPromise;
+  }
 
-    this.queue.on('job:started', (payload) => {
-      (this as any).emit('job:started', payload);
-    });
-
-    this.queue.on('job:completed', (payload) => {
-      this.metrics.completedJobs++;
-      (this as any).emit('job:completed', payload);
-    });
-
-    this.queue.on('job:failed', (payload) => {
-      if (payload.deadLettered) {
-        this.metrics.failedJobs++;
-      } else {
-        this.metrics.retriedJobs++;
+  private async _initQueueAsync(): Promise<void> {
+    try {
+      const QueueCtor = await _ensureQueueModule();
+      if (!QueueCtor) {
+        console.warn('[UnifiedAIService] Queue module not available, running without queue');
+        this._queueReadyResolve();
+        return;
       }
-      (this as any).emit('job:failed', payload);
-    });
 
-    // Pool events
-    this.pool.onEvent((event: PoolEvent) => {
-      (this as any).emit('pool:event', event);
-    });
+      this.queue = new QueueCtor(this._queueConfig);
+
+      // Set up queue event listeners
+      this.queue.on('job:added', (payload: any) => {
+        (this as any).emit('job:queued', payload);
+        this.processQueue();
+      });
+
+      this.queue.on('job:started', (payload: any) => {
+        (this as any).emit('job:started', payload);
+      });
+
+      this.queue.on('job:completed', (payload: any) => {
+        this.metrics.completedJobs++;
+        (this as any).emit('job:completed', payload);
+      });
+
+      this.queue.on('job:failed', (payload: any) => {
+        if (payload.deadLettered) {
+          this.metrics.failedJobs++;
+        } else {
+          this.metrics.retriedJobs++;
+        }
+        (this as any).emit('job:failed', payload);
+      });
+
+      this._queueReadyResolve();
+      console.info('[UnifiedAIService] Queue initialized asynchronously');
+    } catch (err) {
+      console.error('[UnifiedAIService] Failed to init queue lazily:', err);
+      this._queueReadyResolve(); // Prevent hanging even on failure
+    }
   }
 
   private registerDefaultModels(): void {
@@ -389,7 +444,10 @@ export class UnifiedAIService extends EventEmitter {
     }
 
     this.pool.shutdown();
-    this.queue.dispose();
+    await this._ensureQueueReady();
+    if (this.queue) {
+      this.queue.dispose();
+    }
     
     (this as any).emit('service:stopped', undefined);
     console.info('[UnifiedAIService] Service stopped');
@@ -412,8 +470,11 @@ export class UnifiedAIService extends EventEmitter {
       // Map service job type to queue job type
       const queueJobType = this.mapJobType(job.type);
       
+      // Ensure queue is ready before enqueuing
+      await this._ensureQueueReady();
+
       // Add to queue
-      const queueJobId = this.queue.enqueue(
+      const queueJobId = this.queue!.enqueue(
         {
           id: jobId,
           type: queueJobType,
@@ -722,8 +783,19 @@ export class UnifiedAIService extends EventEmitter {
 
   getHealth(): ServiceHealth {
     const modelMetrics = this.registry.getRoutingMetrics();
-    const queueStats = this.queue.getStats();
     const poolMetrics = this.pool.getMetrics();
+
+    // If queue isn't loaded yet, return degraded health (will resolve quickly)
+    if (!this.queue) {
+      return {
+        status: 'degraded',
+        components: { queue: 'down', pool: poolMetrics.activeWorkers > 0 ? 'up' : 'down', engine: 'up', registry: modelMetrics.totalRegisteredModels > 0 ? 'up' : 'down' },
+        models: { total: 0, healthy: 0, degraded: 0, unhealthy: 0 },
+        performance: { throughput: 0, avgLatency: 0, queueDepth: 0 },
+      };
+    }
+
+    const queueStats = this.queue.getStats();
     
     const healthyModels = modelMetrics.models.filter(m => m.healthStatus === 'healthy').length;
     const degradedModels = modelMetrics.models.filter(m => m.healthStatus === 'degraded').length;
@@ -780,6 +852,9 @@ export class UnifiedAIService extends EventEmitter {
   }
 
   getQueueStats(): QueueStats {
+    if (!this.queue) {
+      return { length: 0, processing: 0, completed: 0, failed: 0, avgWaitTime: 0, byPriority: {}, byType: { analyze: 0, generate: 0, summarize: 0, classify: 0, embed: 0 } };
+    }
     return this.queue.getStats();
   }
 
@@ -821,7 +896,13 @@ export class UnifiedAIService extends EventEmitter {
         reject(new Error(`Job ${jobId} timed out`));
       }, timeout) : undefined;
 
-      const checkCompletion = () => {
+      const checkCompletion = async () => {
+        await this._ensureQueueReady();
+        if (!this.queue) {
+          if (timeoutId) clearTimeout(timeoutId);
+          reject(new Error(`Queue not available`));
+          return;
+        }
         const job = this.queue.getJob(jobId);
         
         if (!job) {
@@ -845,7 +926,7 @@ export class UnifiedAIService extends EventEmitter {
         }
 
         // Still processing, check again
-        setTimeout(checkCompletion, 50);
+        setTimeout(() => checkCompletion(), 50);
       };
 
       checkCompletion();
@@ -854,6 +935,9 @@ export class UnifiedAIService extends EventEmitter {
 
   private async processQueue(): Promise<void> {
     if (!this.isRunning) return;
+
+    await this._ensureQueueReady();
+    if (!this.queue) return;
 
     const job = this.queue.dequeue();
     if (!job) return;
@@ -920,6 +1004,7 @@ export class UnifiedAIService extends EventEmitter {
   }
 
   private async performHealthChecks(): Promise<void> {
+    await this._ensureQueueReady();
     const models = this.registry.getAllModels();
 
     for (const model of models) {
@@ -1024,7 +1109,9 @@ export class UnifiedAIService extends EventEmitter {
     }
   }
 
-  private checkAndEmitQueueBacklogAlert(): void {
+  private async checkAndEmitQueueBacklogAlert(): Promise<void> {
+    await this._ensureQueueReady();
+    if (!this.queue) return;
     const queueStats = this.queue.getStats();
     const queueDepth = queueStats.length;
     const threshold = this.alertManager.getThresholds().queueBacklogThreshold;

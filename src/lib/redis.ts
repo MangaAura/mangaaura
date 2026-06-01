@@ -1,5 +1,8 @@
 import { Redis as UpstashRedis } from '@upstash/redis';
-import { Redis as IoRedis } from 'ioredis';
+// Type-only import — IoRedis constructor is loaded dynamically to prevent
+// ioredis (which depends on Node.js built-ins 'tls', 'net') from being
+// bundled into Client Component chunks by Next.js/Turbopack.
+import type { Redis as IoRedisType } from 'ioredis';
 
 const REDIS_URL = process.env.REDIS_URL;
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
@@ -67,12 +70,21 @@ if (isDevelopment && typeof globalThis.process !== 'undefined' && typeof (global
 }
 
 let redisAvailable = false;
-let redisInstance: IoRedis | null = null;
-let upstashInstance: UpstashRedis | null = null;
-let mockRedisInstance: MockRedis | null = null;
+
+// -----------------------------------------------------------------------
+// Lazy-init client — ioredis is loaded on first method call via
+// dynamic import, so Turbopack/Next.js never bundles it into client chunks
+// -----------------------------------------------------------------------
+
+type RedisClient = IoRedisType | UpstashRedis | MockRedis;
+
+let _client: RedisClient | null = null;
+let _initPromise: Promise<RedisClient> | null = null;
+type ClientType = 'ioredis' | 'upstash' | 'mock';
+let _clientType: ClientType | null = null;
 
 const globalForRedis = global as unknown as {
-  redis?: IoRedis;
+  redis?: IoRedisType;
   upstash?: UpstashRedis;
   mockRedis?: MockRedis;
 };
@@ -347,128 +359,136 @@ class MockRedis {
   }
 }
 
-function createIoRedis(): IoRedis {
-  const client = new IoRedis(REDIS_URL || 'redis://localhost:6379', {
-    retryStrategy: (times) => {
-      const delay = Math.min(times * 50, 2000);
-      return delay;
-    },
-    maxRetriesPerRequest: 3,
-    lazyConnect: true,
-    enableOfflineQueue: false,
-    showFriendlyErrorStack: isDevelopment,
-  });
+/**
+ * Lazily initialize the Redis client.
+ *
+ * Priority: Upstash (fast, no deps) > ioredis (dynamic import) > MockRedis.
+ * Once initialized, the client is cached for subsequent calls.
+ */
+async function lazyInit(): Promise<RedisClient> {
+  if (_client) return _client;
+  if (_initPromise) return _initPromise;
 
-  const silentError = () => {};
-
-  client.on('connect', () => {
-    redisAvailable = true;
-    if (!isDevelopment) {
-      console.log('[Redis] Connected successfully');
+  _initPromise = (async () => {
+    // 1) Upstash — always preferred when credentials are available
+    if (UPSTASH_URL && UPSTASH_TOKEN) {
+      const instance = new UpstashRedis({
+        url: UPSTASH_URL,
+        token: UPSTASH_TOKEN,
+        retry: {
+          retries: 1,
+          backoff: (retryCount) => Math.exp(retryCount) * 100,
+        },
+      });
+      _client = instance;
+      _clientType = 'upstash';
+      redisAvailable = true;
+      globalForRedis.upstash = instance;
+      return instance;
     }
-  });
 
-  client.on('ready', () => {
-    redisAvailable = true;
-  });
+    // 2) ioredis — only in development with REDIS_URL; dynamically loaded
+    if (isDevelopment && REDIS_URL) {
+      try {
+        const { Redis: IoRedis } = await import('ioredis');
+        const instance = new IoRedis(REDIS_URL || 'redis://localhost:6379', {
+          retryStrategy: (times: number) => {
+            const delay = Math.min(times * 50, 2000);
+            return delay;
+          },
+          maxRetriesPerRequest: 3,
+          lazyConnect: true,
+          enableOfflineQueue: false,
+          showFriendlyErrorStack: true,
+        });
 
-  client.on('error', (error: Error & { code?: string }) => {
-    redisAvailable = false;
-    if (isDevelopment) return;
-    if (process.env.DEBUG_REDIS) {
-      console.error('[Redis] Connection error:', error.message);
+        const silentError = () => {};
+
+        instance.on('connect', () => {
+          redisAvailable = true;
+        });
+
+        instance.on('ready', () => {
+          redisAvailable = true;
+        });
+
+        instance.on('error', (error: Error & { code?: string }) => {
+          redisAvailable = false;
+          if (process.env.DEBUG_REDIS) {
+            console.error('[Redis] Connection error:', error.message);
+          }
+        });
+
+        instance.on('close', () => {
+          redisAvailable = false;
+          if (process.env.DEBUG_REDIS) {
+            console.log('[Redis] Connection closed');
+          }
+        });
+
+        instance.on('reconnecting', () => {
+          if (process.env.DEBUG_REDIS) {
+            console.log('[Redis] Reconnecting...');
+          }
+        });
+
+        instance.on('end', silentError);
+        instance.on('wait', silentError);
+        instance.on('node error', silentError);
+
+        _client = instance;
+        _clientType = 'ioredis';
+        redisAvailable = true;
+        globalForRedis.redis = instance;
+        return instance;
+      } catch (error) {
+        console.warn('[Redis] Failed to create ioredis client, using mock fallback');
+      }
     }
-  });
 
-  client.on('close', () => {
-    redisAvailable = false;
-    if (!isDevelopment && process.env.DEBUG_REDIS) {
-      console.log('[Redis] Connection closed');
-    }
-  });
+    // 3) MockRedis — safe fallback for dev without Redis, or if everything else failed
+    const instance = new MockRedis();
+    _client = instance;
+    _clientType = 'mock';
+    globalForRedis.mockRedis = instance;
+    return instance;
+  })();
 
-  client.on('reconnecting', () => {
-    if (!isDevelopment && process.env.DEBUG_REDIS) {
-      console.log('[Redis] Reconnecting...');
-    }
-  });
-
-  client.on('end', silentError);
-  client.on('wait', silentError);
-  client.on('node error', silentError);
-
-  return client;
+  return _initPromise;
 }
-
-function createUpstashRedis(): UpstashRedis {
-  return new UpstashRedis({
-    url: UPSTASH_URL || 'https://profound-python-134342.upstash.io',
-    token: UPSTASH_TOKEN || '',
-    retry: {
-      retries: 1, // Only 1 retry — if quota is exceeded, fail fast
-      backoff: (retryCount) => Math.exp(retryCount) * 100,
-    },
-  });
-}
-
-type RedisClient = IoRedis | UpstashRedis | MockRedis;
-
-function getRedisInstance(): RedisClient {
-  // Upstash: always use if credentials available (works in dev and prod)
-  if (UPSTASH_URL && UPSTASH_TOKEN) {
-    upstashInstance = createUpstashRedis();
-    redisAvailable = true;
-    return upstashInstance;
-  }
-
-  // Development with REDIS_URL: use ioredis
-  if (isDevelopment && REDIS_URL) {
-    try {
-      redisInstance = createIoRedis();
-      return redisInstance;
-    } catch (error) {
-      console.warn('[Redis] Failed to create ioredis client, using mock fallback');
-    }
-  }
-
-  // Development without Redis: use mock
-  if (isDevelopment && !process.env.REDIS_URL && mockRedisInstance) {
-    return mockRedisInstance;
-  }
-
-  // Fallback to mock
-  mockRedisInstance = new MockRedis();
-  return mockRedisInstance;
-}
-
-const _redis =
-  globalForRedis.upstash ||
-  globalForRedis.redis ||
-  globalForRedis.mockRedis ||
-  getRedisInstance();
 
 /**
- * Wrapped redis instance with automatic quota-error detection.
+ * Wrapped redis instance with automatic lazy initialization and quota-error detection.
  *
- * Every method call is proxied through a handler that checks for
- * Upstash quota-exceeded errors. Once detected, `isMockRedis()`
- * returns true and all high-volume paths (cache, rate-limit,
- * PartyService, queues) gracefully fall back to in-memory storage.
+ * Every method call is proxied through a handler that:
+ *  1. Ensures the client is initialized (lazyInit via _client)
+ *  2. Checks for Upstash quota-exceeded errors
+ *  3. Once detected, all high-volume paths gracefully fall back to in-memory storage
  *
  * Auth routes that use redis directly will still throw errors
  * after quota is exceeded — this is intentional (auth should fail
  * rather than silently skip verifications).
  */
-export const redis = new Proxy(_redis, {
-  get(target, prop, receiver) {
-    const value = Reflect.get(target, prop, receiver);
-    if (typeof value !== 'function') return value;
+export const redis = new Proxy({} as RedisClient, {
+  get(_, prop) {
+    // Prevent the Proxy from being treated as a thenable (which would
+    // break `await` inspection in some bundlers/testing frameworks)
+    if (prop === 'then' || prop === (Symbol.toPrimitive as unknown as string)) {
+      return undefined;
+    }
 
-    return function (this: unknown, ...args: unknown[]) {
+    // Return async function for any property access — all Redis methods
+    // (get, set, del, etc.) return Promises anyway, so wrapping is transparent.
+    return async function redisMethod(this: unknown, ...args: unknown[]) {
+      await lazyInit();
+
       if (quotaExceeded) {
-        // Short-circuit: reject as promise (all Redis methods return promises)
         return Promise.reject(new Error('[Redis] Quota exceeded — operation skipped'));
       }
+
+      const target = _client!;
+      const value = (target as any)[prop];
+      if (typeof value !== 'function') return value;
 
       try {
         const result: unknown = Reflect.apply(value, target, args);
@@ -491,22 +511,12 @@ export const redis = new Proxy(_redis, {
   },
 });
 
-if (isDevelopment) {
-  if (redis instanceof IoRedis) {
-    globalForRedis.redis = redis as IoRedis;
-  } else if (redis instanceof UpstashRedis) {
-    globalForRedis.upstash = redis as UpstashRedis;
-  } else {
-    globalForRedis.mockRedis = redis as MockRedis;
-  }
-}
-
 export function isRedisConnected(): boolean {
   return redisAvailable && !quotaExceeded;
 }
 
 export function isMockRedis(): boolean {
-  return redis instanceof MockRedis || quotaExceeded;
+  return _clientType === 'mock' || _client instanceof MockRedis || quotaExceeded;
 }
 
 export function isQuotaExceeded(): boolean {
@@ -528,8 +538,9 @@ export async function getRedisStatus(): Promise<{
   mode: string;
   quotaExceeded: boolean;
 }> {
+  await lazyInit();
   const isMock = isMockRedis();
-  const isUpstash = !isMock && !(redis instanceof IoRedis);
+  const isUpstash = _clientType === 'upstash';
   let mode: string;
   if (quotaExceeded) {
     mode = 'quota_exceeded';
@@ -549,14 +560,15 @@ export async function getRedisStatus(): Promise<{
 }
 
 export async function closeRedisConnection(): Promise<void> {
-  if (redisInstance) {
-    await redisInstance.quit();
-    redisInstance = null;
+  if (_client) {
+    try {
+      await (_client as any).quit?.();
+    } catch {
+      // ignore errors during cleanup
+    }
+    _client = null;
   }
-  if (mockRedisInstance) {
-    await mockRedisInstance.quit();
-    mockRedisInstance = null;
-  }
-  upstashInstance = null;
+  _initPromise = null;
+  _clientType = null;
   redisAvailable = false;
 }

@@ -78,8 +78,8 @@ export {
   type AlertListener,
 } from './AlertManager';
 
-// Queue
-export { type QueueStats } from '@/infrastructure/queue/InferenceJobQueue';
+// Queue (types only — safe for client components, no ioredis)
+export { type QueueStats } from '@/infrastructure/queue/types';
 
 // Default export
 export { UnifiedAIService as default } from './UnifiedAIService';

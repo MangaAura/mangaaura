@@ -5,8 +5,8 @@ import { useCallback, useMemo, useState } from 'react';
 import useSWR, { SWRConfiguration } from 'swr';
 
 import { useErrorHandler } from '@/hooks/useErrorHandler';
-import { invalidateMangaCache } from '@/lib/cache';
 import { extractApiError } from '@/lib/extract-api-error';
+import { invalidateMangaCache } from '@/lib/memory-cache';
 import { swrConfigs, fetcher } from '@/lib/swr-config';
 
 // Tipos exportados
