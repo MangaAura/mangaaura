@@ -342,6 +342,74 @@ export function OnboardingTour() {
 
   const step = ONBOARDING_STEPS[activeTooltipStep];
 
+  // ── Inject data-onboarding markers into global UI elements ──
+  useEffect(() => {
+    if (!tourOpen) return;
+
+    const injectMarkers = () => {
+      const header = document.querySelector('header');
+      if (!header) return;
+
+      // Profile: button with avatar image + chevron (user menu)
+      const profileBtn = Array.from(header.querySelectorAll('button')).find(
+        (btn) =>
+          (btn.querySelector('img[alt]') || btn.innerHTML.includes('rounded-full')) &&
+          (btn.innerHTML.includes('chevron-down') || btn.innerHTML.includes('ChevronDown'))
+      );
+      if (profileBtn && !profileBtn.hasAttribute('data-onboarding')) {
+        profileBtn.setAttribute('data-onboarding', 'profile');
+      }
+
+      // Search: form with role="search"
+      const searchForm = header.querySelector('form[role="search"]');
+      if (searchForm && !searchForm.hasAttribute('data-onboarding')) {
+        const container = searchForm.closest('div');
+        if (container) container.setAttribute('data-onboarding', 'search');
+      }
+
+      // Notifications: button with bell icon
+      const notifBtn = Array.from(header.querySelectorAll('button')).find(
+        (btn) =>
+          (btn.innerHTML.includes('Bell') || btn.innerHTML.includes('bell')) &&
+          btn.getAttribute('aria-label')
+      );
+      if (notifBtn && !notifBtn.hasAttribute('data-onboarding')) {
+        notifBtn.setAttribute('data-onboarding', 'notifications');
+      }
+
+      // Nav: the main <nav> element
+      const nav = header.querySelector('nav[aria-label]');
+      if (nav && !nav.hasAttribute('data-onboarding')) {
+        nav.setAttribute('data-onboarding', 'nav');
+      }
+
+      // Messages: link to /messages with MessageCircle icon
+      const msgLink = Array.from(header.querySelectorAll('a')).find(
+        (a) =>
+          (a.getAttribute('href')?.includes('/messages') ||
+            a.innerHTML.includes('MessageCircle'))
+      );
+      if (msgLink && !msgLink.hasAttribute('data-onboarding')) {
+        msgLink.setAttribute('data-onboarding', 'messages');
+      }
+
+      // Creator: link to /creator/dashboard with Sparkles icon
+      const creatorLink = Array.from(header.querySelectorAll('a')).find(
+        (a) =>
+          a.getAttribute('href')?.includes('/creator/dashboard') ||
+          a.getAttribute('href')?.includes('/creator/manga/new')
+      );
+      if (creatorLink && !creatorLink.hasAttribute('data-onboarding')) {
+        creatorLink.setAttribute('data-onboarding', 'creator');
+      }
+    };
+
+    injectMarkers();
+    // Retry after a short delay in case DOM isn't fully hydrated yet
+    const timer = setTimeout(injectMarkers, 600);
+    return () => clearTimeout(timer);
+  }, [tourOpen, activeTooltipStep]);
+
   // ── Find target and position tooltip ──────────────────────────
   const repositionTooltip = useCallback(() => {
     if (!step) return;

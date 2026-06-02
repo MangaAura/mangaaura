@@ -112,12 +112,12 @@ export function HomePageClient({
 
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         {/* Categorías / Géneros — Infinite Marquee */}
-        <div data-onboarding="genres">
+        <div>
           <GenreMarquee />
         </div>
 
         {/* Top Mangas — no entrance animation for faster TBT */}
-        <section data-onboarding="top-manga">
+        <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="text-[var(--warning)]" /> {t('home.topMangas')}
@@ -155,12 +155,12 @@ export function HomePageClient({
           {/* Columna izquierda: Actualizaciones + Noticias */}
           <div className="lg:col-span-2 space-y-10">
             {/* Últimas Actualizaciones — no entrance animation */}
-            <section data-onboarding="updates">
+            <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                   <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
                 </h2>
-                <Link href="/explore" data-onboarding="search">
+                <Link href="/explore">
                   <Button variant="ghost" size="sm">
                     {t('common.viewAll')}
                   </Button>
@@ -188,7 +188,7 @@ export function HomePageClient({
             </section>
 
             {/* Noticias de MangaAura */}
-            <HomeNewsSection data-onboarding="achievements" />
+            <HomeNewsSection />
           </div>
 
           {/* Sidebar */}

@@ -133,7 +133,6 @@ export function AuthSection({
         <DropdownMenu.Root key={pathname}>
           <DropdownMenu.Trigger asChild>
             <motion.button
-              data-onboarding="profile"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className="group relative flex items-center gap-2 p-1 pr-2.5 rounded-xl hover:bg-[var(--surface)] transition-all duration-200 cursor-pointer"
