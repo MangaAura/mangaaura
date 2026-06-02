@@ -85,8 +85,8 @@ export default function CspReportsClient() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">Real Violations</p>
@@ -100,8 +100,8 @@ export default function CspReportsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">Extension Noise</p>
@@ -115,8 +115,8 @@ export default function CspReportsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">Blocked Resources</p>

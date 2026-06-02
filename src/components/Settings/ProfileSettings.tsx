@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { setOnboardingMarker } from '@/components/Onboarding';
 import { extractApiError } from '@/lib/extract-api-error';
 
 interface ProfileSettingsProps {
@@ -316,6 +317,8 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       setFieldErrors({});
       setSaveStatus('success');
       setFormData((prev) => ({ ...prev, username: data.user.username }));
+      setOnboardingMarker('mangaaura-profile-set');
+      setOnboardingMarker('mangaaura-profile-complete');
 
       const newDisplayName = formData.displayName;
       const newUsername = data.user.username;

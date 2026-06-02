@@ -81,19 +81,19 @@ export default async function CreatorSponsorsPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold">{stats.totalBids}</p>
           <p className="text-xs text-muted">Pujas totales</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-accent-green">{stats.activeBids}</p>
           <p className="text-xs text-muted">Pujas activas</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-[var(--warning)]">{stats.totalRevenue.toLocaleString()}</p>
           <p className="text-xs text-muted">IC recaudados</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-accent-blue">{stats.uniqueSponsors}</p>
           <p className="text-xs text-muted">Patrocinadores únicos</p>
         </div>

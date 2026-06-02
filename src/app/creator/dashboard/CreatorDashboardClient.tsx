@@ -82,7 +82,7 @@ function StatCard({ title, value, icon: Icon, variant, trend }: {
       transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border bg-[var(--surface-elevated)] p-6 shadow-sm transition-all duration-300 hover:shadow-md',
+        'group relative overflow-hidden rounded-2xl border bg-[var(--surface-elevated)] p-6 shadow-sm transition-all duration-300 hover:shadow-md h-full',
         styles.border
       )}
     >
@@ -134,11 +134,11 @@ function QuickActionCard({ href, icon: Icon, title, desc, gradient, iconBg, icon
     >
       <Link href={href}>
         <div className={cn(
-          'group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-elevated)] p-6 transition-all duration-300 hover:shadow-lg',
+          'group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-elevated)] p-6 transition-all duration-300 hover:shadow-lg h-full flex flex-col',
           borderHover
         )}>
           <div className={cn('absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br', gradient)} />
-          <div className="relative flex items-start gap-4">
+          <div className="relative flex items-start gap-4 flex-1">
             <div className={cn('p-3 rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-110', iconBg)}>
               <Icon className={cn('w-6 h-6', iconColor)} />
             </div>
@@ -212,7 +212,7 @@ export default function CreatorDashboardClient() {
           {isLoading ? (
             <>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6 space-y-4">
+                <div key={i} className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6 space-y-4 h-full">
                   <div className="h-4 w-24 bg-[var(--surface-sunken)] rounded animate-pulse" />
                   <div className="h-10 w-20 bg-[var(--surface-sunken)] rounded animate-pulse" />
                   <div className="h-5 w-16 bg-[var(--surface-sunken)] rounded animate-pulse" />

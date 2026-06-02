@@ -84,7 +84,7 @@ export function CollectionCard({
   return (
     <Card
       className={cn(
-        'group overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-[var(--primary)]/10 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md',
+        'group overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-[var(--primary)]/10 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md h-full flex flex-col',
         isPending && 'opacity-50'
       )}
     >
@@ -132,7 +132,7 @@ export function CollectionCard({
       </Link>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <Link href={`/collections/${collection.id}`}>
@@ -185,8 +185,9 @@ export function CollectionCard({
           )}
         </div>
 
+        <div className="flex-1" />
         {/* Footer */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--border)]">
+        <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
           <Link href={`/user/${collection.user.username}`} className="flex items-center gap-2">
             <Avatar className="w-6 h-6">
               <AvatarImage src={collection.user.avatarUrl || undefined} />

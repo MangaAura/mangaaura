@@ -73,7 +73,7 @@ function Section({ title, icon, manga }: { title: string; icon: React.ReactNode;
       <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" staggerDelay={0.04}>
         {manga.map((m, i) => (
           <StaggerItem key={m.id}>
-            <Link href={`/manga/${m.slug}`} className="group">
+            <Link href={`/manga/${m.slug}`} className="group block h-full">
               <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-tertiary border border-custom mb-2">
                 {m.coverUrl ? (
                   <OptimizedImage

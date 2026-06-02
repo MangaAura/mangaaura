@@ -1,15 +1,15 @@
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
-import {
-  Lock,
+import { es } from 'date-fns/locale';import { Lock,
   Check,
   Star,
   Sparkles,
   Share2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { setOnboardingMarker } from '@/components/Onboarding';
 
 import { AchievementBadgeDisplay } from './AchievementBadgeDisplay';
 import { ShareAchievementModal } from './ShareAchievementModal';
@@ -116,6 +116,12 @@ export function AchievementCard({
   const wasJustUnlocked = achievement.userAchievement?.earnedAt &&
     now - achievement.userAchievement.earnedAt.getTime() < 86400000;
 
+  useEffect(() => {
+    if (isUnlocked) {
+      setOnboardingMarker('mangaaura-has-achievement');
+    }
+  }, [isUnlocked]);
+
   const handleClick = () => {
     if (isUnlocked && wasJustUnlocked) {
       setShowUnlock(true);
@@ -140,7 +146,7 @@ export function AchievementCard({
 
       <Card
         className={cn(
-          'relative overflow-hidden transition-all duration-200 border group/card',
+          'relative overflow-hidden transition-all duration-200 border group/card h-full flex flex-col',
           isUnlocked ? rarity.borderColor : 'border-custom',
           isHovered && 'scale-[1.02] -translate-y-0.5',
           isHovered && isUnlocked && 'shadow-lg',
@@ -170,7 +176,7 @@ export function AchievementCard({
           />
         )}
 
-        <div className="relative p-5">
+        <div className="relative p-5 flex flex-col flex-1">
           <div className="flex items-start justify-between mb-4">
             {/* Share button (unlocked only) */}
             {isUnlocked && (
@@ -237,6 +243,8 @@ export function AchievementCard({
           <p className="text-sm text-muted mb-4 line-clamp-2">
             {achievement.description}
           </p>
+
+          <div className="flex-1" />
 
           {isUnlocked ? (
             <div className="flex items-center gap-2 text-sm">

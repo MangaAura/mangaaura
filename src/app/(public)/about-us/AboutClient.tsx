@@ -1,6 +1,7 @@
 'use client';
 
 import { Sparkles, Users, BookOpen, Heart, Zap, Shield, Star, Globe, ChevronRight, MessageCircle } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
@@ -67,13 +68,6 @@ function StorySection() {
 function TeamValuesSection() {
   const t = useT();
 
-  const teamMembers = [
-    { name: t('about.team.member1.name'), role: t('about.team.member1.role'), description: t('about.team.member1.desc'), avatar: 'KN', accent: 'from-violet-500 to-purple-600' },
-    { name: t('about.team.member2.name'), role: t('about.team.member2.role'), description: t('about.team.member2.desc'), avatar: 'LM', accent: 'from-pink-500 to-rose-600' },
-    { name: t('about.team.member3.name'), role: t('about.team.member3.role'), description: t('about.team.member3.desc'), avatar: 'AC', accent: 'from-cyan-500 to-blue-600' },
-    { name: t('about.team.member4.name'), role: t('about.team.member4.role'), description: t('about.team.member4.desc'), avatar: 'YT', accent: 'from-amber-500 to-orange-600' },
-  ];
-
   const values = [
     { icon: <BookOpen className="w-6 h-6" />, title: t('about.values.item1.title'), description: t('about.values.item1.desc'), iconClass: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
     { icon: <Users className="w-6 h-6" />, title: t('about.values.item2.title'), description: t('about.values.item2.desc'), iconClass: 'bg-pink-500/10 text-pink-500 border-pink-500/20' },
@@ -103,21 +97,22 @@ function TeamValuesSection() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map((member) => (
-              <div
-                key={member.name}
-                className="group relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 hover:border-[var(--primary)]/30 transition-all duration-300 hover:-translate-y-1"
-              >
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${member.accent} mb-4 flex items-center justify-center text-xl font-bold text-white`}>
-                  {member.avatar}
-                </div>
-                <h3 className="font-bold text-lg text-[var(--text-primary)] mb-1">{member.name}</h3>
-                <div className="text-sm text-[var(--primary)] mb-3">{member.role}</div>
-                <p className="text-sm text-[var(--text-muted)] leading-relaxed">{member.description}</p>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--primary)]/5 to-[var(--accent-purple)]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="flex justify-center">
+            <div className="group relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 hover:border-[var(--primary)]/30 transition-all duration-300 hover:-translate-y-1 max-w-sm w-full text-center">
+              <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 bg-[var(--surface-sunken)] ring-2 ring-[var(--primary)]/20">
+                <Image
+                  src="https://yt3.googleusercontent.com/aA4_2r9_u47sSSMdky9XrHos-l-h8cgcGfOOI5ZOIhyMC9aT8u6kAp_kt5p9SYdn0I5bqKLk=s160-c-k-c0x00ffffff-no-rj"
+                  alt={t('about.team.member.name')}
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            ))}
+              <h3 className="font-bold text-lg text-[var(--text-primary)] mb-1">{t('about.team.member.name')}</h3>
+              <div className="text-sm text-[var(--primary)] mb-3">{t('about.team.member.role')}</div>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">{t('about.team.member.desc')}</p>
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--primary)]/5 to-[var(--accent-purple)]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            </div>
           </div>
         </Container>
       </section>
@@ -149,12 +144,13 @@ function TeamValuesSection() {
             {values.map((value) => (
               <div
                 key={value.title}
-                className="group relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className="group relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${value.iconClass}`}>
                   {value.icon}
                 </div>
                 <h3 className="font-bold text-lg text-[var(--text-primary)] mb-2">{value.title}</h3>
+                <div className="flex-1" />
                 <p className="text-sm text-[var(--text-muted)] leading-relaxed">{value.description}</p>
               </div>
             ))}

@@ -153,8 +153,8 @@ export default function RolesClient() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {roles.map((role) => (
-            <Card key={role.id} className="cursor-pointer hover:ring-1 hover:ring-[var(--primary)]" onClick={() => openEdit(role)}>
-              <CardContent className="p-4">
+            <Card key={role.id} className="h-full flex flex-col cursor-pointer hover:ring-1 hover:ring-[var(--primary)]" onClick={() => openEdit(role)}>
+              <CardContent className="p-4 flex flex-col flex-1">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -164,7 +164,8 @@ export default function RolesClient() {
                     <p className="text-sm text-[var(--text-tertiary)]">{role.description || 'No description'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 mt-3 text-sm text-[var(--text-tertiary)]">
+                <div className="flex-1" />
+                <div className="flex items-center gap-4 text-sm text-[var(--text-tertiary)]">
                   <span className="flex items-center gap-1"><Users className="w-4 h-4" /> {role.userCount} users</span>
                   <span>Priority: {role.priority}</span>
                   <span>{role.permissionIds.length} permissions</span>

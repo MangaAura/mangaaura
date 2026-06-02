@@ -38,7 +38,7 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
       <Link href={`/community/clan/${clan.slug}`} className="block group">
         <div
           className={`
-            relative overflow-hidden rounded-2xl border
+            relative overflow-hidden rounded-2xl border h-full flex flex-col
             bg-[var(--surface)]/80 backdrop-blur-sm
             ${isTop3 ? rs!.border : 'border-[var(--border)]'}
             hover:border-[var(--primary)]/40
@@ -59,7 +59,7 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
             `}
           />
 
-          <div className="p-5">
+          <div className="p-5 flex flex-col flex-1">
             {/* Header row */}
             <div className="flex items-start gap-4">
               {/* Emblem - circular profile pic style */}
@@ -133,8 +133,10 @@ export default function ClanCard({ clan, index = 0, rank }: ClanCardProps) {
               </p>
             )}
 
+            {!clan.description && <div className="flex-1" />}
+
             {/* Score bar */}
-            <div className="mt-4 space-y-2">
+            <div className="mt-auto pt-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-1.5">
                   <Trophy size={12} className="text-[var(--warning)]" aria-hidden="true" />

@@ -42,17 +42,9 @@ export async function GET(
       );
     }
 
-    // Incrementar views del capítulo y del manga (usa chapter.id que siempre es UUID)
-    await prisma.$transaction([
-      prisma.chapter.update({
-        where: { id: chapter.id },
-        data: { viewCount: { increment: 1 } },
-      }),
-      prisma.mangaSeries.update({
-        where: { id },
-        data: { totalViews: { increment: 1 } },
-      }),
-    ]);
+    // NOTA: Los views NO se incrementan aquí. Se cuentan desde analytics (capítulo leído >5s)
+    // vía POST /api/analytics/track con evento chapter_read, que incrementa
+    // chapter.viewCount y manga.totalViews en la misma transacción.
 
     return NextResponse.json({
       id: chapter.id,
@@ -63,7 +55,7 @@ export async function GET(
       totalPages: chapter.totalPages,
       pageUrls: chapter.pageUrls ? JSON.parse(chapter.pageUrls) : [],
       createdAt: chapter.createdAt,
-      viewCount: chapter.viewCount + 1,
+      viewCount: chapter.viewCount,
       crowdfunding: chapter.crowdfundingGoal
         ? {
             goal: chapter.crowdfundingGoal,

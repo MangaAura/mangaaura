@@ -324,7 +324,7 @@ function PlatformSummaryCards({ t }: { t: (key: string) => string }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.08, duration: 0.4 }}
-          className={`rounded-xl border p-5 transition-all duration-300 hover:-translate-y-0.5 ${
+          className={`rounded-xl border p-5 transition-all duration-300 hover:-translate-y-0.5 h-full flex flex-col ${
             card.platform.isMangaAura
               ? 'border-[var(--primary)]/30 bg-[var(--primary)]/[0.03] shadow-sm hover:shadow-md hover:border-[var(--primary)]/50'
               : 'border-[var(--border)] bg-[var(--surface)] hover:shadow-sm hover:border-[var(--border-subtle)]'
@@ -339,7 +339,7 @@ function PlatformSummaryCards({ t }: { t: (key: string) => string }) {
             </span>
             {card.platform.isMangaAura && <Sparkles className="w-3.5 h-3.5 text-[var(--primary)]" />}
           </div>
-          <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-3">
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-3 flex-1">
             {t(`comparison.${card.descKey}`)}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -526,7 +526,7 @@ export default function ComparisonClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06, duration: 0.35 }}
-                className="flex gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]/20 transition-all group"
+                className="flex gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]/20 transition-all group h-full"
               >
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                   <item.icon className="w-5 h-5 text-[var(--primary)]" />

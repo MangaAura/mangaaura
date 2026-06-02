@@ -84,7 +84,7 @@ export default async function PrivacyPage() {
 
           <div className="grid md:grid-cols-3 gap-4">
             {dataTypes.map((type, _index) => (
-              <div key={type.title} className="bg-tertiary border border-custom rounded-xl p-4">
+              <div key={type.title} className="bg-tertiary border border-custom rounded-xl p-4 h-full">
                 <div className="flex items-center gap-2 mb-3 text-accent-blue">
                   {type.icon}
                   <h3 className="font-semibold text-sm">{type.title}</h3>
@@ -138,7 +138,7 @@ export default async function PrivacyPage() {
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {rights.map((right, _index) => (
-              <div key={right.title} className="p-4 bg-tertiary border border-custom rounded-xl">
+              <div key={right.title} className="p-4 bg-tertiary border border-custom rounded-xl h-full">
                 <h3 className="font-semibold mb-1">{right.title}</h3>
                 <p className="text-sm text-muted">{right.description}</p>
               </div>

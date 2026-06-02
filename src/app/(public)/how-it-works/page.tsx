@@ -244,7 +244,7 @@ export default async function ComoFuncionaPage() {
             ].map((step, i) => (
               <div
                 key={step.title}
-                className="relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-8 hover:border-[var(--primary)]/30 transition-all duration-300 hover:-translate-y-1"
+                className="relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-8 hover:border-[var(--primary)]/30 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
               >
                 <div className="absolute -top-3 -right-3 w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">
                   {i + 1}
@@ -315,12 +315,13 @@ export default async function ComoFuncionaPage() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="group relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className="group relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${feature.color}`}>
                   {feature.icon}
                 </div>
                 <h3 className="font-bold text-lg text-[var(--text-primary)] mb-2">{feature.title}</h3>
+                <div className="flex-1" />
                 <p className="text-sm text-[var(--text-muted)] leading-relaxed">{feature.desc}</p>
               </div>
             ))}

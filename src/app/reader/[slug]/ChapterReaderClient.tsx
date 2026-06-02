@@ -17,17 +17,22 @@ import {
   Moon,
   Sun,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Palette,
+  Share2
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
+
+import { ShareModal } from '@/components/Share/ShareModal';
 
 import { CommentSection } from '@/components/Comments/CommentSection';
 import { OptimizedImage } from '@/components/Image';
 import { useTheme } from '@/components/ThemeProvider';
 import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { useChapterComments } from '@/hooks/useChapterComments';
+import { setOnboardingMarker } from '@/components/Onboarding';
 import { cn } from '@/lib/utils';
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });
@@ -57,8 +62,41 @@ export default function ChapterReaderClient() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const [readerTheme, setReaderTheme] = useState<'dark' | 'sepia' | 'gray'>('dark');
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const { setTheme, resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === 'dark';
+
+  const readerBgClass = readerTheme === 'sepia'
+    ? 'bg-[#f4e4c1]'
+    : readerTheme === 'gray'
+    ? 'bg-[#1a1a1a]'
+    : isDarkMode ? 'bg-[var(--surface)]' : 'bg-[var(--surface-elevated)]';
+
+  const readerHeaderClass = readerTheme === 'sepia'
+    ? 'bg-[#e8d5a3] border-[#d4c090]'
+    : readerTheme === 'gray'
+    ? 'bg-[#222] border-[#333]'
+    : isDarkMode ? 'bg-[var(--surface-sunken)] border-[var(--border)]' : 'bg-[var(--surface-elevated)] border-[var(--border)]';
+
+  const readerTextClass = readerTheme === 'sepia'
+    ? 'text-[#5c3d2e]'
+    : readerTheme === 'gray'
+    ? 'text-[#ccc]'
+    : isDarkMode ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]';
+
+  const readerMutedClass = readerTheme === 'sepia'
+    ? 'text-[#8b6b4c]'
+    : readerTheme === 'gray'
+    ? 'text-[#888]'
+    : isDarkMode ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]';
+
+  const pageIndicatorClass = readerTheme === 'sepia'
+    ? 'bg-[#e8d5a3] text-[#5c3d2e]'
+    : readerTheme === 'gray'
+    ? 'bg-[#333] text-[#ccc]'
+    : isDarkMode ? 'bg-[var(--surface-sunken)] text-[var(--text-primary)]' : 'bg-[var(--surface-elevated)] text-[var(--text-primary)]';
 
   const { comments } = useChapterComments(chapterId);
   void useChapterAnalytics(chapterId, chapter?.manga.id ?? '');
@@ -94,16 +132,13 @@ export default function ChapterReaderClient() {
     return () => { mounted = false; };
   }, [chapterId]);
 
-  // Track reading progress
+  // Marcar onboarding cuando se ha leído un capítulo
+  // NOTA: chapter_read se trackea desde useChapterAnalytics (arriba) para evitar doble conteo.
   useEffect(() => {
     if (!chapter) return;
 
     const timer = setTimeout(() => {
-      trackEvent({
-        type: 'chapter_read',
-        mangaId: chapter.manga.id,
-        chapterId: chapter.id,
-      });
+      setOnboardingMarker('has-read');
     }, 5000);
 
     return () => clearTimeout(timer);
@@ -192,8 +227,8 @@ export default function ChapterReaderClient() {
   return (
     <motion.div
       className={cn(
-      'min-h-screen transition-colors',
-      isDarkMode ? 'bg-[var(--surface)]' : 'bg-[var(--surface-elevated)]'
+      'min-h-screen transition-colors duration-300',
+      readerBgClass
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -208,25 +243,25 @@ export default function ChapterReaderClient() {
 
         {/* Header Info */}
         <div className={cn(
-          'border-b px-4 py-3 flex items-center justify-between',
-          isDarkMode ? 'bg-[var(--surface-sunken)] border-[var(--border)]' : 'bg-[var(--surface-elevated)] border-[var(--border)]'
+          'border-b px-4 py-3 flex items-center justify-between transition-colors duration-300',
+          readerHeaderClass
         )}>
           <div className="flex items-center gap-4">
         <button
           onClick={() => router.push(`/manga/${chapter.manga.id}`)}
           className={cn(
-            'flex items-center gap-2 text-sm hover:opacity-80 cursor-pointer',
-            isDarkMode ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]'
+            'flex items-center gap-2 text-sm hover:opacity-80 cursor-pointer transition-colors',
+            readerMutedClass
           )}
           aria-label="Volver al manga"
         >
               <ChevronLeft className="w-4 h-4" />
               {chapter.manga.title}
             </button>
-            <span className={isDarkMode ? 'text-[var(--text-tertiary)]' : 'text-[var(--text-secondary)]'}>|</span>
+            <span className={cn('transition-colors', readerMutedClass)}>|</span>
             <span className={cn(
-              'text-sm font-medium',
-              isDarkMode ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
+              'text-sm font-medium transition-colors',
+              readerTextClass
             )}>
               Cap. {chapter.chapterNumber}
               {chapter.title && `: ${chapter.title}`}
@@ -237,39 +272,93 @@ export default function ChapterReaderClient() {
           <div className="flex items-center gap-2">
         <button
           onClick={handleZoomOut}
-          className="p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] cursor-pointer"
+          className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${readerMutedClass}`}
           title="Zoom out"
           aria-label="Alejar"
         >
           <ZoomOut className="w-5 h-5" />
         </button>
             <span className={cn(
-              'text-sm font-mono min-w-[60px] text-center',
-              isDarkMode ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]'
+              'text-sm font-mono min-w-[60px] text-center transition-colors',
+              readerMutedClass
             )}>
               {Math.round(zoom * 100)}%
             </span>
         <button
           onClick={handleZoomIn}
-          className="p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] cursor-pointer"
+          className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${readerMutedClass}`}
           title="Zoom in"
           aria-label="Acercar"
         >
           <ZoomIn className="w-5 h-5" />
         </button>
+        {/* Reader Theme Selector */}
+        <div className="relative">
+          <button
+            onClick={() => setShowThemeMenu(!showThemeMenu)}
+            className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${
+              showThemeMenu ? 'bg-[var(--primary)]/20 text-[var(--primary)]' : readerMutedClass
+            }`}
+            title="Reader theme"
+            aria-label="Reader theme"
+          >
+            <Palette className="w-5 h-5" />
+          </button>
+          {showThemeMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowThemeMenu(false)} />
+              <div className={`absolute right-0 top-full mt-2 z-50 w-44 rounded-xl shadow-2xl border overflow-hidden ${
+                isDarkMode ? 'bg-[var(--surface)] border-[var(--border)]' : 'bg-white border-gray-200'
+              }`}>
+                {[
+                  { id: 'dark' as const, label: 'Oscuro', icon: '🌙' },
+                  { id: 'sepia' as const, label: 'Sepia', icon: '📜' },
+                  { id: 'gray' as const, label: 'Gris', icon: '🌫️' },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => { setReaderTheme(t.id); setShowThemeMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                      readerTheme === t.id
+                        ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-semibold'
+                        : isDarkMode ? 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className="text-base">{t.icon}</span>
+                    {t.label}
+                    {readerTheme === t.id && (
+                      <span className="ml-auto">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
         <button
           onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
-          className="mt-4 text-[var(--info)] hover:underline cursor-pointer"
+          className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${readerMutedClass}`}
+          title={isDarkMode ? 'Light mode' : 'Dark mode'}
+          aria-label={isDarkMode ? 'Light mode' : 'Dark mode'}
         >
           {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
         <button
           onClick={toggleFullscreen}
-          className="p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] cursor-pointer"
+          className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${readerMutedClass}`}
           title="Fullscreen"
           aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
         >
           {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+        </button>
+        {/* Share button */}
+        <button
+          onClick={() => setShowShare(true)}
+          className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${readerMutedClass}`}
+          title="Compartir"
+          aria-label="Compartir capítulo"
+        >
+          <Share2 className="w-5 h-5" />
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
@@ -288,7 +377,7 @@ export default function ChapterReaderClient() {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1 bg-[var(--surface-sunken)]">
+        <div className={cn('h-1 transition-colors duration-300', readerTheme === 'sepia' ? 'bg-[#d4c090]' : readerTheme === 'gray' ? 'bg-[#333]' : 'bg-[var(--surface-sunken)]')}>
           <div 
             className="h-full bg-[var(--primary)] transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -299,7 +388,7 @@ export default function ChapterReaderClient() {
         <div className="flex">
           {/* Page Viewer */}
           <div className={cn(
-            'flex-1 flex items-center justify-center min-h-[calc(100vh-140px)] p-4',
+            'flex-1 flex items-center justify-center min-h-[calc(100vh-140px)] p-4 transition-colors duration-300',
             showComments && 'lg:mr-[400px]'
           )}>
             <div className="relative">
@@ -344,31 +433,31 @@ export default function ChapterReaderClient() {
 
           {/* Comments Panel */}
           <div className={cn(
-            'fixed right-0 top-[112px] bottom-0 w-full lg:w-[400px] transform transition-transform duration-300 overflow-hidden z-40',
+            'fixed right-0 top-[112px] bottom-0 w-full lg:w-[400px] transform transition-all duration-300 overflow-hidden z-40',
             showComments ? 'translate-x-0' : 'translate-x-full',
-            isDarkMode ? 'bg-[var(--surface)] border-l border-[var(--surface-sunken)]' : 'bg-[var(--surface-elevated)] border-l border-[var(--border)]'
+            readerTheme === 'sepia' ? 'bg-[#e8d5a3] border-l border-[#d4c090]' : readerTheme === 'gray' ? 'bg-[#222] border-l border-[#333]' : isDarkMode ? 'bg-[var(--surface)] border-l border-[var(--surface-sunken)]' : 'bg-[var(--surface-elevated)] border-l border-[var(--border)]'
           )}>
             {/* Comments Header */}
             <div className={cn(
-              'flex items-center justify-between px-4 py-3 border-b',
-              isDarkMode ? 'border-[var(--surface-sunken)]' : 'border-[var(--border)]'
+              'flex items-center justify-between px-4 py-3 border-b transition-colors duration-300',
+              readerTheme === 'sepia' ? 'border-[#d4c090]' : readerTheme === 'gray' ? 'border-[#333]' : isDarkMode ? 'border-[var(--surface-sunken)]' : 'border-[var(--border)]'
             )}>
               <h3 className={cn(
-                'font-semibold flex items-center gap-2',
-    isDarkMode ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
+                'font-semibold flex items-center gap-2 transition-colors',
+                readerTextClass
               )}>
                 <MessageSquare className="w-5 h-5" />
                 Comentarios
                 <span className={cn(
-                  'text-sm',
-                  isDarkMode ? 'text-[var(--text-tertiary)]' : 'text-[var(--text-secondary)]'
+                  'text-sm transition-colors',
+                  readerMutedClass
                 )}>
                   ({comments.length})
                 </span>
               </h3>
                 <button
                   onClick={() => setShowComments(false)}
-                  className="p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 text-[var(--text-secondary)] cursor-pointer"
+                  className={`p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 cursor-pointer transition-colors ${readerMutedClass}`}
                   aria-label="Cerrar comentarios"
                 >
                 <X className="w-5 h-5" />
@@ -380,7 +469,7 @@ export default function ChapterReaderClient() {
               <CommentSection 
                 chapterId={chapterId}
                 mangaId={chapter.manga.id}
-                className={    isDarkMode ? 'bg-[var(--surface)]' : 'bg-[var(--surface-elevated)]'}
+                className={readerTheme === 'sepia' ? 'bg-[#e8d5a3]' : readerTheme === 'gray' ? 'bg-[#222]' : isDarkMode ? 'bg-[var(--surface)]' : 'bg-[var(--surface-elevated)]'}
               />
             </div>
           </div>
@@ -388,12 +477,22 @@ export default function ChapterReaderClient() {
 
         {/* Page Indicator */}
         <div className={cn(
-          'fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium shadow-lg',
-          isDarkMode ? 'bg-[var(--surface-sunken)] text-[var(--text-primary)]' : 'bg-[var(--surface-elevated)] text-[var(--text-primary)]'
+          'fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium shadow-lg transition-colors duration-300',
+          pageIndicatorClass
         )}>
           {currentPage + 1} / {chapter.totalPages}
         </div>
       </main>
+
+      {/* Share Modal */}
+      <ShareModal
+        open={showShare}
+        onOpenChange={setShowShare}
+        title={`${chapter.manga.title} - Cap. ${chapter.chapterNumber}`}
+        text={`Estoy leyendo "${chapter.manga.title}" Cap. ${chapter.chapterNumber} en MangaAura!`}
+        url={typeof window !== 'undefined' ? `${window.location.origin}/reader/${chapter.id}` : ''}
+        hashtags={['MangaAura', 'Lectura']}
+      />
     </motion.div>
   );
 }

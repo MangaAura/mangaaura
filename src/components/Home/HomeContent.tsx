@@ -9,6 +9,7 @@ import { AnimatedHero } from '@/components/Home/AnimatedHero';
 import { ContinueReadingSection } from '@/components/Home/ContinueReadingSection';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
+import { OnboardingChecklist } from '@/components/Onboarding/OnboardingChecklist';
 import { QuestPanelWrapper } from '@/components/Home/QuestPanelWrapper';
 import { MangaCard } from '@/components/MangaCard';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
@@ -89,6 +90,8 @@ export function HomeContent({
 
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         <GenreMarquee />
+
+        {isLoggedIn && <OnboardingChecklist />}
 
         <AnimatedContainer viewport>
           <section className="text-center py-8">
@@ -180,8 +183,18 @@ export function HomeContent({
                         className="flex items-center gap-3 p-2 rounded-lg hover:bg-tertiary transition-colors"
                       >
                         <span className="text-lg font-bold text-muted w-6">#{index + 1}</span>
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-white font-bold">
-                          {user.username.charAt(0).toUpperCase()}
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                          {user.avatarUrl ? (
+                            <img
+                              src={user.avatarUrl}
+                              alt={user.username}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-white font-bold text-sm">
+                              {user.username.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{user.username}</p>

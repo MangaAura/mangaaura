@@ -59,13 +59,23 @@ async function processEvents(
       })),
     });
 
-    // Update chapter view counts
+    // Update chapter view counts + manga totalViews (en sync)
     for (const event of events) {
       if (event.type === 'chapter_read' && event.chapterId) {
-        await tx.chapter.update({
+        const ch = await tx.chapter.findUnique({
           where: { id: event.chapterId },
-          data: { viewCount: { increment: 1 } },
-        }).catch(() => {});
+          select: { mangaId: true },
+        });
+        if (ch) {
+          await tx.chapter.update({
+            where: { id: event.chapterId },
+            data: { viewCount: { increment: 1 } },
+          });
+          await tx.mangaSeries.update({
+            where: { id: ch.mangaId },
+            data: { totalViews: { increment: 1 } },
+          });
+        }
       }
     }
   });

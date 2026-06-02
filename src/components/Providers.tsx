@@ -3,6 +3,9 @@
 import { SessionProvider } from 'next-auth/react';
 import { SWRConfig } from 'swr';
 
+import { KeyboardShortcutsProvider } from './Layout/KeyboardShortcutsProvider';
+import { ScrollProgressBar } from './Layout/ScrollProgressBar';
+import { OnboardingProvider } from './Onboarding/OnboardingContext';
 import { ThemeProvider } from './ThemeProvider';
 import { AxeCoreProvider } from '@/components/A11y/AxeCoreProvider';
 import { ToastProvider } from '@/components/ui/Toast';
@@ -22,7 +25,12 @@ export function Providers({ children, locale }: ProvidersProps) {
           <ThemeProvider>
             <ToastProvider>
               <AxeCoreProvider>
-                {children}
+                <OnboardingProvider>
+                  <KeyboardShortcutsProvider>
+                    <ScrollProgressBar />
+                    {children}
+                  </KeyboardShortcutsProvider>
+                </OnboardingProvider>
               </AxeCoreProvider>
             </ToastProvider>
           </ThemeProvider>

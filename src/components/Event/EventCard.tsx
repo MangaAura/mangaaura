@@ -96,10 +96,11 @@ export function EventCard({
       }}
       whileHover={shouldReduceMotion ? {} : { y: -4, transition: { duration: 0.2 } }}
       whileTap={shouldReduceMotion ? {} : { y: 0, transition: { duration: 0.1 } }}
+    className="h-full"
     >
     <Link
       href={`/events?highlight=${event.id}`}
-      className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden hover:border-[var(--warning)]/40 transition-all hover:shadow-md group block"
+      className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden hover:border-[var(--warning)]/40 transition-all hover:shadow-md group block h-full flex flex-col"
     >
       {/* Image section with countdown overlay */}
       <div className="relative h-36">
@@ -139,7 +140,7 @@ export function EventCard({
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-3 flex flex-col flex-1">
         {/* Badges row */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.cls}`}>
@@ -176,6 +177,8 @@ export function EventCard({
             </div>
           </div>
         )}
+
+        <div className="flex-1" />
 
         {/* Footer: date range + prize */}
         <div className="flex items-center justify-between text-xs pt-2 border-t border-[var(--border)]">

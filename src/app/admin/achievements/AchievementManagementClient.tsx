@@ -173,13 +173,13 @@ export default function AchievementManagementClient() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {achievements.map((a) => (
-            <Card key={a.id} className="cursor-pointer hover:ring-1 hover:ring-[var(--primary)]" onClick={() => openEdit(a)}>
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
+            <Card key={a.id} className="h-full flex flex-col cursor-pointer hover:ring-1 hover:ring-[var(--primary)]" onClick={() => openEdit(a)}>
+              <CardContent className="p-4 flex flex-col flex-1">
+                <div className="flex items-start gap-3 flex-1">
                   <div className={`w-10 h-10 rounded-lg ${difficultyColors[a.difficulty] || 'bg-gray-500'} flex items-center justify-center flex-shrink-0`}>
                     <Trophy className="w-5 h-5 text-white" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex flex-col">
                     <p className="font-medium truncate">{a.name}</p>
                     <p className="text-xs text-[var(--text-tertiary)] truncate">{a.description}</p>
                     <div className="flex items-center gap-2 mt-2">
@@ -187,6 +187,7 @@ export default function AchievementManagementClient() {
                       <Badge variant="secondary" className="text-xs">{a.difficulty}</Badge>
                       <span className="text-xs text-[var(--text-tertiary)]">{a.xpReward} XP</span>
                     </div>
+                    <div className="flex-1" />
                     <p className="text-xs text-[var(--text-tertiary)] mt-1">
                       {a.unlockCount}/{a.totalUsers} users unlocked ({a.totalUsers ? Math.round(a.unlockCount / a.totalUsers * 100) : 0}%)
                     </p>

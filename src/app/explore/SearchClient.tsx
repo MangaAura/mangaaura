@@ -22,6 +22,7 @@ import { normalizeGenreKey } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useGenres } from '@/hooks/useGenres';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
+import { setOnboardingMarker } from '@/components/Onboarding';
 import { useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
@@ -105,12 +106,8 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
   };
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.01, y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
-      whileTap={{ scale: 0.99 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 24 }}
-      style={{ willChange: 'transform' }}
-      className="flex gap-4 sm:gap-5 p-3 sm:p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 transition-colors group"
+    <div
+      className="flex gap-4 sm:gap-5 p-3 sm:p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] hover:border-[var(--info)]/30 group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
     >
       {/* Cover */}
       <Link
@@ -213,7 +210,7 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
           </p>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -270,6 +267,11 @@ function SearchPageContent() {
 
   const { handleError } = useErrorHandler();
   const { recentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } = useRecentSearches();
+
+  // Mark onboarding: user explored manga
+  useEffect(() => {
+    setOnboardingMarker('has-explored');
+  }, []);
 
   const handleSearchBarSearch = useCallback((searchQuery: string) => {
     addRecentSearch(searchQuery);

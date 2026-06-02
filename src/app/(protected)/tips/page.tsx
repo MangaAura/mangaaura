@@ -61,14 +61,12 @@ export default async function TipsPage() {
           <Coins className="text-[var(--primary)]" size={30} /> Propinas
         </h1>
         <p className="text-muted">Historial de propinas enviadas y recibidas</p>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+      </div>        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-accent-blue">{stats.totalSent.toLocaleString()}</p>
           <p className="text-xs text-muted">IC enviados ({stats.sent} props)</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-accent-green">{stats.totalReceived.toLocaleString()}</p>
           <p className="text-xs text-muted">IC recibidos ({stats.received} props)</p>
         </div>

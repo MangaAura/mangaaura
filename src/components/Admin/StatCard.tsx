@@ -41,7 +41,7 @@ export function StatCard({
 
   return (
     <Card
-      className={`hover:shadow-md transition-shadow ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`h-full hover:shadow-md transition-shadow ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between pb-2">

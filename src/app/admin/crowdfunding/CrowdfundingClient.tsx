@@ -58,19 +58,19 @@ export default function CrowdfundingClient() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
+            <Card className="h-full">
               <CardHeader><CardTitle className="text-sm">Crowdfunding Raised</CardTitle></CardHeader>
               <CardContent><p className="text-2xl font-bold text-[var(--accent-purple)]">{data?.totals.crowdfundingRaised.toLocaleString()} Aura</p></CardContent>
             </Card>
-            <Card>
+            <Card className="h-full">
               <CardHeader><CardTitle className="text-sm">Active Campaigns</CardTitle></CardHeader>
               <CardContent><p className="text-2xl font-bold">{data?.totals.crowdfundingCount}</p></CardContent>
             </Card>
-            <Card>
+            <Card className="h-full">
               <CardHeader><CardTitle className="text-sm">Sponsorship Total</CardTitle></CardHeader>
               <CardContent><p className="text-2xl font-bold text-[var(--accent-orange)]">{data?.totals.sponsorshipTotal.toLocaleString()} Aura</p></CardContent>
             </Card>
-            <Card>
+            <Card className="h-full">
               <CardHeader><CardTitle className="text-sm">Total Bids</CardTitle></CardHeader>
               <CardContent><p className="text-2xl font-bold">{data?.totals.sponsorshipCount}</p></CardContent>
             </Card>

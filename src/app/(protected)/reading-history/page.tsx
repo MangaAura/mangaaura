@@ -63,19 +63,19 @@ export default async function ReadingHistoryPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold">{progress.length}</p>
           <p className="text-xs text-muted">Capítulos leídos</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold">{mangaCount}</p>
           <p className="text-xs text-muted">Mangas diferentes</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-accent-green">{completedCount}</p>
           <p className="text-xs text-muted">Completados</p>
         </div>
-        <div className="bg-secondary border border-custom rounded-xl p-4">
+        <div className="bg-secondary border border-custom rounded-xl p-4 h-full">
           <p className="text-2xl font-bold text-accent-blue">{Math.floor(totalReadingTime / 60)}m</p>
           <p className="text-xs text-muted">Tiempo total ({totalSessions} sesiones)</p>
         </div>

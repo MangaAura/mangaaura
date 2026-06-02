@@ -51,11 +51,9 @@ export async function GET(
       },
     });
 
-    // Incrementar views (fire and forget, no await to not block response)
-    prisma.mangaSeries.update({
-      where: { id: manga.id },
-      data: { totalViews: { increment: 1 } },
-    }).catch(err => console.error('[Manga] View count increment failed:', err));
+    // NOTA: Las visitas NO se incrementan al visitar la página del manga.
+    // Solo cuentan las lecturas reales de capítulos (evento chapter_read en analytics).
+    // El totalViews del manga se sincroniza automáticamente desde allí.
 
     return NextResponse.json({
       manga: {
@@ -69,7 +67,7 @@ export async function GET(
         authorId: manga.authorId,
         authorName: manga.authorName,
         rating: manga.rating,
-        totalViews: manga.totalViews + 1,
+        totalViews: manga.totalViews,
         createdAt: manga.createdAt,
         updatedAt: manga.updatedAt,
       },

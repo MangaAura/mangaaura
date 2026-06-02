@@ -192,7 +192,7 @@ export default function MangaDetailClient({ params }: PageProps) {
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                    <div className="bg-[var(--surface)] rounded-lg p-4 h-full">
                       <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <BookOpenIcon className="w-4 h-4" />
                         <span className="text-sm">Capítulos</span>
@@ -201,7 +201,7 @@ export default function MangaDetailClient({ params }: PageProps) {
               {chapters.length}
             </p>
                     </div>
-                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                    <div className="bg-[var(--surface)] rounded-lg p-4 h-full">
                       <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <EyeIcon className="w-4 h-4" />
                         <span className="text-sm">Vistas</span>
@@ -210,7 +210,7 @@ export default function MangaDetailClient({ params }: PageProps) {
               {formatNumber(manga.totalViews)}
             </p>
                     </div>
-                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                    <div className="bg-[var(--surface)] rounded-lg p-4 h-full">
                       <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <UsersIcon className="w-4 h-4" />
                         <span className="text-sm">Lectores</span>
@@ -219,7 +219,7 @@ export default function MangaDetailClient({ params }: PageProps) {
               {formatNumber(manga.stats?.totalReaders ?? 0)}
             </p>
                     </div>
-                    <div className="bg-[var(--surface)] rounded-lg p-4">
+                    <div className="bg-[var(--surface)] rounded-lg p-4 h-full">
                       <div className="flex items-center gap-2 text-[var(--text-tertiary)] mb-1">
                         <TrendingUpIcon className="w-4 h-4" />
                         <span className="text-sm">Crecimiento</span>
@@ -292,7 +292,7 @@ export default function MangaDetailClient({ params }: PageProps) {
 
             <TabsContent value="stats" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
+                <Card className="h-full">
                   <CardHeader>
                     <CardTitle>Estadísticas Generales</CardTitle>
                   </CardHeader>
@@ -329,7 +329,7 @@ export default function MangaDetailClient({ params }: PageProps) {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="h-full">
                   <CardHeader>
                     <CardTitle>Rendimiento por Capítulo</CardTitle>
                   </CardHeader>

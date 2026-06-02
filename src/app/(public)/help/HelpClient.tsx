@@ -164,7 +164,7 @@ export default function HelpClient() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center hover:border-[var(--primary)]/30 hover:bg-[var(--surface-elevated)] transition-all group"
+                className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center hover:border-[var(--primary)]/30 hover:bg-[var(--surface-elevated)] transition-all group h-full flex flex-col items-center"
               >
                 <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto mb-3 text-[var(--primary)] group-hover:bg-[var(--primary)]/20 transition-colors">
                   <Icon className="w-6 h-6" />

@@ -172,17 +172,17 @@ export default async function ClansPage({ searchParams }: ClansPageProps) {
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3 mt-8 max-w-lg">
-            <div className="bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] p-3 text-center">
+            <div className="bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] p-3 text-center h-full">
               <span className="text-lg font-black text-[var(--primary)]">{total}</span>
               <p className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wider font-semibold mt-0.5">Clanes</p>
             </div>
-            <div className="bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] p-3 text-center">
+            <div className="bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] p-3 text-center h-full">
               <span className="text-lg font-black text-[var(--warning)]">
                 {clansWithCount.reduce((sum, c) => sum + c.memberCount, 0)}
               </span>
               <p className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wider font-semibold mt-0.5">Miembros</p>
             </div>
-            <div className="bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] p-3 text-center">
+            <div className="bg-[var(--surface)]/60 backdrop-blur-sm rounded-xl border border-[var(--border)] p-3 text-center h-full">
               <span className="text-lg font-black text-[var(--accent-purple)]">
                 {totalPages}
               </span>

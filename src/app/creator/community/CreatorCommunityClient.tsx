@@ -304,7 +304,7 @@ export default function CreatorCommunityClient() {
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--primary-subtle)] rounded-lg">
               <Users className="w-5 h-5 text-[var(--primary)]" />
@@ -315,7 +315,7 @@ export default function CreatorCommunityClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--secondary-subtle)] rounded-lg">
               <MessageSquare className="w-5 h-5 text-[var(--accent-purple)]" />
@@ -326,7 +326,7 @@ export default function CreatorCommunityClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--success)]/10 rounded-lg">
               <TrendingUp className="w-5 h-5 text-[var(--success)]" />
@@ -337,7 +337,7 @@ export default function CreatorCommunityClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--warning)]/10 rounded-lg">
               <Heart className="w-5 h-5 text-[var(--warning)]" />

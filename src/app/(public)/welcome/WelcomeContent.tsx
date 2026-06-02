@@ -24,13 +24,14 @@ export function WelcomeContent({ steps }: Props) {
           <Link
             key={i}
             href={step.href}
-            className="group p-6 rounded-xl border border-border hover:border-primary/50 hover:bg-surface-secondary transition-all"
+            className="group p-6 rounded-xl border border-border hover:border-primary/50 hover:bg-surface-secondary transition-all h-full flex flex-col"
           >
             <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4 group-hover:bg-primary/20 transition-colors">
               <Icon className="w-6 h-6 text-primary" />
             </div>
             <h3 className="font-semibold mb-2">{step.title}</h3>
             <p className="text-sm text-fg-secondary mb-4">{step.description}</p>
+            <div className="flex-1" />
             <span className="text-sm font-medium text-primary group-hover:underline">
               {step.cta} &rarr;
             </span>

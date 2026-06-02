@@ -65,6 +65,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.discordapp.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'yt3.googleusercontent.com',
+      },
     ],
     dangerouslyAllowSVG: true,
     formats: ['image/webp', 'image/avif'],
@@ -251,29 +255,30 @@ const nextConfig: NextConfig = {
 // If any is missing, only runtime error tracking is active — no builds will fail.
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const sentryOrg = process.env.SENTRY_ORG;
-// Sourcemap uploads are only enabled when the org is explicitly configured
-// (not just falling back to the default). This prevents build failures from
-// guessing the wrong org slug (e.g., using the project slug as the org slug).
-const enableSentryBuildOps = !!(sentryAuthToken && sentryOrg);
+const sentryProject = process.env.SENTRY_PROJECT;
+// Sentry build operations (sourcemap uploads, release tracking) require ALL
+// three env vars to be explicitly set. If any is missing, skip build ops —
+// runtime error tracking via sentry.{client,server,edge}.config.ts still works.
+const enableSentryBuildOps = !!(sentryAuthToken && sentryOrg && sentryProject);
 
-const withSentry = process.env.SENTRY_DSN
+// Runtime Sentry error tracking initializes separately in sentry.{client,server,edge}.config.ts
+// `withSentryConfig` is only needed for build-time operations (sourcemaps, release + deploy tracking).
+// Only enable when ALL required env vars are present to avoid sentry-cli errors.
+const withSentry = enableSentryBuildOps
   ? withSentryConfig(nextConfig, {
-      org: sentryOrg || "mangaaura",
-      project: process.env.SENTRY_PROJECT || "mangaaura-web",
-      authToken: sentryAuthToken || undefined,
-      silent: true,
+      org: sentryOrg!,
+      project: process.env.SENTRY_PROJECT!,
+      authToken: sentryAuthToken!,
+      silent: false,
       widenClientFileUpload: true,
       sourcemaps: {
-        // Disable sourcemap upload when required vars are missing.
-        // This prevents "Project not found" build failures from sentry-cli.
-        disable: !enableSentryBuildOps,
+        disable: false,
         deleteSourcemapsAfterUpload: true,
       },
       errorHandler: (err: Error) => {
-        console.warn('[Sentry] Build warning (non-fatal):', err.message);
+        console.warn('[Sentry] Build warning:', err.message);
+        console.warn('[Sentry] Tip: Verify SENTRY_ORG and SENTRY_PROJECT slugs match your Sentry account.');
       },
-      // disableLogger is deprecated and unsupported with Turbopack
-      // automaticVercelMonitors is deprecated and unsupported with Turbopack
     })
   : nextConfig;
 

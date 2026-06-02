@@ -125,7 +125,7 @@ export default function CheckoutClient() {
               <div
                 key={pkg.id}
                 className={cn(
-                  'relative bg-[var(--surface)]/50 rounded-2xl p-6 border transition-all duration-300',
+                  'relative bg-[var(--surface)]/50 rounded-2xl p-6 border transition-all duration-300 h-full flex flex-col',
                   selectedPackage === pkg.id
                     ? 'border-[var(--primary)] bg-[var(--primary)]/10'
                     : 'border-[var(--border)] hover:border-[var(--border-strong)]'
@@ -171,12 +171,15 @@ export default function CheckoutClient() {
                   </div>
                 )}
 
+                {/* Spacer to push button to bottom */}
+                <div className="flex-1" />
+
                 {/* Button */}
                 <Button
                   onClick={() => handlePurchase(pkg.id)}
                   disabled={isLoading}
                   variant={selectedPackage === pkg.id ? 'default' : 'outline'}
-                  className="w-full"
+                  className="w-full mt-auto"
                 >
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -193,23 +196,26 @@ export default function CheckoutClient() {
 
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
+            <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)] h-full flex flex-col">
               <CheckCircle className="w-8 h-8 text-[var(--success)] mb-4" aria-hidden="true" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.securePayment')}</h3>
+              <div className="flex-1" />
               <p className="text-sm text-[var(--text-secondary)]">
                 {t('checkout.securePaymentDesc')}
               </p>
             </div>
-            <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
+            <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)] h-full flex flex-col">
               <Coins className="w-8 h-8 text-[var(--warning)] mb-4" aria-hidden="true" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.instantDelivery')}</h3>
+              <div className="flex-1" />
               <p className="text-sm text-[var(--text-secondary)]">
                 {t('checkout.instantDeliveryDesc')}
               </p>
             </div>
-            <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)]">
+            <div className="bg-[var(--surface)]/30 rounded-xl p-6 border border-[var(--border)] h-full flex flex-col">
               <Sparkles className="w-8 h-8 text-[var(--accent-purple)] mb-4" aria-hidden="true" />
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">{t('checkout.noExpiration')}</h3>
+              <div className="flex-1" />
               <p className="text-sm text-[var(--text-secondary)]">
                 {t('checkout.noExpirationDesc')}
               </p>

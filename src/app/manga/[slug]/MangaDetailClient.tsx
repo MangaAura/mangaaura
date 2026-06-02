@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 
+import { ShareButton } from '@/components/Share/ShareButton';
+
 import { setLibraryStatus, removeFromLibrary } from './actions';
 import { StarRating } from '@/components/ui/StarRating';
 import { ReviewSection } from '@/components/Reviews/ReviewSection';
@@ -291,6 +293,15 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                   {t('manga.startReading')}
                 </Link>
               )}
+              <ShareButton
+                variant="full"
+                size="md"
+                title={manga.title}
+                text={`¡Mira este manga en MangaAura: ${manga.title}!`}
+                url={typeof window !== 'undefined' ? `${window.location.origin}/manga/${manga.slug}` : ''}
+                hashtags={['MangaAura', 'Manga', ...manga.tags.slice(0, 3)]}
+                label="Compartir"
+              />
             </div>
             <div className="flex flex-wrap gap-2 mb-6">
               {LIBRARY_STATUSES.map((s) => {

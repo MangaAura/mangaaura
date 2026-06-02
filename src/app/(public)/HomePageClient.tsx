@@ -8,7 +8,6 @@ import { useSession } from 'next-auth/react';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { MangaCard } from '@/components/MangaCard';
-import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
@@ -115,8 +114,8 @@ export function HomePageClient({
         {/* Categorías / Géneros — Infinite Marquee */}
         <GenreMarquee />
 
-        {/* Top Mangas */}
-        <AnimatedContainer viewport>
+        {/* Top Mangas — no entrance animation for faster TBT */}
+        <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="text-[var(--warning)]" /> {t('home.topMangas')}
@@ -129,88 +128,77 @@ export function HomePageClient({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {topMangas.map((manga: MangaSummary, index: number) => (
-              <AnimatedContainer key={manga.id} animation="fadeInUp" delay={index * 0.08}>
-                <MangaCard
-                  manga={{
-                    id: manga.id,
-                    title: manga.title,
-                    slug: manga.slug,
-                    coverUrl: manga.coverUrl,
-                    status: manga.status,
-                    tags: parseTags(manga.tags),
-                    authorName: manga.authorName,
-                    authorUsername: manga.author?.username,
-                    rating: manga.rating,
-                    chapterCount: manga._count?.chapters ?? 0,
-                  }}
-                />
-              </AnimatedContainer>
+              <MangaCard
+                key={manga.id}
+                manga={{
+                  id: manga.id,
+                  title: manga.title,
+                  slug: manga.slug,
+                  coverUrl: manga.coverUrl,
+                  status: manga.status,
+                  tags: parseTags(manga.tags),
+                  authorName: manga.authorName,
+                  authorUsername: manga.author?.username,
+                  rating: manga.rating,
+                  chapterCount: manga._count?.chapters ?? 0,
+                }}
+                priority={index < 5}
+              />
             ))}
           </div>
-        </AnimatedContainer>
+        </section>
 
         {/* Grid de contenido */}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Columna izquierda: Actualizaciones + Noticias */}
           <div className="lg:col-span-2 space-y-10">
-            {/* Últimas Actualizaciones */}
-            <AnimatedContainer viewport>
-              <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
-                    <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
-                  </h2>
-                  <Link href="/explore">
-                    <Button variant="ghost" size="sm">
-                      {t('common.viewAll')}
-                    </Button>
-                  </Link>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {updatingMangas.map((manga: MangaSummary) => (
-                    <MangaCard
-                      key={manga.id}
-                      manga={{
-                        id: manga.id,
-                        title: manga.title,
-                        slug: manga.slug,
-                        coverUrl: manga.coverUrl,
-                        status: manga.status,
-                        tags: parseTags(manga.tags),
-                        authorName: manga.authorName,
-                        authorUsername: manga.author?.username,
-                        rating: manga.rating || 0,
-                        chapterCount: manga._count?.chapters || 0,
-                      }}
-                    />
-                  ))}
-                </div>
-              </section>
-            </AnimatedContainer>
+            {/* Últimas Actualizaciones — no entrance animation */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
+                </h2>
+                <Link href="/explore">
+                  <Button variant="ghost" size="sm">
+                    {t('common.viewAll')}
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {updatingMangas.map((manga: MangaSummary) => (
+                  <MangaCard
+                    key={manga.id}
+                    manga={{
+                      id: manga.id,
+                      title: manga.title,
+                      slug: manga.slug,
+                      coverUrl: manga.coverUrl,
+                      status: manga.status,
+                      tags: parseTags(manga.tags),
+                      authorName: manga.authorName,
+                      authorUsername: manga.author?.username,
+                      rating: manga.rating || 0,
+                      chapterCount: manga._count?.chapters || 0,
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
 
             {/* Noticias de MangaAura */}
-            <AnimatedContainer viewport>
-              <HomeNewsSection />
-            </AnimatedContainer>
+            <HomeNewsSection />
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Misiones diarias y semanales (solo usuarios autenticados) */}
-            {session?.user && (
-              <AnimatedContainer viewport>
-                <QuestPanel collapsible />
-              </AnimatedContainer>
-            )}
+            {session?.user && <QuestPanel collapsible />}
 
             {/* Rankings con tabs */}
-            <AnimatedContainer viewport>
-              <HomeRankingsSidebar topMangas={topMangas} />
-            </AnimatedContainer>
+            <HomeRankingsSidebar topMangas={topMangas} />
 
             {/* Top Lectores */}
-            <AnimatedContainer viewport>
-              <Card>
+            <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <TrendingUp className="w-5 h-5 text-[var(--success)]" />
@@ -228,8 +216,18 @@ export function HomePageClient({
                         <span className="text-lg font-bold text-muted w-6">
                           #{index + 1}
                         </span>
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center text-[var(--text-inverse)] font-semibold">
-                          {user.username.charAt(0).toUpperCase()}
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                          {user.avatarUrl ? (
+                            <img
+                              src={user.avatarUrl}
+                              alt={user.username}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center text-[var(--text-inverse)] font-semibold text-sm">
+                              {user.username.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">
@@ -249,57 +247,53 @@ export function HomePageClient({
                   </Link>
                 </CardContent>
               </Card>
-            </AnimatedContainer>
 
             {/* Nuevos Mangas */}
-            <AnimatedContainer viewport>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">{t('home.newReleases')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {latestMangas.slice(0, 3).map((manga: MangaSummary) => (
-                    <Link
-                      key={manga.id}
-                      href={`/manga/${manga.slug}`}
-                      className="flex items-center gap-3 group"
-                    >
-                      <div className="w-12 h-16 bg-tertiary rounded overflow-hidden flex-shrink-0 relative">
-                        {manga.coverUrl ? (
-                          <OptimizedImage
-                            src={manga.coverUrl}
-                            alt={manga.title}
-                            fill
-                            objectFit="cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)]" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate group-hover:text-accent-blue transition-colors">
-                          {manga.title}
-                        </p>
-                        <p className="text-xs text-muted">{manga.authorName}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </CardContent>
-                <CardFooter>
-                  <Link href="/discover" className="w-full">
-                    <Button variant="outline" className="w-full">
-                      {t('home.viewAllNewReleases')}
-                    </Button>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">{t('home.newReleases')}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {latestMangas.slice(0, 3).map((manga: MangaSummary) => (
+                  <Link
+                    key={manga.id}
+                    href={`/manga/${manga.slug}`}
+                    className="flex items-center gap-3 group"
+                  >
+                    <div className="w-12 h-16 bg-tertiary rounded overflow-hidden flex-shrink-0 relative">
+                      {manga.coverUrl ? (
+                        <OptimizedImage
+                          src={manga.coverUrl}
+                          alt={manga.title}
+                          fill
+                          objectFit="cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)]" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate group-hover:text-accent-blue transition-colors">
+                        {manga.title}
+                      </p>
+                      <p className="text-xs text-muted">{manga.authorName}</p>
+                    </div>
                   </Link>
-                </CardFooter>
-              </Card>
-            </AnimatedContainer>
+                ))}
+              </CardContent>
+              <CardFooter>
+                <Link href="/discover" className="w-full">
+                  <Button variant="outline" className="w-full">
+                    {t('home.viewAllNewReleases')}
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
           </div>
         </div>
 
         {/* CTA Creator */}
-        <AnimatedContainer viewport>
-          <section className="relative bg-gradient-to-r from-accent-purple/20 via-accent-purple/10 to-accent-blue/20 dark:from-accent-purple/30 dark:via-accent-purple/15 dark:to-accent-blue/20 border border-accent-purple/30 dark:border-accent-purple/50 rounded-2xl p-8 md:p-12 overflow-hidden">
+        <section className="relative bg-gradient-to-r from-accent-purple/20 via-accent-purple/10 to-accent-blue/20 dark:from-accent-purple/30 dark:via-accent-purple/15 dark:to-accent-blue/20 border border-accent-purple/30 dark:border-accent-purple/50 rounded-2xl p-8 md:p-12 overflow-hidden">
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-purple/20 rounded-full blur-3xl animate-glow-pulse pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -321,7 +315,6 @@ export function HomePageClient({
               </Link>
             </div>
           </section>
-        </AnimatedContainer>
       </div>
     </div>
   );

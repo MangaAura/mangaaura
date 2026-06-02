@@ -11,7 +11,7 @@ export default function CreatorLoading() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6 space-y-4">
+            <div key={i} className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6 space-y-4 h-full">
               <div className="h-4 w-24 bg-[var(--surface-sunken)] rounded" />
               <div className="h-10 w-20 bg-[var(--surface-sunken)] rounded" />
               <div className="h-5 w-16 bg-[var(--surface-sunken)] rounded" />
@@ -21,7 +21,7 @@ export default function CreatorLoading() {
         <div className="h-5 w-32 bg-[var(--surface-sunken)] rounded" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] aspect-[3/4]" />
+            <div key={i} className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] aspect-[3/4] h-full" />
           ))}
         </div>
       </div>

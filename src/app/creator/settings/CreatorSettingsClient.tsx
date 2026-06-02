@@ -210,7 +210,7 @@ export default function CreatorSettingsClient() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--primary-subtle)] rounded-lg">
               <BookOpen className="w-5 h-5 text-[var(--primary)]" />
@@ -221,7 +221,7 @@ export default function CreatorSettingsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--success)]/10 rounded-lg">
               <Eye className="w-5 h-5 text-[var(--success)]" />
@@ -232,7 +232,7 @@ export default function CreatorSettingsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-[var(--warning)]/10 rounded-lg">
               <Coins className="w-5 h-5 text-[var(--warning)]" />

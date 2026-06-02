@@ -92,8 +92,8 @@ export const MangaCard = memo(function MangaCard({
   const hasRating = manga.rating != null && manga.rating > 0;
 
   return (
-    <div className="group block">
-      <article className={cn('relative', sizeClass)}>
+    <div className="group block h-full">
+      <article className={cn('relative h-full flex flex-col', sizeClass)}>
         <Link href={href} prefetch={true}>
           <motion.div
             whileHover={{ scale: 1.02, y: -4 }}
@@ -151,7 +151,7 @@ export const MangaCard = memo(function MangaCard({
           </motion.div>
         </Link>
 
-        <div className="mt-2.5 px-0.5">
+        <div className="mt-2.5 px-0.5 flex flex-col flex-1">
           <Link href={href}>
             <h3
               className="font-semibold text-[var(--text-primary)] text-sm leading-tight line-clamp-2 group-hover:text-[var(--primary)] transition-colors duration-200"
@@ -199,7 +199,7 @@ export const MangaCard = memo(function MangaCard({
           </div>
 
           {manga.chapterCount ? (
-            <p className="text-xs text-[var(--text-secondary)] mt-1.5 font-medium">
+            <p className="text-xs text-[var(--text-secondary)] mt-auto pt-1.5 font-medium">
               {manga.chapterCount} {t(manga.chapterCount === 1 ? 'manga.chapter' : 'manga.chapters')}
             </p>
           ) : null}

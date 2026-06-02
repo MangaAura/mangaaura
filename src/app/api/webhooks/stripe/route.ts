@@ -10,6 +10,7 @@
 
 import { NextRequest } from 'next/server';
 
+import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { stripe, verifyStripeWebhook, SUBSCRIPTION_PLANS } from '@/lib/stripe';
 
@@ -27,35 +28,10 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid webhook signature' }, { status: 400 });
   }
 
-  // Idempotency check - skip if already processed
-  try {
-    const existingEvent = await prisma.stripeEvent.findUnique({
-      where: { stripeId: event.id },
-    });
-    if (existingEvent) {
-      return Response.json({ received: true, status: 'already_processed' });
-    }
-  } catch {
-    // If the table doesn't exist yet, continue (migration not run)
-  }
-
-  // Record event before processing (idempotency key)
-  let eventRecorded = false;
-  try {
-    await prisma.stripeEvent.create({
-      data: {
-        stripeId: event.id,
-        type: event.type,
-      },
-    });
-    eventRecorded = true;
-  } catch (error) {
-    // If create fails due to unique constraint, another instance processed it
-    if ((error as { code?: string }).code === 'P2002') {
-      return Response.json({ received: true, status: 'already_processed' });
-    }
-    // If table doesn't exist, continue without idempotency
-  }
+  // Idempotency check: stripeEvent.create se hace DENTRO de $transaction
+  // (más abajo). Si ya existe, lo detectamos por unique constraint.
+  // Esto asegura atomicidad: si algo falla, no queda registro del evento
+  // y Stripe retry naturalmente.
 
   try {
     switch (event.type) {
@@ -63,24 +39,38 @@ export async function POST(request: NextRequest) {
         const session = event.data.object;
         const { userId, auraAmount, type, planId } = session.metadata || {};
 
-        // Handle subscription checkout
+        // ── Handle subscription checkout (atómico) ────────────────────
         if (type === 'subscription' && userId && planId) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
           const subData = subscription as unknown as { current_period_end: number };
-          await prisma.user.update({
-            where: { id: userId },
-            data: {
-              subscriptionId: subscription.id,
-              subscriptionStatus: subscription.status,
-              subscriptionTier: planId,
-              subscriptionEndsAt: new Date(subData.current_period_end * 1000),
-              stripeCustomerId: session.customer as string,
-            },
+
+          await prisma.$transaction(async (tx) => {
+            // Idempotency: si ya se procesó, salir sin hacer nada
+            const existing = await tx.stripeEvent.findUnique({
+              where: { stripeId: event.id },
+            });
+            if (existing) return;
+
+            await tx.stripeEvent.create({
+              data: { stripeId: event.id, type: event.type },
+            });
+
+            await tx.user.update({
+              where: { id: userId },
+              data: {
+                subscriptionId: subscription.id,
+                subscriptionStatus: subscription.status,
+                subscriptionTier: planId,
+                subscriptionEndsAt: new Date(subData.current_period_end * 1000),
+                stripeCustomerId: session.customer as string,
+              },
+            });
           });
-        break;
+
+          break;
         }
 
-        // Handle Aura purchase
+        // ── Handle Aura purchase (atómico) ────────────────────────────
         if (!userId || !auraAmount) {
           console.error('[Stripe Webhook] Missing metadata');
           return Response.json({ error: 'Missing metadata' }, { status: 400 });
@@ -88,43 +78,72 @@ export async function POST(request: NextRequest) {
 
         const auraAmountInt = parseInt(auraAmount);
 
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            auraBalance: {
-              increment: auraAmountInt,
+        // Todo dentro de $transaction: stripeEvent + user update + transaction + referral
+        const referralResult = await prisma.$transaction(async (tx) => {
+          // 1. Idempotency key dentro de la transacción
+          // Si ya existe (Stripe retry), el unique constraint lanza P2002 y hacemos rollback
+          const existing = await tx.stripeEvent.findUnique({
+            where: { stripeId: event.id },
+          });
+          if (existing) {
+            return { alreadyProcessed: true as const };
+          }
+
+          await tx.stripeEvent.create({
+            data: { stripeId: event.id, type: event.type },
+          });
+
+          // 2. Actualizar aura del usuario
+          const user = await tx.user.findUnique({
+            where: { id: userId },
+            select: { auraFirstPurchaseAt: true },
+          });
+          const firstPurchaseAt = user?.auraFirstPurchaseAt ?? new Date();
+
+          await tx.user.update({
+            where: { id: userId },
+            data: {
+              auraBalance: { increment: auraAmountInt },
+              auraLifetimePurchased: { increment: auraAmountInt },
+              auraFirstPurchaseAt: { set: firstPurchaseAt },
             },
-            auraLifetimePurchased: {
-              increment: auraAmountInt,
+          });
+
+          // 3. Crear registro de transacción
+          await tx.transaction.create({
+            data: {
+              userId,
+              amount: auraAmountInt,
+              type: 'AURA_PURCHASE',
+              referenceId: session.id,
+              description: `Purchased ${auraAmount} Aura via Stripe`,
             },
-            auraFirstPurchaseAt: {
-              set: await getFirstPurchaseAt(userId),
-            },
-          },
+          });
+
+          // 4. Manejar referral bonus (dentro de la misma transacción)
+          const refResult = await handleReferralOnPurchaseTx(tx, userId, auraAmountInt);
+
+          return { alreadyProcessed: false as const, ...refResult };
         });
 
-        await prisma.transaction.create({
-          data: {
-            userId,
-            amount: auraAmountInt,
-            type: 'AURA_PURCHASE',
-            referenceId: session.id,
-            description: `Purchased ${auraAmount} Aura via Stripe`,
-          },
-        });
+        if (referralResult.alreadyProcessed) {
+          return Response.json({ received: true, status: 'already_processed' });
+        }
 
-        // Handle referral: if user was referred, create/update ReferralClaim
-        await handleReferralOnPurchase(userId, auraAmountInt);
+        // 5. Notificación al referrer (fuera de la transacción, best-effort)
+        if (referralResult.shouldNotify) {
+          tryNotifyReferralBonus(referralResult);
+        }
 
-    break;
-  }
-
-  case 'checkout.session.expired': {
-    break;
+        break;
       }
 
-  case 'payment_intent.payment_failed': {
-    break;
+      case 'checkout.session.expired': {
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        break;
       }
 
       case 'customer.subscription.created':
@@ -165,10 +184,10 @@ export async function POST(request: NextRequest) {
           data: updateData,
         });
 
-    break;
-  }
+        break;
+      }
 
-  case 'customer.subscription.deleted': {
+      case 'customer.subscription.deleted': {
         const subscription = event.data.object as unknown as { customer: string };
         const customerId = subscription.customer;
 
@@ -192,10 +211,10 @@ export async function POST(request: NextRequest) {
           },
         });
 
-    break;
-  }
+        break;
+      }
 
-  case 'invoice.payment_succeeded': {
+      case 'invoice.payment_succeeded': {
         const invoice = event.data.object as unknown as { subscription: string };
         const subscriptionId = invoice.subscription;
 
@@ -243,53 +262,62 @@ export async function POST(request: NextRequest) {
           data: { subscriptionStatus: 'past_due' },
         });
 
-    break;
-  }
+        break;
+      }
 
-  default:
+      default:
     }
 
     return Response.json({ received: true });
   } catch (error) {
-    // If we recorded the event but processing failed, we still return success
-    // to prevent Stripe from retrying. The event is already idempotent.
-    if (eventRecorded) {
-      console.error('[Stripe Webhook] Error processing event:', error);
-      return Response.json({ received: true, status: 'processed_with_error' });
-    }
+    console.error('[Stripe Webhook] Error processing event:', error);
+    // NO se devuelve 200 si falló — Stripe reintentará.
+    // Como stripeEvent.create está dentro de $transaction,
+    // si la transacción falló no hay registro del evento,
+    // así que el retry se procesará limpio.
     return Response.json({ error: 'Failed to process webhook' }, { status: 500 });
   }
 }
 
-async function getFirstPurchaseAt(userId: string): Promise<Date | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { auraFirstPurchaseAt: true },
-  });
-  return user?.auraFirstPurchaseAt ?? new Date();
+interface ReferralResult {
+  shouldNotify: boolean;
+  referrerId: string;
+  refereeId: string;
+  bonusAwarded: number;
+  refereeUsername: string;
+  refereeDisplayName: string | null;
 }
 
-async function handleReferralOnPurchase(userId: string, auraAmount: number) {
-  // Find the user and check if they were referred
-  const user = await prisma.user.findUnique({
+/**
+ * Maneja el referral bonus dentro de una transacción Prisma.
+ * Nota: la NOTIFICACIÓN se envía fuera de la transacción para no bloquearla.
+ */
+async function handleReferralOnPurchaseTx(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  auraAmount: number
+): Promise<ReferralResult | { shouldNotify: false }> {
+  const user = await tx.user.findUnique({
     where: { id: userId },
     select: { referredBy: true, username: true, displayName: true },
   });
 
-  if (!user?.referredBy) return;
+  if (!user?.referredBy) {
+    return { shouldNotify: false };
+  }
 
-  // Find the referrer by their referralCode
-  const referrer = await prisma.user.findFirst({
+  const referrer = await tx.user.findFirst({
     where: { referralCode: user.referredBy },
     select: { id: true },
   });
 
-  if (!referrer) return;
+  if (!referrer) {
+    return { shouldNotify: false };
+  }
 
   const bonusAwarded = Math.floor(auraAmount * 0.10);
 
-  // Find existing ReferralClaim for this referral pair
-  const existingClaim = await prisma.referralClaim.findUnique({
+  const existingClaim = await tx.referralClaim.findUnique({
     where: {
       referrerId_refereeId: {
         referrerId: referrer.id,
@@ -301,10 +329,9 @@ async function handleReferralOnPurchase(userId: string, auraAmount: number) {
   let wasLocked = false;
 
   if (existingClaim) {
-    // Update existing claim if it was locked
     if (existingClaim.status === 'locked') {
       wasLocked = true;
-      await prisma.referralClaim.update({
+      await tx.referralClaim.update({
         where: { id: existingClaim.id },
         data: {
           status: 'unlocked',
@@ -316,8 +343,7 @@ async function handleReferralOnPurchase(userId: string, auraAmount: number) {
     }
   } else {
     wasLocked = true;
-    // Create new claim
-    await prisma.referralClaim.create({
+    await tx.referralClaim.create({
       data: {
         referrerId: referrer.id,
         refereeId: userId,
@@ -329,19 +355,28 @@ async function handleReferralOnPurchase(userId: string, auraAmount: number) {
     });
   }
 
-  // Notify referrer that bonus is unlocked
-  if (wasLocked && bonusAwarded > 0) {
-    try {
-      const { getNotificationService } = await import('@/core/services/NotificationService');
-      const ns = await getNotificationService();
-      await ns.notifyReferralBonusUnlocked(referrer.id, {
-        id: userId,
-        username: user.username,
-        displayName: user.displayName,
-      }, bonusAwarded);
-    } catch (notifyError) {
-      console.error('[Stripe Webhook] Error sending referral bonus notification:', notifyError);
-    }
+  return {
+    shouldNotify: wasLocked && bonusAwarded > 0,
+    referrerId: referrer.id,
+    refereeId: userId,
+    bonusAwarded,
+    refereeUsername: user.username,
+    refereeDisplayName: user.displayName,
+  };
+}
+
+/** Envía notificación al referrer (best-effort, fuera de transacción) */
+async function tryNotifyReferralBonus(result: ReferralResult) {
+  try {
+    const { getNotificationService } = await import('@/core/services/NotificationService');
+    const ns = await getNotificationService();
+    await ns.notifyReferralBonusUnlocked(result.referrerId, {
+      id: result.refereeId,
+      username: result.refereeUsername,
+      displayName: result.refereeDisplayName,
+    }, result.bonusAwarded);
+  } catch (notifyError) {
+    console.error('[Stripe Webhook] Error sending referral bonus notification:', notifyError);
   }
 }
 

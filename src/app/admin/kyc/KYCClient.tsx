@@ -83,8 +83,8 @@ export default function KYCClient() {
 
       <div className="grid grid-cols-4 gap-4">
         {['none', 'pending', 'verified', 'rejected'].map((s) => (
-          <Card key={s} className={`cursor-pointer ${statusFilter === s ? 'ring-2 ring-[var(--primary)]' : ''}`} onClick={() => setStatusFilter(s)}>
-            <CardContent className="p-4 text-center">
+          <Card key={s} className={`h-full cursor-pointer ${statusFilter === s ? 'ring-2 ring-[var(--primary)]' : ''}`} onClick={() => setStatusFilter(s)}>
+            <CardContent className="p-4 h-full flex flex-col justify-center items-center">
               <p className="text-2xl font-bold">{statusCounts[s] || 0}</p>
               <p className="text-sm text-[var(--text-tertiary)] capitalize">{s}</p>
             </CardContent>

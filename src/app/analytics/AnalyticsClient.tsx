@@ -337,17 +337,17 @@ function AnalyticsPageContent() {
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="text-center">
+                      <div className="text-center h-full">
                         <BookOpen size={20} className="text-accent-blue mx-auto mb-1" aria-hidden="true" />
                         <p className="text-lg font-bold">{readerData.user.totalChaptersRead.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.chapters')}</p>
                       </div>
-                      <div className="text-center">
+                      <div className="text-center h-full">
                         <TrendingUp size={20} className="text-accent-green mx-auto mb-1" aria-hidden="true" />
                         <p className="text-lg font-bold">{readerData.user.libraryCount.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.inLibrary')}</p>
                       </div>
-                      <div className="text-center">
+                      <div className="text-center h-full">
                         <Award size={20} className="text-accent-orange mx-auto mb-1" aria-hidden="true" />
                         <p className="text-lg font-bold">{readerData.achievements.length.toLocaleString('es')}</p>
                         <p className="text-xs text-muted">{t('analytics.achievements')}</p>
@@ -357,12 +357,12 @@ function AnalyticsPageContent() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="card p-6 rounded-xl">
+                  <div className="card p-6 rounded-xl h-full">
                     <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Award size={20} className="text-accent-orange" aria-hidden="true" /> {t('analytics.unlockedAchievements')} ({readerData.achievements.length})</h3>
                     {readerData.achievements.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {readerData.achievements.slice(0, 6).map((badge) => (
-                          <div key={badge.id} className="flex flex-col items-center text-center p-3 bg-tertiary rounded-lg border border-custom hover:shadow-md transition-shadow cursor-pointer">
+                          <div key={badge.id} className="flex flex-col items-center text-center p-3 bg-tertiary rounded-lg border border-custom hover:shadow-md transition-shadow cursor-pointer h-full">
                             <div className="w-12 h-12 rounded-full mb-2 flex items-center justify-center font-bold text-xl bg-accent-orange/20 text-accent-orange">
                               {badge.icon || '\u2605'}
                             </div>
@@ -376,7 +376,7 @@ function AnalyticsPageContent() {
                     )}
                   </div>
 
-                  <div className="card p-6 rounded-xl border-t-4 border-t-accent-purple" role="region" aria-label="Información del clan">
+                  <div className="card p-6 rounded-xl border-t-4 border-t-accent-purple h-full" role="region" aria-label="Información del clan">
                     {readerData.clan ? (
                       <>
                         <h3 className="font-bold text-lg mb-4">{t('analytics.memberOf')}: {readerData.clan.name}</h3>

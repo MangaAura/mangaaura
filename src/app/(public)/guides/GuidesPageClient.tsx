@@ -137,7 +137,7 @@ export function GuidesPageClient() {
                   <Link href={guide.href} className="block h-full group">
                     <article
                       className={`
-                        relative h-full overflow-hidden rounded-2xl border bg-[var(--surface-elevated)] p-6 md:p-7
+                        relative h-full overflow-hidden rounded-2xl border bg-[var(--surface-elevated)] p-6 md:p-7 flex flex-col
                         transition-all duration-300 hover:shadow-lg hover:-translate-y-1
                         ${guide.accent} ${guide.hoverAccent}
                       `}
@@ -150,8 +150,8 @@ export function GuidesPageClient() {
                         `}
                       />
 
-                      <div className="relative">
-                        <div className="flex items-start gap-4">
+                      <div className="relative flex flex-col flex-1">
+                        <div className="flex items-start gap-4 flex-1">
                           {/* Icon */}
                           <div
                             className={`
@@ -162,17 +162,18 @@ export function GuidesPageClient() {
                             <Icon className={`w-6 h-6 ${guide.iconColor}`} />
                           </div>
 
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 flex flex-col">
                             <h2 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors duration-200 mb-2">
                               {guide.title}
                             </h2>
                             <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-2">
                               {guide.description}
                             </p>
+                            <div className="flex-1" />
+                            <div className="flex items-center">
+                              <ArrowRight className="w-5 h-5 text-[var(--text-tertiary)] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[var(--primary)]" />
+                            </div>
                           </div>
-
-                          {/* Arrow */}
-                          <ArrowRight className="w-5 h-5 text-[var(--text-tertiary)] shrink-0 mt-3 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[var(--primary)]" />
                         </div>
 
                         {/* Bottom accent line on hover */}

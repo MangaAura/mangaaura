@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { Suspense } from 'react';
 
 import { AppFooter } from "@/components/Layout/AppFooter";
+import { OnboardingTourDynamic } from "@/components/Onboarding/OnboardingTourDynamic";
 import { Providers } from "@/components/Providers";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
 import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
@@ -178,6 +179,9 @@ async function DynamicProviders({
       </Suspense>
       <Suspense fallback={null}>
         <AppFooter />
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnboardingTourDynamic />
       </Suspense>
     </div>
   );

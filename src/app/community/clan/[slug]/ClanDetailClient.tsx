@@ -13,6 +13,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { setOnboardingMarker } from '@/components/Onboarding';
 import { useI18n, useT } from '@/i18n';
 
 // ── Types ──────────────────────────────────────────────
@@ -216,7 +217,7 @@ function StatCard({
       variants={shouldReduceMotion ? {} : statCardVariants}
       initial="hidden"
       animate="visible"
-      className="group bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] rounded-xl p-5 hover:shadow-lg hover:shadow-[var(--primary)]/8 hover:border-[var(--primary)]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+      className="group bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)] rounded-xl p-5 hover:shadow-lg hover:shadow-[var(--primary)]/8 hover:border-[var(--primary)]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 h-full"
     >
       <div className="flex items-start gap-3">
         <div className={`w-10 h-10 rounded-lg ${colorClass} flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}>
@@ -712,6 +713,7 @@ export default function ClanDetailClient({
           throw new Error(data.error || t('clanDetail.errorJoin'));
         }
         setUserMembership({ role: 'MEMBER' });
+        setOnboardingMarker('mangaaura-joined-community');
       }
     } catch (err: any) {
       setActionError(err.message);

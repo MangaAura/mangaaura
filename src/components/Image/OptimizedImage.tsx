@@ -182,9 +182,7 @@ export function OptimizedImage({
         width={!fill ? width : undefined}
         height={!fill ? height : undefined}
         className={`
-          transition-opacity duration-300
           ${objectFitClass}
-          ${isLoaded ? 'opacity-100' : 'opacity-0'}
         `}
         style={{ objectPosition }}
         loading={loading}
@@ -196,14 +194,6 @@ export function OptimizedImage({
         sizes={sizes}
         {...props}
       />
-      
-      {/* Loading state */}
-      {!isLoaded && !hasError && (
-        <div
-          className="absolute inset-0 animate-pulse bg-[var(--bg-tertiary)]"
-          aria-hidden="true"
-        />
-      )}
       
       {/* Error state — fallback to unoptimized img tag */}
       {hasError && (

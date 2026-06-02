@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import {
   WifiOff,
   RefreshCw,
@@ -11,6 +12,8 @@ import {
   Image as ImageIcon,
   FileText,
   Database,
+  Home,
+  Compass,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -42,6 +45,23 @@ interface StorageInfo {
   chapters: number;
   actions: number;
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
+  },
+};
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
@@ -173,16 +193,19 @@ export default function OfflineClient() {
       className="min-h-screen"
       style={{ background: s('--md-sys-color-surface-dim') }}
     >
-      <div
+      <motion.div
         className="mx-auto w-full px-4 py-16 md:py-24"
         style={{
           maxWidth: '840px',
           paddingLeft: 'clamp(16px, 5vw, 24px)',
           paddingRight: 'clamp(16px, 5vw, 24px)',
         }}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
         {/* Status Section */}
-        <section className="flex flex-col items-center text-center mb-16 md:mb-24">
+        <motion.section variants={itemVariants} className="flex flex-col items-center text-center mb-8 md:mb-12">
           <div
             className={cn(
               'w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center mb-8',
@@ -245,10 +268,34 @@ export default function OfflineClient() {
             <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
             {isOnline ? t('offline.continue') : t('offline.retry')}
           </Button>
-        </section>
+        </motion.section>
+
+        {/* Quick Actions */}
+        {!isOnline && (
+          <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center gap-3 mb-10">
+            <Link href="/">
+              <Button variant="outline" size="sm">
+                <Home className="w-4 h-4 mr-2" />
+                Ir al inicio
+              </Button>
+            </Link>
+            <Link href="/library">
+              <Button variant="outline" size="sm">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Mi biblioteca
+              </Button>
+            </Link>
+            <Link href="/explore">
+              <Button variant="outline" size="sm">
+                <Compass className="w-4 h-4 mr-2" />
+                Explorar mangas
+              </Button>
+            </Link>
+          </motion.div>
+        )}
 
         {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* IndexedDB Storage Card */}
           <div
             className="p-6"
@@ -528,11 +575,11 @@ export default function OfflineClient() {
               </p>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Saved Mangas Section */}
         {!isOnline && savedMangas.length > 0 && (
-          <section className="mb-12">
+          <motion.section variants={itemVariants} className="mb-12">
             <h2
               className="flex items-center gap-3 mb-6"
               style={{
@@ -623,12 +670,12 @@ export default function OfflineClient() {
                 </Link>
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
         {/* No Saved Content */}
         {!isOnline && savedMangas.length === 0 && !isLoading && (
-          <div
+          <motion.div variants={itemVariants}
             className="flex flex-col items-center text-center p-10 mb-12"
             style={{
               background: s('--md-sys-color-surface-container'),
@@ -665,12 +712,12 @@ export default function OfflineClient() {
             >
               {t('offline.noSavedContentDesc')}
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center py-8" role="status">
+          <motion.div variants={itemVariants} className="flex justify-center py-8" role="status">
             <div
               className="w-8 h-8 rounded-full animate-spin"
               style={{
@@ -679,11 +726,11 @@ export default function OfflineClient() {
               }}
               aria-label="Loading"
             />
-          </div>
+          </motion.div>
         )}
 
         {/* Tips Section */}
-        <div
+        <motion.div variants={itemVariants}
           className="p-6"
           style={{
             background: s('--md-sys-color-surface-container'),
@@ -724,8 +771,8 @@ export default function OfflineClient() {
             <li>{t('offline.tip3')}</li>
             <li>{t('offline.tip4')}</li>
           </ul>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </main>
   );
 }

@@ -149,11 +149,11 @@ if (status === 'unauthenticated') {
             key={stat.label}
             onClick={() => setStatusFilter(statusFilter === stat.filter ? '' : stat.filter)}
             className={cn(
-              'card p-4 rounded-xl border border-[var(--border)] text-left transition-all hover:shadow-md cursor-pointer',
+              'card p-4 rounded-xl border border-[var(--border)] text-left transition-all hover:shadow-md cursor-pointer h-full flex flex-col',
               statusFilter === stat.filter && 'border-[var(--info)] bg-[var(--info)]/5'
             )}
           >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-1">
                     <stat.icon className={cn('w-5 h-5', stat.color)} aria-hidden="true" />
                     <div>
                       <p className="text-2xl font-bold">{actualCount}</p>

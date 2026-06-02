@@ -279,7 +279,7 @@ export default async function AchievementsPage() {
         <>
           {/* Stats cards + completion ring */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card className="p-5 border border-custom flex items-center gap-4">
+            <Card className="p-5 border border-custom flex items-center gap-4 h-full">
               <div className="w-12 h-12 bg-accent-orange/20 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Target className="w-6 h-6 text-accent-orange" />
               </div>
@@ -292,7 +292,7 @@ export default async function AchievementsPage() {
               </div>
             </Card>
 
-            <Card className="p-5 border border-custom flex items-center gap-4">
+            <Card className="p-5 border border-custom flex items-center gap-4 h-full">
               <div className="w-12 h-12 bg-accent-blue/20 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Zap className="w-6 h-6 text-accent-blue" />
               </div>
@@ -302,7 +302,7 @@ export default async function AchievementsPage() {
               </div>
             </Card>
 
-            <Card className="p-5 border border-custom flex items-center gap-4">
+            <Card className="p-5 border border-custom flex items-center gap-4 h-full">
               <div className="w-12 h-12 bg-accent-green/20 rounded-xl flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="w-6 h-6 text-accent-green" />
               </div>
@@ -316,7 +316,7 @@ export default async function AchievementsPage() {
             </Card>
 
             {/* Completion ring */}
-            <Card className="p-5 border border-custom flex items-center justify-center gap-4">
+            <Card className="p-5 border border-custom flex items-center justify-center gap-4 h-full">
               <CompletionRing
                 unlocked={data.stats.totalUnlocked}
                 total={data.stats.totalAchievements}
@@ -352,7 +352,7 @@ export default async function AchievementsPage() {
               const pct = total > 0 ? (unlocked / total) * 100 : 0;
 
               return (
-                <Card key={rarity} className={cn('p-4 border border-custom', rarityBg[rarity])}>
+                <Card key={rarity} className={cn('p-4 border border-custom h-full', rarityBg[rarity])}>
                   <div className="flex items-center gap-2 mb-2">
                     <div
                       className={cn(
@@ -386,7 +386,7 @@ export default async function AchievementsPage() {
                   <Card
                     key={ach.id}
                     className={cn(
-                      'p-6 border border-custom flex flex-col items-center gap-3',
+                      'p-6 border border-custom flex flex-col items-center gap-3 h-full',
                       'animate-badge-pop',
                       'hover:scale-105 transition-transform duration-200'
                     )}
@@ -431,7 +431,7 @@ export default async function AchievementsPage() {
                   <Card
                     key={ach.id}
                     className={cn(
-                      'p-4 border border-custom flex items-center gap-4',
+                      'p-4 border border-custom flex items-center gap-4 h-full',
                       'hover:scale-[1.02] transition-transform duration-200',
                       ach.difficulty === 'LEGENDARY' && 'border-[#f59e0b]/40'
                     )}

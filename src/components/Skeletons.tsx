@@ -12,7 +12,7 @@ export const Skeletons = {
 // Manga Card Skeleton
 export function MangaCardSkeleton() {
   return (
-    <div className="w-full animate-pulse">
+    <div className="w-full h-full animate-pulse">
       <div className="aspect-[2/3] bg-[var(--surface-elevated)] rounded-lg mb-2" />
       <div className="h-4 bg-[var(--surface-elevated)] rounded w-3/4 mb-1" />
       <div className="h-3 bg-[var(--surface-elevated)] rounded w-1/2" />

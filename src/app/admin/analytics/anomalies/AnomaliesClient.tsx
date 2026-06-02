@@ -155,8 +155,8 @@ export default function AnomaliesClient() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <Card className="h-full">
+          <CardContent className="p-4 h-full">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-tertiary)]">Total</span>
               <ShieldAlert className="w-4 h-4 text-[var(--text-tertiary)]" />
@@ -164,8 +164,8 @@ export default function AnomaliesClient() {
             <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats.total}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="h-full">
+          <CardContent className="p-4 h-full">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-tertiary)]">Today</span>
               <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />
@@ -173,8 +173,8 @@ export default function AnomaliesClient() {
             <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats.todayCount}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="h-full">
+          <CardContent className="p-4 h-full">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-tertiary)]">This Week</span>
               <UserCheck className="w-4 h-4 text-[var(--primary)]" />
@@ -182,8 +182,8 @@ export default function AnomaliesClient() {
             <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats.weekCount}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="h-full">
+          <CardContent className="p-4 h-full">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-tertiary)]">This Month</span>
               <Shield className="w-4 h-4 text-[var(--accent-blue)]" />
@@ -191,8 +191,8 @@ export default function AnomaliesClient() {
             <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats.monthCount}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="h-full">
+          <CardContent className="p-4 h-full">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-tertiary)]">Critical</span>
               <Skull className="w-4 h-4 text-[var(--error)]" />

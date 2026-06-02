@@ -110,7 +110,7 @@ function PricingCard({
       viewport={{ once: true, margin: '-40px' }}
       className="relative group"
     >
-      <div className="relative h-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 transition-all duration-300 hover:border-[var(--primary)]/40 hover:shadow-lg hover:shadow-[var(--primary)]/5 hover:-translate-y-1">
+      <div className="relative h-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 transition-all duration-300 hover:border-[var(--primary)]/40 hover:shadow-lg hover:shadow-[var(--primary)]/5 hover:-translate-y-1 flex flex-col">
         {pack.popular && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white text-xs font-bold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
             <Sparkles className="w-3 h-3" />
@@ -140,6 +140,8 @@ function PricingCard({
           <span className="text-3xl font-bold">{formatPrice(pack.priceCents)}</span>
           <span className="text-sm text-[var(--text-muted)]">USD</span>
         </div>
+
+        <div className="flex-1" />
 
         <Link href={`/checkout?package=${pack.id}`}>
           <Button
@@ -180,7 +182,7 @@ function PremiumCard({
       className="relative group"
     >
       <div
-        className={`relative h-full rounded-2xl border-2 p-7 transition-all duration-300 ${
+        className={`relative h-full rounded-2xl border-2 p-7 transition-all duration-300 flex flex-col ${
           plan.popular
             ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04] shadow-lg shadow-[var(--primary)]/10 hover:shadow-xl hover:shadow-[var(--primary)]/15'
             : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]/30 hover:shadow-md'
@@ -226,6 +228,8 @@ function PremiumCard({
             </li>
           ))}
         </ul>
+
+        <div className="flex-1" />
 
         <Link href={`/checkout?plan=${plan.id}`}>
           <Button
@@ -309,7 +313,7 @@ function BenefitsRow({ t }: { t: (key: string) => string }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.4 }}
-            className="text-center p-4 rounded-xl bg-[var(--surface-sunken)]/30 border border-[var(--border-subtle)]"
+            className="text-center p-4 rounded-xl bg-[var(--surface-sunken)]/30 border border-[var(--border-subtle)] h-full flex flex-col items-center"
           >
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center mx-auto mb-3">
               <Icon className="w-5 h-5 text-[var(--primary)]" />

@@ -3,6 +3,7 @@
 import { Users, Copy, CheckCircle, Clock, Gift, Share2, MessageCircle, Globe, Send, Flag } from 'lucide-react';
 import { useState } from 'react';
 
+import { setOnboardingMarker } from '@/components/Onboarding';
 import { useT } from '@/i18n';
 
 interface RefereeUser {
@@ -64,8 +65,14 @@ export function ReferralsClient({ stats }: { stats: ReferralStats }) {
     if (referralLink) {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
+      setOnboardingMarker('mangaaura-has-referred');
       setTimeout(() => setCopied(false), 2000);
     }
+  }
+
+  function handleShareLink(platform: string) {
+    shareLink(platform);
+    setOnboardingMarker('mangaaura-has-referred');
   }
 
   async function shareLink(platform: string) {
@@ -151,19 +158,19 @@ export function ReferralsClient({ stats }: { stats: ReferralStats }) {
         <div className="flex items-center gap-2 mt-4 flex-wrap">
           <span className="text-xs text-muted mr-1">{t('economy.referral.socialShare.title')}</span>
           <button
-            onClick={() => shareLink('whatsapp')}
+            onClick={() => handleShareLink('whatsapp')}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-500 text-xs font-medium hover:bg-green-500/30 transition-colors"
           >
             <MessageCircle size={14} /> {t('economy.referral.socialShare.whatsapp')}
           </button>
           <button
-            onClick={() => shareLink('twitter')}
+            onClick={() => handleShareLink('twitter')}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-400/20 text-blue-400 text-xs font-medium hover:bg-blue-400/30 transition-colors"
           >
             <Globe size={14} /> {t('economy.referral.socialShare.twitter')}
           </button>
           <button
-            onClick={() => shareLink('telegram')}
+            onClick={() => handleShareLink('telegram')}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-500 text-xs font-medium hover:bg-blue-500/30 transition-colors"
           >
             <Send size={14} /> {t('economy.referral.socialShare.telegram')}

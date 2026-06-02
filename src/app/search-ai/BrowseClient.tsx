@@ -256,7 +256,7 @@ export default function BrowseClient() {
         ) : loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
+              <div key={i} className="animate-pulse h-full">
                 <div className="aspect-[2/3] rounded-xl bg-[var(--surface-sunken)] mb-3" />
                 <div className="h-4 bg-[var(--surface-sunken)] rounded w-3/4 mb-2" />
                 <div className="h-3 bg-[var(--surface-sunken)] rounded w-1/2" />
@@ -300,8 +300,9 @@ export default function BrowseClient() {
                   transition={{ duration: 0.35, delay: i * 0.04, ease: [0.4, 0, 0.2, 1] }}
                   whileHover={shouldReduceMotion ? {} : { y: -6 }}
                   whileTap={shouldReduceMotion ? {} : { y: 0 }}
+                  className="h-full"
                 >
-                  <div className="group block">
+                  <div className="group block h-full flex flex-col">
                     <Link href={`/manga/${manga.slug}`}>
                       <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-xl shadow-sm border border-[var(--border)] group-hover:border-[var(--primary)]/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-[var(--primary)]/5 bg-[var(--surface)]">
                         {manga.coverUrl ? (
@@ -355,7 +356,7 @@ export default function BrowseClient() {
                     ) : (
                       <p className="text-xs text-[var(--text-tertiary)] mt-1 truncate">{manga.authorName}</p>
                     )}
-                    <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1.5">
+                    <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-auto pt-1.5">
                       <span className="flex items-center gap-1"><Eye size={12} /> {manga.totalViews ?? 0}</span>
                       <span className="flex items-center gap-1"><BookOpen size={12} /> {t('browse.chapterCount', { count: manga.chapterCount ?? 0 })}</span>
                     </div>

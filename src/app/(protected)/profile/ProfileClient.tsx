@@ -14,6 +14,7 @@ import {
   Sparkles,
   Activity,
   Share2,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -23,6 +24,8 @@ import { CollectionsModal } from './CollectionsModal';
 import { FollowersModal } from './FollowersModal';
 import { LibraryModal } from './LibraryModal';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
+import { ReadingStreakCalendar } from '@/components/Stats/ReadingStreakCalendar';
+import { PersonalStatsDashboard } from '@/components/Stats/PersonalStatsDashboard';
 import { ProfileHeader, ProfileTimeline, ProfileCompletionMeter } from '@/components/Profile';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -417,6 +420,10 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
                 <Star className="w-4 h-4 mr-2" />
                 {t('userProfile.tabs.collections')}
               </TabsTrigger>
+              <TabsTrigger value="stats">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                {t('userProfile.tabs.stats')}
+              </TabsTrigger>
             </TabsList>
 
             {/* Activity Tab — Timeline style */}
@@ -510,7 +517,9 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {user.achievements.slice(0, 3).map((ua) => (
-                        <AchievementCard key={ua.id} achievement={ua} />
+                        <div key={ua.id} className="h-full">
+                          <AchievementCard achievement={ua} />
+                        </div>
                       ))}
                     </div>
                   )}
@@ -585,11 +594,40 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
                 </Card>
               )}
             </TabsContent>
-          </Tabs>
-        </motion.div>
-      </div>
 
-      {/* Modals */}
+            {/* Stats Tab */}
+            <TabsContent value="stats">
+              <PersonalStatsDashboard
+                weeklyData={[]}
+                genreData={[]}
+                totalChapters={0}
+                totalHours={0}
+                currentStreak={0}
+                level={user.level}
+                xpPoints={user.xpPoints}
+              />
+              <div className="mt-4 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-center">
+                <p className="text-sm text-[var(--text-tertiary)]">
+                  Conecta los datos de tu API de lectura para ver estadísticas personalizadas.
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>          </motion.div>
+        </div>
+
+        {/* Reading Streak Calendar (visible when data is available) */}
+        {user._count && user._count.library > 0 && (
+          <motion.div variants={itemVariants}>
+            <ReadingStreakCalendar
+              readDates={[]}
+              currentStreak={0}
+              longestStreak={0}
+              daysReadThisMonth={0}
+            />
+          </motion.div>
+        )}
+
+        {/* Modals */}
       <FollowersModal
         open={followModalOpen}
         onOpenChange={setFollowModalOpen}

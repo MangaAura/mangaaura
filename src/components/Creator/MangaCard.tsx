@@ -79,12 +79,12 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
     <div
       onClick={handleCardClick}
       className={cn(
-        'bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--border-strong)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all duration-200 cursor-pointer',
+        'bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--border-strong)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all duration-200 cursor-pointer h-full flex flex-col',
         className
       )}
     >
       {/* Cover */}
-      <div className="relative aspect-[3/4] bg-[var(--border)]">
+      <div className="relative aspect-[3/4] bg-[var(--border)] flex-shrink-0">
         {manga.coverUrl ? (
           <Image
             src={manga.coverUrl}
@@ -178,7 +178,7 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
       </div>
 
       {/* Info */}
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <h2 className="font-semibold text-[var(--text-primary)] line-clamp-1" title={manga.title}>
           {manga.title}
         </h2>
@@ -193,6 +193,8 @@ export function MangaCard({ manga, onDelete, className }: MangaCardProps) {
             <span>{manga.totalViews.toLocaleString()}</span>
           </div>
         </div>
+
+        <div className="flex-1" />
 
         {/* Buttons */}
         <div className="flex gap-2 mt-4">

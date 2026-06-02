@@ -105,7 +105,7 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
     <div className="space-y-6">
       {showStats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 border border-custom">
+          <Card className="p-4 border border-custom h-full">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold">
@@ -123,7 +123,7 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
             />
           </Card>
 
-          <Card className="p-4 border border-custom">
+          <Card className="p-4 border border-custom h-full">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold">{stats.totalPoints.toLocaleString('es')}</p>
@@ -135,7 +135,7 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
             </div>
           </Card>
 
-          <Card className="p-4 border border-custom">
+          <Card className="p-4 border border-custom h-full">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold">{stats.byRarity.LEGENDARY}</p>
@@ -147,7 +147,7 @@ export function AchievementGrid({ achievements, isLoading, showStats = true }: A
             </div>
           </Card>
 
-          <Card className="p-4 border border-custom">
+          <Card className="p-4 border border-custom h-full">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold">{stats.total - stats.unlocked}</p>

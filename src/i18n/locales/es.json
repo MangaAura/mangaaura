@@ -656,13 +656,7 @@
     "sectionLegal": "Legal",
     "sectionResources": "Recursos",
     "faq": "FAQ",
-    "guides": {
-      "badge": "Biblioteca de guías",
-      "title": "Guías de Manga",
-      "subtitle": "Aprende todo sobre el mundo del manga: dónde leer, qué apps usar, cómo empezar y descubre las series más vendidas de la historia.",
-      "ctaText": "¿No encuentras lo que buscas?",
-      "ctaLink": "Visita nuestro centro de ayuda"
-    },
+    "guides": "Guías",
     "aboutUs": "Sobre nosotros",
     "announcements": "Anuncios",
     "genres": "Géneros",
@@ -1162,7 +1156,8 @@
       "achievements": "Logros",
       "created": "Creados",
       "collections": "Colecciones",
-      "ratings": "Valoraciones"
+      "ratings": "Valoraciones",
+      "stats": "Estadísticas"
     },
     "activity": {
       "readChapter": "Leyó un capítulo",
@@ -1226,6 +1221,56 @@
     "caps": "capítulos",
     "views": "vistas",
     "newBadge": "Nuevo"
+  },
+  "onboarding": {
+    "checklistTitle": "Tu viaje en MangaAura",
+    "checklistSubtitle": "Completa estos pasos para empezar",
+    "step1": "Completa tu perfil",
+    "step1Desc": "Añade avatar, nombre y biografía para personalizar tu perfil",
+    "step2": "Explora mangas",
+    "step2Desc": "Descubre nuevos géneros y encuentra tu próxima lectura favorita",
+    "step3": "Lee tu primer capítulo",
+    "step3Desc": "Sumérgete en la lectura y empieza a ganar XP",
+    "step4": "Gana tu primer logro",
+    "step4Desc": "Completa desafíos y desbloquea recompensas exclusivas",
+    "step5": "Únete a la comunidad",
+    "step5Desc": "Conecta con otros lectores, únete a un clan o participa en eventos",
+    "step6": "Invita a un amigo",
+    "step6Desc": "Comparte tu enlace de referido y gana recompensas Aura",
+    "step7": "Crea una colección",
+    "step7Desc": "Organiza tus mangas favoritos en colecciones",
+    "step8": "Completa tu perfil real",
+    "step8Desc": "Añade nombre, avatar, biografía y redes sociales",
+    "completed": "Completado",
+    "inProgress": "En progreso",
+    "pending": "Pendiente",
+    "progress": "{completed} de {total} completados",
+    "tourTitle": "¡Bienvenido a MangaAura!",
+    "tourSubtitle": "Tu aventura comienza aquí. Sigue estos pasos para aprovechar al máximo la plataforma.",
+    "tourStep1Title": "Personaliza tu perfil",
+    "tourStep1Desc": "Añade una foto, elige tu nombre de display y cuéntanos sobre ti. Un perfil completo te ayuda a conectar con la comunidad.",
+    "tourStep2Title": "Descubre mangas",
+    "tourStep2Desc": "Explora por géneros, mira los rankings, o usa la búsqueda con IA para encontrar exactamente lo que te apetece leer.",
+    "tourStep3Title": "Empieza a leer",
+    "tourStep3Desc": "Cada capítulo que leas te da XP, rachas y te acerca a nuevos logros. ¡Cuanto más lees, más subes de nivel!",
+    "tourStep4Title": "Gana recompensas",
+    "tourStep4Desc": "Completa misiones diarias, mantén tu racha de lectura y desbloquea logros épicos para ganar Aura y XP.",
+    "tourStep5Title": "Sé parte de la comunidad",
+    "tourStep5Desc": "Únete a un clan, participa en eventos de temporada, comenta tus capítulos favoritos y haz nuevos amigos.",
+    "tourStep6Title": "Invita a tus amigos",
+    "tourStep6Desc": "Comparte tu código de referido con amigos y gana Aura cuando se unan. ¡Cuantos más invites, mayores las recompensas!",
+    "tourStep7Title": "Crea una colección",
+    "tourStep7Desc": "Organiza tus mangas favoritos en colecciones temáticas. Compártelas con la comunidad o mantenlas privadas.",
+    "tourStep8Title": "Completa tu perfil al máximo",
+    "tourStep8Desc": "Añade un nombre, avatar, biografía, sitio web y redes sociales para que la comunidad conozca al verdadero tú.",
+    "dismissTour": "Omitir tutorial",
+    "nextStep": "Siguiente",
+    "prevStep": "Anterior",
+    "finishTour": "¡Empezar a explorar!",
+    "completedAll": "¡Has completado todos los pasos!",
+    "completedAllDesc": "Ya estás listo para disfrutar de todo lo que MangaAura tiene para ofrecer. Sigue leyendo, creando y compartiendo.",
+    "viewProgress": "Ver progreso",
+    "continueTour": "Continuar tutorial"
   },
   "profileCompletion": {
     "title": "Completa tu perfil",
@@ -2339,28 +2384,13 @@
       }
     },
     "team": {
-      "badge": "El Equipo",
-      "title": "Amantes del manga construyendo para amantes del manga",
-      "subtitle": "Un equipo pequeño pero apasionado, unido por nuestro amor al manga y nuestra misión de apoyar a creadores en todo el mundo.",
-      "member1": {
-        "name": "Kenji Nakamura",
+      "badge": "El Creador",
+      "title": "Hecho por un apasionado del manga",
+      "subtitle": "El creador detrás de MangaAura, impulsado por su amor al manga, la IA y la tecnología.",
+      "member": {
+        "name": "Maiquel3000",
         "role": "Fundador & CEO",
-        "desc": "Ex-editor en Shonen Jump con 15 años de experiencia. Apasionado por conectar creadores con lectores en todo el mundo."
-      },
-      "member2": {
-        "name": "Luna Martinez",
-        "role": "Directora de Plataforma de Creadores",
-        "desc": "Ex-artista indie de manga convertida en arquitecta de plataforma. Creó herramientas usadas por más de 2,000 creadores."
-      },
-      "member3": {
-        "name": "Alex Chen",
-        "role": "Ingeniero Principal",
-        "desc": "Contribuidor de open source y entusiasta del manga. Hace que la experiencia de lectura sea fluida."
-      },
-      "member4": {
-        "name": "Yuki Tanaka",
-        "role": "Directora de Comunidad",
-        "desc": "Administra el servidor de Discord de manga más grande (50K+ miembros). Experta en construcción de comunidad."
+        "desc": "Creador de MangaAura. Desarrollador full-stack y entusiasta del manga, la inteligencia artificial y los videojuegos. Desde Valencia, trabaja para democratizar la creación y lectura de manga con ayuda de la IA."
       }
     },
     "values": {
@@ -2622,6 +2652,10 @@
       "ctaButton": "Ir al centro de ayuda"
     },
     "blog": {
+      "badge": "Blog",
+      "heroTitle": "Blog de MangaAura",
+      "heroSubtitle": "Guías, tutoriales y novedades para creadores y lectores de manga.",
+      "empty": "Próximamente: guías para crear tu primer manga, tutoriales de crowdfunding y más.",
       "title": "Blog de MangaAura | Guías, tutoriales y novedades",
       "description": "Guías para crear manga, tutoriales de la plataforma, consejos de crowdfunding y novedades de la comunidad MangaAura. Aprende a publicar y monetizar tu manga."
     },

@@ -115,7 +115,7 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" staggerDelay={0.04}>
         {bookmarks.map((bookmark) => (
           <StaggerItem key={bookmark.id}>
-            <Card className="group overflow-hidden">
+            <Card className="group overflow-hidden h-full flex flex-col">
               <div className="relative aspect-[3/4] bg-[var(--surface-sunken)]">
                 {bookmark.manga.coverUrl ? (
                   <OptimizedImage
@@ -178,7 +178,7 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
                   </Button>
                 </div>
               </div>
-              <CardContent className="p-4 space-y-2">
+              <CardContent className="p-4 space-y-2 flex flex-col flex-1">
                 <Link
                   href={`/manga/${bookmark.manga.slug}`}
                   className="block font-semibold text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors line-clamp-2"
@@ -194,7 +194,7 @@ export function BookmarksClient({ bookmarks: initial }: BookmarksClientProps) {
                     {bookmark.chapter.title && ` - ${bookmark.chapter.title}`}
                   </Link>
                 )}
-                <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] pt-1">
+                <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] pt-1 mt-auto">
                   <span>Página {bookmark.page || 1}</span>
                   <span>{formatDate(bookmark.createdAt)}</span>
                 </div>

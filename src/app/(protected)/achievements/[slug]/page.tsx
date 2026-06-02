@@ -406,10 +406,10 @@ export default async function AchievementDetailPage({
             {related.map((rel) => {
               const relRarity = RARITY_COLORS[rel.rarity] || RARITY_COLORS.EASY;
               return (
-                <Link key={rel.id} href={`/achievements/${encodeURIComponent(rel.badgeId.toLowerCase())}`}>
+                <Link key={rel.id} href={`/achievements/${encodeURIComponent(rel.badgeId.toLowerCase())}`} className="h-full">
                   <Card
                     className={cn(
-                      'p-4 border transition-all duration-200 hover:scale-[1.02] hover:shadow-md',
+                      'p-4 border transition-all duration-200 hover:scale-[1.02] hover:shadow-md h-full',
                       rel.unlocked ? relRarity.border : 'border-[var(--border)]',
                       !rel.unlocked && 'opacity-70',
                     )}

@@ -64,3 +64,24 @@ nul
 
 # Redis credentials backup (local only)
 /redis-backup/
+
+*storybook.log
+storybook-static
+
+# Lighthouse audit results
+lighthouse*.json
+
+# ESLint / build output
+build-log.txt
+eslint-*.txt
+errors.json
+eslint.json
+eslint_output.json
+
+# Report files
+report-*.json
+*-report.json
+explore-report.json
+login-report.json
+register-report.json
+

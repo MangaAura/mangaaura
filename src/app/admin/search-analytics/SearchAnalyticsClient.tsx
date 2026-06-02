@@ -59,8 +59,8 @@ export default function SearchAnalyticsClient() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">Búsquedas totales</p>
@@ -74,8 +74,8 @@ export default function SearchAnalyticsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">Usuarios únicos</p>
@@ -89,8 +89,8 @@ export default function SearchAnalyticsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-tertiary)]">Hoy</p>

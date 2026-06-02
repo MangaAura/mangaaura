@@ -102,7 +102,7 @@ export function GenrePageClient({ slug }: { slug: string }) {
               <StaggerItem key={manga.id}>
                 <Link
                   href={`/manga/${manga.slug}`}
-                  className="group block"
+                  className="group block h-full flex flex-col"
                 >
                   <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[var(--surface-sunken)] mb-3">
                     {manga.coverUrl ? (
@@ -133,7 +133,7 @@ export function GenrePageClient({ slug }: { slug: string }) {
                       {manga.authorName}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-tertiary)]">
+                  <div className="flex items-center gap-3 mt-auto pt-2 text-xs text-[var(--text-tertiary)]">
                     <span className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
                       {manga.totalViews.toLocaleString()}

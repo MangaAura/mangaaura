@@ -77,7 +77,7 @@ export default function SignupAnalyticsClient() {
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-accent-blue/10 text-accent-blue">
               <Users size={24} />
@@ -88,7 +88,7 @@ export default function SignupAnalyticsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-accent-green/10 text-[var(--success)]">
               <Calendar size={24} />
@@ -99,7 +99,7 @@ export default function SignupAnalyticsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-accent-orange/10 text-accent-orange">
               <TrendingUp size={24} />
@@ -110,7 +110,7 @@ export default function SignupAnalyticsClient() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="h-full">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-accent-purple/10 text-accent-purple">
               <Clock size={24} />
@@ -124,7 +124,7 @@ export default function SignupAnalyticsClient() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <BarChart3 size={20} className="text-accent-blue" aria-hidden="true" />
@@ -151,7 +151,7 @@ export default function SignupAnalyticsClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <XCircle size={20} className="text-[var(--error)]" aria-hidden="true" />
@@ -178,7 +178,7 @@ export default function SignupAnalyticsClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Clock size={20} className="text-accent-orange" aria-hidden="true" />
@@ -197,7 +197,7 @@ export default function SignupAnalyticsClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <UserPlus size={20} className="text-accent-purple" aria-hidden="true" />
