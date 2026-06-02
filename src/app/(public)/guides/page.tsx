@@ -1,6 +1,10 @@
 import { Metadata } from 'next';
 
 import { GuidesPageClient } from './GuidesPageClient';
+import {
+  BreadcrumbStructuredData,
+  WebPageStructuredData,
+} from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { withHreflang } from '@/lib/seo';
@@ -26,5 +30,26 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function GuidesPage() {
-  return <GuidesPageClient />;
+  return (
+    <>
+      <WebPageStructuredData
+        name="Guías y tutoriales de manga | MangaAura"
+        description="Guías completas para leer, comprar y disfrutar del manga al máximo. Desde principiantes hasta coleccionistas."
+        url="/guides"
+        datePublished="2025-01-01"
+        dateModified="2025-05-28"
+        breadcrumbs={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Guías', item: '/guides' },
+        ]}
+      />
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Inicio', item: '/' },
+          { name: 'Guías', item: '/guides' },
+        ]}
+      />
+      <GuidesPageClient />
+    </>
+  );
 }

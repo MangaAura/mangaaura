@@ -2591,7 +2591,13 @@
     },
     "announcements": {
       "title": "Announcements",
-      "description": "Official announcements, maintenance updates and important news from MangaAura."
+      "description": "Official announcements, maintenance updates and important news from MangaAura.",
+      "badge": "Official announcements",
+      "heroTitle": "Announcements",
+      "heroSubtitle": "Important news, maintenance updates, and official announcements from MangaAura.",
+      "ctaTitle": "Have any questions?",
+      "ctaDescription": "If you need more information about our announcements, visit our help center.",
+      "ctaButton": "Go to help center"
     },
     "blog": {
       "title": "MangaAura Blog | Guides, tutorials and news",

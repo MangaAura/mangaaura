@@ -2594,7 +2594,13 @@
     },
     "announcements": {
       "title": "Anuncios",
-      "description": "Anuncios oficiales, mantenimientos y novedades importantes de MangaAura."
+      "description": "Anuncios oficiales, mantenimientos y novedades importantes de MangaAura.",
+      "badge": "Comunicados oficiales",
+      "heroTitle": "Anuncios",
+      "heroSubtitle": "Novedades importantes, mantenimientos y comunicados oficiales de MangaAura.",
+      "ctaTitle": "¿Tienes alguna pregunta?",
+      "ctaDescription": "Si necesitas más información sobre nuestros anuncios, visita nuestro centro de ayuda.",
+      "ctaButton": "Ir al centro de ayuda"
     },
     "blog": {
       "title": "Blog de MangaAura | Guías, tutoriales y novedades",

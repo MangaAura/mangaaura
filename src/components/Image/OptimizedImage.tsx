@@ -185,7 +185,6 @@ export function OptimizedImage({
           transition-opacity duration-300
           ${objectFitClass}
           ${isLoaded ? 'opacity-100' : 'opacity-0'}
-          ${objectPosition ? `[object-position:${objectPosition}]` : ''}
         `}
         style={{ objectPosition }}
         loading={loading}
