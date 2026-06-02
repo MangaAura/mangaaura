@@ -212,7 +212,7 @@ export function LeaderboardTable({ type, data, currentUserId }: LeaderboardTable
           href={`/manga/${item.slug}`}
           className="flex items-center gap-3 group"
         >
-          <div className="w-10 h-14 bg-[var(--surface-sunken)] rounded overflow-hidden flex-shrink-0">
+          <div className="relative w-10 h-14 bg-[var(--surface-sunken)] rounded overflow-hidden flex-shrink-0">
             {item.coverUrl ? (
               <OptimizedImage
                 src={item.coverUrl}
