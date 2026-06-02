@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import dbConnect from '@/lib/mongoose';
 import { prisma } from '@/lib/prisma';
+import { ReadingLogModel } from '@/infrastructure/persistence/mongodb/models/ReadingLog';
 
 export async function GET(request: Request) {
   try {
@@ -133,6 +135,53 @@ export async function GET(request: Request) {
     .map(([date, stats]) => ({ date, ...stats }))
     .slice(-30);
 
+    // Consultar lectores únicos diarios desde ReadingLog (MongoDB)
+    // Se obtienen dos períodos: actual y anterior (misma duración, desplazado hacia atrás)
+    let uniqueReadersDailyStats: Array<{ date: string; readers: number }> = [];
+    let previousUniqueReadersDailyStats: Array<{ date: string; readers: number }> = [];
+    if (authorizedMangaIds.length > 0) {
+      try {
+        await dbConnect();
+        
+        // Calcular período anterior (misma duración que el actual)
+        const rangeDurationMs = fromEnd.getTime() - fromStart.getTime();
+        const prevStart = new Date(fromStart.getTime() - rangeDurationMs);
+        const prevEnd = new Date(fromStart.getTime() - 1);
+
+        const pipeline = (start: Date, end: Date) => [
+          {
+            $match: {
+              mangaId: { $in: authorizedMangaIds },
+              createdAt: { $gte: start, $lte: end },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                userId: '$userId',
+              },
+            },
+          },
+          {
+            $group: {
+              _id: '$_id.date',
+              readers: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 as const } },
+          { $project: { date: '$_id', readers: 1, _id: 0 } },
+        ];
+
+        [uniqueReadersDailyStats, previousUniqueReadersDailyStats] = await Promise.all([
+          ReadingLogModel.aggregate(pipeline(fromStart, fromEnd)),
+          ReadingLogModel.aggregate(pipeline(prevStart, prevEnd)),
+        ]);
+      } catch (err) {
+        console.error('[Analytics Dashboard] Error fetching unique readers:', err);
+      }
+    }
+
     return NextResponse.json({
       views,
       reads,
@@ -140,6 +189,8 @@ export async function GET(request: Request) {
       completionRate: Math.round(completionRate * 10) / 10,
       avgTimeSpent: timeSpent._avg.durationSeconds ? Math.round(timeSpent._avg.durationSeconds) : 0,
       dailyStats,
+      uniqueReadersDailyStats,
+      previousUniqueReadersDailyStats,
       popularChapters: popularChapters.map((ch) => ({
         chapterId: ch.id,
         chapterNumber: ch.chapterNumber,

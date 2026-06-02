@@ -18,6 +18,7 @@ import {
 import { useEffect, useState, useCallback, useMemo } from 'react';
 
 import { PopularChaptersChart } from './PopularChaptersChart';
+import { ReadersChart } from './ReadersChart';
 import { StatCard } from './StatCard';
 import { ViewsChart } from './ViewsChart';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -43,6 +44,14 @@ interface AnalyticsData {
     views: number;
     reads: number;
   }>;
+  uniqueReadersDailyStats?: Array<{
+    date: string;
+    readers: number;
+  }>;
+  previousUniqueReadersDailyStats?: Array<{
+    date: string;
+    readers: number;
+  }>;
 }
 
 interface PopularChapter {
@@ -59,6 +68,8 @@ interface DashboardData extends AnalyticsData {
   avgTimeSpent: number;
   completionRate: number;
   popularChapters: PopularChapter[];
+  uniqueReadersDailyStats: Array<{ date: string; readers: number }>;
+  previousUniqueReadersDailyStats: Array<{ date: string; readers: number }>;
 }
 
 interface AnalyticsDashboardProps {
@@ -103,6 +114,8 @@ export function AnalyticsDashboard({
       const dashboardData: DashboardData = {
         ...customData,
         uniqueReaders: Math.round(customData.reads * 0.8),
+        uniqueReadersDailyStats: customData.uniqueReadersDailyStats || [],
+        previousUniqueReadersDailyStats: customData.previousUniqueReadersDailyStats || [],
         completionRate: customData.reads > 0
           ? Math.round((customData.completions / customData.reads) * 100)
           : 0,
@@ -135,22 +148,24 @@ export function AnalyticsDashboard({
       try {
         const result = await fetchAnalytics();
         if (result) {
-          // Transformar datos para incluir métricas calculadas
-          const dashboardData: DashboardData = {
-            ...result,
-            // Calcular unique readers (estimado basado en completions y eventos)
-            uniqueReaders: Math.round(result.reads * 0.8), // Estimación
-            avgTimeSpent: result.avgTimeSpent,
-            completionRate:
-              result.reads > 0
-                ? Math.round((result.completions / result.reads) * 100)
-                : 0,
-            popularChapters: result.popularChapters.map((ch) => ({
-              ...ch,
-              reads: result.views > 0 ? Math.round(ch.views * (result.reads / result.views)) : 0,
-              completionRate: result.reads > 0 ? Math.round((result.completions / result.reads) * 100) : 0,
-            })),
-          };
+      // Transformar datos para incluir métricas calculadas
+      const dashboardData: DashboardData = {
+        ...result,
+        // Calcular unique readers (estimado basado en completions y eventos)
+        uniqueReaders: Math.round(result.reads * 0.8), // Estimación
+        uniqueReadersDailyStats: result.uniqueReadersDailyStats || [],
+        previousUniqueReadersDailyStats: result.previousUniqueReadersDailyStats || [],
+        avgTimeSpent: result.avgTimeSpent,
+        completionRate:
+          result.reads > 0
+            ? Math.round((result.completions / result.reads) * 100)
+            : 0,
+        popularChapters: result.popularChapters.map((ch) => ({
+          ...ch,
+          reads: result.views > 0 ? Math.round(ch.views * (result.reads / result.views)) : 0,
+          completionRate: result.reads > 0 ? Math.round((result.completions / result.reads) * 100) : 0,
+        })),
+      };
           setData(dashboardData);
           setLastUpdated(new Date());
         } else {
@@ -182,6 +197,14 @@ export function AnalyticsDashboard({
     return () => clearInterval(interval);
   }, [loadData]);
 
+  // Calcular cambio porcentual de lectores únicos vs período anterior
+  const readersGrowth = useMemo(() => {
+    const currentTotal = data?.uniqueReadersDailyStats?.reduce((sum, d) => sum + d.readers, 0) ?? 0;
+    const previousTotal = data?.previousUniqueReadersDailyStats?.reduce((sum, d) => sum + d.readers, 0) ?? 0;
+    if (previousTotal === 0) return currentTotal > 0 ? 100 : 0;
+    return Math.round(((currentTotal - previousTotal) / previousTotal) * 100);
+  }, [data?.uniqueReadersDailyStats, data?.previousUniqueReadersDailyStats]);
+
   // Calcular trends (simulados - en producción vendrían del backend)
   const trends = useMemo(
     () => ({
@@ -210,6 +233,7 @@ export function AnalyticsDashboard({
 <div className="h-80 bg-[var(--surface-sunken)] rounded-xl animate-pulse" />
         <div className="h-80 bg-[var(--surface-sunken)] rounded-xl animate-pulse" />
         </div>
+<div className="h-80 bg-[var(--surface-sunken)] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -373,6 +397,63 @@ export function AnalyticsDashboard({
             }))}
           />
         </div>
+      </div>
+
+      {/* Unique Readers Chart */}
+      <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                Lectores únicos en el tiempo
+              </h3>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Comparativa semana contra semana — usuarios distintos que han leído tus capítulos
+              </p>
+            </div>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shrink-0',
+                readersGrowth > 0
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  : readersGrowth < 0
+                  ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                  : 'bg-[var(--surface-sunken)] text-[var(--text-tertiary)]'
+              )}
+              title={readersGrowth > 0
+                ? `+${readersGrowth}% vs período anterior`
+                : `${readersGrowth}% vs período anterior`
+              }
+            >
+              {readersGrowth > 0 ? (
+                <TrendingUpIcon className="w-3.5 h-3.5" />
+              ) : readersGrowth < 0 ? (
+                <TrendingUpIcon className="w-3.5 h-3.5 rotate-180" />
+              ) : null}
+              {readersGrowth > 0 ? '+' : ''}{readersGrowth}%
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[var(--warning)]" />
+              <span className="text-xs text-[var(--text-secondary)]">Período actual</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-slate-400" />
+              <span className="text-xs text-[var(--text-secondary)]">Período anterior</span>
+            </div>
+          </div>
+        </div>
+        <ReadersChart
+          currentData={data.uniqueReadersDailyStats.map((day) => ({
+            date: day.date,
+            readers: day.readers,
+          }))}
+          previousData={data.previousUniqueReadersDailyStats.map((day) => ({
+            date: day.date,
+            readers: day.readers,
+          }))}
+        />
       </div>
 
       {/* Popular Chapters Table */}

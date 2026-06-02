@@ -167,7 +167,7 @@ export default function CreatorDashboardClient() {
     { key: 'totalMangas', label: t('creatorDashboard.totalMangas'), icon: BookOpenIcon, variant: 'indigo' as StatVariant, value: dashboardStats?.totalMangas ?? 0, trend: undefined as number | undefined },
     { key: 'totalChapters', label: t('creatorDashboard.publishedChapters'), icon: FileTextIcon, variant: 'purple' as StatVariant, value: dashboardStats?.totalChapters ?? 0, trend: undefined as number | undefined },
     { key: 'totalViews', label: t('creatorDashboard.totalViews'), icon: EyeIcon, variant: 'emerald' as StatVariant, value: dashboardStats?.totalViews ?? 0, trend: dashboardStats?.growthRate },
-    { key: 'readers', label: t('creatorDashboard.readers'), icon: UsersIcon, variant: 'amber' as StatVariant, value: dashboardStats?.totalReaders ?? dashboardStats?.totalViews ?? 0, trend: undefined as number | undefined },
+    { key: 'readers', label: t('creatorDashboard.readers'), icon: UsersIcon, variant: 'amber' as StatVariant, value: dashboardStats?.totalReaders ?? 0, trend: undefined as number | undefined },
   ];
 
   return (

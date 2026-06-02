@@ -34,6 +34,14 @@ interface CreatorData {
     views: number;
     reads: number;
   }>;
+  uniqueReadersDailyStats: Array<{
+    date: string;
+    readers: number;
+  }>;
+  previousUniqueReadersDailyStats: Array<{
+    date: string;
+    readers: number;
+  }>;
 }
 
 interface ReaderData {
@@ -192,6 +200,8 @@ function AnalyticsPageContent() {
         completionRate: ch.completionRate ?? (apiReads > 0 ? Math.round((apiCompletions / apiReads) * 100) : 0),
       })),
       dailyStats: creatorData.dailyStats,
+      uniqueReadersDailyStats: creatorData.uniqueReadersDailyStats,
+      previousUniqueReadersDailyStats: creatorData.previousUniqueReadersDailyStats,
     };
   }, [creatorData]);
 

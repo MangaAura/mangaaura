@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { syncGenresFromTags } from '@/lib/genres';
+import dbConnect from '@/lib/mongoose';
 import { prisma } from '@/lib/prisma';
 import { uploadImage } from '@/lib/storage';
+import { ReadingLogModel } from '@/infrastructure/persistence/mongodb/models/ReadingLog';
 
 function generateSlug(text: string): string {
   return text
@@ -261,10 +263,27 @@ export async function GET(request: NextRequest) {
           };
         });
 
+        // Calcular lectores únicos reales desde ReadingLog (MongoDB)
+        let totalReaders = 0;
+        if (mangaIds.length > 0) {
+          try {
+            await dbConnect();
+            const readerResult = await ReadingLogModel.aggregate([
+              { $match: { mangaId: { $in: mangaIds } } },
+              { $group: { _id: null, uniqueReaders: { $addToSet: '$userId' } } },
+              { $project: { count: { $size: '$uniqueReaders' } } },
+            ]);
+            totalReaders = readerResult[0]?.count ?? 0;
+          } catch (err) {
+            console.error('[CreatorMangas] Error fetching unique readers:', err);
+          }
+        }
+
         const dashboardStats = {
           totalMangas: total,
           totalChapters: totalChaptersCount,
           totalViews: statsAgg._sum.totalViews || 0,
+          totalReaders,
           viewsThisMonth: 0,
           viewsThisWeek: 0,
           averageRating: statsAgg._avg.rating || 0,

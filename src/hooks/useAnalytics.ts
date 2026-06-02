@@ -25,6 +25,8 @@ interface AnalyticsData {
   avgScrollDepth: number;
   popularChapters: Array<{ chapterId: string; chapterNumber: number; views: number }>;
   dailyStats: Array<{ date: string; views: number; reads: number }>;
+  uniqueReadersDailyStats?: Array<{ date: string; readers: number }>;
+  previousUniqueReadersDailyStats?: Array<{ date: string; readers: number }>;
 }
 
 // Track event
