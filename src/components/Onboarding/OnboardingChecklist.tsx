@@ -3,121 +3,42 @@
 import { CheckCircle2, Circle, Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 
-import { useOnboarding, ONBOARDING_STEPS, type OnboardingStep } from './OnboardingContext';
+import { ONBOARDING_STEPS, useOnboarding } from './OnboardingContext';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
 
-interface StepConfig {
-  key: OnboardingStep;
-  detection: () => boolean;
-}
-
-export const STEP_DETECTORS: StepConfig[] = [
-  {
-    key: 'profile',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasSetProfile = localStorage.getItem('mangaaura-profile-set') === 'true';
-      return hasSetProfile;
-    },
-  },
-  {
-    key: 'explore',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasExplored = localStorage.getItem('mangaaura-has-explored') === 'true';
-      return hasExplored;
-    },
-  },
-  {
-    key: 'read',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasRead = localStorage.getItem('mangaaura-has-read') === 'true';
-      return hasRead;
-    },
-  },
-  {
-    key: 'achievement',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasAchievement = localStorage.getItem('mangaaura-has-achievement') === 'true';
-      return hasAchievement;
-    },
-  },
-  {
-    key: 'community',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasJoinedCommunity = localStorage.getItem('mangaaura-joined-community') === 'true';
-      return hasJoinedCommunity;
-    },
-  },
-  {
-    key: 'referral',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasReferred = localStorage.getItem('mangaaura-has-referred') === 'true';
-      return hasReferred;
-    },
-  },
-  {
-    key: 'collection',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      const hasCollection = localStorage.getItem('mangaaura-has-collection') === 'true';
-      return hasCollection;
-    },
-  },
-  {
-    key: 'profile-complete',
-    detection: () => {
-      if (typeof window === 'undefined') return false;
-      // User has fully completed their profile with display name, avatar, bio
-      const hasCompleteProfile = localStorage.getItem('mangaaura-profile-complete') === 'true';
-      return hasCompleteProfile;
-    },
-  },
-];
-
 interface OnboardingChecklistProps {
-  /** When true, auto-detect completed steps from localStorage markers */
+  /** Auto-detect completed steps from localStorage markers */
   autoDetect?: boolean;
-  /** If provided, these steps override auto-detection */
-  initialCompleted?: OnboardingStep[];
 }
 
-export function OnboardingChecklist({
-  autoDetect = true,
-  initialCompleted,
-}: OnboardingChecklistProps) {
+export function OnboardingChecklist({ autoDetect = true }: OnboardingChecklistProps) {
   const t = useT();
-  const { completedSteps, completeStep, openTour, progress, allCompleted } =
-    useOnboarding();
+  const {
+    completedMarkers,
+    allCompleted,
+    progress,
+    completeStep,
+    restartTour,
+  } = useOnboarding();
 
-  // Auto-detect completed steps
+  // Auto-detect markers set by other components
   useEffect(() => {
     if (!autoDetect) return;
-
-    // Mark from initialCompleted if provided
-    if (initialCompleted) {
-      for (const step of initialCompleted) {
-        if (!completedSteps.has(step)) {
-          completeStep(step);
-        }
+    for (const step of ONBOARDING_STEPS) {
+      if (!completedMarkers.has(step.marker)) {
+        try {
+          const val = localStorage.getItem(`mangaaura-${step.marker}`);
+          if (val === 'true') {
+            completeStep(step.marker);
+          }
+        } catch { /* noop */ }
       }
     }
+  }, [autoDetect, completedMarkers, completeStep]);
 
-    // Auto-detect from localStorage markers
-    for (const detector of STEP_DETECTORS) {
-      if (!completedSteps.has(detector.key) && detector.detection()) {
-        completeStep(detector.key);
-      }
-    }
-  }, [autoDetect, initialCompleted, completedSteps, completeStep]);
-
-  // If all completed, don't show the checklist
   if (allCompleted) return null;
 
   return (
@@ -142,23 +63,18 @@ export function OnboardingChecklist({
               />
             </div>
             <span className="text-xs font-medium text-[var(--text-secondary)] whitespace-nowrap">
-              {t('onboarding.progress', {
-                completed: progress.completed,
-                total: progress.total,
-              })}
+              {progress.completed}/{progress.total}
             </span>
           </div>
 
           {/* Steps */}
           {ONBOARDING_STEPS.map((step) => {
-            const isDone = completedSteps.has(step);
+            const isDone = completedMarkers.has(step.marker);
             return (
               <div
-                key={step}
+                key={step.marker}
                 className={`flex items-center gap-3 p-2.5 rounded-lg transition-all ${
-                  isDone
-                    ? 'opacity-60'
-                    : 'hover:bg-[var(--surface)]/50'
+                  isDone ? 'opacity-60' : 'hover:bg-[var(--surface)]/50'
                 }`}
               >
                 {isDone ? (
@@ -174,24 +90,28 @@ export function OnboardingChecklist({
                         : 'text-[var(--text-primary)]'
                     }`}
                   >
-                    {t(`onboarding.step${ONBOARDING_STEPS.indexOf(step) + 1}`)}
+                    {t(step.i18nKey)}
                   </p>
                   <p className="text-xs text-[var(--text-muted)] truncate">
-                    {t(`onboarding.step${ONBOARDING_STEPS.indexOf(step) + 1}Desc`)}
+                    {t(step.i18nKey + 'Desc')}
                   </p>
                 </div>
               </div>
             );
           })}
 
-          {/* Continue tour button */}
-          <button
-            onClick={openTour}
-            className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 text-[var(--primary)] text-sm font-medium transition-colors"
-          >
-            <Sparkles className="w-4 h-4" />
-            {t('onboarding.continueTour')}
-          </button>
+          {/* Resume tour button */}
+          {!allCompleted && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full mt-2"
+              onClick={restartTour}
+            >
+              <Sparkles className="w-4 h-4 mr-1" />
+              Continue tour
+            </Button>
+          )}
         </CardContent>
       </Card>
     </AnimatedContainer>

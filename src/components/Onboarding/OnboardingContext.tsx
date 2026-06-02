@@ -3,55 +3,113 @@
 import { useSession } from 'next-auth/react';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-/** The 8 onboarding steps */
-export const ONBOARDING_STEPS = ['profile', 'explore', 'read', 'achievement', 'community', 'referral', 'collection', 'profile-complete'] as const;
-export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
+// ── Step Definitions ──────────────────────────────────────────────
+export interface TourStep {
+  /** CSS selector for the element to highlight */
+  targetSelector: string;
+  /** Where to place the tooltip relative to the target */
+  position: 'top' | 'bottom' | 'left' | 'right';
+  /** Icon identifier */
+  icon: string;
+  /** i18n key for checklist (short label + desc) */
+  i18nKey: string;
+  /** i18n key prefix for tour tooltip (appended Title/Desc) */
+  tourKey: string;
+  /** Marker to set in localStorage when this step is completed */
+  marker: string;
+}
+
+export const ONBOARDING_STEPS: TourStep[] = [
+  {
+    targetSelector: '[data-onboarding="profile"]',
+    position: 'bottom',
+    icon: '👤',
+    i18nKey: 'onboarding.step1',
+    tourKey: 'onboarding.tourStep1',
+    marker: 'has-setup-profile',
+  },
+  {
+    targetSelector: '[data-onboarding="genres"]',
+    position: 'bottom',
+    icon: '🏷️',
+    i18nKey: 'onboarding.step2',
+    tourKey: 'onboarding.tourStep2',
+    marker: 'has-explored',
+  },
+  {
+    targetSelector: '[data-onboarding="top-manga"]',
+    position: 'top',
+    icon: '🏆',
+    i18nKey: 'onboarding.step3',
+    tourKey: 'onboarding.tourStep3',
+    marker: 'has-clicked-manga',
+  },
+  {
+    targetSelector: '[data-onboarding="updates"]',
+    position: 'top',
+    icon: '🆕',
+    i18nKey: 'onboarding.step4',
+    tourKey: 'onboarding.tourStep4',
+    marker: 'has-read-chapter',
+  },
+  {
+    targetSelector: '[data-onboarding="search"]',
+    position: 'bottom',
+    icon: '🔍',
+    i18nKey: 'onboarding.step5',
+    tourKey: 'onboarding.tourStep5',
+    marker: 'has-explored',
+  },
+  {
+    targetSelector: '[data-onboarding="achievements"]',
+    position: 'left',
+    icon: '⭐',
+    i18nKey: 'onboarding.step6',
+    tourKey: 'onboarding.tourStep6',
+    marker: 'has-achievement',
+  },
+];
+
 export const TOTAL_STEPS = ONBOARDING_STEPS.length;
 
+export type OnboardingStepKey = (typeof ONBOARDING_STEPS)[number]['marker'];
+
+// ── State ─────────────────────────────────────────────────────────
 interface OnboardingState {
-  /** Which steps the user has completed */
-  completedSteps: Set<OnboardingStep>;
-  /** Whether the onboarding tour modal is open */
+  /** Whether the tour is currently visible */
   tourOpen: boolean;
-  /** Current step index in the tour */
-  currentTourStep: number;
-  /** Whether all onboarding steps are done */
+  /** Current step index */
+  currentStep: number;
+  /** Steps completed so far (by marker) */
+  completedMarkers: Set<string>;
+  /** Whether all steps are done */
   allCompleted: boolean;
+  /** Whether the intro animation is playing */
+  showIntro: boolean;
 }
 
 interface OnboardingContextValue extends OnboardingState {
-  /** Mark a step as completed */
-  completeStep: (step: OnboardingStep) => void;
-  /** Open the onboarding tour modal */
-  openTour: () => void;
-  /** Close the onboarding tour modal */
-  closeTour: () => void;
-  /** Go to next tour step */
-  nextTourStep: () => void;
-  /** Go to previous tour step */
-  prevTourStep: () => void;
-  /** Reset onboarding (e.g. for testing) */
-  resetOnboarding: () => void;
-  /** Check if a specific step is completed */
-  isStepCompleted: (step: OnboardingStep) => boolean;
-  /** Get progress info */
+  /** Advance to the next step */
+  nextStep: () => void;
+  /** Go to previous step */
+  prevStep: () => void;
+  /** Mark a step as completed and optionally advance */
+  completeStep: (marker: string) => void;
+  /** Skip the entire tour */
+  skipTour: () => void;
+  /** Restart the tour from the beginning */
+  restartTour: () => void;
+  /** Check if a marker is completed */
+  isCompleted: (marker: string) => boolean;
+  /** Get current progress */
   progress: { completed: number; total: number };
+  /** Dismiss intro */
+  dismissIntro: () => void;
 }
 
 const STORAGE_KEY = 'mangaaura-onboarding';
 
-/** Set a localStorage marker for onboarding step detection.
- *  Call from any component when the user performs the corresponding action. */
-export function setOnboardingMarker(key: string): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(`mangaaura-${key}`, 'true');
-  } catch {
-    // localStorage not available
-  }
-}
-
-function loadState(): string[] {
+function loadCompletedMarkers(): string[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -64,12 +122,28 @@ function loadState(): string[] {
   }
 }
 
-function saveState(completedIds: string[]) {
+function saveCompletedMarkers(markers: string[]) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(completedIds));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(markers));
   } catch {
-    // localStorage not available
+    // noop
+  }
+}
+
+/** Set a one-shot marker. Call from other components when user does something. */
+export function setOnboardingMarker(key: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    // Set a dedicated localStorage key for detection
+    localStorage.setItem(`mangaaura-${key}`, 'true');
+    // Also save to the onboarding markers list
+    const current = loadCompletedMarkers();
+    if (!current.includes(key)) {
+      saveCompletedMarkers([...current, key]);
+    }
+  } catch {
+    // noop
   }
 }
 
@@ -78,109 +152,161 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
-  const [completedIds, setCompletedIds] = useState<string[]>(() => loadState());
+
+  const [completedMarkers, setCompletedMarkers] = useState<string[]>(() => loadCompletedMarkers());
   const [tourOpen, setTourOpen] = useState(false);
-  const [currentTourStep, setCurrentTourStep] = useState(0);
-  const [hasShownTour, setHasShownTour] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [hasShown, setHasShown] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
 
-  // Show tour for new users after login, but only once
+  const completedSet = useMemo(() => new Set(completedMarkers), [completedMarkers]);
+
+  const allCompleted = ONBOARDING_STEPS.every((s) => completedSet.has(s.marker));
+
+  // ── Auto-show tour for new users ──────────────────────────────
   useEffect(() => {
-    if (!isLoggedIn || hasShownTour) return;
-    const saved = loadState();
-    if (saved.length < TOTAL_STEPS && !saved.includes('tour_shown')) {
-      // Small delay to let the page render first
+    if (!isLoggedIn || hasShown || allCompleted) return;
+    const saved = loadCompletedMarkers();
+    // Only show if no steps have been completed yet and never shown before
+    if (saved.length === 0 && !saved.includes('tour_shown')) {
       const timer = setTimeout(() => {
+        setShowIntro(true);
         setTourOpen(true);
-        setHasShownTour(true);
-        // Mark tour as shown so it doesn't reappear on every reload
-        const current = loadState();
-        saveState([...current, 'tour_shown']);
-      }, 800);
+        setHasShown(true);
+        saveCompletedMarkers(['tour_shown']);
+      }, 1200);
       return () => clearTimeout(timer);
+    } else if (saved.length < ONBOARDING_STEPS.length && !saved.includes('tour_shown')) {
+      // User has some progress but never saw the tour — show it
+      const timer = setTimeout(() => {
+        setShowIntro(true);
+        setTourOpen(true);
+        setHasShown(true);
+        // Find the first uncompleted step
+        const firstIncomplete = ONBOARDING_STEPS.findIndex((s) => !saved.includes(s.marker));
+        setCurrentStep(firstIncomplete >= 0 ? firstIncomplete : 0);
+        saveCompletedMarkers([...saved, 'tour_shown']);
+      }, 1200);
+      return () => clearTimeout(timer);
+    } else {
+      setHasShown(true);
     }
-  }, [isLoggedIn, hasShownTour]);
+  }, [isLoggedIn, hasShown, allCompleted]);
 
-  const completedSteps = useMemo(() => {
-    const set = new Set<OnboardingStep>();
-    for (const id of completedIds) {
-      if (ONBOARDING_STEPS.includes(id as OnboardingStep)) {
-        set.add(id as OnboardingStep);
+  // ── Auto-detect markers set by other components ───────────────
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    let changed = false;
+    const updated = [...completedMarkers];
+    for (const step of ONBOARDING_STEPS) {
+      if (!updated.includes(step.marker)) {
+        try {
+          const markerVal = localStorage.getItem(`mangaaura-${step.marker}`);
+          if (markerVal === 'true') {
+            updated.push(step.marker);
+            changed = true;
+          }
+        } catch { /* noop */ }
       }
     }
-    return set;
-  }, [completedIds]);
+    if (changed) {
+      setCompletedMarkers(updated);
+      saveCompletedMarkers(updated);
+    }
+  }, [isLoggedIn, completedMarkers]);
 
-  const allCompleted = completedSteps.size >= TOTAL_STEPS;
-
-  const completeStep = useCallback((step: OnboardingStep) => {
-    setCompletedIds((prev) => {
-      if (prev.includes(step)) return prev;
-      const next = [...prev, step];
-      saveState(next);
+  // ── Actions ───────────────────────────────────────────────────
+  const nextStep = useCallback(() => {
+    setCurrentStep((prev) => {
+      const next = Math.min(prev + 1, TOTAL_STEPS - 1);
+      // Mark current step as completed
+      const marker = ONBOARDING_STEPS[prev]?.marker;
+      if (marker) {
+        setCompletedMarkers((prevMarkers) => {
+          if (prevMarkers.includes(marker)) return prevMarkers;
+          const updated = [...prevMarkers, marker];
+          saveCompletedMarkers(updated);
+          return updated;
+        });
+      }
       return next;
     });
   }, []);
 
-  const openTour = useCallback(() => {
-    setTourOpen(true);
-    setCurrentTourStep(0);
+  const prevStep = useCallback(() => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
   }, []);
 
-  const closeTour = useCallback(() => {
+  const completeStep = useCallback((marker: string) => {
+    setCompletedMarkers((prev) => {
+      if (prev.includes(marker)) return prev;
+      const updated = [...prev, marker];
+      saveCompletedMarkers(updated);
+      return updated;
+    });
+  }, []);
+
+  const skipTour = useCallback(() => {
     setTourOpen(false);
+    setShowIntro(false);
+    // Mark all as completed so it doesn't reappear
+    const all = ONBOARDING_STEPS.map((s) => s.marker);
+    const merged = [...new Set([...completedMarkers, ...all])];
+    if (!merged.includes('tour_shown')) merged.push('tour_shown');
+    setCompletedMarkers(merged);
+    saveCompletedMarkers(merged);
+  }, [completedMarkers]);
+
+  const restartTour = useCallback(() => {
+    setCurrentStep(0);
+    setTourOpen(true);
+    setShowIntro(true);
   }, []);
 
-  const nextTourStep = useCallback(() => {
-    setCurrentTourStep((prev) => Math.min(prev + 1, TOTAL_STEPS - 1));
+  const dismissIntro = useCallback(() => {
+    setShowIntro(false);
   }, []);
-
-  const prevTourStep = useCallback(() => {
-    setCurrentTourStep((prev) => Math.max(prev - 1, 0));
-  }, []);
-
-  const resetOnboarding = useCallback(() => {
-    setCompletedIds([]);
-    saveState([]);
-  }, []);
-
-  const isStepCompleted = useCallback(
-    (step: OnboardingStep) => completedSteps.has(step),
-    [completedSteps]
-  );
 
   const progress = useMemo(
-    () => ({ completed: completedSteps.size, total: TOTAL_STEPS }),
-    [completedSteps.size]
+    () => ({ completed: completedSet.size, total: TOTAL_STEPS }),
+    [completedSet.size]
+  );
+
+  const isCompleted = useCallback(
+    (marker: string) => completedSet.has(marker),
+    [completedSet]
   );
 
   const value = useMemo(
     () => ({
-      completedSteps,
       tourOpen,
-      currentTourStep,
+      currentStep,
+      completedMarkers: completedSet,
       allCompleted,
+      showIntro,
+      nextStep,
+      prevStep,
       completeStep,
-      openTour,
-      closeTour,
-      nextTourStep,
-      prevTourStep,
-      resetOnboarding,
-      isStepCompleted,
+      skipTour,
+      restartTour,
+      isCompleted,
       progress,
+      dismissIntro,
     }),
     [
-      completedSteps,
       tourOpen,
-      currentTourStep,
+      currentStep,
+      completedSet,
       allCompleted,
+      showIntro,
+      nextStep,
+      prevStep,
       completeStep,
-      openTour,
-      closeTour,
-      nextTourStep,
-      prevTourStep,
-      resetOnboarding,
-      isStepCompleted,
+      skipTour,
+      restartTour,
+      isCompleted,
       progress,
+      dismissIntro,
     ]
   );
 
