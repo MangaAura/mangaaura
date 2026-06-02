@@ -1,11 +1,11 @@
 'use client';
 
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Sparkles, Users, BookOpen, Heart, Zap, Shield, Star, Globe, ChevronRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useRef } from 'react';
 
 import { Container } from '@/components/Layout/Container';
+import { PageHeader } from '@/components/Layout/PageHeader';
 import { useT } from '@/i18n';
 
 const fadeInUp = {
@@ -20,100 +20,6 @@ const staggerContainer = {
     transition: { staggerChildren: 0.12, delayChildren: 0.1 },
   },
 };
-
-function HeroSection() {
-  const t = useT();
-  const isReduced = useReducedMotion() ?? false;
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  return (
-    <section ref={ref} className="relative min-h-[80vh] flex items-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface-sunken)] via-[var(--background)] to-[var(--background)]" />
-
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-20 left-[10%] w-72 h-72 bg-[var(--primary)] rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute top-40 right-[15%] w-96 h-96 bg-[var(--accent-purple)] rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-20 left-[30%] w-80 h-80 bg-[var(--accent-blue)] rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
-
-      <motion.div
-        style={isReduced ? undefined : { y, opacity }}
-        className="relative z-10 w-full"
-      >
-        <Container>
-          <motion.div
-            variants={isReduced ? undefined : staggerContainer}
-            initial={isReduced ? undefined : 'hidden'}
-            animate={isReduced ? undefined : 'visible'}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <motion.div variants={fadeInUp} className="mb-6">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-full text-sm font-medium text-[var(--primary)]">
-                <Star className="w-4 h-4" />
-                {t('about.badge')}
-              </span>
-            </motion.div>
-
-            <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-[var(--text-primary)] via-[var(--primary)] to-[var(--accent-purple)] bg-clip-text text-transparent">
-                {t('about.hero.title')}
-              </span>
-              <br />
-              <span className="text-[var(--text-primary)]">
-                {t('about.hero.subtitle')}
-              </span>
-            </motion.h1>
-
-            <motion.p variants={fadeInUp} className="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
-              {t('about.hero.description')}
-            </motion.p>
-
-            <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="#story"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-[var(--text-inverse)] font-bold rounded-xl hover:opacity-90 transition-all hover:scale-105"
-              >
-                {t('about.hero.cta')}
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="#team"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] font-bold rounded-xl hover:bg-[var(--surface-elevated)] transition-all"
-              >
-                <Users className="w-5 h-5" />
-                {t('about.hero.ctaTeam')}
-              </Link>
-            </motion.div>
-
-            <motion.div variants={fadeInUp} className="mt-16 flex items-center justify-center">
-              <div className="flex items-center justify-center gap-8 bg-[var(--surface-elevated)]/80 rounded-xl px-8 py-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-[var(--text-primary)]">{t('about.stats.readersValue')}</div>
-                  <div className="text-sm text-[var(--text-secondary)]">{t('about.stats.readers')}</div>
-                </div>
-                <div className="w-px h-12 bg-[var(--border)]" />
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-[var(--text-primary)]">{t('about.stats.creatorsValue')}</div>
-                  <div className="text-sm text-[var(--text-secondary)]">{t('about.stats.creators')}</div>
-                </div>
-                <div className="w-px h-12 bg-[var(--border)]" />
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-[var(--text-primary)]">{t('about.stats.mangaValue')}</div>
-                  <div className="text-sm text-[var(--text-secondary)]">{t('about.stats.manga')}</div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </Container>
-      </motion.div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent pointer-events-none" />
-    </section>
-  );
-}
 
 function StorySection() {
   const t = useT();
@@ -371,9 +277,22 @@ function CTASection() {
 }
 
 export default function AboutClient() {
+  const t = useT();
+
   return (
-    <div className="min-h-screen">
-      <HeroSection />
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--accent-purple)]/10 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--primary)]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent-purple)]/10 rounded-full blur-3xl pointer-events-none" />
+
+      <Container className="relative z-10 py-12">
+        <PageHeader
+          title={t('about.hero.title') + ' ' + t('about.hero.subtitle')}
+          description={t('about.hero.description')}
+          icon={<Star className="w-8 h-8" />}
+        />
+      </Container>
+
       <StorySection />
       <TeamValuesSection />
       <CTASection />

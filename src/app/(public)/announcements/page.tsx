@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import { AnnouncementsList } from './AnnouncementsList';
 import { Container } from '@/components/Layout/Container';
+import { PageHeader } from '@/components/Layout/PageHeader';
 import {
   BreadcrumbStructuredData,
   WebPageStructuredData,
@@ -74,34 +75,18 @@ export default async function AnnouncementsPage() {
         ]}
       />
 
-      <div className="min-h-screen">
-        {/* Hero */}
-        <section className="relative min-h-[50vh] flex items-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface-sunken)] via-[var(--background)] to-[var(--background)]" />
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-[var(--primary)]/5 blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-[var(--accent-purple)]/5 blur-3xl" />
-          </div>
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--accent-purple)]/10 pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--primary)]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent-purple)]/10 rounded-full blur-3xl pointer-events-none" />
 
-          <Container className="relative z-10 py-16">
-            <div className="max-w-3xl mx-auto text-center">
-              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent-purple)]/20 text-[var(--primary)] border border-[var(--primary)]/20 mb-5">
-                <Megaphone className="w-3.5 h-3.5" />
-                {t('page.announcements.badge')}
-              </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-                <span className="bg-gradient-to-r from-[var(--text-primary)] via-[var(--primary)] to-[var(--accent-purple)] bg-clip-text text-transparent">
-                  {t('page.announcements.heroTitle')}
-                </span>
-              </h1>
-              <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
-                {t('page.announcements.heroSubtitle')}
-              </p>
-            </div>
-          </Container>
-
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent pointer-events-none" />
-        </section>
+        <Container className="relative z-10 py-12">
+          <PageHeader
+            title={t('page.announcements.heroTitle')}
+            description={t('page.announcements.heroSubtitle')}
+            icon={<Megaphone className="w-8 h-8" />}
+          />
+        </Container>
 
         {/* Announcements List */}
         <section className="relative pb-20">
