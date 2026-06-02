@@ -97,8 +97,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         saveState([...current, 'tour_shown']);
       }, 800);
       return () => clearTimeout(timer);
-    } else {
-      setHasShownTour(true);
     }
   }, [isLoggedIn, hasShownTour]);
 

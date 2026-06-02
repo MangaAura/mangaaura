@@ -55,38 +55,6 @@ export function OnboardingTour() {
   } = useOnboarding();
   const [direction, setDirection] = useState(0); // -1 = prev, 1 = next
   const [isClosing, setIsClosing] = useState(false);
-
-  // Keyboard navigation
-  useEffect(() => {
-    if (!tourOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isClosing) {
-        handleClose();
-      }
-      if (e.key === 'ArrowRight') handleNext();
-      if (e.key === 'ArrowLeft') handlePrev();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [tourOpen, currentTourStep, isClosing]);
-
-  const handleNext = () => {
-    // If on last step, close tour
-    if (currentTourStep >= TOTAL_STEPS - 1) {
-      handleFinish();
-      return;
-    }
-    setDirection(1);
-    // Mark current step as completed
-    completeStep(ONBOARDING_STEPS[currentTourStep]);
-    nextTourStep();
-  };
-
-  const handlePrev = () => {
-    setDirection(-1);
-    prevTourStep();
-  };
-
   const [showCompletion, setShowCompletion] = useState(false);
 
   const handleFinish = () => {
@@ -108,6 +76,37 @@ export function OnboardingTour() {
       setIsClosing(false);
     }, 200);
   };
+
+  const handleNext = () => {
+    // If on last step, close tour
+    if (currentTourStep >= TOTAL_STEPS - 1) {
+      handleFinish();
+      return;
+    }
+    setDirection(1);
+    // Mark current step as completed
+    completeStep(ONBOARDING_STEPS[currentTourStep]);
+    nextTourStep();
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    prevTourStep();
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!tourOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isClosing) {
+        handleClose();
+      }
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrev();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [tourOpen, currentTourStep, isClosing]);
 
   const step = TOUR_STEPS[currentTourStep];
   const stepNum = currentTourStep + 1;
