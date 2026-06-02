@@ -424,59 +424,59 @@
       }
     },
     "team": {
-    "badge": "The Team",
-    "title": "Manga lovers building for manga lovers",
-    "subtitle": "A small but passionate team united by our love for manga and our mission to support creators worldwide.",
-    "member1": {
-      "name": "Kenji Nakamura",
-      "role": "Founder & CEO",
-      "desc": "Ex-editor at Shonen Jump with 15 years experience. Passionate about connecting creators with readers worldwide."
+      "badge": "The Team",
+      "title": "Manga lovers building for manga lovers",
+      "subtitle": "A small but passionate team united by our love for manga and our mission to support creators worldwide.",
+      "member1": {
+        "name": "Kenji Nakamura",
+        "role": "Founder & CEO",
+        "desc": "Ex-editor at Shonen Jump with 15 years experience. Passionate about connecting creators with readers worldwide."
+      },
+      "member2": {
+        "name": "Luna Martinez",
+        "role": "Head of Creator Platform",
+        "desc": "Former indie manga artist turned platform architect. Built tools used by 2000+ creators on the platform."
+      },
+      "member3": {
+        "name": "Alex Chen",
+        "role": "Lead Engineer",
+        "desc": "Open source contributor and manga enthusiast. Makes the reading experience smooth as silk."
+      },
+      "member4": {
+        "name": "Yuki Tanaka",
+        "role": "Community Director",
+        "desc": "Runs the largest manga Discord server (50k+ members). Fluent in community building and creator relations."
+      }
     },
-    "member2": {
-      "name": "Luna Martinez",
-      "role": "Head of Creator Platform",
-      "desc": "Former indie manga artist turned platform architect. Built tools used by 2000+ creators on the platform."
-    },
-    "member3": {
-      "name": "Alex Chen",
-      "role": "Lead Engineer",
-      "desc": "Open source contributor and manga enthusiast. Makes the reading experience smooth as silk."
-    },
-    "member4": {
-      "name": "Yuki Tanaka",
-      "role": "Community Director",
-      "desc": "Runs the largest manga Discord server (50k+ members). Fluent in community building and creator relations."
-    }
-  },
     "values": {
-    "badge": "What We Stand For",
-    "title": "Our Core Values",
-    "subtitle": "Every decision we make is guided by these principles. They are the foundation of MangaAura.",
-    "item1": {
-      "title": "For Creators",
-      "desc": "Powerful tools to publish, monetize, and grow your audience. Keep 80% of your earnings."
+      "badge": "What We Stand For",
+      "title": "Our Core Values",
+      "subtitle": "Every decision we make is guided by these principles. They are the foundation of MangaAura.",
+      "item1": {
+        "title": "For Creators",
+        "desc": "Powerful tools to publish, monetize, and grow your audience. Keep 80% of your earnings."
+      },
+      "item2": {
+        "title": "For Readers",
+        "desc": "Ad-free reading, offline downloads, and a community that celebrates manga culture."
+      },
+      "item3": {
+        "title": "AI Enhanced",
+        "desc": "Smart translations, auto-tagging, and personalized recommendations powered by AI."
+      },
+      "item4": {
+        "title": "Creator First",
+        "desc": "Fair compensation, transparent algorithms, and direct fan support without intermediaries."
+      },
+      "item5": {
+        "title": "Safe Space",
+        "desc": "Zero tolerance for content theft. DMCA protection and robust moderation for everyone."
+      },
+      "item6": {
+        "title": "Global Community",
+        "desc": "Connect with manga fans from 150+ countries. Multilingual support and local events."
+      }
     },
-    "item2": {
-      "title": "For Readers",
-      "desc": "Ad-free reading, offline downloads, and a community that celebrates manga culture."
-    },
-    "item3": {
-      "title": "AI Enhanced",
-      "desc": "Smart translations, auto-tagging, and personalized recommendations powered by AI."
-    },
-    "item4": {
-      "title": "Creator First",
-      "desc": "Fair compensation, transparent algorithms, and direct fan support without intermediaries."
-    },
-    "item5": {
-      "title": "Safe Space",
-      "desc": "Zero tolerance for content theft. DMCA protection and robust moderation for everyone."
-    },
-    "item6": {
-      "title": "Global Community",
-      "desc": "Connect with manga fans from 150+ countries. Multilingual support and local events."
-    }
-  },
     "cta": {
       "title": "Ready to join the Aura?",
       "description": "Whether you are a creator ready to share your story or a reader looking for your next favorite manga, there is a place for you in our community.",
@@ -739,7 +739,13 @@
     "sectionLegal": "Legal",
     "sectionResources": "Resources",
     "faq": "FAQ",
-    "guides": {"badge":"Guide Library","title":"Manga Guides","subtitle":"Learn everything about the world of manga: where to read, which apps to use, how to get started, and discover the best-selling series in history.","ctaText":"Can't find what you're looking for?","ctaLink":"Visit our help center"},
+    "guides": {
+      "badge": "Guide Library",
+      "title": "Manga Guides",
+      "subtitle": "Learn everything about the world of manga: where to read, which apps to use, how to get started, and discover the best-selling series in history.",
+      "ctaText": "Can't find what you're looking for?",
+      "ctaLink": "Visit our help center"
+    },
     "aboutUs": "About Us",
     "announcements": "Announcements",
     "genres": "Genres",
@@ -1238,19 +1244,20 @@
       "collections": "Collections",
       "ratings": "Ratings"
     },
-    "activity": {"readChapter": "Read a chapter",
-                "followUser": "Followed a user",
-                "followManga": "Followed a manga",
-                "comment": "Commented",
-                "achievement": "Unlocked an achievement",
-                "createManga": "Published a manga",
-                "completedManga": "Completed a manga",
-                "ratedManga": "Rated a manga",
-                "joinedClan": "Joined a clan",
-                "levelUp": "Leveled up",
-                "unfollowUser": "Unfollowed",
-                "unfollowManga": "Unfollowed a manga",
-                "shareManga": "Shared a manga"
+    "activity": {
+      "readChapter": "Read a chapter",
+      "followUser": "Followed a user",
+      "followManga": "Followed a manga",
+      "comment": "Commented",
+      "achievement": "Unlocked an achievement",
+      "createManga": "Published a manga",
+      "completedManga": "Completed a manga",
+      "ratedManga": "Rated a manga",
+      "joinedClan": "Joined a clan",
+      "levelUp": "Leveled up",
+      "unfollowUser": "Unfollowed",
+      "unfollowManga": "Unfollowed a manga",
+      "shareManga": "Shared a manga"
     },
     "timeLabels": {
       "today": "Today",
@@ -2865,5 +2872,12 @@
       "step2Desc": "Discover manga across all genres: action, romance, fantasy, horror, and more. Use advanced filters, follow your favorite authors, and get personalized recommendations.",
       "step3Desc": "Read, comment, vote with Aura, crowdfund chapters, earn XP, and unlock achievements. Creators receive Aura as a reward for their work."
     }
+  },
+  "guides": {
+    "badge": "Guides Library",
+    "title": "Everything about the world of manga",
+    "subtitle": "Complete guides to read, buy, and enjoy manga to the fullest. From beginners to collectors.",
+    "ctaText": "Can't find what you're looking for?",
+    "ctaLink": "Visit our help center"
   }
 }

@@ -637,7 +637,13 @@
     "sectionLegal": "Legal",
     "sectionResources": "Recursos",
     "faq": "FAQ",
-    "guides": {"badge":"Biblioteca de guías","title":"Guías de Manga","subtitle":"Aprende todo sobre el mundo del manga: dónde leer, qué apps usar, cómo empezar y descubre las series más vendidas de la historia.","ctaText":"¿No encuentras lo que buscas?","ctaLink":"Visita nuestro centro de ayuda"},
+    "guides": {
+      "badge": "Biblioteca de guías",
+      "title": "Guías de Manga",
+      "subtitle": "Aprende todo sobre el mundo del manga: dónde leer, qué apps usar, cómo empezar y descubre las series más vendidas de la historia.",
+      "ctaText": "¿No encuentras lo que buscas?",
+      "ctaLink": "Visita nuestro centro de ayuda"
+    },
     "aboutUs": "Sobre nosotros",
     "announcements": "Anuncios",
     "genres": "Géneros",
@@ -1139,19 +1145,20 @@
       "collections": "Colecciones",
       "ratings": "Valoraciones"
     },
-    "activity": {"readChapter": "Leyó un capítulo",
-                "followUser": "Siguió a un usuario",
-                "followManga": "Siguió un manga",
-                "comment": "Comentó",
-                "achievement": "Desbloqueó un logro",
-                "createManga": "Publicó un manga",
-                "completedManga": "Completó un manga",
-                "ratedManga": "Puntuó un manga",
-                "joinedClan": "Se unió a un clan",
-                "levelUp": "Subió de nivel",
-                "unfollowUser": "Dejó de seguir",
-                "unfollowManga": "Dejó de seguir un manga",
-                "shareManga": "Compartió un manga"
+    "activity": {
+      "readChapter": "Leyó un capítulo",
+      "followUser": "Siguió a un usuario",
+      "followManga": "Siguió un manga",
+      "comment": "Comentó",
+      "achievement": "Desbloqueó un logro",
+      "createManga": "Publicó un manga",
+      "completedManga": "Completó un manga",
+      "ratedManga": "Puntuó un manga",
+      "joinedClan": "Se unió a un clan",
+      "levelUp": "Subió de nivel",
+      "unfollowUser": "Dejó de seguir",
+      "unfollowManga": "Dejó de seguir un manga",
+      "shareManga": "Compartió un manga"
     },
     "timeLabels": {
       "today": "Hoy",
@@ -2284,7 +2291,10 @@
     "stats": {
       "readers": "Lectores Activos",
       "creators": "Creadores",
-      "manga": "Títulos de Manga"
+      "manga": "Títulos de Manga",
+      "readersValue": "500K+",
+      "creatorsValue": "2,000+",
+      "mangaValue": "50K+"
     },
     "story": {
       "badge": "Nuestra Historia",
@@ -2310,59 +2320,59 @@
       }
     },
     "team": {
-    "badge": "El Equipo",
-    "title": "Amantes del manga construyendo para amantes del manga",
-    "subtitle": "Un equipo pequeño pero apasionado, unido por nuestro amor al manga y nuestra misión de apoyar a creadores en todo el mundo.",
-    "member1": {
-      "name": "Kenji Nakamura",
-      "role": "Fundador & CEO",
-      "desc": "Ex-editor en Shonen Jump con 15 años de experiencia. Apasionado por conectar creadores con lectores en todo el mundo."
+      "badge": "El Equipo",
+      "title": "Amantes del manga construyendo para amantes del manga",
+      "subtitle": "Un equipo pequeño pero apasionado, unido por nuestro amor al manga y nuestra misión de apoyar a creadores en todo el mundo.",
+      "member1": {
+        "name": "Kenji Nakamura",
+        "role": "Fundador & CEO",
+        "desc": "Ex-editor en Shonen Jump con 15 años de experiencia. Apasionado por conectar creadores con lectores en todo el mundo."
+      },
+      "member2": {
+        "name": "Luna Martinez",
+        "role": "Directora de Plataforma de Creadores",
+        "desc": "Ex-artista indie de manga convertida en arquitecta de plataforma. Creó herramientas usadas por más de 2,000 creadores."
+      },
+      "member3": {
+        "name": "Alex Chen",
+        "role": "Ingeniero Principal",
+        "desc": "Contribuidor de open source y entusiasta del manga. Hace que la experiencia de lectura sea fluida."
+      },
+      "member4": {
+        "name": "Yuki Tanaka",
+        "role": "Directora de Comunidad",
+        "desc": "Administra el servidor de Discord de manga más grande (50K+ miembros). Experta en construcción de comunidad."
+      }
     },
-    "member2": {
-      "name": "Luna Martinez",
-      "role": "Directora de Plataforma de Creadores",
-      "desc": "Ex-artista indie de manga convertida en arquitecta de plataforma. Creó herramientas usadas por más de 2,000 creadores."
-    },
-    "member3": {
-      "name": "Alex Chen",
-      "role": "Ingeniero Principal",
-      "desc": "Contribuidor de open source y entusiasta del manga. Hace que la experiencia de lectura sea fluida."
-    },
-    "member4": {
-      "name": "Yuki Tanaka",
-      "role": "Directora de Comunidad",
-      "desc": "Administra el servidor de Discord de manga más grande (50K+ miembros). Experta en construcción de comunidad."
-    }
-  },
     "values": {
-    "badge": "Lo que Defendemos",
-    "title": "Nuestros Valores Fundamentales",
-    "subtitle": "Cada decisión que tomamos está guiada por estos principios. Son la base de MangaAura.",
-    "item1": {
-      "title": "Para Creadores",
-      "desc": "Herramientas potentes para publicar, monetizar y hacer crecer tu audiencia. Conserva el 80% de tus ganancias."
+      "badge": "Lo que Defendemos",
+      "title": "Nuestros Valores Fundamentales",
+      "subtitle": "Cada decisión que tomamos está guiada por estos principios. Son la base de MangaAura.",
+      "item1": {
+        "title": "Para Creadores",
+        "desc": "Herramientas potentes para publicar, monetizar y hacer crecer tu audiencia. Conserva el 80% de tus ganancias."
+      },
+      "item2": {
+        "title": "Para Lectores",
+        "desc": "Lectura sin anuncios, descargas offline y una comunidad que celebra la cultura del manga."
+      },
+      "item3": {
+        "title": "Potenciado por IA",
+        "desc": "Traducciones inteligentes, etiquetado automático y recomendaciones personalizadas impulsadas por IA."
+      },
+      "item4": {
+        "title": "Creadores Primero",
+        "desc": "Compensación justa, algoritmos transparentes y apoyo directo de los fans sin intermediarios."
+      },
+      "item5": {
+        "title": "Espacio Seguro",
+        "desc": "Tolerancia cero al robo de contenido. Protección DMCA y moderación robusta para todos."
+      },
+      "item6": {
+        "title": "Comunidad Global",
+        "desc": "Conecta con fans del manga de más de 150 países. Soporte multilingüe y eventos locales."
+      }
     },
-    "item2": {
-      "title": "Para Lectores",
-      "desc": "Lectura sin anuncios, descargas offline y una comunidad que celebra la cultura del manga."
-    },
-    "item3": {
-      "title": "Potenciado por IA",
-      "desc": "Traducciones inteligentes, etiquetado automático y recomendaciones personalizadas impulsadas por IA."
-    },
-    "item4": {
-      "title": "Creadores Primero",
-      "desc": "Compensación justa, algoritmos transparentes y apoyo directo de los fans sin intermediarios."
-    },
-    "item5": {
-      "title": "Espacio Seguro",
-      "desc": "Tolerancia cero al robo de contenido. Protección DMCA y moderación robusta para todos."
-    },
-    "item6": {
-      "title": "Comunidad Global",
-      "desc": "Conecta con fans del manga de más de 150 países. Soporte multilingüe y eventos locales."
-    }
-  },
     "cta": {
       "title": "¿Listo para unirte al Aura?",
       "description": "Ya seas un creador listo para compartir tu historia o un lector en busca de tu próximo manga favorito, hay un lugar para ti en nuestra comunidad.",
@@ -2865,5 +2875,12 @@
       "step2Desc": "Descubre manga de todos los generos: accion, romance, fantasia, terror y mas. Usa filtros avanzados, sigue a tus autores favoritos y recibe recomendaciones personalizadas.",
       "step3Desc": "Lee, comenta, vota con Aura, crowdfundea capitulos, gana XP y desbloquea logros. Los creadores reciben Aura como recompensa por su trabajo."
     }
+  },
+  "guides": {
+    "badge": "Biblioteca de guías",
+    "title": "Todo sobre el mundo del manga",
+    "subtitle": "Guías completas para leer, comprar y disfrutar del manga al máximo. Desde principiantes hasta coleccionistas.",
+    "ctaText": "¿No encuentras lo que buscas?",
+    "ctaLink": "Visita nuestro centro de ayuda"
   }
 }
