@@ -122,7 +122,7 @@ function PricingCard({
             <Icon className="w-5 h-5 text-[var(--primary)]" />
           </div>
           {pack.discount && (
-            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[var(--secondary)]/20 text-[var(--secondary)]">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
               -{pack.discount}
             </span>
           )}
@@ -203,8 +203,8 @@ function PremiumCard({
             <Icon className="w-6 h-6" />
           </div>
           {plan.savings && (
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[var(--secondary)]/20 text-[var(--secondary)]">
-              {plan.savings}
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              Ahorras {plan.savings}
             </span>
           )}
         </div>
@@ -213,7 +213,7 @@ function PremiumCard({
         <p className="text-sm text-[var(--text-secondary)] mb-4">{t(`pricing.${plan.descKey}`)}</p>
 
         <div className="flex items-baseline gap-1 mb-5">
-          <span className="text-4xl font-bold">${plan.price}</span>
+          <span className="text-3xl font-bold">${plan.price}</span>
           <span className="text-sm text-[var(--text-muted)]">/{t(`pricing.${plan.periodKey}`)}</span>
         </div>
 
@@ -366,7 +366,7 @@ export default function PricingClient() {
                   return <span key={i} className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] bg-clip-text text-transparent">Aura</span>;
                 }
                 if (word === 'Premium') {
-                  return <span key={i} className="bg-gradient-to-r from-[var(--secondary)] to-[var(--accent-blue)] bg-clip-text text-transparent">Premium</span>;
+                  return <span key={i} className="bg-gradient-to-r from-emerald-500 to-emerald-400 bg-clip-text text-transparent">Premium</span>;
                 }
                 return <span key={i}>{word}{i < arr.length - 1 ? ' ' : ''}</span>;
               })}
@@ -390,7 +390,7 @@ export default function PricingClient() {
       <section className="py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeading
-            label="Aura Packs"
+            label={t('pricing.auraSectionLabel')}
             title={t('pricing.auraSectionTitle')}
             subtitle={t('pricing.auraSectionSubtitle')}
           />
@@ -407,7 +407,7 @@ export default function PricingClient() {
       <section className="py-16 md:py-20 bg-[var(--surface-sunken)]/30 border-y border-[var(--border-subtle)]">
         <div className="max-w-4xl mx-auto px-6">
           <SectionHeading
-            label="Premium"
+            label={t('pricing.premiumSectionLabel')}
             title={t('pricing.premiumSectionTitle')}
             subtitle={t('pricing.premiumSectionSubtitle')}
           />

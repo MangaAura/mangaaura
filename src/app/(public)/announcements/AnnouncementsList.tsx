@@ -101,14 +101,13 @@ export function AnnouncementsList({ announcements }: Props) {
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: idx * 0.06, duration: 0.4, ease: 'easeOut' }}
-          >
-            <div
-              className={`
-                relative overflow-hidden rounded-xl border bg-[var(--surface-elevated)] p-5
-                transition-all duration-300 hover:shadow-md hover:-translate-y-0.5
-                ${config.border}
-              `}
-            >
+          >              <div
+                className={`
+                  group relative overflow-hidden rounded-xl border bg-[var(--surface-elevated)] p-5
+                  transition-all duration-300 hover:shadow-md hover:-translate-y-0.5
+                  ${config.border}
+                `}
+              >
               {/* Gradient overlay on hover */}
               <div
                 className={`
