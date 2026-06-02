@@ -32,6 +32,7 @@ function StorySection() {
       <Container>
         <motion.div
           initial={isReduced ? undefined : 'hidden'}
+          animate={isReduced ? undefined : 'visible'}
           whileInView={isReduced ? undefined : 'visible'}
           viewport={{ once: true, margin: '-100px' }}
           variants={isReduced ? undefined : staggerContainer}
@@ -114,6 +115,7 @@ function TeamValuesSection() {
         <Container>
           <motion.div
             initial={isReduced ? undefined : 'hidden'}
+            animate={isReduced ? undefined : 'visible'}
             whileInView={isReduced ? undefined : 'visible'}
             viewport={{ once: true, margin: '-100px' }}
             variants={isReduced ? undefined : staggerContainer}
@@ -135,6 +137,7 @@ function TeamValuesSection() {
 
           <motion.div
             initial={isReduced ? undefined : 'hidden'}
+            animate={isReduced ? undefined : 'visible'}
             whileInView={isReduced ? undefined : 'visible'}
             viewport={{ once: true }}
             variants={isReduced ? undefined : staggerContainer}
@@ -171,6 +174,7 @@ function TeamValuesSection() {
         <Container className="relative z-10">
           <motion.div
             initial={isReduced ? undefined : 'hidden'}
+            animate={isReduced ? undefined : 'visible'}
             whileInView={isReduced ? undefined : 'visible'}
             viewport={{ once: true, margin: '-100px' }}
             variants={isReduced ? undefined : staggerContainer}
@@ -192,6 +196,7 @@ function TeamValuesSection() {
 
           <motion.div
             initial={isReduced ? undefined : 'hidden'}
+            animate={isReduced ? undefined : 'visible'}
             whileInView={isReduced ? undefined : 'visible'}
             viewport={{ once: true }}
             variants={isReduced ? undefined : staggerContainer}
@@ -233,6 +238,7 @@ function CTASection() {
       <Container>
         <motion.div
           initial={isReduced ? undefined : 'hidden'}
+          animate={isReduced ? undefined : 'visible'}
           whileInView={isReduced ? undefined : 'visible'}
           viewport={{ once: true }}
           variants={isReduced ? undefined : staggerContainer}
