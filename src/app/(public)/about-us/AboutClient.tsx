@@ -1,6 +1,5 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
 import { Sparkles, Users, BookOpen, Heart, Zap, Shield, Star, Globe, ChevronRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,37 +7,16 @@ import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { useT } from '@/i18n';
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
-  },
-};
-
 function StorySection() {
   const t = useT();
-  const isReduced = useReducedMotion() ?? false;
 
   return (
     <section id="story" className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--surface)]" />
 
       <Container>
-        <motion.div
-          initial={isReduced ? undefined : 'hidden'}
-          animate={isReduced ? undefined : 'visible'}
-          whileInView={isReduced ? undefined : 'visible'}
-          viewport={{ once: true, margin: '-100px' }}
-          variants={isReduced ? undefined : staggerContainer}
-          className="grid lg:grid-cols-2 gap-16 items-center"
-        >
-          <motion.div variants={fadeInUp}>
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div>
             <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
               <BookOpen className="w-4 h-4" />
               {t('about.story.badge')}
@@ -51,9 +29,9 @@ function StorySection() {
               <p>{t('about.story.p2')}</p>
               <p>{t('about.story.p3')}</p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={fadeInUp} className="relative">
+          <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 rounded-3xl blur-3xl" />
             <div className="relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-3xl p-8">
               <div className="grid grid-cols-2 gap-4">
@@ -79,8 +57,8 @@ function StorySection() {
                 </div>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </Container>
     </section>
   );
@@ -88,7 +66,6 @@ function StorySection() {
 
 function TeamValuesSection() {
   const t = useT();
-  const isReduced = useReducedMotion() ?? false;
 
   const teamMembers = [
     { name: t('about.team.member1.name'), role: t('about.team.member1.role'), description: t('about.team.member1.desc'), avatar: 'KN', accent: 'from-violet-500 to-purple-600' },
@@ -113,40 +90,23 @@ function TeamValuesSection() {
         <div className="absolute inset-0 bg-[var(--background)]" />
 
         <Container>
-          <motion.div
-            initial={isReduced ? undefined : 'hidden'}
-            animate={isReduced ? undefined : 'visible'}
-            whileInView={isReduced ? undefined : 'visible'}
-            viewport={{ once: true, margin: '-100px' }}
-            variants={isReduced ? undefined : staggerContainer}
-            className="text-center mb-16"
-          >
-            <motion.div variants={fadeInUp}>
-              <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
-                <Users className="w-4 h-4" />
-                {t('about.team.badge')}
-              </span>
-              <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-                {t('about.team.title')}
-              </h2>
-              <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-                {t('about.team.subtitle')}
-              </p>
-            </motion.div>
-          </motion.div>
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
+              <Users className="w-4 h-4" />
+              {t('about.team.badge')}
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
+              {t('about.team.title')}
+            </h2>
+            <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
+              {t('about.team.subtitle')}
+            </p>
+          </div>
 
-          <motion.div
-            initial={isReduced ? undefined : 'hidden'}
-            animate={isReduced ? undefined : 'visible'}
-            whileInView={isReduced ? undefined : 'visible'}
-            viewport={{ once: true }}
-            variants={isReduced ? undefined : staggerContainer}
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {teamMembers.map((member) => (
-              <motion.div
+              <div
                 key={member.name}
-                variants={fadeInUp}
                 className="group relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 hover:border-[var(--primary)]/30 transition-all duration-300 hover:-translate-y-1"
               >
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${member.accent} mb-4 flex items-center justify-center text-xl font-bold text-white`}>
@@ -156,9 +116,9 @@ function TeamValuesSection() {
                 <div className="text-sm text-[var(--primary)] mb-3">{member.role}</div>
                 <p className="text-sm text-[var(--text-muted)] leading-relaxed">{member.description}</p>
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--primary)]/5 to-[var(--accent-purple)]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </Container>
       </section>
 
@@ -172,40 +132,23 @@ function TeamValuesSection() {
         </div>
 
         <Container className="relative z-10">
-          <motion.div
-            initial={isReduced ? undefined : 'hidden'}
-            animate={isReduced ? undefined : 'visible'}
-            whileInView={isReduced ? undefined : 'visible'}
-            viewport={{ once: true, margin: '-100px' }}
-            variants={isReduced ? undefined : staggerContainer}
-            className="text-center mb-16"
-          >
-            <motion.div variants={fadeInUp}>
-              <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
-                <Star className="w-4 h-4" />
-                {t('about.values.badge')}
-              </span>
-              <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-                {t('about.values.title')}
-              </h2>
-              <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-                {t('about.values.subtitle')}
-              </p>
-            </motion.div>
-          </motion.div>
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
+              <Star className="w-4 h-4" />
+              {t('about.values.badge')}
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-[var(--text-primary)]">
+              {t('about.values.title')}
+            </h2>
+            <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
+              {t('about.values.subtitle')}
+            </p>
+          </div>
 
-          <motion.div
-            initial={isReduced ? undefined : 'hidden'}
-            animate={isReduced ? undefined : 'visible'}
-            whileInView={isReduced ? undefined : 'visible'}
-            viewport={{ once: true }}
-            variants={isReduced ? undefined : staggerContainer}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {values.map((value) => (
-              <motion.div
+              <div
                 key={value.title}
-                variants={fadeInUp}
                 className="group relative bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${value.iconClass}`}>
@@ -213,9 +156,9 @@ function TeamValuesSection() {
                 </div>
                 <h3 className="font-bold text-lg text-[var(--text-primary)] mb-2">{value.title}</h3>
                 <p className="text-sm text-[var(--text-muted)] leading-relaxed">{value.description}</p>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </Container>
       </section>
     </>
@@ -224,7 +167,6 @@ function TeamValuesSection() {
 
 function CTASection() {
   const t = useT();
-  const isReduced = useReducedMotion() ?? false;
 
   return (
     <section className="relative py-24 overflow-hidden">
@@ -236,15 +178,8 @@ function CTASection() {
       </div>
 
       <Container>
-        <motion.div
-          initial={isReduced ? undefined : 'hidden'}
-          animate={isReduced ? undefined : 'visible'}
-          whileInView={isReduced ? undefined : 'visible'}
-          viewport={{ once: true }}
-          variants={isReduced ? undefined : staggerContainer}
-          className="relative max-w-3xl mx-auto text-center"
-        >
-          <motion.div variants={fadeInUp} className="mb-8">
+        <div className="relative max-w-3xl mx-auto text-center">
+          <div className="mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] mb-6">
               <MessageCircle className="w-10 h-10 text-white" />
             </div>
@@ -254,9 +189,9 @@ function CTASection() {
             <p className="text-lg text-[var(--text-secondary)] mb-8">
               {t('about.cta.description')}
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/auth/register"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-[var(--text-inverse)] font-bold rounded-xl hover:opacity-90 transition-all hover:scale-105"
@@ -271,12 +206,12 @@ function CTASection() {
               <BookOpen className="w-5 h-5" />
               {t('about.cta.explore')}
             </Link>
-          </motion.div>
+          </div>
 
-          <motion.p variants={fadeInUp} className="mt-8 text-sm text-[var(--text-muted)]">
+          <p className="mt-8 text-sm text-[var(--text-muted)]">
             {t('about.cta.note')}
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </Container>
     </section>
   );
