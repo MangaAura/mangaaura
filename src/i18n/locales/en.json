@@ -330,7 +330,26 @@
       "checkSpam": "Didn't receive the email? Check your spam folder or click below to resend.",
       "alreadyVerified": "Your email is already verified",
       "resendLoading": "Sending...",
-      "notVerified": "Not verified"
+      "notVerified": "Not verified",
+      "verifying": "Verifying your email...",
+      "pleaseWait": "Please wait while we verify your link.",
+      "successTitle": "Email verified successfully!",
+      "successMessage": "Your account has been verified. You will be redirected to the home page.",
+      "goHome": "Go home",
+      "expiredTitle": "Link expired",
+      "expiredMessage": "The verification link has expired. Request a new verification email.",
+      "errorTitle": "Verification error",
+      "goToLogin": "Go to login",
+      "missingToken": "No verification token was found in the link.",
+      "genericError": "An error occurred while verifying your email. Please try again.",
+      "networkError": "Network error. Check your internet and try again.",
+      "resending": "Resending...",
+      "resendTitle": "Resend verification email",
+      "resendDescription": "Enter your email address and we'll send you a new verification link.",
+      "resendPlaceholder": "your@email.com",
+      "resendCta": "Resend email",
+      "resendSuccessTitle": "Email sent!",
+      "resendSuccessDesc": "If an account exists with that email pending verification, you will receive a new link. Check your inbox and spam folder."
     }
   },
   "profile": {

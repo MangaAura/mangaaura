@@ -14,7 +14,7 @@ function StorySection() {
     <section id="story" className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--surface)]" />
 
-      <Container>
+      <Container className="relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
             <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
@@ -89,7 +89,7 @@ function TeamValuesSection() {
       <section id="team" className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-[var(--background)]" />
 
-        <Container>
+        <Container className="relative z-10">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] mb-4">
               <Users className="w-4 h-4" />

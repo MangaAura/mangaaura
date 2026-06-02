@@ -330,7 +330,26 @@
       "checkSpam": "¿No recibiste el correo? Revisa tu carpeta de spam o haz clic abajo para reenviar.",
       "alreadyVerified": "Tu correo ya está verificado",
       "resendLoading": "Enviando...",
-      "notVerified": "No verificado"
+      "notVerified": "No verificado",
+      "verifying": "Verificando tu correo...",
+      "pleaseWait": "Por favor espera mientras verificamos tu enlace.",
+      "successTitle": "¡Correo verificado exitosamente!",
+      "successMessage": "Tu cuenta ha sido verificada. Serás redirigido a la página principal.",
+      "goHome": "Ir al inicio",
+      "expiredTitle": "Enlace expirado",
+      "expiredMessage": "El enlace de verificación ha expirado. Solicita un nuevo correo de verificación.",
+      "errorTitle": "Error de verificación",
+      "goToLogin": "Ir a iniciar sesión",
+      "missingToken": "No se encontró un token de verificación en el enlace.",
+      "genericError": "Ocurrió un error al verificar tu correo. Intenta de nuevo.",
+      "networkError": "Error de conexión. Verifica tu internet e inténtalo de nuevo.",
+      "resending": "Reenviando...",
+      "resendTitle": "Reenviar correo de verificación",
+      "resendDescription": "Ingresa tu correo electrónico y te enviaremos un nuevo enlace de verificación.",
+      "resendPlaceholder": "tu@email.com",
+      "resendCta": "Reenviar correo",
+      "resendSuccessTitle": "¡Correo enviado!",
+      "resendSuccessDesc": "Si existe una cuenta con ese correo pendiente de verificación, recibirás un nuevo enlace. Revisa tu bandeja de entrada y carpeta de spam."
     }
   },
   "profile": {
