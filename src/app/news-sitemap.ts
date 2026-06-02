@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 import { prisma } from '@/lib/prisma';
 
-const BASE_URL = process.env.NEXTAUTH_URL || 'https://mangaaura.es';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://mangaaura.es';
 
 // Safe DB query wrapper that suppresses Prisma errors during build
 async function safeDbQuery<T>(queryFn: () => Promise<T>, fallback: T): Promise<T> {

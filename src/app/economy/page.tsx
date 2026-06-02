@@ -1,8 +1,11 @@
-import { Coins, ArrowRightLeft, Wallet, Users, History } from 'lucide-react';
+import { Coins, ArrowRightLeft, Wallet, Users, History, Gift } from 'lucide-react';
 import { Metadata } from 'next';
 
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
   const t = getT(locale);
@@ -13,6 +16,17 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
   };
+}
+
+async function getReferralPreview(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      referralCode: true,
+      _count: { select: { referralsSent: true } },
+    },
+  });
+  return user;
 }
 
 const sections = [
@@ -46,7 +60,12 @@ const sections = [
   },
 ];
 
-export default function EconomyPage() {
+export default async function EconomyPage() {
+  const session = await auth();
+  let referralPreview: { referralCode: string | null; _count: { referralsSent: number } } | null = null;
+  if (session?.user?.id) {
+    referralPreview = await getReferralPreview(session.user.id);
+  }
   return (
     <div className="max-w-4xl mx-auto px-4 pt-20 pb-10">
       <div className="mb-8">
@@ -81,6 +100,28 @@ export default function EconomyPage() {
           </a>
         ))}
       </div>
+
+      {referralPreview?.referralCode && (
+        <a
+          href="/economy/referrals"
+          className="group block mt-6 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 hover:border-purple-500/60 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+              <Gift className="text-white" size={24} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold group-hover:text-purple-500 transition-colors">Programa de Referidos</h3>
+              </div>
+              <p className="text-sm text-muted">
+                Has invitado a <strong>{referralPreview._count.referralsSent}</strong> amigos &middot; Código: <code className="text-purple-500 font-bold">{referralPreview.referralCode}</code>
+              </p>
+            </div>
+            <ArrowRightLeft size={20} className="text-muted group-hover:translate-x-1 transition-transform shrink-0" />
+          </div>
+        </a>
+      )}
 
       <div className="mt-8 p-4 rounded-xl bg-[var(--muted)] border border-[var(--border)]">
         <h3 className="font-semibold mb-2">Cómo funciona</h3>

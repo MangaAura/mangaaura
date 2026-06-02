@@ -67,6 +67,7 @@ function Content() {
 
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const authError = searchParams.get('error');
+  const message = searchParams.get('message');
 
   React.useEffect(() => {
     if (authError) {
@@ -186,9 +187,13 @@ function Content() {
   return (
     <div className="flex flex-col">
       <div className="p-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-muted hover:text-fg-primary transition-colors"
+        >
           <ArrowLeft size={20} /> {t('common.back')}
-        </Link>
+        </button>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6">
@@ -199,6 +204,30 @@ function Content() {
           </div>
 
           <div className="bg-[var(--surface-elevated)] rounded-[16px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border border-[var(--border-subtle)] [animation:fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_0.2s_both]">
+            {message && ['loginToRate', 'loginToLibrary', 'loginToUpload', 'loginToNotifications', 'loginToRepost', 'loginToCreateClan', 'loginToCheckout', 'loginToReport', 'loginToJoinClan', 'loginToAccess', 'loginToViewLibrary'].includes(message) && (
+              <div className="mb-6 [animation:fadeSlideUp_0.3s_ease]">
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-sm">
+                  <LogIn className="w-5 h-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-[var(--primary)]">
+                      {message === 'loginToLibrary' ? t('nav.loginToAddToLibrary') :
+                       message === 'loginToRate' ? t('nav.loginToRate') :
+                       message === 'loginToUpload' ? t('nav.loginToUpload') :
+                       message === 'loginToNotifications' ? t('nav.loginToNotifications') :
+                       message === 'loginToRepost' ? t('nav.loginToRepost') :
+                       message === 'loginToCreateClan' ? t('nav.loginToCreateClan') :
+                       message === 'loginToCheckout' ? t('nav.loginToCheckout') :
+                       message === 'loginToReport' ? t('nav.loginToReport') :
+                       message === 'loginToJoinClan' ? t('nav.loginToJoinClan') :
+                       message === 'loginToAccess' ? t('nav.loginToAccess') :
+                       message === 'loginToViewLibrary' ? t('nav.loginToViewLibrary') :
+                       ''}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {error && (
               <div className="mb-6 [animation:fadeSlideUp_0.3s_ease]">
                 <ErrorMessage

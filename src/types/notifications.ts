@@ -17,6 +17,7 @@ export enum NotificationType {
   CLAN_JOIN_REQUEST = 'CLAN_JOIN_REQUEST',
   CLAN_JOIN_APPROVED = 'CLAN_JOIN_APPROVED',
   CLAN_JOIN_REJECTED = 'CLAN_JOIN_REJECTED',
+  RATED_MANGA = 'RATED_MANGA',
 }
 
 export interface NotificationPayload {
@@ -113,6 +114,16 @@ export interface NotificationPayload {
     reviewerName: string;
     requestId: string;
     reason?: string;
+  };
+  [NotificationType.RATED_MANGA]: {
+    mangaId: string;
+    mangaTitle: string;
+    mangaSlug?: string;
+    mangaCoverUrl?: string;
+    raterId: string;
+    raterName: string;
+    rating: number;
+    reviewContent?: string;
   };
 }
 

@@ -37,8 +37,11 @@ const activityConfig: Record<string, { icon: React.ComponentType<{ className?: s
   FOLLOW_USER: { icon: Users, labelKey: 'userProfile.activity.followUser', accentColor: 'border-l-green-500' },
   FOLLOW_MANGA: { icon: Bookmark, labelKey: 'userProfile.activity.followManga', accentColor: 'border-l-emerald-500' },
   COMMENT: { icon: MessageSquare, labelKey: 'userProfile.activity.comment', accentColor: 'border-l-orange-500' },
-  ACHIEVEMENT: { icon: Trophy, labelKey: 'userProfile.activity.achievement', accentColor: 'border-l-yellow-500' },
-  CREATE_MANGA: { icon: Star, labelKey: 'userProfile.activity.createManga', accentColor: 'border-l-purple-500' },
+  ACHIEVEMENT_UNLOCKED: { icon: Trophy, labelKey: 'userProfile.activity.achievement', accentColor: 'border-l-yellow-500' },
+  CREATED_MANGA: { icon: Star, labelKey: 'userProfile.activity.createManga', accentColor: 'border-l-purple-500' },
+  COMPLETED_MANGA: { icon: Star, labelKey: 'userProfile.activity.completedManga', accentColor: 'border-l-purple-500' },
+  RATED_MANGA: { icon: Star, labelKey: 'userProfile.activity.ratedManga', accentColor: 'border-l-blue-500' },
+  JOINED_CLAN: { icon: Users, labelKey: 'userProfile.activity.joinedClan', accentColor: 'border-l-green-500' },
   LEVEL_UP: { icon: TrendingUp, labelKey: 'userProfile.activity.levelUp', accentColor: 'border-l-amber-500' },
   UNFOLLOW_USER: { icon: Users, labelKey: 'userProfile.activity.unfollowUser', accentColor: 'border-l-gray-500' },
   UNFOLLOW_MANGA: { icon: Bookmark, labelKey: 'userProfile.activity.unfollowManga', accentColor: 'border-l-gray-500' },
@@ -115,8 +118,11 @@ export function ProfileTimeline({ activities, t, dateLocale }: ProfileTimelinePr
               if (activity.metadata) {
                 try {
                   const m = JSON.parse(activity.metadata);
-                  metadata = m.title || m.name || '';
-                  metadataHref = m.slug ? `/manga/${m.slug}` : '';
+                  // Normalizar: diferentes activityTypes usan diferentes claves
+                  const displayText = m.mangaTitle || m.targetTitle || m.title || m.name || m.achievementName || '';
+                  const slug = m.mangaSlug || m.targetSlug || m.slug || '';
+                  metadata = displayText;
+                  metadataHref = slug ? `/manga/${slug}` : '';
                 } catch { /* noop */ }
               }
 

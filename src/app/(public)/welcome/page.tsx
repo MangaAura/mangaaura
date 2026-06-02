@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { WelcomeContent } from './WelcomeContent';
+import { WelcomeReferralCard } from './WelcomeReferralCard';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { auth } from '@/lib/auth';
@@ -74,6 +75,8 @@ export default async function WelcomePage() {
         </p>
 
         <WelcomeContent steps={steps} />
+
+        {session && <WelcomeReferralCard />}
 
         {!session && (
           <div className="mt-12 pt-12 border-t border-border">

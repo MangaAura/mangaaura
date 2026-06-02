@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Sparkles,
   Activity,
+  Share2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -28,6 +29,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Progress } from '@/components/ui/Progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { useToast } from '@/components/ui/Toast';
 import { useT, useLocale } from '@/i18n';
 
 interface ReadingProgress {
@@ -75,6 +77,7 @@ interface UserData {
     following: number;
     followers: number;
     achievements: number;
+    referralsSent: number;
   } | null;
   achievements: UserAchievement[];
   readingProgress: ReadingProgress[];
@@ -324,6 +327,8 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
     return () => clearTimeout(t);
   }, []);
 
+  const { toast } = useToast();
+  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/user/${user.username}` : '';
   const memberSince = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: dateLocale });
 
   const stats = [
@@ -332,6 +337,7 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
     { value: user._count?.followers ?? 0, label: t('userProfile.stats.followers'), onClick: () => setFollowModalOpen(true) },
     { value: user._count?.achievements ?? 0, label: t('userProfile.stats.achievements'), onClick: () => setAchievementsModalOpen(true) },
     { value: user._count?.collections ?? 0, label: t('userProfile.stats.collections') || 'Colecciones', onClick: () => setCollectionsModalOpen(true) },
+    { value: user._count?.referralsSent ?? 0, label: t('userProfile.stats.referrals'), onClick: () => window.location.href = '/economy/referrals' },
   ];
 
   return (
@@ -352,12 +358,33 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
           dateLocale={dateLocale}
           memberSince={memberSince}
           actions={
-            <Link href="/settings">
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-1.5" />
-                {t('userProfile.buttons.editProfile')}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  if (navigator.share) {
+                    await navigator.share({
+                      title: user.displayName || user.username,
+                      text: t('userProfile.shareProfile', { name: user.displayName || user.username }),
+                      url: profileUrl,
+                    }).catch(() => {});
+                  } else {
+                    await navigator.clipboard.writeText(profileUrl);
+                    toast({ title: t('userProfile.copiedLink'), variant: 'default' });
+                  }
+                }}
+              >
+                <Share2 className="w-4 h-4 mr-1.5" />
+                {t('userProfile.buttons.share')}
               </Button>
-            </Link>
+              <Link href="/settings">
+                <Button variant="outline" size="sm">
+                  <Settings className="w-4 h-4 mr-1.5" />
+                  {t('userProfile.buttons.editProfile')}
+                </Button>
+              </Link>
+            </div>
           }
         />
 

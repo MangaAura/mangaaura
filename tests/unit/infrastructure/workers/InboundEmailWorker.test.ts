@@ -50,7 +50,7 @@ const sampleEmail = {
   messageId: 'msg-1',
   fromEmail: 'user@test.com',
   fromName: 'Test User',
-  toEmails: ['support@mangaaura.com'],
+  toEmails: ['support@mangaaura.es'],
   subject: 'Help with my account',
   textBody: 'I need help logging in.',
   htmlBody: null,

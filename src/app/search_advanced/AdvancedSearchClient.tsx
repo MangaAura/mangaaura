@@ -1,9 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, X, Star, BookOpen, SlidersHorizontal, ChevronDown, AlertTriangle, Compass, Sparkles } from 'lucide-react';
+import { Search, Filter, X, BookOpen, SlidersHorizontal, ChevronDown, AlertTriangle, Compass, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 
 
@@ -64,7 +63,6 @@ function SearchResultsSkeleton(props: React.HTMLAttributes<HTMLDivElement>) {
 
 export default function AdvancedSearchClient() {
   const t = useT();
-  const router = useRouter();
   const [query, setQuery] = useState('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -184,7 +182,7 @@ export default function AdvancedSearchClient() {
             <Compass size={16} />
             {t('nav.explore')}
           </Link>
-          <Link href="/search_ia" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
+          <Link href="/search-ai" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
             <Sparkles size={16} />
             {t('search.iaTitle')}
           </Link>
@@ -342,33 +340,41 @@ export default function AdvancedSearchClient() {
               >
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {results.map((manga) => (
-                <Link href={`/manga/${manga.slug}`} key={manga.id} className="group">
+                <div key={manga.id} className="group">
                   <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-[var(--accent-blue)] transition-all duration-200 hover:-translate-y-0.5 h-full flex flex-col">
-                    <div className="relative aspect-[16/9] overflow-hidden">
-                      <OptimizedImage
-                        src={manga.coverUrl || '/placeholder-manga.svg'}
-                        alt={manga.title}
-                        fill
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-[var(--warning)] text-xs font-black px-2 py-1 rounded-lg flex items-center gap-1">
-                        <Star size={12} fill="currentColor" /> {manga.rating?.toFixed(1) ?? 'ÔÇö'}
+                    <Link href={`/manga/${manga.slug}`}>
+                      <div className="relative aspect-[16/9] overflow-hidden">
+                        <OptimizedImage
+                          src={manga.coverUrl || '/placeholder-manga.svg'}
+                          alt={manga.title}
+                          fill
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {manga.rating ? (
+                          <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm">
+                            <svg className="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            {manga.rating.toFixed(1)}
+                          </div>
+                        ) : null}
+                        <div className={`absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full ${manga.status === 'COMPLETED' ? 'bg-[var(--success)]/80 text-[var(--text-inverse)]' : manga.status === 'ONGOING' ? 'bg-[var(--accent-blue)]/80 text-[var(--text-inverse)]' : 'bg-[var(--warning)]/80 text-[var(--text-inverse)]'}`}>
+                          {mangaStatusLabel(manga.status)}
+                        </div>
                       </div>
-                      <div className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${manga.status === 'COMPLETED' ? 'bg-[var(--success)]/80 text-[var(--text-inverse)]' : manga.status === 'ONGOING' ? 'bg-[var(--accent-blue)]/80 text-[var(--text-inverse)]' : 'bg-[var(--warning)]/80 text-[var(--text-inverse)]'}`}>
-                        {mangaStatusLabel(manga.status)}
-                      </div>
-                    </div>
+                    </Link>
                     <div className="p-4 flex flex-col flex-1">
-                      <h3 className="font-bold text-base mb-1 group-hover:text-[var(--accent-blue)] transition-colors line-clamp-1">{manga.title}</h3>
+                      <Link href={`/manga/${manga.slug}`}>
+                        <h3 className="font-bold text-base mb-1 group-hover:text-[var(--accent-blue)] transition-colors line-clamp-1">{manga.title}</h3>
+                      </Link>
                       <p className="text-xs text-[var(--text-muted)] mb-3">{t('search.by')}
                         {manga.authorUsername ? (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/user/${manga.authorUsername}`); }}
-                            className="font-semibold text-[var(--accent-purple)] hover:text-[var(--primary)] hover:underline transition-colors cursor-pointer"
+                          <Link
+                            href={`/user/${manga.authorUsername}`}
+                            className="font-semibold text-[var(--accent-purple)] hover:text-[var(--primary)] hover:underline transition-colors"
                           >
                             {manga.authorName || t('search.unknown')}
-                          </button>
+                          </Link>
                         ) : (
                           <span className="font-semibold text-[var(--accent-purple)]">{manga.authorName || t('search.unknown')}</span>
                         )}
@@ -397,11 +403,13 @@ export default function AdvancedSearchClient() {
                         <div className="flex items-center gap-1 text-xs font-semibold text-[var(--text-muted)]">
                           <BookOpen size={14} /> {t('search.chapterCount', { count: manga.chapterCount })}
                         </div>
-                        <span className="text-xs font-bold text-[var(--accent-blue)] group-hover:underline">{t('search.viewDetails')}</span>
+                        <Link href={`/manga/${manga.slug}`} className="text-xs font-bold text-[var(--accent-blue)] group-hover:underline">
+                          {t('search.viewDetails')}
+                        </Link>
                       </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
               </motion.div>

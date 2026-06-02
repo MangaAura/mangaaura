@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 
-import ContactClient from './ContactClient';
-import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import ContactoClient from './ContactoClient';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { withHreflang } from '@/lib/seo';
@@ -9,8 +8,8 @@ import { withHreflang } from '@/lib/seo';
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
   const t = getT(locale);
-  const title = t('page.contact.title');
-  const description = t('page.contact.description');
+  const title = t('page.contacto.title');
+  const description = t('page.contacto.description');
 
   return {
     title,
@@ -31,16 +30,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function ContactPage(props: any) {
-  return (
-    <>
-      <BreadcrumbStructuredData
-        items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Contacto', item: '/contact' },
-        ]}
-      />
-      <ContactClient {...props} />
-    </>
-  );
+export default function ContactoPage(props: any) {
+  return <ContactoClient {...props} />;
 }

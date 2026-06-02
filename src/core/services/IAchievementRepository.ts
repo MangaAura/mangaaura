@@ -2,7 +2,7 @@ export interface AchievementCondition {
   type: 'CHAPTERS_READ' | 'COMMENTS_POSTED' | 'CORRECTIONS_APPROVED' |
         'MANGAS_COMPLETED' | 'COMMENT_LIKES_RECEIVED' | 'MANGAS_CREATED' |
         'SPONSORSHIPS_WON' | 'LEVEL_REACHED' | 'STREAK_REACHED' | 'QUESTS_COMPLETED' |
-        'GENRE_CHAPTERS_READ';
+        'GENRE_CHAPTERS_READ' | 'REFERRALS_SENT';
   count?: number;
   level?: number;
   days?: number;
@@ -34,6 +34,7 @@ export interface UserStats {
   readingStreak: number;
   questsCompleted: number;
   genreChaptersRead?: Record<string, number>;
+  referralsSent: number;
 }
 
 export interface IAchievementRepository {

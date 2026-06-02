@@ -221,6 +221,8 @@ export class AchievementService {
         return stats.questsCompleted >= (condition.count || 1);
       case 'GENRE_CHAPTERS_READ':
         return (stats.genreChaptersRead?.[condition.genre || ''] || 0) >= (condition.count || 1);
+      case 'REFERRALS_SENT':
+        return stats.referralsSent >= (condition.count || 1);
       default:
         return false;
     }
@@ -253,6 +255,8 @@ export class AchievementService {
         return stats.questsCompleted;
       case 'GENRE_CHAPTERS_READ':
         return stats.genreChaptersRead?.[condition.genre || ''] || 0;
+      case 'REFERRALS_SENT':
+        return stats.referralsSent;
       default:
         return 0;
     }

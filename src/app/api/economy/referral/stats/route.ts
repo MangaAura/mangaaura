@@ -18,6 +18,11 @@ export async function GET() {
     const claims = await prisma.referralClaim.findMany({
       where: { referrerId: session.user.id },
       orderBy: { createdAt: 'desc' },
+      include: {
+        referee: {
+          select: { id: true, username: true, displayName: true, avatarUrl: true, level: true },
+        },
+      },
     });
 
     const user = await prisma.user.findUnique({
@@ -49,6 +54,7 @@ export async function GET() {
         createdAt: c.createdAt,
         unlockedAt: c.unlockedAt,
         claimedAt: c.claimedAt,
+        referee: c.referee,
       })),
     };
 

@@ -17,6 +17,7 @@ import {
   ChevronRight,
   LayoutGrid,
   List,
+  RefreshCw,
   ZoomIn,
 } from "lucide-react";
 import Link from "next/link";
@@ -133,6 +134,9 @@ export default function EditChapterClient({ params }: PageProps) {
   const [isFileDragging, setIsFileDragging] = useState(false);
   const fileDragCounter = useRef(0);
 
+  // Replace state (ref para evitar stale closures y setTimeout)
+  const replaceTargetRef = useRef<number | null>(null);
+
   // Drag state
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
@@ -173,6 +177,10 @@ export default function EditChapterClient({ params }: PageProps) {
     if (selectedGridIndex !== null) {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") setSelectedGridIndex(null);
+        if ((e.key === "r" || e.key === "R") && !e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          triggerReplace(selectedGridIndex);
+        }
       };
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
@@ -180,6 +188,7 @@ export default function EditChapterClient({ params }: PageProps) {
   }, [previewIndex, selectedGridIndex, pages.length]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceFileInputRef = useRef<HTMLInputElement>(null);
 
   // ─── Fetch chapter data ──────────────────────────────────────
 
@@ -295,6 +304,64 @@ export default function EditChapterClient({ params }: PageProps) {
       return next;
     });
   }, []);
+
+  // ─── Replace a page ─────────────────────────────────────────
+
+  const triggerReplace = (index: number) => {
+    replaceTargetRef.current = index;
+    replaceFileInputRef.current?.click();
+  };
+
+  const handleReplaceFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    const targetIndex = replaceTargetRef.current;
+    if (!files || files.length === 0 || targetIndex === null) return;
+
+    const file = files[0];
+
+    // Validate format
+    if (!(ACCEPTED_FORMATS as readonly string[]).includes(file.type)) {
+      setUploadPageError("Formato no válido. Usa JPEG, PNG o WebP.");
+      if (replaceFileInputRef.current) replaceFileInputRef.current.value = "";
+      replaceTargetRef.current = null;
+      return;
+    }
+
+    setIsCompressing(true);
+
+    let processedFile = file;
+    if (file.size > MAX_FILE_SIZE) {
+      try {
+        processedFile = await compressImage(file, { maxByteSize: MAX_FILE_SIZE });
+      } catch {
+        setUploadPageError("Error al comprimir la imagen");
+        setIsCompressing(false);
+        replaceTargetRef.current = null;
+        if (replaceFileInputRef.current) replaceFileInputRef.current.value = "";
+        return;
+      }
+    }
+
+    // Revoke old preview if it was a local file
+    const oldPage = pages[targetIndex];
+    if (oldPage?.preview) URL.revokeObjectURL(oldPage.preview);
+
+    setPages((prev) => {
+      const newPages = [...prev];
+      newPages[targetIndex] = {
+        id: generateId(),
+        url: "",
+        isNew: true,
+        file: processedFile,
+        preview: URL.createObjectURL(processedFile),
+      };
+      return newPages;
+    });
+
+    setIsCompressing(false);
+    replaceTargetRef.current = null;
+    if (replaceFileInputRef.current) replaceFileInputRef.current.value = "";
+  };
 
   // ─── Add new pages ───────────────────────────────────────────
 
@@ -752,6 +819,14 @@ export default function EditChapterClient({ params }: PageProps) {
                 ref={fileInputRef}
                 onChange={handleFileSelect}
               />
+              {/* Hidden file input for replacing a single page */}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                ref={replaceFileInputRef}
+                onChange={handleReplaceFileSelect}
+              />
             </div>
 
             {/* Compression / uploading indicator */}
@@ -902,6 +977,15 @@ export default function EditChapterClient({ params }: PageProps) {
                           <ArrowDown size={14} />
                         </button>
                         <button
+                          onClick={() => triggerReplace(index)}
+                          disabled={isSaving}
+                          className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg disabled:opacity-30 transition-colors"
+                          title="Reemplazar página"
+                          aria-label={`Reemplazar página ${index + 1}`}
+                        >
+                          <RefreshCw size={14} />
+                        </button>
+                        <button
                           onClick={() => removePage(index)}
                           disabled={isSaving}
                           className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--error)] hover:bg-[var(--error)]/10 rounded-lg disabled:opacity-30 transition-colors"
@@ -998,8 +1082,8 @@ export default function EditChapterClient({ params }: PageProps) {
                           />
                         )}
 
-                        {/* Hover overlay with preview button */}
-                        <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        {/* Hover overlay with preview + replace buttons */}
+                        <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1011,6 +1095,19 @@ export default function EditChapterClient({ params }: PageProps) {
                             aria-label={`Ver página ${index + 1}`}
                           >
                             <ZoomIn size={20} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedGridIndex(null);
+                              triggerReplace(index);
+                            }}
+                            disabled={isSaving}
+                            className="p-2 bg-black/60 hover:bg-[var(--primary)]/80 backdrop-blur-sm text-white rounded-full transition-all hover:scale-110 disabled:opacity-30"
+                            title={`Reemplazar página ${index + 1} [R]`}
+                            aria-label={`Reemplazar página ${index + 1}`}
+                          >
+                            <RefreshCw size={18} />
                           </button>
                         </div>
 

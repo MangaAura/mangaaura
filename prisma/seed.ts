@@ -145,6 +145,59 @@ async function main() {
     }
   }
 
+  console.log('Seeding referral achievements...');
+  const referralAchievements = [
+    {
+      badgeId: 'REFERRAL_RECRUITER',
+      name: 'Reclutador',
+      description: 'Invita a 3 amigos a unirse a MangaAura',
+      xpReward: 100,
+      iconUrl: '/badges/referral-recruiter.png',
+      condition: JSON.stringify({ type: 'REFERRALS_SENT', count: 3 }),
+      category: 'SOCIAL',
+      difficulty: 'EASY',
+    },
+    {
+      badgeId: 'REFERRAL_INFLUENCER',
+      name: 'Influencer',
+      description: 'Invita a 10 amigos a unirse a MangaAura',
+      xpReward: 250,
+      iconUrl: '/badges/referral-influencer.png',
+      condition: JSON.stringify({ type: 'REFERRALS_SENT', count: 10 }),
+      category: 'SOCIAL',
+      difficulty: 'MEDIUM',
+    },
+    {
+      badgeId: 'REFERRAL_VIRAL',
+      name: 'Viral',
+      description: 'Invita a 25 amigos a unirse a MangaAura',
+      xpReward: 500,
+      iconUrl: '/badges/referral-viral.png',
+      condition: JSON.stringify({ type: 'REFERRALS_SENT', count: 25 }),
+      category: 'SOCIAL',
+      difficulty: 'HARD',
+    },
+    {
+      badgeId: 'REFERRAL_LEGEND',
+      name: 'Leyenda',
+      description: 'Invita a 50 amigos a unirse a MangaAura',
+      xpReward: 1000,
+      iconUrl: '/badges/referral-legend.png',
+      condition: JSON.stringify({ type: 'REFERRALS_SENT', count: 50 }),
+      category: 'SOCIAL',
+      difficulty: 'LEGENDARY',
+    },
+  ];
+
+  for (const badge of referralAchievements) {
+    await prisma.achievementDefinition.upsert({
+      where: { badgeId: badge.badgeId },
+      create: badge,
+      update: badge,
+    });
+    console.log(`  Achievement ${badge.badgeId} ready`);
+  }
+
   console.log('Seed completed!');
 }
 

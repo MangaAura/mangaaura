@@ -194,11 +194,11 @@ export default async function PrivacyPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
-              href="mailto:privacy@mangaaura.es"
+              href="mailto:support@mangaaura.es"
               className="inline-flex items-center justify-center gap-2 bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-medium px-6 py-3 rounded-xl transition-colors"
             >
               <Mail className="w-4 h-4" />
-              privacy@mangaaura.es
+              support@mangaaura.es
             </a>
           </div>
         </div>

@@ -38,7 +38,7 @@ export default function CheckoutClient() {
 
   const handlePurchase = async (packageId: string) => {
     if (!session?.user) {
-      router.push('/auth/login?callbackUrl=/checkout');
+      router.push('/auth/login?message=loginToCheckout&callbackUrl=/checkout');
       return;
     }
 
@@ -88,7 +88,7 @@ export default function CheckoutClient() {
       <div className="min-h-screen bg-[var(--background)] pt-20 text-center px-4">
           <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">{t('checkout.loginRequired')}</h1>
           <p className="text-[var(--text-secondary)] mb-6">{t('checkout.loginRequiredDesc')}</p>
-          <Button onClick={() => router.push('/auth/login?callbackUrl=/checkout')}>
+          <Button onClick={() => router.push('/auth/login?message=loginToCheckout&callbackUrl=/checkout')}>
             {t('checkout.login')}
           </Button>
         </div>

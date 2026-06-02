@@ -273,7 +273,7 @@ async function handleReferralOnPurchase(userId: string, auraAmount: number) {
   // Find the user and check if they were referred
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { referredBy: true },
+    select: { referredBy: true, username: true, displayName: true },
   });
 
   if (!user?.referredBy) return;
@@ -286,6 +286,8 @@ async function handleReferralOnPurchase(userId: string, auraAmount: number) {
 
   if (!referrer) return;
 
+  const bonusAwarded = Math.floor(auraAmount * 0.10);
+
   // Find existing ReferralClaim for this referral pair
   const existingClaim = await prisma.referralClaim.findUnique({
     where: {
@@ -296,31 +298,50 @@ async function handleReferralOnPurchase(userId: string, auraAmount: number) {
     },
   });
 
+  let wasLocked = false;
+
   if (existingClaim) {
     // Update existing claim if it was locked
     if (existingClaim.status === 'locked') {
+      wasLocked = true;
       await prisma.referralClaim.update({
         where: { id: existingClaim.id },
         data: {
           status: 'unlocked',
           unlockedAt: new Date(),
           purchaseAmount: auraAmount,
-          bonusAwarded: Math.floor(auraAmount * 0.10),
+          bonusAwarded,
         },
       });
     }
   } else {
+    wasLocked = true;
     // Create new claim
     await prisma.referralClaim.create({
       data: {
         referrerId: referrer.id,
         refereeId: userId,
         purchaseAmount: auraAmount,
-        bonusAwarded: Math.floor(auraAmount * 0.10),
+        bonusAwarded,
         status: 'unlocked',
         unlockedAt: new Date(),
       },
     });
+  }
+
+  // Notify referrer that bonus is unlocked
+  if (wasLocked && bonusAwarded > 0) {
+    try {
+      const { getNotificationService } = await import('@/core/services/NotificationService');
+      const ns = await getNotificationService();
+      await ns.notifyReferralBonusUnlocked(referrer.id, {
+        id: userId,
+        username: user.username,
+        displayName: user.displayName,
+      }, bonusAwarded);
+    } catch (notifyError) {
+      console.error('[Stripe Webhook] Error sending referral bonus notification:', notifyError);
+    }
   }
 }
 

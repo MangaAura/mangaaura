@@ -22,7 +22,7 @@ const sampleEmail: InboundEmailData = {
   messageId: 'msg-1',
   fromEmail: 'test@test.com',
   fromName: 'Test User',
-  toEmails: ['support@mangaaura.com'],
+  toEmails: ['support@mangaaura.es'],
   subject: 'Test Subject',
   textBody: 'Hello, this is a test email body.',
   htmlBody: null,

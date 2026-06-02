@@ -23,6 +23,11 @@ async function getReferralStats(userId: string) {
   const claims = await prisma.referralClaim.findMany({
     where: { referrerId: userId },
     orderBy: { createdAt: 'desc' },
+    include: {
+      referee: {
+        select: { id: true, username: true, displayName: true, avatarUrl: true, level: true },
+      },
+    },
   });
 
   const user = await prisma.user.findUnique({
@@ -54,6 +59,7 @@ async function getReferralStats(userId: string) {
       createdAt: c.createdAt.toISOString(),
       unlockedAt: c.unlockedAt?.toISOString() || null,
       claimedAt: c.claimedAt?.toISOString() || null,
+      referee: c.referee,
     })),
   };
 }

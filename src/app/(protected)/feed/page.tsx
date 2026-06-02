@@ -1,4 +1,4 @@
-import { Activity, Globe, Users } from 'lucide-react';
+import { Activity, Globe, Users, Sparkles } from 'lucide-react';
 import { Metadata } from 'next';
 
 import { ActivityFeed } from '@/components/Activity/ActivityFeed';
@@ -35,9 +35,13 @@ export default async function FeedPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="following">
+      <Tabs defaultValue={session?.user?.id ? 'algorithmic' : 'global'}>
         <TabsList className="mb-6">
-          <TabsTrigger value="following" className="flex items-center gap-2">
+          <TabsTrigger value="algorithmic" className="flex items-center gap-2" disabled={!session?.user?.id}>
+            <Sparkles className="w-4 h-4" />
+            Para ti
+          </TabsTrigger>
+          <TabsTrigger value="following" className="flex items-center gap-2" disabled={!session?.user?.id}>
             <Users className="w-4 h-4" />
             Siguiendo
           </TabsTrigger>
@@ -52,6 +56,18 @@ export default async function FeedPage() {
             </TabsTrigger>
           )}
         </TabsList>
+
+        <TabsContent value="algorithmic">
+          {session?.user?.id ? (
+            <ActivityFeed userId={session.user.id} type="algorithmic" />
+          ) : (
+            <Card className="p-8 text-center border border-[var(--border)] bg-[var(--surface)]">
+              <p className="text-[var(--text-secondary)] mb-4">
+                Inicia sesión para ver tu feed personalizado
+              </p>
+            </Card>
+          )}
+        </TabsContent>
 
         <TabsContent value="following">
           {session?.user?.id ? (

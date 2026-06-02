@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXTAUTH_URL || 'https://mangaaura.es';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://mangaaura.es';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,13 +10,30 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           '/',
           '/explore',
-          '/search_ia',
+          '/search-ai',
+          '/search_advanced',
           '/rankings',
+          '/discover',
+          '/genres',
+          '/pricing',
           '/library',
           '/manga',
           '/reader',
           '/community',
           '/events',
+          '/social',
+          '/blog',
+          '/news',
+          '/guides',
+          '/how-it-works',
+          '/about-us',
+          '/contact',
+          '/faq',
+          '/help',
+          '/report',
+          '/comparison',
+          '/welcome',
+          '/legal',
         ],
         disallow: [
           '/api',

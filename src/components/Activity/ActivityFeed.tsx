@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 
 interface Activity {
   id: string;
-  type: 'FOLLOW' | 'LIKE' | 'COMMENT' | 'READING' | 'ACHIEVEMENT' | 'COLLECTION' | 'JOIN_CLAN' | 'CREATE_MANGA';
+  type: 'FOLLOW' | 'LIKE' | 'COMMENT' | 'READING' | 'ACHIEVEMENT' | 'COLLECTION' | 'JOIN_CLAN' | 'CREATE_MANGA' | 'RATED_MANGA';
   createdAt: string;
   user: {
     id: string;
@@ -72,7 +72,7 @@ interface Activity {
 
 interface ActivityFeedProps {
   userId?: string;
-  type?: 'personal' | 'following' | 'global';
+  type?: 'personal' | 'following' | 'global' | 'algorithmic';
   limit?: number;
 }
 
@@ -85,6 +85,7 @@ const activityConfig: Record<string, { icon: typeof Heart; color: string; bgColo
   COLLECTION: { icon: Star, color: 'text-[var(--accent-purple)]', bgColor: 'bg-[var(--accent-purple)]/20' },
   JOIN_CLAN: { icon: Crown, color: 'text-[var(--accent-orange)]', bgColor: 'bg-[var(--accent-orange)]/20' },
   CREATE_MANGA: { icon: Plus, color: 'text-[var(--primary)]', bgColor: 'bg-[var(--primary)]/20' },
+  RATED_MANGA: { icon: Star, color: 'text-[var(--warning)]', bgColor: 'bg-[var(--warning)]/20' },
 };
 
 export function ActivityFeed({ userId, type = 'following', limit = 20 }: ActivityFeedProps) {
@@ -279,6 +280,30 @@ export function ActivityFeed({ userId, type = 'following', limit = 20 }: Activit
                 {activity.manga.title}
               </Link>
             )}
+          </>
+        );
+
+      case 'RATED_MANGA':
+        const rating = activity.metadata?.rating as number || 0;
+        return (
+          <>
+            <Icon className={cn('w-4 h-4 mr-2', config.color)} />
+            <span className="text-[var(--text-secondary)]">puntuó</span>
+            {activity.manga && (
+              <Link
+                href={`/manga/${activity.manga.slug}`}
+                className="font-medium text-[var(--text-primary)] hover:text-[var(--primary)] ml-1 truncate"
+              >
+                {activity.manga.title}
+              </Link>
+            )}
+            <span className="flex items-center gap-0.5 ml-1">
+              {rating > 0 && Array.from({ length: Math.round(rating) }, (_, i) => (
+                <svg key={i} className="w-3 h-3 text-[var(--warning)] fill-[var(--warning)]" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </span>
           </>
         );
 

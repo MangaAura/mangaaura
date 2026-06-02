@@ -6,8 +6,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import useSWR from 'swr';
 
 import { setLibraryStatus, removeFromLibrary } from './actions';
+import { StarRating } from '@/components/ui/StarRating';
+import { ReviewSection } from '@/components/Reviews/ReviewSection';
 import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -65,11 +68,40 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
   const [showAllChapters, setShowAllChapters] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  // Fetch user's current rating for this manga
+  const { data: userRatingData, mutate: mutateRating } = useSWR<{ rating: number | null; averageRating: number | null; totalRatings: number }>(
+    userId ? `/api/manga/${manga.id}/rate` : null,
+    (url: string) => fetch(url).then(r => r.json()),
+    { revalidateOnFocus: false }
+  );
+
+  const t = useT();
+
+  const [optimisticRating, setOptimisticRating] = useState<number | null>(null);
+  const currentUserRating = optimisticRating ?? userRatingData?.rating ?? null;
+
+  const handleRate = async (rating: number) => {
+    if (!userId) {
+      router.push('/auth/login?message=loginToRate');
+      return;
+    }
+    setOptimisticRating(rating);
+    try {
+      const res = await fetch(`/api/manga/${manga.id}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating }),
+      });
+      if (!res.ok) throw new Error(t('reviews.errorRating'));
+      await mutateRating();
+    } catch {
+      setOptimisticRating(null);
+    }
+  };
+
   const displayedChapters = showAllChapters
     ? manga.chapters
     : manga.chapters.slice(0, 20);
-
-  const t = useT();
   const displayTagGenre = (genre: string): string => {
     let slug = ENGLISH_TO_SLUG[genre];
     if (!slug) {
@@ -90,7 +122,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
 
   const handleStatusClick = (status: string) => {
     if (!userId) {
-      router.push('/auth/login');
+      router.push('/auth/login?message=loginToLibrary');
       return;
     }
 
@@ -212,7 +244,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                 <Eye className="w-4 h-4" /> {formatNumber(manga.totalViews)} {t('manga.views')}
               </span>
               <span className="flex items-center gap-1">
-                <BookOpen className="w-4 h-4" /> {manga.totalChapterCount} {t('manga.chapters')}
+                <BookOpen className="w-4 h-4" /> {formatNumber(manga.totalChapterCount)} {t('manga.chapters')}
               </span>
               <span className="flex items-center gap-1">
                 <Library className="w-4 h-4" /> {formatNumber(manga.libraryCount)} {t('manga.inLibrary')}
@@ -220,6 +252,32 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" /> {formatDate(manga.createdAt)}
               </span>
+            </motion.div>
+
+            {/* Star Rating */}
+            <motion.div
+              className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-[var(--surface)]/40 border border-[var(--border)]/30"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.4 }}
+            >
+              <span className="text-sm font-medium text-[var(--text-secondary)]">
+                {t('manga.yourRating')}
+              </span>
+              <StarRating
+                value={manga.rating ?? 0}
+                interactive
+                size="md"
+                userRating={currentUserRating || undefined}
+                showAverage={!currentUserRating}
+                totalRatings={userRatingData?.totalRatings}
+                onChange={handleRate}
+              />
+              {!userId && (
+                <Link href="/auth/login?message=loginToRate" className="text-xs text-[var(--primary)] hover:underline ml-2">
+                  {t('nav.loginToRate')}
+                </Link>
+              )}
             </motion.div>
 
             {/* Actions */}
@@ -381,6 +439,20 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
               {t('manga.viewAllChapters', { count: manga.totalChapterCount })}
             </button>
           )}
+        </motion.div>
+
+        {/* Review Section */}
+        <motion.div
+          className="mt-12"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+        >
+          <ReviewSection
+            mangaId={manga.id}
+            mangaSlug={manga.slug}
+            averageRating={manga.rating}
+          />
         </motion.div>
       </div>
     </motion.div>

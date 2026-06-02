@@ -385,7 +385,7 @@ function CreatorUploadPageContent() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login?callbackUrl=/creator/upload');
+      router.push('/auth/login?message=loginToUpload&callbackUrl=/creator/upload');
     }
   }, [status, router]);
 

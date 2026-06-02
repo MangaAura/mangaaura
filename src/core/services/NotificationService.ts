@@ -9,6 +9,7 @@ export type NotificationType =
   | 'ACHIEVEMENT_UNLOCKED'
   | 'NEW_CHAPTER'
   | 'COMMENT_REPLY'
+  | 'RATED_MANGA'
   | 'SPONSORSHIP_WON'
   | 'LEVEL_UP'
   | 'AURA_RECEIVED'
@@ -20,7 +21,9 @@ export type NotificationType =
   | 'CLAN_INVITE'
   | 'CLAN_JOIN_REQUEST'
   | 'CLAN_JOIN_APPROVED'
-  | 'CLAN_JOIN_REJECTED';
+  | 'CLAN_JOIN_REJECTED'
+  | 'REFERRAL_SIGNUP'
+  | 'REFERRAL_BONUS_UNLOCKED';
 
 export interface CreateNotificationDTO {
   userId: string;
@@ -84,6 +87,11 @@ export interface IEmailQueueProducer {
     clanName: string;
     clanSlug: string;
     inviterUsername: string;
+  }): Promise<void>;
+
+  sendReferralSignupEmail(userId: string, data: {
+    refereeId: string;
+    refereeUsername: string;
   }): Promise<void>;
 }
 
@@ -479,6 +487,51 @@ export class NotificationService {
     return notification;
   }
 
+  async notifyReferralSignup(
+    userId: string,
+    referee: { id: string; username: string; displayName: string | null; avatarUrl: string | null },
+  ): Promise<Notification> {
+    const notification = await this.createNotification({
+      userId,
+      type: 'REFERRAL_SIGNUP',
+      title: '🎉 Nuevo Referido',
+      message: `${referee.displayName || referee.username} se registró con tu código de referido`,
+      data: {
+        refereeId: referee.id,
+        refereeName: referee.displayName || referee.username,
+        refereeAvatar: referee.avatarUrl,
+      },
+      imageUrl: referee.avatarUrl || undefined,
+      linkUrl: '/economy/referrals',
+    });
+
+    this.emailProducer?.sendReferralSignupEmail(userId, {
+      refereeId: referee.id,
+      refereeUsername: referee.displayName || referee.username,
+    }).catch(err => console.error('[NotificationService] Failed to queue referral email:', err));
+
+    return notification;
+  }
+
+  async notifyReferralBonusUnlocked(
+    userId: string,
+    referee: { id: string; username: string; displayName: string | null },
+    bonusAmount: number,
+  ): Promise<Notification> {
+    return this.createNotification({
+      userId,
+      type: 'REFERRAL_BONUS_UNLOCKED',
+      title: '💰 ¡Bono de Referido Disponible!',
+      message: `${referee.displayName || referee.username} hizo su primera compra. Reclama tu bono de ${bonusAmount} Aura`,
+      data: {
+        refereeId: referee.id,
+        refereeName: referee.displayName || referee.username,
+        bonusAmount,
+      },
+      linkUrl: '/economy/referrals',
+    });
+  }
+
   async notifyMention(
     userId: string,
     comment: { id: string; chapterId?: string | null; content: string; },
@@ -562,6 +615,32 @@ export class NotificationService {
     byType: Record<string, number>;
   }> {
     return this.notificationRepo.getStats(userId);
+  }
+
+  async notifyRating(
+    userId: string,
+    manga: { id: string; title: string; slug: string; coverUrl?: string | null },
+    rater: { id: string; username: string; displayName: string | null },
+    rating: number,
+    reviewContent?: string,
+  ): Promise<Notification> {
+    return this.createNotification({
+      userId,
+      type: 'RATED_MANGA',
+      title: '⭐ Nueva Valoración',
+      message: `${rater.displayName || rater.username} puntuó ${manga.title} con ${rating}/5 estrellas${reviewContent ? ': "' + reviewContent.substring(0, 80) + '"' : ''}`,
+      data: {
+        mangaId: manga.id,
+        mangaSlug: manga.slug,
+        mangaTitle: manga.title,
+        raterId: rater.id,
+        raterName: rater.displayName || rater.username,
+        rating,
+        reviewContent: reviewContent?.substring(0, 200),
+      },
+      imageUrl: manga.coverUrl || undefined,
+      linkUrl: `/manga/${manga.slug}`,
+    });
   }
 
   async notifyMultiple(

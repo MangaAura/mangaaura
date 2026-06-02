@@ -200,6 +200,29 @@ export async function POST(request: NextRequest) {
           refereeId: user.id,
           status: 'locked',
         },
+      }).then(async () => {
+        try {
+          const { getNotificationService } = await import('@/core/services/NotificationService');
+          const ns = await getNotificationService();
+          await ns.notifyReferralSignup(referrer.id, {
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName,
+            avatarUrl: user.avatarUrl,
+          });
+        } catch (notifyError) {
+          console.error('[Register] Error sending referral notification:', notifyError);
+        }
+
+        // Auto-check referral achievements for the referrer
+        try {
+          const { AchievementService } = await import('@/core/services/AchievementService');
+          const { PrismaAchievementRepository } = await import('@/infrastructure/adapters/PrismaAchievementRepository');
+          const service = new AchievementService(new PrismaAchievementRepository(prisma));
+          await service.checkAchievements(referrer.id);
+        } catch (achError) {
+          console.error('[Register] Error checking referral achievements:', achError);
+        }
       }).catch((referralError: unknown) => {
         console.error('[Register] Error creating referral claim:', referralError);
       });

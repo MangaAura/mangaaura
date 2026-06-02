@@ -9,6 +9,8 @@ import useSWR from 'swr';
 import CommentDrawer from '@/components/Reader/CommentDrawer';
 import PageViewer from '@/components/Reader/PageViewer';
 import ReadingProgress from '@/components/Reader/ReadingProgress';
+import { useT } from '@/i18n';
+import { StarRating } from '@/components/ui/StarRating';
 import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 import { cn } from '@/lib/utils';
 
@@ -146,6 +148,37 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
     fetcher
   );
 
+  // Fetch user's chapter rating (only when chapterData is available)
+  const { data: userChapterRating, mutate: mutateChapterRating } = useSWR<{ rating: number | null }>(
+    () => chapterData?.id ? `/api/chapters/${chapterData.id}/rate` : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+  const [optimisticChapterRating, setOptimisticChapterRating] = useState<number | null>(null);
+  const currentChapterRating = optimisticChapterRating ?? userChapterRating?.rating ?? null;
+  const t = useT();
+
+  const handleChapterRate = async (rating: number) => {
+    if (!chapterData?.id) return;
+    setOptimisticChapterRating(rating);
+    try {
+      const res = await fetch(`/api/chapters/${chapterData.id}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating }),
+      });
+      if (res.status === 401) {
+        setOptimisticChapterRating(null);
+        router.push('/auth/login?message=loginToRate');
+        return;
+      }
+      if (!res.ok) throw new Error(t('reviews.errorRating'));
+      await mutateChapterRating();
+    } catch {
+      setOptimisticChapterRating(null);
+    }
+  };
+
   // Extract slug from chapter data once loaded (backward compat for mangaId-only URLs)
 
   useEffect(() => {
@@ -268,10 +301,22 @@ export default function ReaderContent({ slug: slugProp, chapterNumber: chapterNu
               <h1 className="text-sm font-medium text-[var(--text-primary)] truncate max-w-xs">
                 {chapterData.manga.title}
               </h1>
-              <p className="text-xs text-[var(--text-secondary)]">
-                Capítulo {chapterData.chapterNumber}
-                {chapterData.title && ` - ${chapterData.title}`}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Capítulo {chapterData.chapterNumber}
+                  {chapterData.title && ` - ${chapterData.title}`}
+                </p>
+                <span className="text-[var(--text-muted)] text-xs">|</span>
+                <div className="flex items-center gap-1.5">
+                  <StarRating
+                    value={currentChapterRating ?? 0}
+                    interactive={true}
+                    size="sm"
+                    userRating={currentChapterRating || undefined}
+                    onChange={handleChapterRate}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

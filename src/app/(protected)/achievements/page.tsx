@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 
 import { AchievementBadgeDisplay } from '@/components/Achievements/AchievementBadgeDisplay';
 import { AchievementGrid } from '@/components/Achievements/AchievementGrid';
+import { ShareAchievementButton } from '@/components/Achievements/ShareAchievementButton';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import type { Difficulty } from '@/hooks/useAchievements';
@@ -402,6 +403,12 @@ export default async function AchievementsPage() {
                     <span className="text-xs text-[var(--warning)] font-medium">
                       +{ach.xpReward} XP
                     </span>
+                    <ShareAchievementButton
+                      badgeId={ach.badgeId}
+                      name={ach.name}
+                      rarity={ach.difficulty as any}
+                      xpReward={ach.xpReward}
+                    />
                   </Card>
                 ))}
               </div>
@@ -437,11 +444,17 @@ export default async function AchievementsPage() {
                       size="md"
                       showGlow={ach.difficulty === 'LEGENDARY'}
                     />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <h2 className="font-semibold text-sm truncate">{ach.name}</h2>
                       <p className="text-xs text-muted line-clamp-1">{ach.description}</p>
                       <p className="text-xs text-[var(--warning)] mt-0.5 font-medium">+{ach.xpReward} XP</p>
                     </div>
+                    <ShareAchievementButton
+                      badgeId={ach.badgeId}
+                      name={ach.name}
+                      rarity={ach.difficulty as any}
+                      xpReward={ach.xpReward}
+                    />
                   </Card>
                 ))}
               </div>

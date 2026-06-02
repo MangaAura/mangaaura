@@ -35,7 +35,8 @@
     "and": "y",
     "all": "Todos",
     "breadcrumb": "Navegación",
-    "user": "Usuario"
+    "user": "Usuario",
+    "welcomeBack": "Bienvenido de vuelta"
   },
   "a11y": {
     "skipToContent": "Saltar al contenido",
@@ -70,7 +71,18 @@
     "openMenu": "Abrir menú",
     "quests": "Misiones",
     "sponsorships": "Patrocinios",
-    "economy": "Economía"
+    "economy": "Economía",
+    "loginToRate": "Inicia sesión para puntuar",
+    "loginToAddToLibrary": "Inicia sesión para añadir a tu biblioteca",
+    "loginToUpload": "Inicia sesión para subir contenido",
+    "loginToNotifications": "Inicia sesión para ver tus notificaciones",
+    "loginToRepost": "Inicia sesión para compartir",
+    "loginToCreateClan": "Inicia sesión para crear un clan",
+    "loginToCheckout": "Inicia sesión para continuar con el pago",
+    "loginToReport": "Inicia sesión para reportar",
+    "loginToJoinClan": "Inicia sesión para unirte al clan",
+    "loginToAccess": "Inicia sesión para acceder",
+    "loginToViewLibrary": "Inicia sesión para ver tu biblioteca"
   },
   "manga": {
     "title": "Manga",
@@ -94,6 +106,7 @@
     "tags": "Géneros",
     "rating": "Valoración",
     "views": "Vistas",
+    "chapterViews": "Vistas de capítulos",
     "description": "Descripción",
     "noChapters": "No hay capítulos aún",
     "latestChapter": "Último capítulo",
@@ -109,6 +122,7 @@
     "inLibrary": "en la biblioteca",
     "pagesAbbr": "páginas.",
     "viewAllChapters": "Ver todos los capítulos {count}",
+    "yourRating": "Tu puntuación",
     "byAuthor": "por {author}",
     "lastUpdated": "Última actualización {date}",
     "publishedOn": "Publicado {date}"
@@ -610,7 +624,6 @@
     "terms": "Términos",
     "termsOfService": "Términos de servicio",
     "dmca": "DMCA",
-    "contact": "Contacto",
     "help": "Ayuda",
     "copyright": "© {year} MangaAura. Todos los derechos reservados.",
     "platform": "Plataforma",
@@ -1065,6 +1078,36 @@
       }
     }
   },
+  "reviews": {
+    "title": "Reseñas",
+    "writeReview": "Escribir reseña",
+    "yourReview": "Tu reseña",
+    "review": "reseña",
+    "reviews": "reseñas",
+    "selectRatingHint": "Selecciona una puntuación",
+    "contentPlaceholder": "Escribe tu opinión sobre este manga (opcional)...",
+    "publishReview": "Publicar reseña",
+    "updateReview": "Actualizar reseña",
+    "sortBy": "Ordenar:",
+    "sortRecent": "Más recientes",
+    "sortHelpful": "Más útiles",
+    "sortHighest": "Mejor puntuados",
+    "sortLowest": "Peor puntuados",
+    "emptyTitle": "Sin reseñas",
+    "emptyDescription": "Sé el primero en escribir una reseña",
+    "helpful": "Útil",
+    "loadMore": "Cargar más reseñas",
+    "loadError": "Error al cargar reseñas",
+    "submitError": "Error al enviar reseña",
+    "levelAbbr": "Nv.",
+    "count": "({count})",
+    "errorRating": "Error al puntuar",
+    "errorNotFound": "Reseña no encontrada",
+    "errorMangaNotFound": "Manga no encontrado",
+    "errorNotAuthenticated": "No autenticado",
+    "errorRatingInvalid": "Rating debe ser entre 1 y 5",
+    "errorServer": "Error interno del servidor"
+  },
   "userProfile": {
     "stats": {
       "mangas": "Mangas",
@@ -1074,7 +1117,8 @@
       "streak": "Racha",
       "streakDays": "{count} días",
       "created": "Creados",
-      "collections": "Colecciones"
+      "collections": "Colecciones",
+      "referrals": "Referidos"
     },
     "roles": {
       "admin": "Admin",
@@ -1089,19 +1133,22 @@
       "reading": "Lectura",
       "achievements": "Logros",
       "created": "Creados",
-      "collections": "Colecciones"
+      "collections": "Colecciones",
+      "ratings": "Valoraciones"
     },
-    "activity": {
-      "readChapter": "Leyó un capítulo",
-      "followUser": "Siguió a un usuario",
-      "followManga": "Siguió un manga",
-      "comment": "Comentó",
-      "achievement": "Desbloqueó un logro",
-      "createManga": "Publicó un manga",
-      "levelUp": "Subió de nivel",
-      "unfollowUser": "Dejó de seguir",
-      "unfollowManga": "Dejó de seguir un manga",
-      "shareManga": "Compartió un manga"
+    "activity": {"readChapter": "Leyó un capítulo",
+                "followUser": "Siguió a un usuario",
+                "followManga": "Siguió un manga",
+                "comment": "Comentó",
+                "achievement": "Desbloqueó un logro",
+                "createManga": "Publicó un manga",
+                "completedManga": "Completó un manga",
+                "ratedManga": "Puntuó un manga",
+                "joinedClan": "Se unió a un clan",
+                "levelUp": "Subió de nivel",
+                "unfollowUser": "Dejó de seguir",
+                "unfollowManga": "Dejó de seguir un manga",
+                "shareManga": "Compartió un manga"
     },
     "timeLabels": {
       "today": "Hoy",
@@ -1140,7 +1187,8 @@
       "exploreMangas": "Explorar mangas",
       "viewHistory": "Ver historial completo",
       "viewAllAchievements": "Ver todos los logros",
-      "sendMessage": "Enviar mensaje"
+      "sendMessage": "Enviar mensaje",
+      "share": "Compartir perfil"
     },
     "followsYou": "Te sigue",
     "shareProfile": "Compartir perfil",
@@ -1790,7 +1838,7 @@
       "agent": "Agente Designado DMCA",
       "agentDesc": "Envía tus notificaciones de infracción de copyright a:",
       "agentName": "MangaAura DMCA Agent",
-      "agentEmail": "Email: dmca@mangaaura.es",
+      "agentEmail": "Email: support@mangaaura.es",
       "agentAddress": "Dirección: Disponible bajo solicitud",
       "counterNotice": "Contra-Notificación",
       "counterNoticeDesc": "Si crees que tu contenido fue eliminado por error o que tienes derecho a usar el material, puedes enviar una contra-notificación que debe incluir:",
@@ -1874,7 +1922,7 @@
       "section9Title": "9. Cambios en los Términos",
       "section9Content": "Podemos modificar estos términos en cualquier momento. Los cambios significativos serán notificados con 30 días de antelación. El uso continuado del servicio constituye aceptación de los términos modificados.",
       "section10Title": "10. Contacto",
-      "section10Content": "Si tienes preguntas sobre estos términos, contáctanos a través del formulario de contacto o en soporte@mangaaura.es",
+      "section10Content": "Si tienes preguntas sobre estos términos, contáctanos a través del formulario de contacto o en support@mangaaura.es",
       "confirmation": "Al usar MangaAura, confirmas que has leído, entendido y aceptado estos Términos de Servicio."
     }
   },
@@ -2141,6 +2189,7 @@
       "invite": "Invita a tus amigos",
       "earn": "Gana 10% de su primera compra",
       "share": "Compartir código",
+      "copied": "¡Copiado!",
       "pending": "Pendientes",
       "unlocked": "Desbloqueados",
       "claimed": "Reclamados",
@@ -2154,6 +2203,27 @@
         "notUnlocked": "El usuário aún no ha realizado una compra",
         "alreadyClaimed": "Ya reclamaste este bono",
         "needPurchase": "Debes hacer una compra para reclamar bonuses de referido"
+      },
+      "socialShare": {
+        "title": "Invita por",
+        "whatsapp": "WhatsApp",
+        "twitter": "Twitter",
+        "telegram": "Telegram",
+        "copyLink": "Copiar enlace"
+      },
+      "milestones": {
+        "title": "Metas de Referidos",
+        "progress": "{current}/{target} referidos",
+        "badges": {
+          "RECRUITER": "Reclutador",
+          "RECRUITER_desc": "Invita a 3 amigos",
+          "INFLUENCER": "Influencer",
+          "INFLUENCER_desc": "Invita a 10 amigos",
+          "VIRAL": "Viral",
+          "VIRAL_desc": "Invita a 25 amigos",
+          "LEGEND": "Leyenda",
+          "LEGEND_desc": "Invita a 50 amigos"
+        }
       }
     },
     "history": {
@@ -2506,7 +2576,7 @@
       "title": "Reportar Contenido",
       "description": "Reporta contenido inapropiado, infracciones o violaciones en MangaAura."
     },
-    "sobreNosotros": {
+    "aboutUs": {
       "title": "Sobre Nosotros",
       "description": "Conoce más sobre MangaAura, la plataforma definitiva para leer y descubrir manga."
     },
@@ -2667,7 +2737,7 @@
       "title": "Guías de Manga",
       "description": "Guías completas sobre dónde leer manga legal, mejores aplicaciones y plataformas de compra."
     },
-    "comoFunciona": {
+    "howItWorks": {
       "title": "Cómo funciona MangaAura",
       "description": "Descubre cómo funciona MangaAura, la plataforma de manga con IA para leer, crear y crowdfundear capítulos. Guía completa para lectores y creadores.",
       "badge": "Guía completa",

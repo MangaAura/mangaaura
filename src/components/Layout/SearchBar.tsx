@@ -445,7 +445,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
                       return (
                         <Link
                           key={slug}
-                          href={`/search_ia?tag=${encodeURIComponent(slug)}`}
+                          href={`/search-ai?tag=${encodeURIComponent(slug)}`}
                           onClick={() => {
                             setIsOpen(false);
                             setQuery('');
@@ -542,7 +542,7 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
                 <div className="border-t border-[var(--border)]/50 divide-y divide-[var(--border)]/30">
                   {/* Try IA Search */}
                   <Link
-                    href={`/search_ia?q=${encodeURIComponent(debouncedQuery)}`}
+                    href={`/search-ai?q=${encodeURIComponent(debouncedQuery)}`}
                     onClick={() => {
                       setIsOpen(false);
                       setQuery('');

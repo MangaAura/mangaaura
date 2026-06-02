@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 const navItems: { href: string; labelKey: string; icon: typeof Home }[] = [
   { href: '/', labelKey: 'nav.home', icon: Home },
-  { href: '/search_ia', labelKey: 'nav.browse', icon: Compass },
+  { href: '/search-ai', labelKey: 'nav.browse', icon: Compass },
   { href: '/library', labelKey: 'nav.library', icon: Library },
   { href: '/notifications', labelKey: 'nav.notifications', icon: Bell },
   { href: '/profile', labelKey: 'nav.profile', icon: User },

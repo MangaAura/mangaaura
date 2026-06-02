@@ -28,7 +28,7 @@ export async function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
             </p>
           </div>
           <Link
-            href="/auth/login"
+            href="/auth/login?message=loginToAccess"
             className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-semibold rounded-xl transition-colors"
           >
             <LogIn className="w-4 h-4" />

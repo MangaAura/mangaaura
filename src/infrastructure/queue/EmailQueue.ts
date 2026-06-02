@@ -26,6 +26,7 @@ export type EmailJobType =
   | 'level-up'
   | 'mention'
   | 'clan-invite'
+  | 'referral-signup'
   | 'marketing'
   | 'custom';
 
@@ -130,6 +131,12 @@ export interface ClanInviteData extends EmailJobData {
   clanName: string;
   clanSlug: string;
   inviterUsername: string;
+}
+
+export interface ReferralSignupData extends EmailJobData {
+  type: 'referral-signup';
+  refereeId: string;
+  refereeUsername: string;
 }
 
 export interface EmailJobOptions {
@@ -341,6 +348,11 @@ export class EmailQueue {
   /** Email de invitación a clan */
   async addClanInviteEmail(data: Omit<ClanInviteData, 'type'>): Promise<Job> {
     return this.addEmailJob('clan-invite', data, { priority: 2 });
+  }
+
+  /** Email de nuevo referido registrado */
+  async addReferralSignupEmail(data: Omit<ReferralSignupData, 'type'>): Promise<Job> {
+    return this.addEmailJob('referral-signup', data, { priority: 2 });
   }
 
   // ─── Stats ─────────────────────────────────────────────────────

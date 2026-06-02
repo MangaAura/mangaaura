@@ -285,14 +285,11 @@ export function WebsiteStructuredData() {
       'query-input': 'required name=search_term_string',
     },
     sameAs: [
-      'https://twitter.com/mangaaura',
-      'https://discord.gg/mangaaura',
-      'https://github.com/mangaaura',
-      'https://www.instagram.com/mangaaura/',
-      'https://www.reddit.com/r/mangaaura/',
-      'https://www.youtube.com/@mangaaura',
-      'https://www.twitch.tv/mangaaura',
-      'https://www.tiktok.com/@mangaaura',
+      'https://x.com/MangaAura',
+      'https://instagram.com/mangaauraoficial',
+      'https://tiktok.com/@mangaauraoficial',
+      'https://youtube.com/@MangaAuraOficial',
+      'https://discord.gg/56wKdQ2qGt',
     ],
   };
 
@@ -400,14 +397,11 @@ export function OrganizationStructuredData() {
       email: 'support@mangaaura.es',
     },
     sameAs: [
-      'https://twitter.com/mangaaura',
-      'https://discord.gg/mangaaura',
-      'https://github.com/mangaaura',
-      'https://www.instagram.com/mangaaura/',
-      'https://www.reddit.com/r/mangaaura/',
-      'https://www.youtube.com/@mangaaura',
-      'https://www.twitch.tv/mangaaura',
-      'https://www.tiktok.com/@mangaaura',
+      'https://x.com/MangaAura',
+      'https://instagram.com/mangaauraoficial',
+      'https://tiktok.com/@mangaauraoficial',
+      'https://youtube.com/@MangaAuraOficial',
+      'https://discord.gg/56wKdQ2qGt',
     ],
   };
 

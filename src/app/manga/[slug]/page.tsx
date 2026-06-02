@@ -97,8 +97,13 @@ const getMangaData = cache(async (slug: string): Promise<MangaData | null> => {
 
       if (!manga) return null;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const totalViews = manga.chapters.reduce((sum: number, ch: any) => sum + ch.viewCount, 0);
+      // Sum of all chapter viewCounts (aggregate covers ALL chapters, not just take: 50)
+      const chapterViewAgg = await prisma.chapter.aggregate({
+        where: { mangaId: manga.id },
+        _sum: { viewCount: true },
+      });
+      const totalViews = chapterViewAgg._sum.viewCount || 0;
+
       const tags = JSON.parse(manga.tags || '[]') as string[];
       const systemTags = manga.mangaTags.map((mt) => ({
         id: mt.tag.id,
@@ -120,7 +125,7 @@ const getMangaData = cache(async (slug: string): Promise<MangaData | null> => {
         tags,
         systemTags,
         rating: manga.rating,
-        totalViews: totalViews + manga.totalViews,
+        totalViews,
         createdAt: manga.createdAt,
         updatedAt: manga.updatedAt,
         chapters: manga.chapters,

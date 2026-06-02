@@ -2,14 +2,14 @@ import type { MetadataRoute } from 'next';
 
 import { prisma } from '@/lib/prisma';
 
-const BASE_URL = process.env.NEXTAUTH_URL || 'https://mangaaura.es';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://mangaaura.es';
 
 // Static routes with priorities
 const staticRoutes = [
   // Core
   { path: '', priority: 1.0, changefreq: 'daily' },
   { path: '/explore', priority: 0.9, changefreq: 'daily' },
-  { path: '/search_ia', priority: 0.9, changefreq: 'daily' },
+  { path: '/search-ai', priority: 0.9, changefreq: 'daily' },
   { path: '/search_advanced', priority: 0.7, changefreq: 'weekly' },
   { path: '/rankings', priority: 0.8, changefreq: 'daily' },
   { path: '/discover', priority: 0.8, changefreq: 'daily' },
@@ -52,29 +52,28 @@ const staticRoutes = [
   { path: '/announcements', priority: 0.6, changefreq: 'weekly' },
   { path: '/blog', priority: 0.7, changefreq: 'weekly' },
   { path: '/news', priority: 0.7, changefreq: 'weekly' },
-  { path: '/guias', priority: 0.8, changefreq: 'weekly' },
-  { path: '/guias/donde-leer-manga-legal-seguro', priority: 0.7, changefreq: 'monthly' },
-  { path: '/guias/mejores-apps-leer-manga', priority: 0.7, changefreq: 'monthly' },
-  { path: '/guias/comprar-manga-digital-espana', priority: 0.7, changefreq: 'monthly' },
-  { path: '/guias/guia-principiantes-manga', priority: 0.7, changefreq: 'monthly' },
-  { path: '/guias/aplicaciones-recomendaciones-personalizadas', priority: 0.7, changefreq: 'monthly' },
-  { path: '/guias/manga-mas-vendido-historia', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guides', priority: 0.8, changefreq: 'weekly' },
+  { path: '/guides/where-to-read-manga-legally', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guides/best-apps-to-read-manga', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guides/buying-manga-digital-spain', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guides/beginners-guide-to-manga', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guides/personalized-recommendations-apps', priority: 0.7, changefreq: 'monthly' },
+  { path: '/guides/best-selling-manga-history', priority: 0.7, changefreq: 'monthly' },
 
   // Legal & support
   { path: '/faq', priority: 0.6, changefreq: 'monthly' },
   { path: '/contact', priority: 0.5, changefreq: 'monthly' },
-  { path: '/contacto', priority: 0.5, changefreq: 'monthly' },
   { path: '/help', priority: 0.5, changefreq: 'monthly' },
   { path: '/report', priority: 0.4, changefreq: 'monthly' },
   { path: '/legal/privacy', priority: 0.4, changefreq: 'monthly' },
   { path: '/legal/terms', priority: 0.4, changefreq: 'monthly' },
   { path: '/legal/dmca', priority: 0.3, changefreq: 'monthly' },
   { path: '/comparison', priority: 0.5, changefreq: 'monthly' },
-  { path: '/sobre-nosotros', priority: 0.5, changefreq: 'monthly' },
+  { path: '/about-us', priority: 0.5, changefreq: 'monthly' },
 
   // Onboarding
   { path: '/welcome', priority: 0.4, changefreq: 'monthly' },
-  { path: '/como-funciona', priority: 0.8, changefreq: 'monthly' },
+  { path: '/how-it-works', priority: 0.8, changefreq: 'monthly' },
 ];
 
 // Safe DB query wrapper that suppresses Prisma errors during build

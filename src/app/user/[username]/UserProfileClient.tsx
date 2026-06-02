@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { AchievementsModal } from '@/app/(protected)/profile/AchievementsModal';
+import { StarRating } from '@/components/ui/StarRating';
 import { CollectionsModal } from '@/app/(protected)/profile/CollectionsModal';
 import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
 import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
@@ -125,6 +126,18 @@ interface UserData {
   activitiesFeed: ActivityItem[];
   clanMemberships: { clan: { id: string; name: string; slug: string; emblemUrl: string | null } }[];
   collections?: Array<{ id: string; name: string; description?: string | null; coverUrl: string | null; _count: { items: number; likes: number } }>;
+  reviews?: Array<{
+    id: string;
+    rating: number;
+    content: string | null;
+    createdAt: string | Date;
+    manga: {
+      id: string;
+      title: string;
+      slug: string;
+      coverUrl: string | null;
+    };
+  }>;
 }
 
 interface UserProfileClientProps {
@@ -139,6 +152,18 @@ interface UserProfileClientProps {
     status: string;
   }>;
   isFollowingUser?: boolean;
+  reviews?: Array<{
+    id: string;
+    rating: number;
+    content: string | null;
+    createdAt: string | Date;
+    manga: {
+      id: string;
+      title: string;
+      slug: string;
+      coverUrl: string | null;
+    };
+  }>;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
@@ -247,7 +272,7 @@ function CircularProgress({ percentage, t }: { percentage: number; t: (key: stri
 
 function ReadingCard({ progress, t, dateLocale }: { progress: ReadingProgressItem; t: (key: string, params?: Record<string, string | number>) => string; dateLocale: Locale }) {
   return (
-    <Link href={`/manga/${progress.manga.slug}`}>
+    <Link href={`/manga/${progress.manga.slug}/chapter/${progress.chapter?.chapterNumber || 1}`}>
       <motion.div
         whileHover={{ scale: 1.02 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -518,7 +543,7 @@ function CollectionsTabSkeleton() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────────
 
-export function UserProfileClient({ user, isOwnProfile, sessionUserId, following, followers, libraryEntries, isFollowingUser }: UserProfileClientProps) {
+export function UserProfileClient({ user, isOwnProfile, sessionUserId, following, followers, libraryEntries, isFollowingUser, reviews: initialReviews }: UserProfileClientProps) {
   const t = useT();
   const { locale } = useLocale();
   const dateLocale = locale === 'es' ? es : enUS;
@@ -713,6 +738,18 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
                   </span>
                 </TabsTrigger>
               )}
+              {initialReviews && initialReviews.length > 0 && (
+                <TabsTrigger
+                  value="ratings"
+                  className="flex items-center gap-2 data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--text-inverse)] data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Star className="w-4 h-4" />
+                  {t('userProfile.tabs.ratings')}
+                  <span className="ml-1 bg-[var(--primary)]/20 text-[var(--primary)] text-xs rounded-full px-1.5 py-0.5">
+                    {initialReviews.length}
+                  </span>
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* ══ Activity Tab — Timeline Style ══ */}
@@ -785,6 +822,64 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
                               <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{col._count?.items || 0}</span>
                               <span className="flex items-center gap-1"><Star className="w-3 h-3" />{col._count?.likes || 0}</span>
                             </div>
+                          </Card>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </TabsContent>
+            )}
+
+            {/* ══ Ratings Tab ══ */}
+            {initialReviews && initialReviews.length > 0 && (
+              <TabsContent value="ratings" className="border border-[var(--border)]/50 rounded-xl p-5">
+                {!ready ? <CreatedTabSkeleton /> : (
+                  <motion.div
+                    className="space-y-3"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {initialReviews.map((review) => (
+                      <motion.div key={review.id} variants={itemVariants}>
+                        <Link href={`/manga/${review.manga.slug}`}>
+                          <Card className="flex items-center gap-4 p-4 hover:border-[var(--primary)]/30 transition-all">
+                            <div className="w-12 h-16 rounded-lg overflow-hidden bg-[var(--border)] flex-shrink-0">
+                              {review.manga.coverUrl ? (
+                                <Image
+                                  src={review.manga.coverUrl}
+                                  alt={review.manga.title}
+                                  width={48}
+                                  height={64}
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)]">
+                                  <span className="text-[var(--text-inverse)] font-bold text-sm">{review.manga.title[0]}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-sm truncate group-hover:text-[var(--primary)] transition-colors">
+                                {review.manga.title}
+                              </h3>
+                              <div className="flex items-center gap-2 mt-1">
+                                <StarRating value={review.rating} size="sm" showAverage />
+                                <span className="text-xs text-[var(--text-tertiary)]">
+                                  {review.rating}/5
+                                </span>
+                              </div>
+                              {review.content && (
+                                <p className="text-xs text-[var(--text-tertiary)] mt-1 line-clamp-2">
+                                  {review.content}
+                                </p>
+                              )}
+                              <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                                {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocale })}
+                              </p>
+                            </div>
+                            <Star className="w-5 h-5 text-[var(--warning)] fill-[var(--warning)] flex-shrink-0" />
                           </Card>
                         </Link>
                       </motion.div>

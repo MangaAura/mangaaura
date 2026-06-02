@@ -78,6 +78,10 @@ export async function GET(_request: NextRequest) {
             target = condition.level || 1;
             progress = Math.min(userStats.currentLevel, target);
             break;
+          case 'REFERRALS_SENT':
+            target = condition.count || 1;
+            progress = Math.min(userStats.referralsSent, target);
+            break;
           default:
             target = condition.count || 1;
             progress = 0;
@@ -247,6 +251,7 @@ async function getUserStats(userId: string): Promise<{
   mangasCreated: number;
   sponsorshipsWon: number;
   currentLevel: number;
+  referralsSent: number;
 } | null> {
   try {
     const [
@@ -257,6 +262,7 @@ async function getUserStats(userId: string): Promise<{
       commentLikesReceived,
       mangasCreated,
       sponsorshipsWon,
+      referralsSent,
       user,
     ] = await Promise.all([
       prisma.readingSession.count({ where: { userId, endedAt: { not: null } } }),
@@ -266,6 +272,7 @@ async function getUserStats(userId: string): Promise<{
       prisma.commentLike.count({ where: { comment: { userId } } }),
       prisma.mangaSeries.count({ where: { authorId: userId } }),
       prisma.sponsorshipBid.count({ where: { userId, isWinning: true } }),
+      prisma.referralClaim.count({ where: { referrerId: userId } }),
       prisma.user.findUnique({ where: { id: userId }, select: { level: true } }),
     ]);
 
@@ -277,6 +284,7 @@ async function getUserStats(userId: string): Promise<{
       commentLikesReceived,
       mangasCreated,
       sponsorshipsWon,
+      referralsSent,
       currentLevel: user?.level || 1,
     };
   } catch {

@@ -20,6 +20,7 @@ import type {
   LevelUpData,
   MentionData,
   ClanInviteData,
+  ReferralSignupData,
 } from '@/infrastructure/queue/EmailQueue';
 import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
 import { baseEmailTemplate } from '@/lib/email-templates';
@@ -221,6 +222,9 @@ export class EmailWorker {
       case 'clan-invite':
         await this.processClanInviteEmail(job as Job<ClanInviteData>);
         break;
+      case 'referral-signup':
+        await this.processReferralSignupEmail(job as Job<ReferralSignupData>);
+        break;
       case 'custom':
         await this.processCustomEmail(job);
         break;
@@ -245,6 +249,7 @@ export class EmailWorker {
       case 'level-up':
       case 'mention':
       case 'clan-invite':
+      case 'referral-signup':
         return WORKER_TIMEOUTS.EMAIL_WELCOME;
       case 'new-chapter':
         return WORKER_TIMEOUTS.EMAIL_NEW_CHAPTER;
@@ -443,6 +448,32 @@ export class EmailWorker {
       inviterUsername,
       clanSlug
     );
+  }
+
+  private async processReferralSignupEmail(job: Job<ReferralSignupData>): Promise<void> {
+    const { to, refereeUsername } = job.data;
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const referralsUrl = `${baseUrl}/economy/referrals`;
+
+    const { html, text } = baseEmailTemplate({
+      title: '🎉 Nuevo Referido Registrado',
+      preview: `${refereeUsername} se registró con tu código`,
+      content: `
+        <p>¡<strong>${refereeUsername}</strong> se registró en MangaAura con tu código de referido!</p>
+        <p>Cuando haga su primera compra de Aura, ganarás un bono del 10%.</p>
+        <p style="text-align:center;margin:24px 0">
+          <a href="${referralsUrl}" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
+            Ver mis referidos
+          </a>
+        </p>
+      `,
+    });
+
+    await emailService.sendEmail(to, {
+      subject: `🎉 ${refereeUsername} se registró con tu código — MangaAura`,
+      html,
+      text,
+    });
   }
 
   /**

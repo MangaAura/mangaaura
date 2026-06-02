@@ -44,7 +44,7 @@ export default function CreateClanClient() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login?callbackUrl=/community/clans/create');
+      router.push('/auth/login?message=loginToCreateClan&callbackUrl=/community/clans/create');
     }
   }, [status, router]);
 

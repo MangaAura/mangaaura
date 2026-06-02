@@ -13,7 +13,6 @@ const mockT = vi.hoisted(() => (key: string) => {
     'footer.sectionSupport': 'Soporte',
     'footer.sectionLegal': 'Legal',
     'footer.help': 'Ayuda',
-    'footer.contact': 'Contacto',
     'footer.report': 'Reportar',
     'footer.terms': 'Términos',
     'footer.privacy': 'Privacidad',
@@ -102,35 +101,24 @@ describe('Footer — Accessibility', () => {
   describe('Social links', () => {
     it('social links have accessible aria-label', () => {
       render(<Footer />);
-      // Social links with aria-label (Discord shows "(Próximamente)")
-      const github = screen.getByLabelText('GitHub');
+      // Social links with aria-label
       const x = screen.getByLabelText('X');
       const instagram = screen.getByLabelText('Instagram');
       const tiktok = screen.getByLabelText('TikTok');
-      expect(github).toBeDefined();
+      const youtube = screen.getByLabelText('YouTube');
+      const discord = screen.getByLabelText('Discord');
       expect(x).toBeDefined();
       expect(instagram).toBeDefined();
       expect(tiktok).toBeDefined();
-    });
-
-    it('disabled social link (Discord) shows "(Próximamente)" in aria-label', () => {
-      render(<Footer />);
-      const discord = screen.getByLabelText('Discord (Próximamente)');
+      expect(youtube).toBeDefined();
       expect(discord).toBeDefined();
     });
 
-    it('active social links open in new tab with rel="noopener noreferrer"', () => {
+    it('social links open in new tab with rel="noopener noreferrer"', () => {
       render(<Footer />);
-      const github = screen.getByLabelText('GitHub');
-      expect(github).toHaveAttribute('target', '_blank');
-      expect(github).toHaveAttribute('rel', 'noopener noreferrer');
-    });
-
-    it('disabled social link does not have target or rel attributes', () => {
-      render(<Footer />);
-      const discord = screen.getByLabelText('Discord (Próximamente)');
-      expect(discord).not.toHaveAttribute('target');
-      expect(discord).not.toHaveAttribute('rel');
+      const x = screen.getByLabelText('X');
+      expect(x).toHaveAttribute('target', '_blank');
+      expect(x).toHaveAttribute('rel', 'noopener noreferrer');
     });
   });
 

@@ -137,6 +137,23 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
       }))
     : false;
 
+  // Fetch user's reviews (with manga info)
+  const reviews = await prisma.review.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+    include: {
+      manga: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          coverUrl: true,
+        },
+      },
+    },
+  });
+
   const [followingData, followersData, libraryEntries] = await Promise.all([
     prisma.follow.findMany({
       where: { followerId: user.id },
@@ -179,6 +196,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
       followers={followersData as any}
       libraryEntries={libraryEntries as any}
       isFollowingUser={isFollowingUser}
+      reviews={reviews}
     />
   );
 }

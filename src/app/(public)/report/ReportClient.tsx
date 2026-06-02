@@ -162,7 +162,7 @@ export default function ReportClient() {
             {t('report.notLoggedIn.description')}
           </p>
           <Link
-            href="/auth/login"
+            href="/auth/login?message=loginToReport"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--text-inverse)] font-medium rounded-xl transition-colors"
           >
             {t('report.notLoggedIn.login')}

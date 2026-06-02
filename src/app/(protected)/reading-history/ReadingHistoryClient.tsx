@@ -116,9 +116,8 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
                   ) : (
                     <Clock size={16} className="shrink-0 text-[var(--warning)]" />
                   )}
-                  <span className="text-sm truncate">
-                    Capítulo {entry.chapter.chapterNumber}{entry.chapter.title ? ` - ${entry.chapter.title}` : ''}
-                  </span>
+                  <span className="text-sm truncate">                      Capítulo {entry.chapter?.chapterNumber}{entry.chapter?.title ? ` - ${entry.chapter.title}` : ''}
+                    </span>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
                   {!entry.completed && (

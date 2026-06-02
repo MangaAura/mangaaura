@@ -182,7 +182,63 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/search',
-        destination: '/search_ia',
+        destination: '/search-ai',
+        permanent: true,
+      },
+      // Spanish → English route redirects
+      {
+        source: '/como-funciona',
+        destination: '/how-it-works',
+        permanent: true,
+      },
+      {
+        source: '/contacto',
+        destination: '/contact',
+        permanent: true,
+      },
+      {
+        source: '/guias',
+        destination: '/guides',
+        permanent: true,
+      },
+      {
+        source: '/guias/donde-leer-manga-legal-seguro',
+        destination: '/guides/where-to-read-manga-legally',
+        permanent: true,
+      },
+      {
+        source: '/guias/mejores-apps-leer-manga',
+        destination: '/guides/best-apps-to-read-manga',
+        permanent: true,
+      },
+      {
+        source: '/guias/comprar-manga-digital-espana',
+        destination: '/guides/buying-manga-digital-spain',
+        permanent: true,
+      },
+      {
+        source: '/guias/guia-principiantes-manga',
+        destination: '/guides/beginners-guide-to-manga',
+        permanent: true,
+      },
+      {
+        source: '/guias/aplicaciones-recomendaciones-personalizadas',
+        destination: '/guides/personalized-recommendations-apps',
+        permanent: true,
+      },
+      {
+        source: '/guias/manga-mas-vendido-historia',
+        destination: '/guides/best-selling-manga-history',
+        permanent: true,
+      },
+      {
+        source: '/sobre-nosotros',
+        destination: '/about-us',
+        permanent: true,
+      },
+      {
+        source: '/search_ia',
+        destination: '/search-ai',
         permanent: true,
       },
     ];

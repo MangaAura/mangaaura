@@ -12,7 +12,6 @@ import {
   PauseCircle,
   XCircle,
   Clock,
-  Star,
   Grid3X3,
   List,
   ChevronRight,
@@ -20,6 +19,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
@@ -27,6 +27,7 @@ import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { NoIndex } from '@/components/SEO/NoIndex';
 import { Button } from '@/components/ui/Button';
 import { EmptyLibrary } from '@/components/ui/EmptyState';
+import { StarRating } from '@/components/ui/StarRating';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { useLibrary, LibraryStatus } from '@/hooks/useLibrary';
 import { cn } from '@/lib/utils';
@@ -109,7 +110,7 @@ if (status === 'unauthenticated') {
       <div className="text-center">          <Library className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4 opacity-30" aria-hidden="true" />
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">Tu Biblioteca</h1>
         <p className="text-[var(--text-tertiary)] mb-6">Inicia sesión para ver tu biblioteca</p>
-        <Link href="/auth/login">
+        <Link href="/auth/login?message=loginToViewLibrary">
           <Button className="px-8 py-2.5">Iniciar sesión</Button>
         </Link>
       </div>
@@ -290,6 +291,32 @@ if (status === 'unauthenticated') {
 function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEntry }) {
   const statusConfig = STATUS_FILTERS.find(f => f.value === entry.status);
   const StatusIcon = statusConfig?.icon || BookOpen;
+  const { data: session } = useSession();
+  const [localRating, setLocalRating] = useState(entry.rating || 0);
+
+  const router = useRouter();
+
+  const handleRate = async (rating: number) => {
+    if (!session?.user?.id) {
+      router.push('/auth/login?message=loginToRate');
+      return;
+    }
+    setLocalRating(rating);
+    try {
+      const res = await fetch(`/api/manga/${entry.mangaId}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating }),
+      });
+      if (res.status === 401) {
+        router.push('/auth/login?message=loginToRate');
+        return;
+      }
+      if (!res.ok) throw new Error('Failed to rate');
+    } catch {
+      setLocalRating(entry.rating || 0);
+    }
+  };
 
   return (
     <Link
@@ -304,6 +331,17 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
+        {/* Rating on cover — top-left */}
+        <div className="absolute top-2 left-2">
+          <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} role="presentation">
+            <StarRating
+              value={localRating}
+              size="sm"
+              interactive
+              onChange={handleRate}
+            />
+          </div>
+        </div>
         <div className={cn(
           'absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--surface)]/80 backdrop-blur-sm text-xs font-medium',
           statusConfig?.color || 'text-[var(--text-tertiary)]'
@@ -324,17 +362,9 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
         <h3 className="font-bold text-sm line-clamp-1 group-hover:text-[var(--info)] transition-colors">
           {entry.manga.title}
         </h3>
-        <div className="flex justify-between items-center mt-1">
-          <p className="text-xs text-[var(--text-tertiary)]">
-            Cap. {entry.currentChapter} / {entry.totalChapters || '?'}
-          </p>
-          {entry.rating && (
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 text-[var(--warning)] fill-[var(--warning)]" aria-hidden="true" />
-              <span className="text-xs font-bold">{entry.rating}/10</span>
-            </div>
-          )}
-        </div>
+        <p className="text-xs text-[var(--text-tertiary)] mt-1">
+          Cap. {entry.currentChapter} / {entry.totalChapters || '?'}
+        </p>
       </div>
     </Link>
   );
@@ -343,6 +373,31 @@ function LibraryCard({ entry }: { entry: import('@/hooks/useLibrary').LibraryEnt
 function LibraryListItem({ entry }: { entry: import('@/hooks/useLibrary').LibraryEntry }) {
   const statusConfig = STATUS_FILTERS.find(f => f.value === entry.status);
   const StatusIcon = statusConfig?.icon || BookOpen;
+  const { data: session } = useSession();
+  const [localRating, setLocalRating] = useState(entry.rating || 0);
+  const router = useRouter();
+
+  const handleRate = async (rating: number) => {
+    if (!session?.user?.id) {
+      router.push('/auth/login?message=loginToRate');
+      return;
+    }
+    setLocalRating(rating);
+    try {
+      const res = await fetch(`/api/manga/${entry.mangaId}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating }),
+      });
+      if (res.status === 401) {
+        router.push('/auth/login?message=loginToRate');
+        return;
+      }
+      if (!res.ok) throw new Error('Failed to rate');
+    } catch {
+      setLocalRating(entry.rating || 0);
+    }
+  };
 
   return (
     <Link
@@ -390,12 +445,14 @@ function LibraryListItem({ entry }: { entry: import('@/hooks/useLibrary').Librar
           <span className="text-sm text-[var(--text-tertiary)]">
             Cap. {entry.currentChapter} / {entry.totalChapters || '?'}
           </span>
-          {entry.rating && (
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-[var(--warning)] fill-[var(--warning)]" aria-hidden="true" />
-              <span className="text-sm font-bold">{entry.rating}</span>
-            </div>
-          )}
+          <div className="flex items-center" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} role="presentation">
+            <StarRating
+              value={localRating}
+              size="sm"
+              interactive
+              onChange={handleRate}
+            />
+          </div>
         </div>
       </div>
 

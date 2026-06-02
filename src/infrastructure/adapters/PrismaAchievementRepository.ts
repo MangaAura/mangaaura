@@ -49,6 +49,7 @@ export class PrismaAchievementRepository implements IAchievementRepository {
       mangasCreated,
       sponsorshipsWon,
       questsCompleted,
+      referralsSent,
       user,
       genreProgress,
     ] = await Promise.all([
@@ -60,6 +61,7 @@ export class PrismaAchievementRepository implements IAchievementRepository {
       this.prisma.mangaSeries.count({ where: { authorId: userId } }),
       this.prisma.sponsorshipBid.count({ where: { userId, isWinning: true } }),
       this.prisma.userQuest.count({ where: { userId, completed: true } }),
+      this.prisma.referralClaim.count({ where: { referrerId: userId } }),
       this.prisma.user.findUnique({ where: { id: userId }, select: { level: true, readingStreak: true } }),
       this.prisma.userGenreProgress.findMany({
         where: { userId },
@@ -81,6 +83,7 @@ export class PrismaAchievementRepository implements IAchievementRepository {
       mangasCreated,
       sponsorshipsWon,
       questsCompleted,
+      referralsSent,
       currentLevel: user?.level || 1,
       readingStreak: user?.readingStreak || 0,
       genreChaptersRead,

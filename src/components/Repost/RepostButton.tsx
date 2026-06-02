@@ -20,7 +20,7 @@ export function RepostButton({ originalType, originalId, initialReposted = false
 
   const handleRepost = async () => {
     if (!session?.user?.id) {
-      router.push('/auth/login');
+      router.push('/auth/login?message=loginToRepost');
       return;
     }
     setLoading(true);

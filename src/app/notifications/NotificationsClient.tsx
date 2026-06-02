@@ -28,7 +28,7 @@ export default function NotificationsClient() {
 
   useEffect(() => {
     if (status !== 'loading' && !session) {
-      router.push('/auth/login?callbackUrl=/notifications');
+      router.push('/auth/login?message=loginToNotifications&callbackUrl=/notifications');
     }
   }, [session, status, router]);
 

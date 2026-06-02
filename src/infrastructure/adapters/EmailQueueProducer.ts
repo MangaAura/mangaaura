@@ -180,6 +180,32 @@ export class EmailQueueProducer implements IEmailQueueProducer {
     }
   }
 
+  async sendReferralSignupEmail(
+    userId: string,
+    data: {
+      refereeId: string;
+      refereeUsername: string;
+    },
+  ): Promise<void> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, username: true },
+      });
+      if (!user?.email) return;
+
+      await getEmailQueue().addReferralSignupEmail({
+        to: user.email,
+        userId,
+        username: user.username,
+        refereeId: data.refereeId,
+        refereeUsername: data.refereeUsername,
+      });
+    } catch (error) {
+      console.error('[EmailQueueProducer] Failed to queue referral signup email:', error);
+    }
+  }
+
   async sendClanInviteEmail(
     userId: string,
     data: {

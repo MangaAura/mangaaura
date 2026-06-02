@@ -69,6 +69,7 @@ interface FormData {
 function Content() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get('callbackUrl') || '/';
+  const refCode = searchParams?.get('ref') || '';
   const { toast } = useToast();
 
   const [formData, setFormData] = useState<FormData>({
@@ -226,6 +227,7 @@ function Content() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
+          referralCode: refCode,
         }),
       });
 

@@ -76,6 +76,7 @@ export default async function ProfilePage() {
             following: true,
             followers: true,
             achievements: true,
+            referralsSent: true,
           },
         },
         clanMemberships: {

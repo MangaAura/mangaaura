@@ -72,7 +72,6 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
   genreSlugSet: Set<string>;
 }) {
   const t = useT();
-  const router = useRouter();
   const displayGenre = (genre: string): string => {
     const normalized = normalizeGenreKey(genre);
     const slug = genreSlugSet.has(normalized) ? normalized : genreSlugs.find(s => normalizeGenreKey(s) === normalized);
@@ -148,18 +147,19 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
           </div>
 
           {manga.authorName && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (manga.authorUsername) {
-                  router.push(`/user/${manga.authorUsername}`);
-                }
-              }}
-              className={`text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors text-left ${manga.authorUsername ? 'cursor-pointer' : 'cursor-default'}`}
-            >
-              {manga.authorName}
-            </button>
+            manga.authorUsername ? (
+              <Link
+                href={`/user/${manga.authorUsername}`}
+                className="text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors block"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {manga.authorName}
+              </Link>
+            ) : (
+              <span className="text-xs text-[var(--text-tertiary)] mb-2 block">
+                {manga.authorName}
+              </span>
+            )
           )}
 
           {manga.description && (
@@ -170,7 +170,7 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
 
           {/* Genre tags */}
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {[...new Set(manga.tags.map(t => normalizeGenreKey(t)))].slice(0, 4).map(tag => {
+            {[...new Set((manga.tags ?? []).map(t => normalizeGenreKey(t)))].slice(0, 4).map(tag => {
               return (
                 <button
                   key={tag}
@@ -386,7 +386,7 @@ function SearchPageContent() {
                 <Compass size={16} />
                 {t('nav.explore')}
               </Link>
-              <Link href="/search_ia" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
+              <Link href="/search-ai" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-all">
                 <Sparkles size={16} />
                 {t('search.iaTitle')}
               </Link>
@@ -619,6 +619,7 @@ function SearchPageContent() {
                           status: manga.status,
                           tags: manga.tags,
                           authorName: manga.authorName,
+                          authorUsername: manga.authorUsername,
                           rating: manga.rating,
                           chapterCount: manga.chapterCount,
                         }}
