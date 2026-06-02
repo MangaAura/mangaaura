@@ -384,6 +384,7 @@
     }
   },
   "about": {
+    "badge": "Since 2023 2014 Building the Future of Manga",
     "hero": {
       "title": "Where Manga",
       "subtitle": "Comes Alive",
@@ -392,6 +393,9 @@
       "ctaTeam": "Meet The Team"
     },
     "stats": {
+      "readersValue": "500K+",
+      "creatorsValue": "2,000+",
+      "mangaValue": "50K+",
       "readers": "Active Readers",
       "creators": "Creators",
       "manga": "Manga Titles"
@@ -420,15 +424,59 @@
       }
     },
     "team": {
-      "badge": "The Team",
-      "title": "Manga lovers building for manga lovers",
-      "subtitle": "A small but passionate team united by our love for manga and our mission to support creators worldwide."
+    "badge": "The Team",
+    "title": "Manga lovers building for manga lovers",
+    "subtitle": "A small but passionate team united by our love for manga and our mission to support creators worldwide.",
+    "member1": {
+      "name": "Kenji Nakamura",
+      "role": "Founder & CEO",
+      "desc": "Ex-editor at Shonen Jump with 15 years experience. Passionate about connecting creators with readers worldwide."
     },
+    "member2": {
+      "name": "Luna Martinez",
+      "role": "Head of Creator Platform",
+      "desc": "Former indie manga artist turned platform architect. Built tools used by 2000+ creators on the platform."
+    },
+    "member3": {
+      "name": "Alex Chen",
+      "role": "Lead Engineer",
+      "desc": "Open source contributor and manga enthusiast. Makes the reading experience smooth as silk."
+    },
+    "member4": {
+      "name": "Yuki Tanaka",
+      "role": "Community Director",
+      "desc": "Runs the largest manga Discord server (50k+ members). Fluent in community building and creator relations."
+    }
+  },
     "values": {
-      "badge": "What We Stand For",
-      "title": "Our Core Values",
-      "subtitle": "Every decision we make is guided by these principles. They are the foundation of MangaAura."
+    "badge": "What We Stand For",
+    "title": "Our Core Values",
+    "subtitle": "Every decision we make is guided by these principles. They are the foundation of MangaAura.",
+    "item1": {
+      "title": "For Creators",
+      "desc": "Powerful tools to publish, monetize, and grow your audience. Keep 80% of your earnings."
     },
+    "item2": {
+      "title": "For Readers",
+      "desc": "Ad-free reading, offline downloads, and a community that celebrates manga culture."
+    },
+    "item3": {
+      "title": "AI Enhanced",
+      "desc": "Smart translations, auto-tagging, and personalized recommendations powered by AI."
+    },
+    "item4": {
+      "title": "Creator First",
+      "desc": "Fair compensation, transparent algorithms, and direct fan support without intermediaries."
+    },
+    "item5": {
+      "title": "Safe Space",
+      "desc": "Zero tolerance for content theft. DMCA protection and robust moderation for everyone."
+    },
+    "item6": {
+      "title": "Global Community",
+      "desc": "Connect with manga fans from 150+ countries. Multilingual support and local events."
+    }
+  },
     "cta": {
       "title": "Ready to join the Aura?",
       "description": "Whether you are a creator ready to share your story or a reader looking for your next favorite manga, there is a place for you in our community.",
@@ -691,7 +739,7 @@
     "sectionLegal": "Legal",
     "sectionResources": "Resources",
     "faq": "FAQ",
-    "guides": "Guides",
+    "guides": {"badge":"Guide Library","title":"Manga Guides","subtitle":"Learn everything about the world of manga: where to read, which apps to use, how to get started, and discover the best-selling series in history.","ctaText":"Can't find what you're looking for?","ctaLink":"Visit our help center"},
     "aboutUs": "About Us",
     "announcements": "Announcements",
     "genres": "Genres",

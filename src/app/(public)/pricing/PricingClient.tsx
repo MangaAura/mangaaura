@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { Container } from '@/components/Layout/Container';
 import { useT } from '@/i18n';
 
 const packVariants: Variants = {
@@ -31,7 +32,6 @@ const planVariants: Variants = {
   }),
 };
 
-// Pricing data derived from src/lib/stripe.ts
 const AURA_PACKS = [
   { id: 'aura_100', aura: 100, priceCents: 100, descKey: 'packBasicDesc', popular: false, icon: Gift },
   { id: 'aura_500', aura: 500, priceCents: 450, descKey: 'packPopularDesc', popular: true, icon: Zap, discount: '10%' },
@@ -342,48 +342,54 @@ export default function PricingClient() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative overflow-hidden pt-20 pb-16 md:pt-28 md:pb-20">
-        {/* Background effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-[var(--primary)]/5 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-[var(--accent-purple)]/5 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[var(--primary)]/[0.02] blur-3xl" />
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface-sunken)] via-[var(--background)] to-[var(--background)]" />
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute top-20 left-[10%] w-72 h-72 bg-[var(--primary)] rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute top-40 right-[15%] w-96 h-96 bg-[var(--accent-purple)] rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-20 left-[30%] w-80 h-80 bg-[var(--accent-blue)] rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '2s' }} />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent-purple)]/20 text-[var(--primary)] border border-[var(--primary)]/20 mb-5">
-              <Sparkles className="w-3.5 h-3.5" />
-              {t('pricing.heroBadge')}
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-              {t('pricing.heroTitle').split(' ').map((word, i, arr) => {
-                if (word === 'Aura') {
-                  return <span key={i} className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] bg-clip-text text-transparent">Aura</span>;
-                }
-                if (word === 'Premium') {
-                  return <span key={i} className="bg-gradient-to-r from-emerald-500 to-emerald-400 bg-clip-text text-transparent">Premium</span>;
-                }
-                return <span key={i}>{word}{i < arr.length - 1 ? ' ' : ''}</span>;
-              })}
-            </h1>
-            <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto mb-8">
-              {t('pricing.heroSubtitle')}
-            </p>
-          </motion.div>
+        <div className="relative z-10 w-full">
+          <Container className="py-20">
+            <div className="max-w-4xl mx-auto text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent-purple)]/20 text-[var(--primary)] border border-[var(--primary)]/20 mb-5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {t('pricing.heroBadge')}
+                </span>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                  {t('pricing.heroTitle').split(' ').map((word, i, arr) => {
+                    if (word === 'Aura') {
+                      return <span key={i} className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] bg-clip-text text-transparent">Aura</span>;
+                    }
+                    if (word === 'Premium') {
+                      return <span key={i} className="bg-gradient-to-r from-emerald-500 to-emerald-400 bg-clip-text text-transparent">Premium</span>;
+                    }
+                    return <span key={i}>{word}{i < arr.length - 1 ? ' ' : ''}</span>;
+                  })}
+                </h1>
+                <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto mb-8">
+                  {t('pricing.heroSubtitle')}
+                </p>
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <BenefitsRow t={t} />
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <BenefitsRow t={t} />
+              </motion.div>
+            </div>
+          </Container>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent pointer-events-none" />
       </section>
 
       {/* Aura Packs */}

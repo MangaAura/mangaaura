@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { AlertTriangle, Info, Megaphone, Wrench, Calendar } from 'lucide-react';
 
 interface AnnouncementWithCreator {
@@ -69,11 +69,13 @@ const typeConfig: Record<string, {
 };
 
 export function AnnouncementsList({ announcements }: Props) {
+  const isReduced = useReducedMotion() ?? false;
+
   if (announcements.length === 0) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={isReduced ? undefined : { opacity: 0, y: 20 }}
+        animate={isReduced ? undefined : { opacity: 1, y: 0 }}
         className="flex flex-col items-center justify-center py-20"
       >
         <div className="w-16 h-16 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] flex items-center justify-center mb-4">
@@ -98,20 +100,21 @@ export function AnnouncementsList({ announcements }: Props) {
         return (
           <motion.div
             key={a.id}
-            initial={{ opacity: 0, y: 20, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial={isReduced ? undefined : { opacity: 0, y: 20, scale: 0.98 }}
+            animate={isReduced ? undefined : { opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: idx * 0.06, duration: 0.4, ease: 'easeOut' }}
-          >              <div
-                className={`
-                  group relative overflow-hidden rounded-xl border bg-[var(--surface-elevated)] p-5
-                  transition-all duration-300 hover:shadow-md hover:-translate-y-0.5
-                  ${config.border}
-                `}
-              >
+          >
+            <div
+              className={`
+                group relative overflow-hidden rounded-xl border bg-[var(--surface-elevated)] p-5
+                transition-all duration-300 hover:shadow-md hover:-translate-y-0.5
+                ${config.border}
+              `}
+            >
               {/* Gradient overlay on hover */}
               <div
                 className={`
-                  absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500
+                  absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
                   bg-gradient-to-br ${config.gradient}
                 `}
               />
@@ -159,9 +162,7 @@ export function AnnouncementsList({ announcements }: Props) {
                       })}
                     </span>
                     <span className="w-px h-3 bg-[var(--border)]" />
-                    <span>
-                      {a.creator.displayName || a.creator.username}
-                    </span>
+                    <span>{a.creator.displayName || a.creator.username}</span>
                     {a.expiresAt && (
                       <>
                         <span className="w-px h-3 bg-[var(--border)]" />
