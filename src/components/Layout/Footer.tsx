@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
   BookOpen,
@@ -99,24 +99,46 @@ export function Footer({ className }: { className?: string }) {
     <footer
       role="contentinfo"
       className={cn(
-        'relative w-full bg-[var(--surface)]',
+        'relative w-full bg-[var(--surface)] overflow-hidden',
         className
       )}
     >
+      {/* Decorative gradient orbs */}
+      <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-[var(--primary)]/3 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full bg-[var(--warning)]/2 blur-3xl pointer-events-none" />
+
       {/* Gradient top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--primary)]/50 to-transparent" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-          <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <Image src="/MangaAura_logo_circular.svg" alt="" width={32} height={32} className="flex-shrink-0" />
-              <RepeatedChar text="MANGAAURA" className="text-xl font-bold text-[var(--text-primary)]" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        {/* 
+          Grid layout:
+          - Mobile: single column, sections stack
+          - Tablet (sm): 2 cols, logo spans full width
+          - Desktop (md): 3 cols, logo spans full width
+          - Large (lg): 6 cols, logo spans 2, each nav section takes 1
+        */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-10">
+          {/* Logo + Social — spans full width on small screens, 2 cols on lg */}
+          <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
+            <Link href="/" className="inline-flex items-center gap-2 mb-4 group">
+              <Image
+                src="/MangaAura_logo_circular.svg"
+                alt=""
+                width={36}
+                height={36}
+                className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+              />
+              <RepeatedChar
+                text="MANGAAURA"
+                className="text-xl font-bold text-[var(--text-primary)] tracking-tight"
+              />
             </Link>
-            <p className="text-[var(--text-primary)]/70 text-sm mb-6 max-w-sm">
+            <p className="text-[var(--text-primary)]/60 text-sm mb-6 max-w-xs leading-relaxed">
               {t('footer.tagline')}
             </p>
 
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
@@ -125,19 +147,22 @@ export function Footer({ className }: { className?: string }) {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-lg flex items-center justify-center bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--primary)] hover:text-[var(--text-inverse)] hover:scale-110 transition-all duration-200"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center bg-[var(--surface-elevated)] text-[var(--text-tertiary)] hover:bg-[var(--primary)] hover:text-[var(--text-inverse)] hover:scale-110 hover:shadow-lg hover:shadow-[var(--primary)]/20 active:scale-95 transition-all duration-200"
                     aria-label={social.name}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4" />
                   </a>
                 );
               })}
             </div>
           </div>
 
+          {/* Nav sections — each takes 1 column on lg */}
           <nav aria-label={t('footer.sectionPlatform')}>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionPlatform')}</h2>
-            <ul className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-4">
+              {t('footer.sectionPlatform')}
+            </h2>
+            <ul className="space-y-2.5">
               {footerLinks.platform
                 .filter((link) => !link.href.includes('/library') || isLoggedIn)
                 .map((link) => {
@@ -146,10 +171,14 @@ export function Footer({ className }: { className?: string }) {
                     <li key={link.labelKey}>
                       <Link
                         href={link.href}
-                        className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                        className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
                       >
-                        <Icon className="w-4 h-4" />
-                        {t(link.labelKey)}
+                        <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                          <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
+                        </span>
+                        <span className="transition-all duration-200 group-hover/link:translate-x-0.5">
+                          {t(link.labelKey)}
+                        </span>
                       </Link>
                     </li>
                   );
@@ -158,18 +187,24 @@ export function Footer({ className }: { className?: string }) {
           </nav>
 
           <nav aria-label={t('footer.sectionSupport')}>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionSupport')}</h2>
-            <ul className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-4">
+              {t('footer.sectionSupport')}
+            </h2>
+            <ul className="space-y-2.5">
               {footerLinks.support.map((link) => {
                 const Icon = link.icon;
                 return (
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
                     >
-                      <Icon className="w-4 h-4" />
-                      {t(link.labelKey)}
+                      <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                        <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
+                      </span>
+                      <span className="transition-all duration-200 group-hover/link:translate-x-0.5">
+                        {t(link.labelKey)}
+                      </span>
                     </Link>
                   </li>
                 );
@@ -178,18 +213,24 @@ export function Footer({ className }: { className?: string }) {
           </nav>
 
           <nav aria-label={t('footer.sectionResources')}>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionResources')}</h2>
-            <ul className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-4">
+              {t('footer.sectionResources')}
+            </h2>
+            <ul className="space-y-2.5">
               {footerLinks.resources.map((link) => {
                 const Icon = link.icon;
                 return (
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
                     >
-                      <Icon className="w-4 h-4" />
-                      {t(link.labelKey)}
+                      <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                        <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
+                      </span>
+                      <span className="transition-all duration-200 group-hover/link:translate-x-0.5">
+                        {t(link.labelKey)}
+                      </span>
                     </Link>
                   </li>
                 );
@@ -198,18 +239,24 @@ export function Footer({ className }: { className?: string }) {
           </nav>
 
           <nav aria-label={t('footer.sectionLegal')}>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{t('footer.sectionLegal')}</h2>
-            <ul className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-4">
+              {t('footer.sectionLegal')}
+            </h2>
+            <ul className="space-y-2.5">
               {footerLinks.legal.map((link) => {
                 const Icon = link.icon;
                 return (
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] text-sm flex items-center gap-2 transition-all hover:translate-x-0.5"
+                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
                     >
-                      <Icon className="w-4 h-4" />
-                      {t(link.labelKey)}
+                      <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                        <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
+                      </span>
+                      <span className="transition-all duration-200 group-hover/link:translate-x-0.5">
+                        {t(link.labelKey)}
+                      </span>
                     </Link>
                   </li>
                 );
@@ -218,26 +265,29 @@ export function Footer({ className }: { className?: string }) {
           </nav>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[var(--text-primary)]/60 text-sm">
+        {/* Bottom bar */}
+        <div className="mt-12 md:mt-16 pt-8 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[var(--text-primary)]/50 text-sm text-center sm:text-left">
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             <Link
               href="/legal/terms"
-              className="text-[var(--text-primary)]/60 hover:text-[var(--text-primary)]/80 text-sm transition-colors"
+              className="text-xs text-[var(--text-primary)]/50 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
             >
               {t('footer.termsOfService')}
             </Link>
+            <span className="w-px h-3 bg-[var(--border)]" aria-hidden="true" />
             <Link
               href="/legal/privacy"
-              className="text-[var(--text-primary)]/60 hover:text-[var(--text-primary)]/80 text-sm transition-colors"
+              className="text-xs text-[var(--text-primary)]/50 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
             >
               {t('footer.privacyPolicy')}
             </Link>
+            <span className="w-px h-3 bg-[var(--border)]" aria-hidden="true" />
             <Link
               href="/legal/dmca"
-              className="text-[var(--text-primary)]/60 hover:text-[var(--text-primary)]/80 text-sm transition-colors"
+              className="text-xs text-[var(--text-primary)]/50 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
             >
               {t('footer.dmca')}
             </Link>
