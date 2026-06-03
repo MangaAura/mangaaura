@@ -137,7 +137,7 @@ export function NavLinks({ links, mobile, mounted = true }: NavLinksProps) {
         return (
           <Link
             key={link.path}
-            href={localeHref(pathname, link.path)}
+            href={link.path}
             className={navLinkVariants({ active, mobile })}
             aria-current={active ? 'page' : undefined}
           >
