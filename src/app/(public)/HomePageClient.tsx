@@ -122,8 +122,8 @@ export function HomePageClient({
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="text-[var(--warning)]" /> {t('home.topMangas')}
             </h2>
-            <Link href="/rankings" aria-label={t('home.viewFullRankings')}>
-              <Button variant="ghost" size="sm">
+            <Link href="/rankings">
+              <Button variant="ghost" size="sm" aria-label={t('home.viewFullRankings')}>
                 {t('common.viewAll')}
               </Button>
             </Link>
@@ -160,8 +160,8 @@ export function HomePageClient({
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                   <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
                 </h2>
-                <Link href="/explore" aria-label={t('home.viewAllMangas')}>
-                  <Button variant="ghost" size="sm">
+                <Link href="/explore">
+                  <Button variant="ghost" size="sm" aria-label={t('home.viewAllMangas')}>
                     {t('common.viewAll')}
                   </Button>
                 </Link>

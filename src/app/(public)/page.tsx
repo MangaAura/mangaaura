@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.png'],
     },
-    ...withHreflang('/'),
+    ...withHreflang('/', locale),
   };
 }
 

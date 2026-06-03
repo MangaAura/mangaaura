@@ -1,31 +1,33 @@
 import type { Metadata } from 'next';
 
 import { SUPPORTED_LOCALES } from '@/i18n/locales';
+import type { Locale } from '@/i18n/locales';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
 /**
  * Adds language alternates (hreflang) and canonical to page metadata.
- * Since MangaAura uses a single-URL approach (no /es/ or /en/ prefixes),
- * all language alternates point to the same URL. Each variant is annotated
- * with its hreflang so search engines and AI crawlers know the content
- * is available in multiple languages at the same URL.
- *
- * The canonical always matches the current path so Google can verify
- * the page has a self-referencing canonical (Lighthouse requirement).
+ * MangaAura uses locale prefixes (/es/, /en/) that the proxy rewrites
+ * internally. The canonical and hreflang URLs include the locale prefix
+ * so search engines see the correct page URL.
  */
-export function withHreflang(path: string): Pick<Metadata, 'alternates'> {
+export function withHreflang(path: string, locale?: Locale): Pick<Metadata, 'alternates'> {
+  // Build locale-prefixed canonical URL
+  const localePath = locale ? `/${locale}${path === '/' ? '' : path}` : path;
+  const canonical = `${BASE_URL}${localePath}`;
+
   const languages: Record<string, string> = {
     'x-default': `${BASE_URL}${path}`,
   };
 
   for (const lang of SUPPORTED_LOCALES) {
-    languages[lang] = `${BASE_URL}${path}`;
+    const langPath = lang === (locale || 'es') ? localePath : `/${lang}${path === '/' ? '' : path}`;
+    languages[lang] = `${BASE_URL}${langPath}`;
   }
 
   return {
     alternates: {
-      canonical: `${BASE_URL}${path}`,
+      canonical,
       languages,
     },
   };
