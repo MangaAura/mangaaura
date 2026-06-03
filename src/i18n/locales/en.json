@@ -1357,7 +1357,10 @@
     "continueTour": "Continue tutorial",
     "floatFallback": "Navigate to this section or skip the step.",
     "restartTour": "Restart tutorial",
-    "restartTourDesc": "Go through the welcome tour again to discover or remember how to use the platform."
+    "restartTourDesc": "Go through the welcome tour again to discover or remember how to use the platform.",
+    "startTour": "Start tour",
+    "notNow": "Not now",
+    "skipStep": "Skip"
   },
   "profileCompletion": {
     "title": "Complete your profile",

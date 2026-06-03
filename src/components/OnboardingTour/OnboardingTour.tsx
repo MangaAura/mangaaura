@@ -260,8 +260,8 @@ function TourIntro({ onStart, onDismiss }: { onStart: () => void; onDismiss: () 
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center"
       >
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <Sparkles className="w-7 h-7 text-white" />
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
+          <img src="/MangaAura_logo_circular.svg" alt="MangaAura" className="w-10 h-10" />
         </div>
         <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
           {t('onboarding.tourTitle')}

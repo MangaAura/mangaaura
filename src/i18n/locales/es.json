@@ -1273,7 +1273,10 @@
     "continueTour": "Continuar tutorial",
     "floatFallback": "Navega a esta sección o salta el paso.",
     "restartTour": "Reiniciar tutorial",
-    "restartTourDesc": "Vuelve a ver el tour de bienvenida para descubrir o recordar cómo usar la plataforma."
+    "restartTourDesc": "Vuelve a ver el tour de bienvenida para descubrir o recordar cómo usar la plataforma.",
+    "startTour": "Iniciar tour",
+    "notNow": "Ahora no",
+    "skipStep": "Saltar"
   },
   "profileCompletion": {
     "title": "Completa tu perfil",
