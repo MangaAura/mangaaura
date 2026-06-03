@@ -110,11 +110,11 @@ export function AccountSettings(_props: AccountSettingsProps) {
       {/* ── Tour interactivo ── */}
       <Card className="p-6 border border-[var(--border)]">
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
+          <div className="w-16 h-16 flex-shrink-0">
             <img
               src="/MangaAura_logo_circular.svg"
               alt="MangaAura"
-              className="w-10 h-10"
+              className="w-full h-full"
               aria-hidden="true"
             />
           </div>
