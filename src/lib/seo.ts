@@ -5,11 +5,14 @@ import { SUPPORTED_LOCALES } from '@/i18n/locales';
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
 /**
- * Adds language alternates (hreflang) to page metadata.
+ * Adds language alternates (hreflang) and canonical to page metadata.
  * Since MangaAura uses a single-URL approach (no /es/ or /en/ prefixes),
  * all language alternates point to the same URL. Each variant is annotated
  * with its hreflang so search engines and AI crawlers know the content
  * is available in multiple languages at the same URL.
+ *
+ * The canonical always matches the current path so Google can verify
+ * the page has a self-referencing canonical (Lighthouse requirement).
  */
 export function withHreflang(path: string): Pick<Metadata, 'alternates'> {
   const languages: Record<string, string> = {
