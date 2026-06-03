@@ -140,6 +140,12 @@ export function NavLinks({ links, mobile, mounted = true }: NavLinksProps) {
             href={link.path}
             className={navLinkVariants({ active, mobile })}
             aria-current={active ? 'page' : undefined}
+            onClick={(e) => {
+              if (active) {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
           >
       {mounted && Icon ? (
             <Icon className={mobile ? 'w-5 h-5' : 'w-4 h-4'} aria-hidden="true" />
