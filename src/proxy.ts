@@ -448,9 +448,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   return response;
 }
 
-export const config = {
-  matcher: [
-    // Include page routes (with locale prefixes) + API routes + static
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons/|apple-touch-icon).*)',
-  ],
-};
+// Note: config.matcher lives in root middleware.ts, which re-exports this proxy function.
+// Having two routing boundaries with different matchers causes trace conflicts on Vercel.
+// middleware.ts's matcher controls which requests reach this module.
+// export const config = { ... } — removed to avoid duplicating the boundary
