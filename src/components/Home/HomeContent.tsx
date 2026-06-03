@@ -4,18 +4,21 @@ import { Trophy, Clock, TrendingUp, Sparkles, BookOpen, Wand2, WifiOff, Gamepad2
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { Suspense, lazy } from 'react';
 
 import { GenreMarquee } from '@/components/GenreMarquee';
 import { AnimatedHero } from '@/components/Home/AnimatedHero';
-import { ContinueReadingSection } from '@/components/Home/ContinueReadingSection';
-import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
-import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
-import { QuestPanelWrapper } from '@/components/Home/QuestPanelWrapper';
 import { MangaCard } from '@/components/MangaCard';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
+
+// Dynamic imports for below-the-fold components to reduce unused JS on initial load
+const ContinueReadingSection = lazy(() => import('@/components/Home/ContinueReadingSection').then(m => ({ default: m.ContinueReadingSection })));
+const HomeNewsSection = lazy(() => import('@/components/Home/HomeNewsSection').then(m => ({ default: m.HomeNewsSection })));
+const HomeRankingsSidebar = lazy(() => import('@/components/Home/HomeRankingsSidebar').then(m => ({ default: m.HomeRankingsSidebar })));
+const QuestPanelWrapper = lazy(() => import('@/components/Home/QuestPanelWrapper').then(m => ({ default: m.QuestPanelWrapper })));
 
 interface MangaData {
   id: string;
@@ -151,19 +154,27 @@ export function HomeContent({
               </section>
             </AnimatedContainer>
 
-            <AnimatedContainer viewport>
-              <HomeNewsSection />
-            </AnimatedContainer>
+            <Suspense fallback={<div className="h-48 animate-pulse bg-[var(--surface-sunken)] rounded-xl" />}>
+              <AnimatedContainer viewport>
+                <HomeNewsSection />
+              </AnimatedContainer>
+            </Suspense>
           </div>
 
           <div className="space-y-6">
-            <ContinueReadingSection />
+            <Suspense fallback={<div className="h-32 animate-pulse bg-[var(--surface-sunken)] rounded-xl" />}>
+              <ContinueReadingSection />
+            </Suspense>
 
-            <QuestPanelWrapper />
+            <Suspense fallback={<div className="h-24 animate-pulse bg-[var(--surface-sunken)] rounded-xl" />}>
+              <QuestPanelWrapper />
+            </Suspense>
 
-            <AnimatedContainer viewport>
-              <HomeRankingsSidebar topMangas={topMangas} />
-            </AnimatedContainer>
+            <Suspense fallback={<div className="h-64 animate-pulse bg-[var(--surface-sunken)] rounded-xl" />}>
+              <AnimatedContainer viewport>
+                <HomeRankingsSidebar topMangas={topMangas} />
+              </AnimatedContainer>
+            </Suspense>
 
             <AnimatedContainer viewport>
               <Card>
