@@ -1,15 +1,14 @@
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';import { Lock,
+import { es } from 'date-fns/locale';
+import { Lock,
   Check,
   Star,
   Sparkles,
   Share2,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-
-import { setOnboardingMarker } from '@/components/Onboarding';
+import { useState } from 'react';
 
 import { AchievementBadgeDisplay } from './AchievementBadgeDisplay';
 import { ShareAchievementModal } from './ShareAchievementModal';
@@ -115,12 +114,6 @@ export function AchievementCard({
   const [now] = useState(() => Date.now());
   const wasJustUnlocked = achievement.userAchievement?.earnedAt &&
     now - achievement.userAchievement.earnedAt.getTime() < 86400000;
-
-  useEffect(() => {
-    if (isUnlocked) {
-      setOnboardingMarker('mangaaura-has-achievement');
-    }
-  }, [isUnlocked]);
 
   const handleClick = () => {
     if (isUnlocked && wasJustUnlocked) {

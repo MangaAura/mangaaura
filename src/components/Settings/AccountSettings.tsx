@@ -1,8 +1,9 @@
 'use client';
 
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
+import { useTour } from '@/components/OnboardingTour/TourContext';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useToast } from '@/components/ui/Toast';
@@ -13,6 +14,7 @@ interface AccountSettingsProps {
 }
 
 export function AccountSettings(_props: AccountSettingsProps) {
+  const { restartTour } = useTour();
   const [markedForDeletionAt, setMarkedForDeletionAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -102,6 +104,33 @@ export function AccountSettings(_props: AccountSettingsProps) {
           Administra tu cuenta y datos personales
         </p>
       </div>
+
+      {/* ── Tour interactivo ── */}
+      <Card className="p-6 border border-[var(--border)]">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0">
+            <RefreshCw className="w-5 h-5 text-[var(--primary)]" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-[var(--text-primary)] mb-1">
+              Tour interactivo
+            </h3>
+            <p className="text-sm text-[var(--text-tertiary)] mb-4">
+              Vuelve a ver el tour de bienvenida para recordar cómo usar la plataforma.
+            </p>
+
+            <Button
+              variant="outline"
+              onClick={() => restartTour()}
+              className="border-[var(--primary)]/30 text-[var(--primary)] hover:bg-[var(--primary)]/10"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Reiniciar tour
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       <Card className={cn('p-6 border', markedForDeletionAt ? 'border-[var(--error)]/30' : 'border-[var(--border)]')}>
         <div className="flex items-start gap-4">

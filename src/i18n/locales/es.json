@@ -1270,7 +1270,10 @@
     "completedAll": "¡Has completado todos los pasos!",
     "completedAllDesc": "Ya estás listo para disfrutar de todo lo que MangaAura tiene para ofrecer. Sigue leyendo, creando y compartiendo.",
     "viewProgress": "Ver progreso",
-    "continueTour": "Continuar tutorial"
+    "continueTour": "Continuar tutorial",
+    "floatFallback": "Navega a esta sección o salta el paso.",
+    "restartTour": "Reiniciar tutorial",
+    "restartTourDesc": "Vuelve a ver el tour de bienvenida para descubrir o recordar cómo usar la plataforma."
   },
   "profileCompletion": {
     "title": "Completa tu perfil",

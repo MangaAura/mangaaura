@@ -32,7 +32,6 @@ import { OptimizedImage } from '@/components/Image';
 import { useTheme } from '@/components/ThemeProvider';
 import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { useChapterComments } from '@/hooks/useChapterComments';
-import { setOnboardingMarker } from '@/components/Onboarding';
 import { cn } from '@/lib/utils';
 
 const Navbar = dynamic(() => import('@/components/Layout/Navbar'), { ssr: true });
@@ -132,17 +131,6 @@ export default function ChapterReaderClient() {
     return () => { mounted = false; };
   }, [chapterId]);
 
-  // Marcar onboarding cuando se ha leído un capítulo
-  // NOTA: chapter_read se trackea desde useChapterAnalytics (arriba) para evitar doble conteo.
-  useEffect(() => {
-    if (!chapter) return;
-
-    const timer = setTimeout(() => {
-      setOnboardingMarker('has-read');
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [chapter]);
 
   const nextPage = useCallback(() => {
     if (!chapter) return;

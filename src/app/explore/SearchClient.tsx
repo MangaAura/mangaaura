@@ -22,7 +22,6 @@ import { normalizeGenreKey } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useGenres } from '@/hooks/useGenres';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
-import { setOnboardingMarker } from '@/components/Onboarding';
 import { useT } from '@/i18n/index';
 import { cn } from '@/lib/utils';
 
@@ -267,11 +266,6 @@ function SearchPageContent() {
 
   const { handleError } = useErrorHandler();
   const { recentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } = useRecentSearches();
-
-  // Mark onboarding: user explored manga
-  useEffect(() => {
-    setOnboardingMarker('has-explored');
-  }, []);
 
   const handleSearchBarSearch = useCallback((searchQuery: string) => {
     addRecentSearch(searchQuery);

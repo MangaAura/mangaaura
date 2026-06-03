@@ -3,7 +3,6 @@
 import { Users, Copy, CheckCircle, Clock, Gift, Share2, MessageCircle, Globe, Send, Flag } from 'lucide-react';
 import { useState } from 'react';
 
-import { setOnboardingMarker } from '@/components/Onboarding';
 import { useT } from '@/i18n';
 
 interface RefereeUser {
@@ -65,14 +64,12 @@ export function ReferralsClient({ stats }: { stats: ReferralStats }) {
     if (referralLink) {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
-      setOnboardingMarker('mangaaura-has-referred');
       setTimeout(() => setCopied(false), 2000);
     }
   }
 
   function handleShareLink(platform: string) {
     shareLink(platform);
-    setOnboardingMarker('mangaaura-has-referred');
   }
 
   async function shareLink(platform: string) {

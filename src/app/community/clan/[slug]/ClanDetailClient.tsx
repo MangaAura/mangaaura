@@ -13,7 +13,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
-import { setOnboardingMarker } from '@/components/Onboarding';
 import { useI18n, useT } from '@/i18n';
 
 // ── Types ──────────────────────────────────────────────
@@ -713,7 +712,7 @@ export default function ClanDetailClient({
           throw new Error(data.error || t('clanDetail.errorJoin'));
         }
         setUserMembership({ role: 'MEMBER' });
-        setOnboardingMarker('mangaaura-joined-community');
+
       }
     } catch (err: any) {
       setActionError(err.message);

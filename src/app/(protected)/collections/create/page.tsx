@@ -11,10 +11,6 @@ import { Card } from '@/components/ui/Card';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { setOnboardingMarker } from '@/components/Onboarding';
-
-
-
 export default function CreateCollectionPage() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -36,7 +32,6 @@ export default function CreateCollectionPage() {
           setError(result.error || 'Error desconocido');
           return;
         }
-        setOnboardingMarker('mangaaura-has-collection');
         router.push('/collections');
       } catch {
         setError('Error de conexi�n. Verifica tu internet e int�ntalo de nuevo.');

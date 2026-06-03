@@ -9,7 +9,6 @@ import { AnimatedHero } from '@/components/Home/AnimatedHero';
 import { ContinueReadingSection } from '@/components/Home/ContinueReadingSection';
 import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
 import { HomeRankingsSidebar } from '@/components/Home/HomeRankingsSidebar';
-import { OnboardingChecklist } from '@/components/Onboarding/OnboardingChecklist';
 import { QuestPanelWrapper } from '@/components/Home/QuestPanelWrapper';
 import { MangaCard } from '@/components/MangaCard';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
@@ -90,8 +89,6 @@ export function HomeContent({
 
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         <GenreMarquee />
-
-        {isLoggedIn && <OnboardingChecklist />}
 
         <AnimatedContainer viewport>
           <section className="text-center py-8">
