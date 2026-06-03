@@ -111,7 +111,19 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
-              <Link href={localeHref(pathname, '/')} className="flex items-center gap-2 group" aria-label="MangaAura — Ir a inicio">
+              <Link
+                href={localeHref(pathname, '/')}
+                className="flex items-center gap-2 group"
+                aria-label="MangaAura — Ir a inicio"
+                onClick={(e) => {
+                  // Forzar navegación incluso si ya estamos en home (evita scroll-to-top)
+                  const homePath = localeHref(pathname, '/');
+                  if (pathname === homePath) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+              >
                 <Image src="/MangaAura_logo_circular.svg" alt="" width={28} height={28} className="flex-shrink-0" />
                 <span className="text-xl font-bold tracking-tight">
                   <RepeatedChar text="Manga" />
