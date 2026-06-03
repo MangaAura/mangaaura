@@ -37,6 +37,15 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
+  "browserslist": [
+    "Chrome >= 92",
+    "Firefox >= 90",
+    "Safari >= 15.4",
+    "Edge >= 92",
+    "Samsung >= 22",
+    "not op_mini all",
+    "not dead"
+  ],
   "lint-staged": {
     "*.{ts,tsx}": [
       "tsc-files --noEmit"
