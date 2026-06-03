@@ -2,6 +2,7 @@
 
 import { Trophy, TrendingUp, Clock, Sparkles } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
@@ -122,8 +123,7 @@ export function HomePageClient({
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="text-[var(--warning)]" /> {t('home.topMangas')}
             </h2>
-            <Link href="/rankings">
-              <Button variant="ghost" size="sm" aria-label={t('home.viewFullRankings')}>
+            <Link href="/rankings">                  <Button variant="ghost" size="sm">
                 {t('common.viewAll')}
               </Button>
             </Link>
@@ -161,8 +161,8 @@ export function HomePageClient({
                   <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
                 </h2>
                 <Link href="/explore">
-                  <Button variant="ghost" size="sm" aria-label={t('home.viewAllMangas')}>
-                    {t('common.viewAll')}
+                  <Button variant="ghost" size="sm">
+                    {t('home.viewAllMangas')}
                   </Button>
                 </Link>
               </div>
@@ -218,12 +218,15 @@ export function HomePageClient({
                         <span className="text-lg font-bold text-muted w-6">
                           #{index + 1}
                         </span>
-                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 relative">
                           {user.avatarUrl ? (
-                            <img
+                            <Image
                               src={user.avatarUrl}
                               alt={user.username}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
+                              sizes="40px"
+                              loading="lazy"
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center text-[var(--text-inverse)] font-semibold text-sm">
