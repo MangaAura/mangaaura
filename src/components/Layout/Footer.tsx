@@ -134,7 +134,7 @@ export function Footer({ className }: { className?: string }) {
                 className="text-xl font-bold text-[var(--text-primary)] tracking-tight"
               />
             </Link>
-            <p className="text-[var(--text-primary)]/60 text-sm mb-6 max-w-xs leading-relaxed">
+            <p className="text-[var(--text-primary)]/65 text-sm mb-6 max-w-xs leading-relaxed">
               {t('footer.tagline')}
             </p>
 
@@ -171,7 +171,7 @@ export function Footer({ className }: { className?: string }) {
                     <li key={link.labelKey}>
                       <Link
                         href={link.href}
-                        className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
+                        className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] transition-all duration-200"
                       >
                         <span className="w-4 h-4 flex items-center justify-center shrink-0">
                           <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
@@ -197,7 +197,7 @@ export function Footer({ className }: { className?: string }) {
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
+                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] transition-all duration-200"
                     >
                       <span className="w-4 h-4 flex items-center justify-center shrink-0">
                         <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
@@ -223,7 +223,7 @@ export function Footer({ className }: { className?: string }) {
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
+                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] transition-all duration-200"
                     >
                       <span className="w-4 h-4 flex items-center justify-center shrink-0">
                         <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
@@ -249,7 +249,7 @@ export function Footer({ className }: { className?: string }) {
                   <li key={link.labelKey}>
                     <Link
                       href={link.href}
-                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/65 hover:text-[var(--text-primary)] transition-all duration-200"
+                      className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] transition-all duration-200"
                     >
                       <span className="w-4 h-4 flex items-center justify-center shrink-0">
                         <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
@@ -267,27 +267,27 @@ export function Footer({ className }: { className?: string }) {
 
         {/* Bottom bar */}
         <div className="mt-12 md:mt-16 pt-8 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[var(--text-primary)]/50 text-sm text-center sm:text-left">
+          <p className="text-[var(--text-primary)]/65 text-sm text-center sm:text-left">
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex items-center gap-5">
             <Link
               href="/legal/terms"
-              className="text-xs text-[var(--text-primary)]/50 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
+              className="text-xs text-[var(--text-primary)]/65 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
             >
               {t('footer.termsOfService')}
             </Link>
             <span className="w-px h-3 bg-[var(--border)]" aria-hidden="true" />
             <Link
               href="/legal/privacy"
-              className="text-xs text-[var(--text-primary)]/50 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
+              className="text-xs text-[var(--text-primary)]/65 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
             >
               {t('footer.privacyPolicy')}
             </Link>
             <span className="w-px h-3 bg-[var(--border)]" aria-hidden="true" />
             <Link
               href="/legal/dmca"
-              className="text-xs text-[var(--text-primary)]/50 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
+              className="text-xs text-[var(--text-primary)]/65 hover:text-[var(--text-primary)]/80 transition-colors duration-200"
             >
               {t('footer.dmca')}
             </Link>

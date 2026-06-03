@@ -1,6 +1,7 @@
 'use client';
 
 import { BookOpen, ChevronRight, Clock } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
@@ -42,7 +43,7 @@ export function ContinueReadingSection() {
               >
                 <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 relative bg-[var(--surface-sunken)]">
                   {p.manga?.coverUrl ? (
-                    <img src={p.manga.coverUrl} alt={p.manga.title} className="w-full h-full object-cover" />
+                    <Image src={p.manga.coverUrl} alt={p.manga.title} width={40} height={56} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <BookOpen className="w-5 h-5 text-[var(--text-tertiary)]" />

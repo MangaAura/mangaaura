@@ -165,6 +165,7 @@ export const MangaCard = memo(function MangaCard({
             <Link
               href={`/user/${manga.authorUsername}`}
               className="text-xs text-[var(--text-tertiary)] mt-1 truncate block hover:text-[var(--primary)] transition-colors duration-200"
+              aria-label={`Ver perfil de ${manga.authorName || manga.authorUsername}`}
             >
               {manga.authorName || 'Autor desconocido'}
             </Link>

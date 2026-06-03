@@ -1,6 +1,7 @@
 'use client';
 
 import { Trophy, Clock, TrendingUp, Sparkles, BookOpen, Wand2, WifiOff, Gamepad2, Coins, HelpCircle, ArrowRight, Rocket } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
@@ -182,9 +183,11 @@ export function HomeContent({
                         <span className="text-lg font-bold text-muted w-6">#{index + 1}</span>
                         <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                           {user.avatarUrl ? (
-                            <img
+                            <Image
                               src={user.avatarUrl}
                               alt={user.username}
+                              width={40}
+                              height={40}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -221,8 +224,7 @@ export function HomeContent({
                     >
                       <div className="w-12 h-16 bg-tertiary rounded overflow-hidden flex-shrink-0 relative">
                         {manga.coverUrl ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img src={manga.coverUrl} alt={manga.title} className="w-full h-full object-cover" />
+                          <Image src={manga.coverUrl} alt={manga.title} width={48} height={64} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-primary to-accent-purple" />
                         )}
