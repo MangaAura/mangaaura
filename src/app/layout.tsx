@@ -199,8 +199,6 @@ export default async function RootLayout({
   return (
     <html lang={htmlLang} suppressHydrationWarning className={`${inter.variable} ${displayFont.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://**.vercel-storage.com" />
         <link rel="dns-prefetch" href="https://**.blob.vercel-storage.com" />
         <link rel="dns-prefetch" href="https://**.supabase.co" />
