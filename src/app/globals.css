@@ -13,7 +13,7 @@
 }
 
 @theme {
-  /* Only colors used as actual Tailwind utility classes (text-*/bg-/etc) */
+  /* Colores usados como clases Tailwind (accent-*, background) */
   --color-background: var(--background);
   --color-accent-blue: var(--accent-blue);
   --color-accent-green: var(--accent-green);
