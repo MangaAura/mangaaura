@@ -179,6 +179,7 @@ export function Footer({ className }: { className?: string }) {
                       <Link
                         href={link.href}
                         className="group/link inline-flex items-center gap-2 text-sm text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] transition-all duration-200"
+                        aria-label={`${t(link.labelKey)} — ${t('footer.sectionPlatform')}`}
                       >
                         <span className="w-4 h-4 flex items-center justify-center shrink-0">
                           <Icon className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:scale-110" />
