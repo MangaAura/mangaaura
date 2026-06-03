@@ -892,6 +892,7 @@
     "loadingGenres": "Cargando géneros...",
     "clearFilters": "Limpiar filtros",
     "resultsCount": "{count} resultado(s) encontrados",
+    "resultsTitle": "Resultados",
     "noResultsDescription": "Intenta con otros términos o ajusta los filtros",
     "loadMore": "Cargar más",
     "chapterCount": "{count} caps.",

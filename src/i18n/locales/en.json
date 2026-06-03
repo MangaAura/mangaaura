@@ -979,6 +979,7 @@
     "loadingGenres": "Loading genres...",
     "clearFilters": "Clear filters",
     "resultsCount": "{count} result(s) found",
+    "resultsTitle": "Results",
     "noResultsDescription": "Try different terms or adjust filters",
     "loadMore": "Load more",
     "chapterCount": "{count} ch.",

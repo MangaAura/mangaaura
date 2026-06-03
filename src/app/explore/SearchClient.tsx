@@ -601,7 +601,10 @@ function SearchPageContent() {
 
           {/* Results */}
           {!isLoading && results.length > 0 && (
-            <>
+            <section aria-labelledby="search-results-heading">
+              <h2 id="search-results-heading" className="sr-only">
+                {t('search.resultsTitle') || 'Resultados'}
+              </h2>
               {viewMode === 'grid' ? (
                 <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" staggerDelay={0.04}>
                   {results.map(manga => (
@@ -653,7 +656,7 @@ function SearchPageContent() {
                   </Button>
                 </div>
               )}
-            </>
+            </section>
           )}
 
       {/* Empty State */}
