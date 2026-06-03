@@ -1276,7 +1276,11 @@
     "restartTourDesc": "Vuelve a ver el tour de bienvenida para descubrir o recordar cómo usar la plataforma.",
     "startTour": "Iniciar tour",
     "notNow": "Ahora no",
-    "skipStep": "Saltar"
+    "skipStep": "Saltar",
+    "step1Title": "Completa tu perfil",
+    "step2Title": "Explora mangas",
+    "step3Title": "Lee tu primer capítulo",
+    "step4Title": "Gana tu primer logro"
   },
   "profileCompletion": {
     "title": "Completa tu perfil",

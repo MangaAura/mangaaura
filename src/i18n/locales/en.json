@@ -1360,7 +1360,11 @@
     "restartTourDesc": "Go through the welcome tour again to discover or remember how to use the platform.",
     "startTour": "Start tour",
     "notNow": "Not now",
-    "skipStep": "Skip"
+    "skipStep": "Skip",
+    "step1Title": "Complete your profile",
+    "step2Title": "Explore manga",
+    "step3Title": "Read your first chapter",
+    "step4Title": "Earn your first achievement"
   },
   "profileCompletion": {
     "title": "Complete your profile",
