@@ -44,7 +44,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al solicitar eliminación');
+        throw new Error(err.error || t('settings.errorRequestingDeletion'));
       }
       const data = await res.json();
       setMarkedForDeletionAt(data.deletionDate);
