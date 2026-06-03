@@ -1,15 +1,20 @@
+import { NextRequest, NextResponse } from 'next/server';
+
 /**
- * middleware.ts — Delegates to `src/proxy.ts`.
+ * middleware.ts — Wraps `src/proxy.ts`.
  *
- * Next.js 16 uses `src/proxy.ts` as the routing boundary instead of a root
- * `middleware.ts`. This file exists solely to keep a root middleware.ts file
- * in the project while delegating all actual logic to `src/proxy.ts`.
+ * Next.js 16 uses `src/proxy.ts` as the routing boundary. This root
+ * middleware.ts file wraps the proxy function so both files are present.
  *
  * The `config.matcher` is defined inline because Next.js requires it to be
- * statically analyzable at build time. The actual request handling is done
- * by the `proxy()` function in `src/proxy.ts`.
+ * statically analyzable at build time. The actual request handling is
+ * delegated to the `proxy()` function in `src/proxy.ts`.
  */
-export { proxy as middleware } from './src/proxy';
+import { proxy } from './src/proxy';
+
+export async function middleware(request: NextRequest): Promise<NextResponse> {
+  return proxy(request);
+}
 
 // Config must be inline — Next.js needs static analysis
 export const config = {
