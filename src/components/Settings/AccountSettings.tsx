@@ -50,14 +50,14 @@ export function AccountSettings(_props: AccountSettingsProps) {
       setMarkedForDeletionAt(data.deletionDate);
       setShowConfirm(false);
       toast({
-        title: 'Solicitud enviada',
-        description: 'Recibirás un correo para confirmar la eliminación. Tienes 14 días para cancelar.',
+        title: t('settings.deletionRequestSent'),
+        description: t('settings.deletionRequestSentDesc'),
         variant: 'default',
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al solicitar eliminación',
+        title: t('settings.errorSaving'),
+        description: error instanceof Error ? error.message : t('settings.errorRequestingDeletion'),
         variant: 'destructive',
       });
     } finally {
@@ -73,18 +73,18 @@ export function AccountSettings(_props: AccountSettingsProps) {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al cancelar eliminación');
+        throw new Error(err.error || t('settings.errorCancellingDeletion'));
       }
       setMarkedForDeletionAt(null);
       toast({
-        title: 'Solicitud cancelada',
-        description: 'Tu cuenta ya no está programada para eliminación.',
+        title: t('settings.deletionCancelled'),
+        description: t('settings.deletionCancelledDesc'),
         variant: 'default',
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al cancelar eliminación',
+        title: t('settings.errorSaving'),
+        description: error instanceof Error ? error.message : t('settings.errorCancellingDeletion'),
         variant: 'destructive',
       });
     } finally {
@@ -100,18 +100,23 @@ export function AccountSettings(_props: AccountSettingsProps) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-          Cuenta
+          {t('settings.account')}
         </h2>
         <p className="text-sm text-[var(--text-secondary)]">
-          Administra tu cuenta y datos personales
+          {t('settings.accountDesc')}
         </p>
       </div>
 
       {/* ── Tour interactivo ── */}
       <Card className="p-6 border border-[var(--border)]">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0">
-            <RefreshCw className="w-5 h-5 text-[var(--primary)]" />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center flex-shrink-0 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 text-white" aria-hidden="true">
+              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
+              <path d="M20 2v4" />
+              <path d="M22 4h-4" />
+              <circle cx="4" cy="20" r="2" />
+            </svg>
           </div>
 
           <div className="flex-1 min-w-0">
@@ -148,12 +153,12 @@ export function AccountSettings(_props: AccountSettingsProps) {
 
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-[var(--text-primary)] mb-1">
-              Eliminar cuenta
+              {t('settings.deleteAccount')}
             </h3>
             <p className="text-sm text-[var(--text-tertiary)] mb-4">
               {markedForDeletionAt
-                ? `Has solicitado la eliminación de tu cuenta. Se eliminará el ${deletionDate}. Puedes cancelar esta solicitud en cualquier momento.`
-                : 'Solicita la eliminación permanente de tu cuenta y todos tus datos. Esta acción tiene un período de gracia de 14 días.'}
+                ? t('settings.deletionRequested', { date: deletionDate ?? '' })
+                : t('settings.requestDeletionDesc')}
             </p>
 
             {markedForDeletionAt ? (
@@ -162,7 +167,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
                 onClick={handleCancelDelete}
                 isLoading={isLoading}
               >
-                Cancelar eliminación
+                {t('settings.cancelDeletion')}
               </Button>
             ) : showConfirm ? (
               <div className="flex items-center gap-3">
@@ -171,14 +176,14 @@ export function AccountSettings(_props: AccountSettingsProps) {
                   onClick={handleDeleteRequest}
                   isLoading={isLoading}
                 >
-                  Sí, eliminar mi cuenta
+                  {t('settings.confirmDelete')}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowConfirm(false)}
                   disabled={isLoading}
                 >
-                  Cancelar
+                  {t('settings.cancel')}
                 </Button>
               </div>
             ) : (
@@ -187,7 +192,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
                 onClick={() => setShowConfirm(true)}
                 className="text-[var(--error)] border-[var(--error)]/30 hover:bg-[var(--error)]/10"
               >
-                Solicitar eliminación de cuenta
+                {t('settings.requestDeletion')}
               </Button>
             )}
           </div>

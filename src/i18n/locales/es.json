@@ -1377,7 +1377,20 @@
       "backupRegenerated": "Códigos de respaldo regenerados correctamente",
       "twoFactorActivated": "¡2FA activado correctamente! ¡Guarda tus códigos de respaldo!",
       "fixFieldErrors": "Corrige los errores marcados en los campos"
-    }
+    },
+    "accountDesc": "Administra tu cuenta y datos personales",
+    "requestDeletion": "Solicitar eliminación de cuenta",
+    "confirmDelete": "Sí, eliminar mi cuenta",
+    "cancelDeletion": "Cancelar eliminación",
+    "deletionRequested": "Has solicitado la eliminación de tu cuenta. Se eliminará el {date}. Puedes cancelar esta solicitud en cualquier momento.",
+    "requestDeletionDesc": "Solicita la eliminación permanente de tu cuenta y todos tus datos. Esta acción tiene un período de gracia de 14 días.",
+    "deletionRequestSent": "Solicitud enviada",
+    "deletionRequestSentDesc": "Recibirás un correo para confirmar la eliminación. Tienes 14 días para cancelar.",
+    "deletionCancelled": "Solicitud cancelada",
+    "deletionCancelledDesc": "Tu cuenta ya no está programada para eliminación.",
+    "errorRequestingDeletion": "Error al solicitar eliminación",
+    "errorCancellingDeletion": "Error al cancelar eliminación",
+    "cancel": "Cancelar"
   },
   "admin": {
     "dashboard": "Panel de Control",

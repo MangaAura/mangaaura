@@ -1461,7 +1461,20 @@
       "backupRegenerated": "Backup codes regenerated successfully",
       "twoFactorActivated": "2FA activated successfully! Save your backup codes!",
       "fixFieldErrors": "Fix the errors marked in the fields"
-    }
+    },
+    "accountDesc": "Manage your account and personal data",
+    "requestDeletion": "Request account deletion",
+    "confirmDelete": "Yes, delete my account",
+    "cancelDeletion": "Cancel deletion",
+    "deletionRequested": "You have requested account deletion. It will be deleted on {date}. You can cancel this request at any time.",
+    "requestDeletionDesc": "Request permanent deletion of your account and all your data. This action has a 14-day grace period.",
+    "deletionRequestSent": "Request sent",
+    "deletionRequestSentDesc": "You will receive an email to confirm deletion. You have 14 days to cancel.",
+    "deletionCancelled": "Request cancelled",
+    "deletionCancelledDesc": "Your account is no longer scheduled for deletion.",
+    "errorRequestingDeletion": "Error requesting deletion",
+    "errorCancellingDeletion": "Error cancelling deletion",
+    "cancel": "Cancel"
   },
   "admin": {
     "dashboard": "Dashboard",
