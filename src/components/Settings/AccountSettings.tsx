@@ -4,6 +4,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useTour } from '@/components/OnboardingTour/TourContext';
+import { useT } from '@/i18n';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useToast } from '@/components/ui/Toast';
@@ -14,6 +15,7 @@ interface AccountSettingsProps {
 }
 
 export function AccountSettings(_props: AccountSettingsProps) {
+  const t = useT();
   const { restartTour } = useTour();
   const [markedForDeletionAt, setMarkedForDeletionAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -114,10 +116,10 @@ export function AccountSettings(_props: AccountSettingsProps) {
 
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-[var(--text-primary)] mb-1">
-              Tour interactivo
+              {t('onboarding.restartTour')}
             </h3>
             <p className="text-sm text-[var(--text-tertiary)] mb-4">
-              Vuelve a ver el tour de bienvenida para recordar cómo usar la plataforma.
+              {t('onboarding.restartTourDesc')}
             </p>
 
             <Button
@@ -126,7 +128,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
               className="border-[var(--primary)]/30 text-[var(--primary)] hover:bg-[var(--primary)]/10"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Reiniciar tour
+              {t('onboarding.restartTour')}
             </Button>
           </div>
         </div>
