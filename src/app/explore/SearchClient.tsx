@@ -131,7 +131,7 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
         {/* Top section */}
         <div>
           <div className="flex items-start gap-2 mb-1">
-            <Link href={`/manga/${manga.slug}`}>
+            <Link href={`/manga/${manga.slug}`} className="-mx-1.5 px-1.5 -my-2 py-2 rounded-lg">
               <h3 className="font-bold text-sm sm:text-base group-hover:text-[var(--info)] transition-colors truncate hover:text-[var(--info)]">
                 {manga.title}
               </h3>
@@ -146,7 +146,7 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
             manga.authorUsername ? (
               <Link
                 href={`/user/${manga.authorUsername}`}
-                className="text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors block"
+                className="text-xs text-[var(--text-tertiary)] mb-2 hover:text-[var(--primary)] transition-colors block -mx-1.5 px-1.5 -my-1.5 py-1.5 rounded-lg"
                 onClick={(e) => e.stopPropagation()}
               >
                 {manga.authorName}

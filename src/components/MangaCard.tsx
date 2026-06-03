@@ -150,7 +150,7 @@ export const MangaCard = memo(function MangaCard({
         </Link>
 
         <div className="mt-2.5 px-0.5 flex flex-col flex-1">
-          <Link href={href}>
+          <Link href={href} className="-mx-1.5 px-1.5 -my-1.5 py-1.5 rounded-lg">
             <h3
               className="font-semibold text-[var(--text-primary)] text-sm leading-tight line-clamp-2 group-hover:text-[var(--primary)] transition-colors duration-200"
               title={manga.title}
@@ -162,7 +162,7 @@ export const MangaCard = memo(function MangaCard({
           {manga.authorUsername ? (
             <Link
               href={`/user/${manga.authorUsername}`}
-              className="text-xs text-[var(--text-tertiary)] mt-1 truncate block hover:text-[var(--primary)] transition-colors duration-200"
+              className="text-xs text-[var(--text-tertiary)] mt-1 truncate block hover:text-[var(--primary)] transition-colors duration-200 -mx-1.5 px-1.5 -my-1.5 py-1.5 rounded-lg"
               aria-label={`Ver perfil de ${manga.authorName || manga.authorUsername}`}
             >
               {manga.authorName || 'Autor desconocido'}
