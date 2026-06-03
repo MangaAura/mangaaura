@@ -2,7 +2,7 @@ import { getToken } from '@auth/core/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { SESSION_COOKIE_NAME } from '@/lib/auth';
-import { logRequest, generateRequestId } from '@/lib/request-logger';
+import { generateRequestId } from '@/lib/request-logger';
 
 // ─── Locale routing (from middleware.ts) ────────────────────────────
 
@@ -235,10 +235,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const originalPath = request.nextUrl.pathname;
   const { search, searchParams } = request.nextUrl;
   const method = request.method;
-  const startTime = Date.now();
   const requestId = generateRequestId();
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
-  const userAgent = request.headers.get('user-agent') || 'unknown';
 
   // ── Legacy /reader/:slug redirects (replaces old middleware.ts) ──────
   // Old format: /reader/{manga-slug}?chapter={num} → /{slug}-{num}
@@ -320,7 +317,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       // CSRF validation for mutating requests (skip Server Actions — have built-in protection)
       const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
       if (isMutating && !isServerAction(request) && !validateCSRF(request)) {
-        logRequest({ method, path: originalPath, statusCode: 403, duration: Date.now() - startTime, ip, userAgent, requestId });
         return new NextResponse(JSON.stringify({ error: 'CSRF validation failed' }), {
           status: 403,
           headers: { 'Content-Type': 'application/json' },
@@ -329,11 +325,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
       // Set CSRF cookie only if not already present
       const hasCSRFCookie = request.cookies.get(CSRF_COOKIE_NAME);
-      if (!hasCSRFCookie) {
+      if (!hasCSRFCookie && !isMutating) {
         setCSRFCookie(response);
       }
 
-      logRequest({ method, path: originalPath, statusCode: 200, duration: Date.now() - startTime, ip, userAgent, requestId });
       return response;
     }
 
@@ -341,7 +336,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     const detectedLocale = getLocale(request);
     const newUrl = new URL(`/${detectedLocale}${originalPath}`, request.url);
     newUrl.search = search;
-    logRequest({ method, path: originalPath, statusCode: 307, duration: Date.now() - startTime, ip, userAgent, requestId });
     return NextResponse.redirect(newUrl, 307);
   }
 
@@ -354,13 +348,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   // -- Handle HEAD for /api/auth/* --
   if (method === 'HEAD' && pathname.startsWith('/api/auth/')) {
-    logRequest({ method, path: pathname, statusCode: 200, duration: Date.now() - startTime, ip, userAgent, requestId });
     return new NextResponse(null, { status: 200 });
   }
 
   // -- Redirect GET /api/auth/signin/:provider → /auth/login --
   if (method === 'GET' && /^\/api\/auth\/signin\/[^/]+$/.test(pathname)) {
-    logRequest({ method, path: pathname, statusCode: 302, duration: Date.now() - startTime, ip, userAgent, requestId });
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
@@ -424,7 +416,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   response.headers.set('X-Request-ID', requestId);
 
   if (method === 'OPTIONS') {
-    logRequest({ method, path: pathname, statusCode: 204, duration: Date.now() - startTime, ip, userAgent, requestId });
     return new NextResponse(null, { status: 204, headers: response.headers });
   }
 
@@ -432,7 +423,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const isCSRFProtected = isMutating && !isServerAction(request) && !CSRF_SKIP_PATHS.some((p) => pathname.startsWith(p));
 
   if (isCSRFProtected && !validateCSRF(request)) {
-    logRequest({ method, path: pathname, statusCode: 403, duration: Date.now() - startTime, ip, userAgent, requestId });
     return new NextResponse(JSON.stringify({ error: 'CSRF validation failed' }), {
       status: 403,
       headers: { 'Content-Type': 'application/json' },
@@ -440,11 +430,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   const hasCSRFCookie = request.cookies.get(CSRF_COOKIE_NAME);
-  if (!hasCSRFCookie && !pathname.startsWith('/api')) {
+  if (!hasCSRFCookie && !pathname.startsWith('/api') && !['GET', 'HEAD'].includes(method)) {
     setCSRFCookie(response);
   }
 
-  logRequest({ method, path: pathname, statusCode: 200, duration: Date.now() - startTime, ip, userAgent, requestId });
   return response;
 }
 
