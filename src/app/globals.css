@@ -67,8 +67,8 @@
   --border: #e5e5e5;
   --border-subtle: #f0f0f0;
   --border-strong: #d4d4d4;
-  --primary: #5f5fe8;
-  --primary-hover: #4f46e5;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
   --primary-subtle: #eef2ff;
   --primary-ring: rgba(
     var(--primary-r),
@@ -123,16 +123,16 @@
   --border-color: var(--border);
   --card-shadow: var(--shadow-sm);
   --card-shadow-hover: var(--shadow-md);
-  --accent-gradient: linear-gradient(135deg, #5f5fe8, #ec4899);
-  --accent-gradient-2: linear-gradient(135deg, #06b6d4, #5f5fe8);
-  --ink-glow: 0 0 20px rgba(95, 95, 232, 0.3);
+  --accent-gradient: linear-gradient(135deg, #4f46e5, #ec4899);
+  --accent-gradient-2: linear-gradient(135deg, #06b6d4, #4f46e5);
+  --ink-glow: 0 0 20px rgba(79, 70, 229, 0.3);
   --ink-glow-magenta: 0 0 20px rgba(236, 72, 153, 0.3);
   --glass-border: rgba(255, 255, 255, 0.08);
   --font-sans-jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-display: var(--font-display);
-  --primary-r: 95;
-  --primary-g: 95;
-  --primary-b: 232;
+  --primary-r: 79;
+  --primary-g: 70;
+  --primary-b: 229;
 
   /* MD3 Color Tokens */
   --md-sys-color-primary: var(--primary);
