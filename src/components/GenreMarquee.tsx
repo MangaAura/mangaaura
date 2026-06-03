@@ -1,6 +1,5 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
 import { Hash } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
@@ -58,8 +57,7 @@ function GenreCard({
 export function GenreMarquee() {
   const t = useT();
   const { genres, isLoading } = useGenres();
-  const prefersReducedMotion = useReducedMotion();
-  const prefersReducedMotionRef = useRef(prefersReducedMotion);
+  const prefersReducedMotionRef = useRef(false);
 
   const SPEED = 0.03;
   const speedRef = useRef(SPEED);
@@ -169,10 +167,16 @@ export function GenreMarquee() {
     };
   }, []);
 
-  // Sync refs after render to avoid refs-during-render violations
+  // Detect reduced motion preference via matchMedia
   useEffect(() => {
-    prefersReducedMotionRef.current = prefersReducedMotion;
-  }, [prefersReducedMotion]);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    prefersReducedMotionRef.current = mq.matches;
+    const onChange = (e: MediaQueryListEvent) => {
+      prefersReducedMotionRef.current = e.matches;
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     halfWidthRef.current = halfWidth;
@@ -238,7 +242,7 @@ export function GenreMarquee() {
     isPointerDown.current = false;
 
     // Si arrastró con velocidad, iniciar deceleración
-    if (isDragging.current && Math.abs(velocity.current) >= 2 && !prefersReducedMotion) {
+    if (isDragging.current && Math.abs(velocity.current) >= 2 && !prefersReducedMotionRef.current) {
       isDecelerating.current = true;
       // Click prevention breve (200ms) — la deceleración sigue independientemente
       setTimeout(() => { isDragging.current = false; }, 200);
@@ -251,13 +255,7 @@ export function GenreMarquee() {
 
   return (
     <section ref={sectionRef} className="relative">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mb-6"
-      >
+      <div className="mb-6 animate-ac-fade-in-up" style={{ animationDelay: '0s' }}>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Hash className="w-6 h-6 text-[var(--primary)]" />
@@ -265,15 +263,9 @@ export function GenreMarquee() {
           </h2>
 
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.15 }}
-        className="relative overflow-hidden"
-      >
+      <div className="relative overflow-hidden animate-ac-fade-in" style={{ animationDelay: '0.15s' }}>
         <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-background to-transparent" />
         <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-background to-transparent" />
 
@@ -298,7 +290,7 @@ export function GenreMarquee() {
               </div>
             )}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

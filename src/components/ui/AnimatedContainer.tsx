@@ -1,38 +1,19 @@
 'use client';
 
-import { motion, type Variants } from 'framer-motion';
-import { useReducedMotion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
-const animations: Record<string, Variants> = {
-  fadeIn: {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  },
-  fadeInUp: {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  },
-  fadeInDown: {
-    hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0 },
-  },
-  scaleIn: {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1 },
-  },
-  slideInLeft: {
-    hidden: { opacity: 0, x: -30 },
-    visible: { opacity: 1, x: 0 },
-  },
-  slideInRight: {
-    hidden: { opacity: 0, x: 30 },
-    visible: { opacity: 1, x: 0 },
-  },
+const ANIMATION_CLASSES: Record<string, string> = {
+  fadeIn: 'animate-ac-fade-in',
+  fadeInUp: 'animate-ac-fade-in-up',
+  fadeInDown: 'animate-ac-fade-in-down',
+  scaleIn: 'animate-ac-scale-in',
+  slideInLeft: 'animate-ac-slide-in-left',
+  slideInRight: 'animate-ac-slide-in-right',
 };
 
 interface AnimatedContainerProps {
   children: React.ReactNode;
-  animation?: keyof typeof animations;
+  animation?: keyof typeof ANIMATION_CLASSES;
   delay?: number;
   className?: string;
   viewport?: boolean | { once?: boolean; margin?: string };
@@ -45,43 +26,42 @@ export function AnimatedContainer({
   className,
   viewport,
 }: AnimatedContainerProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const [isVisible, setIsVisible] = useState(!viewport);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const transition = {
-    duration: shouldReduceMotion ? 0 : 0.5,
-    delay: shouldReduceMotion ? 0 : delay,
-    ease: [0.25, 0.1, 0.25, 1] as const,
-  };
+  useEffect(() => {
+    if (!viewport || !ref.current) return;
 
-  if (viewport) {
     const viewportOpts =
       typeof viewport === 'boolean'
         ? { once: true, margin: '-50px' }
         : { once: viewport.once ?? true, margin: viewport.margin ?? '-50px' };
 
-    return (
-      <motion.div
-        variants={animations[animation]}
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOpts}
-        transition={transition}
-        className={className}
-      >
-        {children}
-      </motion.div>
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (viewportOpts.once) observer.disconnect();
+        } else if (!viewportOpts.once) {
+          setIsVisible(false);
+        }
+      },
+      { rootMargin: viewportOpts.margin },
     );
-  }
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [viewport]);
+
+  const animClass = ANIMATION_CLASSES[animation];
 
   return (
-    <motion.div
-      variants={animations[animation]}
-      initial="hidden"
-      animate="visible"
-      transition={transition}
-      className={className}
+    <div
+      ref={ref}
+      className={`${className ?? ''}${isVisible ? ` ${animClass}` : ''}`}
+      style={{ animationDelay: isVisible ? `${delay}s` : '0s' }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

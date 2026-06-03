@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -95,14 +94,12 @@ export const MangaCard = memo(function MangaCard({
     <div className="group block h-full">
       <article className={cn('relative h-full flex flex-col', sizeClass)}>
         <Link href={href} prefetch={true}>
-          <motion.div
-            whileHover={{ scale: 1.02, y: -4 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          <div
             className={cn(
-              'relative rounded-xl overflow-hidden shadow-md transition-shadow duration-300',
+              'relative rounded-xl overflow-hidden shadow-md',
               'group-hover:shadow-xl',
-              'bg-[var(--border)]'
+              'bg-[var(--border)]',
+              'transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-1 active:scale-[0.98]'
             )}
             style={{ aspectRatio: `${imageSize.width}/${imageSize.height}` }}
           >
@@ -149,7 +146,7 @@ export const MangaCard = memo(function MangaCard({
                 {statusLabel}
               </span>
             </div>
-          </motion.div>
+          </div>
         </Link>
 
         <div className="mt-2.5 px-0.5 flex flex-col flex-1">
