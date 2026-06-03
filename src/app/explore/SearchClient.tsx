@@ -65,11 +65,12 @@ function SkeletonGrid() {
   );
 }
 
-function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
+function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet, priority = false }: {
   manga: MangaResult;
   onGenreClick: (genre: string) => void;
   genreSlugs: string[];
   genreSlugSet: Set<string>;
+  priority?: boolean;
 }) {
   const t = useT();
   const displayGenre = (genre: string): string => {
@@ -114,7 +115,7 @@ function MangaListItem({ manga, onGenreClick, genreSlugs, genreSlugSet }: {
         className="w-[72px] h-[108px] sm:w-24 sm:h-36 flex-shrink-0 bg-[var(--surface-sunken)] rounded-lg overflow-hidden relative shadow-sm block"
       >
         {manga.coverUrl ? (
-          <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading="lazy" />
+          <OptimizedImage src={manga.coverUrl} alt={manga.title} fill className="object-cover" loading={priority ? 'eager' : 'lazy'} priority={priority} />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <BookOpen className="w-6 h-6 text-[var(--text-tertiary)]" />
@@ -607,7 +608,7 @@ function SearchPageContent() {
               </h2>
               {viewMode === 'grid' ? (
                 <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" staggerDelay={0.04}>
-                  {results.map(manga => (
+                  {results.map((manga, index) => (
                     <StaggerItem key={manga.id}>
                       <MangaCard
                         manga={{
@@ -622,15 +623,16 @@ function SearchPageContent() {
                           rating: manga.rating,
                           chapterCount: manga.chapterCount,
                         }}
+                        priority={index === 0}
                       />
                     </StaggerItem>
                   ))}
                 </StaggerContainer>
               ) : (
                 <StaggerContainer className="flex flex-col gap-3" staggerDelay={0.03}>
-                  {results.map(manga => (
+                  {results.map((manga, index) => (
                     <StaggerItem key={manga.id}>
-                      <MangaListItem manga={manga} onGenreClick={toggleGenre} genreSlugs={dbGenreSlugs} genreSlugSet={dbGenreSlugSet} />
+                      <MangaListItem manga={manga} onGenreClick={toggleGenre} genreSlugs={dbGenreSlugs} genreSlugSet={dbGenreSlugSet} priority={index === 0} />
                     </StaggerItem>
                   ))}
                 </StaggerContainer>
