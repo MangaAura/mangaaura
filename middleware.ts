@@ -9,7 +9,7 @@
  * statically analyzable at build time. The actual request handling is done
  * by the `proxy()` function in `src/proxy.ts`.
  */
-export { proxy as middleware } from '@/proxy';
+export { proxy as middleware } from './src/proxy';
 
 // Config must be inline — Next.js needs static analysis
 export const config = {
