@@ -101,7 +101,7 @@ export default async function HomePage() {
     },
   );
 
-  const homepageTtl = 240; // slightly less than ISR revalidate (300) to avoid stale reads
+  const homepageTtl = 360; // longer than ISR revalidate (300) so cache is always hot during revalidation
 
   const [latestMangas, topMangas, updatingMangas, topUsers, featuredManga, stats] = await Promise.all([
     withCache(
