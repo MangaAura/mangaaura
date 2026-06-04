@@ -101,47 +101,69 @@ export default async function HomePage() {
     },
   );
 
+  const homepageTtl = 240; // slightly less than ISR revalidate (300) to avoid stale reads
+
   const [latestMangas, topMangas, updatingMangas, topUsers, featuredManga, stats] = await Promise.all([
-    prisma.mangaSeries.findMany({
-      where: whereActive,
-      take: 6,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true, title: true, slug: true, coverUrl: true, status: true,
-        tags: true, authorName: true, author: { select: { username: true } },
-        rating: true, _count: { select: { chapters: true } },
-      },
-    }),
-    prisma.mangaSeries.findMany({
-      where: whereActive,
-      take: 5,
-      orderBy: { totalViews: 'desc' },
-      select: {
-        id: true, title: true, slug: true, coverUrl: true, status: true,
-        tags: true, authorName: true, author: { select: { username: true } },
-        rating: true, totalViews: true, _count: { select: { chapters: true } },
-      },
-    }),
-    prisma.mangaSeries.findMany({
-      where: whereActive,
-      take: 6,
-      orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true, title: true, slug: true, coverUrl: true, status: true,
-        tags: true, authorName: true, author: { select: { username: true } },
-        rating: true, _count: { select: { chapters: true } },
-      },
-    }),
-    prisma.user.findMany({
-      take: 5,
-      orderBy: { xpPoints: 'desc' },
-      select: { id: true, username: true, avatarUrl: true, level: true, xpPoints: true },
-    }),
-    prisma.mangaSeries.findFirst({
-      where: { ...whereActive, totalViews: { gt: 0 } },
-      orderBy: { totalViews: 'desc' },
-      select: { id: true, title: true, slug: true, coverUrl: true, description: true, authorName: true },
-    }),
+    withCache(
+      generateCacheKey('homepage:latest', {}),
+      homepageTtl,
+      () => prisma.mangaSeries.findMany({
+        where: whereActive,
+        take: 6,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, title: true, slug: true, coverUrl: true, status: true,
+          tags: true, authorName: true, author: { select: { username: true } },
+          rating: true, _count: { select: { chapters: true } },
+        },
+      }),
+    ),
+    withCache(
+      generateCacheKey('homepage:top', {}),
+      homepageTtl,
+      () => prisma.mangaSeries.findMany({
+        where: whereActive,
+        take: 5,
+        orderBy: { totalViews: 'desc' },
+        select: {
+          id: true, title: true, slug: true, coverUrl: true, status: true,
+          tags: true, authorName: true, author: { select: { username: true } },
+          rating: true, totalViews: true, _count: { select: { chapters: true } },
+        },
+      }),
+    ),
+    withCache(
+      generateCacheKey('homepage:updating', {}),
+      homepageTtl,
+      () => prisma.mangaSeries.findMany({
+        where: whereActive,
+        take: 6,
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true, title: true, slug: true, coverUrl: true, status: true,
+          tags: true, authorName: true, author: { select: { username: true } },
+          rating: true, _count: { select: { chapters: true } },
+        },
+      }),
+    ),
+    withCache(
+      generateCacheKey('homepage:toplectores', {}),
+      homepageTtl,
+      () => prisma.user.findMany({
+        take: 5,
+        orderBy: { xpPoints: 'desc' },
+        select: { id: true, username: true, avatarUrl: true, level: true, xpPoints: true },
+      }),
+    ),
+    withCache(
+      generateCacheKey('homepage:featured', {}),
+      homepageTtl,
+      () => prisma.mangaSeries.findFirst({
+        where: { ...whereActive, totalViews: { gt: 0 } },
+        orderBy: { totalViews: 'desc' },
+        select: { id: true, title: true, slug: true, coverUrl: true, description: true, authorName: true },
+      }),
+    ),
     statsPromise,
   ]);
 
