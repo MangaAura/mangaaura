@@ -332,11 +332,27 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       return response;
     }
 
-    // No locale prefix → detect and redirect
+    // No locale prefix → detect and rewrite internally (avoids 307 redirect cost)
     const detectedLocale = getLocale(request);
-    const newUrl = new URL(`/${detectedLocale}${originalPath}`, request.url);
+    const newUrl = new URL(originalPath === '/' ? '/' : originalPath, request.url);
     newUrl.search = search;
-    return NextResponse.redirect(newUrl, 307);
+    const rewriteHeaders = new Headers(request.headers);
+    rewriteHeaders.set('x-locale', detectedLocale);
+    const nonce = generateNonce();
+    rewriteHeaders.set('x-nonce', nonce);
+    rewriteHeaders.set('Content-Security-Policy', buildCSP(nonce, { reportUrl: process.env.CSP_REPORT_URL, enforceUpgrade: true }));
+    const response = NextResponse.rewrite(newUrl, {
+      request: { headers: rewriteHeaders },
+    });
+    applySecurityHeaders(response, nonce);
+    applyCORSHeaders(response, request);
+    response.headers.set('X-Request-ID', requestId);
+    response.headers.set('X-CSP-Nonce', nonce);
+    const hasCSRFCookie = request.cookies.get(CSRF_COOKIE_NAME);
+    if (!hasCSRFCookie) {
+      setCSRFCookie(response);
+    }
+    return response;
   }
 
   // ── Non-page routes (API, static, etc.) ─────────────────────
