@@ -10,6 +10,8 @@ import { withCache, cacheConfig, generateCacheKey } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export const revalidate = 3600;
+
 interface MangaPageProps {
   params: Promise<{ slug: string }>;
 }

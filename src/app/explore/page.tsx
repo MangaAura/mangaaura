@@ -6,6 +6,8 @@ import { SearchResultsPageStructuredData, BreadcrumbStructuredData } from '@/com
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
   const t = getT(locale);
