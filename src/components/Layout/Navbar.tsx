@@ -1,10 +1,8 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Rss, MessageCircle, FolderOpen, Sparkles, Plus, Menu, X, ChevronDown,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -16,6 +14,7 @@ import { MobileMenu } from './MobileMenu';
 import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive, localeHref, getLocaleFromPath } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { DynamicLogo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useScrolled } from '@/hooks/useScrolled';
@@ -124,7 +123,7 @@ export default function Navbar() {
                   }
                 }}
               >
-                <Image src="/MangaAura_logo_circular.svg" alt="" width={28} height={28} className="flex-shrink-0" />
+                <DynamicLogo size={28} className="flex-shrink-0" />
                 <span className="text-xl font-bold tracking-tight">
                   <RepeatedChar text="Manga" />
                   <span className="text-[var(--primary)]"><RepeatedChar text="Aura" /></span>
@@ -145,20 +144,14 @@ export default function Navbar() {
                       {t('common.more')}
                       <ChevronDown className={'w-3.5 h-3.5 transition-transform duration-200 ' + (moreOpen ? 'rotate-180' : '')} aria-hidden="true" />
                     </button>
-                    <AnimatePresence>
                     {moreOpen && (
-                      <motion.div
+                      <div
                         ref={moreDropdownRef}
-                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -6, scale: 0.95 }}
-                        transition={{ type: 'spring', duration: 0.35, bounce: 0.15 }}
-                        className="absolute top-full left-0 mt-2 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl shadow-black/10 py-2 z-20 origin-top-left"
+                        className="absolute top-full left-0 mt-2 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl shadow-black/10 py-2 z-20 origin-top-left animate-dropdown-in"
                       >
                         <NavLinks links={moreLinks} mounted={mounted} />
-                      </motion.div>
+                      </div>
                     )}
-                    </AnimatePresence>
                   </div>
                 )}
               </nav>
@@ -198,16 +191,13 @@ export default function Navbar() {
                     <MessageCircle className={'w-4 h-4 ' + (isActive(pathname, '/messages') ? 'text-[var(--primary)]' : 'group-hover:scale-110 transition-transform duration-200')} aria-hidden="true" />
                     {isActive(pathname, '/messages') && (
                       <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--primary)]" />
-                    )}
-                    {unreadMessages > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-[var(--error)] to-rose-600 rounded-full text-[9px] font-bold text-[var(--text-inverse)] flex items-center justify-center ring-2 ring-[var(--background)] shadow-sm"
+                    )}                      {unreadMessages > 0 && (
+                      <span
+                        className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-[var(--error)] to-rose-600 rounded-full text-[9px] font-bold text-[var(--text-inverse)] flex items-center justify-center ring-2 ring-[var(--background)] shadow-sm animate-badge-in"
                         aria-label={t('a11y.unreadMessages', { count: unreadMessages > 9 ? '9+' : unreadMessages })}
                       >
                         {unreadMessages > 9 ? '9+' : unreadMessages}
-                      </motion.span>
+                      </span>
                     )}
                   </Link>
 
