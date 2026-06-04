@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+
 import { Search, Loader2, BookOpen, Star, Eye, Sparkles, ArrowRight, Clock, X, Trash2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -326,21 +326,16 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
       </form>
 
       {/* Inline validation error */}
-      <AnimatePresence>
-        {validationError && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="flex items-center gap-1.5 mt-1.5 px-1"
-            role="alert"
-          >
-            <AlertCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0" />
-            <span className="text-xs text-[var(--error)]">{validationError}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {validationError && (
+        <div
+          className="flex items-center gap-1.5 mt-1.5 px-1 animate-ac-fade-in-up"
+          role="alert"
+          style={{ animationDuration: '0.15s' }}
+        >
+          <AlertCircle className="w-3.5 h-3.5 text-[var(--error)] shrink-0" />
+          <span className="text-xs text-[var(--error)]">{validationError}</span>
+        </div>
+      )}
 
       {/* Suggestion dropdown — Recent searches OR Autocomplete results */}
       {showDropdown && (
@@ -368,16 +363,11 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
                 </button>
               </div>
               <div className="py-1" role="listbox" aria-label={t('common.searchSuggestions')}>
-                <AnimatePresence initial={false}>
                 {recentSearches.map((searchQuery, index) => (
-                  <motion.div
+                  <div
                     key={searchQuery}
-                    layout
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 12, transition: { duration: 0.15 } }}
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                    className="flex items-center group"
+                    className="flex items-center group animate-ac-slide-in-left"
+                    style={{ animationDuration: '0.2s', animationDelay: `${index * 0.03}s` }}
                   >
                     <button
                       type="button"
@@ -411,9 +401,8 @@ export function SearchBar({ onSearch, placeholder: placeholderProp, className }:
                       aria-label={`${t('search.removeRecent')} ${searchQuery}`}
                     >
                       <X className="w-3.5 h-3.5" />
-                    </button>                    </motion.div>
+                    </button>                    </div>
                   ))}
-                </AnimatePresence>
               </div>
             </>
           )}

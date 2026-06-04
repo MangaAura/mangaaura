@@ -1,7 +1,6 @@
 'use client';
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, ChevronDown, User, Library, FolderOpen, MessageCircle,
   Rss, Sparkles, Shield, Settings, LogOut, Zap,
@@ -49,34 +48,22 @@ function RoleBadge({ role, t }: { role?: string; t: (key: string) => string }) {
 }
 
 const NotifButton = forwardRef<HTMLButtonElement, { unread: number; onClick?: () => void; ariaLabel: string }>(
-  ({ unread, onClick, ariaLabel }, ref) => {
-    const [animKey, setAnimKey] = useState(0);
-    return (
-      <button
-        ref={ref}
-        onClick={() => { setAnimKey((k) => k + 1); onClick?.(); }}
-        className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-lg transition-all duration-200 cursor-pointer active:scale-90 group/tooltip"
-        aria-label={ariaLabel}
-        title={ariaLabel}
-      >
-        <Bell className="w-5 h-5" />
-        {unread > 0 && (
-          <AnimatePresence mode="popLayout">
-            <motion.span
-              key={animKey}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-gradient-to-br from-[var(--error)] to-rose-600 rounded-full text-[10px] font-bold text-[var(--text-inverse)] flex items-center justify-center shadow-lg shadow-[var(--error)]/30"
-            >
-              {unread > 9 ? '9+' : unread}
-            </motion.span>
-          </AnimatePresence>
-        )}
-      </button>
-    );
-  }
+  ({ unread, onClick, ariaLabel }, ref) => (
+    <button
+      ref={ref}
+      onClick={onClick}
+      className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-lg transition-all duration-200 cursor-pointer active:scale-90 group/tooltip"
+      aria-label={ariaLabel}
+      title={ariaLabel}
+    >
+      <Bell className="w-5 h-5" />
+      {unread > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-gradient-to-br from-[var(--error)] to-rose-600 rounded-full text-[10px] font-bold text-[var(--text-inverse)] flex items-center justify-center shadow-lg shadow-[var(--error)]/30 animate-badge-in">
+          {unread > 9 ? '9+' : unread}
+        </span>
+      )}
+    </button>
+  )
 );
 NotifButton.displayName = 'NotifButton';
 
@@ -132,10 +119,8 @@ export function AuthSection({
 
         <DropdownMenu.Root key={pathname}>
           <DropdownMenu.Trigger asChild>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="group relative flex items-center gap-2 p-1 pr-2.5 rounded-xl hover:bg-[var(--surface)] transition-all duration-200 cursor-pointer"
+            <button
+              className="group relative flex items-center gap-2 p-1 pr-2.5 rounded-xl hover:bg-[var(--surface)] hover:scale-[1.03] transition-all duration-200 cursor-pointer active:scale-[0.97]"
               aria-label={t('nav.settings')}
             >
               <div className="relative w-8 h-8">
@@ -159,7 +144,7 @@ export function AuthSection({
                 {session?.user?.name || 'User'}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)] transition-all duration-200 group-data-[state=open]:rotate-180" />
-            </motion.button>
+            </button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content

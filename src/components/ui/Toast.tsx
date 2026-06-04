@@ -2,7 +2,6 @@
 
 import * as ToastPrimitives from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import * as React from 'react';
 
@@ -66,15 +65,9 @@ const Toast = React.forwardRef<
       asChild
       {...props}
     >
-      <motion.div
-        layout
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 100 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      >
+      <div className="animate-ac-fade-in-up" style={{ animationDuration: '0.3s' }}>
         {props.children}
-      </motion.div>
+      </div>
     </ToastPrimitives.Root>
   );
 });
@@ -155,23 +148,21 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastPrimitives.Provider>
       <ToastContext.Provider value={{ toasts, toast, dismiss }}>
         {children}
-        <AnimatePresence mode="popLayout">
-          {toasts.map((t) => (
-            <Toast
-              key={t.id}
-              variant={t.variant}
-              duration={Infinity}
-              open={true}
-              onOpenChange={(open) => { if (!open) dismiss(t.id); }}
-            >
-              <div className="grid gap-1">
-                <ToastTitle>{t.title}</ToastTitle>
-                {t.description && <ToastDescription>{t.description}</ToastDescription>}
-              </div>
-              <ToastClose />
-            </Toast>
-          ))}
-        </AnimatePresence>
+        {toasts.map((t) => (
+          <Toast
+            key={t.id}
+            variant={t.variant}
+            duration={Infinity}
+            open={true}
+            onOpenChange={(open) => { if (!open) dismiss(t.id); }}
+          >
+            <div className="grid gap-1">
+              <ToastTitle>{t.title}</ToastTitle>
+              {t.description && <ToastDescription>{t.description}</ToastDescription>}
+            </div>
+            <ToastClose />
+          </Toast>
+        ))}
         <ToastViewport />
       </ToastContext.Provider>
     </ToastPrimitives.Provider>
