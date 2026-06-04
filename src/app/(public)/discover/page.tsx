@@ -4,6 +4,7 @@ import { DiscoverClient } from './DiscoverClient';
 import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { withCache, generateCacheKey } from '@/lib/apiCache';
 import { prisma } from '@/lib/prisma';
 import { withHreflang } from '@/lib/seo';
 
@@ -21,16 +22,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function getDiscoverData() {
+  const cacheTtl = 360;
   const [trending, recent, topRated] = await Promise.all([
-    prisma.mangaSeries.findMany({ where: { deletedAt: null }, orderBy: { totalViews: 'desc' }, take: 12, select: { id: true, title: true, slug: true, coverUrl: true, status: true, rating: true, totalViews: true, _count: { select: { chapters: true } } } }),
-    prisma.mangaSeries.findMany({ where: { deletedAt: null }, orderBy: { createdAt: 'desc' }, take: 12, select: { id: true, title: true, slug: true, coverUrl: true, status: true, rating: true, totalViews: true, _count: { select: { chapters: true } } } }),
-    prisma.mangaSeries.findMany({ where: { deletedAt: null, rating: { not: null } }, orderBy: { rating: 'desc' }, take: 12, select: { id: true, title: true, slug: true, coverUrl: true, status: true, rating: true, totalViews: true, _count: { select: { chapters: true } } } }),
+    withCache(
+      generateCacheKey('discover:trending', {}),
+      cacheTtl,
+      () => prisma.mangaSeries.findMany({ where: { deletedAt: null }, orderBy: { totalViews: 'desc' }, take: 12, select: { id: true, title: true, slug: true, coverUrl: true, status: true, rating: true, totalViews: true, _count: { select: { chapters: true } } } }),
+    ),
+    withCache(
+      generateCacheKey('discover:recent', {}),
+      cacheTtl,
+      () => prisma.mangaSeries.findMany({ where: { deletedAt: null }, orderBy: { createdAt: 'desc' }, take: 12, select: { id: true, title: true, slug: true, coverUrl: true, status: true, rating: true, totalViews: true, _count: { select: { chapters: true } } } }),
+    ),
+    withCache(
+      generateCacheKey('discover:toprated', {}),
+      cacheTtl,
+      () => prisma.mangaSeries.findMany({ where: { deletedAt: null, rating: { not: null } }, orderBy: { rating: 'desc' }, take: 12, select: { id: true, title: true, slug: true, coverUrl: true, status: true, rating: true, totalViews: true, _count: { select: { chapters: true } } } }),
+    ),
   ]);
 
   const featuredManga = trending[Math.floor(Math.random() * Math.min(trending.length, 5))];
 
   return { trending: trending as any, recent: recent as any, topRated: topRated as any, featuredManga: featuredManga as any };
 }
+
+// ISR: revalidate every 6 min (matching cache TTL)
+export const revalidate = 360;
 
 export default async function DiscoverPage() {
   const data = await getDiscoverData();

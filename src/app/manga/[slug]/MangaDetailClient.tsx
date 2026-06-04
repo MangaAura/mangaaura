@@ -8,12 +8,12 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 
-import { ShareButton } from '@/components/Share/ShareButton';
 
 import { setLibraryStatus, removeFromLibrary } from './actions';
-import { StarRating } from '@/components/ui/StarRating';
 import { ReviewSection } from '@/components/Reviews/ReviewSection';
+import { ShareButton } from '@/components/Share/ShareButton';
 import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
+import { StarRating } from '@/components/ui/StarRating';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
@@ -185,6 +185,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                   height={336}
                   className="object-cover w-full h-full"
                   sizes="(max-width: 640px) 192px, 224px"
+                  quality={50}
                   priority
                 />
               ) : (

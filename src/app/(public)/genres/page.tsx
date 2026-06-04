@@ -20,6 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// ISR: revalidate every 1 hour — genres rarely change
+export const revalidate = 3600;
+
 export default async function GenresPage() {
   const genres = await prisma.genre.findMany({
     orderBy: { name: 'asc' },

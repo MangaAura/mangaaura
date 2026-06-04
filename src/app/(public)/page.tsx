@@ -215,8 +215,19 @@ export default async function HomePage() {
     ],
   };
 
+  // Preload the hero cover image (LCP element) for faster paint
+  const heroCoverUrl = featuredManga?.coverUrl;
+
   return (
     <>
+      {heroCoverUrl && (
+        <link
+          rel="preload"
+          as="image"
+          href={heroCoverUrl}
+          fetchPriority="high"
+        />
+      )}
       <WebPageStructuredData
         name={title}
         description={description}
