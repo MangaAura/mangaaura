@@ -70,7 +70,7 @@ export function AnimatedHero({
                 className="object-cover object-right"
                 priority
                 fetchPriority="high"
-                quality={30}
+                quality={15}
                 aria-hidden
                 sizes="(max-width: 768px) 100vw, 55vw"
               />

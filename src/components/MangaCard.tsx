@@ -113,7 +113,7 @@ export const MangaCard = memo(function MangaCard({
                   sizes={`(max-width: 640px) 50vw, ${imageSize.width}px`}
                   loading={priority ? 'eager' : 'lazy'}
                   priority={priority}
-                  quality={60}
+                  quality={50}
                   onError={() => setHasError(true)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
