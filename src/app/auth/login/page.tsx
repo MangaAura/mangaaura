@@ -4,6 +4,8 @@ import LoginClient from './LoginClient';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 
+export const revalidate = 86400;
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
