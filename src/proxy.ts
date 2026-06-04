@@ -295,24 +295,18 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         }
       }
 
-      // Build rewrite with locale header + security headers
+      // Build rewrite with locale header only (CSP/security headers set statically via next.config.ts)
       const newUrl = new URL(effectivePath, request.url);
       newUrl.search = search;
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set('x-locale', locale);
 
-      const nonce = generateNonce();
-      requestHeaders.set('x-nonce', nonce);
-      requestHeaders.set('Content-Security-Policy', buildCSP(nonce, { reportUrl: process.env.CSP_REPORT_URL, enforceUpgrade: true }));
-
       const response = NextResponse.rewrite(newUrl, {
         request: { headers: requestHeaders },
       });
 
-      applySecurityHeaders(response, nonce);
       applyCORSHeaders(response, request);
       response.headers.set('X-Request-ID', requestId);
-      response.headers.set('X-CSP-Nonce', nonce);
 
       // CSRF validation for mutating requests (skip Server Actions — have built-in protection)
       const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
@@ -338,16 +332,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     newUrl.search = search;
     const rewriteHeaders = new Headers(request.headers);
     rewriteHeaders.set('x-locale', detectedLocale);
-    const nonce = generateNonce();
-    rewriteHeaders.set('x-nonce', nonce);
-    rewriteHeaders.set('Content-Security-Policy', buildCSP(nonce, { reportUrl: process.env.CSP_REPORT_URL, enforceUpgrade: true }));
     const response = NextResponse.rewrite(newUrl, {
       request: { headers: rewriteHeaders },
     });
-    applySecurityHeaders(response, nonce);
     applyCORSHeaders(response, request);
     response.headers.set('X-Request-ID', requestId);
-    response.headers.set('X-CSP-Nonce', nonce);
     const hasCSRFCookie = request.cookies.get(CSRF_COOKIE_NAME);
     if (!hasCSRFCookie) {
       setCSRFCookie(response);
