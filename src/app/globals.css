@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* ── Content sources for Tailwind tree-shaking ── */
+@source "../components/";
+@source "../app/";
+@source "../lib/";
+@source "../hooks/";
+
+
 @layer base {
   button,
   [type="button"],
