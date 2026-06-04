@@ -28,12 +28,18 @@ const AnimatedHero = dynamic(() => import('@/components/Home/AnimatedHero').then
 
 const HomeRankingsSidebar = dynamic(
   () => import('@/components/Home/HomeRankingsSidebar').then(m => ({ default: m.HomeRankingsSidebar })),
-  { ssr: true }
+  {
+    ssr: false,
+    loading: () => <div className="h-96 bg-tertiary/50 rounded-xl animate-pulse" />,
+  }
 );
 
 const QuestPanel = dynamic(
   () => import('@/components/Quest/QuestPanel').then(m => ({ default: m.QuestPanel })),
-  { ssr: true },
+  {
+    ssr: false,
+    loading: () => <div className="h-48 bg-tertiary/50 rounded-xl animate-pulse" />,
+  },
 );
 
 function parseTags(tags: unknown): string[] {
