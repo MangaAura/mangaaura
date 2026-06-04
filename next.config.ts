@@ -82,6 +82,16 @@ const nextConfig: NextConfig = {
   // Compression
   compress: true,
 
+  // Compiler optimizations
+  compiler: {
+    // Remove console.log/debug in production, keep error/warn for monitoring
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? { exclude: ['error', 'warn', 'info', 'trace'] }
+        : false,
+  },
+
+
   // Headers for caching and security
   async headers() {
     return [
