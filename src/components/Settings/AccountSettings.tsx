@@ -3,11 +3,12 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
+import { DynamicLogo } from '@/components/Logo';
 import { useTour } from '@/components/OnboardingTour/TourContext';
-import { useT } from '@/i18n';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface AccountSettingsProps {
@@ -111,12 +112,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
       <Card className="p-6 border border-[var(--border)]">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 flex-shrink-0">
-            <img
-              src="/MangaAura_logo_circular.svg"
-              alt="MangaAura"
-              className="w-full h-full"
-              aria-hidden="true"
-            />
+            <DynamicLogo size={64} />
           </div>
 
           <div className="flex-1 min-w-0">

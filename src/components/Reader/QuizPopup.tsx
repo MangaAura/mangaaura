@@ -59,12 +59,12 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
             setQuizData(data);
           }
         })
-        .catch(() => {
+        .catch((_err) => {
           handleError(new Error('Quiz: failed to load, using fallback'));
         })
         .finally(() => setIsFetching(false));
     }
-  }, [isOpen, chapterId]);
+  }, [isOpen, chapterId, handleError]);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,7 +101,7 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
               referenceId: chapterId,
             })
           });
-        } catch (error) {
+        } catch {
           toast({
             title: 'Error',
             description: 'No se pudo otorgar la experiencia. Contacta a soporte si el problema persiste.',

@@ -25,10 +25,9 @@ import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 
-import { ShareModal } from '@/components/Share/ShareModal';
-
 import { CommentSection } from '@/components/Comments/CommentSection';
 import { OptimizedImage } from '@/components/Image';
+import { ShareModal } from '@/components/Share/ShareModal';
 import { useTheme } from '@/components/ThemeProvider';
 import { useChapterAnalytics, trackEvent } from '@/hooks/useAnalytics';
 import { useChapterComments } from '@/hooks/useChapterComments';
@@ -117,7 +116,7 @@ export default function ChapterReaderClient() {
           mangaId: data.manga.id,
           chapterId: data.id,
         });
-      } catch (err) {
+      } catch {
         if (mounted) setError('Capítulo no encontrado');
       } finally {
         if (mounted) setIsLoading(false);
@@ -145,7 +144,7 @@ export default function ChapterReaderClient() {
     }
   }, [currentPage]);
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
       setIsFullscreen(true);
@@ -153,7 +152,7 @@ export default function ChapterReaderClient() {
       document.exitFullscreen();
       setIsFullscreen(false);
     }
-  };
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {

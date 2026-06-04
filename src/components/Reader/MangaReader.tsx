@@ -23,6 +23,13 @@ import {
   Infinity,
   Play,
   Pause,
+  MessageSquare,
+  Sun,
+  Moon,
+  ArrowUp,
+  ArrowDown,
+  Columns2,
+  Columns3,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -34,6 +41,7 @@ import { PageJumpInput } from './PageJumpInput';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import EditorModeOverlay from '@/components/Reader/EditorModeOverlay';
 import { Button } from '@/components/ui/Button';
+import { StarRating } from '@/components/ui/StarRating';
 import { useAutoSaveProgress } from '@/hooks/useReadingProgress';
 import { cn } from '@/lib/utils';
 
@@ -55,6 +63,16 @@ interface MangaReaderProps {
   nextChapter?: { slug: string; chapterNumber: number };
   initialPage?: number;
   savedProgress?: { page: number; percentage: number };
+
+  // ReaderContent integration props
+  showComments?: boolean;
+  onToggleComments?: () => void;
+  commentCount?: number;
+  chapterRating?: number | null;
+  onChapterRate?: (rating: number) => void;
+  isDarkMode?: boolean;
+  onThemeChange?: (isDark: boolean) => void;
+  onPageChange?: (page: number) => void;
 }
 
 export const MangaReader = memo(function MangaReader({
@@ -68,6 +86,16 @@ export const MangaReader = memo(function MangaReader({
   prevChapter,
   nextChapter,
   initialPage = 0,
+
+  // ReaderContent integration
+  showComments,
+  onToggleComments,
+  commentCount = 0,
+  chapterRating,
+  onChapterRate,
+  isDarkMode,
+  onThemeChange,
+  onPageChange,
 }: MangaReaderProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -79,6 +107,10 @@ export const MangaReader = memo(function MangaReader({
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'single' | 'double'>('single');
   const [scrollMode, setScrollMode] = useState<'single' | 'continuous'>('single');
+  const [continuousLayout, setContinuousLayout] = useState<'single' | 'double'>(() => {
+    if (typeof window === 'undefined') return 'single';
+    try { return (localStorage.getItem('mangaaura-continuous-layout') as 'single' | 'double') || 'single'; } catch { return 'single'; }
+  });
   const [continuousReading, setContinuousReading] = useState(() => {
     if (typeof window === 'undefined') return false;
     try { return localStorage.getItem('mangaaura-continuous-reading') === 'true'; } catch { return false; }
@@ -90,8 +122,12 @@ export const MangaReader = memo(function MangaReader({
   const [showMeme, setShowMeme] = useState(false);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
   const [autoScrollSpeed, setAutoScrollSpeed] = useState(5000);
+  const [visiblePage, setVisiblePage] = useState(initialPage);
+  const [showFloatingIndicator, setShowFloatingIndicator] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastPageRef = useRef<HTMLDivElement>(null);
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const touchStartX = useRef<number>(0);
   const touchStartY = useRef<number>(0);
   const lastPinchDistance = useRef<number>(0);
@@ -101,16 +137,37 @@ export const MangaReader = memo(function MangaReader({
   const continuousNavPending = useRef(false);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const autoScrollTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const indicatorTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const prevPageRef = useRef(currentPage);
+  const currentPageRef = useRef(currentPage);
+  currentPageRef.current = currentPage;
 
   useAutoSaveProgress(mangaId, chapterId, currentPage, pages.length);
+
+  // Notify parent of page changes
+  useEffect(() => {
+    if (currentPage !== prevPageRef.current) {
+      prevPageRef.current = currentPage;
+      onPageChange?.(currentPage);
+    }
+  }, [currentPage, onPageChange]);
 
   // Persist continuous reading preference
   useEffect(() => {
     try { localStorage.setItem('mangaaura-continuous-reading', String(continuousReading)); } catch { /* noop */ }
   }, [continuousReading]);
 
+  // Persist continuous layout preference
+  useEffect(() => {
+    try { localStorage.setItem('mangaaura-continuous-layout', continuousLayout); } catch { /* noop */ }
+  }, [continuousLayout]);
+
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }, []);
 
   const navigateToChapter = useCallback((chapterNum: number) => {
@@ -136,14 +193,13 @@ export const MangaReader = memo(function MangaReader({
   // IntersectionObserver for continuous reading in scroll mode
   useEffect(() => {
     if (scrollMode !== 'continuous' || !continuousReading || !nextChapter) return;
-    
+
     const lastPageEl = lastPageRef.current;
     if (!lastPageEl) return;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting && !continuousNavPending.current) {
-          // Last page visible for 800ms → auto-advance
           autoAdvanceTimer.current = setTimeout(() => {
             if (continuousReading && nextChapter && !continuousNavPending.current) {
               continuousNavPending.current = true;
@@ -151,7 +207,6 @@ export const MangaReader = memo(function MangaReader({
             }
           }, 800);
         } else {
-          // User scrolled away — cancel pending auto-advance
           if (autoAdvanceTimer.current) {
             clearTimeout(autoAdvanceTimer.current);
             autoAdvanceTimer.current = undefined;
@@ -160,7 +215,7 @@ export const MangaReader = memo(function MangaReader({
       },
       { threshold: 0.5 }
     );
-    
+
     observer.observe(lastPageEl);
     return () => {
       if (autoAdvanceTimer.current) {
@@ -170,6 +225,81 @@ export const MangaReader = memo(function MangaReader({
       observer.disconnect();
     };
   }, [scrollMode, continuousReading, nextChapter, navigateToChapter]);
+
+  // IntersectionObserver for tracking visible page in continuous mode
+  useEffect(() => {
+    if (scrollMode !== 'continuous') return;
+
+    const pageElements = pageRefs.current;
+    const visiblePages = new Map<number, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const index = Number(entry.target.getAttribute('data-page-index'));
+          if (entry.isIntersecting) {
+            visiblePages.set(index, entry.intersectionRatio);
+          } else {
+            visiblePages.delete(index);
+          }
+        });
+
+        // Find the page with the highest intersection ratio
+        let bestPage = -1;
+        let bestRatio = 0;
+        visiblePages.forEach((ratio, idx) => {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestPage = idx;
+          }
+        });
+
+        if (bestPage >= 0) {
+          setVisiblePage(bestPage);
+          // Sync currentPage with the visible page so auto-scroll,
+          // image-click navigation, and progress saving use the correct page
+          setCurrentPage(bestPage);
+          setShowFloatingIndicator(true);
+          if (indicatorTimerRef.current) clearTimeout(indicatorTimerRef.current);
+          indicatorTimerRef.current = setTimeout(() => {
+            setShowFloatingIndicator(false);
+          }, 2000);
+        }
+      },
+      { threshold: [0.1, 0.3, 0.5, 0.8] }
+    );
+
+    pageElements.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+      if (indicatorTimerRef.current) clearTimeout(indicatorTimerRef.current);
+    };
+  }, [scrollMode, pages.length]);
+
+  // Scroll tracking for floating indicator
+  useEffect(() => {
+    if (scrollMode !== 'continuous') return;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 100);
+
+      setShowFloatingIndicator(true);
+      if (indicatorTimerRef.current) clearTimeout(indicatorTimerRef.current);
+      indicatorTimerRef.current = setTimeout(() => {
+        setShowFloatingIndicator(false);
+      }, 1500);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (indicatorTimerRef.current) clearTimeout(indicatorTimerRef.current);
+    };
+  }, [scrollMode]);
 
   // Auto-scroll effect for slideshow mode
   useEffect(() => {
@@ -182,9 +312,9 @@ export const MangaReader = memo(function MangaReader({
     }
 
     autoScrollTimerRef.current = setInterval(() => {
-      const next = currentPage + 1;
+      const next = currentPageRef.current + 1;
       if (next < pages.length) {
-        const el = containerRef.current?.children[next] as HTMLElement | undefined;
+        const el = pageRefs.current[next] as HTMLElement | undefined;
         el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurrentPage(next);
       } else {
@@ -198,30 +328,31 @@ export const MangaReader = memo(function MangaReader({
         autoScrollTimerRef.current = undefined;
       }
     };
-  }, [autoScrollEnabled, autoScrollSpeed, currentPage, pages.length, scrollMode]);
+  }, [autoScrollEnabled, autoScrollSpeed, pages.length, scrollMode]);
 
   const nextPage = useCallback(() => {
     const step = viewMode === 'double' ? 2 : 1;
     const isLastPage = currentPage >= pages.length - step;
-    
-    // Continuous reading: auto-advance to next chapter
+
     if (isLastPage && continuousReading && nextChapter && !continuousNavPending.current) {
       continuousNavPending.current = true;
       navigateToChapter(nextChapter.chapterNumber);
       return;
     }
-    
+
     if (scrollMode === 'continuous') {
       const next = currentPage + 1;
       if (next < pages.length) {
-        const el = containerRef.current?.children[next] as HTMLElement | undefined;
+        const el = pageRefs.current[next] as HTMLElement | undefined;
         el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurrentPage(next);
+        setVisiblePage(next);
       } else if (nextChapter && !continuousReading) {
         window.location.href = `/manga/${mangaSlug}/${nextChapter.chapterNumber}`;
       }
     } else if (currentPage < pages.length - step) {
       setCurrentPage(p => p + step);
+      setVisiblePage(currentPage + step);
       scrollToTop();
       setIsLoading(true);
     } else if (nextChapter && !continuousReading) {
@@ -234,14 +365,16 @@ export const MangaReader = memo(function MangaReader({
     if (scrollMode === 'continuous') {
       const prev = currentPage - 1;
       if (prev >= 0) {
-        const el = containerRef.current?.children[prev] as HTMLElement | undefined;
+        const el = pageRefs.current[prev] as HTMLElement | undefined;
         el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurrentPage(prev);
+        setVisiblePage(prev);
       } else if (prevChapter) {
         window.location.href = `/manga/${mangaSlug}/${prevChapter.chapterNumber}`;
       }
     } else if (currentPage >= step) {
       setCurrentPage(p => p - step);
+      setVisiblePage(currentPage - step);
       scrollToTop();
       setIsLoading(true);
     } else if (prevChapter) {
@@ -271,6 +404,10 @@ export const MangaReader = memo(function MangaReader({
       setIsFullscreen(false);
     }
   }, []);
+
+  const toggleTheme = useCallback(() => {
+    onThemeChange?.(!isDarkMode);
+  }, [onThemeChange, isDarkMode]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -364,8 +501,18 @@ export const MangaReader = memo(function MangaReader({
         e.preventDefault();
         setAutoScrollEnabled(v => !v);
         break;
+      case 'm':
+      case 'M':
+        e.preventDefault();
+        onToggleComments?.();
+        break;
+      case 'q':
+      case 'Q':
+        e.preventDefault();
+        setContinuousLayout(l => l === 'single' ? 'double' : 'single');
+        break;
     }
-  }, [nextPage, prevPage, zoomIn, zoomOut, resetZoom, toggleControls, toggleFullscreen, readingDirection, autoScrollEnabled]);
+  }, [nextPage, prevPage, zoomIn, zoomOut, resetZoom, toggleControls, toggleFullscreen, readingDirection, onToggleComments, setContinuousLayout]);
 
   const getPinchDistance = useCallback((touches: React.TouchList | TouchList) => {
     if (touches.length < 2) return 0;
@@ -531,10 +678,35 @@ export const MangaReader = memo(function MangaReader({
 
   return (
     <div className="min-h-screen bg-[var(--surface-sunken)]" ref={containerRef}>
+      {/* Floating page indicator for continuous mode */}
+      {scrollMode === 'continuous' && showFloatingIndicator && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[var(--surface)]/90 backdrop-blur-md border border-[var(--border)]/50 rounded-full px-4 py-1.5 shadow-lg"
+        >
+          <span className="text-sm font-medium text-[var(--text-primary)]">
+            Página {visiblePage + 1} / {pages.length}
+          </span>
+        </motion.div>
+      )}
+
+      {/* Top reading progress bar */}
+      {scrollMode === 'continuous' && (
+        <div className="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-[var(--text-inverse)]/10">
+          <div
+            className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--info)] transition-all duration-300"
+            style={{ width: `${((visiblePage + 1) / pages.length) * 100}%` }}
+          />
+        </div>
+      )}
+
       <header
         className={cn(
           'fixed top-0 left-0 right-0 z-50 bg-[var(--surface-sunken)]/90 backdrop-blur-sm border-b border-[var(--text-inverse)]/10',
           'transition-transform duration-300',
+          scrollMode === 'continuous' ? 'top-0.5' : '',
           showControls ? 'translate-y-0' : '-translate-y-full'
         )}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -551,13 +723,25 @@ export const MangaReader = memo(function MangaReader({
               <h1 className="text-[var(--text-primary)] font-medium truncate max-w-xs">
                 {mangaTitle}
               </h1>
-              <p className="text-[var(--text-secondary)] text-sm">
+              <p className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
                 Capítulo {chapterNumber}
                 {scrollMode === 'continuous' && (
-                  <span className="ml-2 text-[var(--info)] text-xs">· Continuo</span>
+                  <span className="text-[var(--info)] text-xs">· {continuousLayout === 'double' ? '2 columnas' : 'Continuo'}</span>
                 )}
                 {continuousReading && nextChapter && (
-                  <span className="ml-2 text-[var(--success)] text-xs">· Auto-siguiente</span>
+                  <span className="text-[var(--success)] text-xs">· Auto-siguiente</span>
+                )}
+                {onChapterRate && chapterRating !== undefined && (
+                  <span className="inline-flex items-center">
+                    <span className="text-[var(--text-muted)] text-xs mx-1">·</span>
+                    <StarRating
+                      value={chapterRating ?? 0}
+                      interactive={true}
+                      size="sm"
+                      userRating={chapterRating || undefined}
+                      onChange={onChapterRate}
+                    />
+                  </span>
                 )}
               </p>
             </div>
@@ -580,9 +764,16 @@ export const MangaReader = memo(function MangaReader({
             <ControlButton onClick={() => setScrollMode(m => m === 'single' ? 'continuous' : 'single')} title="Modo desplazamiento (C)" aria-label="Modo desplazamiento">
               <BookOpen className="w-5 h-5" />
             </ControlButton>
-            <ControlButton onClick={() => setViewMode(v => v === 'single' ? 'double' : 'single')} title="Modo de vista (W)" aria-label="Modo de vista">
-              {viewMode === 'single' ? <Columns className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
-            </ControlButton>
+            {/* In continuous mode: toggle single/double column layout */}
+            {scrollMode === 'continuous' ? (
+              <ControlButton onClick={() => setContinuousLayout(l => l === 'single' ? 'double' : 'single')} title="Columnas (Q)" aria-label="Distribución de columnas">
+                {continuousLayout === 'double' ? <LayoutList className="w-5 h-5" /> : <Columns2 className="w-5 h-5" />}
+              </ControlButton>
+            ) : (
+              <ControlButton onClick={() => setViewMode(v => v === 'single' ? 'double' : 'single')} title="Modo de vista (W)" aria-label="Modo de vista">
+                {viewMode === 'single' ? <Columns className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+              </ControlButton>
+            )}
             <ControlButton
               onClick={() => setContinuousReading(v => !v)}
               disabled={!nextChapter}
@@ -600,6 +791,32 @@ export const MangaReader = memo(function MangaReader({
             >
               {autoScrollEnabled ? <Pause className="w-5 h-5 text-[var(--success)]" /> : <Play className="w-5 h-5" />}
             </ControlButton>
+
+            {/* Comments button – shown when integrated with ReaderContent */}
+            {onToggleComments && (
+              <>
+                <ControlButton
+                  onClick={onToggleComments}
+                  title={`Comentarios (M): ${showComments ? 'Abierto' : 'Cerrado'}`}
+                  aria-label="Comentarios"
+                >
+                  <MessageSquare
+                    className={cn('w-5 h-5', showComments && 'text-[var(--info)]')}
+                  />
+                </ControlButton>
+                {commentCount > 0 && (
+                  <span className="text-xs text-[var(--text-tertiary)] -ml-1.5">{commentCount}</span>
+                )}
+              </>
+            )}
+
+            {/* Theme toggle – shown when integrated with ReaderContent */}
+            {onThemeChange && (
+              <ControlButton onClick={toggleTheme} title={isDarkMode ? 'Tema claro' : 'Tema oscuro'} aria-label="Cambiar tema">
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </ControlButton>
+            )}
+
             <ControlButton onClick={() => setShowQuiz(true)} title="Pop Quiz" aria-label="Pop Quiz">
               <HelpCircle className="w-5 h-5" />
             </ControlButton>
@@ -630,38 +847,159 @@ export const MangaReader = memo(function MangaReader({
       </header>
 
       <main
-        className="pt-14 pb-20 min-h-screen"
+        className={cn(
+          'min-h-screen',
+          scrollMode === 'continuous' ? 'pt-16 pb-24' : 'pt-14 pb-20'
+        )}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {scrollMode === 'continuous' ? (
-          <div className="flex flex-col items-center gap-8 py-4">
-            {pages.map((page, index) => (
-              <motion.div
-                key={`continuous-${index}`}
-                ref={index === pages.length - 1 ? lastPageRef : undefined}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.5) }}
-                className="w-full flex justify-center"
-              >
-                <div className="relative max-w-full cursor-pointer select-none" style={{ aspectRatio: '2/3' }}>
-                  <OptimizedImage
-                    src={page}
-                    alt={`Página ${index + 1}`}
-                    fill
-                    objectFit="contain"
-                    onClick={handleImageClick}
-                    style={{
-                      transform: `scale(${zoom})`,
-                      transformOrigin: 'top center',
-                      transition: 'transform 0.15s ease-out',
+          <div className="flex flex-col items-center">
+            {continuousLayout === 'double' ? (
+              /* ── 2-column layout (desktop) ── */
+              (() => {
+                const pairs: number[][] = [];
+                for (let i = 0; i < pages.length; i += 2) {
+                  pairs.push([i, i + 1 < pages.length ? i + 1 : -1]);
+                }
+                return pairs.map((pair, pairIdx) => (
+                  <React.Fragment key={`pair-${pairIdx}`}>
+                    {pairIdx > 0 && (
+                      <div className="w-full h-16 bg-gradient-to-b from-transparent via-[var(--primary)]/5 to-transparent" />
+                    )}
+                    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
+                      <div className="flex flex-col lg:flex-row lg:gap-6 items-center lg:items-start">
+                        {pair.map((pageIdx) => {
+                          if (pageIdx < 0) return <div key="empty" className="hidden lg:block lg:flex-1" />;
+                          return (
+                            <div
+                              key={`col-page-${pageIdx}`}
+                              ref={el => {
+                                pageRefs.current[pageIdx] = el;
+                                if (pageIdx === pages.length - 1) {
+                                  (lastPageRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+                                }
+                              }}
+                              data-page-index={pageIdx}
+                              className="w-full lg:w-1/2 max-w-lg lg:max-w-none"
+                            >
+                              <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: Math.min(pairIdx * 0.03, 0.3) }}
+                                className="relative group"
+                              >
+                                <div
+                                  className="relative w-full cursor-pointer select-none rounded-lg overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.4)]"
+                                  style={{ aspectRatio: '2/3' }}
+                                >
+                                  <OptimizedImage
+                                    src={pages[pageIdx]}
+                                    alt={`Página ${pageIdx + 1}`}
+                                    fill
+                                    objectFit="contain"
+                                    onClick={handleImageClick}
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
+                                    style={{
+                                      transform: `scale(${zoom})`,
+                                      transformOrigin: 'top center',
+                                      transition: 'transform 0.15s ease-out',
+                                    }}
+                                  />
+                                </div>
+                                {/* Page number overlay on hover */}
+                                <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2.5 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {pageIdx + 1} / {pages.length}
+                                </div>
+                              </motion.div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </React.Fragment>
+                ));
+              })()
+            ) : (
+              /* ── 1-column layout (default) ── */
+              pages.map((page, index) => (
+                <React.Fragment key={`continuous-${index}`}>
+                  {/* Gradient separator between pages */}
+                  {index > 0 && (
+                    <div className="w-full h-12 bg-gradient-to-b from-transparent via-[var(--primary)]/5 to-transparent" />
+                  )}
+                  <div
+                    ref={el => {
+                      pageRefs.current[index] = el;
+                      if (index === pages.length - 1) {
+                        (lastPageRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+                      }
                     }}
-                  />
-                </div>
-              </motion.div>
-            ))}
+                    data-page-index={index}
+                    className="w-full max-w-5xl mx-auto px-4 sm:px-6"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.3) }}
+                      className="relative group"
+                    >
+                      {/* Page image */}
+                      <div
+                        className="relative w-full cursor-pointer select-none rounded-lg overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.4)]"
+                        style={{ aspectRatio: '2/3', maxWidth: '100%' }}
+                      >
+                        <OptimizedImage
+                          src={page}
+                          alt={`Página ${index + 1}`}
+                          fill
+                          objectFit="contain"
+                          onClick={handleImageClick}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 800px"
+                          style={{
+                            transform: `scale(${zoom})`,
+                            transformOrigin: 'top center',
+                            transition: 'transform 0.15s ease-out',
+                          }}
+                        />
+                      </div>
+
+                      {/* Page number overlay on hover */}
+                      <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2.5 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                        {index + 1} / {pages.length}
+                      </div>
+                    </motion.div>
+                  </div>
+                </React.Fragment>
+              ))
+            )}
+
+            {/* Bottom spacer with gradient for smooth end */}
+            <div className="w-full h-24 bg-gradient-to-t from-[var(--primary)]/5 to-transparent" />
+
+            {/* Scroll to top / bottom buttons */}
+            <div className="fixed right-4 bottom-24 z-50 flex flex-col gap-2">
+              {isScrolled && (
+                <button
+                  onClick={scrollToTop}
+                  className="p-2.5 bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)]/50 rounded-full shadow-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] transition-all cursor-pointer"
+                  title="Ir al inicio"
+                  aria-label="Ir al inicio"
+                >
+                  <ArrowUp className="w-4 h-4" />
+                </button>
+              )}
+              <button
+                onClick={scrollToBottom}
+                className="p-2.5 bg-[var(--surface)]/80 backdrop-blur-sm border border-[var(--border)]/50 rounded-full shadow-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] transition-all cursor-pointer"
+                title="Ir al final"
+                aria-label="Ir al final"
+              >
+                <ArrowDown className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         ) : (
           <div
@@ -768,7 +1106,9 @@ export const MangaReader = memo(function MangaReader({
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="mb-3">
             <div className="flex justify-between text-sm text-[var(--text-secondary)] mb-1">
-              <span>{progress.current} / {progress.total}</span>
+              <span>
+                {scrollMode === 'continuous' ? visiblePage + 1 : progress.current} / {progress.total}
+              </span>
               <span>{progress.percentage}%</span>
             </div>
             <div
@@ -813,24 +1153,31 @@ export const MangaReader = memo(function MangaReader({
               )}
               <ControlButton
                 onClick={prevPage}
-                disabled={currentPage === 0}
+                disabled={scrollMode === 'continuous' ? currentPage === 0 && !prevChapter : currentPage === 0}
                 title="Página anterior (←)"
                 aria-label="Página anterior"
               >
                 <ChevronLeft className="w-5 h-5" />
               </ControlButton>
               <PageJumpInput
-                currentPage={currentPage + 1}
+                currentPage={scrollMode === 'continuous' ? visiblePage + 1 : currentPage + 1}
                 totalPages={pages.length}
                 onJump={(page) => {
-                  setCurrentPage(page - 1);
-                  setIsLoading(true);
-                  scrollToTop();
+                  if (scrollMode === 'continuous') {
+                    const el = pageRefs.current[page - 1] as HTMLElement | undefined;
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setCurrentPage(page - 1);
+                    setVisiblePage(page - 1);
+                  } else {
+                    setCurrentPage(page - 1);
+                    setIsLoading(true);
+                    scrollToTop();
+                  }
                 }}
               />
               <ControlButton
                 onClick={nextPage}
-                disabled={currentPage === pages.length - 1 && !nextChapter}
+                disabled={scrollMode === 'continuous' ? currentPage >= pages.length - 1 && !nextChapter : currentPage === pages.length - 1 && !nextChapter}
                 title="Página siguiente (→)"
                 aria-label="Página siguiente"
               >
@@ -921,6 +1268,34 @@ export const MangaReader = memo(function MangaReader({
                     <Columns className="w-4 h-4 mr-1" /> Doble página
                   </Button>
                 </div>
+              </div>
+
+              {/* Continuous mode column layout – only relevant in scroll mode */}
+              <div>
+                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                  Distribución (modo continuo)
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    variant={continuousLayout === 'single' ? 'default' : 'outline'}
+                    onClick={() => setContinuousLayout('single')}
+                    disabled={scrollMode !== 'continuous'}
+                    className="flex-1"
+                  >
+                    <LayoutList className="w-4 h-4 mr-1" /> 1 columna
+                  </Button>
+                  <Button
+                    variant={continuousLayout === 'double' ? 'default' : 'outline'}
+                    onClick={() => setContinuousLayout('double')}
+                    disabled={scrollMode !== 'continuous'}
+                    className="flex-1"
+                  >
+                    <Columns3 className="w-4 h-4 mr-1" /> 2 columnas
+                  </Button>
+                </div>
+                <p className="text-xs text-[var(--text-tertiary)] mt-2">
+                  En modo continuo con 2 columnas, las páginas se muestran lado a lado en desktop para una experiencia similar a un manga impreso.
+                </p>
               </div>
 
               <div>
@@ -1085,6 +1460,10 @@ export const MangaReader = memo(function MangaReader({
                 <span className="text-[var(--text-primary)]">Cambiar modo de vista</span>
               </div>
               <div className="flex justify-between">
+                <span className="text-[var(--text-secondary)]">Q</span>
+                <span className="text-[var(--text-primary)]">1 / 2 columnas (modo continuo)</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Espacio</span>
                 <span className="text-[var(--text-primary)]">Mostrar/ocultar controles</span>
               </div>
@@ -1099,6 +1478,10 @@ export const MangaReader = memo(function MangaReader({
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">P</span>
                 <span className="text-[var(--text-primary)]">Auto-scroll (slideshow automático)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--text-secondary)]">M</span>
+                <span className="text-[var(--text-primary)]">Toggle comentarios</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Esc</span>

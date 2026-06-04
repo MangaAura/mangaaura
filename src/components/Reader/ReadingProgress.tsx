@@ -62,7 +62,7 @@ export function ReadingProgress({
         const allProgress: SavedProgress[] = JSON.parse(stored);
         return allProgress.find(p => p.mangaId === mangaId) || null;
       }
-    } catch (error) {
+    } catch {
       // Saved progress load uses useMemo, no hook needed for error logging
     }
     return null;
@@ -89,7 +89,7 @@ export function ReadingProgress({
       const trimmed = filtered.slice(-100);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
       setLastSaved(Date.now());
-    } catch (error) {
+    } catch {
       // Progress saved to localStorage, not a fetch error
     }
   }, [mangaId, currentChapter, currentPage]);

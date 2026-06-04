@@ -152,7 +152,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
     } finally {
       setIsGenerating(false);
     }
-  }, [canvasRef, panelId, mangaTitle, chapterNumber, texts]);
+  }, [canvasRef, panelId, mangaTitle, chapterNumber, texts, handleError]);
 
   const shareMeme = useCallback(async () => {
     if (!canvasRef.current) return;
@@ -181,7 +181,7 @@ export function MemeGenerator({ imageUrl, panelId, onClose, mangaTitle, chapterN
     } catch (error) {
       handleError(error);
     }
-  }, [canvasRef, mangaTitle, chapterNumber]);
+  }, [canvasRef, mangaTitle, chapterNumber, handleError]);
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">

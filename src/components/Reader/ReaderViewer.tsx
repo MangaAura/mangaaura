@@ -92,7 +92,11 @@ export default function ReaderViewer({
   const hasCompletedRef = useRef(false);
   const lastPageViewRef = useRef<number>(-1);
   const lastScrollEventRef = useRef<number>(0);
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  }, []);
 
   // Enviar evento page_view cada 30 segundos para la página actual
   useEffect(() => {

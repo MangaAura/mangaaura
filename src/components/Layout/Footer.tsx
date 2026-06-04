@@ -14,10 +14,10 @@ import {
   Info,
   Megaphone,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
+import { DynamicLogo } from '@/components/Logo';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
@@ -129,13 +129,7 @@ export function Footer({ className }: { className?: string }) {
           {/* Logo + Social — spans full width on small screens, 2 cols on lg */}
           <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-4 group">
-              <Image
-                src="/MangaAura_logo_circular.svg"
-                alt=""
-                width={36}
-                height={36}
-                className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
-              />
+              <DynamicLogo size={36} />
               <RepeatedChar
                 text="MANGAAURA"
                 className="text-xl font-bold text-[var(--text-primary)] tracking-tight"

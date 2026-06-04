@@ -120,8 +120,8 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
       }
 
       setIsSuccess(true);
-} catch (error: any) {
-        setSubmitError(error.message || 'Error en la transacción.');
+} catch (error: unknown) {
+        setSubmitError(error instanceof Error ? error.message : 'Error en la transacción.');
       } finally {
       setIsLoading(false);
     }
@@ -149,7 +149,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
               </div>
               <h2 id={titleId} className="text-2xl font-bold mb-2">Patrocinar Próximo Capítulo</h2>
               <p className="text-sm text-muted px-4">
-                Apoya directamente al creador de <strong>{chapterTitle}</strong> con tus Aura para desbloquear el próximo capítulo más rápido.
+                Apoya directamente al creador de <strong>{chapterTitle}</strong> con tus Aura para desbloquear el pr&oacute;ximo cap&iacute;tulo m&aacute;s r&aacute;pido.
               </p>
             </div>
 
@@ -169,7 +169,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                       <p className="text-lg font-bold text-[var(--warning)]">{currentWinner.sponsorName}</p>
                       <p className="text-sm font-mono">{currentWinner.bidAmount.toLocaleString()} IC</p>
                       {currentWinner.message && (
-                        <p className="text-xs text-muted italic mt-2">"{currentWinner.message}"</p>
+                        <p className="text-xs text-muted italic mt-2">{'“'}{currentWinner.message}{'”'}</p>
                       )}
                     </div>
                   ) : (

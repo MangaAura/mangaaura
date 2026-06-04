@@ -3,6 +3,7 @@
 import { Sun, Moon, Monitor, Check, Palette, Layout, Type, Paintbrush } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
+import { getFaviconDataUri } from '@/components/Logo/faviconUtil';
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -14,7 +15,11 @@ type Theme = 'light' | 'dark' | 'system';
 type FontSize = 'small' | 'normal' | 'large';
 type LayoutDensity = 'compact' | 'normal' | 'comfortable';
 
+const DEFAULT_COLOR = '#632496';
+const DEFAULT_DARK = '#b47aff';
+
 const PRESET_COLORS = [
+  { name: 'MangaAura', light: '#632496', dark: '#b47aff' },
   { name: 'Indigo', light: '#5f5fe8', dark: '#818cf8' },
   { name: 'Violeta', light: '#7c3aed', dark: '#a78bfa' },
   { name: 'Azul', light: '#3b82f6', dark: '#60a5fa' },
@@ -51,7 +56,60 @@ function hexToRgbValues(hex: string) {
   return { r, g, b };
 }
 
+function hslToRgbString(h: number, s: number, l: number) {
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+  const sn = s / 100;
+  const ln = l / 100;
+  const q = ln < 0.5 ? ln * (1 + sn) : ln + sn - ln * sn;
+  const p = 2 * ln - q;
+  const r = Math.round(hue2rgb(p, q, h / 360 + 1/3) * 255);
+  const g = Math.round(hue2rgb(p, q, h / 360) * 255);
+  const b = Math.round(hue2rgb(p, q, h / 360 - 1/3) * 255);
+  return toHex(r, g, b);
+}
+
+function rgbToHsl(r: number, g: number, b: number) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+const ORIG_PRIMARY_H = 273;
+const LOGO_SHADES = [
+  { varName: '--logo-shade-0', h: 274, s: 54, l: 34 },
+  { varName: '--logo-shade-1', h: 273, s: 46, l: 46 },
+  { varName: '--logo-shade-2', h: 274, s: 61, l: 63 },
+  { varName: '--logo-shade-3', h: 276, s: 43, l: 62 },
+  { varName: '--logo-shade-4', h: 279, s: 88, l: 81 },
+  { varName: '--logo-shade-5', h: 276, s: 89, l: 78 },
+  { varName: '--logo-shade-6', h: 274, s: 49, l: 53 },
+  { varName: '--logo-shade-7', h: 268, s: 68, l: 4 },
+  { varName: '--logo-shade-8', h: 275, s: 38, l: 52 },
+  { varName: '--logo-shade-9', h: 289, s: 23, l: 91 },
+  { varName: '--logo-shade-10', h: 286, s: 8, l: 61 },
+  { varName: '--logo-shade-11', h: 283, s: 8, l: 50 },
+];
+
 function applyPrimaryColor(lightColor: string, darkColor: string) {
+  console.log('[AppearanceSettings] applyPrimaryColor', { lightColor, darkColor });
   const root = document.documentElement;
 
   const lightRgb = hexToRgbValues(lightColor);
@@ -77,6 +135,21 @@ function applyPrimaryColor(lightColor: string, darkColor: string) {
   root.style.setProperty('--dark-primary-g', String(darkRgb.g));
   root.style.setProperty('--dark-primary-b', String(darkRgb.b));
 
+  root.style.setProperty('--logo-primary', lightColor);
+
+  const primaryHsl = rgbToHsl(hexToRgbValues(lightColor).r, hexToRgbValues(lightColor).g, hexToRgbValues(lightColor).b);
+  const hueShift = primaryHsl.h - ORIG_PRIMARY_H;
+
+  LOGO_SHADES.forEach(({ varName, h, s, l }) => {
+    const newH = (((h + hueShift) % 360) + 360) % 360;
+    root.style.setProperty(varName, hslToRgbString(newH, s, l));
+  });
+
+  const existingFavicon = document.querySelector<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]');
+  if (existingFavicon) {
+    existingFavicon.href = getFaviconDataUri(lightColor);
+  }
+
   const isDark = root.classList.contains('dark');
   if (isDark) {
     root.style.setProperty('--primary', darkColor);
@@ -93,7 +166,7 @@ export function AppearanceSettings() {
   const [theme, setTheme] = useState<Theme>('dark');
   const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [layoutDensity, setLayoutDensity] = useState<LayoutDensity>('normal');
-  const [primaryColor, setPrimaryColor] = useState('#5f5fe8');
+  const [primaryColor, setPrimaryColor] = useState(DEFAULT_COLOR);
   const { toast } = useToast();
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +186,8 @@ export function AppearanceSettings() {
         const stored = localStorage.getItem('primaryColorDark');
         const darkColor = stored || lighten(savedColor, 0.35);
         applyPrimaryColor(savedColor, darkColor);
+      } else if (!savedColor) {
+        applyPrimaryColor(DEFAULT_COLOR, DEFAULT_DARK);
       }
     }, 0);
     return () => clearTimeout(timer);
@@ -160,7 +235,11 @@ export function AppearanceSettings() {
     const lightened = lighten(hex, 0.35);
     localStorage.setItem('primaryColor', hex);
     localStorage.setItem('primaryColorDark', lightened);
-    applyPrimaryColor(hex, lightened);
+    try {
+      applyPrimaryColor(hex, lightened);
+    } catch (err) {
+      console.error('[AppearanceSettings] applyPrimaryColor error:', err);
+    }
   }, []);
 
   const handleFontSizeChange = (size: FontSize) => {
@@ -425,10 +504,10 @@ export function AppearanceSettings() {
                   setThemeProvider('dark');
                   setFontSize('normal');
                   setLayoutDensity('normal');
-                  setPrimaryColor('#5f5fe8');
+                  setPrimaryColor(DEFAULT_COLOR);
                   localStorage.removeItem('primaryColor');
                   localStorage.removeItem('primaryColorDark');
-                  applyPrimaryColor('#5f5fe8', '#818cf8');
+                  applyPrimaryColor(DEFAULT_COLOR, DEFAULT_DARK);
                   setIsDirty(false);
                 }}
           >
