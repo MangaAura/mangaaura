@@ -41,19 +41,19 @@ function hasLocalePrefix(pathname: string): string | null {
 
 // ─── Route permissions ────────────────────────────────────────────
 const ROUTE_PERMISSIONS: Record<string, { permission?: string; roles?: string[]; requireAuth?: boolean }> = {
-  '/admin': { permission: 'admin:settings' },
-  '/admin/users': { permission: 'users:read' },
-  '/admin/bans': { permission: 'bans:view' },
-  '/admin/audit-log': { permission: 'audit:view' },
-  '/admin/impersonate': { permission: 'admin:impersonate' },
-  '/admin/restore': { permission: 'restore:accounts' },
-  '/admin/moderation': { permission: 'moderation:reports' },
-  '/admin/webhooks': { permission: 'webhooks:manage' },
-  '/admin/news': { permission: 'news:edit' },
-  '/admin/csp-reports': { permission: 'csp:view' },
-  '/admin/ai-dashboard': { permission: 'admin:settings' },
-  '/admin/settings': { permission: 'admin:settings' },
-  '/admin/manga': { permission: 'manga:edit' },
+  '/admin': { permission: 'admin:settings', roles: ['OWNER', 'ADMIN'] },
+  '/admin/users': { permission: 'users:read', roles: ['OWNER', 'ADMIN'] },
+  '/admin/bans': { permission: 'bans:view', roles: ['OWNER', 'ADMIN'] },
+  '/admin/audit-log': { permission: 'audit:view', roles: ['OWNER', 'ADMIN'] },
+  '/admin/impersonate': { permission: 'admin:impersonate', roles: ['OWNER'] },
+  '/admin/restore': { permission: 'restore:accounts', roles: ['OWNER', 'ADMIN'] },
+  '/admin/moderation': { permission: 'moderation:reports', roles: ['OWNER', 'ADMIN', 'MODERATOR'] },
+  '/admin/webhooks': { permission: 'webhooks:manage', roles: ['OWNER', 'ADMIN'] },
+  '/admin/news': { permission: 'news:edit', roles: ['OWNER', 'ADMIN', 'EDITOR'] },
+  '/admin/csp-reports': { permission: 'csp:view', roles: ['OWNER', 'ADMIN'] },
+  '/admin/ai-dashboard': { permission: 'admin:settings', roles: ['OWNER', 'ADMIN'] },
+  '/admin/settings': { permission: 'admin:settings', roles: ['OWNER', 'ADMIN'] },
+  '/admin/manga': { permission: 'manga:edit', roles: ['OWNER', 'ADMIN', 'EDITOR'] },
   '/creator/dashboard': { requireAuth: true },
   '/creator/upload': { requireAuth: true },
   '/settings': { requireAuth: true },
@@ -280,11 +280,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
               if (routePerm) {
                 if (routePerm.permission) {
                   const perms = (token as any).permissions as string[] | undefined;
-                  if (!perms?.includes(routePerm.permission)) {
+                  const userRole = (token as any).role as string | undefined;
+                  const hasPermission = perms?.includes(routePerm.permission);
+                  const hasRole = routePerm.roles && userRole && routePerm.roles.includes(userRole);
+                  // Allow if user has the required permission OR is in the allowed roles
+                  if (!hasPermission && !hasRole) {
                     return NextResponse.redirect(new URL('/', request.url));
                   }
-                }
-                if (routePerm.roles && !routePerm.roles.includes((token as any).role as string)) {
+                } else if (routePerm.roles && !routePerm.roles.includes((token as any).role as string)) {
                   return NextResponse.redirect(new URL('/', request.url));
                 }
               }
@@ -388,11 +391,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
           if (routePerm) {
             if (routePerm.permission) {
               const perms = (token as any).permissions as string[] | undefined;
-              if (!perms?.includes(routePerm.permission)) {
+              const userRole = (token as any).role as string | undefined;
+              const hasPermission = perms?.includes(routePerm.permission);
+              const hasRole = routePerm.roles && userRole && routePerm.roles.includes(userRole);
+              // Allow if user has the required permission OR is in the allowed roles
+              if (!hasPermission && !hasRole) {
                 return NextResponse.redirect(new URL('/', request.url));
               }
-            }
-            if (routePerm.roles && !routePerm.roles.includes((token as any).role as string)) {
+            } else if (routePerm.roles && !routePerm.roles.includes((token as any).role as string)) {
               return NextResponse.redirect(new URL('/', request.url));
             }
           }
