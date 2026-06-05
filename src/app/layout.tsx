@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
+import { headers } from 'next/headers';
 import { Suspense } from 'react';
 
 import { AppFooter } from "@/components/Layout/AppFooter";
@@ -191,6 +192,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get('x-nonce') ?? '';
   const htmlLang = await detectLocale();
 
   return (
@@ -208,6 +210,7 @@ export default async function RootLayout({
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <script
           id="theme-init"
+          nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
