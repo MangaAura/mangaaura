@@ -17,7 +17,7 @@ export default function AdminLayout({
   return (
     <AppShell
       requireAuth
-      allowedRoles={['ADMIN']}
+      allowedRoles={['OWNER', 'ADMIN']}
       sidebar={<AdminSidebar />}
       sidebarContentClass="lg:ml-64"
     >
