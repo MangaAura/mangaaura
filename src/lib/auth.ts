@@ -287,6 +287,17 @@ if (user) {
           token.name = (userRecord.name as string) ?? 'User';
           token.picture = (userRecord.image as string) ?? '';
 
+        // Load permissions for route access control (proxy.ts)
+        try {
+          const rolePerms = await prisma.rolePermission.findMany({
+            where: { role: { users: { some: { userId: user.id } } } },
+            select: { permission: { select: { codename: true } } },
+          });
+          token.permissions = rolePerms.map((rp) => rp.permission.codename);
+        } catch {
+          token.permissions = [];
+        }
+
         // Check 2FA status from DB so we can set twoFactorPending
         try {
           const dbUser = await prisma.user.findUnique({
@@ -326,6 +337,17 @@ if (user) {
           token.level = dbUser.level;
           token.role = dbUser.role;
           token.twoFactorEnabled = dbUser.twoFactorEnabled;
+
+          // Refresh permissions on OAuth re-auth
+          try {
+            const rolePerms = await prisma.rolePermission.findMany({
+              where: { role: { users: { some: { userId: dbUser.id } } } },
+              select: { permission: { select: { codename: true } } },
+            });
+            token.permissions = rolePerms.map((rp) => rp.permission.codename);
+          } catch {
+            token.permissions = [];
+          }
         }
       }
 
