@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const rlResponse = await withRateLimit(request, session?.user?.id, 'default');
     if (rlResponse) return rlResponse;
 
-    if (session.user.role !== 'ADMIN') {
+    if (!['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'Solo admins pueden crear eventos' }, { status: 403 });
     }
 

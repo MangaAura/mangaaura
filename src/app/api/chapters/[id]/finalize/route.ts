@@ -50,7 +50,7 @@ export async function PATCH(
     }
 
     // Verify ownership
-    if (chapter.manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (chapter.manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'No tienes permisos para finalizar este capítulo' },
         { status: 403 }

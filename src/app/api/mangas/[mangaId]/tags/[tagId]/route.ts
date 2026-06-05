@@ -32,7 +32,7 @@ export async function DELETE(
     select: { role: true },
   });
 
-  if (manga.authorId !== session.user.id && user?.role !== 'ADMIN') {
+  if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(user?.role as string)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
 

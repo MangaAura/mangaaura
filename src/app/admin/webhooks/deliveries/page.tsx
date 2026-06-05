@@ -17,7 +17,7 @@ export default async function WebhookDeliveriesPage() {
     redirect('/auth/login?callbackUrl=/admin/webhooks/deliveries');
   }
 
-  if (session.user.role !== 'ADMIN') {
+  if (!['ADMIN', 'OWNER'].includes(session.user.role as string)) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-8 max-w-md w-full mx-4 text-center">

@@ -20,7 +20,7 @@ export default async function RealtimeAnalyticsPage() {
     redirect('/auth/login?callbackUrl=/admin/analytics/realtime');
   }
 
-  if (session.user.role !== 'ADMIN') {
+  if (!['ADMIN', 'OWNER'].includes(session.user.role as string)) {
     const locale = await detectLocale();
     const t = getT(locale);
     return (

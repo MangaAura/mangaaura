@@ -26,7 +26,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const manga = await prisma.mangaSeries.findUnique({ where: { id }, select: { authorId: true } });
     if (!manga) return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No tienes permiso para editar este manga' }, { status: 403 });
     }
 
@@ -57,7 +57,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const manga = await prisma.mangaSeries.findUnique({ where: { id }, select: { authorId: true, title: true, deletedAt: true } });
     if (!manga) return NextResponse.json({ error: 'Manga no encontrado' }, { status: 404 });
     if (manga.deletedAt) return NextResponse.json({ error: 'El manga ya está en la papelera' }, { status: 400 });
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No tienes permiso para eliminar este manga' }, { status: 403 });
     }
 

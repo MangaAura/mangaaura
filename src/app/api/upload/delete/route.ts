@@ -112,7 +112,7 @@ export async function DELETE(request: NextRequest) {
         where: { id: userId },
         select: { role: true },
       });
-      isOwner = user?.role === 'ADMIN';
+      isOwner = ['ADMIN', 'OWNER'].includes(user?.role as string);
     }
 
     // Verificar también si la URL está asociada a un manga del usuario

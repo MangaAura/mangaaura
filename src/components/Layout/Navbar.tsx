@@ -40,7 +40,7 @@ export default function Navbar() {
   }
 
   const isLoggedIn = status === 'authenticated';
-  const isModerator = session?.user?.role === 'MODERATOR' || session?.user?.role === 'ADMIN';
+  const isModerator = session?.user?.role === 'MODERATOR' || ['ADMIN', 'OWNER'].includes(session?.user?.role as string);
   const userId = session?.user?.id as string | undefined;
 
   const visibleLinks = ALL_NAV_LINKS.filter((link) => {

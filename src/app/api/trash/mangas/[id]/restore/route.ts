@@ -24,7 +24,7 @@ export async function POST(
 
     if (softDeletedManga?.deletedAt) {
       // Handle soft-deleted manga: just clear deletedAt
-      if (softDeletedManga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+      if (softDeletedManga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
         return NextResponse.json({ error: 'No tienes permiso para restaurar este manga' }, { status: 403 });
       }
 
@@ -52,7 +52,7 @@ export async function POST(
       return NextResponse.json({ error: 'Manga no encontrado en la papelera' }, { status: 404 });
     }
 
-    if (bundle.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (bundle.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No tienes permiso para restaurar este manga' }, { status: 403 });
     }
 

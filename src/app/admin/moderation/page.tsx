@@ -27,7 +27,7 @@ export default async function ModerationPage({
     redirect('/auth/login?callbackUrl=/admin/moderation');
   }
 
-  if (!['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+  if (!['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string)) {
     redirect('/');
   }
 

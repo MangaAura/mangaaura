@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
 
     // Check if user is admin or moderator
-    if (!session?.user?.id || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+    if (!session?.user?.id || !['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 

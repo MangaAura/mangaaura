@@ -68,7 +68,7 @@ export async function PATCH(
     if (rlResponse) return rlResponse;
 
     const role = session.user.role;
-    if (role !== 'ADMIN') {
+    if (!['ADMIN', 'OWNER'].includes(role as string)) {
       return NextResponse.json({ error: 'Solo admins pueden editar eventos' }, { status: 403 });
     }
 

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     select: { role: true },
   });
 
-  if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
+  if (!['ADMIN', 'MODERATOR', 'OWNER'].includes(user?.role as string)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
 

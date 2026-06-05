@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     // Verificar que el usuario es admin o moderador
     // Aquí deberías verificar el rol del usuario
     // Por ahora, solo permitimos acceso si tiene session
-    const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'MODERATOR';
+    const isAdmin = ['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string);
     if (!isAdmin) {
       return NextResponse.json(
         { error: 'No tienes permisos para ver esta información' },

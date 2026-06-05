@@ -117,7 +117,7 @@ export async function PUT(
     }
 
     // Verificar ownership
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'No tienes permisos para editar capítulos de este manga' },
         { status: 403 }
@@ -212,7 +212,7 @@ export async function PUT(
     }
 
     // Actualizar metas de crowdfunding si es admin
-    if (session.user.role === 'ADMIN') {
+    if (['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       if (body.crowdfundingGoal !== undefined) {
         const goal = parseInt(body.crowdfundingGoal);
         if (isNaN(goal) || goal < 0) {
@@ -306,7 +306,7 @@ export async function DELETE(
     }
 
     // Verificar ownership
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'No tienes permisos para eliminar capítulos de este manga' },
         { status: 403 }

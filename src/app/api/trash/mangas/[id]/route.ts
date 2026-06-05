@@ -24,7 +24,7 @@ export async function DELETE(
 
     if (bundle) {
       // Normal case: permanently delete from bundle
-      if (bundle.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+      if (bundle.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
         return NextResponse.json({ error: 'No tienes permiso para eliminar este manga permanentemente' }, { status: 403 });
       }
 
@@ -48,7 +48,7 @@ export async function DELETE(
 
     if (softDeletedManga?.deletedAt) {
       // Permanently delete soft-deleted manga from MangaSeries
-      if (softDeletedManga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+      if (softDeletedManga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
         return NextResponse.json({ error: 'No tienes permiso para eliminar este manga permanentemente' }, { status: 403 });
       }
 

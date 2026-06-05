@@ -50,7 +50,7 @@ export async function PUT(
     select: { role: true },
   });
 
-  if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
+  if (!['ADMIN', 'MODERATOR', 'OWNER'].includes(user?.role as string)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
 
@@ -132,7 +132,7 @@ export async function DELETE(
     select: { role: true },
   });
 
-  if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
+  if (!['ADMIN', 'MODERATOR', 'OWNER'].includes(user?.role as string)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
 

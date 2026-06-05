@@ -137,7 +137,7 @@ export async function PUT(
     }
 
     // Verificar ownership
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'No tienes permisos para editar este manga' },
         { status: 403 }
@@ -301,7 +301,7 @@ export async function DELETE(
       );
     }
 
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'No tienes permisos para eliminar este manga' },
         { status: 403 }

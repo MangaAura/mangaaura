@@ -20,7 +20,7 @@ export async function GET(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user?.id || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+    if (!session?.user?.id || !['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
@@ -135,7 +135,7 @@ export async function PATCH(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user?.id || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+    if (!session?.user?.id || !['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 

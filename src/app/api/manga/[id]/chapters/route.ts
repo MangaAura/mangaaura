@@ -138,7 +138,7 @@ export async function POST(
       );
     }
 
-    if (manga.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (manga.authorId !== session.user.id && !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'No tienes permisos para agregar capítulos a este manga' },
         { status: 403 }

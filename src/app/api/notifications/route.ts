@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const rlResponse = await withRateLimit(request, session?.user?.id, 'notifications');
     if (rlResponse) return rlResponse;
 
-    if (session.user.role !== 'ADMIN') {
+    if (!['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'Forbidden - Admin only' },
         { status: 403 }
