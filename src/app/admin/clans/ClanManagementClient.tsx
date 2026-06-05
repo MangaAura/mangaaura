@@ -102,7 +102,7 @@ export default function ClanManagementClient() {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-[var(--surface-sunken)] flex items-center justify-center overflow-hidden flex-shrink-0">
             {row.original.emblemUrl ? (
-              <img src={row.original.emblemUrl} alt="" className="w-full h-full object-cover" />
+              <img src={row.original.emblemUrl} alt={`Emblema de ${row.original.name}`} className="w-full h-full object-cover" />
             ) : (
               <Shield className="w-5 h-5 text-[var(--text-secondary)]" />
             )}

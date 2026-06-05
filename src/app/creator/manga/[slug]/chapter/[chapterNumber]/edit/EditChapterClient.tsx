@@ -20,6 +20,7 @@ import {
   RefreshCw,
   ZoomIn,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useRef, useState } from "react";
@@ -155,6 +156,16 @@ export default function EditChapterClient({ params }: PageProps) {
       ? pages[previewIndex]?.preview || pages[previewIndex]?.url
       : null;
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceFileInputRef = useRef<HTMLInputElement>(null);
+
+  // ─── Replace a page ─────────────────────────────────────────
+
+  const triggerReplace = (index: number) => {
+    replaceTargetRef.current = index;
+    replaceFileInputRef.current?.click();
+  };
+
   // ─── Keyboard navigation for lightbox & grid reorder ─────
 
   useEffect(() => {
@@ -186,9 +197,6 @@ export default function EditChapterClient({ params }: PageProps) {
       return () => window.removeEventListener("keydown", handleKeyDown);
     }
   }, [previewIndex, selectedGridIndex, pages.length]);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const replaceFileInputRef = useRef<HTMLInputElement>(null);
 
   // ─── Fetch chapter data ──────────────────────────────────────
 
@@ -234,11 +242,16 @@ export default function EditChapterClient({ params }: PageProps) {
     fetchData();
   }, [slug, chapterNumberParam]);
 
-  // ─── Cleanup previews on unmount ─────────────────────────────
+  // ─── Cleanup previews on unmount ────────────────────────────
+
+  const pagesRef = useRef(pages);
+  useEffect(() => {
+    pagesRef.current = pages;
+  });
 
   useEffect(() => {
     return () => {
-      pages.forEach((p) => {
+      pagesRef.current.forEach((p) => {
         if (p.preview) URL.revokeObjectURL(p.preview);
       });
     };
@@ -304,13 +317,6 @@ export default function EditChapterClient({ params }: PageProps) {
       return next;
     });
   }, []);
-
-  // ─── Replace a page ─────────────────────────────────────────
-
-  const triggerReplace = (index: number) => {
-    replaceTargetRef.current = index;
-    replaceFileInputRef.current?.click();
-  };
 
   const handleReplaceFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -496,7 +502,7 @@ export default function EditChapterClient({ params }: PageProps) {
         `${invalidCount} archivo(s) ignorado(s): formato no válido`,
       );
     }
-  }, []);
+  }, [isFileDragEvent]);
 
   // ─── Save ────────────────────────────────────────────────────
 
@@ -927,12 +933,14 @@ export default function EditChapterClient({ params }: PageProps) {
                         title="Ver página completa"
                         aria-label={`Ver página ${index + 1}`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={page.preview || page.url}
                           alt={`Página ${index + 1}`}
-                          className="w-[72px] h-24 object-cover rounded"
+                          width={72}
+                          height={96}
+                          className="object-cover rounded"
                           loading="lazy"
+                          unoptimized={!!page.preview}
                         />
                       </button>
 
@@ -1072,12 +1080,13 @@ export default function EditChapterClient({ params }: PageProps) {
                             </div>
                           </div>
                         ) : (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
+                          <Image
                             src={page.preview || page.url}
                             alt={`Página ${index + 1}`}
-                            className="absolute inset-0 w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                             loading="lazy"
+                            unoptimized={!!page.preview}
                             onError={() => handleImageError(page.id)}
                           />
                         )}
@@ -1235,11 +1244,12 @@ export default function EditChapterClient({ params }: PageProps) {
               className="relative w-full h-full max-w-[90vw] max-h-[90vh] flex items-center justify-center p-16"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={previewSrc}
                 alt={`Página ${previewIndex + 1}`}
-                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                fill
+                className="object-contain rounded-lg shadow-2xl"
+                unoptimized={pages[previewIndex]?.preview != null}
               />
             </motion.div>
 

@@ -3,9 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// Note: Announcement model requires `npx prisma generate` after schema update
-const prismaAnn = prisma as any;
-
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -17,7 +14,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const announcement = await prismaAnn.announcement.findUnique({ where: { id } });
+    const announcement = await prisma.announcement.findUnique({ where: { id } });
     if (!announcement) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
@@ -61,7 +58,7 @@ export async function PATCH(
     if (startAt !== undefined) updateData.startAt = new Date(startAt);
     if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
 
-    const announcement = await prismaAnn.announcement.update({
+    const announcement = await prisma.announcement.update({
       where: { id },
       data: updateData,
     });
@@ -92,7 +89,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prismaAnn.announcement.delete({ where: { id } });
+    await prisma.announcement.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting announcement:', error);

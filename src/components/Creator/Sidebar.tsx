@@ -13,7 +13,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { DynamicLogo } from '@/components/Logo';
+import { LogoSvg } from '@/components/Logo';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
@@ -47,7 +47,7 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Logo */}
       <div className="p-6 border-b border-[var(--border)]">
         <Link href="/" className="flex items-center gap-2">
-          <DynamicLogo size={28} />
+          <LogoSvg size={28} />
           <RepeatedChar text="MANGAAURA" className="font-bold text-lg" />
         </Link>
         <p className="text-xs text-[var(--text-secondary)] mt-1">{t('creator.dashboard')}</p>

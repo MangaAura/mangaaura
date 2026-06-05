@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
@@ -23,20 +22,12 @@ export function CollectionsTabs({
   children,
 }: CollectionsTabsProps) {
   const router = useRouter();
-  const [value, setValue] = useState(defaultValue);
-
-  /* eslint-disable react-hooks/set-state-in-effect */
-  // Sync with URL changes (browser back/forward navigation)
-  useEffect(() => {
-    setValue(defaultValue);
-  }, [defaultValue]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <Tabs
-      value={value}
+      key={defaultValue}
+      defaultValue={defaultValue}
       onValueChange={(newValue) => {
-        setValue(newValue);
         router.push(`/collections?filter=${newValue}`);
       }}
       className="mb-6"

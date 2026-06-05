@@ -116,6 +116,10 @@ export const MangaReader = memo(function MangaReader({
     try { return localStorage.getItem('mangaaura-continuous-reading') === 'true'; } catch { return false; }
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isOLED, setIsOLED] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try { return localStorage.getItem('mangaaura-oled-mode') === 'true'; } catch { return false; }
+  });
   const [showQuiz, setShowQuiz] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showSponsor, setShowSponsor] = useState(false);
@@ -156,6 +160,11 @@ export const MangaReader = memo(function MangaReader({
   useEffect(() => {
     try { localStorage.setItem('mangaaura-continuous-reading', String(continuousReading)); } catch { /* noop */ }
   }, [continuousReading]);
+
+  // Persist OLED preference
+  useEffect(() => {
+    try { localStorage.setItem('mangaaura-oled-mode', String(isOLED)); } catch { /* noop */ }
+  }, [isOLED]);
 
   // Persist continuous layout preference
   useEffect(() => {
@@ -677,7 +686,7 @@ export const MangaReader = memo(function MangaReader({
   });
 
   return (
-    <div className="min-h-screen bg-[var(--surface-sunken)]" ref={containerRef}>
+    <div className={cn('min-h-screen', isOLED ? 'bg-[#000]' : 'bg-[var(--surface-sunken)]')} ref={containerRef}>
       {/* Floating page indicator for continuous mode */}
       {scrollMode === 'continuous' && showFloatingIndicator && (
         <motion.div
@@ -704,7 +713,7 @@ export const MangaReader = memo(function MangaReader({
 
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 bg-[var(--surface-sunken)]/90 backdrop-blur-sm border-b border-[var(--text-inverse)]/10',
+          isOLED ? 'fixed top-0 left-0 right-0 z-50 bg-[#000]/90 backdrop-blur-sm border-b border-white/10' : 'fixed top-0 left-0 right-0 z-50 bg-[var(--surface-sunken)]/90 backdrop-blur-sm border-b border-[var(--text-inverse)]/10',
           'transition-transform duration-300',
           scrollMode === 'continuous' ? 'top-0.5' : '',
           showControls ? 'translate-y-0' : '-translate-y-full'
@@ -1097,7 +1106,7 @@ export const MangaReader = memo(function MangaReader({
       <footer
         role="contentinfo"
         className={cn(
-          'fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface-sunken)]/90 backdrop-blur-sm border-t border-[var(--text-inverse)]/10',
+          isOLED ? 'fixed bottom-0 left-0 right-0 z-50 bg-[#000]/90 backdrop-blur-sm border-t border-white/10' : 'fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface-sunken)]/90 backdrop-blur-sm border-t border-[var(--text-inverse)]/10',
           'transition-transform duration-300',
           showControls ? 'translate-y-0' : 'translate-y-full'
         )}
@@ -1220,18 +1229,44 @@ export const MangaReader = memo(function MangaReader({
               role="dialog"
               aria-modal="true"
               aria-labelledby="reader-settings-title"
-              className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4"
+              className={cn('rounded-xl p-6 w-full max-w-md mx-4', isOLED ? 'bg-[#000] border border-white/10' : 'bg-[var(--surface)]')}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 id="reader-settings-title" className="text-lg font-semibold text-[var(--text-primary)]">Ajustes de lectura</h2>
+                <h2 id="reader-settings-title" className={cn('text-lg font-semibold', isOLED ? 'text-white' : 'text-[var(--text-primary)]')}>Ajustes de lectura</h2>
                 <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)} aria-label="Cerrar ajustes">
                   <X className="w-5 h-5" aria-hidden="true" />
                 </Button>
               </div>
 
               <div className="space-y-6">
+              {/* OLED Mode Toggle */}
               <div>
-                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                  Modo OLED
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    variant={isOLED ? 'default' : 'outline'}
+                    onClick={() => setIsOLED(true)}
+                    className="flex-1"
+                  >
+                    <Moon className="w-4 h-4 mr-1" /> OLED negro puro
+                  </Button>
+                  <Button
+                    variant={!isOLED ? 'default' : 'outline'}
+                    onClick={() => setIsOLED(false)}
+                    className="flex-1"
+                  >
+                    <Sun className="w-4 h-4 mr-1" /> Oscuro normal
+                  </Button>
+                </div>
+                <p className={cn('text-xs mt-2', isOLED ? 'text-gray-500' : 'text-[var(--text-tertiary)]')}>
+                  Fondo negro puro (#000) para pantallas OLED. Ahorra batería y mejora el contraste de las imágenes.
+                </p>
+              </div>
+
+              <div>
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
                   Dirección de lectura
                 </label>
                 <div className="flex gap-2">
@@ -1249,7 +1284,7 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
-                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
                   Modo de vista
                 </label>
                 <div className="flex gap-2">
@@ -1272,7 +1307,7 @@ export const MangaReader = memo(function MangaReader({
 
               {/* Continuous mode column layout – only relevant in scroll mode */}
               <div>
-                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
                   Distribución (modo continuo)
                 </label>
                 <div className="flex gap-2">
@@ -1299,7 +1334,7 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
-                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
                   Modo de desplazamiento
                 </label>
                 <div className="flex gap-2">
@@ -1321,7 +1356,7 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
-                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
                   Lectura continua
                 </label>
                 <div className="flex gap-2">
@@ -1356,7 +1391,7 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
-                <label className="text-sm text-[var(--text-secondary)] mb-2 block">
+                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
                   Auto-scroll
                 </label>
                 <div className="flex gap-2">
@@ -1416,11 +1451,10 @@ export const MangaReader = memo(function MangaReader({
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="reader-help-title"
-            className="bg-[var(--surface)] rounded-xl p-6 w-full max-w-md mx-4"
+            aria-labelledby="reader-help-title"              className={cn('rounded-xl p-6 w-full max-w-md mx-4', isOLED ? 'bg-[#000] border border-white/10' : 'bg-[var(--surface)]')}
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 id="reader-help-title" className="text-lg font-semibold text-[var(--text-primary)]">Atajos de teclado</h2>
+              <h2 id="reader-help-title" className={cn('text-lg font-semibold', isOLED ? 'text-white' : 'text-[var(--text-primary)]')}>Atajos de teclado</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowHelp(false)} aria-label="Cerrar ayuda">
                 <X className="w-5 h-5" aria-hidden="true" />
               </Button>

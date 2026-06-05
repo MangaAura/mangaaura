@@ -60,7 +60,7 @@ export default function ChapterReaderClient() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const [readerTheme, setReaderTheme] = useState<'dark' | 'sepia' | 'gray'>('dark');
+  const [readerTheme, setReaderTheme] = useState<'dark' | 'sepia' | 'gray' | 'oled'>('dark');
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const { setTheme, resolvedTheme } = useTheme();
@@ -70,30 +70,40 @@ export default function ChapterReaderClient() {
     ? 'bg-[#f4e4c1]'
     : readerTheme === 'gray'
     ? 'bg-[#1a1a1a]'
+    : readerTheme === 'oled'
+    ? 'bg-[#000]'
     : isDarkMode ? 'bg-[var(--surface)]' : 'bg-[var(--surface-elevated)]';
 
   const readerHeaderClass = readerTheme === 'sepia'
     ? 'bg-[#e8d5a3] border-[#d4c090]'
     : readerTheme === 'gray'
     ? 'bg-[#222] border-[#333]'
+    : readerTheme === 'oled'
+    ? 'bg-[#000] border-[#111]'
     : isDarkMode ? 'bg-[var(--surface-sunken)] border-[var(--border)]' : 'bg-[var(--surface-elevated)] border-[var(--border)]';
 
   const readerTextClass = readerTheme === 'sepia'
     ? 'text-[#5c3d2e]'
     : readerTheme === 'gray'
     ? 'text-[#ccc]'
+    : readerTheme === 'oled'
+    ? 'text-[#fff]'
     : isDarkMode ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]';
 
   const readerMutedClass = readerTheme === 'sepia'
     ? 'text-[#8b6b4c]'
     : readerTheme === 'gray'
     ? 'text-[#888]'
+    : readerTheme === 'oled'
+    ? 'text-[#aaa]'
     : isDarkMode ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]';
 
   const pageIndicatorClass = readerTheme === 'sepia'
     ? 'bg-[#e8d5a3] text-[#5c3d2e]'
     : readerTheme === 'gray'
     ? 'bg-[#333] text-[#ccc]'
+    : readerTheme === 'oled'
+    ? 'bg-[#111] text-[#fff]'
     : isDarkMode ? 'bg-[var(--surface-sunken)] text-[var(--text-primary)]' : 'bg-[var(--surface-elevated)] text-[var(--text-primary)]';
 
   const { comments } = useChapterComments(chapterId);
@@ -299,6 +309,7 @@ export default function ChapterReaderClient() {
               }`}>
                 {[
                   { id: 'dark' as const, label: 'Oscuro', icon: '🌙' },
+                  { id: 'oled' as const, label: 'OLED', icon: '🌑' },
                   { id: 'sepia' as const, label: 'Sepia', icon: '📜' },
                   { id: 'gray' as const, label: 'Gris', icon: '🌫️' },
                 ].map((t) => (

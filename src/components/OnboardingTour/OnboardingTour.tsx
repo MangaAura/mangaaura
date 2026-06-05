@@ -5,7 +5,7 @@ import { CheckCircle2, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { TOUR_STEPS, TOTAL_STEPS, useTour } from './TourContext';
-import { DynamicLogo } from '@/components/Logo';
+import { LogoSvg } from '@/components/Logo';
 import { useT } from '@/i18n';
 
 // ── Tooltip Position ──
@@ -262,7 +262,7 @@ function TourIntro({ onStart, onDismiss }: { onStart: () => void; onDismiss: () 
         className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center"
       >
         <div className="w-16 h-16 mx-auto mb-4">
-          <DynamicLogo size={64} />
+          <LogoSvg size={64} />
         </div>
         <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
           {t('onboarding.tourTitle')}

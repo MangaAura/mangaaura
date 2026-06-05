@@ -8,7 +8,8 @@
  */
 
 import type { IEmailQueueProducer } from '@/core/services/NotificationService';
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { emailService } from '@/infrastructure/adapters/emailService';
+import { baseEmailTemplate } from '@/lib/email-templates';
 import { prisma } from '@/lib/prisma';
 
 export class EmailQueueProducer implements IEmailQueueProducer {
@@ -29,18 +30,16 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      await getEmailQueue().addAchievementEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        achievementId: data.achievementId,
-        achievementName: data.achievementName,
-        achievementDescription: data.achievementDescription,
-        achievementIconUrl: data.achievementIconUrl ?? undefined,
-        xpReward: data.xpReward,
-      });
+      await emailService.sendAchievementUnlockedEmail(
+        { id: userId, email: user.email, username: user.username },
+        {
+          name: data.achievementName,
+          description: data.achievementDescription,
+          xpReward: data.xpReward,
+        }
+      );
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue achievement email:', error);
+      console.error('[EmailQueueProducer] Failed to send achievement email:', error);
     }
   }
 
@@ -61,18 +60,18 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      await getEmailQueue().addTipReceivedEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        tipId: data.tipId,
-        amount: data.amount,
-        message: data.message ?? undefined,
-        fromUserId: data.fromUserId,
-        fromUsername: data.fromUsername,
-      });
+      await emailService.sendTipReceivedEmail(
+        { id: userId, email: user.email, username: user.username },
+        {
+          id: data.tipId,
+          amount: data.amount,
+          message: data.message ?? null,
+          createdAt: new Date(),
+        },
+        { id: data.fromUserId, email: '', username: data.fromUsername }
+      );
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue tip email:', error);
+      console.error('[EmailQueueProducer] Failed to send tip email:', error);
     }
   }
 
@@ -94,31 +93,30 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      // Resolve the actual chapter number from DB if not provided
-      let chapterNumber = data.chapterNumber;
-      if (!chapterNumber) {
-        const chapter = await prisma.chapter.findUnique({
-          where: { id: data.chapterId },
-          select: { chapterNumber: true },
-        });
-        if (chapter) {
-          chapterNumber = chapter.chapterNumber;
-        }
-      }
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const chapterLink = `${baseUrl}/reader?chapterId=${data.chapterId}#comment-${data.commentId}`;
 
-      await getEmailQueue().addCommentReplyEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        commentId: data.commentId,
-        replyContent: data.replyContent,
-        replierUsername: data.replierUsername,
-        chapterId: data.chapterId,
-        chapterNumber,
-        mangaTitle: data.mangaTitle,
+      const { html, text } = baseEmailTemplate({
+        title: `${data.replierUsername} respondió a tu comentario`,
+        preview: `${data.replierUsername} respondió a tu comentario en ${data.mangaTitle}`,
+        content: `
+          <p><strong>${data.replierUsername}</strong> respondió a tu comentario en <strong>"${data.mangaTitle}"</strong>.</p>
+          <div style="margin: 15px 0; padding: 15px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #6366f1; color: #475569; font-style: italic;">
+            "${data.replyContent}"
+          </div>
+          <p>Haz clic en el botón para ver la respuesta completa.</p>
+        `,
+        ctaText: 'Ver respuesta',
+        ctaUrl: chapterLink,
+      });
+
+      await emailService.sendEmail(user.email, {
+        subject: `${data.replierUsername} respondió a tu comentario en ${data.mangaTitle}`,
+        html,
+        text,
       });
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue comment reply email:', error);
+      console.error('[EmailQueueProducer] Failed to send comment reply email:', error);
     }
   }
 
@@ -136,15 +134,13 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      await getEmailQueue().addLevelUpEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        oldLevel: data.oldLevel,
-        newLevel: data.newLevel,
-      });
+      await emailService.sendLevelUpEmail(
+        { id: userId, email: user.email, username: user.username },
+        data.oldLevel,
+        data.newLevel
+      );
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue level-up email:', error);
+      console.error('[EmailQueueProducer] Failed to send level-up email:', error);
     }
   }
 
@@ -165,18 +161,15 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      await getEmailQueue().addMentionEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        mentionerUsername: data.mentionerUsername,
-        commentContent: data.commentContent,
-        mangaTitle: data.mangaTitle,
-        chapterId: data.chapterId,
-        commentId: data.commentId,
-      });
+      await emailService.sendMentionEmail(
+        { id: userId, email: user.email, username: user.username },
+        data.mentionerUsername,
+        data.commentContent.substring(0, 200),
+        data.chapterId,
+        data.commentId
+      );
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue mention email:', error);
+      console.error('[EmailQueueProducer] Failed to send mention email:', error);
     }
   }
 
@@ -194,15 +187,27 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      await getEmailQueue().addReferralSignupEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        refereeId: data.refereeId,
-        refereeUsername: data.refereeUsername,
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const referralsUrl = `${baseUrl}/economy/referrals`;
+
+      const { html, text } = baseEmailTemplate({
+        title: '🎉 Nuevo Referido Registrado',
+        preview: `${data.refereeUsername} se registró con tu código`,
+        content: `
+          <p>¡<strong>${data.refereeUsername}</strong> se registró en MangaAura con tu código de referido!</p>
+          <p>Cuando haga su primera compra de Aura, ganarás un bono del 10%.</p>
+        `,
+        ctaText: 'Ver mis referidos',
+        ctaUrl: referralsUrl,
+      });
+
+      await emailService.sendEmail(user.email, {
+        subject: `🎉 ${data.refereeUsername} se registró con tu código — MangaAura`,
+        html,
+        text,
       });
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue referral signup email:', error);
+      console.error('[EmailQueueProducer] Failed to send referral signup email:', error);
     }
   }
 
@@ -222,17 +227,14 @@ export class EmailQueueProducer implements IEmailQueueProducer {
       });
       if (!user?.email) return;
 
-      await getEmailQueue().addClanInviteEmail({
-        to: user.email,
-        userId,
-        username: user.username,
-        clanId: data.clanId,
-        clanName: data.clanName,
-        clanSlug: data.clanSlug,
-        inviterUsername: data.inviterUsername,
-      });
+      await emailService.sendClanInviteEmail(
+        { id: userId, email: user.email, username: user.username },
+        data.clanName,
+        data.inviterUsername,
+        data.clanSlug
+      );
     } catch (error) {
-      console.error('[EmailQueueProducer] Failed to queue clan invite email:', error);
+      console.error('[EmailQueueProducer] Failed to send clan invite email:', error);
     }
   }
 }

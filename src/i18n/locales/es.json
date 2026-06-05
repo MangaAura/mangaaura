@@ -694,7 +694,9 @@
     "threads": "hilos",
     "closed": "Cerrado",
     "noThreads": "Sin hilos",
-    "noThreadsDesc": "Aún no hay hilos en el foro"
+    "noThreadsDesc": "Aún no hay hilos en el foro",
+    "createFirstThread": "Crear primer hilo",
+    "exploreCommunity": "Explorar comunidad"
   },
   "user": {
     "profile": "Perfil",
@@ -2958,6 +2960,30 @@
       "step1Desc": "Registrate gratis con tu email o conecta con Google. En menos de un minuto tendras acceso a toda la plataforma: miles de mangas, herramientas de creacion y una comunidad activa.",
       "step2Desc": "Descubre manga de todos los generos: accion, romance, fantasia, terror y mas. Usa filtros avanzados, sigue a tus autores favoritos y recibe recomendaciones personalizadas.",
       "step3Desc": "Lee, comenta, vota con Aura, crowdfundea capitulos, gana XP y desbloquea logros. Los creadores reciben Aura como recompensa por su trabajo."
+    },
+    "guiasCrearManga": {
+      "title": "Cómo crear tu propio manga: guía completa para aspirantes a mangaka | MangaAura",
+      "description": "Aprende paso a paso cómo crear tu propio manga desde cero. Herramientas de IA, plataformas de publicación, consejos de dibujo y monetización para aspirantes a mangaka."
+    },
+    "guiasVsManga": {
+      "title": "Diferencia entre manga, manhwa y webtoon: guía completa | MangaAura",
+      "description": "¿No sabes cuál es la diferencia entre manga, manhwa y webtoon? Te explicamos el origen, formato, estilo de lectura y dónde leer cada tipo de cómic asiático."
+    },
+    "guiasGeneros": {
+      "title": "Géneros de manga explicados: shonen, shojo, seinen, josei y más | MangaAura",
+      "description": "Guía completa de todos los géneros de manga: shonen, shojo, seinen, josei, isekai, slice of life y más. Descubre cuál es tu género ideal y encuentra tu próxima serie favorita."
+    },
+    "guiasGanarDinero": {
+      "title": "Cómo ganar dinero creando manga: guía de monetización para creadores | MangaAura",
+      "description": "Aprende cómo monetizar tu manga online: crowdfunding, propinas, patrocinios y más. Guía completa para creadores que quieren vivir de su arte en MangaAura."
+    },
+    "affiliate": {
+      "title": "Programa de Afiliados | Gana comisiones compartiendo Manga | MangaAura",
+      "description": "Únete al programa de afiliados de MangaAura. Gana hasta un 25·% de comisión recurrente por cada usuario que refieras. Sin costo, con dashboard en tiempo real y cookie de 90 días."
+    },
+    "economyAffiliate": {
+      "title": "Dashboard de Afiliados | MangaAura",
+      "description": "Gestiona tu programa de afiliados: estadísticas, comisiones, referidos y enlaces promocionales."
     }
   },
   "guides": {

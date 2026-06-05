@@ -2,13 +2,10 @@ import { NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
-// Note: Announcement model requires `npx prisma generate` after schema update
-const prismaAnn = prisma as any;
-
 export async function GET() {
   try {
     const now = new Date();
-    const announcements = await prismaAnn.announcement.findMany({
+    const announcements = await prisma.announcement.findMany({
       where: {
         isActive: true,
         startAt: { lte: now },
@@ -21,7 +18,7 @@ export async function GET() {
     });
 
     return NextResponse.json({
-      announcements: announcements.map((a: any) => ({
+      announcements: announcements.map((a) => ({
         id: a.id,
         message: a.message,
         messageEn: a.messageEn,

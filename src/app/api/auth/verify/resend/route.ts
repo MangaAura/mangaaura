@@ -2,7 +2,8 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { emailService } from '@/infrastructure/adapters/emailService';
+import { verificationEmail } from '@/lib/email-templates';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
@@ -55,15 +56,19 @@ export async function POST(request: NextRequest) {
       const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
       const verificationUrl = `${baseUrl}/auth/verify?token=${token}`;
 
-      const emailQueue = getEmailQueue();
-      await emailQueue.addVerificationEmail({
-        to: user.email,
-        userId: user.id,
-        username: user.username,
-        verificationUrl,
+      const { html, text, subject } = verificationEmail(verificationUrl);
+
+      const result = await emailService.sendEmail(user.email, {
+        subject,
+        html,
+        text,
       });
 
-      console.info('[ResendVerification] Verification email queued for user ID:', user.id);
+      if (!result.success) {
+        console.error('[ResendVerification] Failed to send email:', result.error, 'for user ID:', user.id);
+      } else {
+        console.info('[ResendVerification] Verification email sent for user ID:', user.id, '- Message ID:', result.messageId);
+      }
     }
 
     return NextResponse.json(

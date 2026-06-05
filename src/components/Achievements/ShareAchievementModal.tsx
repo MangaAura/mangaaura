@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Loader2,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useState, useCallback } from 'react';
 
@@ -135,14 +136,15 @@ export function ShareAchievementModal({
                 </p>
               </div>
             ) : (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
+              <Image
                 src={ogImageUrl}
                 alt={`Logro: ${achievementName}`}
+                fill
                 className={cn(
-                  'w-full h-full object-cover transition-opacity duration-300',
+                  'object-cover transition-opacity duration-300',
                   ogLoading ? 'opacity-0' : 'opacity-100'
                 )}
+                sizes="(max-width: 640px) 100vw, 480px"
                 onLoad={() => setOgLoading(false)}
                 onError={() => {
                   setOgLoading(false);

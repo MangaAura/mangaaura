@@ -9,11 +9,15 @@ import {
 import { Sparkles, Zap, Star, Crown, Shield, Gift, ArrowRight, Download, BadgeCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import useSWR from 'swr';
 
-import { Button } from '@/components/ui/Button';
+import type { PricingResponse , AuraPack, SubscriptionPlanData } from '@/app/api/pricing/route';
 import { Container } from '@/components/Layout/Container';
 import { PageHeader } from '@/components/Layout/PageHeader';
+import { Button } from '@/components/ui/Button';
 import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config';
+
 
 const packVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -33,14 +37,14 @@ const planVariants: Variants = {
   }),
 };
 
-const AURA_PACKS = [
+const AURA_PACKS_FALLBACK = [
   { id: 'aura_100', aura: 100, priceCents: 100, descKey: 'packBasicDesc', popular: false, icon: Gift },
   { id: 'aura_500', aura: 500, priceCents: 450, descKey: 'packPopularDesc', popular: true, icon: Zap, discount: '10%' },
   { id: 'aura_1000', aura: 1000, priceCents: 850, descKey: 'packBestValueDesc', popular: false, icon: Star, discount: '15%' },
   { id: 'aura_5000', aura: 5000, priceCents: 4000, descKey: 'packPremiumDesc', popular: false, icon: Crown, discount: '20%' },
 ];
 
-const PREMIUM_PLANS = [
+const PREMIUM_PLANS_FALLBACK = [
   {
     id: 'premium-monthly',
     nameKey: 'premiumMonthlyName',
@@ -62,6 +66,81 @@ const PREMIUM_PLANS = [
     savings: '$9.89',
   },
 ];
+
+type AuraPackDisplay = {
+  id: string;
+  aura: number;
+  priceCents: number;
+  descKey: string;
+  popular: boolean;
+  icon: typeof Gift | typeof Zap | typeof Star | typeof Crown;
+  discount?: string;
+};
+
+type PremiumPlanDisplay = {
+  id: string;
+  nameKey: string;
+  price: number;
+  periodKey: string;
+  descKey: string;
+  featuresKey: string;
+  icon: typeof Shield | typeof Crown;
+  popular?: boolean;
+  savings?: string;
+};
+
+// Build aura packs from API data or fallback
+function usePricingData(): {
+  auraPacks: AuraPackDisplay[];
+  premiumPlans: PremiumPlanDisplay[];
+  isLoading: boolean;
+} {
+  const { data, isValidating } = useSWR<PricingResponse>('/api/pricing', fetcher, {
+    refreshInterval: 60 * 60 * 1000, // 1 hour
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 5 * 60 * 1000,
+    keepPreviousData: true,
+  });
+
+  if (!data) {
+    return {
+      auraPacks: AURA_PACKS_FALLBACK,
+      premiumPlans: PREMIUM_PLANS_FALLBACK,
+      isLoading: isValidating,
+    };
+  }
+
+  const auraPacks: AuraPackDisplay[] = data.aura.map((api: AuraPack) => {
+    const fallback = AURA_PACKS_FALLBACK.find((f) => f.id === api.id);
+    return {
+      id: api.id,
+      aura: api.amount,
+      priceCents: api.priceUSD,
+      descKey: fallback?.descKey || 'packBasicDesc',
+      popular: fallback?.popular || false,
+      icon: fallback?.icon || Gift,
+      discount: fallback?.discount,
+    };
+  });
+
+  const premiumPlans: PremiumPlanDisplay[] = data.subscriptions.map((api: SubscriptionPlanData) => {
+    const fallback = PREMIUM_PLANS_FALLBACK.find((f) => f.id === api.id);
+    return {
+      id: api.id,
+      nameKey: fallback?.nameKey || 'premiumMonthlyName',
+      price: api.amount / 100,
+      periodKey: fallback?.periodKey || 'perMonth',
+      descKey: fallback?.descKey || 'premiumMonthlyDesc',
+      featuresKey: fallback?.featuresKey || 'premiumMonthlyFeatures',
+      icon: fallback?.icon || Shield,
+      popular: fallback?.popular || false,
+      savings: fallback?.savings,
+    };
+  });
+
+  return { auraPacks, premiumPlans, isLoading: isValidating };
+}
 
 const FAQ_ITEMS = [
   { q: 'pricing.faq1Q', a: 'pricing.faq1A' },
@@ -94,7 +173,7 @@ function PricingCard({
   index,
   t,
 }: {
-  pack: (typeof AURA_PACKS)[number];
+  pack: AuraPackDisplay;
   index: number;
   t: (key: string) => string;
 }) {
@@ -162,7 +241,7 @@ function PremiumCard({
   index,
   t,
 }: {
-  plan: (typeof PREMIUM_PLANS)[number];
+  plan: PremiumPlanDisplay;
   index: number;
   t: (key: string) => string;
 }) {
@@ -343,6 +422,7 @@ function SectionHeading({ label, title, subtitle }: { label?: string; title: str
 
 export default function PricingClient() {
   const t = useT();
+  const { auraPacks, premiumPlans } = usePricingData();
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -376,7 +456,7 @@ export default function PricingClient() {
           />
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {AURA_PACKS.map((pack, i) => (
+            {auraPacks.map((pack, i) => (
               <PricingCard key={pack.id} pack={pack} index={i} t={t} />
             ))}
           </div>
@@ -393,7 +473,7 @@ export default function PricingClient() {
           />
 
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {PREMIUM_PLANS.map((plan, i) => (
+            {premiumPlans.map((plan, i) => (
               <PremiumCard key={plan.id} plan={plan} index={i} t={t} />
             ))}
           </div>

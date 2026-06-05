@@ -15,9 +15,10 @@ import {
   Home,
   Compass,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { useT } from '@/i18n';
@@ -74,7 +75,7 @@ function formatBytes(bytes: number): string {
 export default function OfflineClient() {
   const t = useT();
   const router = useRouter();
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true);
   const [savedMangas, setSavedMangas] = useState<SavedManga[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
@@ -88,12 +89,49 @@ export default function OfflineClient() {
       setIsOnline(navigator.onLine);
     };
 
-    checkConnection();
-    /* eslint-disable react-hooks/immutability */
-    loadSavedMangas();
-    loadCacheInfo();
-    loadStorageInfo();
-    /* eslint-enable react-hooks/immutability */
+    // Load saved mangas
+    (async () => {
+      try {
+        const mangas = await offlineStorage.getSavedMangas();
+        setSavedMangas(mangas);
+      } catch {
+        // Error loading
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+
+    // Load cache info from service worker
+    setTimeout(() => setCacheLoading(false), 3000);
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = (event) => {
+        if (event.data?.type === 'CACHE_INFO') {
+          setCacheInfo(event.data.data);
+          setCacheLoading(false);
+        }
+      };
+      try {
+        navigator.serviceWorker.controller.postMessage(
+          { type: 'GET_CACHE_INFO' },
+          [channel.port2]
+        );
+      } catch {
+        setTimeout(() => setCacheLoading(false), 0);
+      }
+    } else {
+      setTimeout(() => setCacheLoading(false), 0);
+    }
+
+    // Load storage info
+    (async () => {
+      try {
+        const info = await offlineStorage.getStorageInfo();
+        setStorageInfo(info);
+      } catch {
+        // silent
+      }
+    })();
 
     window.addEventListener('online', checkConnection);
     window.addEventListener('offline', checkConnection);
@@ -118,48 +156,7 @@ export default function OfflineClient() {
     };
   }, [isOnline, router]);
 
-  const loadSavedMangas = async () => {
-    try {
-      const mangas = await offlineStorage.getSavedMangas();
-      setSavedMangas(mangas);
-    } catch {
-      // Error loading
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const loadCacheInfo = useCallback(() => {
-    setTimeout(() => setCacheLoading(false), 3000);
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      const channel = new MessageChannel();
-      channel.port1.onmessage = (event) => {
-        if (event.data?.type === 'CACHE_INFO') {
-          setCacheInfo(event.data.data);
-          setCacheLoading(false);
-        }
-      };
-      try {
-        navigator.serviceWorker.controller.postMessage(
-          { type: 'GET_CACHE_INFO' },
-          [channel.port2]
-        );
-      } catch {
-        setCacheLoading(false);
-      }
-    } else {
-      setCacheLoading(false);
-    }
-  }, []);
-
-  const loadStorageInfo = async () => {
-    try {
-      const info = await offlineStorage.getStorageInfo();
-      setStorageInfo(info);
-    } catch {
-      // silent
-    }
-  };
 
   const handleRetry = () => {
     if (navigator.onLine) {
@@ -613,11 +610,12 @@ export default function OfflineClient() {
                   >
                     <div className="aspect-[3/4] relative overflow-hidden">
                       {manga.coverUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
+                        <Image
                           src={manga.coverUrl}
                           alt={manga.title}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                       ) : (
                         <div

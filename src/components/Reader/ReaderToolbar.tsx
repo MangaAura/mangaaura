@@ -27,14 +27,14 @@ export interface ReaderToolbarProps {
   isFullscreen: boolean;
   showComments: boolean;
   settingsOpen: boolean;
-  theme: 'light' | 'dark' | 'sepia';
+  theme: 'light' | 'dark' | 'sepia' | 'oled';
   onPageChange: (page: number) => void;
   onToggleDoublePage: () => void;
   onToggleRTL: () => void;
   onToggleFullscreen: () => void;
   onToggleComments: () => void;
   onToggleSettings: () => void;
-  onThemeChange: (theme: 'light' | 'dark' | 'sepia') => void;
+  onThemeChange: (theme: 'light' | 'dark' | 'sepia' | 'oled') => void;
   className?: string;
 }
 
@@ -201,6 +201,17 @@ export function ReaderToolbar({
             aria-label="Tema sepia"
           >
               <Type className="w-4 h-4" aria-hidden="true" />
+            </button>
+          <button
+            onClick={() => onThemeChange('oled')}
+            className={cn(
+              'p-1.5 rounded transition-all cursor-pointer',
+              theme === 'oled' ? 'bg-[#000] text-white ring-1 ring-white/20' : 'text-[var(--text-tertiary)] hover:text-[var(--text-inverse)]'
+            )}
+            title="OLED Pure Black"
+            aria-label="Tema OLED"
+          >
+              <Moon className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 

@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { Coins, Send, Inbox, User, Search } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -83,10 +84,9 @@ export function TipsClient({ sent, received }: { sent: TipEntry[]; received: Tip
             return (
               <Link key={tip.id} href={`/manga/${tip.chapter.manga.slug}`} className="flex items-center justify-between px-4 py-3 hover:bg-tertiary transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center shrink-0 overflow-hidden relative">
                     {other.avatarUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={other.avatarUrl} alt={`Avatar de ${other.username}`} className="w-full h-full object-cover" />
+                      <Image src={other.avatarUrl} alt={`Avatar de ${other.username}`} fill className="object-cover" sizes="32px" />
                     ) : (
                       <User size={14} className="text-muted" />
                     )}

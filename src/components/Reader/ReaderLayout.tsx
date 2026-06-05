@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 
 import { CrowdfundingWidget } from '@/components/Payments';
+import { cn } from '@/lib/utils';
 
 interface Manga {
   id: string;
@@ -49,7 +50,10 @@ export default function ReaderLayout({
   const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [theme, setTheme] = useState('night');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'night';
+    try { return localStorage.getItem('mangaaura-reader-theme') || 'night'; } catch { return 'night'; }
+  });
   const [showComments, setShowComments] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -58,6 +62,7 @@ export default function ReaderLayout({
   const changeTheme = (newTheme: string) => {
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('mangaaura-reader-theme', newTheme);
     setIsSettingsOpen(false);
   };
 
@@ -83,7 +88,7 @@ export default function ReaderLayout({
   };
 
   return (
-    <div className="flex h-screen overflow-hidden transition-colors duration-300" data-theme={theme}>
+    <div className={cn('flex h-screen overflow-hidden transition-colors duration-300', theme === 'oled' ? 'bg-[#000]' : '')} data-theme={theme}>
       {/* Sidebar Overlay */}
       {isSidebarOpen && (
         <div 

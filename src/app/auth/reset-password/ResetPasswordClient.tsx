@@ -34,7 +34,9 @@ function Content() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formState, setFormState] = useState<'initial' | 'loading' | 'success' | 'error' | 'invalid_token'>('initial');
+  const [formState, setFormState] = useState<'initial' | 'loading' | 'success' | 'error' | 'invalid_token'>(
+    !token ? 'invalid_token' : 'initial'
+  );
   const [countdown, setCountdown] = useState(5);
 
   const [touched, setTouched] = useState({ password: false, confirmPassword: false });
@@ -100,15 +102,13 @@ function Content() {
     validateField(field, field === 'password' ? password : confirmPassword);
   };
 
-  // Validar token al cargar - necesario para sincronizar estado con URL
-  /* eslint-disable react-hooks/set-state-in-effect */
+  // Validar token al cargar - muestra error si no hay token
   useEffect(() => {
     if (!token) {
-      setFormState('invalid_token');
       handlePasswordResetError('INVALID_TOKEN');
     }
-  }, [token, handlePasswordResetError]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- token from URL won't change within this page
+  }, []);
 
   useEffect(() => {
     if (formState === 'success' && countdown > 0) {
@@ -192,7 +192,7 @@ function Content() {
         description: t('auth.resetPassword.toastDesc'),
         variant: 'default',
       });
-    } catch (err) {
+    } catch {
       handleNetworkError(() => handleSubmit(e));
       setFormState('error');
     }

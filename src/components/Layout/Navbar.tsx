@@ -14,7 +14,7 @@ import { MobileMenu } from './MobileMenu';
 import { NavLinks, ALL_NAV_LINKS, MAIN_NAV_LINKS, MORE_NAV_LINKS, isActive, localeHref, getLocaleFromPath } from './NavLinks';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { DynamicLogo } from '@/components/Logo';
+import { LogoSvg } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useScrolled } from '@/hooks/useScrolled';
@@ -123,7 +123,7 @@ export default function Navbar() {
                   }
                 }}
               >
-                <DynamicLogo size={28} className="flex-shrink-0" />
+                <LogoSvg size={28} className="flex-shrink-0" />
                 <span className="text-xl font-bold tracking-tight">
                   <RepeatedChar text="Manga" />
                   <span className="text-[var(--primary)]"><RepeatedChar text="Aura" /></span>

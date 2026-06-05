@@ -3,7 +3,7 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { DynamicLogo } from '@/components/Logo';
+import { LogoSvg } from '@/components/Logo';
 import { useTour } from '@/components/OnboardingTour/TourContext';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -112,7 +112,7 @@ export function AccountSettings(_props: AccountSettingsProps) {
       <Card className="p-6 border border-[var(--border)]">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 flex-shrink-0">
-            <DynamicLogo size={64} />
+            <LogoSvg size={64} />
           </div>
 
           <div className="flex-1 min-w-0">

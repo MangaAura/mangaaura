@@ -28,6 +28,7 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
   const { autoConnect = true, reconnection = true } = options;
   const { data: session } = useSession();
   const socketRef = useRef<TypedSocket | null>(null);
+  const [socket, setSocket] = useState<TypedSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,10 +59,12 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     });
 
     socketRef.current = socket;
+    setSocket(socket);
 
     return () => {
       socket.disconnect();
       socketRef.current = null;
+      setSocket(null);
       setIsConnected(false);
     };
   }, [autoConnect, session?.user?.id, reconnection]);
@@ -87,9 +90,8 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     };
   }, []);
 
-  /* eslint-disable react-hooks/refs */
   return {
-    socket: socketRef.current,
+    socket,
     isConnected,
     error,
     joinRoom,
@@ -97,7 +99,6 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     emit,
     on,
   };
-  /* eslint-enable react-hooks/refs */
 }
 
 export default useSocket;

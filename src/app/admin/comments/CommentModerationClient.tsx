@@ -146,7 +146,7 @@ export default function CommentModerationClient() {
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-xs font-medium overflow-hidden">
             {row.original.user.avatarUrl ? (
-              <img src={row.original.user.avatarUrl} alt="" className="w-full h-full object-cover" />
+              <img src={row.original.user.avatarUrl} alt={`Avatar de ${row.original.user.username}`} className="w-full h-full object-cover" />
             ) : (
               row.original.user.username.charAt(0).toUpperCase()
             )}

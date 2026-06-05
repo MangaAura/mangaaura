@@ -169,13 +169,14 @@ export async function POST(request: NextRequest) {
     });
 
     // Enviar email de bienvenida (fire-and-forget, no bloquea la respuesta)
-    const { getEmailQueue } = await import('@/infrastructure/queue/EmailQueue');
-    const emailQueue = getEmailQueue();
-    emailQueue.addWelcomeEmail({
-      to: user.email,
-      userId: user.id,
-      username: user.username,
-      displayName: user.displayName,
+    import('@/infrastructure/adapters/emailService').then(async ({ emailService }) => {
+      await emailService.sendWelcomeEmail({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+      });
+      console.info('[Register] Welcome email sent to', user.email);
     }).catch((emailError: unknown) => {
       console.error('[Register] Error sending welcome email:', emailError);
     });
@@ -230,11 +231,13 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const verificationUrl = `${baseUrl}/auth/verify?token=${verifyToken}`;
-    emailQueue.addVerificationEmail({
-      to: user.email,
-      userId: user.id,
-      username: user.username,
-      verificationUrl,
+
+    // Enviar email de verificación (fire-and-forget, no bloquea la respuesta)
+    import('@/infrastructure/adapters/emailService').then(async ({ emailService }) => {
+      const { verificationEmail } = await import('@/lib/email-templates');
+      const { html, text, subject } = verificationEmail(verificationUrl);
+      await emailService.sendEmail(user.email, { subject, html, text });
+      console.info('[Register] Verification email sent to', user.email);
     }).catch((verifyError: unknown) => {
       console.error('[Register] Error sending verification email:', verifyError);
     });

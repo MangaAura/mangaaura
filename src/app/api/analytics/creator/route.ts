@@ -77,7 +77,7 @@ where: { ...whereBase, eventType: 'chapter_complete' },
     select: { id: true, mangaId: true, chapterNumber: true, title: true },
   });
 
-const chapterReads = await (prisma.analyticsEvent as any).groupBy({
+const chapterReads = await (prisma.analyticsEvent as unknown as { groupBy: (args: { by: string[]; where: Record<string, unknown>; _count: { id: boolean } }) => Promise<Array<{ chapterId: string; _count: { id: number } }>> }).groupBy({
 by: ['chapterId'],
 where: {
 ...whereBase,
@@ -86,7 +86,7 @@ eventType: 'chapter_read',
 _count: { id: true },
 });
 
-const chapterCompletions = await (prisma.analyticsEvent as any).groupBy({
+const chapterCompletions = await (prisma.analyticsEvent as unknown as { groupBy: (args: { by: string[]; where: Record<string, unknown>; _count: { id: boolean } }) => Promise<Array<{ chapterId: string; _count: { id: number } }>> }).groupBy({
 by: ['chapterId'],
 where: {
 ...whereBase,
@@ -96,10 +96,10 @@ _count: { id: true },
 });
 
     const readsMap = new Map(
-      chapterReads.map((r: any) => [r.chapterId, r._count?.id ?? 0])
+      chapterReads.map((r) => [r.chapterId, r._count?.id ?? 0])
     );
     const completionsMap = new Map(
-      chapterCompletions.map((r: any) => [r.chapterId, r._count?.id ?? 0])
+      chapterCompletions.map((r) => [r.chapterId, r._count?.id ?? 0])
     );
 
   const chapterStats = chapters.map((ch) => {

@@ -66,7 +66,7 @@ export default function SubscriptionsClient() {
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-xs font-medium overflow-hidden">
             {row.original.avatarUrl ? (
-              <img src={row.original.avatarUrl} alt="" className="w-full h-full object-cover" />
+              <img src={row.original.avatarUrl} alt={`Avatar de ${row.original.username}`} className="w-full h-full object-cover" />
             ) : (
               row.original.username.charAt(0).toUpperCase()
             )}

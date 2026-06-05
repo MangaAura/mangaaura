@@ -53,6 +53,7 @@ import {
   Undo2,
   Redo2,
 } from 'lucide-react';
+import NextImage from 'next/image';
 import { useRef, useState, useEffect } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -486,11 +487,13 @@ function ImageInput({ editor }: { editor: Editor }) {
 
                   {previewUrl ? (
                     <div className="relative inline-block">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <NextImage
                         src={previewUrl}
                         alt="Preview"
+                        width={128}
+                        height={128}
                         className="max-h-32 rounded object-contain mx-auto"
+                        unoptimized={previewUrl.startsWith('blob:')}
                       />
                       {!uploading && (
                         <button

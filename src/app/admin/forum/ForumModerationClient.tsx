@@ -136,7 +136,7 @@ export default function ForumModerationClient() {
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-xs font-medium overflow-hidden">
             {row.original.author.avatarUrl ? (
-              <img src={row.original.author.avatarUrl} alt="" className="w-full h-full object-cover" />
+              <img src={row.original.author.avatarUrl} alt={`Avatar de ${row.original.author.username}`} className="w-full h-full object-cover" />
             ) : (
               row.original.author.username.charAt(0).toUpperCase()
             )}

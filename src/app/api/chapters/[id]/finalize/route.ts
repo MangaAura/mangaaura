@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getNotificationService } from '@/core/services/NotificationService';
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
 import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -171,37 +170,37 @@ export async function PATCH(
           },
         }).catch(err => console.error('[Finalize] Error queueing push notifications:', err));
 
-        // Queue email notifications
-        const emailQueue = getEmailQueue();
-
-        // Process in batches to avoid overload
-        const batchSize = 50;
-        for (let i = 0; i < followers.length; i += batchSize) {
-          const batch = followers.slice(i, i + batchSize);
-          await Promise.all(
-            batch.map((follower: any) =>
-              emailQueue
-                .addNewChapterEmail({
-                  to: follower.user.email,
-                  userId: follower.user.id,
-                  username: follower.user.username,
-                  mangaId: chapter.manga.id,
-                  mangaTitle: chapter.manga.title,
-                  mangaSlug: chapter.manga.slug,
-                  mangaCoverUrl: chapter.manga.coverUrl,
-                  chapterId: chapter.id,
-                  chapterNumber: chapter.chapterNumber,
-                  chapterTitle: chapter.title || undefined,
+        // Send emails directly to followers (fire-and-forget, no bloquea la respuesta)
+        import('@/infrastructure/adapters/emailService').then(async ({ emailService }) => {
+          const batchSize = 10;
+          for (let i = 0; i < followers.length; i += batchSize) {
+            const batch = followers.slice(i, i + batchSize);
+            await Promise.allSettled(
+              batch.map((follower: any) =>
+                emailService.sendNewChapterNotification(
+                  { id: follower.user.id, email: follower.user.email, username: follower.user.username },
+                  {
+                    id: chapter.manga.id,
+                    title: chapter.manga.title,
+                    slug: chapter.manga.slug,
+                    coverUrl: chapter.manga.coverUrl,
+                    authorName: '',
+                  },
+                  {
+                    id: chapter.id,
+                    chapterNumber: chapter.chapterNumber,
+                    title: chapter.title,
+                  }
+                ).catch((err: unknown) => {
+                  console.error(`[Finalize] Error sending email to ${follower.user.email}:`, err);
                 })
-                .catch((err) => {
-                  console.error(
-                    `[Finalize] Error queueing email for ${follower.user.email}:`,
-                    err
-                  );
-                })
-            )
-          );
-        }
+              )
+            );
+          }
+          console.info(`[Finalize] New chapter emails sent to ${followers.length} followers`);
+        }).catch((err: unknown) => {
+          console.error('[Finalize] Error loading email service:', err);
+        });
       }
     } catch (notifyError) {
       console.error('Error notifying followers of finalized chapter:', notifyError);

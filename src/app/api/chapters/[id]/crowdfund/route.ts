@@ -127,9 +127,6 @@ export async function POST(
     // Notificar si se alcanzo la meta
     if (isComplete && !chapter.isCrowdfunded) {
       try {
-        const { getEmailQueue } = await import('@/infrastructure/queue/EmailQueue');
-        const emailQueue = getEmailQueue();
-
         // Obtener el autor del manga
         const manga = await prisma.mangaSeries.findUnique({
           where: { id: chapter.mangaId },
@@ -137,20 +134,26 @@ export async function POST(
         });
 
         if (manga?.author) {
-          await emailQueue.addCrowdfundingGoalEmail({
-            to: manga.author.email,
-            userId: manga.author.id,
-            username: manga.author.username,
-            mangaId: manga.id,
-            mangaTitle: manga.title,
-            mangaSlug: manga.slug,
-            chapterId: chapter.id,
-            chapterNumber: chapter.chapterNumber,
-            chapterTitle: chapter.title || undefined,
-                });
-              }
+          const { emailService } = await import('@/infrastructure/adapters/emailService');
+          await emailService.sendCrowdfundingGoalReachedEmail(
+            { id: manga.author.id, email: manga.author.email, username: manga.author.username },
+            {
+              id: manga.id,
+              title: manga.title,
+              slug: manga.slug,
+              coverUrl: null,
+              authorName: '',
+            },
+            {
+              id: chapter.id,
+              chapterNumber: chapter.chapterNumber,
+              title: chapter.title,
+            }
+          );
+          console.info('[Crowdfund] Goal reached email sent to author:', manga.author.id);
+        }
       } catch (emailError) {
-        console.error('[Crowdfund] Error queueing goal reached email:', emailError);
+        console.error('[Crowdfund] Error sending goal reached email:', emailError);
       }
     }
 

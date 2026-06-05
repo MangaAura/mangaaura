@@ -197,6 +197,14 @@ export function ForumClient({ categories, threads, canCreate }: ForumClientProps
             title={t('forum.noThreads')}
             description={t('forum.noThreadsDesc')}
             icon={<MessageSquare className="w-12 h-12 text-[var(--text-tertiary)]" />}
+            action={canCreate ? {
+              label: t('forum.createFirstThread'),
+              href: '/community/forum/create',
+            } : undefined}
+            secondaryAction={{
+              label: t('forum.exploreCommunity'),
+              href: '/community',
+            }}
           />
         )}
       </div>

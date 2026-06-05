@@ -111,7 +111,7 @@ export default function KYCClient() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-sm font-medium overflow-hidden">
                     {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      <img src={user.avatarUrl} alt={`Avatar de ${user.username}`} className="w-full h-full object-cover" />
                     ) : (
                       user.username.charAt(0).toUpperCase()
                     )}

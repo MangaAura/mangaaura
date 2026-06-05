@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
-'use client';import { Activity,
+'use client';import {
+  Activity,
   BarChart3,
   Users,
   BookOpen,
@@ -9,6 +9,7 @@
   RefreshCw,
   WifiOff,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -114,9 +115,9 @@ function ReadingSessionsTable({ sessions }: { sessions: RealtimeAnalytics['activ
             <tr key={s.userId} className="hover:bg-[var(--surface-sunken)]/30 transition-colors">
               <td className="py-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0 relative">
                     {s.avatarUrl ? (
-                      <img src={s.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      <Image src={s.avatarUrl} alt={`Avatar de ${s.username}`} fill className="object-cover" sizes="32px" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-xs font-bold text-[var(--text-secondary)]">
                         {s.username.charAt(0).toUpperCase()}
@@ -157,9 +158,9 @@ function PopularNowCard({ items }: { items: RealtimeAnalytics['popularNow'] }) {
       {items.map((manga) => (
         <div key={manga.mangaId} className="flex items-center justify-between p-3 bg-[var(--surface-sunken)]/30 rounded-lg">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-14 rounded bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0">
+            <div className="w-10 h-14 rounded bg-[var(--surface-sunken)] overflow-hidden flex-shrink-0 relative">
               {manga.coverUrl && (
-                <img src={manga.coverUrl} alt="" className="w-full h-full object-cover" />
+                <Image src={manga.coverUrl} alt={`Portada de ${manga.title}`} fill className="object-cover" sizes="40px" />
               )}
             </div>
             <div className="min-w-0">

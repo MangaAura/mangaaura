@@ -40,7 +40,6 @@ export default function robots(): MetadataRoute.Robots {
           '/admin',
           '/checkout',
           '/auth',
-          '/_next',
           '/static',
           '/private',
           '/conversations',

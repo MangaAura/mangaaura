@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, Shield, Lock, Key, Smartphone, AlertTriangle, Check, Copy, Download, RefreshCw, CheckCircle2, XCircle, Mail } from 'lucide-react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 
@@ -515,22 +516,24 @@ export function SecuritySettings({}: SecuritySettingsProps) {
                     <RefreshCw className="w-6 h-6 text-[var(--text-tertiary)] animate-spin" />
                   </div>
                 ) : qrDataUrl ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
+                  <Image
                     src={qrDataUrl}
                     alt={t('settings.security.qrAlt')}
-                    className="rounded-lg border border-[var(--border)]"
                     width={200}
                     height={200}
+                    className="rounded-lg border border-[var(--border)]"
+                    unoptimized
                   />
                 ) : (
                   <div className="p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
                     <p className="text-xs text-[var(--text-tertiary)] mb-2 text-center">{t('settings.security.qrFallback')}</p>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUrl)}`}
                       alt={t('settings.security.qrAlt')}
+                      width={200}
+                      height={200}
                       className="rounded-lg"
+                      unoptimized
                     />
                   </div>
                 )}

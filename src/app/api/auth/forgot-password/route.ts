@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { getEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { emailService } from '@/infrastructure/adapters/emailService';
 import { setToken } from '@/lib/auth-store';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
@@ -60,21 +60,13 @@ export async function POST(request: NextRequest) {
         TOKEN_EXPIRY_SECONDS
       );
 
-      // Construir el link de reset
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-      const resetLink = `${baseUrl}/auth/reset-password?token=${resetToken}`;
+      // Enviar email directamente
+      await emailService.sendPasswordResetEmail(
+        { id: user.id, email: user.email, username: user.username },
+        resetToken
+      );
 
-      // Agregar a la cola de emails
-      const emailQueue = getEmailQueue();
-      await emailQueue.addPasswordResetEmail({
-        to: user.email,
-        userId: user.id,
-        username: user.username,
-        resetToken,
-        resetLink,
-      });
-
-      console.info('[ForgotPassword] Reset email queued for user ID:', user.id);
+      console.info('[ForgotPassword] Reset email sent for user ID:', user.id);
     }
 
     // Por seguridad, siempre retornamos exito

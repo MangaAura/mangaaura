@@ -43,7 +43,7 @@ async function getDiscoverData() {
 
   const featuredManga = trending[Math.floor(Math.random() * Math.min(trending.length, 5))];
 
-  return { trending: trending as any, recent: recent as any, topRated: topRated as any, featuredManga: featuredManga as any };
+  return { trending, recent, topRated, featuredManga };
 }
 
 // ISR: revalidate every 6 min (matching cache TTL)

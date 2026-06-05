@@ -1,6 +1,8 @@
 'use client';
 
 import { Lock, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 import type { Difficulty } from '@/hooks/useAchievements';
 import { cn } from '@/lib/utils';
@@ -65,6 +67,7 @@ export function AchievementBadgeDisplay({
 }: AchievementBadgeDisplayProps) {
   const dims = sizeConfig[size];
   const badgePath = badgeIdToPath(badgeId);
+  const [imgError, setImgError] = useState(false);
 
   if (!isUnlocked) {
     return (
@@ -93,27 +96,25 @@ export function AchievementBadgeDisplay({
           'transition-all duration-300 group-hover:scale-110',
         )}
       >
-        {/* Inner circle with badge */}
-        <div
-          className={cn(
-            dims.badge,
-            'rounded-full bg-[#0a0a1a] flex items-center justify-center overflow-hidden',
-            'transition-transform duration-300',
+        {/* Inner circle with badge */}          <div
+            className={cn(
+              dims.badge,
+              'rounded-full bg-[#0a0a1a] flex items-center justify-center overflow-hidden relative',
+              'transition-transform duration-300',
+            )}
+          >
+          {imgError ? (
+            <Sparkles className={cn(size === 'xl' ? 'w-[80%] h-[80%]' : 'w-[75%] h-[75%]', rarityTextColor[rarity])} />
+          ) : (
+            <Image
+              src={badgePath}
+              alt={name}
+              fill
+              className="object-contain"
+              sizes={size === 'xl' ? '112px' : size === 'lg' ? '88px' : size === 'md' ? '56px' : '40px'}
+              onError={() => setImgError(true)}
+            />
           )}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={badgePath}
-            alt={name}
-            className={cn('object-contain', size === 'xl' ? 'w-[80%] h-[80%]' : 'w-[75%] h-[75%]')}
-            onError={(e) => {
-              // Fallback to sparkle icon if SVG not found
-              const target = e.currentTarget;
-              target.style.display = 'none';
-              target.parentElement!.innerHTML =
-                `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${rarityTextColor[rarity]}"><path d="M12 2l2.4 7.2L22 9l-5.6 4.8L18 21l-6-4.6L6 21l1.6-7.2L2 9l7.6.2z"/></svg>`;
-            }}
-          />
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { BookOpen, CheckCircle, Clock, Search, Filter } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 
@@ -98,7 +99,9 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
         <div className="bg-secondary border border-custom rounded-xl overflow-hidden">
           <Link href={`/manga/${manga.slug}`} className="flex items-center gap-3 p-4 bg-tertiary/50 hover:bg-tertiary transition-colors border-b border-custom">
             {manga.coverUrl ? (
-              <img src={manga.coverUrl} alt={manga.title} className="w-10 h-14 rounded object-cover" /* eslint-disable-line @next/next/no-img-element */ />
+              <div className="relative w-10 h-14 shrink-0">
+                <Image src={manga.coverUrl} alt={manga.title} fill className="rounded object-cover" sizes="40px" />
+              </div>
             ) : (
               <div className="w-10 h-14 rounded bg-background flex items-center justify-center"><BookOpen size={18} className="text-muted" /></div>
             )}

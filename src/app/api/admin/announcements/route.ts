@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// Note: Announcement model requires `npx prisma generate` after schema update
-// Cast to any to bypass TypeScript check until generate is run
-const prismaAnn = prisma as any;
-
 export async function GET() {
   try {
     const session = await auth();
@@ -14,12 +10,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const announcements = await prismaAnn.announcement.findMany({
+    const announcements = await prisma.announcement.findMany({
       orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
     });
 
     return NextResponse.json({
-      announcements: announcements.map((a: any) => ({
+      announcements: announcements.map((a) => ({
         ...a,
         createdAt: a.createdAt.toISOString(),
         updatedAt: a.updatedAt.toISOString(),
@@ -47,7 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    const announcement = await prismaAnn.announcement.create({
+    const announcement = await prisma.announcement.create({
       data: {
         message: message.trim(),
         messageEn: messageEn?.trim() || null,

@@ -48,6 +48,10 @@ const staticRoutes = [
   { path: '/economy/transfer', priority: 0.3, changefreq: 'monthly' },
   { path: '/economy/withdraw', priority: 0.3, changefreq: 'monthly' },
 
+  // Affiliate
+  { path: '/affiliate', priority: 0.7, changefreq: 'weekly' },
+  { path: '/economy/affiliate', priority: 0.3, changefreq: 'weekly' },
+
   // Info pages
   { path: '/announcements', priority: 0.6, changefreq: 'weekly' },
   { path: '/blog', priority: 0.7, changefreq: 'weekly' },

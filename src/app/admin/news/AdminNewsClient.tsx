@@ -24,6 +24,7 @@ import {
   Monitor,
   Star,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import useSWR, { mutate } from 'swr';
 
@@ -158,11 +159,12 @@ function ArticlePreview({
       {/* Cover image */}
       {coverUrl && (
         <div className="relative w-full aspect-video bg-[var(--surface-sunken)]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={coverUrl}
             alt="Cover preview"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 768px"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
@@ -300,12 +302,13 @@ function CoverImageUploader({
         <Label>Imagen de portada</Label>
 
         {hasImage ? (
-          <div className="relative rounded-lg overflow-hidden border border-[var(--border)] group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="relative h-40 rounded-lg overflow-hidden border border-[var(--border)] group">
+            <Image
               src={displayUrl}
               alt="Cover preview"
-              className="w-full h-40 object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}

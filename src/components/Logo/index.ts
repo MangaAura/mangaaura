@@ -1,2 +1,1 @@
-export { DynamicLogo } from './DynamicLogo';
-export { DynamicFavicon } from './DynamicFavicon';
+export { LogoSvg } from './LogoSvg';

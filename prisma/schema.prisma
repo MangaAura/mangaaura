@@ -53,6 +53,18 @@ model User {
   referredBy               String?     // referralCode of referrer
   transferLockUntil        DateTime?
 
+  // Affiliate Program fields
+  affiliateTierId          String?     // Current affiliate tier
+  affiliateStatus          String      @default("inactive") // inactive | active | suspended
+  affiliateSince           DateTime?
+  affiliateTotalEarned     Int         @default(0)  // Total Aura earned from affiliate commissions
+  affiliatePayoutMethod    String?     // bank | paypal | crypto
+  affiliatePayoutDetails   String?     // JSON with payout details
+  affiliatePromoCode        String?     // Custom promo code for affiliates
+  affiliateApprovedAt      DateTime?
+
+  affiliateTier    AffiliateTier?  @relation(fields: [affiliateTierId], references: [id])
+
   accounts                  Account[]
   sessions                  Session[]
   achievements              UserAchievement[]
@@ -134,6 +146,12 @@ model User {
   friendshipsAsUser2   Friendship[]   @relation("FriendshipUser2")
   genreProgress        UserGenreProgress[]
   reviews             Review[]
+
+  // Affiliate Relations
+  affiliateCommissions            AffiliateCommission[] @relation("AffiliateEarnedCommissions")
+  affiliateReferrals              AffiliateReferral[]    @relation("AffiliateReferrals")
+  affiliateCommissionReferee      AffiliateCommission[] @relation("AffiliateCommissionReferee")
+  affiliateReferralReferee        AffiliateReferral[]   @relation("AffiliateReferralReferee")
 
   @@index([email])
   @@index([username])
@@ -453,6 +471,77 @@ model ReferralClaim {
   @@index([referrerId])
   @@index([refereeId])
   @@index([status])
+}
+
+// ─── Affiliate Program ────────────────────────────────────────────
+
+model AffiliateTier {
+  id          String   @id @default(uuid())
+  name        String   @unique // Bronze | Silver | Gold | Platinum
+  description String?
+  minReferrals Int     @default(0)  // Minimum referrals to reach this tier
+  minRevenue   Int     @default(0)  // Minimum revenue (in cents) to reach this tier
+  commissionRate Float  @default(0.10) // e.g., 0.10 = 10%
+  recurringMonths Int   @default(0)  // How many months recurring commission (0 = lifetime)
+  monthlyPayoutLimit Int? // Max Aura payout per month (null = unlimited)
+  priority       Int    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  affiliates User[]
+
+  @@index([priority])
+}
+
+model AffiliateCommission {
+  id             String   @id @default(uuid())
+  affiliateId    String   // User ID of the affiliate
+  referralId     String?  // AffiliateReferral ID
+  refereeId      String   // User who made the purchase
+  amount         Int      // Commission amount in Aura
+  rate           Float    // Commission rate applied
+  purchaseAmount Int      // Original purchase amount in cents
+  purchaseType   String   // aura | subscription | chapter
+  status         String   @default("pending") // pending | paid | cancelled
+  periodStart    DateTime? // For recurring commissions
+  periodEnd      DateTime?
+  paidAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  affiliate User @relation("AffiliateEarnedCommissions", fields: [affiliateId], references: [id], onDelete: Cascade)
+  referral  AffiliateReferral? @relation(fields: [referralId], references: [id], onDelete: SetNull)
+  referee   User @relation("AffiliateCommissionReferee", fields: [refereeId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@index([refereeId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AffiliateReferral {
+  id             String   @id @default(uuid())
+  affiliateId    String
+  refereeId      String?  // Set when the tracked user registers
+  refereeIp      String?  // IP at time of click
+  refereeUserAgent String? // User agent at time of click
+  source         String?  // Where the click came from (banner | link | promo_code | social)
+  campaign       String?  // UTM campaign or custom campaign
+  landingPage    String?  // Landing page URL
+  clickedAt      DateTime @default(now())
+  convertedAt    DateTime? // When the user registered
+  firstPurchaseAt DateTime? // First purchase date
+  totalPurchases Int      @default(0)
+  totalCommission Int     @default(0) // Total commission earned from this referral
+  expiresAt      DateTime? // Cookie expiration
+
+  affiliate   User                 @relation("AffiliateReferrals", fields: [affiliateId], references: [id], onDelete: Cascade)
+  referee     User?                @relation("AffiliateReferralReferee", fields: [refereeId], references: [id], onDelete: SetNull)
+  commissions AffiliateCommission[]
+
+  @@index([affiliateId])
+  @@index([refereeId])
+  @@index([clickedAt])
+  @@index([convertedAt])
 }
 
 model StripeEvent {
