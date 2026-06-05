@@ -10,7 +10,7 @@ async function checkAdmin(userId: string): Promise<boolean> {
     where: { id: userId },
     select: { role: true },
   });
-  return user?.role === 'ADMIN';
+  return ['ADMIN', 'OWNER'].includes(user?.role as string);
 }
 
 export async function GET(request: NextRequest) {

@@ -13,7 +13,7 @@ export async function GET(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    if (!session?.user?.id || !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -115,7 +115,7 @@ export async function PATCH(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    if (!session?.user?.id || !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -187,7 +187,7 @@ export async function DELETE(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    if (!session?.user?.id || !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

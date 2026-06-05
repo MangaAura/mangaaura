@@ -16,7 +16,7 @@ const replySchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+    if (!session?.user?.id || !['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 

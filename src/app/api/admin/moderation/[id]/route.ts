@@ -13,7 +13,7 @@ export async function PATCH(
     const { id } = await params;
     const session = await auth();
 
-    if (!session?.user || !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
+    if (!session?.user || !['ADMIN', 'MODERATOR', 'OWNER'].includes(session.user.role as string)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
