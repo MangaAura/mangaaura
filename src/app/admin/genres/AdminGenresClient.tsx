@@ -2,6 +2,9 @@
 
 import {
   Bookmark,
+  Edit3,
+  Plus,
+  Save,
   Search,
   Trash2,
 } from 'lucide-react';
@@ -20,6 +23,8 @@ import {
 } from '@/components/ui/Dialog';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { useToast } from '@/components/ui/Toast';
 import { useT } from '@/i18n';
 import { extractApiError } from '@/lib/extract-api-error';
 
@@ -31,14 +36,33 @@ interface Genre {
   createdAt: string;
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export default function AdminGenresClient() {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const t = useT();
+  const { toast } = useToast();
+
   const [deletingGenre, setDeletingGenre] = useState<Genre | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Create / Edit state
+  const [showFormDialog, setShowFormDialog] = useState(false);
+  const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
+  const [formName, setFormName] = useState('');
+  const [formSlug, setFormSlug] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   const loadGenres = useCallback(async () => {
     try {
@@ -92,6 +116,85 @@ export default function AdminGenresClient() {
     );
   });
 
+  // ---- Form handlers ----
+  const openCreate = () => {
+    setEditingGenre(null);
+    setFormName('');
+    setFormSlug('');
+    setFormError(null);
+    setSlugManuallyEdited(false);
+    setShowFormDialog(true);
+  };
+
+  const openEdit = (genre: Genre) => {
+    setEditingGenre(genre);
+    setFormName(genre.name);
+    setFormSlug(genre.slug);
+    setFormError(null);
+    setSlugManuallyEdited(true);
+    setShowFormDialog(true);
+  };
+
+  const closeForm = () => {
+    setShowFormDialog(false);
+    setEditingGenre(null);
+  };
+
+  const handleNameChange = (value: string) => {
+    setFormName(value);
+    if (!slugManuallyEdited) {
+      setFormSlug(slugify(value));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!formName.trim()) {
+      setFormError(t('admin.pages.genres.nameRequired') || 'Name is required');
+      return;
+    }
+    if (!formSlug.trim()) {
+      setFormError('Slug is required');
+      return;
+    }
+
+    setIsSaving(true);
+    setFormError(null);
+
+    try {
+      const isEdit = !!editingGenre;
+      const url = isEdit
+        ? `/api/admin/genres/${editingGenre.id}`
+        : '/api/admin/genres';
+      const method = isEdit ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formName.trim(), slug: formSlug.trim() }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: 'Error saving genre' }));
+        throw new Error(errData.error || 'Error saving genre');
+      }
+
+      toast({
+        title: isEdit ? 'Genre updated' : 'Genre created',
+        description: `"${formName.trim()}" has been ${isEdit ? 'updated' : 'created'} successfully.`,
+        variant: 'success',
+      });
+
+      closeForm();
+      setIsLoading(true);
+      await loadGenres();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error saving genre';
+      setFormError(msg);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!deletingGenre) return;
 
@@ -108,6 +211,11 @@ export default function AdminGenresClient() {
 
       setGenres((prev) => prev.filter((g) => g.id !== deletingGenre.id));
       setDeletingGenre(null);
+      toast({
+        title: 'Genre deleted',
+        description: `"${deletingGenre.name}" has been deleted.`,
+        variant: 'info',
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : t('admin.pages.genres.deleteError'));
     } finally {
@@ -128,6 +236,10 @@ export default function AdminGenresClient() {
             {t('admin.pages.genres.subtitle')}
           </p>
         </div>
+        <Button onClick={openCreate}>
+          <Plus className="w-4 h-4 mr-2" />
+          {t('common.create')}
+        </Button>
       </div>
 
       {/* List */}
@@ -159,7 +271,7 @@ export default function AdminGenresClient() {
             </div>
           ) : error ? (
             <div className="p-6">
-              <ErrorMessage message={error}                      action={{ label: t('common.retry'), onClick: () => { setIsLoading(true); loadGenres(); } }} />
+              <ErrorMessage message={error} action={{ label: t('common.retry'), onClick: () => { setIsLoading(true); loadGenres(); } }} />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -218,15 +330,26 @@ export default function AdminGenresClient() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeletingGenre(genre)}
-                            title={t('admin.pages.genres.deleteTitle')}
-                            aria-label={`${t('admin.pages.genres.deleteTitle')} ${genre.name}`}
-                          >
-                            <Trash2 className="w-4 h-4 text-[var(--error)]" />
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEdit(genre)}
+                              title={t('admin.pages.genres.editTitle') || 'Edit genre'}
+                              aria-label={`Edit ${genre.name}`}
+                            >
+                              <Edit3 className="w-4 h-4 text-[var(--primary)]" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeletingGenre(genre)}
+                              title={t('admin.pages.genres.deleteTitle')}
+                              aria-label={`${t('admin.pages.genres.deleteTitle')} ${genre.name}`}
+                            >
+                              <Trash2 className="w-4 h-4 text-[var(--error)]" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -237,6 +360,67 @@ export default function AdminGenresClient() {
           )}
         </CardContent>
       </Card>
+
+      {/* Create / Edit Dialog */}
+      <Dialog open={showFormDialog} onOpenChange={(open) => { if (!open) closeForm(); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bookmark className="w-5 h-5 text-[var(--primary)]" />
+              {editingGenre
+                ? `${t('common.edit')} "${editingGenre.name}"`
+                : t('common.create')}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGenre
+                ? 'Update the genre name and slug.'
+                : 'Create a new genre for manga categorization.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {formError && <ErrorMessage message={formError} />}
+
+            <div className="space-y-2">
+              <Label htmlFor="genre-name">{t('admin.pages.genres.columns.genre')}</Label>
+              <Input
+                id="genre-name"
+                value={formName}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="e.g. Action"
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="genre-slug">Slug</Label>
+              <Input
+                id="genre-slug"
+                value={formSlug}
+                onChange={(e) => {
+                  setFormSlug(e.target.value);
+                  setSlugManuallyEdited(true);
+                }}
+                placeholder="e.g. action"
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-[var(--text-tertiary)]">
+                Used in URLs. Auto-generated from name, but can be customized.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={closeForm} disabled={isSaving}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleSubmit} isLoading={isSaving}>
+              <Save className="w-4 h-4 mr-2" />
+              {editingGenre ? t('common.save') : t('common.create')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Dialog */}
       <Dialog open={!!deletingGenre} onOpenChange={(open) => { if (!open) setDeletingGenre(null); }}>

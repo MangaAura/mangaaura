@@ -7,6 +7,8 @@ import {
   Loader2,
   CheckCircle,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
@@ -32,6 +34,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -59,6 +62,7 @@ interface BanEntry {
 
 interface BansResponse {
   bans: BanEntry[];
+  pagination: { total: number; totalPages: number };
 }
 
 interface UsersResponse {
@@ -80,27 +84,29 @@ const REASON_CATEGORIES = [
 function getBanTypeColor(type: string) {
   switch (type) {
     case 'PERMANENT':
-      return 'destructive';
+      return 'destructive' as const;
     case 'SUSPENSION':
-      return 'warning';
+      return 'warning' as const;
     case 'IP_BAN':
-      return 'default';
+      return 'default' as const;
     default:
-      return 'outline';
+      return 'outline' as const;
   }
 }
 
 export default function BansClient() {
   const t = useT();
+  const { toast } = useToast();
+  const { handleError } = useErrorHandler();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterActive, setFilterActive] = useState<string>('all');
+  const [page, setPage] = useState(1);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showLiftDialog, setShowLiftDialog] = useState<string | null>(null);
   const [liftReason, setLiftReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { handleError } = useErrorHandler();
 
   const [formData, setFormData] = useState({
     userId: '',
@@ -112,7 +118,7 @@ export default function BansClient() {
   });
 
   const { data, error, isLoading, mutate } = useSWR<BansResponse>(
-    '/api/admin/bans',
+    `/api/admin/bans?page=${page}&limit=20&type=${filterType}&active=${filterActive}&search=${searchQuery}`,
     fetcher,
     { refreshInterval: 30000 }
   );
@@ -123,19 +129,7 @@ export default function BansClient() {
   );
 
   const bans = data?.bans || [];
-
-  const filteredBans = bans.filter((ban) => {
-    if (filterType !== 'all' && ban.banType !== filterType) return false;
-    if (filterActive !== 'all' && ban.isActive !== (filterActive === 'active')) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const userMatch = ban.user && (ban.user.username.toLowerCase().includes(q) || ban.user.email.toLowerCase().includes(q));
-      const ipMatch = ban.ipAddress?.toLowerCase().includes(q);
-      const reasonMatch = ban.reason.toLowerCase().includes(q);
-      if (!userMatch && !ipMatch && !reasonMatch) return false;
-    }
-    return true;
-  });
+  const pagination = data?.pagination || { total: 0, totalPages: 1 };
 
   const handleCreateBan = async () => {
     if (!formData.reason) return;
@@ -173,9 +167,18 @@ export default function BansClient() {
           ipAddress: '',
           expiresAt: '',
         });
+        toast({
+          title: 'Ban created',
+          description: 'The ban has been issued successfully.',
+          variant: 'success',
+        });
       } else {
         const err = await res.json();
-        alert(err.error || 'Error creating ban');
+        toast({
+          title: 'Error',
+          description: err.error || 'Error creating ban',
+          variant: 'error',
+        });
       }
     } catch (err) {
       handleError(err);
@@ -197,9 +200,18 @@ export default function BansClient() {
         await mutate();
         setShowLiftDialog(null);
         setLiftReason('');
+        toast({
+          title: 'Ban lifted',
+          description: 'The ban has been lifted successfully.',
+          variant: 'success',
+        });
       } else {
         const err = await res.json();
-        alert(err.error || 'Error lifting ban');
+        toast({
+          title: 'Error',
+          description: err.error || 'Error lifting ban',
+          variant: 'error',
+        });
       }
     } catch (err) {
       handleError(err);
@@ -229,20 +241,20 @@ export default function BansClient() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
-              placeholder="Search by user, IP, or reason..."
+              placeholder={t('admin.pages.bans.search')}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               className="pl-10"
             />
           </div>
           <div className="flex gap-4">
             <div className="w-48">
-              <Select value={filterType} onValueChange={setFilterType}>
+              <Select value={filterType} onValueChange={(v) => { setFilterType(v); setPage(1); }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Ban type" />
+                  <SelectValue placeholder={t('admin.pages.bans.allTypes')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="all">{t('admin.pages.bans.allTypes')}</SelectItem>
                   <SelectItem value="SUSPENSION">Suspension</SelectItem>
                   <SelectItem value="PERMANENT">Permanent</SelectItem>
                   <SelectItem value="IP_BAN">IP Ban</SelectItem>
@@ -250,14 +262,14 @@ export default function BansClient() {
               </Select>
             </div>
             <div className="w-48">
-              <Select value={filterActive} onValueChange={setFilterActive}>
+              <Select value={filterActive} onValueChange={(v) => { setFilterActive(v); setPage(1); }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t('admin.pages.bans.allStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Lifted</SelectItem>
+                  <SelectItem value="all">{t('admin.pages.bans.allStatus')}</SelectItem>
+                  <SelectItem value="active">{t('admin.pages.bans.active')}</SelectItem>
+                  <SelectItem value="inactive">{t('admin.pages.bans.lifted')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -268,7 +280,7 @@ export default function BansClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Bans <span className="text-[var(--text-tertiary)] font-normal">({filteredBans.length})</span>
+            {t('admin.pages.bans.title')} <span className="text-[var(--text-tertiary)] font-normal">({pagination.total})</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -277,90 +289,108 @@ export default function BansClient() {
               <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Failed to load bans</div>
-          ) : filteredBans.length === 0 ? (
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.bans.loadError')}</div>
+          ) : bans.length === 0 ? (
             <div className="text-center py-12 text-[var(--text-tertiary)]">
               <CheckCircle className="w-12 h-12 mx-auto mb-3 text-[var(--success)]" />
-              <p>No bans found</p>
+              <p>{t('admin.pages.bans.empty')}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">User / IP</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Type</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Reason</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Issued By</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Date</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Status</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBans.map((ban) => (
-                    <tr key={ban.id} className="border-b hover:bg-[var(--surface)]">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Ban className="w-4 h-4 text-[var(--warning)]" />
-                          <div>
-                            <p className="text-sm font-medium text-[var(--text-primary)]">
-                              {ban.user ? ban.user.username : ban.ipAddress || 'Unknown'}
-                            </p>
-                            {ban.user && (
-                              <p className="text-xs text-[var(--text-tertiary)]">{ban.user.email}</p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant={getBanTypeColor(ban.banType)}>
-                          {ban.banType.replace('_', ' ')}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-sm text-[var(--text-muted)]">{ban.reason}</p>
-                        {ban.reasonDetail && (
-                          <span className="text-xs text-[var(--text-tertiary)]">{ban.reason}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-[var(--text-muted)]">{ban.issuedBy.username}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-[var(--text-tertiary)]">
-                          {new Date(ban.issuedAt).toLocaleDateString()}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {ban.isActive ? (
-                          <Badge variant="warning">
-                            Active
-                            {ban.expiresAt && ` (until ${new Date(ban.expiresAt).toLocaleDateString()})`}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            Lifted {ban.liftedAt ? new Date(ban.liftedAt).toLocaleDateString() : ''}
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {ban.isActive && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowLiftDialog(ban.id)}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Lift
-                          </Button>
-                        )}
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.userIp')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.type')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.reason')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.issuedBy')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.date')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.status')}</th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.bans.columns.actions')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {bans.map((ban) => (
+                      <tr key={ban.id} className="border-b hover:bg-[var(--surface)]">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <Ban className="w-4 h-4 text-[var(--warning)]" />
+                            <div>
+                              <p className="text-sm font-medium text-[var(--text-primary)]">
+                                {ban.user ? ban.user.username : ban.ipAddress || 'Unknown'}
+                              </p>
+                              {ban.user && (
+                                <p className="text-xs text-[var(--text-tertiary)]">{ban.user.email}</p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant={getBanTypeColor(ban.banType)}>
+                            {ban.banType.replace('_', ' ')}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="text-sm text-[var(--text-muted)]">{ban.reason}</p>
+                          {ban.reasonDetail && (
+                            <span className="text-xs text-[var(--text-tertiary)]">{ban.reasonDetail}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-[var(--text-muted)]">{ban.issuedBy.username}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-[var(--text-tertiary)]">
+                            {new Date(ban.issuedAt).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {ban.isActive ? (
+                            <Badge variant="warning">
+                              {t('admin.pages.bans.active')}
+                              {ban.expiresAt && ` (${t('admin.pages.bans.statusActive', { date: new Date(ban.expiresAt).toLocaleDateString() })})`}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              {t('admin.pages.bans.lifted')} {ban.liftedAt ? new Date(ban.liftedAt).toLocaleDateString() : ''}
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {ban.isActive && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowLiftDialog(ban.id)}
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              {t('admin.pages.bans.actionLift')}
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <div className="text-sm text-[var(--text-tertiary)]">
+                    Page {page} of {pagination.totalPages}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))} disabled={page >= pagination.totalPages}>
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
@@ -370,16 +400,16 @@ export default function BansClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Ban className="w-5 h-5" />
-              Create New Ban
+              {t('admin.pages.bans.createTitle')}
             </DialogTitle>
             <DialogDescription>
-              Issue a ban, suspension, or IP ban to a user.
+              {t('admin.pages.bans.createDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Ban Type</Label>
+              <Label>{t('admin.pages.bans.banType')}</Label>
               <Select
                 value={formData.banType}
                 onValueChange={(v) => setFormData((p) => ({ ...p, banType: v }))}
@@ -397,22 +427,22 @@ export default function BansClient() {
 
             {formData.banType === 'IP_BAN' ? (
               <div className="space-y-2">
-                <Label>IP Address</Label>
+                <Label>{t('admin.pages.bans.ipAddress')}</Label>
                 <Input
-                  placeholder="e.g. 192.168.1.1"
+                  placeholder={t('admin.pages.bans.ipPlaceholder')}
                   value={formData.ipAddress}
                   onChange={(e) => setFormData((p) => ({ ...p, ipAddress: e.target.value }))}
                 />
               </div>
             ) : (
               <div className="space-y-2">
-                <Label>User</Label>
+                <Label>{t('admin.pages.bans.user')}</Label>
                 <Select
                   value={formData.userId}
                   onValueChange={(v) => setFormData((p) => ({ ...p, userId: v }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a user..." />
+                    <SelectValue placeholder={t('admin.pages.bans.selectUser')} />
                   </SelectTrigger>
                   <SelectContent>
                     {usersData?.users?.map((u: BanUser) => (
@@ -426,13 +456,13 @@ export default function BansClient() {
             )}
 
             <div className="space-y-2">
-              <Label>Reason Category</Label>
+              <Label>{t('admin.pages.bans.reasonCategory')}</Label>
               <Select
                 value={formData.reason}
                 onValueChange={(v) => setFormData((p) => ({ ...p, reason: v }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select reason..." />
+                  <SelectValue placeholder={t('admin.pages.bans.selectReason')} />
                 </SelectTrigger>
                 <SelectContent>
                   {REASON_CATEGORIES.map((cat) => (
@@ -443,9 +473,9 @@ export default function BansClient() {
             </div>
 
             <div className="space-y-2">
-              <Label>Detail (optional)</Label>
+              <Label>{t('admin.pages.bans.detail')}</Label>
               <Textarea
-                placeholder="Additional details about this ban..."
+                placeholder={t('admin.pages.bans.detailPlaceholder')}
                 value={formData.reasonDetail}
                 onChange={(e) => setFormData((p) => ({ ...p, reasonDetail: e.target.value }))}
               />
@@ -453,7 +483,7 @@ export default function BansClient() {
 
             {formData.banType === 'SUSPENSION' && (
               <div className="space-y-2">
-                <Label>Expires At</Label>
+                <Label>{t('admin.pages.bans.expiresAt')}</Label>
                 <Input
                   type="datetime-local"
                   value={formData.expiresAt}
@@ -465,12 +495,12 @@ export default function BansClient() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateDialog(false)} disabled={isSubmitting}>
-              Cancel
+              {t('admin.pages.bans.cancel')}
             </Button>
             <Button onClick={handleCreateBan} disabled={isSubmitting || !formData.reason || (!formData.userId && formData.banType !== 'IP_BAN')}>
               {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <Ban className="w-4 h-4 mr-2" />
-              Issue Ban
+              {t('admin.pages.bans.issueBan')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -481,17 +511,17 @@ export default function BansClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5" />
-              Lift Ban
+              {t('admin.pages.bans.liftTitle')}
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to lift this ban? The user will be able to access the platform again.
+              {t('admin.pages.bans.liftDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">
-            <Label>Lift Reason (optional)</Label>
+            <Label>{t('admin.pages.bans.liftReason')}</Label>
             <Textarea
-              placeholder="Why is this ban being lifted?"
+              placeholder={t('admin.pages.bans.liftReasonPlaceholder')}
               value={liftReason}
               onChange={(e) => setLiftReason(e.target.value)}
             />
@@ -499,7 +529,7 @@ export default function BansClient() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowLiftDialog(null)} disabled={isSubmitting}>
-              Cancel
+              {t('admin.pages.bans.cancel')}
             </Button>
             <Button
               onClick={() => showLiftDialog && handleLiftBan(showLiftDialog)}
@@ -507,7 +537,7 @@ export default function BansClient() {
             >
               {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <CheckCircle className="w-4 h-4 mr-2" />
-              Lift Ban
+              {t('admin.pages.bans.liftButton')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -81,15 +81,19 @@ export default function AuditLogClient() {
   const [filterAction, setFilterAction] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('');
   const [filterUserId, setFilterUserId] = useState('');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
   const [page, setPage] = useState(0);
 
   const filters = useMemo(() => ({
     action: filterAction,
     severity: filterSeverity,
     userId: filterUserId,
+    startDate: filterDateFrom,
+    endDate: filterDateTo,
     limit: '50',
     offset: String(page * 50),
-  }), [filterAction, filterSeverity, filterUserId, page]);
+  }), [filterAction, filterSeverity, filterUserId, filterDateFrom, filterDateTo, page]);
 
   const { data, error, isLoading } = useSWR<AuditLogResponse>(
     buildUrl(filters),
@@ -125,7 +129,7 @@ export default function AuditLogClient() {
           <p className="text-[var(--text-muted)]">{t('admin.pages.auditLog.subtitle')}</p>
         </div>
         <div className="text-sm text-[var(--text-tertiary)]">
-          {total} total events
+          {t('admin.pages.auditLog.totalEvents', { count: total })}
         </div>
       </div>
 
@@ -134,7 +138,7 @@ export default function AuditLogClient() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
-              placeholder="Filter events..."
+              placeholder={t('admin.pages.auditLog.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -144,10 +148,10 @@ export default function AuditLogClient() {
             <div className="w-56">
               <Select value={filterAction} onValueChange={setFilterAction}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All actions" />
+                  <SelectValue placeholder={t('admin.pages.auditLog.allActions')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Actions</SelectItem>
+                  <SelectItem value="">{t('admin.pages.auditLog.allActions')}</SelectItem>
                   {ACTION_OPTIONS.map((a) => (
                     <SelectItem key={a} value={a}>{a}</SelectItem>
                   ))}
@@ -157,10 +161,10 @@ export default function AuditLogClient() {
             <div className="w-48">
               <Select value={filterSeverity} onValueChange={setFilterSeverity}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All severities" />
+                  <SelectValue placeholder={t('admin.pages.auditLog.allSeverities')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Severities</SelectItem>
+                  <SelectItem value="">{t('admin.pages.auditLog.allSeverities')}</SelectItem>
                   <SelectItem value="INFO">Info</SelectItem>
                   <SelectItem value="WARNING">Warning</SelectItem>
                   <SelectItem value="ERROR">Error</SelectItem>
@@ -170,9 +174,27 @@ export default function AuditLogClient() {
             </div>
             <div className="w-48">
               <Input
-                placeholder="Filter by user ID..."
+                placeholder={t('admin.pages.auditLog.filterUserId')}
                 value={filterUserId}
                 onChange={(e) => setFilterUserId(e.target.value)}
+              />
+            </div>
+            <div className="w-44">
+              <Input
+                type="date"
+                value={filterDateFrom}
+                onChange={(e) => { setFilterDateFrom(e.target.value); setPage(0); }}
+                className="text-sm"
+                title="From date"
+              />
+            </div>
+            <div className="w-44">
+              <Input
+                type="date"
+                value={filterDateTo}
+                onChange={(e) => { setFilterDateTo(e.target.value); setPage(0); }}
+                className="text-sm"
+                title="To date"
               />
             </div>
           </div>
@@ -191,11 +213,11 @@ export default function AuditLogClient() {
               <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Failed to load audit log</div>
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.auditLog.loadError')}</div>
           ) : filteredLogs.length === 0 ? (
             <div className="text-center py-12 text-[var(--text-tertiary)]">
               <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>No audit events found</p>
+              <p>{t('admin.pages.auditLog.empty')}</p>
             </div>
           ) : (
             <>
@@ -203,11 +225,11 @@ export default function AuditLogClient() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Time</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">User</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Action</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Target</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Severity</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.auditLog.columns.time')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.auditLog.columns.user')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.auditLog.columns.action')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.auditLog.columns.target')}</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.pages.auditLog.columns.severity')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -250,7 +272,7 @@ export default function AuditLogClient() {
 
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <div className="text-sm text-[var(--text-tertiary)]">
-                  Page {page + 1} of {totalPages || 1}
+                  {t('admin.pages.auditLog.page', { current: page + 1, total: totalPages || 1 })}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -259,7 +281,7 @@ export default function AuditLogClient() {
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                     disabled={page === 0}
                   >
-                    Previous
+                    {t('common.previous')}
                   </Button>
                   <Button
                     variant="outline"
@@ -267,7 +289,7 @@ export default function AuditLogClient() {
                     onClick={() => setPage((p) => p + 1)}
                     disabled={page >= totalPages - 1}
                   >
-                    Next
+                    {t('common.next')}
                   </Button>
                 </div>
               </div>

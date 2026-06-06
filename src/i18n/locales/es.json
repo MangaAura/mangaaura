@@ -1595,6 +1595,8 @@
           "actions": "Acciones"
         },
         "empty": "No se encontraron géneros",
+        "editTitle": "Editar género",
+        "nameRequired": "El nombre del género es requerido",
         "deleteTitle": "Eliminar género",
         "deleteConfirm": "¿Estás seguro de eliminar el género \"{name}\"?",
         "deleteHasMangas": "Este género tiene {count} manga(s) asociados. La relación se eliminará automáticamente pero los mangas no se verán afectados.",

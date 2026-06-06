@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Database,
   Loader2,
+  RefreshCw,
   Server,
   Clock,
   MemoryStick,
@@ -13,6 +14,7 @@ import {
 import useSWR from 'swr';
 
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -28,7 +30,7 @@ function formatUptime(seconds: number) {
 
 export default function HealthClient() {
   const t = useT();
-  const { data, error, isLoading } = useSWR<{
+  const { data, error, isLoading, isValidating, mutate } = useSWR<{
     status: string;
     timestamp: string;
     uptimeSeconds: number;
@@ -50,6 +52,10 @@ export default function HealthClient() {
       <div className="text-center py-12">
         <AlertCircle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
         <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar estado del sistema</h2>
+        <Button variant="outline" className="mt-4" onClick={() => mutate()}>
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
       </div>
     );
   }
@@ -70,8 +76,17 @@ export default function HealthClient() {
           <Badge variant={isHealthy ? 'default' : 'destructive'} className="text-sm px-3 py-1">
             {isHealthy ? '✓ Healthy' : '⚠ Degraded'}
           </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => mutate()}
+            disabled={isValidating}
+          >
+            <RefreshCw className={`w-4 h-4 mr-1 ${isValidating ? 'animate-spin' : ''}`} />
+            {isValidating ? 'Refreshing...' : 'Refresh Now'}
+          </Button>
           <span className="text-sm text-[var(--text-tertiary)]">
-            Actualizado: {data?.timestamp ? new Date(data.timestamp).toLocaleTimeString() : '—'}
+            {data?.timestamp ? new Date(data.timestamp).toLocaleTimeString() : '—'}
           </span>
         </div>
       </div>

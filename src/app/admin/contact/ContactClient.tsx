@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Send, ChevronLeft, ChevronRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Send, ChevronLeft, ChevronRight, Loader2, CheckCircle2, AlertCircle, Eye, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
 
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/Dialog';
 import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 import { cn } from '@/lib/utils';
@@ -65,6 +66,7 @@ interface ContactApiResponse {
 
 export default function ContactClient() {
   const t = useT();
+  const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [searchCategory, setSearchCategory] = useState<string>('all');
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
@@ -80,6 +82,36 @@ export default function ContactClient() {
 
   const messages = data?.messages || [];
   const pagination = data?.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 };
+
+  const updateStatus = async (messageId: string, status: string) => {
+    try {
+      const res = await fetch(`/api/admin/contact/${messageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        await mutate();
+        toast({
+          title: 'Status updated',
+          description: `Message marked as ${status.toLowerCase()}.`,
+          variant: 'success',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to update message status',
+          variant: 'error',
+        });
+      }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to update message status',
+        variant: 'error',
+      });
+    }
+  };
 
   const handleReply = async () => {
     if (!selectedMessage || !replyText.trim()) return;
@@ -107,7 +139,7 @@ export default function ContactClient() {
 
       setSendSuccess(true);
       setReplyText('');
-      mutate();
+      await mutate();
 
       setTimeout(() => {
         setSendSuccess(false);
@@ -137,18 +169,18 @@ export default function ContactClient() {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <CardTitle>Mensajes</CardTitle>
+            <CardTitle>{t('admin.pages.contact.messages')}</CardTitle>
             <div className="flex gap-2">
               <select
                 value={searchCategory}
                 onChange={(e) => setSearchCategory(e.target.value)}
                 className="px-3 py-2 bg-tertiary border border-custom rounded-lg text-sm"
               >
-                <option value="all">Todas las categorías</option>
-                <option value="general">General</option>
-                <option value="support">Soporte</option>
-                <option value="dmca">DMCA</option>
-                <option value="business">Negocios</option>
+                <option value="all">{t('admin.pages.contact.allCategories')}</option>
+                <option value="general">{t('admin.pages.contact.categories.general')}</option>
+                <option value="support">{t('admin.pages.contact.categories.support')}</option>
+                <option value="dmca">{t('admin.pages.contact.categories.dmca')}</option>
+                <option value="business">{t('admin.pages.contact.categories.business')}</option>
               </select>
             </div>
           </div>
@@ -161,7 +193,7 @@ export default function ContactClient() {
           ) : messages.length === 0 ? (
             <div className="text-center py-12">
               <Mail className="w-12 h-12 text-muted mx-auto mb-3" />
-              <p className="text-muted">No hay mensajes</p>
+              <p className="text-muted">{t('admin.pages.contact.empty')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -187,6 +219,24 @@ export default function ContactClient() {
                         <Badge className={STATUS_LABELS[msg.status]?.color || ''}>
                           {STATUS_LABELS[msg.status]?.label || msg.status}
                         </Badge>
+                        {msg.status === 'PENDING' && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); updateStatus(msg.id, 'READ'); }}
+                            className="text-xs text-accent-blue hover:underline flex items-center gap-1"
+                            title="Mark as read"
+                          >
+                            <Eye className="w-3 h-3" /> Mark read
+                          </button>
+                        )}
+                        {msg.status !== 'CLOSED' && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); updateStatus(msg.id, 'CLOSED'); }}
+                            className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex items-center gap-1"
+                            title="Close without reply"
+                          >
+                            <XCircle className="w-3 h-3" /> Close
+                          </button>
+                        )}
                       </div>
                       <p className="font-medium mt-1">{msg.subject}</p>
                       <p className="text-sm text-muted truncate mt-1">{msg.message}</p>
@@ -214,7 +264,7 @@ export default function ContactClient() {
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
                   <span className="text-sm text-muted">
-                    Página {page} de {pagination.totalPages}
+                    {t('admin.pages.contact.page', { page, total: pagination.totalPages })}
                   </span>
                   <Button
                     variant="ghost"
@@ -236,7 +286,7 @@ export default function ContactClient() {
           <DialogHeader>
             <DialogTitle>{selectedMessage?.subject}</DialogTitle>
             <DialogDescription>
-              De: {selectedMessage?.name} ({selectedMessage?.email})
+              {t('admin.pages.contact.from', { name: selectedMessage?.name || '', email: selectedMessage?.email || '' })}
             </DialogDescription>
           </DialogHeader>
 
@@ -262,11 +312,11 @@ export default function ContactClient() {
             </div>
 
             <div className="border-t border-custom pt-4">
-              <Label className="text-sm font-medium mb-2 block">Responder a {selectedMessage?.email}</Label>
+              <Label className="text-sm font-medium mb-2 block">{t('admin.pages.contact.replyTo', { email: selectedMessage?.email || '' })}</Label>
               <Textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Escribe tu respuesta..."
+                placeholder={t('admin.pages.contact.replyPlaceholder')}
                 rows={6}
                 className="resize-none"
               />
@@ -279,15 +329,27 @@ export default function ContactClient() {
               {sendSuccess && (
                 <p className="text-sm text-[var(--success)] mt-2 flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
-                  Email enviado correctamente
+                  {t('admin.pages.contact.sentSuccess')}
                 </p>
               )}
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
+            <div className="flex gap-1 mr-auto">
+              {selectedMessage && selectedMessage.status !== 'CLOSED' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => updateStatus(selectedMessage.id, 'CLOSED')}
+                >
+                  <XCircle className="w-4 h-4 mr-1" />
+                  {t('admin.pages.contact.statuses.CLOSED')}
+                </Button>
+              )}
+            </div>
             <Button variant="ghost" onClick={() => setSelectedMessage(null)}>
-              Cerrar
+              {t('admin.pages.contact.close')}
             </Button>
             <Button
               onClick={handleReply}
@@ -297,12 +359,12 @@ export default function ContactClient() {
               {isSending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Enviando...
+                  {t('admin.pages.contact.sending')}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Enviar Respuesta
+                  {t('admin.pages.contact.sendReply')}
                 </>
               )}
             </Button>

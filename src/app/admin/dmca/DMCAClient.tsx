@@ -15,6 +15,7 @@ import {
   Check,
   X,
   Eye,
+  FileText,
   MoreHorizontal,
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
@@ -66,6 +67,7 @@ export default function DMCAClient() {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [selectedTakedown, setSelectedTakedown] = useState<DMCAData | null>(null);
+  const [viewingDetail, setViewingDetail] = useState<DMCAData | null>(null);
   const [actionDialog, setActionDialog] = useState<{ type: string; open: boolean }>({ type: '', open: false });
   const [resolutionNotes, setResolutionNotes] = useState('');
 
@@ -155,6 +157,9 @@ export default function DMCAClient() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setViewingDetail(row.original)}>
+              <FileText className="w-4 h-4 mr-2" /> View Details
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setSelectedTakedown(row.original); performAction('review'); }}>
               <Eye className="w-4 h-4 mr-2" /> Mark as Reviewing
             </DropdownMenuItem>
@@ -237,9 +242,9 @@ export default function DMCAClient() {
                   </thead>
                   <tbody>
                     {table.getRowModel().rows.map((row) => (
-                      <tr key={row.id} className="border-b hover:bg-[var(--surface)]">
+                      <tr key={row.id} className="border-b hover:bg-[var(--surface)] cursor-pointer" onClick={() => setViewingDetail(row.original)}>
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="px-4 py-3">
+                          <td key={cell.id} className="px-4 py-3" onClick={(e) => cell.column.id === 'actions' ? e.stopPropagation() : undefined}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </td>
                         ))}
@@ -266,6 +271,159 @@ export default function DMCAClient() {
           )}
         </CardContent>
       </Card>
+
+      {/* Detail View Dialog */}
+      <Dialog open={!!viewingDetail} onOpenChange={(o) => { if (!o) setViewingDetail(null); }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileWarning className="w-5 h-5 text-[var(--primary)]" />
+              DMCA Takedown Details
+            </DialogTitle>
+            <DialogDescription>
+              Full details of the takedown request submitted by {viewingDetail?.requesterName}
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewingDetail && (
+            <div className="space-y-6">
+              {/* Requester Info */}
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">
+                  Requester Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                    <p className="text-xs text-[var(--text-tertiary)]">Name</p>
+                    <p className="font-medium">{viewingDetail.requesterName}</p>
+                  </div>
+                  <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                    <p className="text-xs text-[var(--text-tertiary)]">Email</p>
+                    <p className="font-medium">{viewingDetail.requesterEmail}</p>
+                  </div>
+                  {viewingDetail.requesterAddress && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg md:col-span-2">
+                      <p className="text-xs text-[var(--text-tertiary)]">Address</p>
+                      <p className="font-medium whitespace-pre-wrap">{viewingDetail.requesterAddress}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Alleged Infringement */}
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">
+                  Alleged Infringement
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {viewingDetail.infringingContentType && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                      <p className="text-xs text-[var(--text-tertiary)]">Content Type</p>
+                      <p className="font-medium">{viewingDetail.infringingContentType}</p>
+                    </div>
+                  )}
+                  {viewingDetail.infringingContentId && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                      <p className="text-xs text-[var(--text-tertiary)]">Content ID</p>
+                      <p className="font-medium font-mono text-sm">{viewingDetail.infringingContentId}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Original Work */}
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">
+                  Original Work
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  {viewingDetail.originalWorkDescription && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                      <p className="text-xs text-[var(--text-tertiary)]">Description</p>
+                      <p className="font-medium whitespace-pre-wrap">{viewingDetail.originalWorkDescription}</p>
+                    </div>
+                  )}
+                  {viewingDetail.originalWorkUrl && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                      <p className="text-xs text-[var(--text-tertiary)]">Original Work URL</p>
+                      <a
+                        href={viewingDetail.originalWorkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-[var(--primary)] hover:underline break-all"
+                      >
+                        {viewingDetail.originalWorkUrl}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Legal Statements */}
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">
+                  Legal Statements
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                    <p className="text-xs text-[var(--text-tertiary)]">Good Faith Statement</p>
+                    <p className={`font-medium flex items-center gap-1 ${viewingDetail.goodFaithStatement ? 'text-green-500' : 'text-[var(--error)]'}`}>
+                      {viewingDetail.goodFaithStatement ? '✓ Yes' : '✗ No'}
+                    </p>
+                  </div>
+                  {viewingDetail.signature && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg md:col-span-2">
+                      <p className="text-xs text-[var(--text-tertiary)]">Digital Signature</p>
+                      <p className="font-medium font-mono text-sm break-all">{viewingDetail.signature}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Timeline */}
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">
+                  Status Timeline
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                    <p className="text-xs text-[var(--text-tertiary)]">Submitted At</p>
+                    <p className="font-medium">{new Date(viewingDetail.submittedAt).toLocaleString()}</p>
+                  </div>
+                  <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                    <p className="text-xs text-[var(--text-tertiary)]">Status</p>
+                    <p className="font-medium">{statusBadge(viewingDetail.status)}</p>
+                  </div>
+                  {viewingDetail.reviewedAt && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                      <p className="text-xs text-[var(--text-tertiary)]">Reviewed At</p>
+                      <p className="font-medium">{new Date(viewingDetail.reviewedAt).toLocaleString()}</p>
+                    </div>
+                  )}
+                  {viewingDetail.reviewedBy && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+                      <p className="text-xs text-[var(--text-tertiary)]">Reviewed By</p>
+                      <p className="font-medium">{viewingDetail.reviewedBy}</p>
+                    </div>
+                  )}
+                  {viewingDetail.resolutionNotes && (
+                    <div className="bg-[var(--surface-sunken)] p-3 rounded-lg md:col-span-2">
+                      <p className="text-xs text-[var(--text-tertiary)]">Resolution Notes</p>
+                      <p className="font-medium whitespace-pre-wrap">{viewingDetail.resolutionNotes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingDetail(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={actionDialog.type === 'approve'} onOpenChange={(o) => setActionDialog({ type: o ? 'approve' : '', open: o })}>
         <DialogContent>

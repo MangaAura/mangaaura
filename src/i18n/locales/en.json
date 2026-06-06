@@ -1679,6 +1679,8 @@
           "actions": "Actions"
         },
         "empty": "No genres found",
+        "editTitle": "Edit Genre",
+        "nameRequired": "Genre name is required",
         "deleteTitle": "Delete Genre",
         "deleteConfirm": "Are you sure you want to delete the genre \"{name}\"?",
         "deleteHasMangas": "This genre has {count} associated manga(s). The relationship will be automatically removed but the manga will not be affected.",
