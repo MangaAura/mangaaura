@@ -1600,7 +1600,40 @@
         "deleteConfirm": "¿Estás seguro de eliminar el género \"{name}\"?",
         "deleteHasMangas": "Este género tiene {count} manga(s) asociados. La relación se eliminará automáticamente pero los mangas no se verán afectados.",
         "loadError": "Error al cargar géneros",
-        "deleteError": "Error al eliminar género"
+        "deleteError": "Error al eliminar género",
+        "errorPages": {
+          "defaultTitle": "Algo salió mal",
+          "defaultMessage": "Ocurrió un error inesperado. Intenta de nuevo.",
+          "retry": "Reintentar",
+          "adminPanel": {
+            "title": "Error en el Panel de Administración",
+            "message": "Ha ocurrido un error en el panel admin. Intenta de nuevo."
+          },
+          "news": {
+            "title": "Error al cargar noticias",
+            "message": "No se pudieron cargar las noticias del panel de administración."
+          },
+          "settings": {
+            "title": "Error en configuración",
+            "message": "No se pudieron cargar las configuraciones."
+          },
+          "moderation": {
+            "title": "Error en moderación",
+            "message": "No se pudieron cargar los elementos de moderación."
+          },
+          "users": {
+            "title": "Error al cargar usuarios",
+            "message": "No se pudieron cargar los usuarios."
+          },
+          "userDetail": {
+            "title": "Error al cargar usuario",
+            "message": "No se pudo cargar la información del usuario."
+          },
+          "mangaDetail": {
+            "title": "Error al cargar el manga",
+            "message": "No se pudo cargar la información del manga."
+          }
+        }
       },
       "tags": {
         "title": "Gestión de Tags",

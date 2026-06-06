@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { useT } from '@/i18n';
 
 export default function AdminSettingsError({
   error,
@@ -9,5 +10,6 @@ export default function AdminSettingsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <ErrorFallback error={error} reset={reset} title="Error en configuración" message="No se pudieron cargar las configuraciones." />;
+  const t = useT();
+  return <ErrorFallback error={error} reset={reset} title={t('admin.errorPages.settings.title')} message={t('admin.errorPages.settings.message')} />;
 }

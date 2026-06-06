@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { useT } from '@/i18n';
 
 export default function AdminMangaDetailError({
   error,
@@ -9,5 +10,6 @@ export default function AdminMangaDetailError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <ErrorFallback error={error} reset={reset} title="Error al cargar el manga" message="No se pudo cargar la información del manga." />;
+  const t = useT();
+  return <ErrorFallback error={error} reset={reset} title={t('admin.errorPages.mangaDetail.title')} message={t('admin.errorPages.mangaDetail.message')} />;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { useT } from '@/i18n';
 
 export default function AdminModerationError({
   error,
@@ -9,5 +10,6 @@ export default function AdminModerationError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <ErrorFallback error={error} reset={reset} title="Error en moderación" message="No se pudieron cargar los elementos de moderación." />;
+  const t = useT();
+  return <ErrorFallback error={error} reset={reset} title={t('admin.errorPages.moderation.title')} message={t('admin.errorPages.moderation.message')} />;
 }

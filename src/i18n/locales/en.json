@@ -1684,7 +1684,40 @@
         "deleteConfirm": "Are you sure you want to delete the genre \"{name}\"?",
         "deleteHasMangas": "This genre has {count} associated manga(s). The relationship will be automatically removed but the manga will not be affected.",
         "loadError": "Failed to load genres",
-        "deleteError": "Failed to delete genre"
+        "deleteError": "Failed to delete genre",
+        "errorPages": {
+          "defaultTitle": "Something went wrong",
+          "defaultMessage": "An unexpected error occurred. Please try again.",
+          "retry": "Retry",
+          "adminPanel": {
+            "title": "Admin Panel Error",
+            "message": "An error occurred in the admin panel. Please try again."
+          },
+          "news": {
+            "title": "Error Loading News",
+            "message": "Could not load news from the admin panel."
+          },
+          "settings": {
+            "title": "Settings Error",
+            "message": "Could not load settings."
+          },
+          "moderation": {
+            "title": "Moderation Error",
+            "message": "Could not load moderation items."
+          },
+          "users": {
+            "title": "Error Loading Users",
+            "message": "Could not load users."
+          },
+          "userDetail": {
+            "title": "Error Loading User",
+            "message": "Could not load user information."
+          },
+          "mangaDetail": {
+            "title": "Error Loading Manga",
+            "message": "Could not load manga information."
+          }
+        }
       },
       "tags": {
         "title": "Tag Management",

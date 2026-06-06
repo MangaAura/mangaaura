@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { useT } from '@/i18n';
 
 export default function AdminUsersError({
   error,
@@ -9,5 +10,6 @@ export default function AdminUsersError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <ErrorFallback error={error} reset={reset} title="Error al cargar usuarios" message="No se pudieron cargar los usuarios." />;
+  const t = useT();
+  return <ErrorFallback error={error} reset={reset} title={t('admin.errorPages.users.title')} message={t('admin.errorPages.users.message')} />;
 }

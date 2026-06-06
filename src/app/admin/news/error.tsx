@@ -1,6 +1,7 @@
 'use client';
 
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { useT } from '@/i18n';
 
 export default function AdminNewsError({
   error,
@@ -9,12 +10,8 @@ export default function AdminNewsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useT();
   return (
-    <ErrorFallback
-      error={error}
-      reset={reset}
-      title="Error al cargar noticias"
-      message="No se pudieron cargar las noticias del panel de administración."
-    />
+    <ErrorFallback error={error} reset={reset} title={t('admin.errorPages.news.title')} message={t('admin.errorPages.news.message')} />
   );
 }
