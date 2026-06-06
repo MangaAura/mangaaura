@@ -455,7 +455,7 @@ export default function AdminTagsClient() {
                 </label>
                 <Select value={newParentId} onValueChange={(v) => setNewParentId(v === 'none' ? '' : v)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Ninguno (tag raíz)" />
+                    <SelectValue placeholder={t('admin.tagsForm.noneParent')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">{t('admin.pages.tags.noneParent')}</SelectItem>
@@ -591,9 +591,9 @@ export default function AdminTagsClient() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="TAG">Tag</SelectItem>
-                    <SelectItem value="CATEGORY">Categoría</SelectItem>
-                    <SelectItem value="GENRE">Género</SelectItem>
-                    <SelectItem value="THEME">Tema</SelectItem>
+                    <SelectItem value="CATEGORY">{t('admin.tagsForm.category')}</SelectItem>
+                    <SelectItem value="GENRE">{t('admin.tagsForm.genre')}</SelectItem>
+                    <SelectItem value="THEME">{t('admin.common.theme')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -636,7 +636,7 @@ export default function AdminTagsClient() {
                   onValueChange={(v) => setEditParentId(v === 'none' ? '' : v)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Ninguno" />
+                    <SelectValue placeholder={t('admin.tagsForm.noneParent')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">{t('admin.pages.tags.noneParent')}</SelectItem>
@@ -681,15 +681,15 @@ export default function AdminTagsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[var(--warning)]">
               <Edit3 className="w-5 h-5" />
-              Merge Tags
+              {t('admin.common.merge')}
             </DialogTitle>
             <DialogDescription>
-              Fusiona este tag con otro. Los mangas con este tag serán reasignados al destino.
+              {t('admin.tagsForm.mergeDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
-              <p className="text-xs text-[var(--text-tertiary)] mb-1">Origen (será eliminado)</p>
+              <p className="text-xs text-[var(--text-tertiary)] mb-1">{t('admin.tagsForm.originLabel')}</p>
               <p className="text-sm font-medium text-[var(--text-primary)]">
                 {tags.find(t => t.id === mergeSourceId)?.name || 'Seleccionado'}
               </p>
@@ -714,7 +714,7 @@ export default function AdminTagsClient() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowMergeDialog(false); setMergeSourceId(''); setMergeTargetId(''); }}>
-              Cancelar
+              {t('admin.pages.tags.cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -742,7 +742,7 @@ export default function AdminTagsClient() {
               }}
               isLoading={isMerging}
             >
-              {isMerging ? 'Fusionando...' : 'Fusionar Tags'}
+              {isMerging ? t('common.saving') : t('admin.common.merge')}
             </Button>
           </DialogFooter>
         </DialogContent>

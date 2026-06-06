@@ -205,7 +205,7 @@ export default function AdminSettingsClient() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="es">Español</SelectItem>
+                  <SelectItem value="es">{t('admin.langSpanish')}</SelectItem>
                   <SelectItem value="en">English</SelectItem>
                   <SelectItem value="pt">Português</SelectItem>
                   <SelectItem value="ja">日本語</SelectItem>

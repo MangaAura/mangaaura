@@ -87,7 +87,7 @@ export default function AuditLogsClient() {
 
   const exportCSV = () => {
     try {
-      const headers = ['Timestamp', 'Severidad', 'Acción', 'Usuario', 'Target', 'IP', 'User Agent'];
+      const headers = ['Timestamp', t('admin.auditLogs.severity'), t('admin.auditLogs.action'), t('common.user'), 'Target', 'IP', 'User Agent'];
       const rows = filteredLogs.map(l => [
         new Date(l.createdAt).toISOString(),
         l.severity,
@@ -135,7 +135,7 @@ export default function AuditLogsClient() {
           <div className="flex flex-wrap gap-3">
             <div className="w-48">
               <Select value={action} onValueChange={(v) => { setAction(v); setPage(1); }}>
-                <SelectTrigger><SelectValue placeholder="Acción" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t('admin.auditLogs.actionFilter')} /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Todas</SelectItem>
                   {data?.uniqueActions.map((a) => (
@@ -213,9 +213,9 @@ export default function AuditLogsClient() {
                   <thead>
                     <tr className="border-b">
                       <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">Timestamp</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">Severidad</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">Acción</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">Usuario</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">{t('admin.auditLogs.severity')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">{t('admin.auditLogs.action')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">{t('common.user')}</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">Target</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)]">IP</th>
                     </tr>

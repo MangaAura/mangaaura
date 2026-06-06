@@ -196,10 +196,10 @@ export function DeliveriesClient() {
                         Endpoint
                       </th>
                       <th className="text-right text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider pb-3 px-4">
-                        Código
+                        {t('admin.webhooksDeliveries.code')}
                       </th>
                       <th className="text-right text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider pb-3 px-4">
-                        Duración
+                        {t('admin.webhooksDeliveries.duration')}
                       </th>
                       <th className="text-right text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider pb-3 px-4">
                         Intentos

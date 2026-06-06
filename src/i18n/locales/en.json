@@ -36,7 +36,15 @@
     "all": "All",
     "breadcrumb": "Navigation",
     "user": "User",
-    "welcomeBack": "Welcome back"
+    "welcomeBack": "Welcome back",
+    "today": "Today",
+    "from": "From",
+    "to": "To",
+    "date": "Date",
+    "type": "Type",
+    "query": "Query",
+    "queryUser": "Query / User",
+    "countDate": "Count / Date"
   },
   "a11y": {
     "skipToContent": "Skip to content",
@@ -570,7 +578,10 @@
     "serverError": "Server error",
     "sessionExpired": "Your session has expired",
     "validation": "Invalid data",
-    "connectionFailed": "Could not connect to the server. Check your internet connection and try again."
+    "connectionFailed": "Could not connect to the server. Check your internet connection and try again.",
+    "defaultTitle": "Something went wrong",
+    "defaultMessage": "An unexpected error occurred. Please try again.",
+    "retryTitle": "Retry"
   },
   "home": {
     "discoverFuture": "The only place to read, create and crowdfund manga with AI",
@@ -2437,7 +2448,8 @@
       "settings": "Ajustes",
       "help": "Ayuda",
       "about": "Acerca de",
-      "version": "Versión"
+      "version": "Versión",
+      "theme": "Theme"
     },
     "errors": {
       "loadError": "Error al cargar datos",
@@ -2486,8 +2498,243 @@
       "accessDeniedTitle": "Access Denied",
       "accessDeniedMessage": "You don't have permission to access this page.",
       "dashboardBtn": "Admin Dashboard",
-      "homeBtn": "Back to Home"
-    }
+      "homeBtn": "Back to Home",
+      "aiDashboard": {
+        "title": "AI Dashboard Error",
+        "message": "Could not load AI dashboard data."
+      },
+      "mangaList": {
+        "title": "Error Loading Manga",
+        "message": "Could not load manga list."
+      },
+      "achievementsPage": {
+        "title": "Achievements Error",
+        "message": "Could not load achievements."
+      },
+      "chaptersPage": {
+        "title": "Chapters Error",
+        "message": "Could not load chapters."
+      },
+      "clansPage": {
+        "title": "Clans Error",
+        "message": "Could not load clans."
+      },
+      "commentsPage": {
+        "title": "Comments Error",
+        "message": "Could not load comments."
+      },
+      "crowdfundingPage": {
+        "title": "Crowdfunding Error",
+        "message": "Could not load crowdfunding data."
+      },
+      "dmcaPage": {
+        "title": "DMCA Error",
+        "message": "Could not load DMCA requests."
+      },
+      "forumPage": {
+        "title": "Forum Error",
+        "message": "Could not load forum threads."
+      },
+      "kycPage": {
+        "title": "KYC Error",
+        "message": "Could not load KYC verifications."
+      },
+      "rolesPage": {
+        "title": "Roles Error",
+        "message": "Could not load roles."
+      },
+      "subscriptionsPage": {
+        "title": "Subscriptions Error",
+        "message": "Could not load subscriptions."
+      }
+    },
+    "searchAnalytics": {
+      "title": "Search Analytics",
+      "subtitle": "User search statistics",
+      "totalSearches": "Total searches",
+      "uniqueUsers": "Unique users",
+      "popularSearches": "Most popular searches",
+      "last30Days": "Last 30 days",
+      "recentSearches": "Recent searches",
+      "failedSearches": "Failed searches",
+      "searchColumn": "Search",
+      "emptyRecent": "No recent searches",
+      "emptyFailed": "No recent failed searches"
+    },
+    "newsForm": {
+      "title": "Title",
+      "slug": "Slug",
+      "excerpt": "Excerpt",
+      "content": "Content",
+      "category": "Category",
+      "publish": "Publish",
+      "schedulePublish": "Schedule publication",
+      "featureHomepage": "Feature on homepage",
+      "scheduledAutoPublish": "Scheduled auto-publish",
+      "noTitle": "(no title)",
+      "slugHint": "Only lowercase letters, numbers and hyphens. Auto-generated from title.",
+      "autoTranslate": "Optional. If not provided, automatic translation will be used.",
+      "uploadHint": "JPEG, PNG, WebP · Max 10MB · Will be cropped to 16:9 automatically",
+      "scheduledNote": "Scheduled publication will not apply if marked as \"Published\". Uncheck to use scheduling.",
+      "featuredOnHomepage": "Will appear featured on the homepage",
+      "featuredInNews": "Will appear in normal news section",
+      "removeSchedule": "Remove schedule",
+      "mobile": "Mobile",
+      "scheduleRemove": "Remove schedule"
+    },
+    "tagsForm": {
+      "category": "Category",
+      "genre": "Genre",
+      "noneParent": "None (root tag)",
+      "mergeDescription": "Merge this tag with another. Mangas using this tag will be reassigned to the destination.",
+      "originLabel": "Origin (will be deleted)"
+    },
+    "restoreForm": {
+      "restoreAction": "This action will restore the account and lift active bans.",
+      "reason": "Reason for restoration",
+      "reasonPlaceholder": "Explain why this account is being restored...",
+      "restoreConfirm": "Type RESTORE to enable the button..."
+    },
+    "auditLogs": {
+      "severity": "Severity",
+      "action": "Action",
+      "actionFilter": "Filter by action"
+    },
+    "webhooksDeliveries": {
+      "code": "Code",
+      "duration": "Duration"
+    },
+    "metadata": {
+      "dashboard": {
+        "title": "Admin Dashboard | MangaAura",
+        "description": "Manage users, manga, chapters, moderation and site configuration.",
+        "ogTitle": "Admin Dashboard — MangaAura",
+        "ogDesc": "Administrative control panel with real-time statistics, content management and moderation."
+      },
+      "layout": {
+        "title": "Administration | MangaAura",
+        "description": "MangaAura administration panel"
+      },
+      "chapters": {
+        "title": "Manage Chapters | MangaAura",
+        "description": "Manage all chapters across the platform.",
+        "ogTitle": "Manage Chapters | MangaAura",
+        "ogDesc": "Manage all chapters on MangaAura."
+      },
+      "chapterDetail": {
+        "title": "Chapter Detail | MangaAura",
+        "description": "Review and edit manga chapter details.",
+        "ogTitle": "Chapter Detail | MangaAura",
+        "ogDesc": "Review chapter details on MangaAura."
+      },
+      "genres": {
+        "title": "Manage Genres | MangaAura",
+        "description": "Manage manga genres and categories.",
+        "ogTitle": "Manage Genres | MangaAura",
+        "ogDesc": "Manage genres on MangaAura."
+      },
+      "tags": {
+        "title": "Manage Tags | MangaAura",
+        "description": "Manage tags and content categories.",
+        "ogTitle": "Manage Tags | MangaAura",
+        "ogDesc": "Manage tags on MangaAura."
+      },
+      "news": {
+        "title": "News Management | MangaAura",
+        "description": "Manage site news and blog articles.",
+        "ogTitle": "News Management | MangaAura",
+        "ogDesc": "Manage news on MangaAura."
+      },
+      "settings": {
+        "title": "Site Settings | MangaAura",
+        "description": "Manage MangaAura global settings.",
+        "ogTitle": "Site Settings | MangaAura",
+        "ogDesc": "Site settings."
+      },
+      "auditLogs": {
+        "title": "Audit Logs | MangaAura",
+        "description": "View detailed audit logs.",
+        "ogTitle": "Audit Logs | MangaAura",
+        "ogDesc": "View MangaAura audit logs."
+      },
+      "auditLog": {
+        "title": "Audit Log | MangaAura",
+        "description": "Review the audit log of administrative activities.",
+        "ogTitle": "Audit Log | MangaAura",
+        "ogDesc": "Administrative audit log on MangaAura."
+      },
+      "searchAnalytics": {
+        "title": "Search Analytics | MangaAura",
+        "description": "Analyze search trends and statistics.",
+        "ogTitle": "Search Analytics | MangaAura",
+        "ogDesc": "Analyze searches on MangaAura."
+      },
+      "crowdfunding": {
+        "title": "Crowdfunding | MangaAura",
+        "description": "Manage crowdfunding campaigns.",
+        "ogTitle": "Crowdfunding | MangaAura",
+        "ogDesc": "Manage crowdfunding on MangaAura."
+      },
+      "emailTemplates": {
+        "title": "Email Templates | MangaAura",
+        "description": "Manage email templates.",
+        "ogTitle": "Email Templates | MangaAura",
+        "ogDesc": "Manage email templates on MangaAura."
+      },
+      "kyc": {
+        "title": "KYC Verification | MangaAura",
+        "description": "Review and manage KYC verification requests.",
+        "ogTitle": "KYC Verification | MangaAura",
+        "ogDesc": "Review KYC on MangaAura."
+      },
+      "impersonate": {
+        "title": "Impersonate User | MangaAura",
+        "description": "Administrative tool to impersonate users.",
+        "ogTitle": "Impersonate User | MangaAura",
+        "ogDesc": "User impersonation tool."
+      },
+      "aiDashboard": {
+        "title": "AI Dashboard | MangaAura",
+        "description": "AI services administration panel.",
+        "ogTitle": "AI Dashboard | MangaAura",
+        "ogDesc": "AI administration panel."
+      },
+      "anomalies": {
+        "title": "Analytics Anomalies | MangaAura",
+        "description": "Detect and review analytics anomalies.",
+        "ogTitle": "Analytics Anomalies | MangaAura",
+        "ogDesc": "Review analytics anomalies on MangaAura."
+      },
+      "realtime": {
+        "title": "Real-time Analytics | MangaAura",
+        "description": "Real-time analytics dashboard for administrators.",
+        "ogTitle": "Real-time Analytics | MangaAura",
+        "ogDesc": "Real-time analytics dashboard."
+      },
+      "webhooks": {
+        "title": "Webhooks | Admin | MangaAura",
+        "description": "Manage outgoing webhooks.",
+        "ogTitle": "Webhooks | Admin | MangaAura",
+        "ogDesc": "Manage webhooks."
+      },
+      "webhookDeliveries": {
+        "title": "Webhook Deliveries | Admin | MangaAura",
+        "description": "Outgoing webhook delivery history.",
+        "ogTitle": "Webhook Deliveries | Admin | MangaAura",
+        "ogDesc": "Webhook delivery history."
+      },
+      "moderation": {
+        "title": "Moderation | Admin",
+        "description": "Moderation and reports panel"
+      }
+    },
+    "viewAllReports": "View all moderation reports",
+    "contactStatus": {
+      "read": "Read"
+    },
+    "healthChapters": "Chapters",
+    "langSpanish": "Spanish",
+    "criticalAlerts": "{count} critical"
   },
   "comparison": {
     "heroBadge": "Feature Comparison",

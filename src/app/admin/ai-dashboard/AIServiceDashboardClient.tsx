@@ -301,7 +301,7 @@ export function AIServiceDashboardClient() {
               <span>Mostrar {alerts.length} alerta{alerts.length !== 1 ? 's' : ''}</span>
               {alerts.some(a => a.severity === 'critical') && (
                 <span className="ml-2 text-xs px-2 py-0.5 bg-[var(--error)]/20 text-[var(--error)] rounded-full">
-                  {alerts.filter(a => a.severity === 'critical').length} crítica{alerts.filter(a => a.severity === 'critical').length !== 1 ? 's' : ''}
+                  {t('admin.criticalAlerts', { count: alerts.filter(a => a.severity === 'critical').length })}
                 </span>
               )}
             </button>

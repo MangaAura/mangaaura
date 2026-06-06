@@ -54,7 +54,7 @@ export default function SearchAnalyticsClient() {
     if (!data?.topQueries.length && !data?.recentSearches.length) return;
     try {
       const rows: string[][] = [];
-      rows.push(['Tipo', 'Query/Usuario', 'Conteo/Fecha', 'Error']);
+      rows.push([t('common.type'), t('common.queryUser'), t('common.countDate'), t('common.error')]);
       data.topQueries.forEach(q => rows.push(['Top Query', q.query, String(q.count), '']));
       data.recentSearches.forEach(s => rows.push(['Recent', `${s.user.username}: ${s.query}`, new Date(s.createdAt).toISOString(), '']));
       (data.failedSearches || []).forEach(f => rows.push(['Failed', f.query, new Date(f.createdAt).toISOString(), f.error]));
@@ -94,9 +94,9 @@ export default function SearchAnalyticsClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
-            Analytics de Búsqueda
+            {t('admin.searchAnalytics.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Estadísticas de búsqueda de los usuarios</p>
+          <p className="text-[var(--text-muted)]">{t('admin.searchAnalytics.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function SearchAnalyticsClient() {
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
               className="w-36 text-xs"
-              placeholder="Desde"
+              placeholder={t('common.from')}
             />
             <span className="text-xs text-[var(--text-tertiary)]">→</span>
             <Input
@@ -113,7 +113,7 @@ export default function SearchAnalyticsClient() {
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
               className="w-36 text-xs"
-              placeholder="Hasta"
+              placeholder={t('common.to')}
             />
           </div>
           <Button variant="outline" size="sm" onClick={exportCSV} disabled={!data}>
@@ -128,7 +128,7 @@ export default function SearchAnalyticsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Búsquedas totales</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.searchAnalytics.totalSearches')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {data?.totalSearches.toLocaleString() || 0}
                 </p>
@@ -143,7 +143,7 @@ export default function SearchAnalyticsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Usuarios únicos</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.searchAnalytics.uniqueUsers')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {data?.uniqueUsers || 0}
                 </p>
@@ -158,7 +158,7 @@ export default function SearchAnalyticsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Hoy</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('common.today')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {data?.todaySearches || 0}
                 </p>
@@ -176,7 +176,7 @@ export default function SearchAnalyticsClient() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Hash className="w-5 h-5" />
-              Búsquedas más populares
+              {t('admin.searchAnalytics.popularSearches')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -202,7 +202,7 @@ export default function SearchAnalyticsClient() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              Últimos 30 días
+              {t('admin.searchAnalytics.last30Days')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -238,7 +238,7 @@ export default function SearchAnalyticsClient() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
-            Búsquedas recientes
+            {t('admin.searchAnalytics.recentSearches')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -247,9 +247,9 @@ export default function SearchAnalyticsClient() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Usuario</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Búsqueda</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">Fecha</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('common.user')}</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('admin.searchAnalytics.searchColumn')}</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">{t('common.date')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -266,7 +266,7 @@ export default function SearchAnalyticsClient() {
               </table>
             </div>
           ) : (
-            <p className="text-center py-8 text-[var(--text-tertiary)]">Sin búsquedas recientes</p>
+            <p className="text-center py-8 text-[var(--text-tertiary)]">{t('admin.searchAnalytics.emptyRecent')}</p>
           )}
         </CardContent>
       </Card>
@@ -276,7 +276,7 @@ export default function SearchAnalyticsClient() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-[var(--warning)]">
             <XCircle className="w-5 h-5" />
-            Búsquedas fallidas
+            {t('admin.searchAnalytics.failedSearches')}
             <Badge variant="destructive" className="text-xs">
               {(data?.failedSearches || []).length}
             </Badge>
@@ -288,10 +288,10 @@ export default function SearchAnalyticsClient() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Usuario</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Query</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Error</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">Fecha</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('common.user')}</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('common.query')}</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">{t('common.error')}</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">{t('common.date')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -311,7 +311,7 @@ export default function SearchAnalyticsClient() {
               </table>
             </div>
           ) : (
-            <p className="text-center py-8 text-[var(--text-tertiary)]">Sin búsquedas fallidas recientes</p>
+            <p className="text-center py-8 text-[var(--text-tertiary)]">{t('admin.searchAnalytics.emptyFailed')}</p>
           )}
         </CardContent>
       </Card>

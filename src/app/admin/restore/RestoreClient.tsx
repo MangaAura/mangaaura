@@ -240,8 +240,8 @@ export default function RestoreClient() {
               Restaurar Cuenta
             </DialogTitle>
             <DialogDescription>
-              Esta acción restaurará la cuenta del usuario y levantará los baneos activos.
-              Para confirmar, escribe <strong>RESTORE</strong> en el campo inferior.
+              {t('admin.restoreForm.restoreAction')}
+              {' '}{t('admin.restoreForm.restoreConfirm')}
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
@@ -252,12 +252,12 @@ export default function RestoreClient() {
           )}
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              Motivo de la restauración
+              {t('admin.restoreForm.reason')}
             </label>
             <Textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Explica por qué se restaura esta cuenta..."
+              placeholder={t('admin.restoreForm.reasonPlaceholder')}
               rows={3}
             />
           </div>
@@ -268,7 +268,7 @@ export default function RestoreClient() {
             <Input
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="Escribe RESTORE para habilitar el botón..."
+              placeholder={t('admin.restoreForm.restoreConfirm')}
               className={confirmText === 'RESTORE' ? 'border-[var(--success)]' : ''}
             />
           </div>

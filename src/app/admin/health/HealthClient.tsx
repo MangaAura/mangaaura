@@ -53,7 +53,7 @@ export default function HealthClient() {
         <AlertCircle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" /><h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.errors.loadError')}</h2>
         <Button variant="outline" className="mt-4" onClick={() => mutate()}>
           <RefreshCw className="w-4 h-4 mr-2" />
-          Reintentar
+          {t('common.retry')}
         </Button>
       </div>
     );
@@ -135,15 +135,15 @@ export default function HealthClient() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.stats?.users?.toLocaleString() || 0}</p>
-                  <p className="text-xs text-[var(--text-tertiary)]">Usuarios</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">{t('admin.totalUsers')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.stats?.mangas?.toLocaleString() || 0}</p>
-                  <p className="text-xs text-[var(--text-tertiary)]">Mangas</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">{t('admin.totalMangas')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-[var(--text-primary)]">{data?.stats?.chapters?.toLocaleString() || 0}</p>
-                  <p className="text-xs text-[var(--text-tertiary)]">Capítulos</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">{t('admin.healthChapters')}</p>
                 </div>
               </div>
               <Server className="w-6 h-6 text-[var(--success)]" />

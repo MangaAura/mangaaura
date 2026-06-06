@@ -434,7 +434,7 @@ export default function AdminDashboardClient() {
                 </Badge>
               )}
             </CardTitle>
-            <Link href="/admin/comments" aria-label="Ver todos los reportes de moderación">
+            <Link href="/admin/comments" aria-label={t('admin.viewAllReports')}>
               <Button variant="ghost" size="sm">
                 {t('admin.viewAll')} <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
               </Button>

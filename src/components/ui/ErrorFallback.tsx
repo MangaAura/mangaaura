@@ -24,8 +24,8 @@ export function ErrorFallback({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
         </svg>
       </div>
-      <h2 className="text-xl font-bold">{title || t('admin.errorPages.defaultTitle')}</h2>
-      <p className="text-[var(--text-muted)] text-sm text-center max-w-md">{message || t('admin.errorPages.defaultMessage')}</p>
+      <h2 className="text-xl font-bold">{title || t('errors.defaultTitle')}</h2>
+      <p className="text-[var(--text-muted)] text-sm text-center max-w-md">{message || t('errors.defaultMessage')}</p>
       {error?.digest && (
         <p className="text-xs text-[var(--text-muted)] font-mono">Error ID: {error.digest}</p>
       )}
@@ -34,7 +34,7 @@ export function ErrorFallback({
           onClick={reset}
           className="px-4 py-2 rounded-lg bg-[#4f46e5] text-white font-medium text-sm hover:opacity-90 transition-opacity"
         >
-          {t('admin.errorPages.retry')}
+          {t('errors.retryTitle')}
         </button>
       )}
     </div>

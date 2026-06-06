@@ -36,7 +36,15 @@
     "all": "Todos",
     "breadcrumb": "Navegación",
     "user": "Usuario",
-    "welcomeBack": "Bienvenido de vuelta"
+    "welcomeBack": "Bienvenido de vuelta",
+    "today": "Hoy",
+    "from": "Desde",
+    "to": "Hasta",
+    "date": "Fecha",
+    "type": "Tipo",
+    "query": "Query",
+    "queryUser": "Query / Usuario",
+    "countDate": "Conteo / Fecha"
   },
   "a11y": {
     "skipToContent": "Saltar al contenido",
@@ -483,7 +491,10 @@
     "serverError": "Error del servidor",
     "sessionExpired": "Tu sesión expiró",
     "validation": "Datos inválidos",
-    "connectionFailed": "No se pudo conectar con el servidor. Verifica tu conexión a internet e inténtalo de nuevo."
+    "connectionFailed": "No se pudo conectar con el servidor. Verifica tu conexión a internet e inténtalo de nuevo.",
+    "defaultTitle": "Algo salió mal",
+    "defaultMessage": "Ocurrió un error inesperado. Intenta de nuevo.",
+    "retryTitle": "Reintentar"
   },
   "home": {
     "discoverFuture": "El único lugar donde leer, crear y crowdfundear manga con IA",
@@ -2246,7 +2257,8 @@
       "settings": "Ajustes",
       "help": "Ayuda",
       "about": "Acerca de",
-      "version": "Versión"
+      "version": "Versión",
+      "theme": "Tema"
     },
     "errors": {
       "loadError": "Error al cargar datos",
@@ -2295,8 +2307,243 @@
       "accessDeniedTitle": "Acceso Denegado",
       "accessDeniedMessage": "No tienes permisos para acceder a esta página.",
       "dashboardBtn": "Panel de admin",
-      "homeBtn": "Volver al inicio"
-    }
+      "homeBtn": "Volver al inicio",
+      "aiDashboard": {
+        "title": "Error en el Dashboard de IA",
+        "message": "No se pudieron cargar los datos del dashboard de IA."
+      },
+      "mangaList": {
+        "title": "Error al cargar mangas",
+        "message": "No se pudieron cargar los mangas."
+      },
+      "achievementsPage": {
+        "title": "Error en logros",
+        "message": "No se pudieron cargar los logros."
+      },
+      "chaptersPage": {
+        "title": "Error en capítulos",
+        "message": "No se pudieron cargar los capítulos."
+      },
+      "clansPage": {
+        "title": "Error en clanes",
+        "message": "No se pudieron cargar los clanes."
+      },
+      "commentsPage": {
+        "title": "Error en comentarios",
+        "message": "No se pudieron cargar los comentarios."
+      },
+      "crowdfundingPage": {
+        "title": "Error en crowdfunding",
+        "message": "No se pudieron cargar los datos de crowdfunding."
+      },
+      "dmcaPage": {
+        "title": "Error en DMCA",
+        "message": "No se pudieron cargar las solicitudes DMCA."
+      },
+      "forumPage": {
+        "title": "Error en foro",
+        "message": "No se pudieron cargar los hilos del foro."
+      },
+      "kycPage": {
+        "title": "Error en KYC",
+        "message": "No se pudieron cargar las verificaciones KYC."
+      },
+      "rolesPage": {
+        "title": "Error en roles",
+        "message": "No se pudieron cargar los roles."
+      },
+      "subscriptionsPage": {
+        "title": "Error en suscripciones",
+        "message": "No se pudieron cargar las suscripciones."
+      }
+    },
+    "searchAnalytics": {
+      "title": "Analytics de Búsqueda",
+      "subtitle": "Estadísticas de búsqueda de los usuarios",
+      "totalSearches": "Búsquedas totales",
+      "uniqueUsers": "Usuarios únicos",
+      "popularSearches": "Búsquedas más populares",
+      "last30Days": "Últimos 30 días",
+      "recentSearches": "Búsquedas recientes",
+      "failedSearches": "Búsquedas fallidas",
+      "searchColumn": "Búsqueda",
+      "emptyRecent": "Sin búsquedas recientes",
+      "emptyFailed": "Sin búsquedas fallidas recientes"
+    },
+    "newsForm": {
+      "title": "Título",
+      "slug": "Slug",
+      "excerpt": "Extracto",
+      "content": "Contenido",
+      "category": "Categoría",
+      "publish": "Publicar",
+      "schedulePublish": "Programar publicación",
+      "featureHomepage": "Destacar en homepage",
+      "scheduledAutoPublish": "Publicación programada",
+      "noTitle": "(sin título)",
+      "slugHint": "Solo letras minúsculas, números y guiones. Se genera automáticamente desde el título.",
+      "autoTranslate": "Opcional. Si no se proporciona, se usará la traducción automática.",
+      "uploadHint": "JPEG, PNG, WebP · Max 10MB · Se recortará a 16:9 automáticamente",
+      "scheduledNote": "La publicación programada no se aplicará si está marcada como \"Publicada\". Desmarca la opción para usar la programación.",
+      "featuredOnHomepage": "Aparecerá destacada en la página principal",
+      "featuredInNews": "Aparecerá en la sección de noticias normal",
+      "removeSchedule": "Eliminar programación",
+      "mobile": "Móvil",
+      "scheduleRemove": "Eliminar programación"
+    },
+    "tagsForm": {
+      "category": "Categoría",
+      "genre": "Género",
+      "noneParent": "Ninguno (tag raíz)",
+      "mergeDescription": "Fusiona este tag con otro. Los mangas con este tag serán reasignados al destino.",
+      "originLabel": "Origen (será eliminado)"
+    },
+    "restoreForm": {
+      "restoreAction": "Esta acción restaurará la cuenta del usuario y levantará los baneos activos.",
+      "reason": "Motivo de la restauración",
+      "reasonPlaceholder": "Explica por qué se restaura esta cuenta...",
+      "restoreConfirm": "Escribe RESTORE para habilitar el botón..."
+    },
+    "auditLogs": {
+      "severity": "Severidad",
+      "action": "Acción",
+      "actionFilter": "Acción"
+    },
+    "webhooksDeliveries": {
+      "code": "Código",
+      "duration": "Duración"
+    },
+    "metadata": {
+      "dashboard": {
+        "title": "Panel de Administración | MangaAura",
+        "description": "Panel de administración de MangaAura. Gestiona usuarios, mangas, capítulos, moderación y configuración del sitio.",
+        "ogTitle": "Panel de Administración — MangaAura",
+        "ogDesc": "Panel de control administrativo de MangaAura. Estadísticas en tiempo real, gestión de contenido y moderación."
+      },
+      "layout": {
+        "title": "Administración | MangaAura",
+        "description": "Panel de administración de MangaAura"
+      },
+      "chapters": {
+        "title": "Administrar Capítulos | MangaAura",
+        "description": "Gestiona todos los capítulos de la plataforma MangaAura.",
+        "ogTitle": "Administrar Capítulos | MangaAura",
+        "ogDesc": "Gestiona los capítulos en MangaAura."
+      },
+      "chapterDetail": {
+        "title": "Detalle del Capítulo | MangaAura",
+        "description": "Revisa y edita los detalles de un capítulo de manga en MangaAura.",
+        "ogTitle": "Detalle del Capítulo | MangaAura",
+        "ogDesc": "Revisa los detalles de un capítulo en MangaAura."
+      },
+      "genres": {
+        "title": "Administrar Géneros | MangaAura",
+        "description": "Gestiona los géneros y categorías de manga en MangaAura.",
+        "ogTitle": "Administrar Géneros | MangaAura",
+        "ogDesc": "Gestiona los géneros en MangaAura."
+      },
+      "tags": {
+        "title": "Administrar Tags | MangaAura",
+        "description": "Gestiona las etiquetas y categorías de contenido en MangaAura.",
+        "ogTitle": "Administrar Tags | MangaAura",
+        "ogDesc": "Gestiona las etiquetas en MangaAura."
+      },
+      "news": {
+        "title": "Gestión de Noticias | MangaAura",
+        "description": "Gestiona las noticias y artículos del blog en MangaAura.",
+        "ogTitle": "Gestión de Noticias | MangaAura",
+        "ogDesc": "Gestiona las noticias en MangaAura."
+      },
+      "settings": {
+        "title": "Configuración del Sitio | MangaAura",
+        "description": "Gestiona la configuración global de MangaAura.",
+        "ogTitle": "Configuración del Sitio | MangaAura",
+        "ogDesc": "Configuración del sitio."
+      },
+      "auditLogs": {
+        "title": "Registros de Auditoría | MangaAura",
+        "description": "Consulta los registros de auditoría detallados de MangaAura.",
+        "ogTitle": "Registros de Auditoría | MangaAura",
+        "ogDesc": "Consulta los registros de auditoría de MangaAura."
+      },
+      "auditLog": {
+        "title": "Registro de Auditoría | MangaAura",
+        "description": "Revisa el registro de auditoría de actividades administrativas en MangaAura.",
+        "ogTitle": "Registro de Auditoría | MangaAura",
+        "ogDesc": "Registro de auditoría administrativa en MangaAura."
+      },
+      "searchAnalytics": {
+        "title": "Analytics de Búsqueda | MangaAura",
+        "description": "Analiza las tendencias y estadísticas de búsqueda en MangaAura.",
+        "ogTitle": "Analytics de Búsqueda | MangaAura",
+        "ogDesc": "Analiza las búsquedas en MangaAura."
+      },
+      "crowdfunding": {
+        "title": "Crowdfunding | MangaAura",
+        "description": "Gestiona las campañas de crowdfunding en MangaAura.",
+        "ogTitle": "Crowdfunding | MangaAura",
+        "ogDesc": "Gestiona el crowdfunding en MangaAura."
+      },
+      "emailTemplates": {
+        "title": "Plantillas de Email | MangaAura",
+        "description": "Gestiona las plantillas de correo electrónico de MangaAura.",
+        "ogTitle": "Plantillas de Email | MangaAura",
+        "ogDesc": "Gestiona las plantillas de email en MangaAura."
+      },
+      "kyc": {
+        "title": "Verificación KYC | MangaAura",
+        "description": "Revisa y gestiona las solicitudes de verificación KYC en MangaAura.",
+        "ogTitle": "Verificación KYC | MangaAura",
+        "ogDesc": "Revisa las solicitudes KYC en MangaAura."
+      },
+      "impersonate": {
+        "title": "Suplantar Usuario | MangaAura",
+        "description": "Herramienta de administración para suplantar usuarios en MangaAura.",
+        "ogTitle": "Suplantar Usuario | MangaAura",
+        "ogDesc": "Herramienta para suplantar usuarios."
+      },
+      "aiDashboard": {
+        "title": "Dashboard de IA | MangaAura",
+        "description": "Panel de administración de servicios de IA para MangaAura.",
+        "ogTitle": "Dashboard de IA | MangaAura",
+        "ogDesc": "Panel de administración de IA."
+      },
+      "anomalies": {
+        "title": "Anomalías de Analytics | MangaAura",
+        "description": "Detecta y revisa anomalías en los datos de analytics de MangaAura.",
+        "ogTitle": "Anomalías de Analytics | MangaAura",
+        "ogDesc": "Detecta anomalías en analytics de MangaAura."
+      },
+      "realtime": {
+        "title": "Analíticas en Tiempo Real | MangaAura",
+        "description": "Panel de analíticas en tiempo real para administradores de MangaAura.",
+        "ogTitle": "Analíticas en Tiempo Real | MangaAura",
+        "ogDesc": "Panel de analíticas en tiempo real."
+      },
+      "webhooks": {
+        "title": "Webhooks | Admin | MangaAura",
+        "description": "Gestiona los webhooks salientes de MangaAura.",
+        "ogTitle": "Webhooks | Admin | MangaAura",
+        "ogDesc": "Gestiona los webhooks."
+      },
+      "webhookDeliveries": {
+        "title": "Entregas de Webhooks | Admin | MangaAura",
+        "description": "Historial de entregas de webhooks salientes.",
+        "ogTitle": "Entregas de Webhooks | Admin | MangaAura",
+        "ogDesc": "Historial de entregas de webhooks."
+      },
+      "moderation": {
+        "title": "Moderación | Admin",
+        "description": "Panel de moderación y reportes"
+      }
+    },
+    "viewAllReports": "Ver todos los reportes de moderación",
+    "contactStatus": {
+      "read": "Leído"
+    },
+    "healthChapters": "Capítulos",
+    "langSpanish": "Español",
+    "criticalAlerts": "{count} crítica"
   },
   "comparison": {
     "heroBadge": "Comparativa de características",
