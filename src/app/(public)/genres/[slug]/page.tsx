@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 
 import { GenrePageClient } from './GenrePageClient';
 import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { getT } from '@/i18n/getT';
+import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
 import { withHreflang } from '@/lib/seo';
 
@@ -22,12 +24,14 @@ const seoDescriptions: Record<string, { title: string; description: string }> = 
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const locale = await detectLocale();
+  const t = getT(locale);
   const { slug } = await params;
   const genre = await prisma.genre.findUnique({
     where: { slug },
     select: { name: true, slug: true },
   });
-  if (!genre) return { title: 'Género no encontrado' };
+  if (!genre) return { title: t('genres.notFound') };
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
   const seo = seoDescriptions[slug];
@@ -47,18 +51,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `Manga de ${genre.name}`,
-    description: `Explora los mejores mangas de ${genre.name} en MangaAura. Lee, descubre y disfruta del género ${genre.name}.`,
+    title: t('genres.metaTitle', { name: genre.name }),
+    description: t('genres.metaDescription', { name: genre.name }),
     ...withHreflang(`/genres/${genre.slug}`),
     openGraph: {
-      title: `Manga de ${genre.name} | MangaAura`,
-      description: `Explora los mejores mangas de ${genre.name} en MangaAura.`,
+      title: t('genres.metaOgTitle', { name: genre.name }),
+      description: t('genres.metaDescription', { name: genre.name }),
       url: `${siteUrl}/genres/${genre.slug}`,
     },
   };
 }
 
 export default async function GenrePage({ params }: Props) {
+  const locale = await detectLocale();
+  const t = getT(locale);
   const { slug } = await params;
   const genre = await prisma.genre.findUnique({
     where: { slug },
@@ -70,8 +76,8 @@ export default async function GenrePage({ params }: Props) {
     <>
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Géneros', item: '/genres' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.genres'), item: '/genres' },
           { name: genre.name, item: `/genres/${slug}` },
         ]}
       />

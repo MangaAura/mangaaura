@@ -154,7 +154,9 @@ const comparisonStructuredData = {
   ],
 };
 
-export default function ComparisonPage() {
+export default async function ComparisonPage() {
+  const locale = await detectLocale();
+  const t = getT(locale);
   return (
     <>
       <Script
@@ -165,8 +167,8 @@ export default function ComparisonPage() {
       <WebsiteStructuredData />
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Comparativa', item: '/comparison' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.comparison'), item: '/comparison' },
         ]}
       />
       <ComparisonClient />

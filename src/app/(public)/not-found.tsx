@@ -7,9 +7,10 @@ import Link from 'next/link';
 import { NoIndex } from '@/components/SEO/NoIndex';
 import { Button } from '@/components/ui/Button';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
-
+import { useT } from '@/i18n';
 
 export default function MainNotFoundPage() {
+  const t = useT();
   return (
     <>
       <NoIndex />
@@ -29,31 +30,31 @@ export default function MainNotFoundPage() {
         </div>
 
         <h1 className="text-4xl font-bold text-[var(--text-primary)] mb-4">
-          Página no encontrada
+          {t('error.404Title')}
         </h1>
 
         <p className="text-[var(--text-secondary)] text-lg mb-8">
-          Lo sentimos, no pudimos encontrar la página que buscas.
+          {t('error.404Description')}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
           <Button size="lg" asChild className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:opacity-90">
             <Link href="/">
               <Home className="w-4 h-4 mr-2" />
-              Ir al inicio
+              {t('error.404GoHome')}
             </Link>
           </Button>
           <Button variant="outline" size="lg" asChild className="border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-sunken)]">
             <Link href="/explore">
               <BookOpen className="w-4 h-4 mr-2" />
-              Explorar mangas
+              {t('error.404Explore')}
             </Link>
           </Button>
         </div>
 
         <Link href="/explore" className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors text-sm">
           <Search className="w-4 h-4" />
-          Buscar en <RepeatedChar text="MANGAAURA" />
+          {t('error.404SearchIn')} <RepeatedChar text="MANGAAURA" />
         </Link>
       </motion.div>
     </div>

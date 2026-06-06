@@ -247,7 +247,7 @@ export function NewsClient({ initialArticles }: NewsClientProps) {
                       {item.isFeatured && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/15 text-white text-[10px] font-bold backdrop-blur-sm">
                           <Star className="w-3 h-3 fill-white" />
-                          DESTACADO
+                          {t('home.featured').toUpperCase()}
                         </span>
                       )}
                     </div>

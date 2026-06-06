@@ -48,8 +48,8 @@ export default async function FAQPage() {
     <>
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'FAQ', item: '/faq' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.faq'), item: '/faq' },
         ]}
       />
       <FAQPageStructuredData items={structuredItems} />

@@ -69,12 +69,17 @@ export default async function NewsPage() {
     createdAt: a.createdAt.toISOString(),
   }));
 
+  const locale = await detectLocale();
+  const t = getT(locale);
+  const breadcrumbHome = t('nav.home');
+  const breadcrumbNews = t('nav.news');
+
   return (
     <>
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Noticias', item: '/news' },
+          { name: breadcrumbHome, item: '/' },
+          { name: breadcrumbNews, item: '/news' },
         ]}
       />
       <Suspense fallback={null}>

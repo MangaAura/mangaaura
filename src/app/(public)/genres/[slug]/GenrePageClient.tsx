@@ -26,10 +26,12 @@ interface GenreResponse {
   totalMangas: number;
 }
 
-const SORT_OPTIONS = [
-  { key: 'popular', label: 'Más populares', icon: TrendingUp },
-  { key: 'newest', label: 'Más recientes', icon: BookOpen },
-  { key: 'rating', label: 'Mejor valorados', icon: Star },
+const SORT_OPTIONS = (
+  t: ReturnType<typeof useT>
+): { key: string; label: string; icon: React.ComponentType<{ className?: string }> }[] => [
+  { key: 'popular', label: t('genres.sortPopular'), icon: TrendingUp },
+  { key: 'newest', label: t('genres.sortNewest'), icon: BookOpen },
+  { key: 'rating', label: t('genres.sortRating'), icon: Star },
 ];
 
 export function GenrePageClient({ slug }: { slug: string }) {
@@ -60,13 +62,13 @@ export function GenrePageClient({ slug }: { slug: string }) {
               {t(`genres.${slug}`)}
             </h1>
             <p className="text-[var(--text-muted)] mt-1">
-              {data?.totalMangas || 0} mangas disponibles
+              {t('genres.mangaAvailable', { count: data?.totalMangas || 0 })}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2">
-          {SORT_OPTIONS.map((opt) => {
+          {SORT_OPTIONS(t).map((opt) => {
             const OptIcon = opt.icon;
             return (
               <Button
@@ -89,12 +91,12 @@ export function GenrePageClient({ slug }: { slug: string }) {
           </div>
         ) : error ? (
           <div className="text-center py-20 text-[var(--error)]">
-            Error al cargar mangas
+            {t('genres.loadError')}
           </div>
         ) : sortedMangas.length === 0 ? (
           <div className="text-center py-20 text-[var(--text-tertiary)]">
             <Hash className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p className="text-lg">No hay mangas en este género aún</p>
+            <p className="text-lg">{t('genres.emptyGenre')}</p>
           </div>
         ) : (
           <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">

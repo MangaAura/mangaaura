@@ -24,6 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export const revalidate = 3600;
 
 export default async function GenresPage() {
+  const locale = await detectLocale();
+  const t = getT(locale);
   const genres = await prisma.genre.findMany({
     orderBy: { name: 'asc' },
     select: { id: true, name: true, slug: true },
@@ -33,8 +35,8 @@ export default async function GenresPage() {
     <>
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Géneros', item: '/genres' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.genres'), item: '/genres' },
         ]}
       />
       <GenresListPageClient genres={genres} />

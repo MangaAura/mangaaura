@@ -31,37 +31,42 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function AboutPage(props: any) {
+export default async function AboutPage(props: any) {
+  const locale = await detectLocale();
+  const t = getT(locale);
+
   const faqItems = [
     {
-      question: '¿Qué es MangaAura?',
-      answer: 'MangaAura es una plataforma de manga que conecta lectores con creadores. Ofrece herramientas de IA para crear manga, crowdfunding de capítulos con Aura, y una comunidad global de amantes del manga.'
+      question: t('faqPage.faq1Q'),
+      answer: t('faqPage.faq1A')
     },
     {
-      question: '¿MangaAura es gratis?',
-      answer: 'Sí, MangaAura es completamente gratis para lectores. Puedes leer miles de mangas sin pagar nada. Los creadores tienen herramientas gratuitas y opciones premium opcionales.'
+      question: t('faqPage.faq2Q'),
+      answer: t('faqPage.faq2A')
     },
     {
-      question: '¿Cómo puedo crear mi propio manga?',
-      answer: 'Cualquier persona puede crear y publicar su propio manga en MangaAura. Nuestras herramientas de IA te ayudan a generar personajes, escenarios y guiones sin necesidad de experiencia en dibujo.'
+      question: t('faqPage.faq3Q'),
+      answer: t('faqPage.faq3A')
     },
     {
-      question: '¿Qué es Aura?',
-      answer: 'Aura es la moneda virtual de MangaAura. Se usa para crowdfundear capítulos, dar propinas a creadores, y acceder a contenido exclusivo. Los lectores pueden comprar Aura o ganarla mediante eventos, y los creadores la reciben como recompensa.'
+      question: t('faqPage.faq4Q'),
+      answer: t('faqPage.faq4A')
     },
   ];
+
+  const pageTitle = t('page.aboutUs.title');
 
   return (
     <>
       <WebPageStructuredData
-        name="Sobre nosotros | MangaAura"
-        description="Conoce al equipo detrás de MangaAura, la plataforma de manga con IA que conecta lectores y creadores."
+        name={`${pageTitle} | MangaAura`}
+        description={t('page.aboutUs.description')}
         url="/about-us"
         datePublished="2024-01-01"
         dateModified="2025-05-28"
         breadcrumbs={[
-          { name: 'Inicio', item: '/' },
-          { name: 'About us', item: '/about-us' },
+          { name: t('nav.home'), item: '/' },
+          { name: pageTitle, item: '/about-us' },
         ]}
       />
       <OrganizationStructuredData />
@@ -70,8 +75,8 @@ export default function AboutPage(props: any) {
       />
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'About us', item: '/about-us' },
+          { name: t('nav.home'), item: '/' },
+          { name: pageTitle, item: '/about-us' },
         ]}
       />
       <AboutClient {...props} />

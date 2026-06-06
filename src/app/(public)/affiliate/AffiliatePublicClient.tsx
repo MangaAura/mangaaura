@@ -20,11 +20,12 @@ import {
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
-const TIERS = [
+const TIERS = (t: ReturnType<typeof useT>) => [
   {
-    name: 'Bronze',
+    name: t('affiliate.tierBronze'),
     rate: '10%',
     minReferrals: 0,
     recurring: '3 meses',
@@ -40,7 +41,7 @@ const TIERS = [
     ],
   },
   {
-    name: 'Silver',
+    name: t('affiliate.tierSilver'),
     rate: '15%',
     minReferrals: 5,
     recurring: '6 meses',
@@ -57,7 +58,7 @@ const TIERS = [
     ],
   },
   {
-    name: 'Gold',
+    name: t('affiliate.tierGold'),
     rate: '20%',
     minReferrals: 20,
     recurring: '12 meses',
@@ -75,7 +76,7 @@ const TIERS = [
     ],
   },
   {
-    name: 'Platinum',
+    name: t('affiliate.tierPlatinum'),
     rate: '25%',
     minReferrals: 50,
     recurring: 'De por vida',
@@ -94,84 +95,86 @@ const TIERS = [
   },
 ];
 
-const BENEFITS = [
+const BENEFITS = (t: ReturnType<typeof useT>) => [
   {
     icon: Percent,
-    title: 'Comisiones altas',
-    desc: 'Gana hasta un 25% de comisión por cada compra de tus referidos. Mientras más creces, más ganas.',
+    title: t('affiliate.benefit1Title'),
+    desc: t('affiliate.benefit1Desc'),
     color: 'from-green-500 to-emerald-500',
   },
   {
     icon: TrendingUp,
-    title: 'Ingresos recurrentes',
-    desc: 'No ganas solo una vez. Tus comisiones se renuevan mes a mes —hasta 12 meses o incluso de por vida.',
+    title: t('affiliate.benefit2Title'),
+    desc: t('affiliate.benefit2Desc'),
     color: 'from-blue-500 to-cyan-500',
   },
   {
     icon: Gift,
-    title: 'Sin inversión inicial',
-    desc: 'El programa es 100% gratuito. No hay costos de registro ni cuotas mensuales. Empieza a ganar desde el día 1.',
+    title: t('affiliate.benefit3Title'),
+    desc: t('affiliate.benefit3Desc'),
     color: 'from-purple-500 to-pink-500',
   },
   {
     icon: BarChart3,
-    title: 'Analytics en tiempo real',
-    desc: 'Dashboard completo con clicks, conversiones, comisiones y earnings. Sabrás exactamente cómo rinde tu contenido.',
+    title: t('affiliate.benefit4Title'),
+    desc: t('affiliate.benefit4Desc'),
     color: 'from-orange-500 to-amber-500',
   },
   {
     icon: Globe,
-    title: 'Materiales promocionales',
-    desc: 'Accede a banners, landing pages y templates optimizados para compartir en redes sociales, YouTube, Twitch y blogs.',
+    title: t('affiliate.benefit5Title'),
+    desc: t('affiliate.benefit5Desc'),
     color: 'from-rose-500 to-red-500',
   },
   {
     icon: Shield,
-    title: 'Attribución de 90 días',
-    desc: 'Cookie de 90 días. Si un usuario hace clic en tu enlace y se registra hasta 90 días después, la comisión es tuya.',
+    title: t('affiliate.benefit6Title'),
+    desc: t('affiliate.benefit6Desc'),
     color: 'from-indigo-500 to-violet-500',
   },
 ];
 
-const HOW_IT_WORKS = [
+const HOW_IT_WORKS = (t: ReturnType<typeof useT>) => [
   {
     step: 1,
     icon: Users,
-    title: 'Regístrate como afiliado',
-    desc: 'Crea tu cuenta en MangaAura y solicita acceso al programa de afiliados desde tu dashboard.',
+    title: t('affiliate.step1Title'),
+    desc: t('affiliate.step1Desc'),
     color: 'from-purple-500 to-pink-500',
   },
   {
     step: 2,
     icon: Share2,
-    title: 'Comparte tu enlace único',
-    desc: 'Usa tu enlace de referido personalizado en redes sociales, YouTube, blogs, o donde tenga sentido para tu audiencia.',
+    title: t('affiliate.step2Title'),
+    desc: t('affiliate.step2Desc'),
     color: 'from-blue-500 to-cyan-500',
   },
   {
     step: 3,
     icon: Target,
-    title: 'Atrae usuarios',
-    desc: 'Cuando alguien hace clic en tu enlace y se registra, queda vinculado a ti por 90 días. No necesita comprar al instante.',
+    title: t('affiliate.step3Title'),
+    desc: t('affiliate.step3Desc'),
     color: 'from-green-500 to-emerald-500',
   },
   {
     step: 4,
     icon: TrendingUp,
-    title: 'Gana comisiones',
-    desc: 'Cada vez que uno de tus referidos compre Aura o se suscriba, recibirás un porcentaje automáticamente.',
+    title: t('affiliate.step4Title'),
+    desc: t('affiliate.step4Desc'),
     color: 'from-orange-500 to-amber-500',
   },
   {
     step: 5,
     icon: Award,
-    title: 'Sube de nivel',
-    desc: 'Acumula referidos e ingresos para subir de tier. Mejores comisiones y más beneficios te esperan.',
+    title: t('affiliate.step5Title'),
+    desc: t('affiliate.step5Desc'),
     color: 'from-yellow-500 to-rose-500',
   },
 ];
 
 export default function AffiliatePublicClient() {
+  const t = useT();
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background effects */}
@@ -189,21 +192,20 @@ export default function AffiliatePublicClient() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-500 text-sm font-medium mb-6">
             <Sparkles size={14} />
-            Nuevo — Programa de Afiliados MangaAura
+            {t('affiliate.heroBadge')}
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-            Gana{' '}
+            {t('affiliate.heroTitle1')}{' '}
             <span className="bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
-              comisiones
+              {t('affiliate.heroTitle2')}
             </span>{' '}
-            compartiendo{' '}
+            {t('affiliate.heroTitle3')}{' '}
             <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              manga
+              {t('affiliate.heroTitle4')}
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-muted max-w-2xl mx-auto mb-8">
-            El primer programa de afiliados para amantes del manga. Comparte tu pasión, refiere usuarios a
-            MangaAura y gana hasta un <strong className="text-foreground">25% de comisión recurrente</strong>.
+            {t('affiliate.heroDesc')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -211,25 +213,25 @@ export default function AffiliatePublicClient() {
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all hover:scale-105"
             >
               <Rocket size={20} />
-              Unirme al programa
+              {t('affiliate.heroCta')}
               <ChevronRight size={16} />
             </Link>
             <Link
               href="#como-funciona"
               className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--surface)] border border-[var(--border)] text-foreground font-medium rounded-2xl hover:border-purple-500/50 transition-all"
             >
-              Cómo funciona
+              {t('affiliate.heroHowItWorks')}
             </Link>
           </div>
           <div className="flex items-center justify-center gap-6 mt-8 text-sm text-muted">
             <span className="flex items-center gap-1">
-              <CheckCircle2 size={14} className="text-green-500" /> Sin costo
+              <CheckCircle2 size={14} className="text-green-500" /> {t('affiliate.heroNoCost')}
             </span>
             <span className="flex items-center gap-1">
-              <CheckCircle2 size={14} className="text-green-500" /> Pago en Aura
+              <CheckCircle2 size={14} className="text-green-500" /> {t('affiliate.heroPayInAura')}
             </span>
             <span className="flex items-center gap-1">
-              <CheckCircle2 size={14} className="text-green-500" /> Cookie 90 días
+              <CheckCircle2 size={14} className="text-green-500" /> {t('affiliate.heroCookie')}
             </span>
           </div>
         </motion.div>
@@ -242,10 +244,10 @@ export default function AffiliatePublicClient() {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-3xl mx-auto"
         >
           {[
-            { value: '10-25%', label: 'Comisión', icon: Percent },
-            { value: '3-∞', label: 'Meses recurrencia', icon: TrendingUp },
-            { value: '90 días', label: 'Ventana atribución', icon: Target },
-            { value: '4 niveles', label: 'Tiers disponibles', icon: Award },
+            { value: '10-25%', label: t('affiliate.statCommission'), icon: Percent },
+            { value: '3-∞', label: t('affiliate.statRecurrence'), icon: TrendingUp },
+            { value: '90 días', label: t('affiliate.statAttribution'), icon: Target },
+            { value: '4 niveles', label: t('affiliate.statTiers'), icon: Award },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -267,13 +269,13 @@ export default function AffiliatePublicClient() {
           className="mb-16"
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-3">Cómo funciona</h2>
+            <h2 className="text-3xl font-bold mb-3">{t('affiliate.howSectionTitle')}</h2>
             <p className="text-muted max-w-xl mx-auto">
-              En solo 5 pasos puedes empezar a generar ingresos compartiendo lo que te apasiona
+              {t('affiliate.howSectionDesc')}
             </p>
           </div>
           <div className="grid md:grid-cols-5 gap-4">
-            {HOW_IT_WORKS.map((step, i) => (
+            {HOW_IT_WORKS(t).map((step, i) => (
               <motion.div
                 key={step.step}
                 initial={{ opacity: 0, y: 20 }}
@@ -303,13 +305,13 @@ export default function AffiliatePublicClient() {
           className="mb-16"
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-3">¿Por qué ser afiliado?</h2>
+            <h2 className="text-3xl font-bold mb-3">{t('affiliate.benefitsTitle')}</h2>
             <p className="text-muted max-w-xl mx-auto">
-              Todo lo que necesitas para convertir tu pasión por el manga en ingresos
+              {t('affiliate.benefitsDesc')}
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {BENEFITS.map((benefit) => (
+            {BENEFITS(t).map((benefit) => (
               <div
                 key={benefit.title}
                 className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] hover:border-purple-500/30 transition-all"
@@ -332,13 +334,13 @@ export default function AffiliatePublicClient() {
           className="mb-16"
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-3">Niveles de afiliado</h2>
+            <h2 className="text-3xl font-bold mb-3">{t('affiliate.tiersTitle')}</h2>
             <p className="text-muted max-w-xl mx-auto">
-              Empieza en Bronze y escala a medida que creces. Cada nivel desbloquea mejores comisiones y beneficios
+              {t('affiliate.tiersDesc')}
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {TIERS.map((tier) => (
+            {TIERS(t).map((tier) => (
               <div
                 key={tier.name}
                 className={cn(
@@ -348,7 +350,7 @@ export default function AffiliatePublicClient() {
               >
                 {tier.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-bold">
-                    Más popular
+                    {t('affiliate.tierMorePopular')}
                   </div>
                 )}
                 <div className={`w-12 h-12 bg-gradient-to-br ${tier.color} rounded-xl flex items-center justify-center mb-3`}>
@@ -356,7 +358,9 @@ export default function AffiliatePublicClient() {
                 </div>
                 <h3 className="text-lg font-bold mb-1">{tier.name}</h3>
                 <p className="text-3xl font-extrabold mb-1">{tier.rate}</p>
-                <p className="text-xs text-muted mb-4">comisión + {tier.recurring} recurrencia</p>
+                <p className="text-xs text-muted mb-4">
+                  {t('affiliate.tierRateSuffix', { rate: tier.rate, recurrence: tier.recurring })}
+                </p>
                 <ul className="space-y-2 mb-6">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">
@@ -381,17 +385,17 @@ export default function AffiliatePublicClient() {
           <div className="relative">
             <Rocket className="w-12 h-12 mx-auto mb-4 text-purple-500" />
             <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-              ¿Listo para empezar?
+              {t('affiliate.ctaTitle')}
             </h2>
             <p className="text-muted max-w-lg mx-auto mb-6">
-          Únete al programa de afiliados de MangaAura y empieza a ganar comisiones compartiendo el manga que te apasiona.
+              {t('affiliate.ctaDesc')}
             </p>
             <Link
               href="/auth/register?ref=affiliate"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all hover:scale-105"
             >
               <Users size={20} />
-              Quiero ser afiliado
+              {t('affiliate.ctaButton')}
               <ChevronRight size={16} />
             </Link>
           </div>

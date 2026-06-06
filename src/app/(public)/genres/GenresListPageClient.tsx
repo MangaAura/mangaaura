@@ -32,13 +32,12 @@ export function GenresListPageClient({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[var(--text-primary)] flex items-center gap-3">
+        <div className="mb-8">            <h1 className="text-4xl font-bold text-[var(--text-primary)] flex items-center gap-3">
             <Hash className="w-8 h-8 text-[var(--primary)]" />
-            Géneros
+            {t('nav.genres')}
           </h1>
           <p className="text-[var(--text-muted)] mt-2">
-            Explora mangas por categoría
+            {t('genres.subtitle')}
           </p>
         </div>
 
@@ -64,7 +63,7 @@ export function GenresListPageClient({
                           {t(`genres.${genre.slug}`)}
                         </h2>
                         <p className="text-sm text-[var(--text-secondary)]">
-                          {count} mangas
+                          {t('genres.mangaCount', { count })}
                         </p>
                       </div>
                       <ArrowRight className="w-5 h-5 text-[var(--text-tertiary)] group-hover:text-[var(--primary)] transition-colors shrink-0" />

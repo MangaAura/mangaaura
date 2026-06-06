@@ -44,8 +44,8 @@ export default async function BlogPage() {
     <>
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Blog', item: '/blog' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.blog'), item: '/blog' },
         ]}
       />
 

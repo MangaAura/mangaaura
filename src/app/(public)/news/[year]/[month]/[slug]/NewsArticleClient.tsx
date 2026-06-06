@@ -124,7 +124,7 @@ export function NewsArticleClient({
                     {article.isFeatured && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-bold uppercase tracking-wider">
                         <Star className="w-3 h-3 fill-amber-400" />
-                        DESTACADO
+                        {t('home.featured')}
                       </span>
                     )}
                   </div>
@@ -151,7 +151,7 @@ export function NewsArticleClient({
                 {article.isFeatured && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-bold uppercase tracking-wider">
                     <Star className="w-3 h-3 fill-amber-400" />
-                    DESTACADO
+                    {t('home.featured')}
                   </span>
                 )}
               </div>
@@ -209,7 +209,7 @@ export function NewsArticleClient({
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={12} />
-                {readingTime} min
+                {t('home.newsMinRead', { time: readingTime })}
               </span>
             </div>
           </div>

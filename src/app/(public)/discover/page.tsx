@@ -50,14 +50,16 @@ async function getDiscoverData() {
 export const revalidate = 360;
 
 export default async function DiscoverPage() {
+  const locale = await detectLocale();
+  const t = getT(locale);
   const data = await getDiscoverData();
 
   return (
     <>
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: 'Descubrir', item: '/discover' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.discover'), item: '/discover' },
         ]}
       />
       <DiscoverClient {...data} />

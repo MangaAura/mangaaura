@@ -64,14 +64,14 @@ export default async function AnnouncementsPage() {
         datePublished="2025-01-01"
         dateModified={new Date().toISOString().split('T')[0]}
         breadcrumbs={[
-          { name: 'Inicio', item: '/' },
-          { name: t('page.announcements.title'), item: '/announcements' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.announcements'), item: '/announcements' },
         ]}
       />
       <BreadcrumbStructuredData
         items={[
-          { name: 'Inicio', item: '/' },
-          { name: t('page.announcements.title'), item: '/announcements' },
+          { name: t('nav.home'), item: '/' },
+          { name: t('nav.announcements'), item: '/announcements' },
         ]}
       />
 

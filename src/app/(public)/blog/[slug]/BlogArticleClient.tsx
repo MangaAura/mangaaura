@@ -3,6 +3,7 @@
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import Link from 'next/link';
 
+import { useT } from '@/i18n';
 import type { DisplayNewsItem } from '@/lib/news';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function BlogArticleClient({ article }: Props) {
+  const t = useT();
   return (
     <main id="main-content" className="max-w-3xl mx-auto px-6 py-12">
       <Link
@@ -17,7 +19,7 @@ export function BlogArticleClient({ article }: Props) {
         className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-8"
       >
         <ArrowLeft className="w-4 h-4" />
-        Volver al blog
+        {t('blog.backToBlog')}
       </Link>
 
       <article>
