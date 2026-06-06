@@ -2104,15 +2104,113 @@
       },
       "clans": {
         "title": "Clan Management",
-        "subtitle": "Manage community clans"
+        "subtitle": "Manage community clans",
+        "search": "Search clans...",
+        "allClans": "All Clans",
+        "empty": "No clans found",
+        "loadError": "Failed to load clans",
+        "columns": {
+          "clan": "Clan",
+          "leader": "Leader",
+          "members": "Members",
+          "totalScore": "Total Score",
+          "monthly": "Monthly",
+          "season": "Season",
+          "created": "Created",
+          "actions": "Actions"
+        },
+        "actions": {
+          "resetScore": "Reset Score",
+          "delete": "Delete Clan"
+        },
+        "dialogs": {
+          "resetScore": {
+            "title": "Reset Clan Score",
+            "desc": "This will reset the clan's total and monthly scores to 0, start a new season, and reset all members' contributed scores. This action cannot be undone.",
+            "confirm": "Score: {score} | Season {season}"
+          },
+          "delete": {
+            "title": "Delete Clan",
+            "desc": "This will permanently delete the clan and all its memberships. This action cannot be undone.",
+            "confirm": "{members} members"
+          }
+        }
       },
       "forum": {
         "title": "Forum Moderation",
-        "subtitle": "Moderate forum threads and posts"
+        "subtitle": "Moderate forum threads and posts",
+        "search": "Search threads...",
+        "filterAll": "All",
+        "filterPinned": "Pinned",
+        "filterLocked": "Locked",
+        "allThreads": "Forum Threads",
+        "empty": "No threads found",
+        "loadError": "Failed to load threads",
+        "cancel": "Cancel",
+        "columns": {
+          "thread": "Thread",
+          "author": "Author",
+          "category": "Category",
+          "stats": "Stats",
+          "status": "Status",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "actions": {
+          "pin": "Pin",
+          "unpin": "Unpin",
+          "lock": "Lock",
+          "unlock": "Unlock",
+          "delete": "Delete"
+        },
+        "dialogs": {
+          "lock": {
+            "title": "Lock Thread",
+            "desc": "No new posts will be allowed in this thread."
+          },
+          "delete": {
+            "title": "Delete Thread",
+            "desc": "This will permanently delete the thread and all its posts. This action cannot be undone."
+          }
+        }
       },
       "achievements": {
         "title": "Achievement Management",
-        "subtitle": "Manage platform achievements"
+        "subtitle": "Manage platform achievements",
+        "newAchievement": "New Achievement",
+        "empty": "No achievements defined",
+        "loadError": "Failed to load achievements",
+        "createTitle": "Create Achievement",
+        "editTitle": "Edit Achievement",
+        "createDesc": "Define a new achievement badge and its unlock conditions.",
+        "editDesc": "Modify the achievement properties.",
+        "deleteTitle": "Delete Achievement",
+        "deleteDesc": "This will permanently delete this achievement definition. Users who already unlocked it will lose it.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "update": "Update",
+        "confirmDelete": "Delete",
+        "fields": {
+          "badgeId": "Badge ID",
+          "badgeIdPlaceholder": "e.g. first_chapter",
+          "xpReward": "XP Reward",
+          "name": "Name",
+          "namePlaceholder": "Achievement name",
+          "description": "Description",
+          "category": "Category",
+          "categoryPlaceholder": "general",
+          "difficulty": "Difficulty",
+          "condition": "Condition (JSON)",
+          "conditionPlaceholder": "{\"type\":\"CHAPTERS_READ\",\"count\":100}",
+          "conditionHint": "Types: CHAPTERS_READ, MANGAS_CREATED, LEVEL_REACHED, STREAK_DAYS, QUESTS_COMPLETED"
+        },
+        "usersUnlocked": "{count}/{total} users ({percent}%)",
+        "difficulty": {
+          "EASY": "Easy",
+          "MEDIUM": "Medium",
+          "HARD": "Hard",
+          "LEGENDARY": "Legendary"
+        }
       },
       "health": {
         "title": "System Health",

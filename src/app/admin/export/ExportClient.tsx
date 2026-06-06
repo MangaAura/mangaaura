@@ -6,11 +6,20 @@ import {
   FileJson,
   FileText,
   Loader2,
+  Users,
+  BookOpen,
+  MessageSquare,
+  Image,
+  Coins,
+  Activity,
+  Shield,
 } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
@@ -22,22 +31,32 @@ import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 
 const EXPORT_ENTITIES = [
-  { value: 'users', label: 'Usuarios', icon: Database },
-  { value: 'mangas', label: 'Mangas', icon: Database },
-  { value: 'chapters', label: 'Capítulos', icon: Database },
-  { value: 'comments', label: 'Comentarios', icon: Database },
-];
+  { value: 'users', labelKey: 'users', icon: Users },
+  { value: 'mangas', labelKey: 'mangas', icon: BookOpen },
+  { value: 'chapters', labelKey: 'chapters', icon: FileText },
+  { value: 'comments', labelKey: 'comments', icon: MessageSquare },
+  { value: 'images', labelKey: 'images', icon: Image },
+  { value: 'transactions', labelKey: 'transactions', icon: Coins },
+  { value: 'activity', labelKey: 'activity', icon: Activity },
+  { value: 'bans', labelKey: 'bans', icon: Shield },
+] as const;
 
 export default function ExportClient() {
   const t = useT();
   const { handleError } = useErrorHandler();
   const [entity, setEntity] = useState('users');
   const [isExporting, setIsExporting] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const handleExport = async (format: 'json' | 'csv') => {
     setIsExporting(true);
     try {
-      const res = await fetch(`/api/admin/export?entity=${entity}&format=${format}`);
+      const params = new URLSearchParams({ entity, format });
+      if (dateFrom) params.set('dateFrom', dateFrom);
+      if (dateTo) params.set('dateTo', dateTo);
+
+      const res = await fetch(`/api/admin/export?${params.toString()}`);
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || 'Export failed');
@@ -89,10 +108,36 @@ export default function ExportClient() {
               </SelectTrigger>
               <SelectContent>
                 {EXPORT_ENTITIES.map((e) => (
-                  <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                  <SelectItem key={e.value} value={e.value}>
+                    <div className="flex items-center gap-2">
+                      <e.icon className="w-4 h-4" />
+                      {t(`admin.${e.labelKey}`)}
+                    </div>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Fecha desde</Label>
+              <Input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Fecha hasta</Label>
+              <Input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="text-sm"
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-4">

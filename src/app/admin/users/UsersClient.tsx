@@ -46,7 +46,9 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import { useErrorHandler } from '@/hooks/useErrorHandler';import { useT } from '@/i18n';
+import { useToast } from '@/components/ui/Toast';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface UserData {
@@ -88,6 +90,7 @@ export default function UsersClient() {
   const [bulkBanReason, setBulkBanReason] = useState('');
   const [bulkBanReasonDetail, setBulkBanReasonDetail] = useState('');
   const [isBulkBanning, setIsBulkBanning] = useState(false);
+  const { toast } = useToast();
 
   const { data: _data, error, isLoading, mutate } = useSWR<{ users: UserData[] }>(
     '/api/admin/users',
@@ -144,7 +147,7 @@ export default function UsersClient() {
         setBulkBanReasonDetail('');
       } else {
         const err = await res.json();
-        alert(err.error || 'Error creating bans');
+        toast({ title: 'Error', description: err.error || 'Error creating bans', variant: 'destructive' });
       }
     } catch (err) {
       handleError(err);

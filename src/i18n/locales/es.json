@@ -2020,15 +2020,113 @@
       },
       "clans": {
         "title": "Gestión de Clanes",
-        "subtitle": "Administra los clanes de la comunidad"
+        "subtitle": "Administra los clanes de la comunidad",
+        "search": "Buscar clanes...",
+        "allClans": "Todos los Clanes",
+        "empty": "No se encontraron clanes",
+        "loadError": "Error al cargar clanes",
+        "columns": {
+          "clan": "Clan",
+          "leader": "Líder",
+          "members": "Miembros",
+          "totalScore": "Punt. Total",
+          "monthly": "Mensual",
+          "season": "Temp.",
+          "created": "Creado",
+          "actions": "Acciones"
+        },
+        "actions": {
+          "resetScore": "Reiniciar Puntuación",
+          "delete": "Eliminar Clan"
+        },
+        "dialogs": {
+          "resetScore": {
+            "title": "Reiniciar Puntuación del Clan",
+            "desc": "Esto reiniciará las puntuaciones total y mensual del clan a 0, iniciará una nueva temporada y reiniciará las puntuaciones de todos los miembros. Esta acción no se puede deshacer.",
+            "confirm": "Score: {score} | Temporada {season}"
+          },
+          "delete": {
+            "title": "Eliminar Clan",
+            "desc": "Esto eliminará permanentemente el clan y todas sus membresías. Esta acción no se puede deshacer.",
+            "confirm": "{members} miembros"
+          }
+        }
       },
       "forum": {
         "title": "Moderación del Foro",
-        "subtitle": "Modera los hilos y publicaciones del foro"
+        "subtitle": "Modera los hilos y publicaciones del foro",
+        "search": "Buscar hilos...",
+        "filterAll": "Todos",
+        "filterPinned": "Fijados",
+        "filterLocked": "Bloqueados",
+        "allThreads": "Hilos del Foro",
+        "empty": "No se encontraron hilos",
+        "loadError": "Error al cargar hilos",
+        "cancel": "Cancelar",
+        "columns": {
+          "thread": "Hilo",
+          "author": "Autor",
+          "category": "Categoría",
+          "stats": "Estadísticas",
+          "status": "Estado",
+          "date": "Fecha",
+          "actions": "Acciones"
+        },
+        "actions": {
+          "pin": "Fijar",
+          "unpin": "Desfijar",
+          "lock": "Bloquear",
+          "unlock": "Desbloquear",
+          "delete": "Eliminar"
+        },
+        "dialogs": {
+          "lock": {
+            "title": "Bloquear Hilo",
+            "desc": "No se permitirán nuevas publicaciones en este hilo."
+          },
+          "delete": {
+            "title": "Eliminar Hilo",
+            "desc": "Esto eliminará permanentemente el hilo y todas sus publicaciones. Esta acción no se puede deshacer."
+          }
+        }
       },
       "achievements": {
         "title": "Gestión de Logros",
-        "subtitle": "Administra los logros de la plataforma"
+        "subtitle": "Administra los logros de la plataforma",
+        "newAchievement": "Nuevo Logro",
+        "empty": "No hay logros definidos",
+        "loadError": "Error al cargar logros",
+        "createTitle": "Crear Logro",
+        "editTitle": "Editar Logro",
+        "createDesc": "Define un nuevo logro y sus condiciones de desbloqueo.",
+        "editDesc": "Modifica las propiedades del logro.",
+        "deleteTitle": "Eliminar Logro",
+        "deleteDesc": "Esto eliminará permanentemente la definición del logro. Los usuarios que ya lo desbloquearon lo perderán.",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "update": "Actualizar",
+        "confirmDelete": "Eliminar",
+        "fields": {
+          "badgeId": "ID del Logro",
+          "badgeIdPlaceholder": "ej. first_chapter",
+          "xpReward": "Recompensa XP",
+          "name": "Nombre",
+          "namePlaceholder": "Nombre del logro",
+          "description": "Descripción",
+          "category": "Categoría",
+          "categoryPlaceholder": "general",
+          "difficulty": "Dificultad",
+          "condition": "Condición (JSON)",
+          "conditionPlaceholder": "{\"type\":\"CHAPTERS_READ\",\"count\":100}",
+          "conditionHint": "Tipos: CHAPTERS_READ, MANGAS_CREATED, LEVEL_REACHED, STREAK_DAYS, QUESTS_COMPLETED"
+        },
+        "usersUnlocked": "{count}/{total} usuarios ({percent}%)",
+        "difficulty": {
+          "EASY": "Fácil",
+          "MEDIUM": "Medio",
+          "HARD": "Difícil",
+          "LEGENDARY": "Legendario"
+        }
       },
       "health": {
         "title": "Estado del Sistema",

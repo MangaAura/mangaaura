@@ -48,6 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -83,6 +84,7 @@ interface ThreadData {
 export default function ForumModerationClient() {
   const { handleError } = useErrorHandler();
   const t = useT();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -110,6 +112,7 @@ export default function ForumModerationClient() {
         await mutate();
         setActionDialog({ type: '', open: false });
         setSelectedThread(null);
+        toast({ title: t('admin.pages.forum.title'), description: `${action} successful`, variant: 'success' });
       }
     } catch (error) {
       handleError(error);
@@ -119,7 +122,7 @@ export default function ForumModerationClient() {
   const columns: ColumnDef<ThreadData>[] = useMemo(() => [
     {
       accessorKey: 'title',
-      header: 'Thread',
+      header: t('admin.pages.forum.columns.thread'),
       cell: ({ row }) => (
         <div className="max-w-md">
           <div className="flex items-center gap-2">
@@ -133,7 +136,7 @@ export default function ForumModerationClient() {
     },
     {
       accessorKey: 'author',
-      header: 'Author',
+      header: t('admin.pages.forum.columns.author'),
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-xs font-medium overflow-hidden">
@@ -149,14 +152,14 @@ export default function ForumModerationClient() {
     },
     {
       accessorKey: 'category',
-      header: 'Category',
+      header: t('admin.pages.forum.columns.category'),
       cell: ({ row }) => (
         <Badge variant="outline">{row.original.category.name}</Badge>
       ),
     },
     {
       accessorKey: 'stats',
-      header: 'Stats',
+      header: t('admin.pages.forum.columns.stats'),
       cell: ({ row }) => (
         <div className="text-sm text-[var(--text-tertiary)]">
           <span>{row.original.viewCount} views</span>
@@ -166,7 +169,7 @@ export default function ForumModerationClient() {
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('admin.pages.forum.columns.status'),
       cell: ({ row }) => (
         <div className="flex gap-1">
           {row.original.isPinned && <Badge variant="warning">Pinned</Badge>}
@@ -177,7 +180,7 @@ export default function ForumModerationClient() {
     },
     {
       accessorKey: 'createdAt',
-      header: 'Date',
+      header: t('admin.pages.forum.columns.date'),
       cell: ({ row }) => (
         <span className="text-sm text-[var(--text-tertiary)]">
           {new Date(row.original.createdAt).toLocaleDateString()}
@@ -186,7 +189,7 @@ export default function ForumModerationClient() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('admin.pages.forum.columns.actions'),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -197,24 +200,24 @@ export default function ForumModerationClient() {
           <DropdownMenuContent align="end">
             {row.original.isPinned ? (
               <DropdownMenuItem onClick={() => { setSelectedThread(row.original); performAction('unpin'); }}>
-                <PinOff className="w-4 h-4 mr-2" /> Unpin
+                <PinOff className="w-4 h-4 mr-2" /> {t('admin.pages.forum.actions.unpin')}
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={() => { setSelectedThread(row.original); performAction('pin'); }}>
-                <Pin className="w-4 h-4 mr-2" /> Pin
+                <Pin className="w-4 h-4 mr-2" /> {t('admin.pages.forum.actions.pin')}
               </DropdownMenuItem>
             )}
             {row.original.isLocked ? (
               <DropdownMenuItem onClick={() => { setSelectedThread(row.original); performAction('unlock'); }}>
-                <LockOpen className="w-4 h-4 mr-2" /> Unlock
+                <LockOpen className="w-4 h-4 mr-2" /> {t('admin.pages.forum.actions.unlock')}
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={() => { setSelectedThread(row.original); setActionDialog({ type: 'lock', open: true }); }}>
-                <Lock className="w-4 h-4 mr-2" /> Lock
+                <Lock className="w-4 h-4 mr-2" /> {t('admin.pages.forum.actions.lock')}
               </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={() => { setSelectedThread(row.original); setActionDialog({ type: 'delete', open: true }); }}>
-              <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> Delete
+              <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> {t('admin.pages.forum.actions.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -250,7 +253,7 @@ export default function ForumModerationClient() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
               <Input
-                placeholder="Search threads..."
+                placeholder={t('admin.pages.forum.search')}
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                 className="pl-10"
@@ -261,9 +264,9 @@ export default function ForumModerationClient() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="pinned">Pinned</SelectItem>
-                <SelectItem value="locked">Locked</SelectItem>
+                <SelectItem value="all">{t('admin.pages.forum.filterAll')}</SelectItem>
+                <SelectItem value="pinned">{t('admin.pages.forum.filterPinned')}</SelectItem>
+                <SelectItem value="locked">{t('admin.pages.forum.filterLocked')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -273,7 +276,7 @@ export default function ForumModerationClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Forum Threads{' '}
+            {t('admin.pages.forum.allThreads')}{' '}
             <span className="text-[var(--text-tertiary)] font-normal">({pagination?.total || 0})</span>
           </CardTitle>
         </CardHeader>
@@ -283,11 +286,11 @@ export default function ForumModerationClient() {
               {[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-[var(--surface-sunken)] rounded" />)}
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Failed to load threads</div>
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.forum.loadError')}</div>
           ) : threads.length === 0 ? (
             <div className="text-center py-12">
               <MessageCircle className="w-12 h-12 mx-auto mb-4 text-[var(--text-secondary)]" />
-              <h3 className="text-lg font-medium text-[var(--text-primary)]">No threads found</h3>
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">{t('admin.pages.forum.empty')}</h3>
             </div>
           ) : (
             <>
@@ -320,7 +323,7 @@ export default function ForumModerationClient() {
 
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <div className="text-sm text-[var(--text-tertiary)]">Page {page} of {pagination.totalPages}</div>
+                  <div className="text-sm text-[var(--text-tertiary)]">{t('admin.page')} {page} {t('admin.of')} {pagination.totalPages}</div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
                       <ChevronLeft className="w-4 h-4" />
@@ -339,8 +342,8 @@ export default function ForumModerationClient() {
       <Dialog open={actionDialog.type === 'lock'} onOpenChange={(o) => setActionDialog({ type: o ? 'lock' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Lock Thread</DialogTitle>
-            <DialogDescription>No new posts will be allowed in this thread.</DialogDescription>
+            <DialogTitle>{t('admin.pages.forum.dialogs.lock.title')}</DialogTitle>
+            <DialogDescription>{t('admin.pages.forum.dialogs.lock.desc')}</DialogDescription>
           </DialogHeader>
           {selectedThread && (
             <div className="bg-[var(--surface)] p-4 rounded-lg my-4">
@@ -348,9 +351,9 @@ export default function ForumModerationClient() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
+            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>{t('admin.pages.forum.cancel')}</Button>
             <Button onClick={() => performAction('lock')}>
-              <Lock className="w-4 h-4 mr-2" /> Lock Thread
+              <Lock className="w-4 h-4 mr-2" /> {t('admin.pages.forum.actions.lock')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -359,8 +362,8 @@ export default function ForumModerationClient() {
       <Dialog open={actionDialog.type === 'delete'} onOpenChange={(o) => setActionDialog({ type: o ? 'delete' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Thread</DialogTitle>
-            <DialogDescription>This will permanently delete the thread and all its posts. This action cannot be undone.</DialogDescription>
+            <DialogTitle>{t('admin.pages.forum.dialogs.delete.title')}</DialogTitle>
+            <DialogDescription>{t('admin.pages.forum.dialogs.delete.desc')}</DialogDescription>
           </DialogHeader>
           {selectedThread && (
             <div className="bg-[var(--surface)] p-4 rounded-lg my-4">
@@ -369,9 +372,9 @@ export default function ForumModerationClient() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
+            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>{t('admin.pages.forum.cancel')}</Button>
             <Button variant="destructive" onClick={() => performAction('delete')}>
-              <Trash2 className="w-4 h-4 mr-2" /> Delete Thread
+              <Trash2 className="w-4 h-4 mr-2" /> {t('admin.pages.forum.actions.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

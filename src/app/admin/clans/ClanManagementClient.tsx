@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -66,6 +67,7 @@ interface ClanData {
 export default function ClanManagementClient() {
   const { handleError } = useErrorHandler();
   const t = useT();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClan, setSelectedClan] = useState<ClanData | null>(null);
   const [actionDialog, setActionDialog] = useState<{ type: string; open: boolean }>({ type: '', open: false });
@@ -90,8 +92,14 @@ export default function ClanManagementClient() {
         await mutate();
         setActionDialog({ type: '', open: false });
         setSelectedClan(null);
+        toast({
+          title: t('admin.pages.clans.title'),
+          description: action === 'resetScore' ? 'Score reset successfully' : 'Clan deleted successfully',
+          variant: 'success',
+        });
       }
     } catch (error) {
+      toast({ title: 'Error', description: 'Action failed', variant: 'destructive' });
       handleError(error);
     }
   };
@@ -99,7 +107,7 @@ export default function ClanManagementClient() {
   const columns: ColumnDef<ClanData>[] = useMemo(() => [
     {
       accessorKey: 'name',
-      header: 'Clan',
+      header: t('admin.pages.clans.columns.clan'),
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-[var(--surface-sunken)] flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -112,7 +120,7 @@ export default function ClanManagementClient() {
           <div>
             <p className="font-medium">{row.original.name}</p>
             <p className="text-xs text-[var(--text-tertiary)]">
-              Leader: {row.original.leader?.displayName || row.original.leader?.username || 'None'}
+              {t('admin.pages.clans.columns.leader')}: {row.original.leader?.displayName || row.original.leader?.username || 'None'}
             </p>
           </div>
         </div>
@@ -120,7 +128,7 @@ export default function ClanManagementClient() {
     },
     {
       accessorKey: 'members',
-      header: 'Members',
+      header: t('admin.pages.clans.columns.members'),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <Users className="w-4 h-4 text-[var(--text-tertiary)]" />
@@ -130,7 +138,7 @@ export default function ClanManagementClient() {
     },
     {
       accessorKey: 'totalScore',
-      header: 'Total Score',
+      header: t('admin.pages.clans.columns.totalScore'),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <Trophy className="w-4 h-4 text-[var(--accent-orange)]" />
@@ -140,21 +148,21 @@ export default function ClanManagementClient() {
     },
     {
       accessorKey: 'monthlyScore',
-      header: 'Monthly',
+      header: t('admin.pages.clans.columns.monthly'),
       cell: ({ row }) => (
         <span className="font-mono text-sm">{row.original.monthlyScore.toLocaleString()}</span>
       ),
     },
     {
       accessorKey: 'currentSeason',
-      header: 'Season',
+      header: t('admin.pages.clans.columns.season'),
       cell: ({ row }) => (
         <Badge variant="outline">S{row.original.currentSeason}</Badge>
       ),
     },
     {
       accessorKey: 'createdAt',
-      header: 'Created',
+      header: t('admin.pages.clans.columns.created'),
       cell: ({ row }) => (
         <span className="text-sm text-[var(--text-tertiary)]">
           {new Date(row.original.createdAt).toLocaleDateString()}
@@ -163,7 +171,7 @@ export default function ClanManagementClient() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('admin.pages.clans.columns.actions'),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -173,10 +181,10 @@ export default function ClanManagementClient() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => { setSelectedClan(row.original); setActionDialog({ type: 'resetScore', open: true }); }}>
-              <RotateCcw className="w-4 h-4 mr-2" /> Reset Score
+              <RotateCcw className="w-4 h-4 mr-2" /> {t('admin.pages.clans.actions.resetScore')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setSelectedClan(row.original); setActionDialog({ type: 'delete', open: true }); }}>
-              <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> Delete Clan
+              <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> {t('admin.pages.clans.actions.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -208,7 +216,7 @@ export default function ClanManagementClient() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
-              placeholder="Search clans..."
+              placeholder={t('admin.pages.clans.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -220,7 +228,7 @@ export default function ClanManagementClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            All Clans{' '}
+            {t('admin.pages.clans.allClans')}{' '}
             <span className="text-[var(--text-tertiary)] font-normal">({clans.length})</span>
           </CardTitle>
         </CardHeader>
@@ -230,11 +238,11 @@ export default function ClanManagementClient() {
               {[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-[var(--surface-sunken)] rounded" />)}
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Failed to load clans</div>
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.clans.loadError')}</div>
           ) : clans.length === 0 ? (
             <div className="text-center py-12">
               <Shield className="w-12 h-12 mx-auto mb-4 text-[var(--text-secondary)]" />
-              <h3 className="text-lg font-medium text-[var(--text-primary)]">No clans found</h3>
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">{t('admin.pages.clans.empty')}</h3>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -270,24 +278,23 @@ export default function ClanManagementClient() {
       <Dialog open={actionDialog.type === 'resetScore'} onOpenChange={(o) => setActionDialog({ type: o ? 'resetScore' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reset Clan Score</DialogTitle>
+            <DialogTitle>{t('admin.pages.clans.dialogs.resetScore.title')}</DialogTitle>
             <DialogDescription>
-              This will reset the clan&apos;s total and monthly scores to 0, start a new season, and reset all members&apos; contributed scores.
-              This action cannot be undone.
+              {t('admin.pages.clans.dialogs.resetScore.desc')}
             </DialogDescription>
           </DialogHeader>
           {selectedClan && (
             <div className="bg-[var(--surface)] p-4 rounded-lg my-4">
               <p className="font-medium">{selectedClan.name}</p>
               <p className="text-sm text-[var(--text-tertiary)]">
-                Score: {selectedClan.totalScore.toLocaleString()} | Season {selectedClan.currentSeason}
+                {t('admin.pages.clans.dialogs.resetScore.confirm', { score: selectedClan.totalScore.toLocaleString(), season: selectedClan.currentSeason })}
               </p>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
             <Button onClick={() => performAction('resetScore')}>
-              <RotateCcw className="w-4 h-4 mr-2" /> Reset Score
+              <RotateCcw className="w-4 h-4 mr-2" /> {t('admin.pages.clans.actions.resetScore')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -296,21 +303,23 @@ export default function ClanManagementClient() {
       <Dialog open={actionDialog.type === 'delete'} onOpenChange={(o) => setActionDialog({ type: o ? 'delete' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Clan</DialogTitle>
+            <DialogTitle>{t('admin.pages.clans.dialogs.delete.title')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete the clan and all its memberships. This action cannot be undone.
+              {t('admin.pages.clans.dialogs.delete.desc')}
             </DialogDescription>
           </DialogHeader>
           {selectedClan && (
             <div className="bg-[var(--surface)] p-4 rounded-lg my-4">
               <p className="font-medium">{selectedClan.name}</p>
-              <p className="text-sm text-[var(--text-tertiary)]">{selectedClan.memberCount} members</p>
+              <p className="text-sm text-[var(--text-tertiary)]">
+                {t('admin.pages.clans.dialogs.delete.confirm', { members: selectedClan.memberCount })}
+              </p>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
             <Button variant="destructive" onClick={() => performAction('delete')}>
-              <Trash2 className="w-4 h-4 mr-2" /> Delete Clan
+              <Trash2 className="w-4 h-4 mr-2" /> {t('admin.pages.clans.actions.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
