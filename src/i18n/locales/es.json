@@ -2257,6 +2257,45 @@
       "notFound": "No encontrado",
       "accessDenied": "Acceso denegado",
       "sessionExpired": "Sesión expirada"
+    },
+    "errorPages": {
+      "defaultTitle": "Algo salió mal",
+      "defaultMessage": "Ocurrió un error inesperado. Intenta de nuevo.",
+      "retry": "Reintentar",
+      "adminPanel": {
+        "title": "Error en el Panel de Administración",
+        "message": "Ha ocurrido un error en el panel admin. Intenta de nuevo."
+      },
+      "news": {
+        "title": "Error al cargar noticias",
+        "message": "No se pudieron cargar las noticias del panel de administración."
+      },
+      "settings": {
+        "title": "Error en configuración",
+        "message": "No se pudieron cargar las configuraciones."
+      },
+      "moderation": {
+        "title": "Error en moderación",
+        "message": "No se pudieron cargar los elementos de moderación."
+      },
+      "users": {
+        "title": "Error al cargar usuarios",
+        "message": "No se pudieron cargar los usuarios."
+      },
+      "userDetail": {
+        "title": "Error al cargar usuario",
+        "message": "No se pudo cargar la información del usuario."
+      },
+      "mangaDetail": {
+        "title": "Error al cargar el manga",
+        "message": "No se pudo cargar la información del manga."
+      },
+      "notFoundTitle": "Página no encontrada",
+      "notFoundMessage": "La página de administración que buscas no existe. Verifica que el enlace sea correcto.",
+      "accessDeniedTitle": "Acceso Denegado",
+      "accessDeniedMessage": "No tienes permisos para acceder a esta página.",
+      "dashboardBtn": "Panel de admin",
+      "homeBtn": "Volver al inicio"
     }
   },
   "comparison": {
@@ -3742,5 +3781,13 @@
     "saveError": "Error al guardar",
     "deleteError": "Error al eliminar",
     "actionError": "Error al realizar la acción"
+  },
+  "errorPage": {
+    "devTitle": "Detalles del error",
+    "retry": "Intentar de nuevo",
+    "goHome": "Ir al inicio",
+    "support": "soporte",
+    "supportBefore": "Si el problema persiste, contacta con ",
+    "supportAfter": " o intenta más tarde."
   }
 }

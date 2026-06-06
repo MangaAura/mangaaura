@@ -2448,6 +2448,45 @@
       "notFound": "No encontrado",
       "accessDenied": "Acceso denegado",
       "sessionExpired": "Sesión expirada"
+    },
+    "errorPages": {
+      "defaultTitle": "Something went wrong",
+      "defaultMessage": "An unexpected error occurred. Please try again.",
+      "retry": "Retry",
+      "adminPanel": {
+        "title": "Admin Panel Error",
+        "message": "An error occurred in the admin panel. Please try again."
+      },
+      "news": {
+        "title": "Error Loading News",
+        "message": "Could not load news from the admin panel."
+      },
+      "settings": {
+        "title": "Settings Error",
+        "message": "Could not load settings."
+      },
+      "moderation": {
+        "title": "Moderation Error",
+        "message": "Could not load moderation items."
+      },
+      "users": {
+        "title": "Error Loading Users",
+        "message": "Could not load users."
+      },
+      "userDetail": {
+        "title": "Error Loading User",
+        "message": "Could not load user information."
+      },
+      "mangaDetail": {
+        "title": "Error Loading Manga",
+        "message": "Could not load manga information."
+      },
+      "notFoundTitle": "Page Not Found",
+      "notFoundMessage": "The admin page you're looking for doesn't exist. Please check the URL.",
+      "accessDeniedTitle": "Access Denied",
+      "accessDeniedMessage": "You don't have permission to access this page.",
+      "dashboardBtn": "Admin Dashboard",
+      "homeBtn": "Back to Home"
     }
   },
   "comparison": {
@@ -3846,5 +3885,13 @@
     "saveError": "Save failed",
     "deleteError": "Delete failed",
     "actionError": "Action failed"
+  },
+  "errorPage": {
+    "devTitle": "Error Details",
+    "retry": "Try Again",
+    "goHome": "Go Home",
+    "support": "support",
+    "supportBefore": "If the problem persists, contact ",
+    "supportAfter": " or try again later."
   }
 }

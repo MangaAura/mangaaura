@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { NoIndex } from '@/components/SEO/NoIndex';
 import { Button } from '@/components/ui/Button';
 import { ErrorFallback } from '@/components/ui/ErrorFallback';
+import { useT } from '@/i18n';
 
 export default function ErrorPage({
   error,
@@ -30,6 +31,8 @@ export default function ErrorPage({
     }
   }, [error]);
 
+  const t = useT();
+
   return (
     <>
       <NoIndex />
@@ -42,7 +45,7 @@ export default function ErrorPage({
             <div className="bg-[var(--surface)] rounded-lg p-4 border border-[var(--border)]">
               <div className="flex items-center gap-2 text-[var(--warning)] mb-2">
                 <Bug className="w-4 h-4" />
-                <span className="text-sm font-medium">Detalles del error</span>
+                <span className="text-sm font-medium">{t('errorPage.devTitle')}</span>
               </div>
               <pre className="text-xs text-[var(--text-secondary)] overflow-auto max-h-32 whitespace-pre-wrap">
                 {error.message}
@@ -63,7 +66,7 @@ export default function ErrorPage({
             className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] hover:opacity-90"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Intentar de nuevo
+            {t('errorPage.retry')}
           </Button>
 
           <Button
@@ -74,17 +77,13 @@ export default function ErrorPage({
           >
             <Link href="/">
               <Home className="w-4 h-4 mr-2" />
-              Ir al inicio
+              {t('errorPage.goHome')}
             </Link>
           </Button>
         </div>
 
         <p className="mt-8 text-[var(--text-tertiary)] text-sm">
-          Si el problema persiste, contacta con{' '}
-          <Link href="/contact" className="text-[var(--primary)] hover:underline">
-            soporte
-          </Link>
-          {' '}o intenta más tarde.
+          {t('errorPage.supportBefore')}<Link href="/contact" className="text-[var(--primary)] hover:underline">{t('errorPage.support')}</Link>{t('errorPage.supportAfter')}
         </p>
       </div>
     </div>
