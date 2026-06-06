@@ -11,6 +11,8 @@ import {
   Info,
   CheckCircle,
   AlertCircle,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
@@ -36,6 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -59,12 +62,15 @@ const TYPE_ICONS: Record<string, React.ElementType> = {
 
 export default function AnnouncementsClient() {
   const t = useT();
+  const { toast } = useToast();
   const { handleError } = useErrorHandler();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [deletingAnnouncement, setDeletingAnnouncement] = useState<Announcement | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewAnnouncement, setPreviewAnnouncement] = useState<Announcement | null>(null);
 
   const [form, setForm] = useState({
     message: '', messageEn: '', type: 'info', priority: 'normal',
@@ -114,7 +120,7 @@ export default function AnnouncementsClient() {
           expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
         }),
       });
-      if (res.ok) { await mutate(); setShowCreateDialog(false); resetForm(); }
+      if (res.ok) { await mutate(); setShowCreateDialog(false); resetForm(); toast({ title: 'Announcement created', variant: 'success' }); }
       else { const e = await res.json(); setFormError(e.error || 'Error'); }
     } catch (err) { handleError(err); }
     finally { setIsSaving(false); }
@@ -137,7 +143,7 @@ export default function AnnouncementsClient() {
           expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
         }),
       });
-      if (res.ok) { await mutate(); setEditingAnnouncement(null); }
+      if (res.ok) { await mutate(); setEditingAnnouncement(null); toast({ title: 'Announcement updated', variant: 'success' }); }
       else { const e = await res.json(); setFormError(e.error || 'Error'); }
     } catch (err) { handleError(err); }
     finally { setIsSaving(false); }
@@ -148,9 +154,15 @@ export default function AnnouncementsClient() {
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/admin/announcements/${deletingAnnouncement.id}`, { method: 'DELETE' });
-      if (res.ok) { await mutate(); setDeletingAnnouncement(null); }
+      if (res.ok) { await mutate(); setDeletingAnnouncement(null); toast({ title: 'Announcement deleted', variant: 'success' }); }
+      else { toast({ title: 'Error', description: 'Failed to delete', variant: 'destructive' }); }
     } catch (err) { handleError(err); }
     finally { setIsDeleting(false); }
+  };
+
+  const openPreview = (a: Announcement) => {
+    setPreviewAnnouncement(a);
+    setShowPreview(true);
   };
 
   const renderAnnounceDialog = (ann: Announcement | null | undefined, onSave: () => void) => {
@@ -269,7 +281,7 @@ export default function AnnouncementsClient() {
       ) : announcements.length === 0 ? (
         <div className="text-center py-12 text-[var(--text-tertiary)]">
           <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>No hay announcements creados</p>
+          <p>{t('admin.pages.announcements.empty')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -288,16 +300,17 @@ export default function AnnouncementsClient() {
                           {a.type}
                         </span>
                         <span className="text-xs text-[var(--text-tertiary)] capitalize">{a.priority}</span>
-                        {!a.isActive && <Badge variant="destructive" className="text-[10px]">Inactiva</Badge>}
+                        {!a.isActive && <Badge variant="destructive" className="text-[10px]">{t('admin.pages.announcements.inactive')}</Badge>}
                       </div>
                       <p className="text-[var(--text-primary)]">{a.message}</p>
                       {a.messageEn && <p className="text-sm text-[var(--text-tertiary)] mt-1">EN: {a.messageEn}</p>}
                       <div className="flex items-center gap-4 mt-2 text-xs text-[var(--text-tertiary)]">
-                        <span>Desde: {new Date(a.startAt).toLocaleString()}</span>
-                        {a.expiresAt && <span>Hasta: {new Date(a.expiresAt).toLocaleString()}</span>}
+                        <span>{t('admin.pages.announcements.since', { date: new Date(a.startAt).toLocaleString() })}</span>
+                        {a.expiresAt && <span>{t('admin.pages.announcements.until', { date: new Date(a.expiresAt).toLocaleString() })}</span>}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => openPreview(a)} title="Preview"><Eye className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(a)}><Edit3 className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => setDeletingAnnouncement(a)}><Trash2 className="w-4 h-4 text-[var(--error)]" /></Button>
                     </div>
@@ -317,13 +330,70 @@ export default function AnnouncementsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[var(--error)]">
               <Trash2 className="w-5 h-5" />
-              Eliminar announcement
+              {t('admin.pages.announcements.deleteTitle')}
             </DialogTitle>
           </DialogHeader>
-          <p className="text-[var(--text-muted)]">¿Eliminar esta announcement? Esta acción no se puede deshacer.</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.announcements.deleteDesc')}</p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingAnnouncement(null)} disabled={isDeleting}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleDelete} isLoading={isDeleting}>Eliminar</Button>
+            <Button variant="outline" onClick={() => setDeletingAnnouncement(null)} disabled={isDeleting}>{t('admin.pages.announcements.cancel') || 'Cancelar'}</Button>
+            <Button variant="destructive" onClick={handleDelete} isLoading={isDeleting}>{t('admin.pages.announcements.deleteButton') || 'Eliminar'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              Preview Announcement
+            </DialogTitle>
+          </DialogHeader>
+          {previewAnnouncement && (
+            <div className="space-y-4 py-2">
+              <div className={`p-4 rounded-lg ${TYPE_COLORS[previewAnnouncement.type] || TYPE_COLORS.info}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {(() => {
+                    const PreviewIcon = TYPE_ICONS[previewAnnouncement.type] || Info;
+                    return <PreviewIcon className="w-5 h-5" />;
+                  })()}
+                  <span className="font-medium capitalize">{previewAnnouncement.type}</span>
+                  <Badge variant="outline" className="text-[10px] ml-auto capitalize">{previewAnnouncement.priority}</Badge>
+                </div>
+                <p className="text-sm">{previewAnnouncement.message}</p>
+                <p className="text-xs mt-2 opacity-70">
+                  Style: {previewAnnouncement.style} | {previewAnnouncement.isActive ? 'Active' : 'Inactive'}
+                </p>
+              </div>
+              <div className="bg-[var(--surface)] p-4 rounded-lg">
+                <h4 className="text-sm font-medium mb-2">Rendered as {previewAnnouncement.style}</h4>
+                <div className={`p-3 rounded-lg border ${
+                  previewAnnouncement.style === 'banner' ? 'bg-[var(--surface-sunken)] text-center text-sm' :
+                  previewAnnouncement.style === 'modal' ? 'bg-[var(--surface)] border-2 shadow-lg text-center' :
+                  'bg-[var(--surface-sunken)] border-l-4'
+                }`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    {(() => {
+                      const PI = TYPE_ICONS[previewAnnouncement.type] || Info;
+                      return <PI className="w-4 h-4" />;
+                    })()}
+                    <p className="text-sm font-medium">{previewAnnouncement.message}</p>
+                  </div>
+                  {previewAnnouncement.messageEn && (
+                    <p className="text-xs text-[var(--text-tertiary)] mt-1">EN: {previewAnnouncement.messageEn}</p>
+                  )}
+                </div>
+              </div>
+              <div className="text-xs text-[var(--text-tertiary)] space-y-1">
+                <p>Start: {new Date(previewAnnouncement.startAt).toLocaleString()}</p>
+                {previewAnnouncement.expiresAt && <p>Expires: {new Date(previewAnnouncement.expiresAt).toLocaleString()}</p>}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreview(false)}>
+              <EyeOff className="w-4 h-4 mr-2" /> Close Preview
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
