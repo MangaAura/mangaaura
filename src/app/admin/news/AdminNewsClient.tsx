@@ -59,13 +59,7 @@ import { fetcher } from '@/lib/swr-config';
 
 // ─── Constants ────────────────────────────────────────────────────────
 
-const CATEGORIES = [
-  { value: 'platform', label: 'Plataforma' },
-  { value: 'community', label: 'Comunidad' },
-  { value: 'tools', label: 'Herramientas' },
-  { value: 'mobile', label: 'Móvil' },
-  { value: 'contest', label: 'Concurso' },
-];
+const CATEGORY_VALUES = ['platform', 'community', 'tools', 'mobile', 'contest'] as const;
 
 const CATEGORY_COLORS: Record<string, string> = {
   platform: 'from-blue-600/40 to-blue-600/10',
@@ -128,6 +122,7 @@ function ArticlePreview({
   contentEn?: string | null;
   showEnglish: boolean;
 }) {
+  const t = useT();
   const gradient = CATEGORY_COLORS[category] || CATEGORY_COLORS.platform;
   const badgeColors = CATEGORY_BADGE[category] || CATEGORY_BADGE.platform;
 
@@ -141,20 +136,20 @@ function ArticlePreview({
       <div className={`relative bg-gradient-to-b ${gradient} px-6 py-8`}>
         <div className="flex items-center gap-2 mb-4">
           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeColors}`}>
-            {CATEGORIES.find((c) => c.value === category)?.label || category}
+            {t(`admin.newsForm.categoryLabels.${category}`)}
           </span>
           {showEnglish && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-bold">EN</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-bold">{t('admin.common.enLabel')}</span>
           )}
           {!displayTitle && (
-            <span className="text-[10px] text-[var(--text-tertiary)]">(sin título)</span>
+            <span className="text-[10px] text-[var(--text-tertiary)]">{t('admin.newsForm.noTitle')}</span>
           )}
         </div>
         <h2 className="text-2xl font-extrabold text-[var(--text-primary)] leading-tight">
-          {displayTitle || 'Título de la noticia'}
+          {displayTitle || t('admin.newsForm.noTitlePlaceholder')}
         </h2>
         <p className="mt-3 text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
-          {displayExcerpt || 'Extracto de la noticia...'}
+          {displayExcerpt || t('admin.newsForm.noExcerptPlaceholder')}
         </p>
       </div>
 
@@ -163,7 +158,7 @@ function ArticlePreview({
         <div className="relative w-full aspect-video bg-[var(--surface-sunken)]">
           <Image
             src={coverUrl}
-            alt="Cover preview"
+            alt={t('admin.newsForm.coverAlt')}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 768px"
@@ -195,7 +190,7 @@ function ArticlePreview({
         ) : (
           <div className="flex items-center justify-center py-12 text-[var(--text-tertiary)]">
             <FileText className="w-8 h-8 mr-3 opacity-40" />
-            <p className="text-sm">Escribe el contenido para ver la vista previa</p>
+            <p className="text-sm">{t('admin.newsForm.writeContentPreview')}</p>
           </div>
         )}
       </div>
@@ -212,6 +207,7 @@ function CoverImageUploader({
   coverUrl: string;
   onChange: (url: string) => void;
 }) {
+  const t = useT();
   const cropperRef = useRef<ImageCropperUploaderHandle>(null);
   const [mode, setMode] = useState<'url' | 'upload'>('url');
   const [uploading, setUploading] = useState(false);
@@ -249,7 +245,7 @@ function CoverImageUploader({
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Error al subir' }));
+        const err = await res.json().catch(() => ({ error: t('admin.newsForm.uploadError') }));
         throw new Error(err.error || `Error ${res.status}`);
       }
 
@@ -293,21 +289,20 @@ function CoverImageUploader({
       {/* Cropper fullscreen overlay — handles file select + crop lifecycle */}
       <ImageCropperUploader
         ref={cropperRef}
-        aspect={16 / 9}
-        cropperTitle="Ajustar portada"
-        cropperSubtitle="Arrastra para encuadrar · Ratio 16:9"
+        aspect={16 / 9}              cropperTitle={t('admin.newsForm.cropTitle')}
+              cropperSubtitle={t('admin.newsForm.cropSubtitle')}
         onCropComplete={handleCropConfirm}
         onError={setUploadError}
       />
 
       <div className="space-y-2">
-        <Label>Imagen de portada</Label>
+        <Label>{t('admin.newsForm.fieldLabels.cover')}</Label>
 
         {hasImage ? (
           <div className="relative h-40 rounded-lg overflow-hidden border border-[var(--border)] group">
             <Image
               src={displayUrl}
-              alt="Cover preview"
+              alt={t('admin.newsForm.coverAlt')}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 768px"
@@ -323,7 +318,7 @@ function CoverImageUploader({
                   className="px-3 py-1.5 text-xs font-medium bg-white/90 text-gray-900 rounded-md hover:bg-white transition-colors flex items-center gap-1.5"
                 >
                   <Upload className="w-3.5 h-3.5" />
-                  Cambiar
+                  {t('admin.newsForm.hints.changeImage')}
                 </button>
                 <button
                   type="button"
@@ -331,7 +326,7 @@ function CoverImageUploader({
                   className="px-3 py-1.5 text-xs font-medium bg-red-500/90 text-white rounded-md hover:bg-red-500 transition-colors flex items-center gap-1.5"
                 >
                   <X className="w-3.5 h-3.5" />
-                  Quitar
+                  {t('admin.newsForm.hints.removeImage')}
                 </button>
               </div>
             </div>
@@ -346,17 +341,17 @@ function CoverImageUploader({
             <div className="flex flex-col items-center gap-1.5">
               <ImageIcon className="w-6 h-6 text-[var(--text-tertiary)]" />
               <p className="text-xs text-[var(--text-secondary)] font-medium">
-                Arrastra una imagen o haz clic para subir
+                {t('admin.newsForm.hints.coverImage')}
               </p>
               <p className="text-[10px] text-[var(--text-tertiary)]">
-                JPEG, PNG, WebP · Max 10MB · Se recortará a 16:9 automáticamente
+                {t('admin.newsForm.hints.coverFormats')}
               </p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 py-8 border border-dashed border-[var(--border)] rounded-lg">
             <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
-            <p className="text-xs text-[var(--text-secondary)]">Subiendo imagen recortada...</p>
+            <p className="text-xs text-[var(--text-secondary)]">{t('admin.newsForm.hints.uploading')}</p>
           </div>
         )}
 
@@ -365,7 +360,7 @@ function CoverImageUploader({
           <div className="flex-1 relative">
             <Globe className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-tertiary)]" />
             <Input
-              placeholder="o pega una URL..."
+              placeholder={t('admin.newsForm.placeholders.coverUrl')}
               value={coverUrl}
               onChange={(e) => handleUrlChange(e.target.value)}
               className="pl-8 text-xs"
@@ -376,18 +371,18 @@ function CoverImageUploader({
               type="button"
               onClick={() => setMode('upload')}
               className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] whitespace-nowrap"
-              title="Cambiar a subir archivo"
+              title={t('admin.newsForm.switchToUpload')}
             >
-              <Upload className="w-3.5 h-3.5 inline" /> Subir
+              <Upload className="w-3.5 h-3.5 inline" /> {t('admin.newsForm.upload')}
             </button>
           ) : (
             <button
               type="button"
               onClick={() => setMode('url')}
               className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] whitespace-nowrap"
-              title="Cambiar a URL"
+              title={t('admin.newsForm.switchToUrl')}
             >
-              <Globe className="w-3.5 h-3.5 inline" /> URL
+              <Globe className="w-3.5 h-3.5 inline" /> {t('admin.newsForm.url')}
             </button>
           )}
         </div>
@@ -548,7 +543,7 @@ function NewsForm({
               type="button"
               onClick={() => setFullscreen(true)}
               className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] rounded transition-colors"
-              title="Editor a pantalla completa"
+              title={t('admin.newsForm.fullscreenTitle')}
             >
               <Maximize2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t('admin.pages.news.tabFullscreen')}</span>
@@ -559,7 +554,7 @@ function NewsForm({
               type="button"
               onClick={() => setFullscreen(false)}
               className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] rounded transition-colors"
-              title="Salir de pantalla completa"
+              title={t('admin.newsForm.exitFullscreenTitle')}
             >
               <Minimize2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t('admin.pages.news.tabExitFullscreen')}</span>
@@ -585,7 +580,7 @@ function NewsForm({
                   <div className="w-9 h-5 bg-[var(--surface-sunken)] peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
                   <span className="ms-2 text-xs font-medium text-[var(--text-secondary)]">
                     <Languages className="w-3 h-3 inline mr-1" />
-                    {langTab === 'en' ? 'English' : 'Español'}
+                    {t(langTab === 'en' ? 'admin.newsForm.english' : 'admin.newsForm.spanish')}
                   </span>
                 </label>
               </div>
@@ -616,7 +611,7 @@ function NewsForm({
                     : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                 )}
               >
-                🇪🇸 Español
+                🇪🇸 {t('admin.newsForm.spanish')}
               </button>
               <button
                 type="button"
@@ -628,17 +623,17 @@ function NewsForm({
                     : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                 )}
               >
-                🇬🇧 English
+                🇬🇧 {t('admin.newsForm.english')}
               </button>
             </div>
 
             {langTab === 'es' ? (
               <>
                 <div>
-                  <Label htmlFor="news-title" className="text-sm font-medium">Título</Label>
+                  <Label htmlFor="news-title" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.title')}</Label>
                   <Input
                     id="news-title"
-                    placeholder="Título de la noticia"
+                    placeholder={t('admin.newsForm.placeholders.title')}
                     value={title}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -649,23 +644,23 @@ function NewsForm({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="news-slug" className="text-sm font-medium">Slug (URL)</Label>
+                  <Label htmlFor="news-slug" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.slug')}</Label>
                   <Input
                     id="news-slug"
-                    placeholder="mi-noticia"
+                    placeholder={t('admin.newsForm.placeholders.slug')}
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     className="mt-1 font-mono text-sm"
                   />
                   <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                    Solo letras minúsculas, números y guiones. Se genera automáticamente desde el título.
+                    {t('admin.newsForm.hints.slugAuto')}
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="news-excerpt" className="text-sm font-medium">Extracto</Label>
+                  <Label htmlFor="news-excerpt" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.excerpt')}</Label>
                   <Textarea
                     id="news-excerpt"
-                    placeholder="Breve descripción que aparecerá en la lista de noticias"
+                    placeholder={t('admin.newsForm.placeholders.excerpt')}
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
                     className="mt-1"
@@ -674,7 +669,7 @@ function NewsForm({
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="news-content" className="text-sm font-medium">Contenido</Label>
+                    <Label htmlFor="news-content" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.content')}</Label>
                     <div className="flex items-center gap-1">
                       {!fullscreen && (
                         <button
@@ -683,7 +678,7 @@ function NewsForm({
                           className="flex items-center gap-1 px-2 py-1 text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] rounded transition-colors"
                         >
                           <Maximize2 className="w-3 h-3" />
-                          Expandir
+                          {t('admin.newsForm.expand')}
                         </button>
                       )}
                     </div>
@@ -692,32 +687,32 @@ function NewsForm({
                     <RichTextEditor
                       value={content}
                       onChange={setContent}
-                      placeholder="Escribe el contenido de la noticia..."
+                      placeholder={t('admin.newsForm.placeholders.content')}
                       minHeight={fullscreen ? 400 : 300}
                     />
                   </div>
                   <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                    Usa el editor para dar formato. Ctrl+S para guardar.
+                    {t('admin.newsForm.hints.richEditor')}
                   </p>
                 </div>
               </>
             ) : (
               <>
                 <div>
-                  <Label htmlFor="news-title-en" className="text-sm font-medium">Title (English)</Label>
+                  <Label htmlFor="news-title-en" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.titleEn')}</Label>
                   <Input
                     id="news-title-en"
-                    placeholder="News title in English"
+                    placeholder={t('admin.newsForm.placeholders.titleEn')}
                     value={titleEn}
                     onChange={(e) => setTitleEn(e.target.value)}
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="news-excerpt-en" className="text-sm font-medium">Excerpt (English)</Label>
+                  <Label htmlFor="news-excerpt-en" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.excerptEn')}</Label>
                   <Textarea
                     id="news-excerpt-en"
-                    placeholder="Brief description in English"
+                    placeholder={t('admin.newsForm.placeholders.excerptEn')}
                     value={excerptEn}
                     onChange={(e) => setExcerptEn(e.target.value)}
                     className="mt-1"
@@ -725,17 +720,17 @@ function NewsForm({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="news-content-en" className="text-sm font-medium">Content (English)</Label>
+                  <Label htmlFor="news-content-en" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.contentEn')}</Label>
                   <div className="mt-1">
                     <RichTextEditor
                       value={contentEn}
                       onChange={setContentEn}
-                      placeholder="Write the news content in English..."
+                      placeholder={t('admin.newsForm.placeholders.contentEn')}
                       minHeight={fullscreen ? 300 : 200}
                     />
                   </div>
                   <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                    Opcional. Si no se proporciona, se usará la traducción automática.
+                    {t('admin.newsForm.hints.contentEnOptional')}
                   </p>
                 </div>
               </>
@@ -747,15 +742,15 @@ function NewsForm({
             {/* Category, Publish, Schedule */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="news-category" className="text-sm font-medium">Categoría</Label>
+                <Label htmlFor="news-category" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.category')}</Label>
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                    {CATEGORY_VALUES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {t(`admin.newsForm.categoryLabels.${cat}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -767,9 +762,9 @@ function NewsForm({
                   <div className="flex-1 p-3 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border)]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-[var(--text-primary)]">Publicar</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">{t('admin.newsForm.fieldLabels.publish')}</p>
                         <p className="text-xs text-[var(--text-tertiary)]">
-                          {isPublished ? 'Visible para todos' : 'Solo visible en admin'}
+                          {isPublished ? t('admin.newsForm.hints.visibleForAll') : t('admin.newsForm.hints.adminOnly')}
                         </p>
                       </div>
                       <Switch checked={isPublished} onCheckedChange={setIsPublished} />
@@ -783,7 +778,7 @@ function NewsForm({
             <div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[var(--text-tertiary)]" />
-                <Label htmlFor="news-schedule" className="text-sm font-medium">Programar publicación (opcional)</Label>
+                <Label htmlFor="news-schedule" className="text-sm font-medium">{t('admin.newsForm.fieldLabels.schedule')}</Label>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <Input
@@ -801,7 +796,7 @@ function NewsForm({
                     type="button"
                     onClick={() => setScheduledAt('')}
                     className="p-2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] rounded transition-colors"
-                    title="Eliminar programación"
+                    title={t('admin.newsForm.removeSchedule')}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -810,7 +805,7 @@ function NewsForm({
               {scheduledAt && (
                 <p className="text-xs text-[var(--text-tertiary)] mt-1 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3 text-[var(--primary)]" />
-                  Se publicará automáticamente el{' '}
+                  {t('admin.newsForm.hints.scheduleInfo')}{' '}
                   {new Date(scheduledAt).toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: 'long',
@@ -822,7 +817,7 @@ function NewsForm({
               )}
               {isPublished && scheduledAt && (
                 <p className="text-xs text-[var(--warning)] mt-1">
-                  La publicación programada no se aplicará si está marcada como "Publicada". Desmarca la opción para usar la programación.
+                  {t('admin.newsForm.hints.scheduleWarning')}
                 </p>
               )}
             </div>
@@ -836,11 +831,11 @@ function NewsForm({
                     isFeatured ? 'fill-amber-400 text-amber-400' : 'text-[var(--text-tertiary)]'
                   )} />
                   <div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">Destacar en la homepage</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{t('admin.newsForm.fieldLabels.featured')}</p>
                     <p className="text-xs text-[var(--text-tertiary)]">
                       {isFeatured
-                        ? 'Aparecerá destacada en la página principal con un indicador especial'
-                        : 'Aparecerá en la sección de noticias normal'}
+                        ? t('admin.newsForm.hints.featuredDesc')
+                        : t('admin.newsForm.hints.notFeaturedDesc')}
                     </p>
                   </div>
                 </div>
@@ -1178,7 +1173,7 @@ export default function AdminNewsClient() {
                           )}
                         </Badge>
                         <Badge {...categoryBadge(article.category)} className="capitalize">
-                          {CATEGORIES.find((c) => c.value === article.category)?.label || article.category}
+                          {t(`admin.newsForm.categoryLabels.${article.category}`)}
                         </Badge>
                         {article.publishedAt && (
                           <span className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">

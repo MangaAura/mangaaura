@@ -28,6 +28,7 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface CspReportEntry {
@@ -59,6 +60,7 @@ function truncate(str: string, max: number) {
 }
 
 export default function CspReportsClient() {
+  const t = useT();
   const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [directive, setDirective] = useState('');
@@ -81,12 +83,12 @@ export default function CspReportsClient() {
       if (res.ok) {
         await mutate();
         setShowClearDialog(false);
-        toast({ title: 'Dismissed', description: 'All CSP reports marked as reviewed.', variant: 'success' });
+        toast({ title: t('admin.pages.cspReports.dismissed'), description: t('admin.pages.cspReports.dismissedAllDesc'), variant: 'success' });
       } else {
-        toast({ title: 'Error', description: 'Failed to dismiss reports.', variant: 'error' });
+        toast({ title: t('common.error'), description: t('admin.pages.cspReports.failedDismissAll'), variant: 'error' });
       }
     } catch {
-      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'error' });
+      toast({ title: t('common.error'), description: t('admin.pages.cspReports.unexpectedError'), variant: 'error' });
     }
   };
 
@@ -95,12 +97,12 @@ export default function CspReportsClient() {
       const res = await fetch(`/api/admin/csp-reports/${reportId}/dismiss`, { method: 'POST' });
       if (res.ok) {
         await mutate();
-        toast({ title: 'Dismissed', description: 'Report marked as reviewed.', variant: 'success' });
+        toast({ title: t('admin.pages.cspReports.dismissed'), description: t('admin.pages.cspReports.dismissedOneDesc'), variant: 'success' });
       } else {
-        toast({ title: 'Error', description: 'Failed to dismiss report.', variant: 'error' });
+        toast({ title: t('common.error'), description: t('admin.pages.cspReports.failedDismissOne'), variant: 'error' });
       }
     } catch {
-      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'error' });
+      toast({ title: t('common.error'), description: t('admin.pages.cspReports.unexpectedError'), variant: 'error' });
     }
   };
 
@@ -111,22 +113,22 @@ export default function CspReportsClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Shield className="w-6 h-6 text-[var(--primary)]" />
-            CSP Reports
+            {t('admin.pages.cspReports.title')}
           </h1>
           <p className="text-[var(--text-muted)]">
-            Monitor Content Security Policy violations in real time
+            {t('admin.pages.cspReports.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {data && data.reports.length > 0 && (
             <Button variant="outline" size="sm" onClick={() => setShowClearDialog(true)}>
               <CheckCheck className="w-4 h-4 mr-1" />
-              Dismiss All
+              {t('admin.pages.cspReports.dismissAll')}
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => mutate()}>
             <RefreshCw className="w-4 h-4 mr-1" />
-            Refresh
+            {t('admin.pages.cspReports.refresh')}
           </Button>
         </div>
       </div>
@@ -137,7 +139,7 @@ export default function CspReportsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Real Violations</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.pages.cspReports.realViolations')}</p>
                 <p className="text-3xl font-bold text-[var(--error)] mt-1">
                   {isLoading ? '—' : data?.summary?.totalReal ?? 0}
                 </p>
@@ -152,7 +154,7 @@ export default function CspReportsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Extension Noise</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.pages.cspReports.extensionNoise')}</p>
                 <p className="text-3xl font-bold text-[var(--text-muted)] mt-1">
                   {isLoading ? '—' : data?.summary?.totalNoise ?? 0}
                 </p>
@@ -167,7 +169,7 @@ export default function CspReportsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Blocked Resources</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.pages.cspReports.blockedResources')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {isLoading ? '—' : data?.total ?? 0}
                 </p>
@@ -182,7 +184,7 @@ export default function CspReportsClient() {
           <CardContent className="p-6 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">Directives Active</p>
+                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.pages.cspReports.directivesActive')}</p>
                 <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
                   {isLoading ? '—' : data?.summary?.byDirective?.length ?? 0}
                 </p>
@@ -201,7 +203,7 @@ export default function CspReportsClient() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <BarChart3 className="w-4 h-4 text-[var(--primary)]" />
-              Violations by Directive
+              {t('admin.pages.cspReports.violationsByDirective')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -243,7 +245,7 @@ export default function CspReportsClient() {
             }}
             className="rounded border-[var(--border)]"
           />
-          Include extension noise
+          {t('admin.pages.cspReports.includeNoise')}
         </label>
         {directive && (
           <Badge
@@ -271,24 +273,24 @@ export default function CspReportsClient() {
           ) : error ? (
             <div className="text-center py-12" role="alert">
               <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-              <p className="text-[var(--text-primary)]">Failed to load CSP reports</p>
+              <p className="text-[var(--text-primary)]">{t('admin.pages.cspReports.failedToLoad')}</p>
               <div className="flex items-center justify-center gap-2 mt-4">
                 <Button variant="outline" onClick={() => mutate()}>
-                  Retry
+                  {t('admin.pages.cspReports.retry')}
                 </Button>
                 <Button variant="outline" onClick={() => window.location.reload()}>
-                  Refresh Page
+                  {t('admin.pages.cspReports.refreshPage')}
                 </Button>
               </div>
             </div>
           ) : !data || data.reports.length === 0 ? (
             <div className="text-center py-12 text-[var(--text-tertiary)]">
               <Shield className="w-12 h-12 mx-auto mb-3 text-[var(--success)]" />
-              <p>No CSP violations found</p>
-              <p className="text-sm mt-1">Your CSP policy is working correctly.</p>
+              <p>{t('admin.pages.cspReports.noViolations')}</p>
+              <p className="text-sm mt-1">{t('admin.pages.cspReports.policyWorking')}</p>
               <Button variant="outline" className="mt-4" onClick={() => mutate()}>
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
+                {t('admin.pages.cspReports.refresh')}
               </Button>
             </div>
           ) : (
@@ -296,12 +298,12 @@ export default function CspReportsClient() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[var(--border)] text-left">
-                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">Type</th>
-                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">Blocked URI</th>
-                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">Directive</th>
-                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">Document</th>
-                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">Source</th>
-                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">Disposition</th>
+                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">{t('admin.pages.cspReports.type')}</th>
+                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">{t('admin.pages.cspReports.blockedUri')}</th>
+                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">{t('admin.pages.cspReports.directive')}</th>
+                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">{t('admin.pages.cspReports.document')}</th>
+                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">{t('admin.pages.cspReports.source')}</th>
+                    <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">{t('admin.pages.cspReports.disposition')}</th>
                     <th className="py-3 px-4 font-medium text-[var(--text-secondary)]">
                       <Clock className="w-4 h-4 inline" />
                     </th>
@@ -316,9 +318,9 @@ export default function CspReportsClient() {
                     >
                       <td className="py-3 px-4">
                         {r.isNoise ? (
-                          <Badge variant="secondary" className="text-xs">Noise</Badge>
+                          <Badge variant="secondary" className="text-xs">{t('admin.pages.cspReports.noise')}</Badge>
                         ) : (
-                          <Badge variant="destructive" className="text-xs">Real</Badge>
+                          <Badge variant="destructive" className="text-xs">{t('admin.pages.cspReports.real')}</Badge>
                         )}
                       </td>
                       <td className="py-3 px-4 max-w-[200px]">
@@ -368,7 +370,7 @@ export default function CspReportsClient() {
                         {new Date(r.createdAt).toLocaleString()}
                       </td>
                       <td className="py-3 px-4">
-                        <Button variant="ghost" size="icon" onClick={() => handleDismissOne(r.id)} title="Dismiss">
+                        <Button variant="ghost" size="icon" onClick={() => handleDismissOne(r.id)} title={t('admin.pages.cspReports.dismiss')}>
                           <CheckCircle2 className="w-4 h-4 text-[var(--text-tertiary)] hover:text-[var(--success)]" />
                         </Button>
                       </td>
@@ -380,7 +382,7 @@ export default function CspReportsClient() {
               {/* Pagination */}
               <div className="flex items-center justify-between p-4 border-t border-[var(--border)]">
                 <p className="text-sm text-[var(--text-tertiary)]">
-                  Page {data.page} of {data.totalPages} ({data.total} total)
+                  {t('admin.pages.cspReports.pageOf', { page: data.page, totalPages: data.totalPages, total: data.total })}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -412,16 +414,16 @@ export default function CspReportsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCheck className="w-5 h-5 text-[var(--primary)]" />
-              Dismiss All Reports
+              {t('admin.pages.cspReports.dismissAllTitle')}
             </DialogTitle>
             <DialogDescription>
-              This will mark all {data?.total || 0} CSP reports as reviewed. They will be hidden from the main list.
+              {t('admin.pages.cspReports.dismissAllDesc', { count: data?.total || 0 })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowClearDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowClearDialog(false)}>{t('admin.pages.cspReports.cancel')}</Button>
             <Button variant="default" onClick={handleDismissAll}>
-              <CheckCheck className="w-4 h-4 mr-2" /> Dismiss All
+              <CheckCheck className="w-4 h-4 mr-2" /> {t('admin.pages.cspReports.dismissAll')}
             </Button>
           </DialogFooter>
         </DialogContent>

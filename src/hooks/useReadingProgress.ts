@@ -10,7 +10,6 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
 import { useThrottle } from '@/hooks/useDebounce';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { extractApiError } from '@/lib/extract-api-error';
 import { fetcher, getErrorMessage } from '@/lib/swr-config';
 
@@ -71,11 +70,16 @@ export function useReadingProgress(mangaId?: string) {
 export function useUpdateReadingProgress() {
   const { trigger, isMutating, error } = useSWRMutation(
     '/api/progress',
-    async (url: string, { arg }: { arg: { mangaId: string; chapterId: string; page: number; percentage: number } }) => {
+    async (url: string, { arg }: { arg: { mangaId: string; chapterId: string; currentPage: number; percentage: number } }) => {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(arg),
+        body: JSON.stringify({
+          mangaId: arg.mangaId,
+          chapterId: arg.chapterId,
+          currentPage: arg.currentPage,
+          percentage: arg.percentage,
+        }),
       });
       
       if (!response.ok) {
@@ -104,7 +108,6 @@ export function useAutoSaveProgress(
   totalPages: number
 ) {
   const { updateProgress, isLoading } = useUpdateReadingProgress();
-  const { handleError } = useErrorHandler();
   const lastSaved = useRef(0);
 
   const save = useCallback(async () => {
@@ -116,14 +119,17 @@ export function useAutoSaveProgress(
       await updateProgress({
         mangaId,
         chapterId,
-        page: currentPage,
+        currentPage,
         percentage,
       });
       lastSaved.current = currentPage;
     } catch (error) {
-      handleError(error);
+      // Silently fail — progress save is non-critical, no need to bother the user
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Reader] Auto-save progress failed:', error);
+      }
     }
-  }, [mangaId, chapterId, currentPage, totalPages, updateProgress, handleError]);
+  }, [mangaId, chapterId, currentPage, totalPages, updateProgress]);
 
   // Throttled save (every 5 seconds)
   const throttledSave = useThrottle(save, 5000);

@@ -47,6 +47,16 @@ const QuickActions = [
     borderHover: 'hover:border-emerald-500/50',
   },
   {
+    href: '/creator/ai/generate',
+    icon: SparklesIcon,
+    titleKey: 'aiGenerate',
+    descKey: 'aiGenerateDesc',
+    gradient: 'from-pink-500/20 to-rose-500/20',
+    iconBg: 'bg-pink-500/20',
+    iconColor: 'text-pink-500',
+    borderHover: 'hover:border-pink-500/50',
+  },
+  {
     href: '/prompts',
     icon: WandIcon,
     titleKey: 'aiPrompts',

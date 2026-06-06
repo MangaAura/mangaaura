@@ -5,6 +5,7 @@ import { NewsClient } from './NewsClient';
 import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
+import { prisma } from '@/lib/prisma';
 import { withHreflang } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +34,41 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const articles = await prisma.newsArticle.findMany({
+    where: { isPublished: true },
+    orderBy: [
+      { isFeatured: 'desc' },
+      { publishedAt: 'desc' },
+    ],
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      titleEn: true,
+      excerptEn: true,
+      coverUrl: true,
+      category: true,
+      isFeatured: true,
+      publishedAt: true,
+      createdAt: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+    },
+  });
+
+  const serialized = articles.map((a) => ({
+    ...a,
+    publishedAt: a.publishedAt?.toISOString() ?? null,
+    createdAt: a.createdAt.toISOString(),
+  }));
+
   return (
     <>
       <BreadcrumbStructuredData
@@ -43,7 +78,7 @@ export default function NewsPage() {
         ]}
       />
       <Suspense fallback={null}>
-        <NewsClient />
+        <NewsClient initialArticles={serialized} />
       </Suspense>
     </>
   );

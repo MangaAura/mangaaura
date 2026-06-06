@@ -9,6 +9,7 @@ import {
   SettingsIcon,
   UsersIcon,
   Medal,
+  SparklesIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -29,6 +30,7 @@ const navItems: { labelKey: string; href: string; icon: typeof HomeIcon }[] = [
   { labelKey: 'creator.trash', href: '/creator/trash', icon: Trash2Icon },
   { labelKey: 'nav.sponsorships', href: '/creator/sponsors', icon: Medal },
   { labelKey: 'creator.analytics', href: '/analytics?tab=creator', icon: ChartBarIcon },
+  { labelKey: 'creator.aiGenerate', href: '/creator/ai/generate', icon: SparklesIcon },
   { labelKey: 'creator.community', href: '/creator/community', icon: UsersIcon },
   { labelKey: 'common.settings', href: '/creator/settings', icon: SettingsIcon },
 ];

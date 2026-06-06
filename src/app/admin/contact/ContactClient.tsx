@@ -40,18 +40,18 @@ interface ContactMessage {
   } | null;
 }
 
-const CATEGORY_LABELS: Record<string, { label: string; color: string }> = {
-  general: { label: 'General', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-  support: { label: 'Soporte', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
-  dmca: { label: 'DMCA', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  business: { label: 'Negocios', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+const CATEGORY_COLORS: Record<string, string> = {
+  general: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  support: 'bg-green-500/20 text-green-400 border-green-500/30',
+  dmca: 'bg-red-500/20 text-red-400 border-red-500/30',
+  business: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
 };
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  PENDING: { label: 'Pendiente', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  READ: { label: 'Leído', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-  REPLIED: { label: 'Respondido', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
-  CLOSED: { label: 'Cerrado', color: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  READ: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  REPLIED: 'bg-green-500/20 text-green-400 border-green-500/30',
+  CLOSED: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
 };
 
 interface ContactApiResponse {
@@ -93,21 +93,21 @@ export default function ContactClient() {
       if (res.ok) {
         await mutate();
         toast({
-          title: 'Status updated',
-          description: `Message marked as ${status.toLowerCase()}.`,
+          title: t('admin.contactStatus.statusUpdated'),
+          description: t('admin.contactStatus.markedAs', { status: t(`admin.pages.contact.statuses.${status}`).toLowerCase() }),
           variant: 'success',
         });
       } else {
         toast({
-          title: 'Error',
-          description: 'Failed to update message status',
+          title: t('common.error'),
+          description: t('admin.contactStatus.updateFailed'),
           variant: 'error',
         });
       }
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to update message status',
+        title: t('common.error'),
+        description: t('admin.contactStatus.updateFailed'),
         variant: 'error',
       });
     }
@@ -213,28 +213,28 @@ export default function ContactClient() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium truncate">{msg.name}</span>
                         <span className="text-muted text-sm truncate">{msg.email}</span>
-                        <Badge className={CATEGORY_LABELS[msg.category]?.color || ''}>
-                          {CATEGORY_LABELS[msg.category]?.label || msg.category}
+                        <Badge className={CATEGORY_COLORS[msg.category] || ''}>
+                          {t(`admin.pages.contact.categories.${msg.category}`)}
                         </Badge>
-                        <Badge className={STATUS_LABELS[msg.status]?.color || ''}>
-                          {STATUS_LABELS[msg.status]?.label || msg.status}
+                        <Badge className={STATUS_COLORS[msg.status] || ''}>
+                          {t(`admin.pages.contact.statuses.${msg.status}`)}
                         </Badge>
                         {msg.status === 'PENDING' && (
                           <button
                             onClick={(e) => { e.stopPropagation(); updateStatus(msg.id, 'READ'); }}
                             className="text-xs text-accent-blue hover:underline flex items-center gap-1"
-                            title="Mark as read"
+                            title={t('admin.contactStatus.markRead')}
                           >
-                            <Eye className="w-3 h-3" /> Mark read
+                            <Eye className="w-3 h-3" /> {t('admin.contactStatus.markReadShort')}
                           </button>
                         )}
                         {msg.status !== 'CLOSED' && (
                           <button
                             onClick={(e) => { e.stopPropagation(); updateStatus(msg.id, 'CLOSED'); }}
                             className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex items-center gap-1"
-                            title="Close without reply"
+                            title={t('admin.contactStatus.close')}
                           >
-                            <XCircle className="w-3 h-3" /> Close
+                            <XCircle className="w-3 h-3" /> {t('admin.contactStatus.closeShort')}
                           </button>
                         )}
                       </div>
@@ -294,11 +294,11 @@ export default function ContactClient() {
             <div className="flex flex-wrap gap-2">
               {selectedMessage && (
                 <>
-                  <Badge className={CATEGORY_LABELS[selectedMessage.category]?.color || ''}>
-                    {CATEGORY_LABELS[selectedMessage.category]?.label || selectedMessage.category}
+                  <Badge className={CATEGORY_COLORS[selectedMessage.category] || ''}>
+                    {t(`admin.pages.contact.categories.${selectedMessage.category}`)}
                   </Badge>
-                  <Badge className={STATUS_LABELS[selectedMessage.status]?.color || ''}>
-                    {STATUS_LABELS[selectedMessage.status]?.label || selectedMessage.status}
+                  <Badge className={STATUS_COLORS[selectedMessage.status] || ''}>
+                    {t(`admin.pages.contact.statuses.${selectedMessage.status}`)}
                   </Badge>
                   <span className="text-xs text-muted">
                     {selectedMessage.createdAt && new Date(selectedMessage.createdAt).toLocaleString('es-ES')}

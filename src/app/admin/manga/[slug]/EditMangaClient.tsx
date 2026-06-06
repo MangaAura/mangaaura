@@ -30,6 +30,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog';
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { Input } from '@/components/ui/Input';
 import {
   Select,
@@ -84,9 +85,8 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [tagInput, setTagInput] = useState('');
-  const coverInputRef = useRef<HTMLInputElement>(null);
+  const cropperRef = useRef<ImageCropperUploaderHandle>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [_coverFile, setCoverFile] = useState<File | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR<{ manga: MangaData }>(
     `/api/admin/manga/${params.slug}`,
@@ -122,40 +122,35 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
     }
   }, [manga]);
 
-  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 5 * 1024 * 1024) return;
+  const handleCropConfirm = (croppedBlob: Blob) => {
+    const blobType = croppedBlob.type || 'image/webp';
+    const ext = blobType.split('/')[1] || 'webp';
+    const croppedFile = new File([croppedBlob], `cover.${ext}`, { type: blobType });
 
-    setCoverFile(file);
-    // Show local preview immediately
-    const reader = new FileReader();
-    reader.onloadend = () => setCoverPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    // Show local preview
+    const previewUrl = URL.createObjectURL(croppedBlob);
+    setCoverPreview(previewUrl);
 
     // Upload to server
-    try {
-      const uploadForm = new FormData();
-      uploadForm.append('file', file);
-      const res = await fetch('/api/upload/image', { method: 'POST', body: uploadForm });
-      if (res.ok) {
-        const data = await res.json();
+    const uploadForm = new FormData();
+    uploadForm.append('file', croppedFile);
+    fetch('/api/upload/image', { method: 'POST', body: uploadForm })
+      .then((res) => res.ok ? res.json() : Promise.reject())
+      .then((data) => {
         const uploadedUrl = data.url || data.imageUrl;
         if (uploadedUrl) {
           setFormData((prev) => ({ ...prev, coverUrl: uploadedUrl }));
         }
-      }
-    } catch {
-      // Upload failed, but local preview still shows
-    }
+      })
+      .catch(() => {});
   };
 
   const handleRemoveCover = () => {
+    if (coverPreview) {
+      URL.revokeObjectURL(coverPreview);
+    }
     setCoverPreview(null);
-    setCoverFile(null);
     setFormData((prev) => ({ ...prev, coverUrl: '' }));
-    if (coverInputRef.current) coverInputRef.current.value = '';
   };
 
   const handleSave = async () => {
@@ -318,7 +313,7 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => coverInputRef.current?.click()}
+                        onClick={() => cropperRef.current?.open()}
                       >
                         <ImageIcon className="w-4 h-4 mr-1" />
                         Subir archivo
@@ -336,12 +331,12 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
                         </Button>
                       )}
                     </div>
-                    <input
-                      ref={coverInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleCoverFileChange}
-                      className="hidden"
+                    <ImageCropperUploader
+                      ref={cropperRef}
+                      aspect={3 / 4}
+                      cropperTitle="Ajustar portada del manga"
+                      cropperSubtitle="Arrastra para encuadrar · Ratio 3:4 (vertical)"
+                      onCropComplete={handleCropConfirm}
                     />
                     {/* Inline preview */}
                     {coverPreview && (

@@ -190,6 +190,7 @@ export class SpendAuraUseCase {
       'PREMIUM_CHAPTER',
       'MARKETPLACE_PURCHASE',
       'BOOST_MANGA',
+      'IMAGE_GENERATION',
       'OTHER',
     ];
 

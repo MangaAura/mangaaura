@@ -138,79 +138,84 @@ export default function QuizPopup({ isOpen, onClose, chapterTitle, chapterId }: 
     >
       <FocusLock returnFocus>
         <div className="bg-secondary w-full max-w-md rounded-2xl shadow-2xl p-6 border border-custom">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent-blue/10 text-accent-blue mb-4">
-            <HelpCircle size={24} />
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent-blue/10 text-accent-blue mb-4">
+              <HelpCircle size={24} />
+            </div>
+            <h2 id={titleId} className="text-xl font-bold mb-1">Pop Quiz: {chapterTitle}</h2>
+            <p className="text-sm text-muted">¡Responde correctamente para ganar experiencia!</p>
           </div>
-          <h2 id={titleId} className="text-xl font-bold mb-1">Pop Quiz: {chapterTitle}</h2>
-          <p className="text-sm text-muted">¡Responde correctamente para ganar experiencia!</p>
-        </div>
 
-        <div className="mb-6">
-          <h3 className="font-semibold text-lg mb-4 text-center">{question}</h3>
-          <div className="space-y-3">
-            {answers.map((answer, index) => {
-              const isSelected = selectedAnswer === index;
-              let btnClass = "w-full text-left p-4 rounded-xl border transition-all ";
+          <div className="mb-6">
+            <h3 className="font-semibold text-lg mb-4 text-center">{question}</h3>
+            <div className="space-y-3">
+              {answers.map((answer, index) => {
+                const isSelected = selectedAnswer === index;
+                let btnClass = "w-full text-left p-4 rounded-xl border transition-all ";
 
-              if (!isSubmitted) {
-                btnClass += isSelected
-                  ? "border-accent-blue bg-accent-blue/5 shadow-md"
-                  : "border-custom hover:bg-tertiary";
-              } else {
-                if (index === correctAnswer) {
-                  btnClass += "border-accent-green bg-accent-green/10 text-accent-green font-semibold";
-                } else if (isSelected && index !== correctAnswer) {
-                  btnClass += "border-accent-red bg-accent-red/10 text-accent-red opacity-50";
+                if (!isSubmitted) {
+                  btnClass += isSelected
+                    ? "border-accent-blue bg-accent-blue/5 shadow-md"
+                    : "border-custom hover:bg-tertiary";
                 } else {
-                  btnClass += "border-custom opacity-50";
+                  if (index === correctAnswer) {
+                    btnClass += "border-accent-green bg-accent-green/10 text-accent-green font-semibold";
+                  } else if (isSelected && index !== correctAnswer) {
+                    btnClass += "border-accent-red bg-accent-red/10 text-accent-red opacity-50";
+                  } else {
+                    btnClass += "border-custom opacity-50";
+                  }
                 }
-              }
 
-              return (
-                <button
-                  key={`answer-${index}`}
-                  disabled={isSubmitted || isLoading}
-                  onClick={() => setSelectedAnswer(index)}
-                  className={btnClass + ' cursor-pointer'}
-                >
-                  <div className="flex justify-between items-center">
-                    <span>{answer}</span>
-                    {isSubmitted && index === correctAnswer && <CheckCircle2 size={20} />}
-                    {isSubmitted && isSelected && index !== correctAnswer && <XCircle size={20} />}
-                  </div>
-                </button>
-              );
-            })}
+                const isAnswerDisabled = isSubmitted || isLoading;
+
+                return (
+                  <button
+                    key={`answer-${index}`}
+                    disabled={isAnswerDisabled}
+                    onClick={() => setSelectedAnswer(index)}
+                    className={btnClass + (isAnswerDisabled ? ' cursor-not-allowed' : ' cursor-pointer')}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>{answer}</span>
+                      {isSubmitted && index === correctAnswer && <CheckCircle2 size={20} />}
+                      {isSubmitted && isSelected && index !== correctAnswer && <XCircle size={20} />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        {isSubmitted ? (
-          <div className="text-center animate-fade-in-up">
-            {selectedAnswer === correctAnswer ? (
-              <div className="mb-6 p-4 bg-accent-green/10 rounded-xl text-accent-green font-bold flex flex-col items-center">
-                <span className="text-2xl mb-1">¡Correcto!</span>
-                <span className="flex items-center text-lg"><Coins size={20} className="mr-2" /> +50 XP Ganada</span>
-              </div>
-            ) : (
-              <div className="mb-6 p-4 bg-accent-red/10 rounded-xl text-accent-red font-bold">
-                Respuesta incorrecta. ¡Suerte a la próxima!
-              </div>
-            )}
-            <button onClick={onClose} className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold py-3 rounded-xl transition-colors cursor-pointer">
-              Continuar Lectura
+          {isSubmitted ? (
+            <div className="text-center animate-fade-in-up">
+              {selectedAnswer === correctAnswer ? (
+                <div className="mb-6 p-4 bg-accent-green/10 rounded-xl text-accent-green font-bold flex flex-col items-center">
+                  <span className="text-2xl mb-1">¡Correcto!</span>
+                  <span className="flex items-center text-lg"><Coins size={20} className="mr-2" /> +50 XP Ganada</span>
+                </div>
+              ) : (
+                <div className="mb-6 p-4 bg-accent-red/10 rounded-xl text-accent-red font-bold">
+                  Respuesta incorrecta. ¡Suerte a la próxima!
+                </div>
+              )}
+              <button onClick={onClose} className="w-full bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] font-semibold py-3 rounded-xl transition-colors cursor-pointer">
+                Continuar Lectura
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={selectedAnswer === null || isLoading}
+              className={`w-full font-semibold py-3 rounded-xl transition-all flex justify-center items-center ${selectedAnswer !== null
+                ? 'bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] shadow-md cursor-pointer'
+                : 'bg-tertiary text-muted cursor-not-allowed'
+              }`}
+            >
+              {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Comprobar Respuesta'}
             </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            disabled={selectedAnswer === null || isLoading}
-            className={`w-full font-semibold py-3 rounded-xl transition-all flex justify-center items-center cursor-pointer ${selectedAnswer !== null ? 'bg-accent-blue hover:bg-accent-blue-hover text-[var(--text-inverse)] shadow-md' : 'bg-tertiary text-muted cursor-not-allowed'}`}
-          >
-            {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Comprobar Respuesta'}
-          </button>
-        )}
-      </div>
+          )}
+        </div>
       </FocusLock>
     </div>
   );

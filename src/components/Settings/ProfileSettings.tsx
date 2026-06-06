@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { extractApiError } from '@/lib/extract-api-error';
 
 interface ProfileSettingsProps {
@@ -94,12 +95,12 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const avatarCropperRef = useRef<ImageCropperUploaderHandle>(null);
 
   const [coverPreview, setCoverPreview] = useState<string | null>(user.coverUrl || null);
   const [coverError, setCoverError] = useState('');
   const [uploadingCover, setUploadingCover] = useState(false);
-  const coverInputRef = useRef<HTMLInputElement>(null);
+  const coverCropperRef = useRef<ImageCropperUploaderHandle>(null);
 
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
@@ -175,33 +176,19 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
   };
 
   const handleAvatarClick = () => {
-    avatarInputRef.current?.click();
+    avatarCropperRef.current?.open();
   };
 
-  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/avif'];
-    if (!allowedTypes.includes(file.type)) {
-      setAvatarError('Formato no soportado. Usa JPEG, PNG, WebP o AVIF.');
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setAvatarError(`Archivo demasiado grande. Máximo 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB).`);
-      return;
-    }
-
+  const handleAvatarCropComplete = async (croppedBlob: Blob, fileName: string) => {
     setUploadingAvatar(true);
     setAvatarError('');
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(croppedBlob);
     setAvatarPreview(previewUrl);
     setIsDirty(true);
 
     try {
+      const file = new File([croppedBlob], fileName, { type: 'image/webp' });
       const formData = new FormData();
       formData.append('file', file);
 
@@ -223,40 +210,25 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     } catch (error: any) {
       setAvatarError(error.message || 'Error al subir la imagen');
       setAvatarPreview(user.avatarUrl);
-} finally {
+    } finally {
       setUploadingAvatar(false);
-      if (avatarInputRef.current) avatarInputRef.current.value = '';
     }
   };
 
   const handleCoverClick = () => {
-    coverInputRef.current?.click();
+    coverCropperRef.current?.open();
   };
 
-  const handleCoverFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/avif'];
-    if (!allowedTypes.includes(file.type)) {
-      setCoverError('Formato no soportado. Usa JPEG, PNG, WebP o AVIF.');
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setCoverError(`Archivo demasiado grande. Máximo 5MB (${(file.size / 1024 / 1024).toFixed(1)}MB).`);
-      return;
-    }
-
+  const handleCoverCropComplete = async (croppedBlob: Blob, fileName: string) => {
     setUploadingCover(true);
     setCoverError('');
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(croppedBlob);
     setCoverPreview(previewUrl);
     setIsDirty(true);
 
     try {
+      const file = new File([croppedBlob], fileName, { type: 'image/webp' });
       const formData = new FormData();
       formData.append('file', file);
 
@@ -278,7 +250,6 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       setCoverPreview(user.coverUrl || null);
     } finally {
       setUploadingCover(false);
-      if (coverInputRef.current) coverInputRef.current.value = '';
     }
   };
 
@@ -418,12 +389,13 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               </div>
             )}
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/webp,image/jpeg,image/png,image/avif"
-              onChange={handleAvatarFile}
-              className="hidden"
+            <ImageCropperUploader
+              ref={avatarCropperRef}
+              aspect={1}
+              cropperTitle="Ajustar foto de perfil"
+              cropperSubtitle="Arrastra para encuadrar · Se mostrará como un círculo"
+              onCropComplete={handleAvatarCropComplete}
+              onError={(err) => setAvatarError(err)}
             />
             <button
               type="button"
@@ -488,12 +460,13 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
                 </button>
               )}
             </div>
-            <input
-              ref={coverInputRef}
-              type="file"
-              accept="image/webp,image/jpeg,image/png,image/avif"
-              onChange={handleCoverFile}
-              className="hidden"
+            <ImageCropperUploader
+              ref={coverCropperRef}
+              aspect={3}
+              cropperTitle="Ajustar banner de perfil"
+              cropperSubtitle="Arrastra para encuadrar · Ratio 3:1"
+              onCropComplete={handleCoverCropComplete}
+              onError={(err) => setCoverError(err)}
             />
           </div>
           <p className="text-xs text-[var(--text-tertiary)]">

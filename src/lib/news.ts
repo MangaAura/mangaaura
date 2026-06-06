@@ -18,6 +18,7 @@ export interface DisplayNewsItem {
   isFeatured: boolean;
   authorName?: string | null;
   authorUsername?: string | null;
+  authorAvatarUrl?: string | null;
 }
 
 /** Predefined mapping from category → iconType */
@@ -53,6 +54,7 @@ export function dbArticleToDisplayItem(
     author?: {
       displayName?: string | null;
       username?: string | null;
+      avatarUrl?: string | null;
     } | null;
   },
 ): DisplayNewsItem {
@@ -79,6 +81,7 @@ export function dbArticleToDisplayItem(
     isFeatured: dbArticle.isFeatured ?? false,
     authorName: dbArticle.author?.displayName || dbArticle.author?.username || null,
     authorUsername: dbArticle.author?.username || null,
+    authorAvatarUrl: dbArticle.author?.avatarUrl || null,
   };
 }
 

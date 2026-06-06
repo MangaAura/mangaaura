@@ -190,7 +190,7 @@ export const authConfig = {
     },
   ],
   callbacks: {
-    async signIn({ user, account, profile }: { user?: { id?: string; email?: string; name?: string; image?: string; xpPoints?: number; level?: number; role?: string }; account?: { provider?: string; type?: string }; profile?: { avatar_url?: string } }) {
+    async signIn({ user, account, profile }: { user?: { id?: string; email?: string; name?: string; image?: string; xpPoints?: number; level?: number; role?: string }; account?: { provider?: string; type?: string; providerAccountId?: string }; profile?: { avatar_url?: string } }) {
       if (account?.provider === 'google' || account?.provider === 'github') {
         if (!user?.email) return true;
         try {
@@ -199,74 +199,61 @@ export const authConfig = {
           });
 
           if (!existingUser) {
-            const username =
-              user.name?.replace(/\s+/g, '').toLowerCase() ||
-              user.email.split('@')[0];
-
-            const existingUsername = await prisma.user.findUnique({
-              where: { username },
-            });
-
-            const finalUsername = existingUsername
-              ? `${username}_${Date.now()}`
-              : username;
+            // ── NEW OAuth user: redirect to complete registration page ──
+            // Instead of auto-creating the user with Google/GitHub data,
+            // we create a signed JWT token and redirect to a form where
+            // the user picks a displayName, username, and optional avatar.
+            const { createOAuthRegistrationToken } = await import('@/lib/oauth-registration');
 
             let avatarUrl = user.image;
             if (!avatarUrl && account.provider === 'github' && profile) {
-              avatarUrl = profile.avatar_url;
+              avatarUrl = (profile as Record<string, string | undefined>).avatar_url;
             }
 
-            const newUser = await prisma.user.create({
-              data: {
-                email: user.email,
-                username: finalUsername,
-                displayName: user.name || finalUsername,
-                avatarUrl: avatarUrl,
-                role: 'USER',
-                xpPoints: 0,
-                level: 1,
-                auraBalance: 50,
-                passwordHash: null,
-              },
+            const token = await createOAuthRegistrationToken({
+              email: user.email,
+              name: user.name,
+              image: avatarUrl,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId || '',
+              accountType: account.type || 'oauth',
             });
 
-            user.id = newUser.id;
-            user.xpPoints = newUser.xpPoints ?? undefined;
-            user.level = newUser.level ?? undefined;
-            user.role = newUser.role ?? undefined;
-          } else {
-            user.id = existingUser.id;
-            user.xpPoints = existingUser.xpPoints;
-            user.level = existingUser.level;
-            user.role = existingUser.role;
+            return `/auth/complete-registration?token=${token}`;
+          }
 
-            if (!existingUser.avatarUrl && user.image) {
-              await prisma.user.update({
-                where: { id: existingUser.id },
-                data: { avatarUrl: user.image },
-              });
-            }
+          // ── Existing OAuth user: normal login ──
+          user.id = existingUser.id;
+          user.xpPoints = existingUser.xpPoints;
+          user.level = existingUser.level;
+          user.role = existingUser.role;
 
-            const providerAccountId = (account as Record<string, string | undefined>)?.providerAccountId;
-            if (providerAccountId) {
-              const existingAccount = await prisma.account.findUnique({
-                where: {
-                  provider_providerAccountId: {
-                    provider: account.provider,
-                    providerAccountId,
-                  },
+          if (!existingUser.avatarUrl && user.image) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { avatarUrl: user.image },
+            });
+          }
+
+          const providerAccountId = account.providerAccountId;
+          if (providerAccountId) {
+            const existingAccount = await prisma.account.findUnique({
+              where: {
+                provider_providerAccountId: {
+                  provider: account.provider,
+                  providerAccountId,
+                },
+              },
+            });
+            if (!existingAccount) {
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type || 'oauth',
+                  provider: account.provider || 'unknown',
+                  providerAccountId,
                 },
               });
-              if (!existingAccount) {
-                await prisma.account.create({
-                  data: {
-                    userId: existingUser.id,
-                    type: account.type || 'oauth',
-                    provider: account.provider || 'unknown',
-                    providerAccountId,
-                  },
-                });
-              }
             }
           }
         } catch (error) {

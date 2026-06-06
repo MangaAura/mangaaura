@@ -19,6 +19,7 @@ import { GenreSelector } from '@/components/Creator/GenreSelector';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { Input } from '@/components/ui/Input';
 import { useManga } from '@/hooks/useManga';
 import { useT } from '@/i18n';
@@ -40,7 +41,7 @@ export default function EditMangaClient({ params }: PageProps) {
   const t = useT();
   const router = useRouter();
   const { manga, isLoading, error, updateManga } = useManga({ mangaId: slug });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cropperRef = useRef<ImageCropperUploaderHandle>(null);
   const pendingCoverRef = useRef<Promise<string | null> | null>(null);
 
   const [formData, setFormData] = useState({
@@ -50,8 +51,8 @@ export default function EditMangaClient({ params }: PageProps) {
   const [tagList, setTagList] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('ONGOING');
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [_coverFile, setCoverFile] = useState<File | null>(null);
-  const [_isUploadingCover, setIsUploadingCover] = useState(false);
+  const [coverCroppedFile, setCoverCroppedFile] = useState<File | null>(null);
+  const [, setIsUploadingCover] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -129,46 +130,36 @@ export default function EditMangaClient({ params }: PageProps) {
     }
   };
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        setErrors((prev) => ({ ...prev, cover: t('creatorMangaEdit.errorImageType') }));
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, cover: t('creatorMangaEdit.errorImageSize') }));
-        return;
-      }
-      
-      setCoverFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPreview(reader.result as string);
-        setHasChanges(true);
-      };
-      reader.readAsDataURL(file);
-      setErrors((prev) => ({ ...prev, cover: '' }));
-      
-      // Upload to server — store promise so handleSubmit can await it
-      const uploadPromise = uploadCoverToServer(file);
-      pendingCoverRef.current = uploadPromise;
-      uploadPromise.then((url) => {
-        if (url) setCoverUploadedUrl(url);
-        pendingCoverRef.current = null;
-      });
-    }
+  const handleCropConfirm = (croppedBlob: Blob) => {
+    // Create a File from the cropped blob
+    const blobType = croppedBlob.type || 'image/webp';
+    const ext = blobType.split('/')[1] || 'webp';
+    const croppedFile = new File([croppedBlob], `cover.${ext}`, { type: blobType });
+    setCoverCroppedFile(croppedFile);
+
+    // Show local preview immediately
+    const previewUrl = URL.createObjectURL(croppedBlob);
+    setCoverPreview(previewUrl);
+    setHasChanges(true);
+
+    // Upload to server — store promise so handleSubmit can await it
+    const uploadPromise = uploadCoverToServer(croppedFile);
+    pendingCoverRef.current = uploadPromise;
+    uploadPromise.then((url) => {
+      if (url) setCoverUploadedUrl(url);
+      pendingCoverRef.current = null;
+    });
   };
 
   const removeCover = () => {
+    if (coverPreview) {
+      URL.revokeObjectURL(coverPreview);
+    }
     setCoverPreview(null);
-    setCoverFile(null);
+    setCoverCroppedFile(null);
     setCoverUploadedUrl(null);
     pendingCoverRef.current = null;
     setHasChanges(true);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   // removed - handled by GenreSelector
@@ -187,7 +178,7 @@ export default function EditMangaClient({ params }: PageProps) {
 
     // If cover upload is still pending, wait for it
     let finalCoverUrl = coverUploadedUrl;
-    if (!finalCoverUrl && _coverFile && pendingCoverRef.current) {
+    if (!finalCoverUrl && coverCroppedFile && pendingCoverRef.current) {
       finalCoverUrl = await pendingCoverRef.current;
     }
 
@@ -414,7 +405,7 @@ export default function EditMangaClient({ params }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     <div
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => cropperRef.current?.open()}
                       className={cn(
                         'relative aspect-[3/4] rounded-lg border-2 border-dashed cursor-pointer overflow-hidden transition-colors',
                         coverPreview
@@ -452,13 +443,6 @@ export default function EditMangaClient({ params }: PageProps) {
                           </p>
                         </div>
                       )}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleCoverChange}
-                        className="hidden"
-                      />
                     </div>
                     {errors.cover && (
                 <p className="mt-2 text-xs text-red-500 flex items-center gap-1" role="alert">
@@ -466,6 +450,16 @@ export default function EditMangaClient({ params }: PageProps) {
                         {errors.cover}
                       </p>
                     )}
+
+                    {/* Image Cropper — handles file select + crop lifecycle */}
+                    <ImageCropperUploader
+                      ref={cropperRef}
+                      aspect={3 / 4}
+                      cropperTitle="Ajustar portada del manga"
+                      cropperSubtitle="Arrastra para encuadrar · Ratio 3:4 (vertical)"
+                      onCropComplete={handleCropConfirm}
+                      onError={(error: string) => setErrors((prev) => ({ ...prev, cover: error }))}
+                    />
                   </CardContent>
                 </Card>
 

@@ -4,4 +4,5 @@ export type AuraTransactionType =
   | 'PREMIUM_CHAPTER'
   | 'MARKETPLACE_PURCHASE'
   | 'BOOST_MANGA'
+  | 'IMAGE_GENERATION'
   | 'OTHER';

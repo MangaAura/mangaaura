@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { ACCEPTED_FORMATS, MAX_FILE_SIZE } from '@/lib/storage-config';
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 
 interface ChapterCoverUploadProps {
   onCoverChange: (url: string | null) => void;
@@ -15,26 +15,14 @@ interface ChapterCoverUploadProps {
 export function ChapterCoverUpload({ onCoverChange, currentCover }: ChapterCoverUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cropperRef = useRef<ImageCropperUploaderHandle>(null);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate
-    if (!(ACCEPTED_FORMATS as readonly string[]).includes(file.type)) {
-      setUploadError('Formato no soportado. Usa JPEG, PNG o WebP.');
-      return;
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      setUploadError(`Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB.`);
-      return;
-    }
-
+  const handleCropConfirm = async (croppedBlob: Blob) => {
     setIsUploading(true);
     setUploadError(null);
 
     try {
+      const file = new File([croppedBlob], 'cover.webp', { type: 'image/webp' });
       const formData = new FormData();
       formData.append('file', file);
 
@@ -54,7 +42,6 @@ export function ChapterCoverUpload({ onCoverChange, currentCover }: ChapterCover
       setUploadError(err instanceof Error ? err.message : 'Error al subir la portada');
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -80,7 +67,7 @@ export function ChapterCoverUpload({ onCoverChange, currentCover }: ChapterCover
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => cropperRef.current?.open()}
               className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
               title="Cambiar portada"
             >
@@ -102,7 +89,7 @@ export function ChapterCoverUpload({ onCoverChange, currentCover }: ChapterCover
       ) : (
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => cropperRef.current?.open()}
           disabled={isUploading}
           className="w-full aspect-[5/7] border-2 border-dashed border-[var(--border-strong)] rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors disabled:opacity-50"
         >
@@ -120,12 +107,13 @@ export function ChapterCoverUpload({ onCoverChange, currentCover }: ChapterCover
         </button>
       )}
 
-      <input
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="sr-only"
-        ref={fileInputRef}
-        onChange={handleFileSelect}
+      <ImageCropperUploader
+        ref={cropperRef}
+        aspect={5 / 7}
+        cropperTitle="Ajustar portada del capítulo"
+        cropperSubtitle="Arrastra para encuadrar · Ratio 5:7 (vertical)"
+        onCropComplete={handleCropConfirm}
+        onError={(err: string) => setUploadError(err)}
       />
 
       {uploadError && (

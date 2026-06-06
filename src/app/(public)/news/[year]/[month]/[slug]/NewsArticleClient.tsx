@@ -1,74 +1,38 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, Calendar, Star, Palette, Smartphone, Trophy, Sparkles, User } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  Star,
+  Clock,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import { Container } from '@/components/Layout/Container';
+import { ScrollProgressBar } from '@/components/Layout/ScrollProgressBar';
+import { ArticleShareButton } from '@/components/News/ArticleShareButton';
+import { AuthorCard } from '@/components/News/AuthorCard';
+import { FadeIn } from '@/components/News/FadeIn';
+import { PullQuote } from '@/components/News/PullQuote';
+import { RelatedArticles } from '@/components/News/RelatedArticles';
 import { useT, useLocale } from '@/i18n';
 import { type DisplayNewsItem } from '@/lib/news';
 
-const iconMap: Record<string, React.ReactNode> = {
-  community: <Star size={16} aria-hidden="true" />,
-  platform: <Palette size={16} aria-hidden="true" />,
-  tools: <Sparkles size={16} aria-hidden="true" />,
-  mobile: <Smartphone size={16} aria-hidden="true" />,
-  contest: <Trophy size={16} aria-hidden="true" />,
+const categoryBadge: Record<string, string> = {
+  community: 'bg-amber-500/15 text-amber-500',
+  platform: 'bg-indigo-500/15 text-indigo-400',
+  tools: 'bg-sky-500/15 text-sky-400',
+  mobile: 'bg-emerald-500/15 text-emerald-400',
+  contest: 'bg-rose-500/15 text-rose-400',
 };
 
-const categoryIconMap: Record<string, React.ReactNode> = {
-  community: <Star size={48} className="opacity-[0.08]" aria-hidden="true" />,
-  platform: <Palette size={48} className="opacity-[0.08]" aria-hidden="true" />,
-  tools: <Sparkles size={48} className="opacity-[0.08]" aria-hidden="true" />,
-  mobile: <Smartphone size={48} className="opacity-[0.08]" aria-hidden="true" />,
-  contest: <Trophy size={48} className="opacity-[0.08]" aria-hidden="true" />,
-};
-
-interface ThemeColors {
-  from: string;
-  via: string;
-  to: string;
-  badgeBg: string;
-  badgeText: string;
-}
-
-const themeConfig: Record<string, ThemeColors> = {
-  community: {
-    from: 'from-amber-950/50',
-    via: 'via-amber-900/20',
-    to: 'to-transparent',
-    badgeBg: 'bg-amber-500/15',
-    badgeText: 'text-amber-300',
-  },
-  platform: {
-    from: 'from-indigo-950/50',
-    via: 'via-indigo-900/20',
-    to: 'to-transparent',
-    badgeBg: 'bg-indigo-500/15',
-    badgeText: 'text-indigo-300',
-  },
-  tools: {
-    from: 'from-sky-950/50',
-    via: 'via-sky-900/20',
-    to: 'to-transparent',
-    badgeBg: 'bg-sky-500/15',
-    badgeText: 'text-sky-300',
-  },
-  mobile: {
-    from: 'from-emerald-950/50',
-    via: 'via-emerald-900/20',
-    to: 'to-transparent',
-    badgeBg: 'bg-emerald-500/15',
-    badgeText: 'text-emerald-300',
-  },
-  contest: {
-    from: 'from-rose-950/50',
-    via: 'via-rose-900/20',
-    to: 'to-transparent',
-    badgeBg: 'bg-rose-500/15',
-    badgeText: 'text-rose-300',
-  },
+const categoryAccent: Record<string, string> = {
+  community: '#f59e0b',
+  platform: '#818cf8',
+  tools: '#38bdf8',
+  mobile: '#34d399',
+  contest: '#fb7185',
 };
 
 const categoryLabelKey: Record<string, string> = {
@@ -86,10 +50,7 @@ export function NewsArticleClient({
 }) {
   const t = useT();
   const { locale } = useLocale();
-  const prefersReducedMotion = useReducedMotion();
-  const theme = themeConfig[article.iconType] || themeConfig.platform;
 
-  // Pick language based on client-side locale (handles live language switching)
   const isEnglish = locale === 'en';
   const title = isEnglish && article.titleEn ? article.titleEn : article.title;
   const description = isEnglish && article.descriptionEn ? article.descriptionEn : article.description;
@@ -98,166 +59,228 @@ export function NewsArticleClient({
   const body = isEnglish && bodyEn ? bodyEn : bodyRaw;
   const paragraphs = body.split('\n').filter(Boolean);
 
-  const noMotion = prefersReducedMotion
-    ? { initial: {}, animate: {}, transition: {} }
-    : undefined;
+  const readingTime = Math.max(1, Math.ceil(body.split(/\s+/).length / 200));
+  const cat = article.category;
+  const accent = categoryAccent[cat] || 'var(--primary)';
 
   const getCategoryLabel = (item: DisplayNewsItem) => {
     const key = categoryLabelKey[item.category];
     return key ? t(key) : item.category.charAt(0).toUpperCase() + item.category.slice(1);
   };
 
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr + 'T00:00:00Z');
+    return d.toLocaleDateString(isEnglish ? 'en-US' : 'es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
+  const showPullQuote = body.length > 300 && paragraphs.length > 5;
+  const pullQuoteIndex = Math.min(
+    Math.max(2, Math.floor(paragraphs.length * 0.4)),
+    paragraphs.length - 2
+  );
+
   return (
     <>
-      <section
-        aria-labelledby="article-title"
-        className="relative overflow-hidden border-b border-custom"
-      >
-        <div className={`absolute inset-0 bg-gradient-to-b ${theme.from} ${theme.via} ${theme.to}`} aria-hidden="true" />
-        <div className="absolute top-12 right-12 text-[var(--primary)]" aria-hidden="true">
-          {categoryIconMap[article.iconType]}
-        </div>
-        <div className="absolute top-1/3 -right-8 w-64 h-64 rounded-full bg-[var(--primary)]/[0.02] blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-8 left-1/4 w-48 h-48 rounded-full bg-[var(--primary)]/[0.03] blur-2xl" aria-hidden="true" />
+      <ScrollProgressBar />
 
-        <Container size="small" className="relative pt-20 pb-14">
-          <nav aria-label={t('common.breadcrumb') || 'Volver a noticias'}>
-            <motion.div
-              {...(noMotion || { initial: { opacity: 0, x: -16 }, animate: { opacity: 1, x: 0 }, transition: { duration: 0.3 } })}
-            >
-              <Link
-                href="/news"
-                className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-fg-primary focus-visible:text-fg-primary transition-colors mb-8 group rounded-sm"
-              >
-                <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-                {t('common.back')}
-              </Link>
-            </motion.div>
-          </nav>
-
-          <div className="space-y-6">
-            <motion.div
-              {...(noMotion || { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } })}
-              className="flex flex-wrap items-center gap-3"
-            >
-              <Link
-                href={`/news?category=${article.category}`}
-                className={`inline-flex items-center gap-1.5 ${theme.badgeBg} ${theme.badgeText} text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity`}
-              >
-                {iconMap[article.iconType]}
-                {getCategoryLabel(article)}
-              </Link>
-              <span className="flex items-center gap-1.5 text-xs text-muted">
-                <Calendar size={13} aria-hidden="true" />
-                <time dateTime={article.date}>{article.date}</time>
-              </span>
-              {article.authorName && (
-                <span className="flex items-center gap-1.5 text-xs text-muted">
-                  <User size={13} aria-hidden="true" />
-                  {article.authorName}
-                </span>
-              )}
-            </motion.div>
-
-            <motion.h1
-              id="article-title"
-              {...(noMotion || { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, delay: 0.1 } })}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-fg-primary"
-            >
-              {title}
-            </motion.h1>
-
-            <motion.p
-              {...(noMotion || { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, delay: 0.2 } })}
-              className="text-base sm:text-lg text-muted max-w-2xl leading-relaxed"
-            >
-              {description}
-            </motion.p>
-          </div>
+      <article>
+        {/* Back link */}
+        <Container size="small" className="pt-8 pb-0">
+          <Link
+            href="/news"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-fg-primary transition-colors"
+          >
+            <ArrowLeft size={13} />
+            {t('common.back')}
+          </Link>
         </Container>
-      </section>
 
-      {/* Cover image */}
-      {article.coverUrl && (
-        <Container size="small" className="pt-8">
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-[var(--surface-sunken)]">
+        {/* Hero with title overlay */}
+        {article.coverUrl ? (
+          <div className="relative w-full aspect-video max-h-[60vh] overflow-hidden bg-[var(--surface-sunken)]">
             <Image
               src={article.coverUrl}
               alt={title || article.title}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 800px"
+              sizes="100vw"
               priority
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 pb-8 sm:pb-12 pt-20">
+              <Container size="small">
+                <div className="max-w-[720px] mx-auto">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Link
+                      href={`/news?category=${article.category}`}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${categoryBadge[cat] || 'bg-secondary text-muted'}`}
+                    >
+                      {getCategoryLabel(article)}
+                    </Link>
+                    {article.isFeatured && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-bold uppercase tracking-wider">
+                        <Star className="w-3 h-3 fill-amber-400" />
+                        DESTACADO
+                      </span>
+                    )}
+                  </div>
+                  <h1
+                    id="article-title"
+                    className="text-[clamp(1.375rem,2.5vw,1.875rem)] font-bold tracking-tight leading-[1.2] text-white drop-shadow-lg"
+                  >
+                    {title}
+                  </h1>
+                </div>
+              </Container>
+            </div>
+          </div>
+        ) : (
+          <Container size="small" className="pt-8 pb-0">
+            <div className="max-w-[720px] mx-auto">
+              <div className="flex items-center gap-3 mb-3">
+                <Link
+                  href={`/news?category=${article.category}`}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${categoryBadge[cat] || 'bg-secondary text-muted'}`}
+                >
+                  {getCategoryLabel(article)}
+                </Link>
+                {article.isFeatured && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-bold uppercase tracking-wider">
+                    <Star className="w-3 h-3 fill-amber-400" />
+                    DESTACADO
+                  </span>
+                )}
+              </div>
+              <h1
+                id="article-title"
+                className="text-[clamp(1.375rem,2.5vw,1.875rem)] font-bold tracking-tight leading-[1.2] text-fg-primary"
+              >
+                {title}
+              </h1>
+            </div>
+          </Container>
+        )}
+
+        {/* Description + byline */}
+        <Container size="small" className={article.coverUrl ? 'pt-5 pb-6' : 'pt-2 pb-6'}>
+          <div className="max-w-[720px] mx-auto">
+            <p className="text-base text-muted leading-relaxed">
+              {description}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-4 text-sm text-muted">
+              {article.authorUsername ? (
+                <Link href={`/user/${article.authorUsername}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <div className="w-7 h-7 rounded-full bg-[var(--primary-subtle)] flex items-center justify-center shrink-0 overflow-hidden">
+                    {article.authorAvatarUrl ? (
+                      <img src={article.authorAvatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-[var(--primary)]">
+                        {article.authorName ? article.authorName.charAt(0).toUpperCase() : 'M'}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-medium text-fg-primary text-sm">
+                    {article.authorName || 'MangaAura'}
+                  </span>
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-[var(--primary-subtle)] flex items-center justify-center shrink-0 overflow-hidden">
+                    {article.authorAvatarUrl ? (
+                      <img src={article.authorAvatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-[var(--primary)]">
+                        {article.authorName ? article.authorName.charAt(0).toUpperCase() : 'M'}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-medium text-fg-primary text-sm">
+                    {article.authorName || 'MangaAura'}
+                  </span>
+                </div>
+              )}
+              <span className="flex items-center gap-1.5">
+                <Calendar size={12} />
+                {formatDate(article.date)}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock size={12} />
+                {readingTime} min
+              </span>
+            </div>
           </div>
         </Container>
-      )}
 
-      <Container size="small" className="py-12 sm:py-16">
-        <motion.div
-          {...(noMotion || { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, delay: 0.15 } })}
-        >
-          {paragraphs.length > 0 ? (
-            <>
-              <div className="relative pl-5 sm:pl-6">
-                <div
-                  className="absolute left-0 top-0 bottom-0 w-0.5 rounded-full bg-gradient-to-b from-[var(--primary)] to-transparent"
-                  aria-hidden="true"
-                />
-                <p className="text-fg-primary leading-[1.75] text-base sm:text-lg">
-                  {paragraphs[0]}
-                </p>
-              </div>
-
-              {paragraphs.slice(1).map((p, i) => (
-                <p
-                  key={i}
-                  className="text-fg-primary leading-[1.75] text-base sm:text-lg mt-5"
-                >
-                  {p}
-                </p>
-              ))}
-            </>
-          ) : (
-            <div className="relative pl-5 sm:pl-6">
-              <div
-                className="absolute left-0 top-0 bottom-0 w-0.5 rounded-full bg-gradient-to-b from-[var(--primary)] to-transparent"
-                aria-hidden="true"
-              />
-              <div className="prose prose-invert max-w-none">
-                <p className="text-fg-primary leading-[1.75] text-base sm:text-lg">
-                  {body}
-                </p>
-              </div>
-            </div>
-          )}
-        </motion.div>
-
-        <motion.nav
-          aria-label={t('common.breadcrumb') || 'Volver a noticias'}
-          {...(noMotion || { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.4, delay: 0.3 } })}
-          className="mt-12 pt-8 border-t border-custom flex items-center justify-between"
-        >
-          <Link
-            href="/news"
-            className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-fg-primary focus-visible:text-fg-primary transition-colors group rounded-sm min-h-[24px]"
-          >
-            <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-            {t('common.back')}
-          </Link>
-          <div className="flex items-center gap-3">
-            {article.authorName && (
-              <span className="text-xs text-muted flex items-center gap-1">
-                <User size={13} aria-hidden="true" />
-                {article.authorName}
-              </span>
+        {/* Content */}
+        <Container size="small" className="py-10 sm:py-14">
+          <div className="max-w-[720px] mx-auto">
+            {paragraphs.length > 0 && (
+              <p className="text-base sm:text-lg leading-[1.8] text-fg-primary mt-0">
+                {paragraphs[0]}
+              </p>
             )}
-            <time className="text-xs text-muted" dateTime={article.date}>{article.date}</time>
+
+            {/* Middle paragraphs */}
+            {showPullQuote ? (
+              <>
+                {paragraphs.slice(1, pullQuoteIndex).map((p, i) => (
+                  <FadeIn key={i} delay={i * 40}>
+                    <p className="text-base sm:text-lg leading-[1.8] text-fg-primary mt-6">
+                      {p}
+                    </p>
+                  </FadeIn>
+                ))}
+                <FadeIn delay={pullQuoteIndex * 40}>
+                  <PullQuote
+                    text={paragraphs[pullQuoteIndex]}
+                    accentColor={accent}
+                  />
+                </FadeIn>
+                {paragraphs.slice(pullQuoteIndex + 1).map((p, i) => (
+                  <FadeIn key={i + pullQuoteIndex + 1} delay={(i + pullQuoteIndex + 1) * 40}>
+                    <p className="text-base sm:text-lg leading-[1.8] text-fg-primary mt-6">
+                      {p}
+                    </p>
+                  </FadeIn>
+                ))}
+              </>
+            ) : (
+              paragraphs.slice(1).map((p, i) => (
+                <FadeIn key={i} delay={i * 40}>
+                  <p className="text-base sm:text-lg leading-[1.8] text-fg-primary mt-6">
+                    {p}
+                  </p>
+                </FadeIn>
+              ))
+            )}
+
+            {/* Footer */}
+            <hr className="border-custom my-10 sm:my-12" />
+
+            <FadeIn>
+              <div className="flex flex-wrap items-center justify-between gap-6">
+                {article.authorName ? (
+                  <AuthorCard name={article.authorName} username={article.authorUsername} avatarUrl={article.authorAvatarUrl} />
+                ) : (
+                  <div />
+                )}
+                <ArticleShareButton title={title} />
+              </div>
+            </FadeIn>
+
+
           </div>
-        </motion.nav>
-      </Container>
+        </Container>
 
-
+        {/* Related */}
+        <Container className="pb-16 sm:pb-20">
+          <RelatedArticles category={article.category} excludeId={article.id} />
+        </Container>
+      </article>
     </>
   );
 }

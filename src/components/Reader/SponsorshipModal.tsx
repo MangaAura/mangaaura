@@ -87,10 +87,10 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
   const validateBidAmount = (value: number | '') => {
     const numValue = Number(value);
     if (value === '' || numValue <= 0) {
-      setBidAmountError('Enter a valid amount');
+      setBidAmountError('Ingresa un monto válido');
       setBidAmountValid(false);
     } else if (numValue < minBid) {
-      setBidAmountError(`Minimum bid is ${minBid} IC`);
+      setBidAmountError(`La puja mínima es ${minBid} IC`);
       setBidAmountValid(false);
     } else {
       setBidAmountError('');
@@ -243,7 +243,7 @@ export default function SponsorshipModal({ isOpen, onClose, chapterTitle, chapte
                           className="mt-1 flex items-center gap-1"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5 text-[var(--success)]" />
-                          <p className="text-xs text-[var(--success)]">Valid amount</p>
+                          <p className="text-xs text-[var(--success)]">Monto válido</p>
                         </motion.div>
                       ) : null}
                     </AnimatePresence>

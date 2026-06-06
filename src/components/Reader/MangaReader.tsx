@@ -137,6 +137,7 @@ export const MangaReader = memo(function MangaReader({
   const lastPinchDistance = useRef<number>(0);
   const preloadedPages = useRef<Set<number>>(new Set());
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastToggleRef = useRef(0);
   const lastTapRef = useRef(0);
   const continuousNavPending = useRef(false);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -402,7 +403,10 @@ export const MangaReader = memo(function MangaReader({
     return z;
   }), []);
   const resetZoom = useCallback(() => setZoom(1), []);
-  const toggleControls = useCallback(() => setShowControls(c => !c), []);
+  const toggleControls = useCallback(() => {
+    lastToggleRef.current = Date.now();
+    setShowControls(c => !c);
+  }, []);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -623,6 +627,8 @@ export const MangaReader = memo(function MangaReader({
 
   useEffect(() => {
     const startTimer = () => {
+      // If user just toggled controls manually, don't override that toggle
+      if (Date.now() - lastToggleRef.current < 200) return;
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       setShowControls(true);
       hideTimerRef.current = setTimeout(() => {
@@ -1220,7 +1226,7 @@ export const MangaReader = memo(function MangaReader({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -1241,92 +1247,122 @@ export const MangaReader = memo(function MangaReader({
               <div className="space-y-6">
               {/* OLED Mode Toggle */}
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Modo OLED
                 </label>
                 <div className="flex gap-2">
-                  <Button
-                    variant={isOLED ? 'default' : 'outline'}
+                  <button
                     onClick={() => setIsOLED(true)}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      isOLED
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Moon className="w-4 h-4 mr-1" /> OLED negro puro
-                  </Button>
-                  <Button
-                    variant={!isOLED ? 'default' : 'outline'}
+                    <Moon className="w-4 h-4" /> OLED negro puro
+                  </button>
+                  <button
                     onClick={() => setIsOLED(false)}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      !isOLED
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Sun className="w-4 h-4 mr-1" /> Oscuro normal
-                  </Button>
+                    <Sun className="w-4 h-4" /> Oscuro normal
+                  </button>
                 </div>
-                <p className={cn('text-xs mt-2', isOLED ? 'text-gray-500' : 'text-[var(--text-tertiary)]')}>
+                <p className="text-xs mt-2 text-[var(--text-tertiary)]">
                   Fondo negro puro (#000) para pantallas OLED. Ahorra batería y mejora el contraste de las imágenes.
                 </p>
               </div>
 
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Dirección de lectura
                 </label>
                 <div className="flex gap-2">
                   {(['ltr', 'rtl'] as const).map((dir) => (
-                    <Button
+                    <button
                       key={dir}
-                      variant={readingDirection === dir ? 'default' : 'outline'}
                       onClick={() => setReadingDirection(dir)}
-                      className="flex-1"
+                      className={cn(
+                        'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                        readingDirection === dir
+                          ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                          : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                      )}
                     >
                       {dir === 'ltr' ? 'Izquierda → Derecha' : 'Derecha → Izquierda'}
-                    </Button>
+                    </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Modo de vista
                 </label>
                 <div className="flex gap-2">
-                  <Button
-                    variant={viewMode === 'single' ? 'default' : 'outline'}
+                  <button
                     onClick={() => setViewMode('single')}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      viewMode === 'single'
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <LayoutList className="w-4 h-4 mr-1" /> Página simple
-                  </Button>
-                  <Button
-                    variant={viewMode === 'double' ? 'default' : 'outline'}
+                    <LayoutList className="w-4 h-4" /> Página simple
+                  </button>
+                  <button
                     onClick={() => setViewMode('double')}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      viewMode === 'double'
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Columns className="w-4 h-4 mr-1" /> Doble página
-                  </Button>
+                    <Columns className="w-4 h-4" /> Doble página
+                  </button>
                 </div>
               </div>
 
               {/* Continuous mode column layout – only relevant in scroll mode */}
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Distribución (modo continuo)
                 </label>
                 <div className="flex gap-2">
-                  <Button
-                    variant={continuousLayout === 'single' ? 'default' : 'outline'}
+                  <button
                     onClick={() => setContinuousLayout('single')}
                     disabled={scrollMode !== 'continuous'}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      scrollMode !== 'continuous' && 'opacity-40 cursor-not-allowed',
+                      continuousLayout === 'single'
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <LayoutList className="w-4 h-4 mr-1" /> 1 columna
-                  </Button>
-                  <Button
-                    variant={continuousLayout === 'double' ? 'default' : 'outline'}
+                    <LayoutList className="w-4 h-4" /> 1 columna
+                  </button>
+                  <button
                     onClick={() => setContinuousLayout('double')}
                     disabled={scrollMode !== 'continuous'}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      scrollMode !== 'continuous' && 'opacity-40 cursor-not-allowed',
+                      continuousLayout === 'double'
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Columns3 className="w-4 h-4 mr-1" /> 2 columnas
-                  </Button>
+                    <Columns3 className="w-4 h-4" /> 2 columnas
+                  </button>
                 </div>
                 <p className="text-xs text-[var(--text-tertiary)] mt-2">
                   En modo continuo con 2 columnas, las páginas se muestran lado a lado en desktop para una experiencia similar a un manga impreso.
@@ -1334,48 +1370,64 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Modo de desplazamiento
                 </label>
                 <div className="flex gap-2">
-                  <Button
-                    variant={scrollMode === 'single' ? 'default' : 'outline'}
+                  <button
                     onClick={() => setScrollMode('single')}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      scrollMode === 'single'
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <LayoutList className="w-4 h-4 mr-1" /> Página por página
-                  </Button>
-                  <Button
-                    variant={scrollMode === 'continuous' ? 'default' : 'outline'}
+                    <LayoutList className="w-4 h-4" /> Página por página
+                  </button>
+                  <button
                     onClick={() => setScrollMode('continuous')}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      scrollMode === 'continuous'
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <BookOpen className="w-4 h-4 mr-1" /> Desplazamiento continuo
-                  </Button>
+                    <BookOpen className="w-4 h-4" /> Desplazamiento continuo
+                  </button>
                 </div>
               </div>
 
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Lectura continua
                 </label>
                 <div className="flex gap-2">
-                  <Button
-                    variant={continuousReading ? 'default' : 'outline'}
+                  <button
                     onClick={() => setContinuousReading(true)}
                     disabled={!nextChapter}
-                    className="flex-1"
-                    title={!nextChapter ? 'No hay siguiente capítulo disponible' : undefined}
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      !nextChapter && 'opacity-40 cursor-not-allowed',
+                      continuousReading
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Infinity className="w-4 h-4 mr-1" /> Auto-siguiente
-                  </Button>
-                  <Button
-                    variant={!continuousReading ? 'default' : 'outline'}
+                    <Infinity className="w-4 h-4" /> Auto-siguiente
+                  </button>
+                  <button
                     onClick={() => setContinuousReading(false)}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      !continuousReading
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
                     Manual
-                  </Button>
+                  </button>
                 </div>
                 {continuousReading && (
                   <p className="text-xs text-[var(--text-tertiary)] mt-2">
@@ -1391,25 +1443,34 @@ export const MangaReader = memo(function MangaReader({
               </div>
 
               <div>
-                <label className={cn('text-sm mb-2 block', isOLED ? 'text-gray-400' : 'text-[var(--text-secondary)]')}>
+                <label className="text-sm mb-2 block text-[var(--text-secondary)]">
                   Auto-scroll
                 </label>
                 <div className="flex gap-2">
-                  <Button
-                    variant={autoScrollEnabled ? 'default' : 'outline'}
+                  <button
                     onClick={() => setAutoScrollEnabled(true)}
                     disabled={scrollMode !== 'continuous'}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      scrollMode !== 'continuous' && 'opacity-40 cursor-not-allowed',
+                      autoScrollEnabled
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Play className="w-4 h-4 mr-1" /> Activar
-                  </Button>
-                  <Button
-                    variant={!autoScrollEnabled ? 'default' : 'outline'}
+                    <Play className="w-4 h-4" /> Activar
+                  </button>
+                  <button
                     onClick={() => setAutoScrollEnabled(false)}
-                    className="flex-1"
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
+                      !autoScrollEnabled
+                        ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
+                        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
+                    )}
                   >
-                    <Pause className="w-4 h-4 mr-1" /> Desactivar
-                  </Button>
+                    <Pause className="w-4 h-4" /> Desactivar
+                  </button>
                 </div>
                 {autoScrollEnabled && (
                   <div className="mt-3">
@@ -1447,7 +1508,7 @@ export const MangaReader = memo(function MangaReader({
 
       {showHelp && (
         <FocusLock>
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-sunken)]/80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div
             role="dialog"
             aria-modal="true"
@@ -1543,9 +1604,9 @@ export const MangaReader = memo(function MangaReader({
       <EditorModeOverlay
         isOpen={showEditor}
         onClose={() => setShowEditor(false)}
-        imageUrl={pages[currentPage] || ''}
+        pages={pages}
         chapterId={chapterId}
-        pageNumber={currentPage + 1}
+        initialPage={currentPage}
       />
 
       <SponsorshipModal

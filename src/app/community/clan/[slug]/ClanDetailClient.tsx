@@ -13,6 +13,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
+import { ImageCropperUploader, type ImageCropperUploaderHandle } from '@/components/ui/ImageCropperUploader';
 import { useI18n, useT } from '@/i18n';
 
 // ── Types ──────────────────────────────────────────────
@@ -555,7 +556,7 @@ export default function ClanDetailClient({
   const [editEmblemUrl, setEditEmblemUrl] = useState(clan.emblemUrl || '');
   const [saving, setSaving] = useState(false);
   const [emblemUploading, setEmblemUploading] = useState(false);
-  const emblemInputRef = useRef<HTMLInputElement>(null);
+  const emblemCropperRef = useRef<ImageCropperUploaderHandle>(null);
   const [editNameError, setEditNameError] = useState<string | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
   const [promoting, setPromoting] = useState<string | null>(null);
@@ -721,26 +722,12 @@ export default function ClanDetailClient({
     }
   }
 
-  async function handleEmblemUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
-    if (!allowedTypes.includes(file.type)) {
-      setEditError(t('clanCreate.errorImageType'));
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setEditError(t('clanCreate.errorImageSize'));
-      return;
-    }
-
+  async function handleEmblemCropConfirm(croppedBlob: Blob) {
     setEmblemUploading(true);
     setEditError(null);
 
     try {
+      const file = new File([croppedBlob], `emblem.webp`, { type: 'image/webp' });
       const formData = new FormData();
       formData.append('file', file);
 
@@ -760,7 +747,6 @@ export default function ClanDetailClient({
       setEditError(err.message);
     } finally {
       setEmblemUploading(false);
-      if (emblemInputRef.current) emblemInputRef.current.value = '';
     }
   }
 
@@ -1254,16 +1240,9 @@ export default function ClanDetailClient({
                   </div>
                   {/* Upload controls */}
                   <div className="flex-1">
-                    <input
-                      ref={emblemInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                      onChange={handleEmblemUpload}
-                      className="hidden"
-                    />
                     <button
                       type="button"
-                      onClick={() => emblemInputRef.current?.click()}
+                      onClick={() => emblemCropperRef.current?.open()}
                       disabled={emblemUploading}
                       className="w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                     >
@@ -1290,6 +1269,15 @@ export default function ClanDetailClient({
                     <p className="text-xs text-[var(--text-tertiary)] mt-1.5">
                       {t('clanCreate.emblemHint') || 'PNG, JPG, WebP · Máx 5MB'}
                     </p>
+
+                    <ImageCropperUploader
+                      ref={emblemCropperRef}
+                      aspect={1}
+                      cropperTitle="Ajustar emblema del clan"
+                      cropperSubtitle="Arrastra para encuadrar · Se mostrará como un cuadrado"
+                      onCropComplete={handleEmblemCropConfirm}
+                      onError={(err: string) => setEditError(err)}
+                    />
                   </div>
                 </div>
               </div>

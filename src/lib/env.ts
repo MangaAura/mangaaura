@@ -21,6 +21,8 @@ const envSchema = z.object({
 
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
 
+  OPENAI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
   NVIDIA_API_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   CRON_SECRET: z.string().optional(),

@@ -69,6 +69,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'yt3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.animenewsnetwork.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.animenewsnetwork.com',
+      },
     ],
     dangerouslyAllowSVG: true,
     formats: ['image/webp', 'image/avif'],

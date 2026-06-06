@@ -19,7 +19,6 @@ export { default as EditorModeOverlay } from './EditorModeOverlay';
 
 // Named exports (no default export)
 export { MemeGenerator } from './MemeGenerator';
-export { ReaderSettingsPanel } from './ReaderSettings';
 export { ReaderToolbar } from './ReaderToolbar';
 export { ProgressBar, FloatingProgressIndicator } from './ProgressBar';
 
@@ -28,5 +27,4 @@ export type { PageViewerProps } from './PageViewer';
 export type { CommentDrawerProps } from './CommentDrawer';
 export type { ReadingProgressProps } from './ReadingProgress';
 export type { PanelText } from './PanelTextOverlay';
-export type { ReaderSettings } from './ReaderSettings';
 export type { ReaderToolbarProps } from './ReaderToolbar';

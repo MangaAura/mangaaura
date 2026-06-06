@@ -11,10 +11,11 @@ import {
   LayoutGrid,
   ChevronLeft,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
 
 import { Container } from '@/components/Layout/Container';
@@ -55,37 +56,64 @@ const categoryTheme: Record<string, string> = {
     'bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 data-[active=true]:bg-rose-500/20 data-[active=true]:text-rose-300 data-[active=true]:ring-1 data-[active=true]:ring-rose-500/30',
 };
 
+const categoryGradient: Record<string, string> = {
+  community: 'from-amber-500/80 via-amber-500/20 to-transparent',
+  platform: 'from-indigo-500/80 via-indigo-500/20 to-transparent',
+  tools: 'from-sky-500/80 via-sky-500/20 to-transparent',
+  mobile: 'from-emerald-500/80 via-emerald-500/20 to-transparent',
+  contest: 'from-rose-500/80 via-rose-500/20 to-transparent',
+};
+
+const categoryBadgeStyle: Record<string, string> = {
+  community: 'bg-amber-500 text-white shadow-lg shadow-amber-500/30',
+  platform: 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30',
+  tools: 'bg-sky-500 text-white shadow-lg shadow-sky-500/30',
+  mobile: 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30',
+  contest: 'bg-rose-500 text-white shadow-lg shadow-rose-500/30',
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
+    transition: { staggerChildren: 0.07, delayChildren: 0.05 },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
+    transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
+  },
+};
+
+const featuredVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
   },
 };
 
 const ARTICLES_PER_PAGE = 12;
 
-export function NewsClient() {
+interface NewsClientProps {
+  initialArticles?: unknown[];
+}
+
+export function NewsClient({ initialArticles }: NewsClientProps) {
   const t = useT();
   const { locale } = useLocale();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
   const activeCategory = searchParams.get('category') || 'all';
 
-  // Fetch DB articles, fallback to static
   const { data } = useSWR<{ articles: unknown[] }>('/api/news', fetcher, {
     refreshInterval: 60000,
-    fallbackData: { articles: [] },
+    fallbackData: { articles: initialArticles ?? [] },
   });
 
   const dbArticles: DisplayNewsItem[] = (data?.articles || [])
@@ -104,9 +132,12 @@ export function NewsClient() {
       ? allArticles
       : allArticles.filter((a) => a.category === activeCategory);
 
-  const totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
+  const featured = filtered.filter((a) => a.isFeatured).slice(0, 2);
+  const regular = filtered.filter((a) => !a.isFeatured);
+
+  const totalPages = Math.ceil(regular.length / ARTICLES_PER_PAGE);
   const safePage = Math.min(Math.max(1, currentPage), totalPages || 1);
-  const paginatedArticles = filtered.slice(
+  const paginatedRegular = regular.slice(
     (safePage - 1) * ARTICLES_PER_PAGE,
     safePage * ARTICLES_PER_PAGE
   );
@@ -128,24 +159,35 @@ export function NewsClient() {
     return key ? t(key) : item.category.charAt(0).toUpperCase() + item.category.slice(1);
   };
 
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr + 'T00:00:00Z');
+    return d.toLocaleDateString(isEnglish ? 'en-US' : 'es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
   return (
     <Container className="pt-20 pb-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Newspaper className="text-[var(--primary)]" size={30} />
+      <div className="mb-10">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
+          <span className="bg-[var(--primary-subtle)] p-2 rounded-xl">
+            <Newspaper className="text-[var(--primary)]" size={28} />
+          </span>
           {t('home.newsTitle')}
         </h1>
-        <p className="text-muted mt-1">{t('home.newsPageDesc')}</p>
+        <p className="text-muted mt-2 text-sm md:text-base">{t('home.newsPageDesc')}</p>
       </div>
 
       <nav
         aria-label={t('home.newsCategoriesAria')}
-        className="flex flex-wrap gap-2 mb-8"
+        className="flex flex-wrap gap-2 mb-10"
       >
         <Link
           href="/news"
           data-active={activeCategory === 'all'}
-          className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full transition-all bg-secondary text-muted hover:text-fg-primary data-[active=true]:bg-[var(--primary-subtle)] data-[active=true]:text-[var(--primary)] data-[active=true]:ring-1 data-[active=true]:ring-[var(--primary)]/30"
+          className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full transition-all bg-secondary text-muted hover:text-fg-primary data-[active=true]:bg-[var(--primary)] data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-[var(--primary)]/20"
         >
           <LayoutGrid size={14} aria-hidden="true" />
           {t('common.all')}
@@ -155,7 +197,7 @@ export function NewsClient() {
             key={cat}
             href={`/news?category=${cat}`}
             data-active={activeCategory === cat}
-            className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full transition-all ${categoryTheme[cat] || categoryTheme.platform}`}
+            className={`inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full transition-all ${categoryTheme[cat] || categoryTheme.platform}`}
           >
             {iconMap[cat]}
             {t(categoryLabelKey[cat] || cat)}
@@ -163,85 +205,137 @@ export function NewsClient() {
         ))}
       </nav>
 
-      <motion.div
-        key={safePage}
-        className="space-y-4"
-        variants={prefersReducedMotion ? undefined : containerVariants}
-        initial={prefersReducedMotion ? undefined : 'hidden'}
-        animate={prefersReducedMotion ? undefined : 'visible'}
-      >
-        {paginatedArticles.map((item) => (
-          <motion.div
-            key={item.slug}
-            variants={prefersReducedMotion ? undefined : itemVariants}
-            whileHover={prefersReducedMotion ? undefined : { scale: 1.02, y: -4, boxShadow: '0 12px 32px rgba(0,0,0,0.15)' }}
-            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 24 }}
-            style={{ willChange: 'transform' }}
-          >
-          <Link href={getArticlePath(item)}>
-            <article className="bg-secondary border border-custom rounded-xl p-5 md:p-6 hover:border-[var(--primary)] transition-colors">
-              <div className="flex items-start gap-4">
-                {/* Thumbnail */}
-                <div className="relative w-20 h-14 sm:w-[120px] sm:h-[68px] shrink-0 rounded-lg overflow-hidden bg-[var(--surface-sunken)] mt-1">
-                  {item.coverUrl ? (
-                    <Image
-                      src={item.coverUrl}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 80px, 120px"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)]">
-                      <Newspaper size={24} />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--primary-subtle)] shrink-0">
-                      {iconMap[item.iconType] || iconMap.platform}
-                    </span>
-                    {item.isFeatured && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px] font-bold mr-1">
-                        <Star className="w-2.5 h-2.5 fill-amber-300" />
-                      </span>
+      {/* Featured articles */}
+      {featured.length > 0 && activeCategory === 'all' && (
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10"
+          variants={prefersReducedMotion ? undefined : containerVariants}
+          initial={prefersReducedMotion ? undefined : 'hidden'}
+          animate={prefersReducedMotion ? undefined : 'visible'}
+        >
+          {featured.map((item) => (
+            <motion.div
+              key={item.slug}
+              variants={prefersReducedMotion ? undefined : featuredVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -6, transition: { duration: 0.3 } }}
+            >
+              <Link href={getArticlePath(item)} className="block group h-full">
+                <article className="relative h-full rounded-2xl overflow-hidden bg-secondary border border-custom hover:border-[var(--primary)]/40 transition-colors">
+                  <div className="absolute inset-0">
+                    {item.coverUrl ? (
+                      <Image
+                        src={item.coverUrl}
+                        alt=""
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[var(--surface-sunken)]">
+                        <Newspaper size={48} className="text-[var(--text-tertiary)]" />
+                      </div>
                     )}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/news?category=${item.category}`);
-                      }}
-                      className="bg-[var(--primary-subtle)] text-[var(--primary)] text-xs font-bold inline-block px-2 py-1 rounded hover:bg-[var(--primary)] hover:text-white transition-colors"
-                    >
-                      {getCategoryLabel(item)}
-                    </button>
-                    <time className="text-xs text-muted">{item.date}</time>
+                    <div className={`absolute inset-0 bg-gradient-to-t ${categoryGradient[item.category] || 'from-black/80 via-black/30 to-transparent'}`} />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
                   </div>
-                  <h2 className="font-bold text-lg mb-1">
-                    {isEnglish && item.titleEn
-                      ? item.titleEn
-                      : item.title}
-                  </h2>
-                  <p className="text-sm text-muted">
-                    {isEnglish && item.descriptionEn
-                      ? item.descriptionEn
-                      : item.description}
-                  </p>
-                </div>
-              </div>
-            </article>
-          </Link>
-          </motion.div>
-        ))}
-      </motion.div>
+                  <div className="relative z-10 flex flex-col justify-end h-full p-5 md:p-7">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${categoryBadgeStyle[item.category] || 'bg-white/20 text-white'}`}>
+                        {iconMap[item.iconType] || iconMap.platform}
+                        {getCategoryLabel(item)}
+                      </span>
+                      {item.isFeatured && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/15 text-white text-[10px] font-bold backdrop-blur-sm">
+                          <Star className="w-3 h-3 fill-white" />
+                          DESTACADO
+                        </span>
+                      )}
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-extrabold text-white leading-tight mb-2 drop-shadow-lg">
+                      {isEnglish && item.titleEn ? item.titleEn : item.title}
+                    </h2>
+                    <p className="text-sm text-white/80 line-clamp-2 max-w-prose drop-shadow">
+                      {isEnglish && item.descriptionEn ? item.descriptionEn : item.description}
+                    </p>
+                    <time className="text-xs text-white/50 mt-3 flex items-center gap-1.5">
+                      <Clock size={12} />
+                      {formatDate(item.date)}
+                    </time>
+                  </div>
+                </article>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
-      {filtered.length === 0 && (
-        <p className="text-center text-muted py-16">
-          {t('home.newsEmpty')}
-        </p>
+      {/* Regular articles */}
+      {(featured.length === 0 || activeCategory !== 'all') && paginatedRegular.length === 0 && filtered.length === 0 && (
+        <p className="text-center text-muted py-16">{t('home.newsEmpty')}</p>
+      )}
+
+      {paginatedRegular.length > 0 && (
+        <motion.div
+          key={`regular-${safePage}`}
+          className="grid grid-cols-1 gap-4"
+          variants={prefersReducedMotion ? undefined : containerVariants}
+          initial={prefersReducedMotion ? undefined : 'hidden'}
+          animate={prefersReducedMotion ? undefined : 'visible'}
+        >
+          {paginatedRegular.map((item) => (
+            <motion.div
+              key={item.slug}
+              variants={prefersReducedMotion ? undefined : itemVariants}
+              whileHover={prefersReducedMotion ? undefined : { scale: 1.01, y: -2 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+            >
+              <Link href={getArticlePath(item)} className="block group">
+                <article className="flex items-stretch bg-secondary border border-custom rounded-2xl overflow-hidden hover:border-[var(--primary)]/30 transition-all hover:shadow-lg hover:shadow-black/5">
+                  <div className="relative w-36 sm:w-52 md:w-60 shrink-0 overflow-hidden">
+                    {item.coverUrl ? (
+                      <Image
+                        src={item.coverUrl}
+                        alt=""
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 144px, (max-width: 768px) 208px, 240px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[var(--surface-sunken)]">
+                        <Newspaper size={32} className="text-[var(--text-tertiary)]" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-secondary/90 md:to-secondary" />
+                  </div>
+                  <div className="flex-1 min-w-0 p-4 md:p-6 self-center">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${categoryBadgeStyle[item.category] || 'bg-[var(--primary-subtle)] text-[var(--primary)]'}`}>
+                        {iconMap[item.iconType] || iconMap.platform}
+                        {getCategoryLabel(item)}
+                      </span>
+                      {item.isFeatured && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 text-[10px] font-bold">
+                          <Star className="w-2.5 h-2.5 fill-amber-500" />
+                        </span>
+                      )}
+                      <time className="text-xs text-muted flex items-center gap-1">
+                        <Clock size={11} />
+                        {formatDate(item.date)}
+                      </time>
+                    </div>
+                    <h2 className="font-bold text-base md:text-lg leading-snug mb-1.5 group-hover:text-[var(--primary)] transition-colors">
+                      {isEnglish && item.titleEn ? item.titleEn : item.title}
+                    </h2>
+                    <p className="text-sm text-muted line-clamp-2">
+                      {isEnglish && item.descriptionEn ? item.descriptionEn : item.description}
+                    </p>
+                  </div>
+                </article>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
 
       {totalPages > 1 && (
@@ -249,8 +343,8 @@ export function NewsClient() {
           <p className="text-xs text-[var(--text-secondary)]">
             {t('home.newsShowingResults', {
               start: (safePage - 1) * ARTICLES_PER_PAGE + 1,
-              end: Math.min(safePage * ARTICLES_PER_PAGE, filtered.length),
-              total: filtered.length,
+              end: Math.min(safePage * ARTICLES_PER_PAGE, regular.length),
+              total: regular.length,
             })}
           </p>
           <nav

@@ -147,6 +147,9 @@ model User {
   genreProgress        UserGenreProgress[]
   reviews             Review[]
 
+  // AI Image Generation
+  imageGenerations              ImageGeneration[]
+
   // Affiliate Relations
   affiliateCommissions            AffiliateCommission[] @relation("AffiliateEarnedCommissions")
   affiliateReferrals              AffiliateReferral[]    @relation("AffiliateReferrals")
@@ -1620,6 +1623,39 @@ model DeletedMangaBundle {
 
   @@index([authorId])
   @@index([expiresAt])
+}
+
+// ─── AI Image Generation ──────────────────────────────────────────────
+
+model ImageGeneration {
+  id            String   @id @default(uuid())
+  userId        String
+  prompt        String
+  negativePrompt String?
+  modelId       String
+  provider      String   // 'openai' | 'gemini'
+  width         Int      @default(1024)
+  height        Int      @default(1024)
+  quality       String   @default("standard") // standard | hd | ultra
+  style         String?  @default("vivid") // vivid | natural | anime | manga
+  imageUrl      String?  // Generated image URL
+  thumbnailUrl  String?
+  seed          Int?
+  auraCost      Int
+  status        String   @default("PENDING") // PENDING | PROCESSING | COMPLETED | FAILED
+  errorMessage  String?
+  metadata      String?  // JSON with additional generation params
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([provider])
+  @@index([modelId])
 }
 
 model CspReport {
