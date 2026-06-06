@@ -191,7 +191,7 @@ export default function AdminDashboardClient() {
 
   if (isLoading) {
     return (
-      <div className="animate-pulse space-y-6" role="status" aria-label="Cargando panel de administración">
+      <div className="animate-pulse space-y-6" role="status" aria-label={t('admin.common.loading')}>
         <div className="h-8 bg-[var(--surface-sunken)] rounded w-1/4" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}

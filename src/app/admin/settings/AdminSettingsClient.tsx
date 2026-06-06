@@ -106,7 +106,7 @@ export default function AdminSettingsClient() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al guardar');
+        throw new Error(err.error || t('admin.errors.saveError'));
       }
       mutate('/api/admin/settings');
       setSaveMessage({ type: 'success', text: t('admin.savedCorrectly') });

@@ -126,7 +126,7 @@ export default function AuditLogsClient() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
-              placeholder="Buscar por acción, usuario, IP..."
+              placeholder={t('admin.common.search')}
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               className="pl-10"
@@ -203,9 +203,9 @@ export default function AuditLogsClient() {
               <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Error al cargar logs</div>
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.errors.loadError')}</div>
           ) : filteredLogs.length === 0 ? (
-            <div className="text-center py-12 text-[var(--text-tertiary)]">No hay eventos registrados</div>
+            <div className="text-center py-12 text-[var(--text-tertiary)]">{t('admin.common.noData')}</div>
           ) : (
             <>
               <div className="overflow-x-auto">

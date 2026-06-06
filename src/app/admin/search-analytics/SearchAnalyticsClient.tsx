@@ -83,7 +83,7 @@ export default function SearchAnalyticsClient() {
   if (error) {
     return (
       <div className="text-center py-12 text-[var(--error)]">
-        Error al cargar analytics de búsqueda
+        {t('admin.errors.loadError')}
       </div>
     );
   }
@@ -193,7 +193,7 @@ export default function SearchAnalyticsClient() {
                 ))}
               </div>
             ) : (
-              <p className="text-center py-8 text-[var(--text-tertiary)]">Sin datos aún</p>
+              <p className="text-center py-8 text-[var(--text-tertiary)]">{t('admin.common.noData')}</p>
             )}
           </CardContent>
         </Card>
@@ -228,7 +228,7 @@ export default function SearchAnalyticsClient() {
                 })}
               </div>
             ) : (
-              <p className="text-center py-8 text-[var(--text-tertiary)]">Sin datos aún</p>
+              <p className="text-center py-8 text-[var(--text-tertiary)]">{t('admin.common.noData')}</p>
             )}
           </CardContent>
         </Card>

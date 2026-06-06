@@ -271,7 +271,7 @@ export function WebhooksClient() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar webhooks</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.errors.loadError')}</h2>
         <Button onClick={() => mutate('/api/admin/webhooks')} className="mt-4">
           Reintentar
         </Button>

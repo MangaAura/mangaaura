@@ -190,7 +190,7 @@ export default function UsersClient() {
             ref={(el) => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < filteredData.length; }}
             onChange={toggleSelectAll}
             className="rounded border-[var(--border)]"
-            aria-label="Seleccionar todos"
+            aria-label={t('admin.common.all')}
           />
         ),
         cell: ({ row }) => (
@@ -199,7 +199,7 @@ export default function UsersClient() {
             checked={selectedIds.has(row.original.id)}
             onChange={() => toggleSelect(row.original.id)}
             className="rounded border-[var(--border)]"
-            aria-label={`Seleccionar ${row.original.username}`}
+            aria-label={`${t('admin.common.select')} ${row.original.username}`}
           />
         ),
         size: 40,
@@ -291,12 +291,12 @@ export default function UsersClient() {
                 setShowUserDialog(true);
               }}
               title="View Profile"
-        aria-label="Ver perfil"
+        aria-label={t('admin.common.view')}
             >
               <Eye className="w-4 h-4 text-[var(--primary)]" />
             </Button>
             <Link href={`/admin/users/${row.original.id}`}>
-<Button variant="ghost" size="icon" title="Edit" aria-label="Editar usuario">
+<Button variant="ghost" size="icon" title="Edit" aria-label={t('admin.common.edit')}>
             <Edit className="w-4 h-4 text-[var(--primary)]" />
           </Button>
             </Link>
@@ -309,7 +309,7 @@ export default function UsersClient() {
                 setShowActionDialog(true);
               }}
               title="Ban User"
-        aria-label="Banear usuario"
+        aria-label={t('admin.common.ban')}
             >
               <Ban className="w-4 h-4 text-[var(--warning)]" />
             </Button>
@@ -322,7 +322,7 @@ export default function UsersClient() {
                 setShowActionDialog(true);
               }}
               title="Delete"
-        aria-label="Eliminar usuario"
+        aria-label={t('admin.common.delete')}
             >
               <Trash2 className="w-4 h-4 text-[var(--error)]" />
             </Button>

@@ -50,8 +50,7 @@ export default function HealthClient() {
   if (error) {
     return (
       <div className="text-center py-12">
-        <AlertCircle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar estado del sistema</h2>
+        <AlertCircle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" /><h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.errors.loadError')}</h2>
         <Button variant="outline" className="mt-4" onClick={() => mutate()}>
           <RefreshCw className="w-4 h-4 mr-2" />
           Reintentar

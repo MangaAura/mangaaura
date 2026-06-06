@@ -201,12 +201,12 @@ export default function MangaManagementClient() {
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
             <Link href={`/manga/${row.original.slug}`} target="_blank">
-<Button variant="ghost" size="icon" title="View" aria-label="Ver manga">
+<Button variant="ghost" size="icon" title="View" aria-label={t('admin.common.view')}>
             <Eye className="w-4 h-4 text-[var(--primary)]" />
           </Button>
             </Link>
             <Link href={`/admin/manga/${row.original.id}`}>
-<Button variant="ghost" size="icon" title="Edit" aria-label="Editar manga">
+<Button variant="ghost" size="icon" title="Edit" aria-label={t('admin.common.edit')}>
             <Edit className="w-4 h-4 text-[var(--primary)]" />
           </Button>
             </Link>
@@ -218,7 +218,7 @@ export default function MangaManagementClient() {
                 setShowDeleteDialog(true);
               }}
               title="Delete"
-        aria-label="Eliminar manga"
+        aria-label={t('admin.common.delete')}
             >
               <Trash2 className="w-4 h-4 text-[var(--error)]" />
             </Button>

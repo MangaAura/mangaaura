@@ -117,7 +117,7 @@ export function DeliveriesClient() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar entregas</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.errors.loadError')}</h2>
         <Button onClick={() => mutate()} className="mt-4">
           Reintentar
         </Button>
@@ -178,7 +178,7 @@ export function DeliveriesClient() {
         <CardContent>
           {deliveries.length === 0 ? (
             <div className="text-center py-8 text-[var(--text-tertiary)]">
-              No hay entregas registradas.
+              {t('admin.common.noData')}.
             </div>
           ) : (
             <>

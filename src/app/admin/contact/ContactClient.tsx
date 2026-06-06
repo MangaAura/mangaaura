@@ -134,7 +134,7 @@ export default function ContactClient() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al enviar');
+        throw new Error(data.error || t('admin.errors.saveError'));
       }
 
       setSendSuccess(true);
@@ -146,7 +146,7 @@ export default function ContactClient() {
         setSelectedMessage(null);
       }, 2000);
     } catch (err: any) {
-      setSendError(err.message || 'Error al enviar el email');
+      setSendError(err.message || t('admin.errors.saveError'));
     } finally {
       setIsSending(false);
     }

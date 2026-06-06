@@ -98,11 +98,11 @@ export default function RestoreClient() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
-              placeholder="Buscar por email, username o ID..."
+              placeholder={t('admin.common.search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
-              aria-label="Buscar usuario baneado"
+              aria-label={t('admin.common.search')}
             />
           </div>
         </CardContent>
@@ -122,7 +122,7 @@ export default function RestoreClient() {
             </div>
           ) : users.length === 0 ? (
             <p className="text-center py-8 text-[var(--text-tertiary)]">
-              No hay usuarios baneados.
+              {t('admin.common.noData')}.
             </p>
           ) : (
             <div className="overflow-x-auto">
