@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface BanUser {
@@ -90,6 +91,7 @@ function getBanTypeColor(type: string) {
 }
 
 export default function BansClient() {
+  const t = useT();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterActive, setFilterActive] = useState<string>('all');
@@ -212,13 +214,13 @@ export default function BansClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Shield className="w-6 h-6 text-[var(--primary)]" />
-            Bans & Suspensions
+            {t('admin.pages.bans.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Manage user bans, suspensions, and IP bans</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.bans.subtitle')}</p>
         </div>
         <Button onClick={() => setShowCreateDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          New Ban
+          {t('admin.pages.bans.newBan')}
         </Button>
       </div>
 
@@ -319,7 +321,7 @@ export default function BansClient() {
                       <td className="px-4 py-3">
                         <p className="text-sm text-[var(--text-muted)]">{ban.reason}</p>
                         {ban.reasonDetail && (
-                          <p className="text-xs text-[var(--text-tertiary)]">{ban.reasonDetail}</p>
+                          <span className="text-xs text-[var(--text-tertiary)]">{ban.reason}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">

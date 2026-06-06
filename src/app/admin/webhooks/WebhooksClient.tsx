@@ -32,7 +32,9 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Switch } from '@/components/ui/Switch';
 import { AVAILABLE_EVENTS } from '@/core/services/WebhookService';
-import { fetcher } from '@/lib/swr-config';
+import { useT } from '@/i18n';
+import { fetcher } from '@/lib/swr-config'
+;
 
 
 interface WebhookDelivery {
@@ -82,6 +84,7 @@ export function WebhooksClient() {
   );
 
   const [showCreate, setShowCreate] = useState(false);
+  const t = useT();
   const [showEdit, setShowEdit] = useState<WebhookEndpoint | null>(null);
   const [showDelete, setShowDelete] = useState<WebhookEndpoint | null>(null);
   const [showDeliveries, setShowDeliveries] = useState<WebhookEndpoint | null>(null);
@@ -277,15 +280,15 @@ export function WebhooksClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Webhook className="w-6 h-6 text-[var(--primary)]" />
-            Webhooks
+            {t('admin.pages.webhooks.title')}
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">
-            Gestiona los webhooks salientes para integraciones externas.
+            {t('admin.pages.webhooks.subtitle')}
           </p>
         </div>
         <Button onClick={() => { resetForm(); setShowCreate(true); }}>
           <Plus className="w-4 h-4 mr-2" />
-          Nuevo Webhook
+          {t('admin.pages.webhooks.new')}
         </Button>
       </div>
 
@@ -293,9 +296,9 @@ export function WebhooksClient() {
         <Card>
           <CardContent className="py-12 text-center">
             <Webhook className="w-12 h-12 mx-auto mb-4 text-[var(--text-tertiary)]" />
-            <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">No hay webhooks</h3>
+            <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">{t('admin.pages.webhooks.empty')}</h3>
             <p className="text-[var(--text-secondary)] mb-4">
-              Crea tu primer webhook para empezar a recibir eventos.
+              {t('admin.pages.webhooks.emptyDesc')}
             </p>
             <Button onClick={() => { resetForm(); setShowCreate(true); }}>
               <Plus className="w-4 h-4 mr-2" />

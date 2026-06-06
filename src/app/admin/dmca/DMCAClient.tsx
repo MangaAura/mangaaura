@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface DMCAData {
@@ -60,6 +61,7 @@ interface DMCAData {
 }
 
 export default function DMCAClient() {
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -104,7 +106,7 @@ export default function DMCAClient() {
   const columns: ColumnDef<DMCAData>[] = useMemo(() => [
     {
       accessorKey: 'requesterName',
-      header: 'Requester',
+      header: t('admin.pages.dmca.columns.requester'),
       cell: ({ row }) => (
         <div>
           <p className="font-medium">{row.original.requesterName}</p>
@@ -114,14 +116,14 @@ export default function DMCAClient() {
     },
     {
       accessorKey: 'infringingContentType',
-      header: 'Content Type',
+      header: t('admin.pages.dmca.columns.contentType'),
       cell: ({ row }) => (
         <Badge variant="outline">{row.original.infringingContentType || '—'}</Badge>
       ),
     },
     {
       accessorKey: 'originalWorkDescription',
-      header: 'Description',
+      header: t('admin.pages.dmca.columns.description'),
       cell: ({ row }) => (
         <span className="text-sm text-[var(--text-secondary)] truncate max-w-[200px] block">
           {row.original.originalWorkDescription || '—'}
@@ -130,12 +132,12 @@ export default function DMCAClient() {
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('admin.pages.dmca.columns.status'),
       cell: ({ row }) => statusBadge(row.original.status),
     },
     {
       accessorKey: 'submittedAt',
-      header: 'Submitted',
+      header: t('admin.pages.dmca.columns.submitted'),
       cell: ({ row }) => (
         <span className="text-sm text-[var(--text-tertiary)]">
           {new Date(row.original.submittedAt).toLocaleDateString()}
@@ -144,7 +146,7 @@ export default function DMCAClient() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('admin.pages.dmca.columns.actions'),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -183,9 +185,9 @@ export default function DMCAClient() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
           <FileWarning className="w-6 h-6 text-[var(--primary)]" />
-          DMCA Takedowns
+          {t('admin.pages.dmca.title')}
         </h1>
-        <p className="text-[var(--text-muted)]">Manage copyright takedown requests</p>
+        <p className="text-[var(--text-muted)]">{t('admin.pages.dmca.subtitle')}</p>
       </div>
 
       <div className="flex gap-4">

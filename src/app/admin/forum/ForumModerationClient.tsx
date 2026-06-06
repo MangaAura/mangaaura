@@ -49,6 +49,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface ThreadAuthor {
@@ -81,6 +82,7 @@ interface ThreadData {
 
 export default function ForumModerationClient() {
   const { handleError } = useErrorHandler();
+  const t = useT();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -236,9 +238,9 @@ export default function ForumModerationClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <MessageCircle className="w-6 h-6 text-[var(--primary)]" />
-            Forum Moderation
+            {t('admin.pages.forum.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Moderate forum threads — pin, lock, and delete</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.forum.subtitle')}</p>
         </div>
       </div>
 

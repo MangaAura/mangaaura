@@ -34,7 +34,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { LogoSvg } from '@/components/Logo';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 import { useT } from '@/i18n';
@@ -140,11 +142,15 @@ export function AdminSidebar() {
           <div className="p-6 border-b border-[var(--border)]">
             <Link href="/admin" className="flex items-center gap-3">
               <LogoSvg size={36} className="flex-shrink-0 rounded-lg" />
-              <div>
+              <div className="flex-1">
                 <h1 className="text-lg font-bold">{t('admin.sidebar.admin')}</h1>
                 <RepeatedChar text="MANGAAURA" className="text-xs text-[var(--text-secondary)]" />
               </div>
             </Link>
+            <div className="flex items-center justify-end gap-2 mt-3">
+              <LanguageSwitcher variant="toggle" className="!w-8 !h-8" />
+              <ThemeToggle />
+            </div>
           </div>
 
           {/* Navigation */}

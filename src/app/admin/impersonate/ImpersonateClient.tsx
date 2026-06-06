@@ -15,9 +15,11 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 export default function ImpersonateClient() {
+  const t = useT();
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -62,10 +64,10 @@ export default function ImpersonateClient() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
           <ShieldAlert className="w-6 h-6 text-[var(--warning)]" />
-          Impersonar Usuario
+          {t('admin.pages.impersonate.title')}
         </h1>
         <p className="text-[var(--text-muted)]">
-          Inicia sesión como otro usuario para diagnosticar problemas.
+          {t('admin.pages.impersonate.subtitle')}
         </p>
       </div>
 

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 
 const EXPORT_ENTITIES = [
   { value: 'users', label: 'Usuarios', icon: Database },
@@ -28,6 +29,7 @@ const EXPORT_ENTITIES = [
 ];
 
 export default function ExportClient() {
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [entity, setEntity] = useState('users');
   const [isExporting, setIsExporting] = useState(false);
@@ -66,24 +68,24 @@ export default function ExportClient() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
           <Download className="w-6 h-6 text-[var(--primary)]" />
-          Exportar Datos
+          {t('admin.pages.export.title')}
         </h1>
-        <p className="text-[var(--text-muted)]">Exporta datos de la plataforma en formato JSON o CSV</p>
+        <p className="text-[var(--text-muted)]">{t('admin.pages.export.subtitle')}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="w-5 h-5" />
-            Seleccionar datos
+            {t('admin.pages.export.selectEntity')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Entidad</label>
+            <label className="text-sm font-medium text-[var(--text-secondary)]">{t('admin.pages.export.entity')}</label>
             <Select value={entity} onValueChange={setEntity}>
               <SelectTrigger className="w-full max-w-xs">
-                <SelectValue placeholder="Seleccionar entidad" />
+                <SelectValue placeholder={t('admin.pages.export.selectPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {EXPORT_ENTITIES.map((e) => (
@@ -103,7 +105,7 @@ export default function ExportClient() {
               ) : (
                 <FileJson className="w-4 h-4 mr-2" />
               )}
-              Exportar JSON
+              {t('admin.pages.export.exportJson')}
             </Button>
             <Button
               variant="outline"
@@ -115,12 +117,12 @@ export default function ExportClient() {
               ) : (
                 <FileText className="w-4 h-4 mr-2" />
               )}
-              Exportar CSV
+              {t('admin.pages.export.exportCsv')}
             </Button>
           </div>
 
           <p className="text-sm text-[var(--text-tertiary)]">
-            Los archivos se descargarán automáticamente. Las exportaciones grandes pueden tardar unos segundos.
+            {t('admin.pages.export.hint')}
           </p>
         </CardContent>
       </Card>

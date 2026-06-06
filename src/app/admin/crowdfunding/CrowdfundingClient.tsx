@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface CrowdfundingData {
@@ -36,6 +37,7 @@ interface TotalsData {
 }
 
 export default function CrowdfundingClient() {
+  const t = useT();
   const { data, error, isLoading } = useSWR<{
     crowdfunding: CrowdfundingData[];
     sponsorshipBids: SponsorshipBidData[];
@@ -45,8 +47,8 @@ export default function CrowdfundingClient() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Crowdfunding & Sponsorships</h1>
-        <p className="text-[var(--text-muted)]">Monitor all crowdfunding campaigns and sponsorship bids</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('admin.pages.crowdfunding.title')}</h1>
+        <p className="text-[var(--text-muted)]">{t('admin.pages.crowdfunding.subtitle')}</p>
       </div>
 
       {isLoading ? (

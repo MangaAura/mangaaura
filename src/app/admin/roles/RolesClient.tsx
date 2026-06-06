@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface PermissionData {
@@ -46,6 +47,7 @@ interface RolesResponse {
 
 export default function RolesClient() {
   const { handleError } = useErrorHandler();
+  const t = useT();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleData | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -135,9 +137,9 @@ export default function RolesClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Shield className="w-6 h-6 text-[var(--primary)]" />
-            Role Management (RBAC)
+            {t('admin.pages.roles.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Create and manage roles with granular permissions</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.roles.subtitle')}</p>
         </div>
         <Button onClick={() => { setEditingRole(null); setRoleName(''); setRoleDescription(''); setSelectedPermissions([]); setShowCreateDialog(true); }}>
           <Plus className="w-4 h-4 mr-2" /> New Role

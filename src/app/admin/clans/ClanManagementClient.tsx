@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Input } from '@/components/ui/Input';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface ClanLeader {
@@ -64,6 +65,7 @@ interface ClanData {
 
 export default function ClanManagementClient() {
   const { handleError } = useErrorHandler();
+  const t = useT();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClan, setSelectedClan] = useState<ClanData | null>(null);
   const [actionDialog, setActionDialog] = useState<{ type: string; open: boolean }>({ type: '', open: false });
@@ -195,9 +197,9 @@ export default function ClanManagementClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Shield className="w-6 h-6 text-[var(--primary)]" />
-            Clan Management
+            {t('admin.pages.clans.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Manage clans, reset scores, and moderate communities</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.clans.subtitle')}</p>
         </div>
       </div>
 

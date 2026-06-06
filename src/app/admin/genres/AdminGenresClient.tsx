@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/Dialog';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
+import { useT } from '@/i18n';
 import { extractApiError } from '@/lib/extract-api-error';
 
 interface Genre {
@@ -35,6 +36,7 @@ export default function AdminGenresClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const t = useT();
   const [deletingGenre, setDeletingGenre] = useState<Genre | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -71,7 +73,7 @@ export default function AdminGenresClient() {
         })),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar géneros');
+      setError(err instanceof Error ? err.message : t('admin.pages.genres.loadError'));
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +109,7 @@ export default function AdminGenresClient() {
       setGenres((prev) => prev.filter((g) => g.id !== deletingGenre.id));
       setDeletingGenre(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar género');
+      setError(err instanceof Error ? err.message : t('admin.pages.genres.deleteError'));
     } finally {
       setIsDeleting(false);
     }
@@ -120,10 +122,10 @@ export default function AdminGenresClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Bookmark className="w-6 h-6 text-[var(--primary)]" />
-            Gestión de Géneros
+            {t('admin.pages.genres.title')}
           </h1>
           <p className="text-[var(--text-muted)]">
-            Administra los géneros del sistema
+            {t('admin.pages.genres.subtitle')}
           </p>
         </div>
       </div>
@@ -133,14 +135,14 @@ export default function AdminGenresClient() {
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <CardTitle className="flex items-center gap-2">
             <Bookmark className="w-5 h-5 text-[var(--primary)]" />
-            Todos los géneros
+            {t('admin.pages.genres.allGenres')}
             <span className="text-sm font-normal text-[var(--text-tertiary)]">
               ({filteredGenres.length} de {genres.length})
             </span>
           </CardTitle>
           <div className="relative flex-1 sm:w-64">
             <Input
-              placeholder="Buscar géneros..."
+              placeholder={t('admin.pages.genres.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="text-sm pl-8"
@@ -157,7 +159,7 @@ export default function AdminGenresClient() {
             </div>
           ) : error ? (
             <div className="p-6">
-              <ErrorMessage message={error} action={{ label: 'Reintentar', onClick: () => { setIsLoading(true); loadGenres(); } }} />
+              <ErrorMessage message={error}                      action={{ label: t('common.retry'), onClick: () => { setIsLoading(true); loadGenres(); } }} />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -165,16 +167,16 @@ export default function AdminGenresClient() {
                 <thead>
                   <tr className="border-b border-[var(--border)]">
                     <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Género
+                      {t('admin.pages.genres.columns.genre')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider hidden sm:table-cell">
-                      Slug
+                      {t('admin.pages.genres.columns.slug')}
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider hidden md:table-cell">
-                      Mangas
+                      {t('admin.pages.genres.columns.mangas')}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Acciones
+                      {t('admin.pages.genres.columns.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -183,7 +185,7 @@ export default function AdminGenresClient() {
                     <tr>
                       <td colSpan={4} className="px-4 py-12 text-center text-[var(--text-tertiary)]">
                         <Bookmark className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                        <p>No se encontraron géneros</p>
+                        <p>{t('admin.pages.genres.empty')}</p>
                       </td>
                     </tr>
                   ) : (
@@ -220,8 +222,8 @@ export default function AdminGenresClient() {
                             variant="ghost"
                             size="icon"
                             onClick={() => setDeletingGenre(genre)}
-                            title="Eliminar género"
-                            aria-label={`Eliminar ${genre.name}`}
+                            title={t('admin.pages.genres.deleteTitle')}
+                            aria-label={`${t('admin.pages.genres.deleteTitle')} ${genre.name}`}
                           >
                             <Trash2 className="w-4 h-4 text-[var(--error)]" />
                           </Button>
@@ -242,14 +244,13 @@ export default function AdminGenresClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[var(--error)]">
               <Trash2 className="w-5 h-5" />
-              Eliminar género
+              {t('admin.pages.genres.deleteTitle')}
             </DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de eliminar el género &quot;{deletingGenre?.name}&quot;?
+              {t('admin.pages.genres.deleteConfirm', { name: deletingGenre?.name || '' })}
               {deletingGenre && deletingGenre.mangaCount && deletingGenre.mangaCount > 0 && (
                 <span className="block mt-2 text-[var(--warning)]">
-                  ⚠️ Este género tiene {deletingGenre.mangaCount} manga(s) asociados.
-                  La relación se eliminará automáticamente pero los mangas no se verán afectados.
+                  ⚠️ {t('admin.pages.genres.deleteHasMangas', { count: deletingGenre.mangaCount })}
                 </span>
               )}
             </DialogDescription>
@@ -270,11 +271,11 @@ export default function AdminGenresClient() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeletingGenre(null)} disabled={isDeleting}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={confirmDelete} isLoading={isDeleting}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Eliminar
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

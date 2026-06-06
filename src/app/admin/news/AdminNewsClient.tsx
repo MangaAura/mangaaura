@@ -53,6 +53,7 @@ import {
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 // ─── Constants ────────────────────────────────────────────────────────
@@ -896,6 +897,7 @@ function NewsForm({
 // ─── Main Page ───────────────────────────────────────────────────────
 
 export default function AdminNewsClient() {
+  const t = useT();
   const { data, error, isLoading } = useSWR<{ articles: NewsArticle[] }>(
     '/api/admin/news',
     fetcher,
@@ -1055,10 +1057,10 @@ export default function AdminNewsClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Newspaper className="w-6 h-6 text-[var(--primary)]" />
-            Noticias
+            {t('admin.pages.news.title')}
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">
-            Gestiona las noticias y novedades de la plataforma.
+            {t('admin.pages.news.subtitle')}
           </p>
         </div>
         <Button onClick={() => setShowCreate(true)}>

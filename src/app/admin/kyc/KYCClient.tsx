@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from '@/components/ui/Dialog';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface KYCUser {
@@ -35,6 +36,7 @@ interface KYCUser {
 
 export default function KYCClient() {
   const { handleError } = useErrorHandler();
+  const t = useT();
   const [statusFilter, setStatusFilter] = useState('pending');
   const [selectedUser, setSelectedUser] = useState<KYCUser | null>(null);
   const [actionDialog, setActionDialog] = useState<{ type: string; open: boolean }>({ type: '', open: false });
@@ -76,9 +78,9 @@ export default function KYCClient() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
           <ShieldCheck className="w-6 h-6 text-[var(--primary)]" />
-          KYC Verification
+          {t('admin.pages.kyc.title')}
         </h1>
-        <p className="text-[var(--text-muted)]">Review and verify user KYC (Know Your Customer) requests</p>
+        <p className="text-[var(--text-muted)]">{t('admin.pages.kyc.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-4 gap-4">

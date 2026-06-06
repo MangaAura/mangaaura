@@ -17,9 +17,11 @@ import {
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 export default function RestoreClient() {
+  const t = useT();
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [reason, setReason] = useState('');
@@ -76,10 +78,10 @@ export default function RestoreClient() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
           <RotateCcw className="w-6 h-6 text-[var(--success)]" />
-          Restaurar Cuentas
+          {t('admin.pages.restore.title')}
         </h1>
         <p className="text-[var(--text-muted)]">
-          Restaura cuentas baneadas de usuarios.
+          {t('admin.pages.restore.subtitle')}
         </p>
       </div>
 

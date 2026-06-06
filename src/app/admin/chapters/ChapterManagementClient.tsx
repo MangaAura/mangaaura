@@ -44,6 +44,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface MangaInfo {
@@ -71,6 +72,7 @@ interface ChapterData {
 }
 
 export default function ChapterManagementClient() {
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -118,7 +120,7 @@ export default function ChapterManagementClient() {
     },
     {
       accessorKey: 'manga',
-      header: 'Manga',
+      header: t('admin.pages.chapters.columns.manga'),
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-14 bg-[var(--surface-sunken)] rounded overflow-hidden flex-shrink-0">
@@ -145,14 +147,14 @@ export default function ChapterManagementClient() {
     },
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: t('admin.pages.chapters.columns.title'),
       cell: ({ row }) => (
         <span className="text-sm text-[var(--text-secondary)]">{row.original.title || '—'}</span>
       ),
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('admin.pages.chapters.columns.status'),
       cell: ({ row }) => (
         <Badge variant={row.original.status === 'PUBLISHED' ? 'default' : 'secondary'} className="capitalize">
           {row.original.status.toLowerCase()}
@@ -161,12 +163,12 @@ export default function ChapterManagementClient() {
     },
     {
       accessorKey: 'stats',
-      header: 'Stats',
+      header: t('admin.pages.chapters.columns.stats'),
       cell: ({ row }) => (
         <div className="text-sm space-y-0.5">
-          <p className="text-[var(--text-muted)]">{row.original.viewCount} views</p>
-          <p className="text-[var(--text-tertiary)]">{row.original.totalPages} pages</p>
-          <p className="text-[var(--text-tertiary)]">{row.original.commentCount} comments</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.chapters.stats.views', { count: row.original.viewCount })}</p>
+          <p className="text-[var(--text-tertiary)]">{t('admin.pages.chapters.stats.pages', { count: row.original.totalPages })}</p>
+          <p className="text-[var(--text-tertiary)]">{t('admin.pages.chapters.stats.comments', { count: row.original.commentCount })}</p>
         </div>
       ),
     },
@@ -174,7 +176,7 @@ export default function ChapterManagementClient() {
       accessorKey: 'createdAt',
       header: () => (
         <button onClick={() => { setSortBy('createdAt'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1">
-          Created <ArrowUpDown className="w-3 h-3" />
+          {t('admin.pages.chapters.columns.created')} <ArrowUpDown className="w-3 h-3" />
         </button>
       ),
       cell: ({ row }) => (
@@ -185,20 +187,20 @@ export default function ChapterManagementClient() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('admin.pages.chapters.columns.actions'),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <Link href={`/manga/${row.original.manga.slug}/chapter/${row.original.chapterNumber}`} target="_blank">
-            <Button variant="ghost" size="icon" title="View">
+            <Button variant="ghost" size="icon"                            title={t('admin.pages.chapters.view')}>
               <Eye className="w-4 h-4 text-[var(--primary)]" />
             </Button>
           </Link>
           <Link href={`/admin/chapters/${row.original.id}`}>
-            <Button variant="ghost" size="icon" title="Edit">
+            <Button variant="ghost" size="icon"                            title={t('admin.pages.chapters.edit')}>
               <Edit className="w-4 h-4 text-[var(--primary)]" />
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" onClick={() => { setSelectedChapter(row.original); setShowDeleteDialog(true); }} title="Delete">
+          <Button variant="ghost" size="icon" onClick={() => { setSelectedChapter(row.original); setShowDeleteDialog(true); }} title={t('admin.pages.chapters.delete')}>
             <Trash2 className="w-4 h-4 text-[var(--error)]" />
           </Button>
         </div>
@@ -222,9 +224,9 @@ export default function ChapterManagementClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <FileText className="w-6 h-6 text-[var(--primary)]" />
-            Chapter Management
+            {t('admin.pages.chapters.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Manage all chapters across the platform</p>
+          <p className="text-[var(--text-muted)]">            {t('admin.pages.chapters.subtitle')}</p>
         </div>
       </div>
 
@@ -234,7 +236,7 @@ export default function ChapterManagementClient() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
               <Input
-                placeholder="Search chapters or manga..."
+                placeholder={t('admin.pages.chapters.search')}
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                 className="pl-10"
@@ -245,7 +247,7 @@ export default function ChapterManagementClient() {
                 <SelectValue placeholder="All Manga" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Manga</SelectItem>
+                <SelectItem value="all">{t('admin.pages.chapters.allManga')}</SelectItem>
                 {mangas.map((m) => (
                   <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>
                 ))}
@@ -256,10 +258,10 @@ export default function ChapterManagementClient() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="PUBLISHED">Published</SelectItem>
-                <SelectItem value="DRAFT">Draft</SelectItem>
-                <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                <SelectItem value="all">{t('admin.pages.chapters.allStatus')}</SelectItem>
+                <SelectItem value="PUBLISHED">{t('admin.pages.chapters.published')}</SelectItem>
+                <SelectItem value="DRAFT">{t('admin.pages.chapters.draft')}</SelectItem>
+                <SelectItem value="SCHEDULED">{t('admin.pages.chapters.scheduled')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -269,7 +271,7 @@ export default function ChapterManagementClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            All Chapters{' '}
+            {t('admin.pages.chapters.allChapters')}{' '}
             <span className="text-[var(--text-tertiary)] font-normal">
               ({pagination?.total || 0})
             </span>
@@ -283,12 +285,12 @@ export default function ChapterManagementClient() {
               ))}
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Failed to load chapters</div>
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.chapters.loadError')}</div>
           ) : chapters.length === 0 ? (
             <div className="text-center py-12">
               <FileText className="w-12 h-12 mx-auto mb-4 text-[var(--text-secondary)]" />
-              <h3 className="text-lg font-medium text-[var(--text-primary)]">No chapters found</h3>
-              <p className="text-[var(--text-tertiary)]">{searchQuery ? 'Try adjusting filters' : 'No chapters have been created yet'}</p>
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">{t('admin.pages.chapters.empty')}</h3>
+              <p className="text-[var(--text-tertiary)]">{searchQuery ? t('admin.pages.chapters.emptyFilters') : t('admin.pages.chapters.emptyNone')}</p>
             </div>
           ) : (
             <>
@@ -322,7 +324,7 @@ export default function ChapterManagementClient() {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
                   <div className="text-sm text-[var(--text-tertiary)]">
-                    Page {page} of {pagination.totalPages}
+                    {t('admin.page')} {page} {t('admin.of')} {pagination.totalPages}
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
@@ -342,9 +344,9 @@ export default function ChapterManagementClient() {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Chapter</DialogTitle>
+            <DialogTitle>{t('admin.pages.chapters.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete this chapter and all associated comments. This action cannot be undone.
+              {t('admin.pages.chapters.deleteDesc')}
             </DialogDescription>
           </DialogHeader>
           {selectedChapter && (
@@ -359,9 +361,9 @@ export default function ChapterManagementClient() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>{t('admin.pages.chapters.cancel')}</Button>
             <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" /> Delete Chapter
+              <Trash2 className="w-4 h-4 mr-2" /> {t('admin.pages.chapters.deleteConfirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

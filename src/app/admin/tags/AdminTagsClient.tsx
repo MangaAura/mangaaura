@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useTags, type Tag as TagType } from '@/hooks/useTags';
+import { useT } from '@/i18n';
 
 export default function AdminTagsClient() {
   const {
@@ -44,6 +45,7 @@ export default function AdminTagsClient() {
     deleteTag,
   } = useTags();
 
+  const t = useT();
   const [activeTab, setActiveTab] = useState<'list' | 'tree' | 'create'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
@@ -90,7 +92,7 @@ export default function AdminTagsClient() {
 
   const handleCreate = async () => {
     if (!newName.trim()) {
-      setCreateError('El nombre es requerido');
+      setCreateError(t('admin.pages.tags.nameRequired'));
       return;
     }
 
@@ -115,7 +117,7 @@ export default function AdminTagsClient() {
       setNewType('TAG');
       setActiveTab('list');
     } else {
-      setCreateError('Error al crear el tag');
+      setCreateError(t('admin.pages.tags.createError'));
     }
   };
 
@@ -133,7 +135,7 @@ export default function AdminTagsClient() {
   const handleEdit = async () => {
     if (!editingTag) return;
     if (!editName.trim()) {
-      setEditError('El nombre es requerido');
+      setEditError(t('admin.pages.tags.nameRequired'));
       return;
     }
 
@@ -155,7 +157,7 @@ export default function AdminTagsClient() {
       setEditingTag(null);
       loadTags();
     } else {
-      setEditError('Error al actualizar el tag');
+      setEditError(t('admin.pages.tags.editError'));
     }
   };
 
@@ -214,7 +216,7 @@ export default function AdminTagsClient() {
             <tr>
               <td colSpan={5} className="px-4 py-12 text-center text-[var(--text-tertiary)]">
                 <Hash className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                <p>No se encontraron tags</p>
+                <p>{t('admin.pages.tags.empty')}</p>
               </td>
             </tr>
           ) : (
@@ -262,7 +264,7 @@ export default function AdminTagsClient() {
                       className={`inline-block w-2 h-2 rounded-full ${
                         tag.isActive ? 'bg-[var(--success)]' : 'bg-[var(--text-tertiary)]'
                       }`}
-                      title={tag.isActive ? 'Activo' : 'Inactivo'}
+                      title={tag.isActive ? t('admin.pages.tags.activeBadge') : t('admin.pages.tags.inactiveBadge')}
                     />
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -271,8 +273,8 @@ export default function AdminTagsClient() {
                         variant="ghost"
                         size="icon"
                         onClick={() => openEditDialog(tag)}
-                        title="Editar tag"
-                        aria-label={`Editar ${tag.name}`}
+                        title={t('admin.pages.tags.editTitle')}
+                        aria-label={`${t('admin.pages.tags.editTitle')} ${tag.name}`}
                       >
                         <Edit3 className="w-4 h-4 text-[var(--primary)]" />
                       </Button>
@@ -280,8 +282,8 @@ export default function AdminTagsClient() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setDeletingTag(tag)}
-                        title="Eliminar tag"
-                        aria-label={`Eliminar ${tag.name}`}
+                        title={t('admin.pages.tags.deleteTitle')}
+                        aria-label={`${t('admin.pages.tags.deleteTitle')} ${tag.name}`}
                       >
                         <Trash2 className="w-4 h-4 text-[var(--error)]" />
                       </Button>
@@ -303,15 +305,15 @@ export default function AdminTagsClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Tag className="w-6 h-6 text-[var(--primary)]" />
-            Gestión de Tags
+            {t('admin.pages.tags.title')}
           </h1>
           <p className="text-[var(--text-muted)]">
-            Administra los tags, categorías y etiquetas del sistema
+            {t('admin.pages.tags.subtitle')}
           </p>
         </div>
         <Button onClick={() => setActiveTab('create')}>
           <Plus className="w-4 h-4 mr-2" />
-          Nuevo tag
+          {t('admin.pages.tags.newTag')}
         </Button>
       </div>
 
@@ -327,7 +329,7 @@ export default function AdminTagsClient() {
               : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
             }`}
         >
-          Lista
+          {t('admin.pages.tags.list')}
           <span className="ml-1.5 text-xs opacity-60">({tags.length})</span>
         </button>
         <button
@@ -340,7 +342,7 @@ export default function AdminTagsClient() {
               : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
             }`}
         >
-          Árbol jerárquico
+          {t('admin.pages.tags.tree')}
         </button>
         <button
           role="tab"
@@ -352,7 +354,7 @@ export default function AdminTagsClient() {
               : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
             }`}
         >
-          + Crear
+          {t('admin.pages.tags.create')}
         </button>
       </div>
 
@@ -361,7 +363,7 @@ export default function AdminTagsClient() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5 text-[var(--primary)]" />
-              Crear nuevo tag
+              {t('admin.pages.tags.createTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -370,12 +372,12 @@ export default function AdminTagsClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Nombre <span className="text-[var(--error)]">*</span>
+                  {t('admin.pages.tags.name')} <span className="text-[var(--error)]">*</span>
                 </label>
                 <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Ej: Acción, Romance, Shonen..."
+                  placeholder={t('admin.pages.tags.name')}
                   maxLength={50}
                   autoFocus
                 />
@@ -383,7 +385,7 @@ export default function AdminTagsClient() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Tipo
+                  {t('admin.pages.tags.type')}
                 </label>
                 <Select value={newType} onValueChange={setNewType}>
                   <SelectTrigger>
@@ -401,12 +403,12 @@ export default function AdminTagsClient() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--text-secondary)]">
-                Descripción
+                {t('admin.pages.tags.description')}
               </label>
               <Input
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="Descripción del tag (opcional)"
+                placeholder={t('admin.pages.tags.description')}
                 maxLength={200}
               />
             </div>
@@ -414,7 +416,7 @@ export default function AdminTagsClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Color
+                  {t('admin.pages.tags.color')}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -431,14 +433,14 @@ export default function AdminTagsClient() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Tag padre (opcional)
+                  {t('admin.pages.tags.parent')}
                 </label>
                 <Select value={newParentId} onValueChange={(v) => setNewParentId(v === 'none' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Ninguno (tag raíz)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Ninguno (tag raíz)</SelectItem>
+                    <SelectItem value="none">{t('admin.pages.tags.noneParent')}</SelectItem>
                     {tags
                       .filter((t) => t.id !== newParentId)
                       .map((t) => (
@@ -459,11 +461,11 @@ export default function AdminTagsClient() {
                   setCreateError(null);
                 }}
               >
-                Cancelar
+                {t('admin.pages.tags.cancel')}
               </Button>
               <Button onClick={handleCreate} isLoading={isSaving}>
                 <Plus className="w-4 h-4 mr-2" />
-                Crear tag
+                {t('admin.pages.tags.newTag')}
               </Button>
             </div>
           </CardContent>
@@ -475,7 +477,7 @@ export default function AdminTagsClient() {
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle className="flex items-center gap-2">
               <Hash className="w-5 h-5 text-[var(--primary)]" />
-              Todos los tags
+              {t('admin.pages.tags.allTags')}
               <span className="text-sm font-normal text-[var(--text-tertiary)]">
                 ({filteredTags.length} de {tags.length})
               </span>
@@ -483,7 +485,7 @@ export default function AdminTagsClient() {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-48">
                 <Input
-                  placeholder="Buscar tags..."
+                  placeholder={t('admin.pages.tags.search')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="text-sm pl-8"
@@ -496,7 +498,7 @@ export default function AdminTagsClient() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="all">{t('admin.pages.tags.filterAll')}</SelectItem>
                     {tagTypes.map((type) => (
                       <SelectItem key={type} value={type}>
                         {type}
@@ -516,7 +518,7 @@ export default function AdminTagsClient() {
               </div>
             ) : error ? (
               <div className="p-6">
-                <ErrorMessage message={error} action={{ label: 'Reintentar', onClick: loadTags }} />
+                <ErrorMessage message={error}              action={{ label: t('common.retry'), onClick: loadTags }} />
               </div>
             ) : (
               renderTagsTable()
@@ -527,7 +529,7 @@ export default function AdminTagsClient() {
 
       {activeTab === 'tree' && (
         <TagSelector
-          title="Árbol de tags"
+          title={t('admin.pages.tags.tree')}
           showCreateForm
           maxHeight="600px"
           className=""
@@ -540,10 +542,10 @@ export default function AdminTagsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit3 className="w-5 h-5 text-[var(--primary)]" />
-              Editar tag
+              {t('admin.pages.tags.editTitle')}
             </DialogTitle>
             <DialogDescription>
-              Modifica las propiedades del tag &quot;{editingTag?.name}&quot;
+              {t('admin.pages.tags.editDesc', { name: editingTag?.name || '' })}
             </DialogDescription>
           </DialogHeader>
 
@@ -553,7 +555,7 @@ export default function AdminTagsClient() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Nombre <span className="text-[var(--error)]">*</span>
+                  {t('admin.pages.tags.name')} <span className="text-[var(--error)]">*</span>
                 </label>
                 <Input
                   value={editName}
@@ -563,7 +565,7 @@ export default function AdminTagsClient() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Tipo
+                  {t('admin.pages.tags.type')}
                 </label>
                 <Select value={editType} onValueChange={setEditType}>
                   <SelectTrigger>
@@ -581,7 +583,7 @@ export default function AdminTagsClient() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--text-secondary)]">
-                Descripción
+                {t('admin.pages.tags.description')}
               </label>
               <Input
                 value={editDescription}
@@ -593,7 +595,7 @@ export default function AdminTagsClient() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Color
+                  {t('admin.pages.tags.color')}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -609,7 +611,7 @@ export default function AdminTagsClient() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--text-secondary)]">
-                  Tag padre
+                  {t('admin.pages.tags.parent')}
                 </label>
                 <Select
                   value={editParentId || 'none'}
@@ -619,7 +621,7 @@ export default function AdminTagsClient() {
                     <SelectValue placeholder="Ninguno" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Ninguno (tag raíz)</SelectItem>
+                    <SelectItem value="none">{t('admin.pages.tags.noneParent')}</SelectItem>
                     {availableParents.map((t) => (
                       <SelectItem key={t.id} value={t.id}>
                         {t.name}
@@ -638,18 +640,18 @@ export default function AdminTagsClient() {
                   onChange={(e) => setEditIsActive(e.target.checked)}
                   className="w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
                 />
-                Tag activo
+                {t('admin.pages.tags.active')}
               </label>
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingTag(null)}>
-              Cancelar
+              {t('admin.pages.tags.cancel')}
             </Button>
             <Button onClick={handleEdit} isLoading={isSaving}>
               <Save className="w-4 h-4 mr-2" />
-              Guardar cambios
+              {t('admin.pages.tags.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -661,13 +663,13 @@ export default function AdminTagsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[var(--error)]">
               <Trash2 className="w-5 h-5" />
-              Eliminar tag
+              {t('admin.pages.tags.deleteTitle')}
             </DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de eliminar el tag &quot;{deletingTag?.name}&quot;?
+              {t('admin.pages.tags.deleteConfirm', { name: deletingTag?.name || '' })}
               {deletingTag && tags.filter((t) => t.parentId === deletingTag.id).length > 0 && (
                 <span className="block mt-2 text-[var(--warning)]">
-                  ⚠️ Este tag tiene {tags.filter((t) => t.parentId === deletingTag.id).length} tag(s) hijo(s) que se quedarán sin padre.
+                  ⚠️ {t('admin.pages.tags.deleteHasChildren', { count: tags.filter((t) => t.parentId === deletingTag.id).length })}
                 </span>
               )}
             </DialogDescription>
@@ -693,11 +695,11 @@ export default function AdminTagsClient() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeletingTag(null)} disabled={isDeleting}>
-              Cancelar
+              {t('admin.pages.tags.cancel')}
             </Button>
             <Button variant="destructive" onClick={confirmDelete} isLoading={isDeleting}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Eliminar
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

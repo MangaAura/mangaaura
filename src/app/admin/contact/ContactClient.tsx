@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/Dialog';
 import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 import { cn } from '@/lib/utils';
 
@@ -63,6 +64,7 @@ interface ContactApiResponse {
 }
 
 export default function ContactClient() {
+  const t = useT();
   const [page, setPage] = useState(1);
   const [searchCategory, setSearchCategory] = useState<string>('all');
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
@@ -125,9 +127,9 @@ export default function ContactClient() {
           <Mail className="w-6 h-6 text-accent-blue" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Mensajes de Contacto</h1>
+          <h1 className="text-2xl font-bold">{t('admin.pages.contact.title')}</h1>
           <p className="text-muted text-sm">
-            {pagination.total} mensaje{pagination.total !== 1 ? 's' : ''} en total
+            {t('admin.pages.contact.total', { count: pagination.total })}
           </p>
         </div>
       </div>

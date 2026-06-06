@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface Template {
@@ -26,6 +27,7 @@ interface Template {
 
 export default function EmailTemplatesClient() {
   const { handleError } = useErrorHandler();
+  const t = useT();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [subject, setSubject] = useState('');
   const [html, setHtml] = useState('');
@@ -107,9 +109,9 @@ export default function EmailTemplatesClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Mail className="w-6 h-6 text-[var(--primary)]" />
-            Plantillas de Email
+            {t('admin.pages.emailTemplates.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Personaliza las plantillas de correo electrónico</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.emailTemplates.subtitle')}</p>
         </div>
       </div>
 

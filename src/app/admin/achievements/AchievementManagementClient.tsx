@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface AchievementData {
@@ -44,6 +45,7 @@ interface AchievementData {
 
 export default function AchievementManagementClient() {
   const { handleError } = useErrorHandler();
+  const t = useT();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<AchievementData | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -150,9 +152,9 @@ export default function AchievementManagementClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Trophy className="w-6 h-6 text-[var(--primary)]" />
-            Achievement Definitions
+            {t('admin.pages.achievements.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Create and manage achievement badges</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.achievements.subtitle')}</p>
         </div>
         <Button onClick={() => { resetForm(); setEditingAchievement(null); setShowCreateDialog(true); }}>
           <Plus className="w-4 h-4 mr-2" /> New Achievement

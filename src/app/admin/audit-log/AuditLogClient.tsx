@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface AuditLogEntry {
@@ -75,6 +76,7 @@ function buildUrl(filters: Record<string, string>) {
 }
 
 export default function AuditLogClient() {
+  const t = useT();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAction, setFilterAction] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('');
@@ -118,9 +120,9 @@ export default function AuditLogClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Shield className="w-6 h-6 text-[var(--primary)]" />
-            Audit Log
+            {t('admin.pages.auditLog.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Security and administrative event log</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.auditLog.subtitle')}</p>
         </div>
         <div className="text-sm text-[var(--text-tertiary)]">
           {total} total events

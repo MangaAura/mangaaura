@@ -14,6 +14,7 @@ import useSWR from 'swr';
 
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 function formatUptime(seconds: number) {
@@ -26,6 +27,7 @@ function formatUptime(seconds: number) {
 }
 
 export default function HealthClient() {
+  const t = useT();
   const { data, error, isLoading } = useSWR<{
     status: string;
     timestamp: string;
@@ -60,9 +62,9 @@ export default function HealthClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Activity className="w-6 h-6 text-[var(--primary)]" />
-            Health & Status
+            {t('admin.pages.health.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Estado del sistema y métricas en tiempo real</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.health.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant={isHealthy ? 'default' : 'destructive'} className="text-sm px-3 py-1">

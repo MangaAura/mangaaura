@@ -51,6 +51,7 @@ import {
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface CommentUser {
@@ -82,6 +83,7 @@ interface CommentData {
 }
 
 export default function CommentModerationClient() {
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -123,17 +125,17 @@ export default function CommentModerationClient() {
   const columns: ColumnDef<CommentData>[] = useMemo(() => [
     {
       accessorKey: 'content',
-      header: 'Comment',
+      header: t('admin.pages.comments.columns.comment'),
       cell: ({ row }) => (
         <div className="max-w-md">
           <p className={`text-sm ${row.original.isDeleted ? 'text-[var(--text-tertiary)] italic line-through' : 'text-[var(--text-primary)]'}`}>
-            {row.original.isDeleted ? '[deleted]' : row.original.content.substring(0, 150)}
+            {row.original.isDeleted ? t('admin.pages.comments.deletedLabel') : row.original.content.substring(0, 150)}
             {row.original.content.length > 150 && '...'}
           </p>
           {row.original.isHidden && row.original.hiddenReason && (
             <p className="text-xs text-[var(--warning)] mt-1">
               <AlertTriangle className="w-3 h-3 inline mr-1" />
-              Hidden: {row.original.hiddenReason}
+              {t('admin.pages.comments.hiddenReason', { reason: row.original.hiddenReason })}
             </p>
           )}
         </div>
@@ -141,12 +143,12 @@ export default function CommentModerationClient() {
     },
     {
       accessorKey: 'user',
-      header: 'User',
+      header: t('admin.pages.comments.columns.user'),
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-xs font-medium overflow-hidden">
             {row.original.user.avatarUrl ? (
-              <img src={row.original.user.avatarUrl} alt={`Avatar de ${row.original.user.username}`} className="w-full h-full object-cover" />
+              <img src={row.original.user.avatarUrl}            alt={row.original.user.username} className="w-full h-full object-cover" />
             ) : (
               row.original.user.username.charAt(0).toUpperCase()
             )}
@@ -157,36 +159,36 @@ export default function CommentModerationClient() {
     },
     {
       accessorKey: 'chapter',
-      header: 'Chapter',
+      header: t('admin.pages.comments.columns.chapter'),
       cell: ({ row }) => (
         <div className="text-sm">
-          <p className="text-[var(--text-secondary)] truncate max-w-[150px]">{row.original.chapter?.manga?.title || 'Unknown'}</p>
+          <p className="text-[var(--text-secondary)] truncate max-w-[150px]">{row.original.chapter?.manga?.title || t('admin.pages.comments.unknownChapter')}</p>
           <p className="text-[var(--text-tertiary)]">Ch. {row.original.chapter?.chapterNumber || '?'}</p>
         </div>
       ),
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('admin.pages.comments.columns.status'),
       cell: ({ row }) => {
-        if (row.original.isDeleted) return <Badge variant="destructive">Deleted</Badge>;
-        if (row.original.isHidden) return <Badge variant="warning">Hidden</Badge>;
-        return <Badge variant="success">Visible</Badge>;
+        if (row.original.isDeleted) return <Badge variant="destructive">{t('admin.pages.comments.deleted')}</Badge>;
+        if (row.original.isHidden) return <Badge variant="warning">{t('admin.pages.comments.hidden')}</Badge>;
+        return <Badge variant="success">{t('admin.pages.comments.visible')}</Badge>;
       },
     },
     {
       accessorKey: 'stats',
-      header: 'Stats',
+      header: t('admin.pages.comments.columns.stats'),
       cell: ({ row }) => (
         <div className="text-sm text-[var(--text-tertiary)]">
-          <span>{row.original.likesCount} likes</span>
-          <span className="ml-2">{row.original.repliesCount} replies</span>
+          <span>{t('admin.pages.comments.stats.likes', { count: row.original.likesCount })}</span>
+          <span className="ml-2">{t('admin.pages.comments.stats.replies', { count: row.original.repliesCount })}</span>
         </div>
       ),
     },
     {
       accessorKey: 'createdAt',
-      header: 'Date',
+      header: t('admin.pages.comments.columns.date'),
       cell: ({ row }) => (
         <span className="text-sm text-[var(--text-tertiary)]">
           {new Date(row.original.createdAt).toLocaleDateString()}
@@ -195,7 +197,7 @@ export default function CommentModerationClient() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('admin.pages.comments.columns.actions'),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -206,27 +208,25 @@ export default function CommentModerationClient() {
           <DropdownMenuContent align="end">
             {!row.original.isDeleted && (
               <>
-                {row.original.isHidden ? (
-                  <DropdownMenuItem onClick={() => { setSelectedComment(row.original); performAction('unhide'); }}>
-                    <Eye className="w-4 h-4 mr-2" /> Unhide
-                  </DropdownMenuItem>
+                {row.original.isHidden ? (                    <DropdownMenuItem onClick={() => { setSelectedComment(row.original); performAction('unhide'); }}>
+                      <Eye className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.unhide')}
+                    </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setHideReason(''); setActionDialog({ type: 'hide', open: true }); }}>
-                    <EyeOff className="w-4 h-4 mr-2" /> Hide
-                  </DropdownMenuItem>
+                      <EyeOff className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.hide')}
+                    </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setEditContent(row.original.content); setActionDialog({ type: 'edit', open: true }); }}>
-                  <Edit className="w-4 h-4 mr-2" /> Edit
-                </DropdownMenuItem>
+                      <Edit className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.edit')}
+                    </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setActionDialog({ type: 'delete', open: true }); }}>
-                  <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> Soft Delete
-                </DropdownMenuItem>
+                      <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> {t('admin.pages.comments.actions.softDelete')}
+                    </DropdownMenuItem>
               </>
             )}
-            {row.original.isDeleted && (
-              <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setEditContent(row.original.content); setActionDialog({ type: 'restore', open: true }); }}>
-                <Undo2 className="w-4 h-4 mr-2" /> Restore
-              </DropdownMenuItem>
+            {row.original.isDeleted && (              <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setEditContent(row.original.content); setActionDialog({ type: 'restore', open: true }); }}>
+                    <Undo2 className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.restore')}
+                  </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -250,9 +250,9 @@ export default function CommentModerationClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-[var(--primary)]" />
-            Comment Moderation
+            {t('admin.pages.comments.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Review and moderate all comments across the platform</p>
+          <p className="text-[var(--text-muted)]">            {t('admin.pages.comments.subtitle')}</p>
         </div>
       </div>
 
@@ -262,7 +262,7 @@ export default function CommentModerationClient() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
               <Input
-                placeholder="Search by content, username..."
+                placeholder={t('admin.pages.comments.search')}
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                 className="pl-10"
@@ -273,10 +273,10 @@ export default function CommentModerationClient() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="visible">Visible</SelectItem>
-                <SelectItem value="hidden">Hidden</SelectItem>
-                <SelectItem value="deleted">Deleted</SelectItem>
+                <SelectItem value="all">{t('admin.pages.comments.filterAll')}</SelectItem>
+                <SelectItem value="visible">{t('admin.pages.comments.visible')}</SelectItem>
+                <SelectItem value="hidden">{t('admin.pages.comments.hidden')}</SelectItem>
+                <SelectItem value="deleted">{t('admin.pages.comments.deleted')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -286,7 +286,7 @@ export default function CommentModerationClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Comments{' '}
+            {t('admin.pages.comments.title')}
             <span className="text-[var(--text-tertiary)] font-normal">({pagination?.total || 0})</span>
           </CardTitle>
         </CardHeader>
@@ -296,11 +296,11 @@ export default function CommentModerationClient() {
               {[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-[var(--surface-sunken)] rounded" />)}
             </div>
           ) : error ? (
-            <div className="text-center py-8 text-[var(--error)]">Failed to load comments</div>
+            <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.comments.loadError')}</div>
           ) : comments.length === 0 ? (
             <div className="text-center py-12">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 text-[var(--text-secondary)]" />
-              <h3 className="text-lg font-medium text-[var(--text-primary)]">No comments found</h3>
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">{t('admin.pages.comments.empty')}</h3>
             </div>
           ) : (
             <>
@@ -333,7 +333,7 @@ export default function CommentModerationClient() {
 
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <div className="text-sm text-[var(--text-tertiary)]">Page {page} of {pagination.totalPages}</div>
+                  <div className="text-sm text-[var(--text-tertiary)]">{t('admin.page')} {page} {t('admin.of')} {pagination.totalPages}</div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
                       <ChevronLeft className="w-4 h-4" />
@@ -352,17 +352,17 @@ export default function CommentModerationClient() {
       <Dialog open={actionDialog.type === 'hide'} onOpenChange={(o) => setActionDialog({ type: o ? 'hide' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Hide Comment</DialogTitle>
-            <DialogDescription>This will hide the comment from public view. The user will still see it.</DialogDescription>
+            <DialogTitle>{t('admin.pages.comments.hideTitle')}</DialogTitle>
+            <DialogDescription>{t('admin.pages.comments.hideDesc')}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Reason (optional)</label>
-            <Input value={hideReason} onChange={(e) => setHideReason(e.target.value)} placeholder="e.g. Spam, inappropriate content" className="mt-1" />
+            <label className="text-sm font-medium text-[var(--text-secondary)]">{t('admin.pages.comments.hideReason')}</label>
+            <Input value={hideReason} onChange={(e) => setHideReason(e.target.value)} placeholder={t('admin.pages.comments.hideReasonPlaceholder')} className="mt-1" />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
+            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>{t('admin.pages.comments.cancel')}</Button>
             <Button onClick={() => performAction('hide', { hiddenReason: hideReason || 'Hidden by moderator' })}>
-              <EyeOff className="w-4 h-4 mr-2" /> Hide Comment
+              <EyeOff className="w-4 h-4 mr-2" /> {t('admin.pages.comments.hideButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -371,16 +371,16 @@ export default function CommentModerationClient() {
       <Dialog open={actionDialog.type === 'edit'} onOpenChange={(o) => setActionDialog({ type: o ? 'edit' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Comment</DialogTitle>
-            <DialogDescription>Modify the comment content.</DialogDescription>
+            <DialogTitle>{t('admin.pages.comments.editTitle')}</DialogTitle>
+            <DialogDescription>{t('admin.pages.comments.editDesc')}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={4} />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
+            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>{t('admin.pages.comments.cancel')}</Button>
             <Button onClick={() => performAction('edit', { content: editContent })}>
-              <Edit className="w-4 h-4 mr-2" /> Save Edit
+              <Edit className="w-4 h-4 mr-2" /> {t('admin.pages.comments.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -389,13 +389,13 @@ export default function CommentModerationClient() {
       <Dialog open={actionDialog.type === 'delete'} onOpenChange={(o) => setActionDialog({ type: o ? 'delete' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Comment (Soft)</DialogTitle>
-            <DialogDescription>The content will be replaced with "[deleted]" but the comment record will be kept.</DialogDescription>
+            <DialogTitle>{t('admin.pages.comments.deleteTitle')}</DialogTitle>
+            <DialogDescription>{t('admin.pages.comments.deleteDesc')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
+            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>{t('admin.pages.comments.cancel')}</Button>
             <Button variant="destructive" onClick={() => performAction('delete')}>
-              <Trash2 className="w-4 h-4 mr-2" /> Soft Delete
+              <Trash2 className="w-4 h-4 mr-2" /> {t('admin.pages.comments.deleteButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -404,17 +404,17 @@ export default function CommentModerationClient() {
       <Dialog open={actionDialog.type === 'restore'} onOpenChange={(o) => setActionDialog({ type: o ? 'restore' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Restore Comment</DialogTitle>
-            <DialogDescription>The original content will be restored.</DialogDescription>
+            <DialogTitle>{t('admin.pages.comments.restoreTitle')}</DialogTitle>
+            <DialogDescription>{t('admin.pages.comments.restoreDesc')}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Original content</label>
             <p className="text-sm text-[var(--text-primary)] mt-1 p-3 bg-[var(--surface)] rounded">{editContent}</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>Cancel</Button>
+            <Button variant="outline" onClick={() => setActionDialog({ type: '', open: false })}>{t('admin.pages.comments.cancel')}</Button>
             <Button onClick={() => performAction('restore', { content: editContent })}>
-              <Undo2 className="w-4 h-4 mr-2" /> Restore
+              <Undo2 className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.restore')}
             </Button>
           </DialogFooter>
         </DialogContent>

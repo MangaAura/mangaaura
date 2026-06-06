@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface Announcement {
@@ -57,6 +58,7 @@ const TYPE_ICONS: Record<string, React.ElementType> = {
 };
 
 export default function AnnouncementsClient() {
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
@@ -165,22 +167,22 @@ export default function AnnouncementsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5" />
-              {isEdit ? 'Editar' : 'Nueva'} Announcement
+              {isEdit ? t('admin.pages.announcements.edit') : t('admin.pages.announcements.create')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             {formError && <ErrorMessage message={formError} />}
             <div className="space-y-2">
-              <Label>Mensaje *</Label>
-              <Textarea value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} rows={3} placeholder="Mensaje de la announcement..." />
+              <Label>{t('admin.pages.announcements.messageLabel')} *</Label>
+              <Textarea value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} rows={3} placeholder={t('admin.pages.announcements.messagePlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label>Mensaje (English)</Label>
+              <Label>{t('admin.pages.announcements.messageEnLabel')}</Label>
               <Textarea value={form.messageEn} onChange={(e) => setForm((p) => ({ ...p, messageEn: e.target.value }))} rows={2} placeholder="English message (optional)" />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Tipo</Label>
+                <Label>{t('admin.pages.announcements.type')}</Label>
                 <Select value={form.type} onValueChange={(v) => setForm((p) => ({ ...p, type: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -192,7 +194,7 @@ export default function AnnouncementsClient() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Prioridad</Label>
+                <Label>{t('admin.pages.announcements.priority')}</Label>
                 <Select value={form.priority} onValueChange={(v) => setForm((p) => ({ ...p, priority: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -204,7 +206,7 @@ export default function AnnouncementsClient() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Estilo</Label>
+                <Label>{t('admin.pages.announcements.style')}</Label>
                 <Select value={form.style} onValueChange={(v) => setForm((p) => ({ ...p, style: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -217,17 +219,17 @@ export default function AnnouncementsClient() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Inicio</Label>
+                <Label>{t('admin.pages.announcements.startAt')}</Label>
                 <Input type="datetime-local" value={form.startAt} onChange={(e) => setForm((p) => ({ ...p, startAt: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <Label>Expira (opcional)</Label>
+                <Label>{t('admin.pages.announcements.expiresAt')}</Label>
                 <Input type="datetime-local" value={form.expiresAt} onChange={(e) => setForm((p) => ({ ...p, expiresAt: e.target.value }))} />
               </div>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))} className="rounded" />
-              <span className="text-sm">Activa</span>
+              <span className="text-sm">{t('admin.pages.announcements.active')}</span>
             </label>
           </div>
           <DialogFooter>
@@ -236,7 +238,7 @@ export default function AnnouncementsClient() {
             </Button>
             <Button onClick={onSave} isLoading={isSaving}>
               <Save className="w-4 h-4 mr-2" />
-              {isEdit ? 'Guardar' : 'Crear'}
+              {isEdit ? t('admin.pages.announcements.save') : t('admin.pages.announcements.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -250,20 +252,20 @@ export default function AnnouncementsClient() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Bell className="w-6 h-6 text-[var(--primary)]" />
-            Announcements
+            {t('admin.pages.announcements.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">Gestiona mensajes del sistema para los usuarios</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.announcements.subtitle')}</p>
         </div>
         <Button onClick={() => { resetForm(); setShowCreateDialog(true); }}>
           <Plus className="w-4 h-4 mr-2" />
-          Nuevo
+          {t('admin.pages.announcements.new')}
         </Button>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" /></div>
       ) : error ? (
-        <div className="text-center py-8 text-[var(--error)]">Error al cargar announcements</div>
+        <div className="text-center py-8 text-[var(--error)]">{t('admin.pages.announcements.loadError')}</div>
       ) : announcements.length === 0 ? (
         <div className="text-center py-12 text-[var(--text-tertiary)]">
           <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />

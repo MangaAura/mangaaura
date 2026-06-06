@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface SubscriptionData {
@@ -46,6 +47,7 @@ interface SubscriptionData {
 }
 
 export default function SubscriptionsClient() {
+  const t = useT();
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
 
@@ -138,9 +140,9 @@ export default function SubscriptionsClient() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
           <CreditCard className="w-6 h-6 text-[var(--primary)]" />
-          Subscriptions & Payments
+          {t('admin.pages.subscriptions.title')}
         </h1>
-        <p className="text-[var(--text-muted)]">View all active subscriptions, Stripe customers, and Aura purchases</p>
+        <p className="text-[var(--text-muted)]">{t('admin.pages.subscriptions.subtitle')}</p>
       </div>
 
       <Card>
