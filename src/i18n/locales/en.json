@@ -4517,5 +4517,11 @@
     "ctaTitle": "Ready to get started?",
     "ctaDesc": "Join the MangaAura affiliate program and start earning commissions sharing the manga you love.",
     "ctaButton": "I want to be an affiliate"
+  },
+  "news": {
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "sortTitleAZ": "A-Z",
+    "sortTitleZA": "Z-A"
   }
 }

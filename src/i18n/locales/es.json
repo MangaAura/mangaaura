@@ -4414,5 +4414,11 @@
     "ctaTitle": "¿Listo para empezar?",
     "ctaDesc": "Únete al programa de afiliados de MangaAura y empieza a ganar comisiones compartiendo el manga que te apasiona.",
     "ctaButton": "Quiero ser afiliado"
+  },
+  "news": {
+    "sortNewest": "Más recientes",
+    "sortOldest": "Más antiguos",
+    "sortTitleAZ": "A-Z",
+    "sortTitleZA": "Z-A"
   }
 }

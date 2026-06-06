@@ -12,10 +12,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  ArrowUpDown,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import useSWR from 'swr';
 
 import { Container } from '@/components/Layout/Container';
@@ -110,6 +112,7 @@ export function NewsClient({ initialArticles }: NewsClientProps) {
   const searchParams = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
   const activeCategory = searchParams.get('category') || 'all';
+  const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'title_asc' | 'title_desc'>('date_desc');
 
   const { data } = useSWR<{ articles: unknown[] }>('/api/news', fetcher, {
     refreshInterval: 60000,
@@ -132,8 +135,33 @@ export function NewsClient({ initialArticles }: NewsClientProps) {
       ? allArticles
       : allArticles.filter((a) => a.category === activeCategory);
 
-  const featured = filtered.filter((a) => a.isFeatured).slice(0, 2);
-  const regular = filtered.filter((a) => !a.isFeatured);
+  const getSortComparator = (sort: typeof sortBy) => {
+    switch (sort) {
+      case 'date_asc':
+        return (a: DisplayNewsItem, b: DisplayNewsItem) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime();
+      case 'title_asc':
+        return (a: DisplayNewsItem, b: DisplayNewsItem) =>
+          a.title.localeCompare(b.title, locale);
+      case 'title_desc':
+        return (a: DisplayNewsItem, b: DisplayNewsItem) =>
+          b.title.localeCompare(a.title, locale);
+      default:
+        return (a: DisplayNewsItem, b: DisplayNewsItem) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime();
+    }
+  };
+
+  const comparator = getSortComparator(sortBy);
+
+  const featured = filtered
+    .filter((a) => a.isFeatured)
+    .sort(comparator)
+    .slice(0, 2);
+
+  const regular = filtered
+    .filter((a) => !a.isFeatured)
+    .sort(comparator);
 
   const totalPages = Math.ceil(regular.length / ARTICLES_PER_PAGE);
   const safePage = Math.min(Math.max(1, currentPage), totalPages || 1);
@@ -204,6 +232,29 @@ export function NewsClient({ initialArticles }: NewsClientProps) {
           </Link>
         ))}
       </nav>
+
+      {/* Sort controls */}
+      <div className="flex items-center gap-2 mb-6">
+        <ArrowUpDown size={14} className="text-[var(--text-tertiary)]" />
+        {[
+          { key: 'date_desc' as const, label: t('news.sortNewest') },
+          { key: 'date_asc' as const, label: t('news.sortOldest') },
+          { key: 'title_asc' as const, label: t('news.sortTitleAZ') },
+          { key: 'title_desc' as const, label: t('news.sortTitleZA') },
+        ].map((opt) => (
+          <button
+            key={opt.key}
+            onClick={() => setSortBy(opt.key)}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+              sortBy === opt.key
+                ? 'bg-[var(--primary)] text-white shadow-sm'
+                : 'bg-secondary text-muted hover:text-fg-primary'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
       {/* Featured articles */}
       {featured.length > 0 && activeCategory === 'all' && (
