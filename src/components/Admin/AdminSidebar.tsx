@@ -34,70 +34,73 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
+import { LogoSvg } from '@/components/Logo';
 import { Button } from '@/components/ui/Button';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
+import { useT } from '@/i18n';
 
 interface NavGroup {
-  title: string;
-  items: { label: string; href: string; icon: React.ElementType }[];
+  titleKey: string;
+  items: { labelKey: string; href: string; icon: React.ElementType }[];
 }
 
 const navGroups: NavGroup[] = [
   {
-    title: 'General',
+    titleKey: 'admin.sidebar.general',
     items: [
-      { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-      { label: 'Analytics', href: '/admin/analytics/realtime', icon: BarChart3 },
-      { label: 'Search Analytics', href: '/admin/search-analytics', icon: Search },
-      { label: 'Settings', href: '/admin/settings', icon: Settings },
+      { labelKey: 'admin.sidebar.dashboard', href: '/admin', icon: LayoutDashboard },
+      { labelKey: 'admin.sidebar.analytics', href: '/admin/analytics/realtime', icon: BarChart3 },
+      { labelKey: 'admin.sidebar.searchAnalytics', href: '/admin/search-analytics', icon: Search },
+      { labelKey: 'admin.sidebar.settings', href: '/admin/settings', icon: Settings },
     ],
   },
   {
-    title: 'Contenido',
+    titleKey: 'admin.sidebar.contenido',
     items: [
-      { label: 'Manga', href: '/admin/manga', icon: BookOpen },
-      { label: 'Chapters', href: '/admin/chapters', icon: FileText },
-      { label: 'Tags', href: '/admin/tags', icon: Hash },
-      { label: 'Genres', href: '/admin/genres', icon: Bookmark },
-      { label: 'News', href: '/admin/news', icon: Newspaper },
-      { label: 'Achievements', href: '/admin/achievements', icon: Trophy },
+      { labelKey: 'admin.sidebar.manga', href: '/admin/manga', icon: BookOpen },
+      { labelKey: 'admin.sidebar.chapters', href: '/admin/chapters', icon: FileText },
+      { labelKey: 'admin.sidebar.tags', href: '/admin/tags', icon: Hash },
+      { labelKey: 'admin.sidebar.genres', href: '/admin/genres', icon: Bookmark },
+      { labelKey: 'admin.sidebar.news', href: '/admin/news', icon: Newspaper },
+      { labelKey: 'admin.sidebar.achievements', href: '/admin/achievements', icon: Trophy },
     ],
   },
   {
-    title: 'Comunidad',
+    titleKey: 'admin.sidebar.comunidad',
     items: [
-      { label: 'Users', href: '/admin/users', icon: Users },
-      { label: 'Moderation', href: '/admin/moderation', icon: Shield },
-      { label: 'Comments', href: '/admin/comments', icon: MessageSquare },
-      { label: 'Forum', href: '/admin/forum', icon: MessageCircle },
-      { label: 'Clans', href: '/admin/clans', icon: UsersRound },
-      { label: 'Bans', href: '/admin/bans', icon: Gavel },
-      { label: 'DMCA', href: '/admin/dmca', icon: FileWarning },
-      { label: 'KYC', href: '/admin/kyc', icon: ShieldCheck },
+      { labelKey: 'admin.sidebar.users', href: '/admin/users', icon: Users },
+      { labelKey: 'admin.sidebar.moderation', href: '/admin/moderation', icon: Shield },
+      { labelKey: 'admin.sidebar.comments', href: '/admin/comments', icon: MessageSquare },
+      { labelKey: 'admin.sidebar.forum', href: '/admin/forum', icon: MessageCircle },
+      { labelKey: 'admin.sidebar.clans', href: '/admin/clans', icon: UsersRound },
+      { labelKey: 'admin.sidebar.bans', href: '/admin/bans', icon: Gavel },
+      { labelKey: 'admin.sidebar.dmca', href: '/admin/dmca', icon: FileWarning },
+      { labelKey: 'admin.sidebar.kyc', href: '/admin/kyc', icon: ShieldCheck },
     ],
   },
   {
-    title: 'Financiero',
+    titleKey: 'admin.sidebar.financiero',
     items: [
-      { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-      { label: 'Crowdfunding', href: '/admin/crowdfunding', icon: DollarSign },
-      { label: 'Export', href: '/admin/export', icon: Download },
+      { labelKey: 'admin.sidebar.subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+      { labelKey: 'admin.sidebar.crowdfunding', href: '/admin/crowdfunding', icon: DollarSign },
+      { labelKey: 'admin.sidebar.export', href: '/admin/export', icon: Download },
     ],
   },
   {
-    title: 'Sistema',
+    titleKey: 'admin.sidebar.sistema',
     items: [
-      { label: 'Roles (RBAC)', href: '/admin/roles', icon: ShieldCheck },
-      { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
-      { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: Cpu },
-      { label: 'CSP Reports', href: '/admin/csp-reports', icon: Shield },
-      { label: 'Email Templates', href: '/admin/email-templates', icon: Mail },
-      { label: 'Audit Log', href: '/admin/audit-log', icon: Activity },
+      { labelKey: 'admin.sidebar.roles', href: '/admin/roles', icon: ShieldCheck },
+      { labelKey: 'admin.sidebar.webhooks', href: '/admin/webhooks', icon: Webhook },
+      { labelKey: 'admin.sidebar.aiDashboard', href: '/admin/ai-dashboard', icon: Cpu },
+      { labelKey: 'admin.sidebar.cspReports', href: '/admin/csp-reports', icon: Shield },
+      { labelKey: 'admin.sidebar.emailTemplates', href: '/admin/email-templates', icon: Mail },
+      { labelKey: 'admin.sidebar.auditLog', href: '/admin/audit-log', icon: Activity },
     ],
   },
 ];
 
 export function AdminSidebar() {
+  const t = useT();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -133,14 +136,12 @@ export function AdminSidebar() {
           ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
+          {/* Header con logo */}
           <div className="p-6 border-b border-[var(--border)]">
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-[var(--text-primary)]" />
-              </div>
+              <LogoSvg size={36} className="flex-shrink-0 rounded-lg" />
               <div>
-                <h1 className="text-lg font-bold">Admin</h1>
+                <h1 className="text-lg font-bold">{t('admin.sidebar.admin')}</h1>
                 <RepeatedChar text="MANGAAURA" className="text-xs text-[var(--text-secondary)]" />
               </div>
             </Link>
@@ -149,9 +150,9 @@ export function AdminSidebar() {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
             {navGroups.map((group) => (
-              <div key={group.title} className="mb-6">
+              <div key={group.titleKey} className="mb-6">
                 <p className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
-                  {group.title}
+                  {t(group.titleKey)}
                 </p>
                 <div className="space-y-0.5">
                   {group.items.map((item) => {
@@ -169,7 +170,7 @@ export function AdminSidebar() {
                           }`}
                       >
                         <Icon className={`w-4.5 h-4.5 ${active ? 'text-[var(--primary)]' : ''}`} />
-                        <span className="flex-1 truncate">{item.label}</span>
+                        <span className="flex-1 truncate">{t(item.labelKey)}</span>
                         {active && (
                           <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] flex-shrink-0" />
                         )}
@@ -186,7 +187,7 @@ export function AdminSidebar() {
             <Link href="/">
               <Button variant="ghost" className="w-full justify-start text-[var(--text-secondary)]">
                 <LogOut className="w-4 h-4 mr-2" />
-                Back to Site
+                {t('admin.sidebar.backToSite')}
               </Button>
             </Link>
           </div>

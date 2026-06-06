@@ -201,7 +201,7 @@ export default function AdminDashboardClient() {
         <div className="flex items-center gap-3 text-sm text-[var(--text-tertiary)]">
           <span className="flex items-center gap-1.5">
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            Auto-refresh cada 60s
+            {t('admin.autoRefresh')}
           </span>
           <span className="hidden sm:flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" />
@@ -284,7 +284,7 @@ export default function AdminDashboardClient() {
           <CardContent className="p-5 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Nuevos Mangas</p>
+                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.nuevosMangas')}</p>
                 <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats?.newMangasToday || 0}</p>
               </div>
               <div className="p-2.5 bg-[var(--primary)]/10 rounded-lg">
@@ -297,7 +297,7 @@ export default function AdminDashboardClient() {
           <CardContent className="p-5 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Nuevos Capítulos</p>
+                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.nuevosCapitulos')}</p>
                 <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats?.newChaptersToday || 0}</p>
               </div>
               <div className="p-2.5 bg-[var(--accent-purple)]/10 rounded-lg">
@@ -330,7 +330,7 @@ export default function AdminDashboardClient() {
                 <AlertTriangle className="w-5 h-5 text-[var(--error)]" />
               </div>
               <div>
-                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Correcciones Pendientes</p>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.correccionesPendientes')}</p>
                 <p className="text-xl font-bold text-[var(--text-primary)]">{moderationStats.pendingCorrections}</p>
               </div>
             </CardContent>
@@ -341,7 +341,7 @@ export default function AdminDashboardClient() {
                 <MessageSquare className="w-5 h-5 text-[var(--warning)]" />
               </div>
               <div>
-                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Comentarios Reportados</p>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.comentariosReportados')}</p>
                 <p className="text-xl font-bold text-[var(--text-primary)]">{moderationStats.flaggedComments}</p>
               </div>
             </CardContent>
@@ -352,7 +352,7 @@ export default function AdminDashboardClient() {
                 <Shield className="w-5 h-5 text-[var(--accent-purple)]" />
               </div>
               <div>
-                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Contenido Reportado</p>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.contenidoReportado')}</p>
                 <p className="text-xl font-bold text-[var(--text-primary)]">{moderationStats.reportedContent}</p>
               </div>
             </CardContent>
@@ -374,7 +374,7 @@ export default function AdminDashboardClient() {
             </CardTitle>
             <Link href="/admin/moderation" aria-label="Ver todos los reportes de moderación">
               <Button variant="ghost" size="sm">
-                View All <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
+                {t('admin.viewAll')} <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
               </Button>
             </Link>
           </div>
@@ -423,7 +423,7 @@ export default function AdminDashboardClient() {
                     </span>
                     <Link href="/admin/moderation">
                       <Button variant="outline" size="sm">
-                        Review
+                        {t('admin.review')}
                       </Button>
                     </Link>
                   </div>
@@ -441,11 +441,11 @@ export default function AdminDashboardClient() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Eye className="w-5 h-5 text-[var(--primary)]" />
-                Mangas Más Populares
+                {t('admin.mangasMasPopulares')}
               </CardTitle>
               <Link href="/admin/manga">
                 <Button variant="ghost" size="sm">
-                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                  {t('admin.viewAll')} <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
             </div>
@@ -501,18 +501,18 @@ export default function AdminDashboardClient() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="w-5 h-5 text-[var(--primary)]" />
-                Últimos Usuarios
+                {t('admin.ultimosUsuarios')}
               </CardTitle>
               <Link href="/admin/users">
                 <Button variant="ghost" size="sm">
-                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                  {t('admin.viewAll')} <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
             </div>
           </CardHeader>
           <CardContent>
             {recentUsers.length === 0 ? (
-              <p className="text-sm text-[var(--text-tertiary)] text-center py-4">Sin usuarios recientes</p>
+              <p className="text-sm text-[var(--text-tertiary)] text-center py-4">{t('admin.sinUsuariosRecientes')}</p>
             ) : (
               <div className="space-y-3">
                 {recentUsers.map((user) => (
@@ -544,18 +544,18 @@ export default function AdminDashboardClient() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <BookOpen className="w-5 h-5 text-[var(--primary)]" />
-                Últimos Mangas
+                {t('admin.ultimosMangas')}
               </CardTitle>
               <Link href="/admin/manga">
                 <Button variant="ghost" size="sm">
-                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                  {t('admin.viewAll')} <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
             </div>
           </CardHeader>
           <CardContent>
             {recentMangas.length === 0 ? (
-              <p className="text-sm text-[var(--text-tertiary)] text-center py-4">Sin mangas recientes</p>
+              <p className="text-sm text-[var(--text-tertiary)] text-center py-4">{t('admin.sinMangasRecientes')}</p>
             ) : (
               <div className="space-y-3">
                 {recentMangas.map((manga) => (
@@ -617,15 +617,15 @@ export default function AdminDashboardClient() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/settings" aria-label="Configuración">
+        <Link href="/admin/settings" aria-label={t('admin.configuracion')}>
           <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
             <CardContent className="p-5 flex items-center gap-3">
               <div className="p-2.5 bg-[var(--accent-purple)]/10 rounded-lg group-hover:scale-110 transition-transform">
                 <Settings className="w-5 h-5 text-[var(--accent-purple)]" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">Configuración</h3>
-                <p className="text-xs text-[var(--text-tertiary)] truncate">Ajustes del sitio y preferencias</p>
+                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.configuracion')}</h3>
+                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.ajustesSitio')}</p>
               </div>
               <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </CardContent>
