@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface DeliveryItem {
@@ -63,6 +64,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function DeliveriesClient() {
+  const t = useT();
   const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -94,9 +96,9 @@ export function DeliveriesClient() {
       a.download = `webhook-deliveries-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: 'CSV exportado', description: `${rows.length} entregas exportadas.`, variant: 'success' });
+      toast({ title: t('adminToasts.csvExported', { count: rows.length }), variant: 'success' });
     } catch {
-      toast({ title: 'Error', description: 'No se pudo exportar CSV.', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.csvExportError'), variant: 'error' });
     }
   };
 

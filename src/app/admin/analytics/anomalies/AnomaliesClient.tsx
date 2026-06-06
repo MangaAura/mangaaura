@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface AuditLogEntry {
@@ -80,6 +81,7 @@ function parseMetadata(metadataStr: string | null): Record<string, unknown> | nu
 }
 
 export default function AnomaliesClient() {
+  const t = useT();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('');
@@ -169,9 +171,9 @@ export default function AnomaliesClient() {
       a.download = `anomalies-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: 'CSV exportado', description: `${rows.length} anomalías exportadas.`, variant: 'success' });
+      toast({ title: t('adminToasts.csvExported', { count: rows.length }), variant: 'success' });
     } catch {
-      toast({ title: 'Error', description: 'No se pudo exportar CSV.', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.csvExportError'), variant: 'error' });
     }
   };
 

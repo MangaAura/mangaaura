@@ -926,8 +926,7 @@ export default function AdminNewsClient() {
       throw new Error(err.error || 'Error al crear noticia');
     }
 
-    mutate('/api/admin/news');
-    toast({ title: 'Noticia creada', description: 'La noticia se ha creado correctamente.', variant: 'success' });
+    mutate('/api/admin/news');      toast({ title: t('adminToasts.newsCreated'), variant: 'success' });
   };
 
   const handleEdit = async (id: string, data: Record<string, unknown>) => {
@@ -943,7 +942,7 @@ export default function AdminNewsClient() {
     }
 
     mutate('/api/admin/news');
-    toast({ title: 'Noticia actualizada', description: 'Los cambios se han guardado correctamente.', variant: 'success' });
+    toast({ title: t('adminToasts.newsUpdated'), variant: 'success' });
   };
 
   const handleDelete = async () => {
@@ -961,10 +960,10 @@ export default function AdminNewsClient() {
 
       setShowDelete(null);
       mutate('/api/admin/news');
-      toast({ title: 'Noticia eliminada', description: 'La noticia se ha eliminado permanentemente.', variant: 'success' });
+      toast({ title: t('adminToasts.newsDeleted'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
-      toast({ title: 'Error', description: err.message || 'Error al eliminar noticia', variant: 'error' });
+      toast({ title: 'Error', description: err.message || t('adminToasts.deleteError'), variant: 'error' });
     }
   };
 
@@ -982,10 +981,10 @@ export default function AdminNewsClient() {
       }
 
       mutate('/api/admin/news');
-      toast({ title: article.isPublished ? 'Noticia despublicada' : 'Noticia publicada', variant: 'success' });
+      toast({ title: article.isPublished ? t('adminToasts.newsUnpublished') : t('adminToasts.newsPublished'), variant: 'success' });
     } catch (err: any) {
       handleError(err);
-      toast({ title: 'Error', description: 'Error al cambiar estado', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.saveError'), variant: 'error' });
     }
   };
 
@@ -1003,10 +1002,10 @@ export default function AdminNewsClient() {
       }
 
       mutate('/api/admin/news');
-      toast({ title: article.isFeatured ? 'Destacado quitado' : 'Noticia destacada', variant: 'success' });
+      toast({ title: article.isFeatured ? t('adminToasts.newsUnfeatured') : t('adminToasts.newsFeatured'), variant: 'success' });
     } catch (err: any) {
       handleError(err);
-      toast({ title: 'Error', description: 'Error al cambiar destacado', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.saveError'), variant: 'error' });
     }
   };
 

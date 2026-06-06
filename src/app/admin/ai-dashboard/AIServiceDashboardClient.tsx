@@ -24,6 +24,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAIAlerts } from '@/hooks/useAIAlerts';
 import { useAIService } from '@/hooks/useAIService';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import {
   ServiceHealth,
   ServiceMetrics,
@@ -153,6 +154,7 @@ export function AIServiceDashboardClient() {
   const { getHealth, getMetrics, getQueueStats } = useAIService();
   const { alerts, dismissAlert, acknowledgeAlert } = useAIAlerts();
 
+  const t = useT();
   const { handleError } = useErrorHandler();
   const { toast } = useToast();
 
@@ -243,10 +245,10 @@ export function AIServiceDashboardClient() {
                     modelMetrics: metrics?.models?.models || [],
                   });
                   setLastUpdated(new Date());
-                  toast({ title: 'Metrics refreshed', variant: 'success' });
+                  toast({ title: t('adminToasts.metricsRefreshed'), variant: 'success' });
                 } catch (error) {
                   handleError(error);
-                  toast({ title: 'Refresh failed', description: 'Could not refresh metrics.', variant: 'error' });
+                  toast({ title: t('adminToasts.refreshFailed'), variant: 'error' });
                 } finally {
                   setIsLoading(false);
                 }

@@ -138,7 +138,7 @@ export function WebhooksClient() {
       resetForm();
       setShowCreate(false);
       mutate('/api/admin/webhooks');
-      toast({ title: 'Webhook creado', description: 'El endpoint se ha creado correctamente.', variant: 'success' });
+      toast({ title: t('adminToasts.webhookCreated'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
       toast({ title: 'Error', description: err.message, variant: 'error' });
@@ -180,7 +180,7 @@ export function WebhooksClient() {
       setShowEdit(null);
       resetForm();
       mutate('/api/admin/webhooks');
-      toast({ title: 'Webhook actualizado', description: 'Los cambios se han guardado.', variant: 'success' });
+      toast({ title: t('adminToasts.webhookUpdated'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
       toast({ title: 'Error', description: err.message, variant: 'error' });
@@ -204,7 +204,7 @@ export function WebhooksClient() {
 
       setShowDelete(null);
       mutate('/api/admin/webhooks');
-      toast({ title: 'Webhook eliminado', variant: 'success' });
+      toast({ title: t('adminToasts.webhookDeleted'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
       toast({ title: 'Error', description: err.message, variant: 'error' });

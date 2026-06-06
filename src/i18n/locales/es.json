@@ -3608,5 +3608,30 @@
     "subtitle": "Guías completas para leer, comprar y disfrutar del manga al máximo. Desde principiantes hasta coleccionistas.",
     "ctaText": "¿No encuentras lo que buscas?",
     "ctaLink": "Visita nuestro centro de ayuda"
+  },
+  "adminToasts": {
+    "newsCreated": "Noticia creada correctamente",
+    "newsUpdated": "Noticia actualizada correctamente",
+    "newsDeleted": "Noticia eliminada permanentemente",
+    "newsPublished": "Noticia publicada",
+    "newsUnpublished": "Noticia despublicada",
+    "newsFeatured": "Noticia destacada",
+    "newsUnfeatured": "Destacado quitado",
+    "chapterSaved": "Capítulo guardado correctamente",
+    "chapterDeleted": "Capítulo eliminado",
+    "webhookCreated": "Webhook creado correctamente",
+    "webhookUpdated": "Webhook actualizado correctamente",
+    "webhookDeleted": "Webhook eliminado",
+    "accountRestored": "Cuenta restaurada exitosamente",
+    "restoreError": "Error al restaurar",
+    "tagsMerged": "Tags fusionados correctamente",
+    "csvExported": "{count} registros exportados",
+    "csvExportError": "No se pudo exportar CSV",
+    "metricsRefreshed": "Métricas actualizadas",
+    "refreshFailed": "Error al actualizar",
+    "settingsSaved": "Ajustes guardados correctamente",
+    "saveError": "Error al guardar",
+    "deleteError": "Error al eliminar",
+    "actionError": "Error al realizar la acción"
   }
 }

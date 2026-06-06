@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface AuditLog {
@@ -52,6 +53,7 @@ const SEVERITY_ICONS: Record<string, React.ElementType> = {
 };
 
 export default function AuditLogsClient() {
+  const t = useT();
   const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [action, setAction] = useState('');
@@ -103,9 +105,9 @@ export default function AuditLogsClient() {
       a.download = `audit-logs-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: 'CSV exportado', description: `${rows.length} eventos exportados.`, variant: 'success' });
+      toast({ title: t('adminToasts.csvExported', { count: rows.length }), variant: 'success' });
     } catch {
-      toast({ title: 'Error al exportar', description: 'No se pudo generar el CSV.', variant: 'error' });
+      toast({ title: t('adminToasts.csvExportError'), variant: 'error' });
     }
   };
 

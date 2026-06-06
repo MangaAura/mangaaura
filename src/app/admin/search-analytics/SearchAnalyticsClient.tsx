@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 interface SearchAnalytics {
@@ -36,6 +37,7 @@ interface SearchAnalytics {
 }
 
 export default function SearchAnalyticsClient() {
+  const t = useT();
   const { toast } = useToast();
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -64,9 +66,9 @@ export default function SearchAnalyticsClient() {
       a.download = `search-analytics-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: 'CSV exportado', description: `${rows.length - 1} registros exportados.`, variant: 'success' });
+      toast({ title: t('adminToasts.csvExported', { count: rows.length - 1 }), variant: 'success' });
     } catch {
-      toast({ title: 'Error', description: 'No se pudo exportar CSV.', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.csvExportError'), variant: 'error' });
     }
   };
 

@@ -103,14 +103,14 @@ export default function EditChapterClient({ params }: { params: { id: string } }
       });
       if (response.ok) {
         await mutate();
-        toast({ title: 'Capítulo guardado', description: 'Los cambios se han guardado correctamente.', variant: 'success' });
+        toast({ title: t('adminToasts.chapterSaved'), variant: 'success' });
       } else {
         const err = await response.json();
-        toast({ title: 'Error', description: err.error || 'Error al guardar', variant: 'error' });
+        toast({ title: 'Error', description: err.error || t('adminToasts.saveError'), variant: 'error' });
       }
     } catch (error) {
       handleError(error);
-      toast({ title: 'Error', description: 'Error al guardar el capítulo', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.saveError'), variant: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -121,15 +121,15 @@ export default function EditChapterClient({ params }: { params: { id: string } }
     try {
       const response = await fetch(`/api/admin/chapters/${params.id}`, { method: 'DELETE' });
       if (response.ok) {
-        toast({ title: 'Capítulo eliminado', variant: 'success' });
+        toast({ title: t('adminToasts.chapterDeleted'), variant: 'success' });
         router.push('/admin/chapters');
       } else {
         const err = await response.json();
-        toast({ title: 'Error', description: err.error || 'Error al eliminar', variant: 'error' });
+        toast({ title: 'Error', description: err.error || t('adminToasts.deleteError'), variant: 'error' });
       }
     } catch (error) {
       handleError(error);
-      toast({ title: 'Error', description: 'Error al eliminar el capítulo', variant: 'error' });
+      toast({ title: 'Error', description: t('adminToasts.deleteError'), variant: 'error' });
     } finally {
       setIsDeleting(false);
     }

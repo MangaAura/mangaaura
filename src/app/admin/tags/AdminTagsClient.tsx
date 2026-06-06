@@ -729,7 +729,7 @@ export default function AdminTagsClient() {
                     body: JSON.stringify({ sourceId: mergeSourceId, targetId: mergeTargetId }),
                   });
                   if (!res.ok) throw new Error(await res.text());
-                  toast({ title: 'Tags fusionados', description: 'Los tags se fusionaron correctamente.', variant: 'success' });
+                  toast({ title: t('adminToasts.tagsMerged'), variant: 'success' });
                   setShowMergeDialog(false);
                   setMergeSourceId('');
                   setMergeTargetId('');

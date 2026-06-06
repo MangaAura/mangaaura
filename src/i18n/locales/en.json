@@ -3649,5 +3649,30 @@
     "subtitle": "Complete guides to read, buy, and enjoy manga to the fullest. From beginners to collectors.",
     "ctaText": "Can't find what you're looking for?",
     "ctaLink": "Visit our help center"
+  },
+  "adminToasts": {
+    "newsCreated": "News created successfully",
+    "newsUpdated": "News updated successfully",
+    "newsDeleted": "News deleted permanently",
+    "newsPublished": "News published",
+    "newsUnpublished": "News unpublished",
+    "newsFeatured": "News featured",
+    "newsUnfeatured": "Featured removed",
+    "chapterSaved": "Chapter saved successfully",
+    "chapterDeleted": "Chapter deleted",
+    "webhookCreated": "Webhook created successfully",
+    "webhookUpdated": "Webhook updated successfully",
+    "webhookDeleted": "Webhook deleted",
+    "accountRestored": "Account restored successfully",
+    "restoreError": "Restore failed",
+    "tagsMerged": "Tags merged successfully",
+    "csvExported": "{count} records exported",
+    "csvExportError": "Could not export CSV",
+    "metricsRefreshed": "Metrics refreshed",
+    "refreshFailed": "Refresh failed",
+    "settingsSaved": "Settings saved successfully",
+    "saveError": "Save failed",
+    "deleteError": "Delete failed",
+    "actionError": "Action failed"
   }
 }

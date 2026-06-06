@@ -72,10 +72,10 @@ export default function RestoreClient() {
       setSelectedUser(null);
       setReason('');
       setConfirmText('');
-      toast({ title: 'Cuenta restaurada', description: `La cuenta de ${selectedUser.username} ha sido restaurada exitosamente.`, variant: 'success' });
+      toast({ title: t('adminToasts.accountRestored'), description: `${selectedUser.username}`, variant: 'success' });
     } catch (err: any) {
       setError(err.message);
-      toast({ title: 'Error al restaurar', description: err.message, variant: 'error' });
+      toast({ title: t('adminToasts.restoreError'), description: err.message, variant: 'error' });
     } finally {
       setIsLoading(false);
     }
