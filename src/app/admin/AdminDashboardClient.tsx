@@ -11,7 +11,13 @@ import {
   XCircle,
   ArrowRight,
   Shield,
-  TrendingUp,
+  Clock,
+  Eye,
+  Star,
+  UserPlus,
+  RefreshCw,
+  ExternalLink,
+  Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -19,6 +25,7 @@ import useSWR from 'swr';
 
 import { ChartsSection } from '@/components/Admin/ChartsSection';
 import { StatCard } from '@/components/Admin/StatCard';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -44,6 +51,41 @@ interface ApiDashboardStats {
     last7d: number;
     last30d: number;
   };
+  moderation: {
+    pendingCorrections: number;
+    flaggedComments: number;
+    reportedContent: number;
+  };
+  changes?: {
+    users?: number;
+    mangas?: number;
+  };
+  popularMangas: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    coverUrl: string | null;
+    authorName: string;
+    totalViews: number;
+    rating: number | null;
+    chapterCount: number;
+  }>;
+  activityData: { date: string; users: number; views: number }[];
+  recentUsers: Array<{
+    id: string;
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+    createdAt: string;
+  }>;
+  recentMangas: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    coverUrl: string | null;
+    authorName: string;
+    createdAt: string;
+  }>;
 }
 
 // Flat shape the template consumes
@@ -53,15 +95,21 @@ interface DashboardStats {
   totalChapters: number;
   totalComments: number;
   changes?: {
-    users: number;
-    mangas: number;
-    chapters: number;
-    comments: number;
+    users?: number;
+    mangas?: number;
+    chapters?: number;
+    comments?: number;
   };
   newUsersToday: number;
   newMangasToday: number;
+  newChaptersToday: number;
   newCommentsToday: number;
-  activityData?: { date: string; users: number; views: number }[];
+  activityData: { date: string; users: number; views: number }[];
+  moderation: {
+    pendingCorrections: number;
+    flaggedComments: number;
+    reportedContent: number;
+  };
 }
 
 interface ModerationAlert {
@@ -80,7 +128,7 @@ export default function AdminDashboardClient() {
     { refreshInterval: 60000 }
   );
 
-  // Flatten the nested API response to match the template expectations
+  // Flatten the nested API response
   const stats = useMemo((): DashboardStats | undefined => {
     if (!rawStats) return undefined;
     return {
@@ -90,11 +138,20 @@ export default function AdminDashboardClient() {
       totalComments: rawStats.counts.totalComments,
       newUsersToday: rawStats.today.newUsers,
       newMangasToday: rawStats.today.newMangas,
+      newChaptersToday: rawStats.today.newChapters,
       newCommentsToday: rawStats.today.newComments,
+      changes: rawStats.changes,
+      activityData: rawStats.activityData,
+      moderation: rawStats.moderation,
     };
   }, [rawStats]);
 
-  const { data: alertsData, error: _alertsError, isLoading: alertsLoading } = useSWR<{ alerts: ModerationAlert[] }>(
+  const popularMangas = rawStats?.popularMangas || [];
+  const recentUsers = rawStats?.recentUsers || [];
+  const recentMangas = rawStats?.recentMangas || [];
+  const moderationStats = rawStats?.moderation;
+
+  const { data: alertsData, isLoading: alertsLoading } = useSWR<{ alerts: ModerationAlert[] }>(
     '/api/admin/moderation/alerts',
     fetcher,
     { refreshInterval: 30000 }
@@ -133,7 +190,7 @@ export default function AdminDashboardClient() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <LayoutDashboard className="w-6 h-6 text-[var(--primary)]" />
@@ -141,8 +198,15 @@ export default function AdminDashboardClient() {
           </h1>
           <p className="text-[var(--text-muted)]">{t('admin.overview')}</p>
         </div>
-        <div className="text-sm text-[var(--text-tertiary)]">
-          {t('admin.lastUpdated')}: {new Date().toLocaleTimeString()}
+        <div className="flex items-center gap-3 text-sm text-[var(--text-tertiary)]">
+          <span className="flex items-center gap-1.5">
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+            Auto-refresh cada 60s
+          </span>
+          <span className="hidden sm:flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5" />
+            {t('admin.lastUpdated')}: {new Date().toLocaleTimeString()}
+          </span>
         </div>
       </div>
 
@@ -202,53 +266,99 @@ export default function AdminDashboardClient() {
       />
 
       {/* Today's Activity */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="h-full">
-          <CardContent className="p-6 h-full flex flex-col justify-center">
+          <CardContent className="p-5 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.newUsersToday')}</p>
-                <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
-                  {stats?.newUsersToday || 0}
-                </p>
+                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.newUsersToday')}</p>
+                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats?.newUsersToday || 0}</p>
               </div>
-              <div className="p-3 bg-[var(--success)]/10 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-[var(--success)]" aria-hidden="true" />
+              <div className="p-2.5 bg-[var(--success)]/10 rounded-lg">
+                <UserPlus className="w-5 h-5 text-[var(--success)]" />
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="h-full">
-          <CardContent className="p-6 h-full flex flex-col justify-center">
+          <CardContent className="p-5 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.newMangasToday')}</p>
-                <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
-                  {stats?.newMangasToday || 0}
-                </p>
+                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Nuevos Mangas</p>
+                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats?.newMangasToday || 0}</p>
               </div>
-              <div className="p-3 bg-[var(--primary)]/10 rounded-lg">
-                <BookOpen className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
+              <div className="p-2.5 bg-[var(--primary)]/10 rounded-lg">
+                <BookOpen className="w-5 h-5 text-[var(--primary)]" />
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="h-full">
-          <CardContent className="p-6 h-full flex flex-col justify-center">
+          <CardContent className="p-5 h-full flex flex-col justify-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.newCommentsToday')}</p>
-                <p className="text-3xl font-bold text-[var(--text-primary)] mt-1">
-                  {stats?.newCommentsToday || 0}
-                </p>
+                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Nuevos Capítulos</p>
+                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats?.newChaptersToday || 0}</p>
               </div>
-              <div className="p-3 bg-[var(--warning)]/10 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-[var(--warning)]" aria-hidden="true" />
+              <div className="p-2.5 bg-[var(--accent-purple)]/10 rounded-lg">
+                <FileText className="w-5 h-5 text-[var(--accent-purple)]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="h-full">
+          <CardContent className="p-5 h-full flex flex-col justify-center">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">{t('admin.newCommentsToday')}</p>
+                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{stats?.newCommentsToday || 0}</p>
+              </div>
+              <div className="p-2.5 bg-[var(--warning)]/10 rounded-lg">
+                <MessageSquare className="w-5 h-5 text-[var(--warning)]" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Moderation Stats Summary */}
+      {moderationStats && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--error)]/10 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-[var(--error)]" />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Correcciones Pendientes</p>
+                <p className="text-xl font-bold text-[var(--text-primary)]">{moderationStats.pendingCorrections}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--warning)]/10 rounded-lg">
+                <MessageSquare className="w-5 h-5 text-[var(--warning)]" />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Comentarios Reportados</p>
+                <p className="text-xl font-bold text-[var(--text-primary)]">{moderationStats.flaggedComments}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--accent-purple)]/10 rounded-lg">
+                <Shield className="w-5 h-5 text-[var(--accent-purple)]" />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Contenido Reportado</p>
+                <p className="text-xl font-bold text-[var(--text-primary)]">{moderationStats.reportedContent}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Moderation Alerts */}
       <Card>
@@ -324,47 +434,214 @@ export default function AdminDashboardClient() {
         </CardContent>
       </Card>
 
+      {/* Popular Mangas */}
+      {popularMangas.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Eye className="w-5 h-5 text-[var(--primary)]" />
+                Mangas Más Populares
+              </CardTitle>
+              <Link href="/admin/manga">
+                <Button variant="ghost" size="sm">
+                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {popularMangas.slice(0, 5).map((manga, i) => (
+                <Link
+                  key={manga.id}
+                  href={`/manga/${manga.slug}`}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 transition-colors group"
+                >
+                  <span className="w-6 text-center text-sm font-bold text-[var(--text-tertiary)]">#{i + 1}</span>
+                  {manga.coverUrl ? (
+                    <img
+                      src={manga.coverUrl}
+                      alt={manga.title}
+                      className="w-10 h-14 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-14 rounded bg-[var(--surface-sunken)] flex items-center justify-center flex-shrink-0">
+                      <BookOpen className="w-5 h-5 text-[var(--text-tertiary)]" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[var(--text-primary)] truncate group-hover:text-[var(--primary)] transition-colors">{manga.title}</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">{manga.authorName} · {manga.chapterCount} caps</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+                      <Eye className="w-3 h-3" />
+                      {manga.totalViews.toLocaleString()}
+                    </div>
+                    {manga.rating && (
+                      <div className="flex items-center gap-1 text-xs text-amber-500">
+                        <Star className="w-3 h-3" />
+                        {manga.rating.toFixed(1)}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Activity Feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Users */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Users className="w-5 h-5 text-[var(--primary)]" />
+                Últimos Usuarios
+              </CardTitle>
+              <Link href="/admin/users">
+                <Button variant="ghost" size="sm">
+                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {recentUsers.length === 0 ? (
+              <p className="text-sm text-[var(--text-tertiary)] text-center py-4">Sin usuarios recientes</p>
+            ) : (
+              <div className="space-y-3">
+                {recentUsers.map((user) => (
+                  <div key={user.id} className="flex items-center gap-3">
+                    <Avatar className="w-8 h-8">
+                      {user.avatarUrl ? (
+                        <AvatarImage src={user.avatarUrl} alt={user.username} />
+                      ) : (
+                        <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[var(--text-primary)] truncate">{user.displayName || user.username}</p>
+                      <p className="text-xs text-[var(--text-tertiary)]">@{user.username}</p>
+                    </div>
+                    <time className="text-xs text-[var(--text-tertiary)]" dateTime={user.createdAt}>
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </time>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Mangas */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+                Últimos Mangas
+              </CardTitle>
+              <Link href="/admin/manga">
+                <Button variant="ghost" size="sm">
+                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {recentMangas.length === 0 ? (
+              <p className="text-sm text-[var(--text-tertiary)] text-center py-4">Sin mangas recientes</p>
+            ) : (
+              <div className="space-y-3">
+                {recentMangas.map((manga) => (
+                  <Link
+                    key={manga.id}
+                    href={`/admin/manga/${manga.slug}`}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--surface-sunken)]/50 transition-colors group"
+                  >
+                    {manga.coverUrl ? (
+                      <img src={manga.coverUrl} alt={manga.title} className="w-10 h-14 rounded object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-14 rounded bg-[var(--surface-sunken)] flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="w-5 h-5 text-[var(--text-tertiary)]" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[var(--text-primary)] truncate group-hover:text-[var(--primary)] transition-colors">{manga.title}</p>
+                      <p className="text-xs text-[var(--text-tertiary)]">{manga.authorName}</p>
+                    </div>
+                    <time className="text-xs text-[var(--text-tertiary)]" dateTime={manga.createdAt}>
+                      {new Date(manga.createdAt).toLocaleDateString()}
+                    </time>
+                    <ExternalLink className="w-4 h-4 text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link href="/admin/users" aria-label="Gestionar usuarios">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-[var(--primary)]/10 rounded-lg">
-                <Users className="w-6 h-6 text-[var(--primary)]" aria-hidden="true" />
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
+            <CardContent className="p-5 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--primary)]/10 rounded-lg group-hover:scale-110 transition-transform">
+                <Users className="w-5 h-5 text-[var(--primary)]" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.manageUsers')}</h3>
-                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.manageUsersDesc')}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.manageUsers')}</h3>
+                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.manageUsersDesc')}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
+              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </CardContent>
           </Card>
         </Link>
         <Link href="/admin/moderation" aria-label="Panel de moderación">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-[var(--warning)]/10 rounded-lg">
-                <Shield className="w-6 h-6 text-[var(--warning)]" aria-hidden="true" />
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
+            <CardContent className="p-5 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--warning)]/10 rounded-lg group-hover:scale-110 transition-transform">
+                <Shield className="w-5 h-5 text-[var(--warning)]" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.moderation')}</h3>
-                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.moderationDesc')}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.moderation')}</h3>
+                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.moderationDesc')}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
+              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/admin/settings" aria-label="Configuración">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
+            <CardContent className="p-5 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--accent-purple)]/10 rounded-lg group-hover:scale-110 transition-transform">
+                <Settings className="w-5 h-5 text-[var(--accent-purple)]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm text-[var(--text-primary)]">Configuración</h3>
+                <p className="text-xs text-[var(--text-tertiary)] truncate">Ajustes del sitio y preferencias</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </CardContent>
           </Card>
         </Link>
         <Link href="/admin/manga" aria-label="Gestionar mangas">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-[var(--success)]/10 rounded-lg">
-                <BookOpen className="w-6 h-6 text-[var(--success)]" aria-hidden="true" />
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
+            <CardContent className="p-5 flex items-center gap-3">
+              <div className="p-2.5 bg-[var(--success)]/10 rounded-lg group-hover:scale-110 transition-transform">
+                <BookOpen className="w-5 h-5 text-[var(--success)]" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.manageManga')}</h3>
-                <p className="text-sm text-[var(--text-tertiary)]">{t('admin.manageMangaDesc')}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.manageManga')}</h3>
+                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.manageMangaDesc')}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
+              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </CardContent>
           </Card>
         </Link>

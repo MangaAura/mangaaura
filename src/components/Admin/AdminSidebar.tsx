@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   LogOut,
-  ChevronRight,
   Webhook,
   Newspaper,
   FileText,
@@ -27,6 +26,9 @@ import {
   Download,
   Mail,
   Search,
+  Activity,
+  Gavel,
+  UsersRound,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -35,40 +37,64 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { RepeatedChar } from '@/components/ui/RepeatedChar';
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ElementType;
+interface NavGroup {
+  title: string;
+  items: { label: string; href: string; icon: React.ElementType }[];
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Analytics', href: '/admin/analytics/realtime', icon: BarChart3 },
-  { label: 'Moderation', href: '/admin/moderation', icon: Shield },
-  { label: 'Comments', href: '/admin/comments', icon: MessageSquare },
-  { label: 'Forum', href: '/admin/forum', icon: MessageCircle },
-  { label: 'Clans', href: '/admin/clans', icon: Shield },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Manga', href: '/admin/manga', icon: BookOpen },
-  { label: 'Chapters', href: '/admin/chapters', icon: FileText },
-  { label: 'Tags', href: '/admin/tags', icon: Hash },
-  { label: 'Genres', href: '/admin/genres', icon: Bookmark },
-  { label: 'Achievements', href: '/admin/achievements', icon: Trophy },
-  { label: 'Roles (RBAC)', href: '/admin/roles', icon: ShieldCheck },
-  { label: 'KYC', href: '/admin/kyc', icon: ShieldCheck },
-  { label: 'DMCA', href: '/admin/dmca', icon: FileWarning },
-  { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-  { label: 'Crowdfunding', href: '/admin/crowdfunding', icon: DollarSign },
-  { label: 'Noticias', href: '/admin/news', icon: Newspaper },
-  { label: 'CSP Reports', href: '/admin/csp-reports', icon: Shield },
-  { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: Cpu },
-  { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
-  { label: 'Bans', href: '/admin/bans', icon: Shield },
-  { label: 'Bulk Actions', href: '/admin/bulk-actions', icon: Shield },
-  { label: 'Export Datos', href: '/admin/export', icon: Download },
-  { label: 'Email Templates', href: '/admin/email-templates', icon: Mail },
-  { label: 'Search Analytics', href: '/admin/search-analytics', icon: Search },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
+const navGroups: NavGroup[] = [
+  {
+    title: 'General',
+    items: [
+      { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+      { label: 'Analytics', href: '/admin/analytics/realtime', icon: BarChart3 },
+      { label: 'Search Analytics', href: '/admin/search-analytics', icon: Search },
+      { label: 'Settings', href: '/admin/settings', icon: Settings },
+    ],
+  },
+  {
+    title: 'Contenido',
+    items: [
+      { label: 'Manga', href: '/admin/manga', icon: BookOpen },
+      { label: 'Chapters', href: '/admin/chapters', icon: FileText },
+      { label: 'Tags', href: '/admin/tags', icon: Hash },
+      { label: 'Genres', href: '/admin/genres', icon: Bookmark },
+      { label: 'News', href: '/admin/news', icon: Newspaper },
+      { label: 'Achievements', href: '/admin/achievements', icon: Trophy },
+    ],
+  },
+  {
+    title: 'Comunidad',
+    items: [
+      { label: 'Users', href: '/admin/users', icon: Users },
+      { label: 'Moderation', href: '/admin/moderation', icon: Shield },
+      { label: 'Comments', href: '/admin/comments', icon: MessageSquare },
+      { label: 'Forum', href: '/admin/forum', icon: MessageCircle },
+      { label: 'Clans', href: '/admin/clans', icon: UsersRound },
+      { label: 'Bans', href: '/admin/bans', icon: Gavel },
+      { label: 'DMCA', href: '/admin/dmca', icon: FileWarning },
+      { label: 'KYC', href: '/admin/kyc', icon: ShieldCheck },
+    ],
+  },
+  {
+    title: 'Financiero',
+    items: [
+      { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+      { label: 'Crowdfunding', href: '/admin/crowdfunding', icon: DollarSign },
+      { label: 'Export', href: '/admin/export', icon: Download },
+    ],
+  },
+  {
+    title: 'Sistema',
+    items: [
+      { label: 'Roles (RBAC)', href: '/admin/roles', icon: ShieldCheck },
+      { label: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
+      { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: Cpu },
+      { label: 'CSP Reports', href: '/admin/csp-reports', icon: Shield },
+      { label: 'Email Templates', href: '/admin/email-templates', icon: Mail },
+      { label: 'Audit Log', href: '/admin/audit-log', icon: Activity },
+    ],
+  },
 ];
 
 export function AdminSidebar() {
@@ -121,27 +147,38 @@ export function AdminSidebar() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                    ${active
-                      ? 'bg-[var(--primary)] text-[var(--text-primary)]'
-                      : 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
-                    }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="flex-1">{item.label}</span>
-                  {active && <ChevronRight className="w-4 h-4" />}
-                </Link>
-              );
-            })}
+          <nav className="flex-1 px-4 py-6 overflow-y-auto">
+            {navGroups.map((group) => (
+              <div key={group.title} className="mb-6">
+                <p className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                  {group.title}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-150
+                          ${active
+                            ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-medium'
+                            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
+                          }`}
+                      >
+                        <Icon className={`w-4.5 h-4.5 ${active ? 'text-[var(--primary)]' : ''}`} />
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {active && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] flex-shrink-0" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* Footer */}

@@ -3,41 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// Types for stats response
-interface DashboardStats {
-  counts: {
-    totalUsers: number;
-    totalMangas: number;
-    totalChapters: number;
-    totalComments: number;
-  };
-  activity: {
-    last24h: number;
-    last7d: number;
-    last30d: number;
-  };
-  today: {
-    newUsers: number;
-    newMangas: number;
-    newChapters: number;
-    newComments: number;
-  };
-  moderation: {
-    pendingCorrections: number;
-    flaggedComments: number;
-    reportedContent: number;
-  };
-  popularMangas: Array<{
-    id: string;
-    title: string;
-    slug: string;
-    coverUrl: string | null;
-    authorName: string;
-    totalViews: number;
-    rating: number | null;
-    chapterCount: number;
-  }>;
-}
+/* Types for stats response are defined inline in the handler */
 
 // Helper to check if user is admin
 async function checkAdmin(userId: string): Promise<boolean> {
@@ -78,6 +44,22 @@ export async function GET(_request: NextRequest) {
     const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const last30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const lastMonthStart = new Date(now);
+    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
+    lastMonthStart.setHours(0, 0, 0, 0);
+    const monthBeforeLast = new Date(lastMonthStart);
+    monthBeforeLast.setMonth(monthBeforeLast.getMonth() - 1);
+    monthBeforeLast.setHours(0, 0, 0, 0);
+
+    // Generate last 7 days array for daily activity
+    const dailyLabels: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      dailyLabels.push(d.toISOString().slice(0, 10));
+    }
+    const dailyStart = new Date(dailyLabels[0]);
+    dailyStart.setHours(0, 0, 0, 0);
 
     // Get all counts in parallel
     const [
@@ -95,6 +77,12 @@ export async function GET(_request: NextRequest) {
       pendingCorrections,
       flaggedComments,
       popularMangas,
+      usersLastMonth,
+      usersMonthBefore,
+      mangasLastMonth,
+      mangasMonthBefore,
+      recentUsers,
+      recentMangas,
     ] = await Promise.all([
       // Total counts
       prisma.user.count(),
@@ -103,71 +91,88 @@ export async function GET(_request: NextRequest) {
       prisma.comment.count(),
 
       // Today's new items
-      prisma.user.count({
-        where: { createdAt: { gte: today, lt: tomorrow } },
-      }),
-      prisma.mangaSeries.count({
-        where: { createdAt: { gte: today, lt: tomorrow } },
-      }),
-      prisma.chapter.count({
-        where: { createdAt: { gte: today, lt: tomorrow } },
-      }),
-      prisma.comment.count({
-        where: { createdAt: { gte: today, lt: tomorrow } },
-      }),
+      prisma.user.count({ where: { createdAt: { gte: today, lt: tomorrow } } }),
+      prisma.mangaSeries.count({ where: { createdAt: { gte: today, lt: tomorrow } } }),
+      prisma.chapter.count({ where: { createdAt: { gte: today, lt: tomorrow } } }),
+      prisma.comment.count({ where: { createdAt: { gte: today, lt: tomorrow } } }),
 
       // Activity counts (user activities in time ranges)
-      prisma.userActivity.count({
-        where: { createdAt: { gte: last24h } },
-      }),
-      prisma.userActivity.count({
-        where: { createdAt: { gte: last7d } },
-      }),
-      prisma.userActivity.count({
-        where: { createdAt: { gte: last30d } },
-      }),
+      prisma.userActivity.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.userActivity.count({ where: { createdAt: { gte: last7d } } }),
+      prisma.userActivity.count({ where: { createdAt: { gte: last30d } } }),
 
       // Moderation counts
-      prisma.chapterCorrection.count({
-        where: { status: 'PENDING' },
-      }),
-      prisma.comment.count({
-        where: {
-          OR: [
-            { isHidden: true },
-            { hiddenReason: { not: null } },
-          ],
-        },
-      }),
+      prisma.chapterCorrection.count({ where: { status: 'PENDING' } }),
+      prisma.comment.count({ where: { OR: [{ isHidden: true }, { hiddenReason: { not: null } }] } }),
 
       // Popular mangas (top 10 by views)
       prisma.mangaSeries.findMany({
         take: 10,
         orderBy: { totalViews: 'desc' },
         select: {
-          id: true,
-          title: true,
-          slug: true,
-          coverUrl: true,
-          authorName: true,
-          totalViews: true,
-          rating: true,
-          _count: {
-            select: { chapters: true },
-          },
+          id: true, title: true, slug: true, coverUrl: true,
+          authorName: true, totalViews: true, rating: true,
+          _count: { select: { chapters: true } },
         },
+      }),
+
+      // Month-over-month user count
+      prisma.user.count({ where: { createdAt: { gte: lastMonthStart } } }),
+      prisma.user.count({ where: { createdAt: { gte: monthBeforeLast, lt: lastMonthStart } } }),
+      // Month-over-month manga count
+      prisma.mangaSeries.count({ where: { createdAt: { gte: lastMonthStart } } }),
+      prisma.mangaSeries.count({ where: { createdAt: { gte: monthBeforeLast, lt: lastMonthStart } } }),
+
+      // Recent users (last 5)
+      prisma.user.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, username: true, displayName: true, avatarUrl: true, createdAt: true },
+      }),
+      // Recent mangas (last 5)
+      prisma.mangaSeries.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, title: true, slug: true, coverUrl: true, authorName: true, createdAt: true },
       }),
     ]);
 
-    // Get reported content count from AnalyticsEvent (content reports)
-  const reportedContent = await prisma.analyticsEvent.count({
-    where: {
-      eventType: 'REPORT',
-      createdAt: { gte: last30d },
-    },
-  });
+    // Daily activity data: sample userActivity grouped by day for last 7 days
+    // Daily activity data: query user_activity grouped by day for last 7 days
+    // Uses raw SQL for DATE() function which varies by DB
+    let activityData = dailyLabels.map((date) => ({ date, users: 0, views: 0 }));
+    try {
+      const dailyActivityRaw = await prisma.$queryRawUnsafe<Array<{ day: string; count: bigint }>>(
+        `SELECT DATE(created_at) as day, COUNT(*) as count FROM user_activity WHERE created_at >= ? GROUP BY DATE(created_at) ORDER BY day ASC`,
+        dailyStart
+      );
+      const activityMap = new Map(
+        (dailyActivityRaw as any[]).map((r: any) => {
+          const dayStr = r.day instanceof Date ? r.day.toISOString().slice(0, 10) : String(r.day).slice(0, 10);
+          return [dayStr, Number(r.count)];
+        })
+      );
+      activityData = dailyLabels.map((date) => ({
+        date,
+        users: activityMap.get(date) || 0,
+        views: 0, // page views pending real data integration
+      }));
+    } catch {
+      // If raw query fails (column name mismatch), fallback to empty data
+      console.warn('Daily activity query failed, using empty data');
+    }
 
-    const stats: DashboardStats = {
+    // Get reported content count
+    const reportedContent = await prisma.analyticsEvent.count({
+      where: { eventType: 'REPORT', createdAt: { gte: last30d } },
+    });
+
+    const calcChange = (current: number, previous: number): number | undefined => {
+      if (previous === 0) return undefined;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    const stats = {
       counts: {
         totalUsers,
         totalMangas,
@@ -190,6 +195,10 @@ export async function GET(_request: NextRequest) {
         flaggedComments,
         reportedContent,
       },
+      changes: {
+        users: calcChange(usersLastMonth, usersMonthBefore),
+        mangas: calcChange(mangasLastMonth, mangasMonthBefore),
+      },
       popularMangas: popularMangas.map((manga: any) => ({
         id: manga.id,
         title: manga.title,
@@ -199,6 +208,22 @@ export async function GET(_request: NextRequest) {
         totalViews: manga.totalViews,
         rating: manga.rating,
         chapterCount: manga._count.chapters,
+      })),
+      activityData,
+      recentUsers: recentUsers.map((u: any) => ({
+        id: u.id,
+        username: u.username,
+        displayName: u.displayName,
+        avatarUrl: u.avatarUrl,
+        createdAt: u.createdAt,
+      })),
+      recentMangas: recentMangas.map((m: any) => ({
+        id: m.id,
+        title: m.title,
+        slug: m.slug,
+        coverUrl: m.coverUrl,
+        authorName: m.authorName,
+        createdAt: m.createdAt,
       })),
     };
 
