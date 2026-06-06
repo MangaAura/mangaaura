@@ -5,7 +5,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Search,
+  Download,
 } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
@@ -13,7 +13,14 @@ import useSWR from 'swr';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
+import { useToast } from '@/components/ui/Toast';
 import { fetcher } from '@/lib/swr-config';
 
 interface DeliveryItem {
@@ -56,6 +63,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function DeliveriesClient() {
+  const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('');
 
@@ -64,6 +72,33 @@ export function DeliveriesClient() {
     fetcher,
     { refreshInterval: 15000 }
   );
+
+  const exportCSV = () => {
+    if (!data?.deliveries?.length) return;
+    try {
+      const headers = ['Status', 'Event', 'Endpoint', 'Code', 'Duration', 'Attempts', 'Date'];
+      const rows = data.deliveries.map(d => [
+        d.status,
+        d.event,
+        d.endpoint?.description || d.endpoint?.url || d.endpointId,
+        String(d.statusCode || ''),
+        d.durationMs !== null ? `${d.durationMs}ms` : '',
+        String(d.attemptCount),
+        new Date(d.createdAt).toISOString(),
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `webhook-deliveries-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: 'CSV exportado', description: `${rows.length} entregas exportadas.`, variant: 'success' });
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo exportar CSV.', variant: 'error' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -103,22 +138,30 @@ export function DeliveriesClient() {
             Historial de todas las entregas de webhooks.
           </p>
         </div>
+        <Button variant="outline" size="sm" onClick={exportCSV} disabled={!data?.deliveries?.length}>
+          <Download className="w-4 h-4 mr-1" />
+          CSV
+        </Button>
       </div>
 
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
-              <Input
-                placeholder="Filtrar por estado (SUCCESS, FAILED, PENDING)..."
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value.toUpperCase()); setPage(1); }}
-                className="pl-10"
-              />
+            <div className="w-44">
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="SUCCESS">Success</SelectItem>
+                  <SelectItem value="FAILED">Failed</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button variant="outline" onClick={() => { setStatusFilter(''); setPage(1); }}>
-              Limpiar Filtros
+              Limpiar
             </Button>
           </div>
         </CardContent>

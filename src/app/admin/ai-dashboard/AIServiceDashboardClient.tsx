@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { AlertsPanel } from '@/components/AI/AlertBanner';
 import { MetricCard } from '@/components/AI/MetricCard';
 import { Badge } from '@/components/ui/Badge';
+import { useToast } from '@/components/ui/Toast';
 import { useAIAlerts } from '@/hooks/useAIAlerts';
 import { useAIService } from '@/hooks/useAIService';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -153,6 +154,7 @@ export function AIServiceDashboardClient() {
   const { alerts, dismissAlert, acknowledgeAlert } = useAIAlerts();
 
   const { handleError } = useErrorHandler();
+  const { toast } = useToast();
 
   const [data, setData] = useState<DashboardData>({
     health: null,
@@ -227,6 +229,34 @@ export function AIServiceDashboardClient() {
           </div>
           <div className="flex items-center gap-4">
             <StatusBadge status={health?.status || 'unhealthy'} />
+            <button
+              onClick={() => {
+                setIsLoading(true);
+                try {
+                  const health = getHealth();
+                  const metrics = getMetrics();
+                  const queueStats = getQueueStats();
+                  setData({
+                    health,
+                    metrics,
+                    queueStats,
+                    modelMetrics: metrics?.models?.models || [],
+                  });
+                  setLastUpdated(new Date());
+                  toast({ title: 'Metrics refreshed', variant: 'success' });
+                } catch (error) {
+                  handleError(error);
+                  toast({ title: 'Refresh failed', description: 'Could not refresh metrics.', variant: 'error' });
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-[var(--surface-sunken)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              title="Refresh now"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Refresh
+            </button>
             <div className="flex items-center gap-2 text-sm text-[var(--text-tertiary)]">
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Updated: {lastUpdated.toLocaleTimeString()}</span>

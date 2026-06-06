@@ -31,10 +31,10 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Switch } from '@/components/ui/Switch';
+import { useToast } from '@/components/ui/Toast';
 import { AVAILABLE_EVENTS } from '@/core/services/WebhookService';
 import { useT } from '@/i18n';
-import { fetcher } from '@/lib/swr-config'
-;
+import { fetcher } from '@/lib/swr-config';
 
 
 interface WebhookDelivery {
@@ -85,6 +85,7 @@ export function WebhooksClient() {
 
   const [showCreate, setShowCreate] = useState(false);
   const t = useT();
+  const { toast } = useToast();
   const [showEdit, setShowEdit] = useState<WebhookEndpoint | null>(null);
   const [showDelete, setShowDelete] = useState<WebhookEndpoint | null>(null);
   const [showDeliveries, setShowDeliveries] = useState<WebhookEndpoint | null>(null);
@@ -137,8 +138,10 @@ export function WebhooksClient() {
       resetForm();
       setShowCreate(false);
       mutate('/api/admin/webhooks');
+      toast({ title: 'Webhook creado', description: 'El endpoint se ha creado correctamente.', variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
+      toast({ title: 'Error', description: err.message, variant: 'error' });
     } finally {
       setSaving(false);
     }
@@ -177,8 +180,10 @@ export function WebhooksClient() {
       setShowEdit(null);
       resetForm();
       mutate('/api/admin/webhooks');
+      toast({ title: 'Webhook actualizado', description: 'Los cambios se han guardado.', variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
+      toast({ title: 'Error', description: err.message, variant: 'error' });
     } finally {
       setSaving(false);
     }
@@ -199,8 +204,10 @@ export function WebhooksClient() {
 
       setShowDelete(null);
       mutate('/api/admin/webhooks');
+      toast({ title: 'Webhook eliminado', variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
+      toast({ title: 'Error', description: err.message, variant: 'error' });
     }
   };
 

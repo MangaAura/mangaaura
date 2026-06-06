@@ -3,6 +3,7 @@
 import {
   AlertTriangle,
   Ban,
+  Download,
   ExternalLink,
   Loader2,
   Search,
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useToast } from '@/components/ui/Toast';
 import { fetcher } from '@/lib/swr-config';
 
 interface AuditLogEntry {
@@ -78,9 +80,12 @@ function parseMetadata(metadataStr: string | null): Record<string, unknown> | nu
 }
 
 export default function AnomaliesClient() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('');
   const [filterType, setFilterType] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(0);
 
   const filters = useMemo(
@@ -88,8 +93,10 @@ export default function AnomaliesClient() {
       severity: filterSeverity,
       limit: '50',
       offset: String(page * 50),
+      ...(dateFrom && { dateFrom }),
+      ...(dateTo && { dateTo }),
     }),
-    [filterSeverity, page]
+    [filterSeverity, page, dateFrom, dateTo]
   );
 
   const { data, error, isLoading } = useSWR<AnomaliesResponse>(
@@ -140,9 +147,37 @@ export default function AnomaliesClient() {
     return { total, todayCount, weekCount, monthCount, criticalCount };
   }, [logs]);
 
+  const exportCSV = () => {
+    try {
+      const headers = ['Time', 'User', 'Type', 'Details', 'IP', 'Severity'];
+      const rows = filteredLogs.map(l => {
+        const meta = parseMetadata(l.metadata);
+        return [
+          new Date(l.createdAt).toISOString(),
+          l.user?.username || l.userId || '',
+          (meta?.anomalyType as string) || 'UNKNOWN',
+          ((meta?.details as string) || '').replace(/"/g, '""'),
+          l.ipAddress || '',
+          l.severity,
+        ];
+      });
+      const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `anomalies-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: 'CSV exportado', description: `${rows.length} anomalías exportadas.`, variant: 'success' });
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo exportar CSV.', variant: 'error' });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
             <ShieldAlert className="w-6 h-6 text-[var(--error)]" />
@@ -152,6 +187,10 @@ export default function AnomaliesClient() {
             Security anomalies and suspicious activity alerts
           </p>
         </div>
+        <Button variant="outline" size="sm" onClick={exportCSV} disabled={filteredLogs.length === 0}>
+          <Download className="w-4 h-4 mr-1" />
+          Export CSV
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -214,7 +253,13 @@ export default function AnomaliesClient() {
             />
           </div>
           <div className="flex flex-wrap gap-4">
-            <div className="w-56">
+            <div className="w-40">
+              <Input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(0); }} className="text-xs" placeholder="Desde" />
+            </div>
+            <div className="w-40">
+              <Input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(0); }} className="text-xs" placeholder="Hasta" />
+            </div>
+            <div className="w-44">
               <Select value={filterSeverity} onValueChange={setFilterSeverity}>
                 <SelectTrigger>
                   <SelectValue placeholder="All severities" />

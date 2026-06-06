@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -54,6 +55,7 @@ export default function EditChapterClient({ params }: { params: { id: string } }
   const router = useRouter();
   const t = useT();
   const { handleError } = useErrorHandler();
+  const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -101,9 +103,14 @@ export default function EditChapterClient({ params }: { params: { id: string } }
       });
       if (response.ok) {
         await mutate();
+        toast({ title: 'Capítulo guardado', description: 'Los cambios se han guardado correctamente.', variant: 'success' });
+      } else {
+        const err = await response.json();
+        toast({ title: 'Error', description: err.error || 'Error al guardar', variant: 'error' });
       }
     } catch (error) {
       handleError(error);
+      toast({ title: 'Error', description: 'Error al guardar el capítulo', variant: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -114,10 +121,15 @@ export default function EditChapterClient({ params }: { params: { id: string } }
     try {
       const response = await fetch(`/api/admin/chapters/${params.id}`, { method: 'DELETE' });
       if (response.ok) {
+        toast({ title: 'Capítulo eliminado', variant: 'success' });
         router.push('/admin/chapters');
+      } else {
+        const err = await response.json();
+        toast({ title: 'Error', description: err.error || 'Error al eliminar', variant: 'error' });
       }
     } catch (error) {
       handleError(error);
+      toast({ title: 'Error', description: 'Error al eliminar el capítulo', variant: 'error' });
     } finally {
       setIsDeleting(false);
     }
