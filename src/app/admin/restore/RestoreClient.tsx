@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2, RefreshCw, RotateCcw, Search, User } from 'lucide-react';
+import { AlertTriangle, Loader2, RefreshCw, RotateCcw, Search, User, Eye, Shield, Ban, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
 
@@ -17,15 +17,20 @@ import {
 } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
 export default function RestoreClient() {
   const t = useT();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [previewUser, setPreviewUser] = useState<any>(null);
   const [reason, setReason] = useState('');
+  const [confirmText, setConfirmText] = useState('');
   const [showDialog, setShowDialog] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,8 +71,11 @@ export default function RestoreClient() {
       setShowDialog(false);
       setSelectedUser(null);
       setReason('');
+      setConfirmText('');
+      toast({ title: 'Cuenta restaurada', description: `La cuenta de ${selectedUser.username} ha sido restaurada exitosamente.`, variant: 'success' });
     } catch (err: any) {
       setError(err.message);
+      toast({ title: 'Error al restaurar', description: err.message, variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -143,17 +151,27 @@ export default function RestoreClient() {
                         <Badge variant="destructive">{u.role}</Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUser(u);
-                            setShowDialog(true);
-                          }}
-                        >
-                          <RefreshCw className="w-4 h-4 mr-1" />
-                          Restaurar
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => { setPreviewUser(u); setShowPreview(true); }}
+                            title="Ver detalles"
+                          >
+                            <Eye className="w-4 h-4 text-[var(--primary)]" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(u);
+                              setShowDialog(true);
+                            }}
+                          >
+                            <RefreshCw className="w-4 h-4 mr-1" />
+                            Restaurar
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -164,6 +182,56 @@ export default function RestoreClient() {
         </CardContent>
       </Card>
 
+      {/* Preview Dialog */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-[var(--info)]" />
+              Detalles del Usuario
+            </DialogTitle>
+          </DialogHeader>
+          {previewUser && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-[var(--surface-sunken)] rounded-lg">
+                <div className="w-14 h-14 rounded-full bg-[var(--surface)] flex items-center justify-center">
+                  <User className="w-6 h-6 text-[var(--text-tertiary)]" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-[var(--text-primary)]">{previewUser.username}</p>
+                  <p className="text-sm text-[var(--text-tertiary)]">{previewUser.email}</p>
+                  <Badge variant="destructive" className="mt-1">{previewUser.role}</Badge>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-[var(--surface-sunken)] rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)] flex items-center gap-1"><Calendar className="w-3 h-3" /> Creado</p>
+                  <p className="font-medium text-[var(--text-primary)] mt-1">
+                    {previewUser.createdAt ? new Date(previewUser.createdAt).toLocaleDateString() : '—'}
+                  </p>
+                </div>
+                <div className="p-3 bg-[var(--surface-sunken)] rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)] flex items-center gap-1"><Ban className="w-3 h-3" /> Estado</p>
+                  <p className="font-medium text-[var(--error)] mt-1">Baneado</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreview(false)}>
+              Cerrar
+            </Button>
+            {previewUser && (
+              <Button onClick={() => { setShowPreview(false); setSelectedUser(previewUser); setShowDialog(true); }}>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Restaurar
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Restore Dialog + Confirm Typing */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
@@ -173,6 +241,7 @@ export default function RestoreClient() {
             </DialogTitle>
             <DialogDescription>
               Esta acción restaurará la cuenta del usuario y levantará los baneos activos.
+              Para confirmar, escribe <strong>RESTORE</strong> en el campo inferior.
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
@@ -192,12 +261,32 @@ export default function RestoreClient() {
               rows={3}
             />
           </div>
-          {error && <p className="text-sm text-[var(--error)]">{error}</p>}
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+              Escribe <span className="font-bold text-[var(--warning)]">RESTORE</span> para confirmar
+            </label>
+            <Input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="Escribe RESTORE para habilitar el botón..."
+              className={confirmText === 'RESTORE' ? 'border-[var(--success)]' : ''}
+            />
+          </div>
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-[var(--error)]/10 border border-[var(--error)]/20 rounded-lg text-sm text-[var(--error)]">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)} disabled={isLoading}>
+            <Button variant="outline" onClick={() => { setShowDialog(false); setConfirmText(''); }} disabled={isLoading}>
               Cancelar
             </Button>
-            <Button onClick={handleRestore} isLoading={isLoading}>
+            <Button
+              onClick={handleRestore}
+              isLoading={isLoading}
+              disabled={confirmText !== 'RESTORE'}
+            >
               {isLoading ? 'Restaurando...' : 'Restaurar Cuenta'}
             </Button>
           </DialogFooter>

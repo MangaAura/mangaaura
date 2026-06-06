@@ -9,10 +9,17 @@ import {
   Clock,
   Loader2,
   Hash,
+  XCircle,
+  Download,
 } from 'lucide-react';
+import { useState } from 'react';
 import useSWR from 'swr';
 
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { fetcher } from '@/lib/swr-config';
 
 interface SearchAnalytics {
@@ -25,12 +32,43 @@ interface SearchAnalytics {
     user: { id: string; username: string };
   }[];
   searchesLast30Days: { date: string; count: number }[];
+  failedSearches?: { id: string; query: string; error: string; createdAt: string; user: { username: string } }[];
 }
 
 export default function SearchAnalyticsClient() {
+  const { toast } = useToast();
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const params = new URLSearchParams();
+  if (dateFrom) params.set('dateFrom', dateFrom);
+  if (dateTo) params.set('dateTo', dateTo);
+
   const { data, error, isLoading } = useSWR<SearchAnalytics>(
-    '/api/admin/search-analytics', fetcher
+    `/api/admin/search-analytics?${params}`, fetcher
   );
+
+  const exportCSV = () => {
+    if (!data?.topQueries.length && !data?.recentSearches.length) return;
+    try {
+      const rows: string[][] = [];
+      rows.push(['Tipo', 'Query/Usuario', 'Conteo/Fecha', 'Error']);
+      data.topQueries.forEach(q => rows.push(['Top Query', q.query, String(q.count), '']));
+      data.recentSearches.forEach(s => rows.push(['Recent', `${s.user.username}: ${s.query}`, new Date(s.createdAt).toISOString(), '']));
+      (data.failedSearches || []).forEach(f => rows.push(['Failed', f.query, new Date(f.createdAt).toISOString(), f.error]));
+      const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `search-analytics-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: 'CSV exportado', description: `${rows.length - 1} registros exportados.`, variant: 'success' });
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo exportar CSV.', variant: 'error' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -50,12 +88,37 @@ export default function SearchAnalyticsClient() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
-          Analytics de Búsqueda
-        </h1>
-        <p className="text-[var(--text-muted)]">Estadísticas de búsqueda de los usuarios</p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
+            Analytics de Búsqueda
+          </h1>
+          <p className="text-[var(--text-muted)]">Estadísticas de búsqueda de los usuarios</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-36 text-xs"
+              placeholder="Desde"
+            />
+            <span className="text-xs text-[var(--text-tertiary)]">→</span>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-36 text-xs"
+              placeholder="Hasta"
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={exportCSV} disabled={!data}>
+            <Download className="w-4 h-4 mr-1" />
+            CSV
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -202,6 +265,51 @@ export default function SearchAnalyticsClient() {
             </div>
           ) : (
             <p className="text-center py-8 text-[var(--text-tertiary)]">Sin búsquedas recientes</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Failed Searches */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-[var(--warning)]">
+            <XCircle className="w-5 h-5" />
+            Búsquedas fallidas
+            <Badge variant="destructive" className="text-xs">
+              {(data?.failedSearches || []).length}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {data?.failedSearches && data.failedSearches.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Usuario</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Query</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-tertiary)]">Error</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-tertiary)]">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.failedSearches.map((f) => (
+                    <tr key={f.id} className="border-b hover:bg-[var(--surface)]">
+                      <td className="px-4 py-3 text-sm text-[var(--text-primary)]">{f.user?.username || '—'}</td>
+                      <td className="px-4 py-3 text-sm font-mono text-[var(--text-muted)]">{f.query}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="destructive" className="text-[10px]">{f.error}</Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-[var(--text-tertiary)] text-right">
+                        {new Date(f.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-center py-8 text-[var(--text-tertiary)]">Sin búsquedas fallidas recientes</p>
           )}
         </CardContent>
       </Card>

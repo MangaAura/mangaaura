@@ -52,6 +52,7 @@ import {
 } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -909,6 +910,7 @@ export default function AdminNewsClient() {
   const [showDelete, setShowDelete] = useState<NewsArticle | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPublished, setFilterPublished] = useState<'all' | 'published' | 'draft'>('all');
+  const { toast } = useToast();
   const { handleError } = useErrorHandler();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -925,6 +927,7 @@ export default function AdminNewsClient() {
     }
 
     mutate('/api/admin/news');
+    toast({ title: 'Noticia creada', description: 'La noticia se ha creado correctamente.', variant: 'success' });
   };
 
   const handleEdit = async (id: string, data: Record<string, unknown>) => {
@@ -940,6 +943,7 @@ export default function AdminNewsClient() {
     }
 
     mutate('/api/admin/news');
+    toast({ title: 'Noticia actualizada', description: 'Los cambios se han guardado correctamente.', variant: 'success' });
   };
 
   const handleDelete = async () => {
@@ -957,8 +961,10 @@ export default function AdminNewsClient() {
 
       setShowDelete(null);
       mutate('/api/admin/news');
+      toast({ title: 'Noticia eliminada', description: 'La noticia se ha eliminado permanentemente.', variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
+      toast({ title: 'Error', description: err.message || 'Error al eliminar noticia', variant: 'error' });
     }
   };
 
@@ -976,8 +982,10 @@ export default function AdminNewsClient() {
       }
 
       mutate('/api/admin/news');
+      toast({ title: article.isPublished ? 'Noticia despublicada' : 'Noticia publicada', variant: 'success' });
     } catch (err: any) {
       handleError(err);
+      toast({ title: 'Error', description: 'Error al cambiar estado', variant: 'error' });
     }
   };
 
@@ -995,8 +1003,10 @@ export default function AdminNewsClient() {
       }
 
       mutate('/api/admin/news');
+      toast({ title: article.isFeatured ? 'Destacado quitado' : 'Noticia destacada', variant: 'success' });
     } catch (err: any) {
       handleError(err);
+      toast({ title: 'Error', description: 'Error al cambiar destacado', variant: 'error' });
     }
   };
 

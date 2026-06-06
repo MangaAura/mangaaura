@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Download,
   FileText,
   Shield,
   Search,
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useToast } from '@/components/ui/Toast';
 import { fetcher } from '@/lib/swr-config';
 
 interface AuditLog {
@@ -50,22 +52,26 @@ const SEVERITY_ICONS: Record<string, React.ElementType> = {
 };
 
 export default function AuditLogsClient() {
+  const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [action, setAction] = useState('');
   const [severity, setSeverity] = useState('');
   const [targetType, setTargetType] = useState('');
+  const [adminUserId, setAdminUserId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   const limit = 30;
   const params = new URLSearchParams({
     page: String(page), limit: String(limit),
     ...(action && { action }), ...(severity && { severity }), ...(targetType && { targetType }),
+    ...(adminUserId && { userId: adminUserId }),
   });
 
   const { data, error, isLoading } = useSWR<{
     logs: AuditLog[];
     pagination: { page: number; limit: number; total: number; totalPages: number };
     uniqueActions: { action: string; count: number }[];
+    admins?: { id: string; username: string }[];
   }>(`/api/admin/audit-logs?${params}`, fetcher);
 
   const filteredLogs = data?.logs?.filter((l) => {
@@ -76,6 +82,32 @@ export default function AuditLogsClient() {
       l.user?.username.toLowerCase().includes(q) ||
       l.ipAddress?.toLowerCase().includes(q);
   }) || [];
+
+  const exportCSV = () => {
+    try {
+      const headers = ['Timestamp', 'Severidad', 'Acción', 'Usuario', 'Target', 'IP', 'User Agent'];
+      const rows = filteredLogs.map(l => [
+        new Date(l.createdAt).toISOString(),
+        l.severity,
+        l.action,
+        l.user?.username || 'System',
+        l.targetId ? `${l.targetType}:${l.targetId}` : '',
+        l.ipAddress || '',
+        l.userAgent || '',
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit-logs-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: 'CSV exportado', description: `${rows.length} eventos exportados.`, variant: 'success' });
+    } catch {
+      toast({ title: 'Error al exportar', description: 'No se pudo generar el CSV.', variant: 'error' });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -134,12 +166,23 @@ export default function AuditLogsClient() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="w-44">
+              <Select value={adminUserId} onValueChange={(v) => { setAdminUserId(v); setPage(1); }}>
+                <SelectTrigger><SelectValue placeholder="Admin" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todos los admins</SelectItem>
+                  {data?.admins?.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>{a.username}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
             Eventos
@@ -147,6 +190,10 @@ export default function AuditLogsClient() {
               ({data?.pagination.total || 0} total)
             </span>
           </CardTitle>
+          <Button variant="outline" size="sm" onClick={exportCSV} disabled={filteredLogs.length === 0}>
+            <Download className="w-4 h-4 mr-1" />
+            Exportar CSV
+          </Button>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (

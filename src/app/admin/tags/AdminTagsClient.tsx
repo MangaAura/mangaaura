@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useToast } from '@/components/ui/Toast';
 import { useTags, type Tag as TagType } from '@/hooks/useTags';
 import { useT } from '@/i18n';
 
@@ -45,6 +46,7 @@ export default function AdminTagsClient() {
     deleteTag,
   } = useTags();
 
+  const { toast } = useToast();
   const t = useT();
   const [activeTab, setActiveTab] = useState<'list' | 'tree' | 'create'>('list');
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +63,10 @@ export default function AdminTagsClient() {
   const [newParentId, setNewParentId] = useState<string>('');
   const [newType, setNewType] = useState('TAG');
   const [createError, setCreateError] = useState<string | null>(null);
+  const [mergeSourceId, setMergeSourceId] = useState<string>('');
+  const [mergeTargetId, setMergeTargetId] = useState<string>('');
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [isMerging, setIsMerging] = useState(false);
 
   // Edit form state
   const [editName, setEditName] = useState('');
@@ -244,6 +250,9 @@ export default function AdminTagsClient() {
                             {tag.description}
                           </p>
                         )}
+                        <span className="text-[10px] text-[var(--text-tertiary)] opacity-60">
+                          {tags.filter(t => t.parentId === tag.id).length} hijo(s) · {tag.id.length > 8 ? tag.id.slice(0,8)+'…' : tag.id}
+                        </span>
                       </div>
                     </div>
                   </td>
@@ -277,6 +286,15 @@ export default function AdminTagsClient() {
                         aria-label={`${t('admin.pages.tags.editTitle')} ${tag.name}`}
                       >
                         <Edit3 className="w-4 h-4 text-[var(--primary)]" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => { setMergeSourceId(tag.id); setShowMergeDialog(true); }}
+                        title="Merge"
+                        aria-label={`Merge ${tag.name}`}
+                      >
+                        <Edit3 className="w-4 h-4 text-[var(--warning)]" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -652,6 +670,79 @@ export default function AdminTagsClient() {
             <Button onClick={handleEdit} isLoading={isSaving}>
               <Save className="w-4 h-4 mr-2" />
               {t('admin.pages.tags.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Merge Dialog */}
+      <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-[var(--warning)]">
+              <Edit3 className="w-5 h-5" />
+              Merge Tags
+            </DialogTitle>
+            <DialogDescription>
+              Fusiona este tag con otro. Los mangas con este tag serán reasignados al destino.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="bg-[var(--surface-sunken)] p-3 rounded-lg">
+              <p className="text-xs text-[var(--text-tertiary)] mb-1">Origen (será eliminado)</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">
+                {tags.find(t => t.id === mergeSourceId)?.name || 'Seleccionado'}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[var(--text-secondary)]">Destino (recibe los mangas)</label>
+              <Select value={mergeTargetId} onValueChange={setMergeTargetId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar tag destino" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tags
+                    .filter(t => t.id !== mergeSourceId)
+                    .map(t => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowMergeDialog(false); setMergeSourceId(''); setMergeTargetId(''); }}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!mergeTargetId || isMerging}
+              onClick={async () => {
+                if (!mergeSourceId || !mergeTargetId) return;
+                setIsMerging(true);
+                try {
+                  const res = await fetch('/api/admin/tags/merge', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourceId: mergeSourceId, targetId: mergeTargetId }),
+                  });
+                  if (!res.ok) throw new Error(await res.text());
+                  toast({ title: 'Tags fusionados', description: 'Los tags se fusionaron correctamente.', variant: 'success' });
+                  setShowMergeDialog(false);
+                  setMergeSourceId('');
+                  setMergeTargetId('');
+                  loadTags();
+                } catch (err: any) {
+                  toast({ title: 'Error', description: err.message, variant: 'error' });
+                } finally {
+                  setIsMerging(false);
+                }
+              }}
+              isLoading={isMerging}
+            >
+              {isMerging ? 'Fusionando...' : 'Fusionar Tags'}
             </Button>
           </DialogFooter>
         </DialogContent>
