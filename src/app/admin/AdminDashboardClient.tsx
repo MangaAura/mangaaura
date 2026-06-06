@@ -18,6 +18,8 @@ import {
   RefreshCw,
   ExternalLink,
   Settings,
+  Activity,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -120,6 +122,33 @@ interface ModerationAlert {
   severity: 'low' | 'medium' | 'high';
 }
 
+function SkeletonCard() {
+  return (
+    <div className="animate-pulse bg-[var(--surface-sunken)] rounded-xl h-32 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--surface)]/20 to-transparent shimmer" />
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div className="animate-pulse bg-[var(--surface-sunken)] rounded-lg h-16 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--surface)]/20 to-transparent shimmer" />
+    </div>
+  );
+}
+
+const quickActions = [
+  { href: '/admin/users', label: 'admin.manageUsers', desc: 'admin.manageUsersDesc', icon: Users, color: 'var(--primary)' },
+  { href: '/admin/comments', label: 'admin.moderation', desc: 'admin.moderationDesc', icon: Shield, color: 'var(--warning)' },
+  { href: '/admin/settings', label: 'admin.configuracion', desc: 'admin.ajustesSitio', icon: Settings, color: 'var(--accent-purple)' },
+  { href: '/admin/manga', label: 'admin.manageManga', desc: 'admin.manageMangaDesc', icon: BookOpen, color: 'var(--success)' },
+  { href: '/admin/users', label: 'admin.roles', desc: 'admin.rolesDesc', icon: Shield, color: 'var(--primary)' },
+  { href: '/admin/export', label: 'admin.export', desc: 'admin.exportDesc', icon: FileText, color: 'var(--accent-purple)' },
+  { href: '/admin/announcements', label: 'admin.announcements', desc: 'admin.announcementsDesc', icon: MessageSquare, color: 'var(--warning)' },
+  { href: '/admin/settings', label: 'admin.cache', desc: 'admin.cacheDesc', icon: RefreshCw, color: 'var(--success)' },
+];
+
 export default function AdminDashboardClient() {
   const t = useT();
   const { data: rawStats, error: statsError, isLoading: statsLoading } = useSWR<ApiDashboardStats>(
@@ -163,13 +192,17 @@ export default function AdminDashboardClient() {
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-6" role="status" aria-label="Cargando panel de administración">
-        <div className="h-8 bg-[var(--surface-sunken)] rounded w-1/4"></div>
+        <div className="h-8 bg-[var(--surface-sunken)] rounded w-1/4" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-[var(--surface-sunken)] rounded"></div>
-          ))}
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
         </div>
-        <div className="h-64 bg-[var(--surface-sunken)] rounded"></div>
+        <SkeletonCard />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
       </div>
     );
   }
@@ -200,7 +233,7 @@ export default function AdminDashboardClient() {
         </div>
         <div className="flex items-center gap-3 text-sm text-[var(--text-tertiary)]">
           <span className="flex items-center gap-1.5">
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className="w-3.5 h-3.5" />
             {t('admin.autoRefresh')}
           </span>
           <span className="hidden sm:flex items-center gap-1.5">
@@ -245,7 +278,7 @@ export default function AdminDashboardClient() {
             trend={stats?.changes?.chapters && stats.changes.chapters > 0 ? 'up' : stats?.changes?.chapters && stats.changes.chapters < 0 ? 'down' : 'neutral'}
           />
         </Link>
-        <Link href="/admin/moderation" className="block">
+        <Link href="/admin/comments" className="block">
           <StatCard
             title={t('admin.comments')}
             value={stats?.totalComments.toLocaleString() || '0'}
@@ -321,6 +354,34 @@ export default function AdminDashboardClient() {
         </Card>
       </div>
 
+      {/* Activity Summary */}
+      {rawStats?.activity && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="w-5 h-5 text-[var(--primary)]" />
+              {t('admin.activitySummary')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-[var(--surface)] rounded-lg">
+                <p className="text-2xl font-bold text-[var(--text-primary)]">{rawStats.activity.last24h.toLocaleString()}</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">{t('admin.last24h')}</p>
+              </div>
+              <div className="text-center p-4 bg-[var(--surface)] rounded-lg">
+                <p className="text-2xl font-bold text-[var(--text-primary)]">{rawStats.activity.last7d.toLocaleString()}</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">{t('admin.last7d')}</p>
+              </div>
+              <div className="text-center p-4 bg-[var(--surface)] rounded-lg">
+                <p className="text-2xl font-bold text-[var(--text-primary)]">{rawStats.activity.last30d.toLocaleString()}</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-1">{t('admin.last30d')}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Moderation Stats Summary */}
       {moderationStats && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -363,7 +424,8 @@ export default function AdminDashboardClient() {
       {/* Moderation Alerts */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">              <CardTitle className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[var(--warning)]" aria-hidden="true" />
               {t('admin.moderationAlerts')}
               {alerts.length > 0 && (
@@ -372,7 +434,7 @@ export default function AdminDashboardClient() {
                 </Badge>
               )}
             </CardTitle>
-            <Link href="/admin/moderation" aria-label="Ver todos los reportes de moderación">
+            <Link href="/admin/comments" aria-label="Ver todos los reportes de moderación">
               <Button variant="ghost" size="sm">
                 {t('admin.viewAll')} <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
               </Button>
@@ -381,10 +443,8 @@ export default function AdminDashboardClient() {
         </CardHeader>
         <CardContent>
           {alertsLoading ? (
-            <div className="animate-pulse space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-16 bg-[var(--surface-sunken)] rounded"></div>
-              ))}
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => <SkeletonRow key={i} />)}
             </div>
           ) : alerts.length === 0 ? (
             <div className="text-center py-8 text-[var(--text-tertiary)]">
@@ -421,7 +481,7 @@ export default function AdminDashboardClient() {
                     <span className="text-sm font-medium text-[var(--text-muted)]">
                       {alert.count} items
                     </span>
-                    <Link href="/admin/moderation">
+                    <Link href="/admin/comments">
                       <Button variant="outline" size="sm">
                         {t('admin.review')}
                       </Button>
@@ -587,64 +647,69 @@ export default function AdminDashboardClient() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link href="/admin/users" aria-label="Gestionar usuarios">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
-            <CardContent className="p-5 flex items-center gap-3">
-              <div className="p-2.5 bg-[var(--primary)]/10 rounded-lg group-hover:scale-110 transition-transform">
-                <Users className="w-5 h-5 text-[var(--primary)]" />
+      {/* Activity Summary + Quick Actions Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BarChart3 className="w-5 h-5 text-[var(--primary)]" />
+              {t('admin.quickActions')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              {quickActions.map((action) => (
+                <Link key={action.href + action.label} href={action.href}>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-sunken)] transition-colors group cursor-pointer">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: `${action.color}15` }}>
+                      <action.icon className="w-4 h-4" style={{ color: action.color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[var(--text-primary)] truncate">{t(action.label)}</p>
+                      <p className="text-xs text-[var(--text-tertiary)] truncate">{t(action.desc)}</p>
+                    </div>
+                    <ArrowRight className="w-3 h-3 text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="w-5 h-5 text-[var(--primary)]" />
+              {t('admin.quickStats')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg">
+                <span className="text-sm text-[var(--text-secondary)]">{t('admin.mangasMasPopulares')}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{popularMangas.length}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.manageUsers')}</h3>
-                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.manageUsersDesc')}</p>
+              <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg">
+                <span className="text-sm text-[var(--text-secondary)]">{t('admin.totalUsers')}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{stats?.totalUsers.toLocaleString() || '0'}</span>
               </div>
-              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/admin/moderation" aria-label="Panel de moderación">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
-            <CardContent className="p-5 flex items-center gap-3">
-              <div className="p-2.5 bg-[var(--warning)]/10 rounded-lg group-hover:scale-110 transition-transform">
-                <Shield className="w-5 h-5 text-[var(--warning)]" />
+              <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg">
+                <span className="text-sm text-[var(--text-secondary)]">{t('admin.chapters')}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{stats?.totalChapters.toLocaleString() || '0'}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.moderation')}</h3>
-                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.moderationDesc')}</p>
+              <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg">
+                <span className="text-sm text-[var(--text-secondary)]">{t('admin.comments')}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{stats?.totalComments.toLocaleString() || '0'}</span>
               </div>
-              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/admin/settings" aria-label={t('admin.configuracion')}>
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
-            <CardContent className="p-5 flex items-center gap-3">
-              <div className="p-2.5 bg-[var(--accent-purple)]/10 rounded-lg group-hover:scale-110 transition-transform">
-                <Settings className="w-5 h-5 text-[var(--accent-purple)]" />
+              <div className="flex items-center justify-between p-3 bg-[var(--surface)] rounded-lg">
+                <span className="text-sm text-[var(--text-secondary)]">{t('admin.newUsersToday')}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{stats?.newUsersToday || 0}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.configuracion')}</h3>
-                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.ajustesSitio')}</p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/admin/manga" aria-label="Gestionar mangas">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full group">
-            <CardContent className="p-5 flex items-center gap-3">
-              <div className="p-2.5 bg-[var(--success)]/10 rounded-lg group-hover:scale-110 transition-transform">
-                <BookOpen className="w-5 h-5 text-[var(--success)]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.manageManga')}</h3>
-                <p className="text-xs text-[var(--text-tertiary)] truncate">{t('admin.manageMangaDesc')}</p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </CardContent>
-          </Card>
-        </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

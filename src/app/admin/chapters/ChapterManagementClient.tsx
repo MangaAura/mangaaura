@@ -19,6 +19,9 @@ import {
   GripVertical,
   ImageIcon,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Info,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
@@ -43,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -73,12 +77,15 @@ interface ChapterData {
 
 export default function ChapterManagementClient() {
   const t = useT();
+  const { toast } = useToast();
   const { handleError } = useErrorHandler();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [mangaFilter, setMangaFilter] = useState('');
   const [selectedChapter, setSelectedChapter] = useState<ChapterData | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const [metadataChapter, setMetadataChapter] = useState<ChapterData | null>(null);
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('chapterNumber');
   const [sortOrder, setSortOrder] = useState('asc');
@@ -106,13 +113,57 @@ export default function ChapterManagementClient() {
         await mutate();
         setShowDeleteDialog(false);
         setSelectedChapter(null);
+        toast({ title: 'Chapter deleted', description: `Chapter #${selectedChapter.chapterNumber} was deleted.`, variant: 'success' });
+      } else {
+        toast({ title: 'Error', description: 'Failed to delete chapter.', variant: 'error' });
       }
     } catch (error) {
       handleError(error);
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'error' });
+    }
+  };
+
+  const handleReorder = async (chapterId: string, direction: 'up' | 'down') => {
+    try {
+      const res = await fetch(`/api/admin/chapters/${chapterId}/reorder`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction }),
+      });
+      if (res.ok) {
+        await mutate();
+        toast({ title: 'Reordered', description: `Chapter moved ${direction}.`, variant: 'success' });
+      } else {
+        toast({ title: 'Error', description: 'Failed to reorder chapter.', variant: 'error' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'error' });
     }
   };
 
   const columns: ColumnDef<ChapterData>[] = useMemo(() => [
+    {
+      id: 'reorder',
+      header: '',
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-0.5">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleReorder(row.original.id, 'up'); }}
+            className="p-0.5 hover:text-[var(--primary)] text-[var(--text-tertiary)]"
+            title="Move up"
+          >
+            <ArrowUp className="w-3 h-3" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleReorder(row.original.id, 'down'); }}
+            className="p-0.5 hover:text-[var(--primary)] text-[var(--text-tertiary)]"
+            title="Move down"
+          >
+            <ArrowDown className="w-3 h-3" />
+          </button>
+        </div>
+      ),
+    },
     {
       id: 'drag',
       header: '',
@@ -190,13 +241,16 @@ export default function ChapterManagementClient() {
       header: t('admin.pages.chapters.columns.actions'),
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={() => { setMetadataChapter(row.original); setShowMetadataDialog(true); }} title="Metadata">
+            <Info className="w-4 h-4 text-[var(--primary)]" />
+          </Button>
           <Link href={`/manga/${row.original.manga.slug}/chapter/${row.original.chapterNumber}`} target="_blank">
-            <Button variant="ghost" size="icon"                            title={t('admin.pages.chapters.view')}>
+            <Button variant="ghost" size="icon" title={t('admin.pages.chapters.view')}>
               <Eye className="w-4 h-4 text-[var(--primary)]" />
             </Button>
           </Link>
           <Link href={`/admin/chapters/${row.original.id}`}>
-            <Button variant="ghost" size="icon"                            title={t('admin.pages.chapters.edit')}>
+            <Button variant="ghost" size="icon" title={t('admin.pages.chapters.edit')}>
               <Edit className="w-4 h-4 text-[var(--primary)]" />
             </Button>
           </Link>
@@ -226,7 +280,7 @@ export default function ChapterManagementClient() {
             <FileText className="w-6 h-6 text-[var(--primary)]" />
             {t('admin.pages.chapters.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">            {t('admin.pages.chapters.subtitle')}</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.chapters.subtitle')}</p>
         </div>
       </div>
 
@@ -341,6 +395,7 @@ export default function ChapterManagementClient() {
         </CardContent>
       </Card>
 
+      {/* Delete Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
@@ -365,6 +420,71 @@ export default function ChapterManagementClient() {
             <Button variant="destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" /> {t('admin.pages.chapters.deleteConfirm')}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Metadata Dialog */}
+      <Dialog open={showMetadataDialog} onOpenChange={setShowMetadataDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Info className="w-5 h-5 text-[var(--primary)]" />
+              Chapter Metadata
+            </DialogTitle>
+          </DialogHeader>
+          {metadataChapter && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Status</p>
+                  <Badge variant={metadataChapter.status === 'PUBLISHED' ? 'default' : 'secondary'} className="mt-1 capitalize">
+                    {metadataChapter.status.toLowerCase()}
+                  </Badge>
+                </div>
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Pages</p>
+                  <p className="text-lg font-bold text-[var(--text-primary)] mt-1">{metadataChapter.totalPages}</p>
+                </div>
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Views</p>
+                  <p className="text-lg font-bold text-[var(--text-primary)] mt-1">{metadataChapter.viewCount.toLocaleString()}</p>
+                </div>
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Comments</p>
+                  <p className="text-lg font-bold text-[var(--text-primary)] mt-1">{metadataChapter.commentCount}</p>
+                </div>
+                {metadataChapter.isCrowdfunded && (
+                  <div className="bg-[var(--surface)] p-3 rounded-lg col-span-2">
+                    <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Crowdfunding</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 bg-[var(--surface-sunken)] rounded-full h-2">
+                        <div
+                          className="bg-[var(--primary)] rounded-full h-2 transition-all"
+                          style={{ width: `${Math.min(100, ((metadataChapter.crowdfundingCurrent || 0) / (metadataChapter.crowdfundingGoal || 1)) * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-[var(--text-secondary)]">
+                        ${metadataChapter.crowdfundingCurrent || 0} / ${metadataChapter.crowdfundingGoal || 0}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {metadataChapter.scheduledAt && (
+                  <div className="bg-[var(--surface)] p-3 rounded-lg col-span-2">
+                    <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Scheduled</p>
+                    <p className="text-sm text-[var(--text-primary)] mt-1">{new Date(metadataChapter.scheduledAt).toLocaleString()}</p>
+                  </div>
+                )}
+                <div className="bg-[var(--surface)] p-3 rounded-lg col-span-2">
+                  <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Created</p>
+                  <p className="text-sm text-[var(--text-primary)] mt-1">{new Date(metadataChapter.createdAt).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMetadataDialog(false)}>{t('admin.pages.chapters.cancel')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -20,7 +20,11 @@ import {
   ChevronRight,
   AlertTriangle,
   MoreHorizontal,
+  ExternalLink,
+  CheckCircle2,
+  FileText,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import useSWR from 'swr';
 
@@ -50,6 +54,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
@@ -84,14 +89,18 @@ interface CommentData {
 
 export default function CommentModerationClient() {
   const t = useT();
+  const { toast } = useToast();
   const { handleError } = useErrorHandler();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [selectedComment, setSelectedComment] = useState<CommentData | null>(null);
+  const [expandedComment, setExpandedComment] = useState<CommentData | null>(null);
   const [actionDialog, setActionDialog] = useState<{ type: string; open: boolean }>({ type: '', open: false });
   const [editContent, setEditContent] = useState('');
   const [hideReason, setHideReason] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState('');
 
   const { data, error, isLoading, mutate } = useSWR<{ comments: CommentData[]; pagination: { total: number; totalPages: number } }>(
     `/api/admin/comments?page=${page}&search=${searchQuery}&status=${statusFilter}`,
@@ -116,22 +125,83 @@ export default function CommentModerationClient() {
         setSelectedComment(null);
         setEditContent('');
         setHideReason('');
+        toast({ title: 'Done', description: `Comment ${action} successful.`, variant: 'success' });
+      } else {
+        toast({ title: 'Error', description: `Failed to ${action} comment.`, variant: 'error' });
       }
     } catch (error) {
       handleError(error);
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'error' });
     }
   };
 
+  const handleBulkAction = async () => {
+    if (selectedIds.size === 0 || !bulkAction) return;
+    try {
+      const res = await fetch('/api/admin/comments/bulk', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commentIds: Array.from(selectedIds), action: bulkAction }),
+      });
+      if (res.ok) {
+        await mutate();
+        setSelectedIds(new Set());
+        setBulkAction('');
+        toast({ title: 'Done', description: `${selectedIds.size} comments ${bulkAction}ed.`, variant: 'success' });
+      } else {
+        toast({ title: 'Error', description: 'Bulk action failed.', variant: 'error' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'error' });
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
   const columns: ColumnDef<CommentData>[] = useMemo(() => [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <input
+          type="checkbox"
+          checked={table.getIsAllRowsSelected()}
+          onChange={(e) => {
+            table.toggleAllRowsSelected(e.target.checked);
+            if (e.target.checked) setSelectedIds(new Set(comments.map((c) => c.id)));
+            else setSelectedIds(new Set());
+          }}
+          className="rounded border-[var(--border)]"
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          checked={selectedIds.has(row.original.id)}
+          onChange={() => toggleSelect(row.original.id)}
+          className="rounded border-[var(--border)]"
+        />
+      ),
+    },
     {
       accessorKey: 'content',
       header: t('admin.pages.comments.columns.comment'),
       cell: ({ row }) => (
         <div className="max-w-md">
-          <p className={`text-sm ${row.original.isDeleted ? 'text-[var(--text-tertiary)] italic line-through' : 'text-[var(--text-primary)]'}`}>
-            {row.original.isDeleted ? t('admin.pages.comments.deletedLabel') : row.original.content.substring(0, 150)}
-            {row.original.content.length > 150 && '...'}
-          </p>
+          <button
+            onClick={() => setExpandedComment(row.original)}
+            className="text-left w-full"
+          >
+            <p className={`text-sm ${row.original.isDeleted ? 'text-[var(--text-tertiary)] italic line-through' : 'text-[var(--text-primary)]'}`}>
+              {row.original.isDeleted ? t('admin.pages.comments.deletedLabel') : row.original.content.substring(0, 150)}
+              {row.original.content.length > 150 && '...'}
+            </p>
+          </button>
           {row.original.isHidden && row.original.hiddenReason && (
             <p className="text-xs text-[var(--warning)] mt-1">
               <AlertTriangle className="w-3 h-3 inline mr-1" />
@@ -148,7 +218,7 @@ export default function CommentModerationClient() {
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-xs font-medium overflow-hidden">
             {row.original.user.avatarUrl ? (
-              <img src={row.original.user.avatarUrl}            alt={row.original.user.username} className="w-full h-full object-cover" />
+              <img src={row.original.user.avatarUrl} alt={row.original.user.username} className="w-full h-full object-cover" />
             ) : (
               row.original.user.username.charAt(0).toUpperCase()
             )}
@@ -206,33 +276,38 @@ export default function CommentModerationClient() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setExpandedComment(row.original)}>
+              <FileText className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.viewDetails')}
+            </DropdownMenuItem>
             {!row.original.isDeleted && (
               <>
-                {row.original.isHidden ? (                    <DropdownMenuItem onClick={() => { setSelectedComment(row.original); performAction('unhide'); }}>
-                      <Eye className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.unhide')}
-                    </DropdownMenuItem>
+                {row.original.isHidden ? (
+                  <DropdownMenuItem onClick={() => { setSelectedComment(row.original); performAction('unhide'); }}>
+                    <Eye className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.unhide')}
+                  </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setHideReason(''); setActionDialog({ type: 'hide', open: true }); }}>
-                      <EyeOff className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.hide')}
-                    </DropdownMenuItem>
+                    <EyeOff className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.hide')}
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setEditContent(row.original.content); setActionDialog({ type: 'edit', open: true }); }}>
-                      <Edit className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.edit')}
-                    </DropdownMenuItem>
+                  <Edit className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.edit')}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setActionDialog({ type: 'delete', open: true }); }}>
-                      <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> {t('admin.pages.comments.actions.softDelete')}
-                    </DropdownMenuItem>
+                  <Trash2 className="w-4 h-4 mr-2 text-[var(--error)]" /> {t('admin.pages.comments.actions.softDelete')}
+                </DropdownMenuItem>
               </>
             )}
-            {row.original.isDeleted && (              <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setEditContent(row.original.content); setActionDialog({ type: 'restore', open: true }); }}>
-                    <Undo2 className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.restore')}
-                  </DropdownMenuItem>
+            {row.original.isDeleted && (
+              <DropdownMenuItem onClick={() => { setSelectedComment(row.original); setEditContent(row.original.content); setActionDialog({ type: 'restore', open: true }); }}>
+                <Undo2 className="w-4 h-4 mr-2" /> {t('admin.pages.comments.actions.restore')}
+              </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
-  ], []);
+  ], [comments, selectedIds]);
 
   const table = useReactTable({
     data: comments,
@@ -252,10 +327,11 @@ export default function CommentModerationClient() {
             <MessageSquare className="w-6 h-6 text-[var(--primary)]" />
             {t('admin.pages.comments.title')}
           </h1>
-          <p className="text-[var(--text-muted)]">            {t('admin.pages.comments.subtitle')}</p>
+          <p className="text-[var(--text-muted)]">{t('admin.pages.comments.subtitle')}</p>
         </div>
       </div>
 
+      {/* Filters + Bulk Actions */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
@@ -279,10 +355,32 @@ export default function CommentModerationClient() {
                 <SelectItem value="deleted">{t('admin.pages.comments.deleted')}</SelectItem>
               </SelectContent>
             </Select>
+            {selectedIds.size > 0 && (
+              <div className="flex items-center gap-2">
+                <Select value={bulkAction} onValueChange={setBulkAction}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder={`${selectedIds.size} selected`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hide">{t('admin.pages.comments.actions.hide')}</SelectItem>
+                    <SelectItem value="unhide">{t('admin.pages.comments.actions.unhide')}</SelectItem>
+                    <SelectItem value="delete">{t('admin.pages.comments.actions.softDelete')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="default" size="sm" onClick={handleBulkAction} disabled={!bulkAction}>
+                  <CheckCircle2 className="w-4 h-4 mr-1" />
+                  Apply
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => { setSelectedIds(new Set()); setBulkAction(''); }}>
+                  {t('admin.pages.comments.cancel')}
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
+      {/* Table */}
       <Card>
         <CardHeader>
           <CardTitle>
@@ -349,6 +447,88 @@ export default function CommentModerationClient() {
         </CardContent>
       </Card>
 
+      {/* Expanded Content Dialog */}
+      <Dialog open={!!expandedComment} onOpenChange={(o) => { if (!o) setExpandedComment(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[var(--primary)]" />
+              {t('admin.pages.comments.viewDetails')}
+            </DialogTitle>
+          </DialogHeader>
+          {expandedComment && (
+            <div className="space-y-4">
+              {/* User info */}
+              <div className="flex items-center gap-3 bg-[var(--surface)] p-3 rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-[var(--surface-sunken)] flex items-center justify-center text-sm font-medium overflow-hidden">
+                  {expandedComment.user.avatarUrl ? (
+                    <img src={expandedComment.user.avatarUrl} alt={expandedComment.user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    expandedComment.user.username.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium text-[var(--text-primary)]">{expandedComment.user.displayName || expandedComment.user.username}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">@{expandedComment.user.username}</p>
+                </div>
+              </div>
+
+              {/* Manga context */}
+              <div className="bg-[var(--surface)] p-3 rounded-lg">
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Context</p>
+                <Link
+                  href={`/manga/${expandedComment.chapter?.manga?.slug || ''}/chapter/${expandedComment.chapter?.chapterNumber || ''}`}
+                  target="_blank"
+                  className="text-sm text-[var(--primary)] hover:underline mt-1 flex items-center gap-1"
+                >
+                  {expandedComment.chapter?.manga?.title || 'Unknown Manga'} — Ch. {expandedComment.chapter?.chapterNumber || '?'}
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+
+              {/* Full content */}
+              <div className="bg-[var(--surface)] p-4 rounded-lg">
+                <p className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider mb-2">Content</p>
+                <p className="text-sm text-[var(--text-primary)] whitespace-pre-wrap">{expandedComment.content}</p>
+              </div>
+
+              {/* Metadata grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)]">Likes</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] mt-1">{expandedComment.likesCount}</p>
+                </div>
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)]">Replies</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] mt-1">{expandedComment.repliesCount}</p>
+                </div>
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)]">Created</p>
+                  <p className="text-sm text-[var(--text-primary)] mt-1">{new Date(expandedComment.createdAt).toLocaleString()}</p>
+                </div>
+                <div className="bg-[var(--surface)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--text-tertiary)]">Updated</p>
+                  <p className="text-sm text-[var(--text-primary)] mt-1">{new Date(expandedComment.updatedAt).toLocaleString()}</p>
+                </div>
+              </div>
+
+              {expandedComment.hiddenReason && (
+                <div className="bg-[var(--warning)]/5 border border-[var(--warning)]/20 p-3 rounded-lg">
+                  <p className="text-xs text-[var(--warning)] uppercase tracking-wider flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" /> Hidden Reason
+                  </p>
+                  <p className="text-sm text-[var(--text-primary)] mt-1">{expandedComment.hiddenReason}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExpandedComment(null)}>{t('admin.pages.comments.cancel')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Action Dialogs */}
       <Dialog open={actionDialog.type === 'hide'} onOpenChange={(o) => setActionDialog({ type: o ? 'hide' : '', open: o })}>
         <DialogContent>
           <DialogHeader>
