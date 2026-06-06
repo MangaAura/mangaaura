@@ -1775,6 +1775,9 @@
         "deleteTitle": "Eliminar anuncio",
         "deleteDesc": "¿Eliminar este anuncio? Esta acción no se puede deshacer.",
         "deleteButton": "Eliminar",
+        "createError": "Error al crear webhook",
+        "updateError": "Error al actualizar webhook",
+        "deleteError": "Error al eliminar webhook",
         "since": "Desde: {date}",
         "until": "Hasta: {date}"
       },

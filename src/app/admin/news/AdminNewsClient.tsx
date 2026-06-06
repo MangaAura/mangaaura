@@ -413,6 +413,7 @@ function NewsForm({
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => Promise<void>;
 }) {
+  const t = useT();
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [langTab, setLangTab] = useState<'es' | 'en'>('es');
   const [fullscreen, setFullscreen] = useState(false);
@@ -460,7 +461,7 @@ function NewsForm({
 
   const handleSave = async () => {
     if (!title || !excerpt || !content) {
-      setErrorMsg('Título, extracto y contenido son requeridos');
+      setErrorMsg(t('admin.pages.news.formRequired'));
       return;
     }
 
@@ -524,7 +525,7 @@ function NewsForm({
             )}
           >
             <FileText className="w-3.5 h-3.5" />
-            Editar
+            {t('admin.pages.news.tabEdit')}
           </button>
           <button
             type="button"
@@ -537,7 +538,7 @@ function NewsForm({
             )}
           >
             <Monitor className="w-3.5 h-3.5" />
-            Vista previa
+            {t('admin.pages.news.tabPreview')}
           </button>
         </div>
 
@@ -550,7 +551,7 @@ function NewsForm({
               title="Editor a pantalla completa"
             >
               <Maximize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Pantalla completa</span>
+              <span className="hidden sm:inline">{t('admin.pages.news.tabFullscreen')}</span>
             </button>
           )}
           {fullscreen && (
@@ -561,7 +562,7 @@ function NewsForm({
               title="Salir de pantalla completa"
             >
               <Minimize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Salir</span>
+              <span className="hidden sm:inline">{t('admin.pages.news.tabExitFullscreen')}</span>
             </button>
           )}
         </div>
@@ -861,13 +862,13 @@ function NewsForm({
       {!fullscreen && (
         <DialogFooter className={cn(tab === 'preview' ? 'border-t border-[var(--border)] pt-4 mt-2' : 'mt-6')}>
           <Button variant="outline" onClick={onClose}>
-            Cancelar
+            {t('admin.pages.news.buttonCancel')}
           </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {mode === 'create'
-              ? isPublished ? 'Publicar' : 'Guardar Borrador'
-              : 'Guardar Cambios'}
+              ? isPublished ? t('admin.pages.news.buttonPublish') : t('admin.pages.news.buttonSaveDraft')
+              : t('admin.pages.news.buttonSaveChanges')}
           </Button>
         </DialogFooter>
       )}
@@ -876,17 +877,17 @@ function NewsForm({
       {fullscreen && (
         <div className="flex items-center justify-between px-6 py-3 border-t border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-[var(--text-tertiary)]">
-            {mode === 'create' ? 'Creando nueva noticia' : 'Editando noticia'} · Ctrl+S para guardar
+            {mode === 'create' ? t('admin.pages.news.create') : t('admin.pages.news.edit')} · Ctrl+S
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={onClose}>
-              Cancelar
+              {t('admin.pages.news.buttonCancel')}
             </Button>
             <Button size="sm" onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {mode === 'create'
-                ? isPublished ? 'Publicar' : 'Guardar Borrador'
-                : 'Guardar Cambios'}
+                ? isPublished ? t('admin.pages.news.buttonPublish') : t('admin.pages.news.buttonSaveDraft')
+                : t('admin.pages.news.buttonSaveChanges')}
             </Button>
           </div>
         </div>
@@ -923,7 +924,7 @@ export default function AdminNewsClient() {
 
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.error || 'Error al crear noticia');
+      throw new Error(err.error || t('admin.pages.news.createError'));
     }
 
     mutate('/api/admin/news');      toast({ title: t('adminToasts.newsCreated'), variant: 'success' });
@@ -938,7 +939,7 @@ export default function AdminNewsClient() {
 
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.error || 'Error al actualizar noticia');
+      throw new Error(err.error || t('admin.pages.news.updateError'));
     }
 
     mutate('/api/admin/news');
@@ -955,7 +956,7 @@ export default function AdminNewsClient() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al eliminar noticia');
+        throw new Error(err.error || t('admin.errors.deleteError'));
       }
 
       setShowDelete(null);
@@ -963,7 +964,7 @@ export default function AdminNewsClient() {
       toast({ title: t('adminToasts.newsDeleted'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
-      toast({ title: 'Error', description: err.message || t('adminToasts.deleteError'), variant: 'error' });
+      toast({ title: t('common.error'), description: err.message || t('adminToasts.deleteError'), variant: 'error' });
     }
   };
 
@@ -977,14 +978,14 @@ export default function AdminNewsClient() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al cambiar estado');
+        throw new Error(err.error || t('admin.errors.saveError'));
       }
 
       mutate('/api/admin/news');
       toast({ title: article.isPublished ? t('adminToasts.newsUnpublished') : t('adminToasts.newsPublished'), variant: 'success' });
     } catch (err: any) {
       handleError(err);
-      toast({ title: 'Error', description: t('adminToasts.saveError'), variant: 'error' });
+      toast({ title: t('common.error'), description: t('adminToasts.saveError'), variant: 'error' });
     }
   };
 
@@ -998,14 +999,14 @@ export default function AdminNewsClient() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al cambiar destacado');
+        throw new Error(err.error || t('admin.errors.saveError'));
       }
 
       mutate('/api/admin/news');
       toast({ title: article.isFeatured ? t('adminToasts.newsUnfeatured') : t('adminToasts.newsFeatured'), variant: 'success' });
     } catch (err: any) {
       handleError(err);
-      toast({ title: 'Error', description: t('adminToasts.saveError'), variant: 'error' });
+      toast({ title: t('common.error'), description: t('adminToasts.saveError'), variant: 'error' });
     }
   };
 
@@ -1024,9 +1025,9 @@ export default function AdminNewsClient() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Error al cargar noticias</h2>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.pages.news.loadError')}</h2>
         <Button onClick={() => mutate('/api/admin/news')} className="mt-4">
-          Reintentar
+          {t('admin.common.retry')}
         </Button>
       </div>
     );
@@ -1074,7 +1075,7 @@ export default function AdminNewsClient() {
         </div>
         <Button onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Nueva Noticia
+          {t('admin.pages.news.create')}
         </Button>
       </div>
 
@@ -1085,11 +1086,11 @@ export default function AdminNewsClient() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
               <Input
-                placeholder="Buscar noticias..."
+                placeholder={t('admin.pages.news.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
-                aria-label="Buscar noticias"
+                aria-label={t('admin.pages.news.searchAria')}
               />
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -1104,7 +1105,7 @@ export default function AdminNewsClient() {
                       : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                   )}
                 >
-                  Todas ({articles.length})
+                  {t('admin.pages.news.filterAll', { count: articles.length })}
                 </button>
                 <button
                   type="button"
@@ -1116,7 +1117,7 @@ export default function AdminNewsClient() {
                       : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                   )}
                 >
-                  Publicadas ({publishedCount})
+                  {t('admin.pages.news.filterPublished', { count: publishedCount })}
                 </button>
                 <button
                   type="button"
@@ -1128,7 +1129,7 @@ export default function AdminNewsClient() {
                       : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                   )}
                 >
-                  Borradores ({draftCount})
+                  {t('admin.pages.news.filterDraft', { count: draftCount })}
                 </button>
               </div>
             </div>
@@ -1142,17 +1143,17 @@ export default function AdminNewsClient() {
           <CardContent className="py-12 text-center">
             <Newspaper className="w-12 h-12 mx-auto mb-4 text-[var(--text-tertiary)]" />
             <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
-              {searchQuery || filterPublished !== 'all' ? 'Sin resultados' : 'No hay noticias'}
+              {searchQuery || filterPublished !== 'all' ? t('admin.pages.news.noResults') : t('admin.pages.news.noNews')}
             </h3>
             <p className="text-[var(--text-secondary)] mb-4">
               {searchQuery || filterPublished !== 'all'
-                ? 'Intenta con otros filtros o términos de búsqueda.'
-                : 'Crea la primera noticia para mantener informada a la comunidad.'}
+                ? t('admin.pages.news.noResultsHint')
+                : t('admin.pages.news.noNewsHint')}
             </p>
             {!searchQuery && filterPublished === 'all' && (
               <Button onClick={() => setShowCreate(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Crear Noticia
+                {t('admin.pages.news.createFirst')}
               </Button>
             )}
           </CardContent>
@@ -1169,11 +1170,11 @@ export default function AdminNewsClient() {
                       <div className="flex items-center gap-2 flex-wrap mb-2">
                         <Badge variant={article.isPublished ? 'success' : isScheduled ? 'warning' : 'secondary'}>
                           {article.isPublished ? (
-                            <><Globe className="w-3 h-3 mr-1" />Publicada</>
+                            <><Globe className="w-3 h-3 mr-1" />{t('admin.pages.news.statusPublished')}</>
                           ) : isScheduled ? (
-                            <><Clock className="w-3 h-3 mr-1" />Programada</>
+                            <><Clock className="w-3 h-3 mr-1" />{t('admin.pages.news.statusScheduled')}</>
                           ) : (
-                            <><EyeOff className="w-3 h-3 mr-1" />Borrador</>
+                            <><EyeOff className="w-3 h-3 mr-1" />{t('admin.pages.news.statusDraft')}</>
                           )}
                         </Badge>
                         <Badge {...categoryBadge(article.category)} className="capitalize">
@@ -1199,9 +1200,9 @@ export default function AdminNewsClient() {
                         {article.excerpt}
                       </p>
                       <div className="flex items-center gap-3 text-xs text-[var(--text-tertiary)]">
-                        <span>Por: {article.author.displayName || article.author.username}</span>
-                        <span>Creado: {new Date(article.createdAt).toLocaleDateString()}</span>
-                        {article.coverUrl && <span>📷 Portada</span>}
+                        <span>{t('admin.pages.news.byAuthor')} {article.author.displayName || article.author.username}</span>
+                        <span>{t('admin.pages.news.created')}: {new Date(article.createdAt).toLocaleDateString()}</span>
+                        {article.coverUrl && <span>{t('admin.pages.news.covers')}</span>}
                         {article.titleEn && <span>🌐 EN</span>}
                       </div>
                     </div>
@@ -1210,7 +1211,7 @@ export default function AdminNewsClient() {
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleFeatured(article)}
-                        title={article.isFeatured ? 'Quitar destacado' : 'Destacar en homepage'}
+                        title={article.isFeatured ? t('admin.pages.news.toggleUnfeature') : t('admin.pages.news.toggleFeature')}
                       >
                         <Star className={cn(
                           'w-4 h-4',
@@ -1221,7 +1222,7 @@ export default function AdminNewsClient() {
                         variant="ghost"
                         size="icon"
                         onClick={() => togglePublish(article)}
-                        title={article.isPublished ? 'Despublicar' : 'Publicar'}
+                        title={article.isPublished ? t('admin.pages.news.toggleUnpublish') : t('admin.pages.news.togglePublish')}
                       >
                         {article.isPublished ? (
                           <EyeOff className="w-4 h-4 text-[var(--warning)]" />
@@ -1233,7 +1234,7 @@ export default function AdminNewsClient() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setShowEdit(article)}
-                        title="Editar"
+                        title={t('admin.common.edit')}
                       >
                         <Edit className="w-4 h-4 text-[var(--primary)]" />
                       </Button>
@@ -1241,7 +1242,7 @@ export default function AdminNewsClient() {
                         variant="ghost"
                         size="icon"
                         onClick={() => { setShowDelete(article); setErrorMsg(null); }}
-                        title="Eliminar"
+                        title={t('admin.common.delete')}
                       >
                         <Trash2 className="w-4 h-4 text-[var(--error)]" />
                       </Button>
@@ -1263,10 +1264,10 @@ export default function AdminNewsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5 text-[var(--primary)]" />
-              Nueva Noticia
+              {t('admin.pages.news.create')}
             </DialogTitle>
             <DialogDescription>
-              Crea una nueva noticia para informar a la comunidad. Usa el editor visual para dar formato al contenido.
+              {t('admin.pages.news.createDesc')}
             </DialogDescription>
           </DialogHeader>
           <NewsForm
@@ -1286,10 +1287,10 @@ export default function AdminNewsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit className="w-5 h-5 text-[var(--primary)]" />
-              Editar Noticia
+              {t('admin.pages.news.edit')}
             </DialogTitle>
             <DialogDescription>
-              Actualiza los detalles de la noticia. Los cambios se guardarán al hacer clic en "Guardar Cambios".
+              {t('admin.pages.news.editDesc')}
             </DialogDescription>
           </DialogHeader>
           {showEdit && (
@@ -1322,10 +1323,10 @@ export default function AdminNewsClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-[var(--error)]" />
-              Eliminar Noticia
+              {t('admin.pages.news.delete')}
             </DialogTitle>
             <DialogDescription>
-              Esta acción no se puede deshacer. La noticia se eliminará permanentemente.
+              {t('admin.pages.news.deleteDesc')}
             </DialogDescription>
           </DialogHeader>
           {showDelete && (
@@ -1344,11 +1345,11 @@ export default function AdminNewsClient() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDelete(null)}>
-              Cancelar
+              {t('admin.pages.news.buttonCancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Eliminar
+              {t('admin.pages.news.buttonDelete')}
             </Button>
           </DialogFooter>
         </DialogContent>

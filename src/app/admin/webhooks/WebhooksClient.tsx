@@ -111,7 +111,7 @@ export function WebhooksClient() {
 
   const handleCreate = async () => {
     if (!formUrl || formEvents.length === 0) {
-      setErrorMsg('URL y al menos un evento son requeridos');
+      setErrorMsg(t('admin.pages.webhooks.urlRequired'));
       return;
     }
 
@@ -132,7 +132,7 @@ export function WebhooksClient() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al crear webhook');
+        throw new Error(err.error || t('admin.pages.webhooks.createError'));
       }
 
       resetForm();
@@ -141,7 +141,7 @@ export function WebhooksClient() {
       toast({ title: t('adminToasts.webhookCreated'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
-      toast({ title: 'Error', description: err.message, variant: 'error' });
+      toast({ title: t('common.error'), description: err.message, variant: 'error' });
     } finally {
       setSaving(false);
     }
@@ -150,7 +150,7 @@ export function WebhooksClient() {
   const handleEdit = async () => {
     if (!showEdit) return;
     if (!formUrl || formEvents.length === 0) {
-      setErrorMsg('URL y al menos un evento son requeridos');
+      setErrorMsg(t('admin.pages.webhooks.urlRequired'));
       return;
     }
 
@@ -174,7 +174,7 @@ export function WebhooksClient() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al actualizar webhook');
+        throw new Error(err.error || t('admin.pages.webhooks.updateError'));
       }
 
       setShowEdit(null);
@@ -183,7 +183,7 @@ export function WebhooksClient() {
       toast({ title: t('adminToasts.webhookUpdated'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
-      toast({ title: 'Error', description: err.message, variant: 'error' });
+      toast({ title: t('common.error'), description: err.message, variant: 'error' });
     } finally {
       setSaving(false);
     }
@@ -199,7 +199,7 @@ export function WebhooksClient() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Error al eliminar webhook');
+        throw new Error(err.error || t('admin.pages.webhooks.deleteError'));
       }
 
       setShowDelete(null);
@@ -207,7 +207,7 @@ export function WebhooksClient() {
       toast({ title: t('adminToasts.webhookDeleted'), variant: 'success' });
     } catch (err: any) {
       setErrorMsg(err.message);
-      toast({ title: 'Error', description: err.message, variant: 'error' });
+      toast({ title: t('common.error'), description: err.message, variant: 'error' });
     }
   };
 
@@ -273,7 +273,7 @@ export function WebhooksClient() {
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-[var(--error)]" />
         <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t('admin.errors.loadError')}</h2>
         <Button onClick={() => mutate('/api/admin/webhooks')} className="mt-4">
-          Reintentar
+          {t('admin.common.retry')}
         </Button>
       </div>
     );
@@ -309,7 +309,7 @@ export function WebhooksClient() {
             </p>
             <Button onClick={() => { resetForm(); setShowCreate(true); }}>
               <Plus className="w-4 h-4 mr-2" />
-              Crear Webhook
+              {t('admin.pages.webhooks.createFirst')}
             </Button>
           </CardContent>
         </Card>
@@ -326,7 +326,7 @@ export function WebhooksClient() {
                         {endpoint.description || endpoint.url}
                       </h3>
                       <Badge variant={endpoint.isActive ? 'success' : 'secondary'}>
-                        {endpoint.isActive ? 'Activo' : 'Inactivo'}
+                        {endpoint.isActive ? t('admin.pages.webhooks.active') : t('admin.pages.webhooks.inactive')}
                       </Badge>
                     </div>
                     <p className="text-sm text-[var(--text-tertiary)] truncate mb-2">{endpoint.url}</p>
@@ -338,11 +338,11 @@ export function WebhooksClient() {
                       ))}
                     </div>
                     <div className="flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
-                      <span>Fallos: {endpoint.failureCount}</span>
+                      <span>{t('admin.pages.webhooks.failures', { count: endpoint.failureCount })}</span>
                       {endpoint.lastTriggeredAt && (
-                        <span>Último: {new Date(endpoint.lastTriggeredAt).toLocaleString()}</span>
+                        <span>{t('admin.pages.webhooks.lastTrigger', { date: new Date(endpoint.lastTriggeredAt).toLocaleString() })}</span>
                       )}
-                      <span>Creado: {new Date(endpoint.createdAt).toLocaleDateString()}</span>
+                      <span>{t('admin.pages.webhooks.created', { date: new Date(endpoint.createdAt).toLocaleDateString() })}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 ml-4">
@@ -351,7 +351,7 @@ export function WebhooksClient() {
                       size="icon"
                       onClick={() => handleTest(endpoint)}
                       disabled={testingId === endpoint.id}
-                      title="Probar webhook"
+                      title={t('admin.pages.webhooks.test')}
                     >
                       {testingId === endpoint.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -363,7 +363,7 @@ export function WebhooksClient() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowDeliveries(endpoint)}
-                      title="Ver entregas"
+                      title={t('admin.pages.webhooks.viewDeliveries')}
                     >
                       <Clock className="w-4 h-4 text-[var(--warning)]" />
                     </Button>
@@ -371,7 +371,7 @@ export function WebhooksClient() {
                       variant="ghost"
                       size="icon"
                       onClick={() => openEdit(endpoint)}
-                      title="Editar"
+                      title={t('admin.common.edit')}
                     >
                       <Edit className="w-4 h-4 text-[var(--primary)]" />
                     </Button>
@@ -379,7 +379,7 @@ export function WebhooksClient() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowDelete(endpoint)}
-                      title="Eliminar"
+                      title={t('admin.common.delete')}
                     >
                       <Trash2 className="w-4 h-4 text-[var(--error)]" />
                     </Button>
@@ -390,7 +390,7 @@ export function WebhooksClient() {
                   <div className="mt-4 pt-4 border-t border-[var(--border)]">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-medium text-[var(--text-primary)]">
-                        Entregas Recientes
+                        {t('admin.pages.webhooks.recentDeliveries')}
                       </h4>
                       <Button
                         variant="ghost"
@@ -398,7 +398,7 @@ export function WebhooksClient() {
                         onClick={() => setShowDeliveries(null)}
                       >
                         <EyeOff className="w-4 h-4 mr-1" />
-                        Ocultar
+                        {t('admin.pages.webhooks.hideDeliveries')}
                       </Button>
                     </div>
                     {endpoint.recentDeliveries && endpoint.recentDeliveries.length > 0 ? (
@@ -437,14 +437,14 @@ export function WebhooksClient() {
                                 ) : (
                                   <RefreshCw className="w-3 h-3" />
                                 )}
-                                Reintentar
+                                {t('admin.pages.webhooks.retryDelivery')}
                               </Button>
                             )}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-[var(--text-tertiary)]">Sin entregas recientes</p>
+                      <p className="text-sm text-[var(--text-tertiary)]">{t('admin.pages.webhooks.noDeliveries')}</p>
                     )}
                   </div>
                 )}
@@ -460,45 +460,45 @@ export function WebhooksClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
-              Nuevo Webhook
+              {t('admin.pages.webhooks.createTitle')}
             </DialogTitle>
             <DialogDescription>
-              Configura un nuevo endpoint para recibir eventos de MangaAura.
+              {t('admin.pages.webhooks.createDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="webhook-url">URL del Webhook</Label>
+              <Label htmlFor="webhook-url">{t('admin.pages.webhooks.url')}</Label>
               <Input
                 id="webhook-url"
-                placeholder="https://ejemplo.com/webhook"
+                placeholder={t('admin.pages.webhooks.urlPlaceholder')}
                 value={formUrl}
                 onChange={(e) => setFormUrl(e.target.value)}
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="webhook-secret">Secreto (HMAC)</Label>
+              <Label htmlFor="webhook-secret">{t('admin.pages.webhooks.secret')}</Label>
               <Input
                 id="webhook-secret"
-                placeholder="Dejar vacío para auto-generar"
+                placeholder={t('admin.pages.webhooks.secretPlaceholder')}
                 value={formSecret}
                 onChange={(e) => setFormSecret(e.target.value)}
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="webhook-desc">Descripción</Label>
+              <Label htmlFor="webhook-desc">{t('admin.pages.webhooks.description')}</Label>
               <Input
                 id="webhook-desc"
-                placeholder="Opcional"
+                placeholder={t('admin.pages.webhooks.descriptionPlaceholder')}
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 className="mt-1"
               />
             </div>
             <div>
-              <Label>Eventos</Label>
+              <Label>{t('admin.pages.webhooks.events')}</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {AVAILABLE_EVENTS.map((event) => (
                   <label
@@ -543,11 +543,11 @@ export function WebhooksClient() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>
-              Cancelar
+              {t('admin.pages.webhooks.cancel')}
             </Button>
             <Button onClick={handleCreate} disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Crear Webhook
+              {t('admin.pages.webhooks.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -559,15 +559,15 @@ export function WebhooksClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit className="w-5 h-5" />
-              Editar Webhook
+              {t('admin.pages.webhooks.editTitle')}
             </DialogTitle>
             <DialogDescription>
-              Actualiza la configuración del webhook.
+              {t('admin.pages.webhooks.editDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-url">URL del Webhook</Label>
+              <Label htmlFor="edit-url">{t('admin.pages.webhooks.url')}</Label>
               <Input
                 id="edit-url"
                 value={formUrl}
@@ -576,17 +576,17 @@ export function WebhooksClient() {
               />
             </div>
             <div>
-              <Label htmlFor="edit-secret">Nuevo Secreto (dejar vacío para mantener)</Label>
+              <Label htmlFor="edit-secret">{t('admin.pages.webhooks.newSecret')}</Label>
               <Input
                 id="edit-secret"
-                placeholder="Dejar vacío para mantener el actual"
+                placeholder={t('admin.pages.webhooks.secretEditPlaceholder')}
                 value={formSecret}
                 onChange={(e) => setFormSecret(e.target.value)}
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="edit-desc">Descripción</Label>
+              <Label htmlFor="edit-desc">{t('admin.pages.webhooks.description')}</Label>
               <Input
                 id="edit-desc"
                 value={formDescription}
@@ -596,13 +596,13 @@ export function WebhooksClient() {
             </div>
             <div className="flex items-center justify-between p-3 bg-[var(--surface-sunken)] rounded-lg">
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Activo</p>
-                <p className="text-xs text-[var(--text-tertiary)]">Habilitar o deshabilitar este webhook</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{t('admin.pages.webhooks.activeLabel')}</p>
+                <p className="text-xs text-[var(--text-tertiary)]">{t('admin.pages.webhooks.activeDesc')}</p>
               </div>
               <Switch checked={formActive} onCheckedChange={setFormActive} />
             </div>
             <div>
-              <Label>Eventos</Label>
+              <Label>{t('admin.pages.webhooks.events')}</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {AVAILABLE_EVENTS.map((event) => (
                   <label
@@ -647,11 +647,11 @@ export function WebhooksClient() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEdit(null)}>
-              Cancelar
+              {t('admin.pages.webhooks.cancel')}
             </Button>
             <Button onClick={handleEdit} disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Guardar Cambios
+              {t('admin.pages.webhooks.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -663,10 +663,10 @@ export function WebhooksClient() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-[var(--error)]" />
-              Eliminar Webhook
+              {t('admin.pages.webhooks.deleteTitle')}
             </DialogTitle>
             <DialogDescription>
-              Esta acción no se puede deshacer. Se eliminarán todas las entregas asociadas.
+              {t('admin.pages.webhooks.deleteDesc')}
             </DialogDescription>
           </DialogHeader>
           {showDelete && (
@@ -685,11 +685,11 @@ export function WebhooksClient() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDelete(null)}>
-              Cancelar
+              {t('admin.pages.webhooks.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Eliminar
+              {t('admin.pages.webhooks.deleteButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
