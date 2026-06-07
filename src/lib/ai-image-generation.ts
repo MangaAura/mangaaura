@@ -325,7 +325,7 @@ export class GeminiProvider implements ImageGenerationProvider {
     // Gemini 3 Pro Image: uses generateContent with responseModalities: ['Image', 'Text']
     // This tells the model to return an image inline as base64 data
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro:generateContent?key=${this.apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent?key=${this.apiKey}`,
       {
         method: 'POST',
         headers: {
