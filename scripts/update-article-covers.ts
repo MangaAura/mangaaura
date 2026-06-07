@@ -163,8 +163,11 @@ function resolveCover(article: { title: string; excerpt: string; category: strin
   const text = `${article.title} ${article.excerpt}`.toLowerCase();
 
   // 1. Try topic keyword match first (most specific)
+  //    Uses word-boundary regex to avoid false positives from short keywords.
   for (const [keyword, url] of Object.entries(TOPIC_COVERS)) {
-    if (text.includes(keyword)) {
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`\\b${escaped}\\b`, 'i');
+    if (pattern.test(text)) {
       return url;
     }
   }
