@@ -8,6 +8,8 @@ import { fetcher } from '@/lib/swr-config';
 interface UseAuraBalanceOptions {
   /** How often to poll the balance in ms. Default 30000. */
   refreshInterval?: number;
+  /** Initial balance fetched server-side. Used as fallback before SWR resolves. */
+  initialBalance?: number;
 }
 
 interface UseAuraBalanceReturn {
@@ -30,10 +32,13 @@ interface UseAuraBalanceReturn {
 export function useAuraBalance(
   options: UseAuraBalanceOptions = {},
 ): UseAuraBalanceReturn {
-  const { refreshInterval = 30000 } = options;
+  const { refreshInterval = 30000, initialBalance } = options;
   const { data: session } = useSession();
   const sessionBalance =
     (session?.user as { auraBalance?: number } | undefined)?.auraBalance;
+
+  // Priority: initialBalance (server-side) > sessionBalance (JWT) > 0
+  const fallback = initialBalance ?? sessionBalance ?? 0;
 
   const { data, mutate } = useSWR<{ auraBalance?: number }>(
     session?.user ? '/api/economy/balance' : null,
@@ -42,11 +47,11 @@ export function useAuraBalance(
       refreshInterval: session?.user ? refreshInterval : undefined,
       revalidateOnFocus: true,
       revalidateIfStale: true,
-      fallbackData: session?.user ? { auraBalance: sessionBalance ?? 0 } : undefined,
+      fallbackData: session?.user ? { auraBalance: fallback } : undefined,
     },
   );
 
-  const auraBalance = data?.auraBalance ?? sessionBalance ?? 0;
+  const auraBalance = data?.auraBalance ?? fallback;
 
   return { auraBalance, refreshBalance: mutate };
 }

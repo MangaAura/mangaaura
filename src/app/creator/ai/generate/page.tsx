@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
 
+import { GenerateImageClient } from './GenerateImageClient';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
-
-import { GenerateImageClient } from './GenerateImageClient';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
@@ -31,6 +32,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function GenerateImagePage() {
-  return <GenerateImageClient />;
+export default async function GenerateImagePage() {
+  // Fetch the real aura balance server-side so the client never flashes 0
+  let initialAuraBalance = 0;
+  try {
+    const session = await auth();
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { auraBalance: true },
+      });
+      initialAuraBalance = user?.auraBalance ?? 0;
+    }
+  } catch {
+    // Fallback to 0 if auth/DB fails on the server
+    initialAuraBalance = 0;
+  }
+
+  return <GenerateImageClient initialAuraBalance={initialAuraBalance} />;
 }

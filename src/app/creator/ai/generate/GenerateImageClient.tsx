@@ -92,7 +92,11 @@ interface HistoryResponse {
 
 // ─── Client Component ───────────────────────────────────────────────────
 
-export function GenerateImageClient() {
+interface GenerateImageClientProps {
+  initialAuraBalance?: number;
+}
+
+export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientProps) {
   const t = useT();
 
   // ── Preset prompts (i18n) ─────────────────────────────────────────
@@ -105,7 +109,11 @@ export function GenerateImageClient() {
     t('creator.imageGeneration.presetPrompt6'),
   ];
   // Poll every 10s so admin-added Aura reflects quickly
-  const { auraBalance, refreshBalance } = useAuraBalance({ refreshInterval: 10000 });
+  // initialAuraBalance comes from the server component so there's no flash of 0
+  const { auraBalance, refreshBalance } = useAuraBalance({
+    refreshInterval: 10000,
+    initialBalance: initialAuraBalance,
+  });
 
   const router = useRouter();
 
