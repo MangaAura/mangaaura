@@ -41,6 +41,7 @@ export function useAuraBalance(
     {
       refreshInterval: session?.user ? refreshInterval : undefined,
       revalidateOnFocus: true,
+      revalidateIfStale: true,
       fallbackData: session?.user ? { auraBalance: sessionBalance ?? 0 } : undefined,
     },
   );

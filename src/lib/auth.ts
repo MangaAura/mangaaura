@@ -289,15 +289,17 @@ if (user) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { twoFactorEnabled: true, emailVerified: true },
+            select: { twoFactorEnabled: true, emailVerified: true, auraBalance: true },
           });
           token.twoFactorEnabled = dbUser?.twoFactorEnabled ?? false;
           if (token.twoFactorEnabled) {
             token.twoFactorPending = true;
           }
           token.emailVerified = dbUser?.emailVerified?.toISOString() ?? null;
+          token.auraBalance = dbUser?.auraBalance ?? 0;
         } catch {
           token.twoFactorEnabled = false;
+          token.auraBalance = 0;
         }
       }
 
@@ -313,6 +315,7 @@ if (user) {
             level: true,
             role: true,
             twoFactorEnabled: true,
+            auraBalance: true,
           },
         });
 
@@ -324,6 +327,7 @@ if (user) {
           token.level = dbUser.level;
           token.role = dbUser.role;
           token.twoFactorEnabled = dbUser.twoFactorEnabled;
+          token.auraBalance = dbUser.auraBalance;
 
           // Refresh permissions on OAuth re-auth
           try {
@@ -375,6 +379,7 @@ if (user) {
         session.user.twoFactorEnabled = token.twoFactorEnabled as boolean;
         session.user.twoFactorPending = token.twoFactorPending as boolean | undefined;
         session.user.emailVerified = token.emailVerified as string | null | undefined;
+        session.user.auraBalance = token.auraBalance as number;
       }
       return session;
     },
