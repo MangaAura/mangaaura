@@ -17,7 +17,9 @@ export type NotificationType =
   | 'RATED_MANGA'
   | 'REFERRAL_SIGNUP'
   | 'REFERRAL_BONUS_UNLOCKED'
-  | 'FRIEND_REQUEST';
+  | 'FRIEND_REQUEST'
+  | 'IMAGE_LIKE'
+  | 'IMAGE_COMMENT';
 
 export interface NotificationRecord {
   id: string;

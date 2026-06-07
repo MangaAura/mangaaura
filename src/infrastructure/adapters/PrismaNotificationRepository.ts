@@ -5,6 +5,7 @@ import type {
   NotificationRecord,
   CreateNotificationData,
 } from '@/core/services/INotificationRepository';
+import { emitNotification } from '@/lib/socket';
 import { prisma } from '@/lib/prisma';
 import { sendPushNotification } from '@/lib/push-notifications';
 
@@ -167,7 +168,11 @@ export class PushNotificationAdapter implements IPushNotificationService {
 }
 
 export class RealtimeNotificationAdapter implements IRealtimeNotificationService {
-  emitToUser(_userId: string, _notification: Record<string, unknown>): void {
-    // Socket notifications disabled — using polling instead
+  emitToUser(userId: string, notification: Record<string, unknown>): void {
+    try {
+      emitNotification(userId, notification);
+    } catch (error) {
+      console.error('[RealtimeNotificationAdapter] Error emitting notification:', error);
+    }
   }
 }

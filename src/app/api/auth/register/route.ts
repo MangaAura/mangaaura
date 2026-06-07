@@ -181,6 +181,20 @@ export async function POST(request: NextRequest) {
       console.error('[Register] Error sending welcome email:', emailError);
     });
 
+    // Programar secuencia de onboarding (días 1, 3, 7) via BullMQ queue
+    import('@/infrastructure/queue/EmailQueue').then(async ({ getEmailQueue }) => {
+      const queue = getEmailQueue();
+      const baseData = { to: user.email, userId: user.id, username: user.username };
+      await Promise.all([
+        queue.addOnboardingDay1Email(baseData).catch(e => console.error('[Register] Error queueing onboarding day 1:', e)),
+        queue.addOnboardingDay3Email(baseData).catch(e => console.error('[Register] Error queueing onboarding day 3:', e)),
+        queue.addOnboardingDay7Email(baseData).catch(e => console.error('[Register] Error queueing onboarding day 7:', e)),
+      ]);
+      console.info('[Register] Onboarding sequence scheduled for', user.email);
+    }).catch((err: unknown) => {
+      console.error('[Register] Error scheduling onboarding sequence:', err);
+    });
+
     // Crear token de verificación (fire-and-forget, no bloquea la respuesta)
     const verifyToken = crypto.randomBytes(32).toString('hex');
     prisma.verificationToken.create({

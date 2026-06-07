@@ -1,111 +1,4 @@
-import { NextResponse } from 'next/server';
-
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-
-const AUTHOR_ID = "7e054872-aa97-4f0e-a354-ed7318a51c1f";
-
-const ARTICLES = [
-  {
-    title: "Mejores páginas para leer manga en español en 2026",
-    slug: "mejores-paginas-leer-manga-espanol",
-    excerpt: "¿Buscas las mejores páginas para leer manga en español? Te presentamos las plataformas más completas con catálogo en español, actualizaciones diarias y funciones exclusivas como gamificación.",
-    category: "platform",
-    content: `<p>Encontrar páginas para leer manga en español de calidad es más fácil que nunca. La demanda de contenido en español ha crecido enormemente, y las plataformas responden cada vez mejor a esta necesidad. Pero no todas las opciones son iguales.</p><p>En esta guía analizamos las mejores plataformas para leer manga en español, comparando catálogo, calidad de lectura, funciones sociales y modelos de monetización. Si eres lector de manga en español, esto te interesa.</p><h2>MangaAura — la plataforma con gamificación</h2><p>MangaAura es una de las pocas plataformas que combina lectura gratuita con un sistema completo de gamificación. Ganas XP por cada capítulo que lees, subes de nivel, desbloqueas logros y compites en rankings con otros lectores. Además, su catálogo en español crece cada semana con nuevas obras de creadores independientes.</p><p>Los creadores pueden publicar sus obras directamente y recibir apoyo mediante crowdfunding con Aura, la moneda virtual de la plataforma. Esto crea un ecosistema donde leer y crear se retroalimentan.</p><h2>MangaPlus — lo oficial de Shueisha</h2><p>MangaPlus es la plataforma oficial de Shueisha. Ofrece los primeros y últimos capítulos de series como One Piece, Jujutsu Kaisen y My Hero Academia gratis. Su catálogo en español incluye los títulos más populares del momento.</p><h2>Webtoon — el gigante de los webcomics</h2><p>Webtoon domina el mercado del webcomic global. Aunque su formato es vertical (scroll infinito), tiene un catálogo masivo traducido al español. Su punto fuerte es la detección de nuevos talentos a través del programa Canvas.</p><h2>Conclusión: ¿cuál elegir?</h2><p>Si buscas variedad y funciones sociales, MangaAura es la opción más innovadora. Si quieres los grandes títulos de Shueisha al día, MangaPlus. Y si prefieres webcomics en formato vertical, Webtoon. Lo mejor es combinar varias plataformas y disfrutar de lo mejor de cada una.</p>`,
-    titleEn: "Best pages to read manga in Spanish in 2026",
-    excerptEn: "Looking for the best pages to read manga in Spanish? We present the most complete platforms with Spanish catalog, daily updates, and exclusive features like gamification.",
-    contentEn: `<p>Finding quality pages to read manga in Spanish is easier than ever. The demand for Spanish content has grown enormously, and platforms are responding to this need. But not all options are the same.</p><p>In this guide we analyze the best platforms to read manga in Spanish, comparing catalog, reading quality, social features, and monetization models. If you're a Spanish manga reader, this is for you.</p><h2>MangaAura — the gamified platform</h2><p>MangaAura is one of the few platforms that combines free reading with a complete gamification system. You earn XP for every chapter you read, level up, unlock achievements, and compete in rankings with other readers. Plus, its Spanish catalog grows weekly with new works from independent creators.</p><h2>MangaPlus — official Shueisha</h2><p>MangaPlus is Shueisha's official platform. It offers the first and latest chapters of series like One Piece, Jujutsu Kaisen, and My Hero Academia for free. Its Spanish catalog includes the most popular titles of the moment.</p><h2>Webtoon — the webcomic giant</h2><p>Webtoon dominates the global webcomic market. Although its format is vertical (infinite scroll), it has a massive catalog translated into Spanish. Its strength is discovering new talent through the Canvas program.</p><h2>Conclusion: which to choose?</h2><p>If you want variety and social features, MangaAura is the most innovative option. If you want the latest Shueisha hits, MangaPlus. And if you prefer vertical webcomics, Webtoon. The best approach is to combine multiple platforms.</p>`,
-  },
-  {
-    title: "Aplicaciones para dibujar manga en PC y tablet",
-    slug: "aplicaciones-dibujar-manga-pc-tablet",
-    excerpt: "Descubre las mejores aplicaciones para dibujar manga en PC y tablet. Desde Clip Studio Paint hasta herramientas gratuitas como Krita. Comparativa completa para mangakas.",
-    category: "creator",
-    content: `<p>Si quieres crear tu propio manga, necesitas las herramientas adecuadas. Las aplicaciones para dibujar manga han evolucionado muchísimo, y hoy existen opciones para todos los presupuestos y niveles de experiencia.</p><h2>Clip Studio Paint — el estándar profesional</h2><p>Clip Studio Paint es la herramienta favorita de los mangakas profesionales. Ofrece pinceles especializados para entintado, tramas (screen tones) y herramientas de perspectiva. Su versión EX permite manejar páginas múltiples y tiene funciones de exportación directa para publicación.</p><h2>Krita — la mejor opción gratuita</h2><p>Krita es un software de código abierto ideal para mangakas que empiezan. Sus pinceles para tinta imitan perfectamente el trazo tradicional, y su motor de estabilización de trazo es de los mejores del mercado gratuito.</p><h2>Procreate — para iPad</h2><p>Procreate se ha convertido en la herramienta de referencia para dibujar en iPad. Su interfaz intuitiva y su potente motor de pinceles lo hacen perfecto para esbozar ideas y crear páginas completas.</p><h2>Publica tu obra en MangaAura</h2><p>Una vez que tengas tus páginas listas, MangaAura te permite publicarlas directamente. Los creadores pueden subir sus capítulos, recibir feedback de la comunidad y monetizar su trabajo mediante crowdfunding y propinas con Aura, la moneda virtual de la plataforma.</p>`,
-    titleEn: "Best apps to draw manga on PC and tablet",
-    excerptEn: "Discover the best applications for drawing manga on PC and tablet. From Clip Studio Paint to free tools like Krita. Complete comparison for mangakas.",
-    contentEn: `<p>If you want to create your own manga, you need the right tools. Drawing manga applications have evolved enormously, and today there are options for all budgets and experience levels.</p><h2>Clip Studio Paint — the professional standard</h2><p>Clip Studio Paint is the favorite tool of professional mangakas. It offers specialized brushes for inking, screen tones, and perspective tools. Its EX version handles multiple pages and has direct export for publication.</p><h2>Krita — the best free option</h2><p>Krita is open-source software ideal for starting mangakas. Its inking brushes perfectly imitate traditional strokes, and its stroke stabilization engine is among the best in the free market.</p><h2>Publish your work on MangaAura</h2><p>Once your pages are ready, MangaAura lets you publish them directly. Creators can upload chapters, receive community feedback, and monetize their work through crowdfunding and tips with Aura, the platform's virtual currency.</p>`,
-  },
-  {
-    title: "Cómo ganar dinero dibujando manga en 2026",
-    slug: "como-ganar-dinero-dibujando-manga-2026",
-    excerpt: "Aprende cómo ganar dinero dibujando manga en 2026. Plataformas de publicación, crowdfunding, comisiones, merchandising y las mejores estrategias de monetización para mangakas.",
-    category: "creator",
-    content: `<p>Ganar dinero dibujando manga es el sueño de muchos artistas. En 2026, las oportunidades son mayores que nunca gracias a las plataformas digitales, el crowdfunding y las nuevas herramientas de IA que facilitan la producción.</p><h2>Publicación directa en plataformas</h2><p>Plataformas como MangaAura permiten a los creadores publicar sus obras directamente y recibir ingresos mediante crowdfunding de capítulos y propinas con Aura. Los lectores pueden apoyar económicamente a sus mangakas favoritos, y los creadores reciben el 100% del soporte directo.</p><h2>Crowdfunding de capítulos</h2><p>El crowdfunding de capítulos es un modelo innovador donde los lectores financian la creación de nuevos capítulos. Cuando se alcanza el objetivo de financiación, el creador produce el capítulo y todos los contribuyentes lo reciben automáticamente. Es una forma sostenible de crear contenido de calidad.</p><h2>Comisiones y patreon</h2><p>Además de las plataformas de publicación, muchos mangakas complementan sus ingresos con comisiones personalizadas y suscripciones en Patreon. Ofrecer contenido exclusivo a los seguidores más fieles es una estrategia probada.</p><h2>Merchandising digital</h2><p>Vender prints, fondos de pantalla y recursos para otros creadores es otra fuente de ingresos creciente. La clave está en diversificar: no pongas todos los huevos en una sola cesta.</p>`,
-    titleEn: "How to make money drawing manga in 2026",
-    excerptEn: "Learn how to make money drawing manga in 2026. Publishing platforms, crowdfunding, commissions, merchandising, and the best monetization strategies for mangakas.",
-    contentEn: `<p>Making money drawing manga is many artists' dream. In 2026, opportunities are greater than ever thanks to digital platforms, crowdfunding, and new AI tools that streamline production.</p><h2>Direct publication on platforms</h2><p>Platforms like MangaAura let creators publish their work directly and earn income through chapter crowdfunding and Aura tips. Readers can financially support their favorite mangakas, and creators receive 100% of direct support.</p><h2>Chapter crowdfunding</h2><p>Chapter crowdfunding is an innovative model where readers finance the creation of new chapters. When the funding goal is reached, the creator produces the chapter and all contributors receive it automatically.</p><h2>Commissions and Patreon</h2><p>Many mangakas supplement their income with custom commissions and Patreon subscriptions. Offering exclusive content to loyal followers is a proven strategy.</p>`,
-  },
-  {
-    title: "Mejores plataformas para publicar manga online",
-    slug: "mejores-plataformas-publicar-manga-online",
-    excerpt: "Comparamos las mejores plataformas para publicar manga online en 2026. MangaAura, Webtoon, Tapas y más. Descubre cuál se adapta mejor a tu estilo y objetivos como creador.",
-    category: "creator",
-    content: `<p>Publicar manga online nunca ha sido tan accesible. Las plataformas actuales ofrecen herramientas para que cualquier creador pueda compartir su obra con el mundo, construir una audiencia y monetizar su trabajo. Pero elegir la plataforma adecuada marca la diferencia.</p><h2>MangaAura — la plataforma todo-en-uno</h2><p>MangaAura destaca por combinar lectura, creación y monetización en un solo ecosistema. Los creadores pueden publicar capítulos, recibir apoyo mediante crowdfunding, conectar con lectores a través de clanes y chats, y utilizar herramientas de IA para acelerar su producción. Además, el sistema de gamificación incentiva a los lectores a descubrir y apoyar nuevas obras.</p><h2>Webtoon — el gigante establecido</h2><p>Webtoon sigue siendo la plataforma más grande para webcomics. Su programa Canvas permite a cualquier creador publicar, y los más exitosos pueden ser aceptados en el programa Original, que ofrece financiación y producción profesional.</p><h2>Tapas — el equilibrio</h2><p>Tapas ofrece un modelo híbrido con publicidad y sistema de monedas. Es especialmente popular para novelas ligeras y webcomics. Su comunidad es activa y el sistema de descubrimiento es bastante bueno.</p><h2>¿Cuál elegir?</h2><p>Si eres creador independiente y quieres control total sobre tu obra con opciones de monetización directa, MangaAura es tu mejor opción. Si buscas audiencia masiva, Webtoon. Y si quieres un equilibrio entre ambos, Tapas. Muchos creadores publican en múltiples plataformas simultáneamente.</p>`,
-    titleEn: "Best platforms to publish manga online",
-    excerptEn: "We compare the best platforms to publish manga online in 2026. MangaAura, Webtoon, Tapas and more. Discover which one fits your style and goals as a creator.",
-    contentEn: `<p>Publishing manga online has never been more accessible. Today's platforms offer tools for any creator to share their work with the world, build an audience, and monetize their work. But choosing the right platform makes all the difference.</p><h2>MangaAura — the all-in-one platform</h2><p>MangaAura stands out by combining reading, creation, and monetization in a single ecosystem. Creators can publish chapters, receive support through crowdfunding, connect with readers through clans and chats, and use AI tools to speed up their production.</p><h2>Webtoon — the established giant</h2><p>Webtoon remains the largest platform for webcomics. Its Canvas program lets anyone publish, and the most successful can be accepted into the Original program, which offers funding and professional production.</p><h2>Tapas — the balanced option</h2><p>Tapas offers a hybrid model with advertising and a coin system. It's especially popular for light novels and webcomics. Its community is active and the discovery system is quite good.</p>`,
-  },
-  {
-    title: "Qué es el crowdfunding de manga y cómo funciona",
-    slug: "crowdfunding-manga-como-funciona",
-    excerpt: "Descubre qué es el crowdfunding de manga, cómo funciona y por qué está revolucionando la forma en que los creadores financian sus obras. Guía completa para lectores y mangakas.",
-    category: "features",
-    content: `<p>El crowdfunding ha transformado la forma en que se financian proyectos creativos, y el manga no es una excepción. Cada vez más creadores recurren al crowdfunding para producir sus capítulos, y plataformas como MangaAura han integrado este modelo directamente en la experiencia de lectura.</p><h2>¿Qué es el crowdfunding de manga?</h2><p>El crowdfunding de manga es un sistema donde los lectores contribuyen económicamente a la creación de nuevos capítulos. A diferencia del mecenazgo tradicional, aquí cada capítulo tiene un objetivo de financiación específico. Cuando los lectores alcanzan ese objetivo, el creador produce el capítulo y todos los contribuyentes tienen acceso inmediato.</p><h2>¿Cómo funciona en MangaAura?</h2><p>En MangaAura, los creadores pueden establecer objetivos de financiación para cada capítulo. Los lectores contribuyen con Aura, la moneda virtual de la plataforma. Cuando se alcanza el objetivo, el capítulo se desbloquea para todos los contribuyentes. Los creadores reciben el soporte directamente, sin intermediarios que se queden un porcentaje.</p><h2>Ventajas para creadores</h2><p>El crowdfunding ofrece varias ventajas: ingresos predecibles, feedback inmediato de los lectores, y una comunidad más comprometida. Los creadores saben exactamente qué capítulos tienen demanda y pueden planificar su producción en consecuencia.</p><h2>Ventajas para lectores</h2><p>Los lectores no solo acceden a contenido exclusivo, sino que forman parte activa del proceso creativo. Cada contribución tiene un impacto directo en la producción del manga que aman.</p>`,
-    titleEn: "What is manga crowdfunding and how it works",
-    excerptEn: "Discover what manga crowdfunding is, how it works, and why it's revolutionizing how creators finance their works. Complete guide for readers and mangakas.",
-    contentEn: `<p>Crowdfunding has transformed how creative projects are financed, and manga is no exception. More and more creators are turning to crowdfunding to produce their chapters, and platforms like MangaAura have integrated this model directly into the reading experience.</p><h2>What is manga crowdfunding?</h2><p>Manga crowdfunding is a system where readers financially contribute to creating new chapters. Unlike traditional patronage, each chapter has a specific funding goal. When readers reach that goal, the creator produces the chapter and all contributors get immediate access.</p><h2>How it works on MangaAura</h2><p>On MangaAura, creators set funding goals for each chapter. Readers contribute with Aura, the platform's virtual currency. When the goal is reached, the chapter unlocks for all contributors. Creators receive support directly, without intermediaries taking a cut.</p>`,
-  },
-  {
-    title: "Las mejores herramientas de inteligencia artificial para crear manga en 2026",
-    slug: "herramientas-ia-crear-manga",
-    excerpt: "Explora las mejores herramientas de inteligencia artificial para crear manga en 2026. IA generativa, entintado automático, colorización y cómo MangaAura integra IA para creadores.",
-    category: "technology",
-    content: `<p>La inteligencia artificial está revolucionando la creación de manga. Herramientas que antes parecían ciencia ficción hoy son accesibles para cualquier creador, desde generación de fondos hasta colorización automática de páginas. En 2026, la IA no reemplaza al mangaka, sino que potencia su creatividad.</p><h2>Generación de fondos y escenarios</h2><p>Una de las tareas más tediosas al crear manga es dibujar fondos detallados. Herramientas como Stable Diffusion y DALL-E permiten generar escenarios complejos en segundos, que el artista puede integrar en sus páginas y retocar manualmente.</p><h2>Colorización automática</h2><p>Pasar de páginas en blanco y negro a color solía requerir horas de trabajo. Hoy, herramientas de IA pueden colorizar páginas completas manteniendo la coherencia de personajes y escenarios. El resultado es un punto de partida que el artista puede refinar.</p><h2>IA en MangaAura</h2><p>MangaAura integra herramientas de IA directamente en su plataforma. Los creadores pueden generar imágenes, fondos y personajes con IA, y luego publicar sus capítulos sin salir del ecosistema. Esto reduce drásticamente el tiempo de producción y permite a los creadores centrarse en lo que importa: la narrativa y el arte.</p><h2>El futuro de la IA en el manga</h2><p>La IA como asistente creativo es el presente y el futuro del manga. Los creadores que adopten estas herramientas tendrán una ventaja competitiva significativa, pudiendo producir más contenido de calidad en menos tiempo.</p>`,
-    titleEn: "Best AI tools for creating manga in 2026",
-    excerptEn: "Explore the best artificial intelligence tools for creating manga in 2026. Generative AI, automatic inking, colorization, and how MangaAura integrates AI for creators.",
-    contentEn: `<p>Artificial intelligence is revolutionizing manga creation. Tools that once seemed like science fiction are now accessible to any creator, from background generation to automatic page colorization. In 2026, AI doesn't replace the mangaka, it amplifies their creativity.</p><h2>Background and scene generation</h2><p>One of the most tedious tasks in creating manga is drawing detailed backgrounds. Tools like Stable Diffusion and DALL-E let you generate complex scenes in seconds, which the artist can integrate into their pages and manually refine.</p><h2>AI on MangaAura</h2><p>MangaAura integrates AI tools directly into its platform. Creators can generate images, backgrounds, and characters with AI, then publish their chapters without leaving the ecosystem. This dramatically reduces production time.</p>`,
-  },
-  {
-    title: "Sistema de niveles y logros en apps de lectura de manga",
-    slug: "niveles-logros-apps-lectura",
-    excerpt: "Descubre cómo los sistemas de niveles, logros y gamificación están transformando las apps de lectura de manga. XP, rankings, clanes y por qué MangaAura lidera esta tendencia.",
-    category: "features",
-    content: `<p>La gamificación en las apps de lectura no es una moda pasajera. Los sistemas de niveles, logros y recompensas están demostrando aumentar el tiempo de lectura, la retención de usuarios y la satisfacción general. En el mundo del manga, plataformas como MangaAura están llevando esta tendencia al siguiente nivel.</p><h2>¿Por qué funciona la gamificación?</h2><p>La gamificación aprovecha mecanismos psicológicos básicos: la sensación de progreso, el reconocimiento social y la competencia amistosa. Cuando un lector ve que su esfuerzo se traduce en niveles, logros y reconocimiento, se siente más motivado a seguir leyendo.</p><h2>El sistema de MangaAura</h2><p>MangaAura ha implementado uno de los sistemas de gamificación más completos del mercado. Los lectores ganan XP por cada capítulo leído, suben de nivel, desbloquean logros y compiten en rankings semanales y mensuales. Además, pueden unirse a clanes donde colaboran con otros lectores para alcanzar objetivos comunes.</p><h2>Logros y recompensas</h2><p>Los logros van desde hitos básicos como "Leer 10 capítulos" hasta desafíos avanzados como "Completar una serie de 100+ capítulos". Cada logro otorga XP adicional y, en algunos casos, recompensas en Aura, la moneda virtual de la plataforma.</p><h2>Rankings y competición</h2><p>Los rankings semanales y mensuales añaden una capa de competición sana. Los mejores lectores de cada período reciben recompensas exclusivas y reconocimiento en la comunidad. Esto crea un ciclo virtuoso donde la competición impulsa la lectura y la lectura impulsa la comunidad.</p>`,
-    titleEn: "Level and achievement systems in manga reading apps",
-    excerptEn: "Discover how level systems, achievements, and gamification are transforming manga reading apps. XP, rankings, clans, and why MangaAura leads this trend.",
-    contentEn: `<p>Gamification in reading apps is not a passing fad. Level systems, achievements, and rewards are proven to increase reading time, user retention, and overall satisfaction. In the manga world, platforms like MangaAura are taking this trend to the next level.</p><h2>Why gamification works</h2><p>Gamification leverages basic psychological mechanisms: the sense of progress, social recognition, and friendly competition. When a reader sees their effort translate into levels, achievements, and recognition, they feel more motivated to keep reading.</p><h2>MangaAura's system</h2><p>MangaAura has implemented one of the most complete gamification systems on the market. Readers earn XP for each chapter read, level up, unlock achievements, and compete in weekly and monthly rankings. They can also join clans where they collaborate with other readers to achieve common goals.</p>`,
-  },
-  {
-    title: "Leer manga con amigos: mejores plataformas sociales de lectura",
-    slug: "leer-manga-con-amigos-plataformas-sociales",
-    excerpt: "Descubre las mejores plataformas para leer manga con amigos. Clubs de lectura, clanes, chats integrados y cómo MangaAura hace de la lectura una experiencia social única.",
-    category: "platform",
-    content: `<p>La lectura de manga siempre se ha considerado una actividad solitaria, pero las nuevas plataformas están cambiando eso. Leer manga con amigos, compartir opiniones sobre cada capítulo y competir en rankings convierte la lectura en una experiencia social mucho más rica.</p><h2>Clanes de lectura en MangaAura</h2><p>MangaAura ha introducido los clanes de lectura, una funcionalidad que permite a grupos de amigos unirse y compartir su progreso lector. Los clanes tienen chats internos, objetivos comunes y rankings propios. Es la forma perfecta de mantener la motivación y descubrir nuevas series recomendadas por tu clan.</p><h2>Chats integrados por capítulo</h2><p>Una de las funciones más demandadas por los lectores es poder comentar capítulos en tiempo real. MangaAura ofrece chats integrados en cada capítulo, donde los lectores pueden compartir sus reacciones, teorías y momentos favoritos sin salir del lector.</p><h2>Clubs de lectura</h2><p>Los clubs de lectura organizados permiten a grupos leer la misma serie al mismo ritmo. Cada semana o cada mes, el club elige una serie, establece un ritmo de lectura y discute los capítulos en grupo. Es como un book club, pero de manga.</p><h2>Compartir logros y progreso</h2><p>Compartir tus logros en redes sociales o dentro de la plataforma es otra forma de hacer la lectura más social. Cuando alcanzas un hito importante, MangaAura te permite compartirlo con tus amigos y celebrarlo juntos.</p>`,
-    titleEn: "Read manga with friends: best social reading platforms",
-    excerptEn: "Discover the best platforms to read manga with friends. Reading clubs, clans, integrated chats, and how MangaAura makes reading a unique social experience.",
-    contentEn: `<p>Manga reading has always been considered a solitary activity, but new platforms are changing that. Reading manga with friends, sharing opinions about each chapter, and competing in rankings turns reading into a much richer social experience.</p><h2>Reading clans on MangaAura</h2><p>MangaAura has introduced reading clans, a feature that lets groups of friends join together and share their reading progress. Clans have internal chats, shared goals, and their own rankings. It's the perfect way to stay motivated and discover new series recommended by your clan.</p><h2>Integrated chapter chats</h2><p>One of the most requested features is the ability to comment on chapters in real time. MangaAura offers integrated chats in each chapter, where readers can share reactions, theories, and favorite moments without leaving the reader.</p>`,
-  },
-  {
-    title: "Cómo funciona la moneda virtual Aura en plataformas de lectura",
-    slug: "moneda-virtual-aura-plataformas-lectura",
-    excerpt: "Descubre cómo funciona la moneda virtual Aura en MangaAura. Gana Aura leyendo, úsala para apoyar creadores, desbloquear contenido exclusivo y participar en la economía de la plataforma.",
-    category: "features",
-    content: `<p>Las monedas virtuales se han convertido en un elemento clave de las plataformas digitales. En el mundo del manga, MangaAura ha introducido Aura, una moneda virtual que los lectores ganan al leer y pueden usar para apoyar a creadores, desbloquear contenido exclusivo y participar en la economía de la plataforma.</p><h2>¿Qué es Aura?</h2><p>Aura es la moneda virtual de MangaAura. A diferencia de los sistemas tradicionales donde solo pagas por contenido, Aura se gana activamente leyendo: cada capítulo que lees te recompensa con una cantidad de Aura. Esto significa que cuanto más lees, más recursos tienes para apoyar a tus creadores favoritos.</p><h2>¿Cómo se gana Aura?</h2><p>Hay varias formas de ganar Aura: leyendo capítulos (la fuente principal), completando logros y misiones, participando en eventos especiales, subiendo de nivel, y compitiendo en rankings. El sistema está diseñado para recompensar la actividad constante.</p><h2>¿Cómo se usa Aura?</h2><p>Con Aura puedes: apoyar a creadores mediante propinas, participar en crowdfunding de capítulos, desbloquear contenido exclusivo, acceder a capítulos anticipados, y personalizar tu perfil con elementos cosméticos. Los creadores reciben el Aura que los lectores les envían, creando un flujo económico directo entre lectores y creadores.</p><h2>El futuro de Aura</h2><p>MangaAura planea expandir los usos de Aura, incluyendo la compra de merchandising digital, acceso a eventos virtuales y más funcionalidades sociales.</p>`,
-    titleEn: "How Aura virtual currency works on reading platforms",
-    excerptEn: "Discover how Aura virtual currency works on MangaAura. Earn Aura by reading, use it to support creators, unlock exclusive content, and participate in the platform economy.",
-    contentEn: `<p>Virtual currencies have become a key element of digital platforms. In the manga world, MangaAura has introduced Aura, a virtual currency that readers earn by reading and can use to support creators, unlock exclusive content, and participate in the platform economy.</p><h2>What is Aura?</h2><p>Aura is MangaAura's virtual currency. Unlike traditional systems where you only pay for content, Aura is earned actively by reading: every chapter you read rewards you with Aura. This means the more you read, the more resources you have to support your favorite creators.</p><h2>How to earn Aura</h2><p>There are several ways to earn Aura: reading chapters (the main source), completing achievements and quests, participating in special events, leveling up, and competing in rankings. The system is designed to reward consistent activity.</p><h2>How to use Aura</h2><p>With Aura you can: support creators through tips, participate in chapter crowdfunding, unlock exclusive content, access early chapters, and customize your profile with cosmetic items.</p>`,
-  },
-  {
-    title: "Manga gratis vs de pago: qué opciones hay en 2026",
-    slug: "manga-gratis-vs-pago-opciones-2026",
-    excerpt: "Comparamos el manga gratis y de pago en 2026. Plataformas gratuitas legales, suscripciones, modelos freemium y cómo MangaAura ofrece lo mejor de ambos mundos.",
-    category: "comparison",
-    content: `<p>Una de las preguntas más frecuentes entre lectores de manga es: ¿merece la pena pagar por manga cuando hay opciones gratuitas? La respuesta en 2026 es más matizada que nunca, porque han surgido modelos que combinan lo mejor de ambos mundos.</p><h2>Opciones gratuitas legales</h2><p>Existen varias plataformas que ofrecen manga gratis de forma legal. MangaPlus de Shueisha ofrece los primeros y últimos capítulos de sus series principales gratis. MangaAura permite leer gratis mientras ganas XP y subes de nivel. Webtoon tiene un modelo publicitario que financia el contenido gratuito. Estas opciones son sostenibles porque los creadores reciben ingresos por publicidad, crowdfunding o modelos freemium.</p><h2>Opciones de pago</h2><p>Las suscripciones como Shonen Jump ($2.99/mes) ofrecen catálogos completos sin publicidad. Comprar volúmenes digitales en Amazon Kindle o tiendas especializadas garantiza el máximo apoyo a los creadores y editoriales.</p><h2>El modelo híbrido de MangaAura</h2><p>MangaAura ha encontrado un equilibrio inteligente: la lectura es gratuita y además ganas Aura por leer. Si quieres apoyar a un creador específico, puedes usar tu Aura acumulado o comprar más Aura. Los creadores reciben el apoyo directamente, y los lectores deciden cuándo y cómo contribuir.</p><h2>¿Cuál elegir?</h2><p>La buena noticia es que no tienes que elegir. Puedes leer gratis en MangaAura para descubrir nuevos talentos, usar MangaPlus para seguir los grandes títulos al día, y suscribirte a servicios de pago para acceder a catálogos completos sin publicidad. Cada modelo tiene su lugar.</p>`,
-    titleEn: "Free vs paid manga: what options exist in 2026",
-    excerptEn: "We compare free and paid manga in 2026. Legal free platforms, subscriptions, freemium models, and how MangaAura offers the best of both worlds.",
-    contentEn: `<p>One of the most common questions among manga readers is: is it worth paying for manga when free options exist? The answer in 2026 is more nuanced than ever, because models have emerged that combine the best of both worlds.</p><h2>Legal free options</h2><p>Several platforms offer free manga legally. MangaPlus by Shueisha offers the first and latest chapters of its main series for free. MangaAura lets you read for free while earning XP and leveling up. Webtoon has an advertising model that funds free content. These options are sustainable because creators receive income through advertising, crowdfunding, or freemium models.</p><h2>MangaAura's hybrid model</h2><p>MangaAura has found a smart balance: reading is free and you earn Aura by reading. If you want to support a specific creator, you can use your accumulated Aura or buy more. Creators receive support directly, and readers decide when and how to contribute.</p>`,
-  },
+export const ARTICLES_PHASE_3 = [
   {
     title: "Mejores aplicaciones para leer manga en Android y iOS",
     slug: "mejores-apps-leer-manga-android-ios",
@@ -129,6 +22,7 @@ const ARTICLES = [
 <p>Lo que hace única a MangaAura entre las aplicaciones para leer manga en Android y iOS es su enfoque en la comunidad. Los clanes, los eventos semanales y el sistema de niveles convierten la lectura en una actividad social. No solo lees: formas parte de una comunidad activa de lectores que comparten tu pasión. Si buscas una app que vaya más allá de lo básico, MangaAura es tu mejor opción.</p>
 
 <p>Además, MangaAura actualiza su catálogo semanalmente y permite leer sin conexión, una función esencial para quienes viajan o no tienen siempre acceso a internet.</p>`,
+
     titleEn: "Best apps to read manga on Android and iOS",
     excerptEn: "Looking for the best apps to read manga on Android and iOS? We compare MangaAura, MangaPlus, Webtoon and more. Discover which has the best catalog, reading experience and social features.",
     contentEn: `<p>Reading manga on mobile has become the favorite way for millions of readers. Apps to read manga on Android and iOS have evolved enormously, offering extensive catalogs, cloud sync, and social features that make reading a shared experience.</p>
@@ -167,6 +61,7 @@ const ARTICLES = [
 <p>Plataformas como MangaAura están ampliando constantemente su catálogo de fantasía. Con la comunidad de MangaAura, puedes descubrir nuevas series recomendadas por otros lectores, unirte a clanes temáticos de fantasía y compartir tus teorías sobre los mundos que tanto te apasionan. Es la forma perfecta de disfrutar los mejores mangas de fantasía en compañía.</p>
 
 <p>La fantasía en el manga sigue evolucionando, y cada temporada trae nuevas obras que expanden los límites del género. Mantente al día con las recomendaciones de la comunidad y no dejes de explorar.</p>`,
+
     titleEn: "The best fantasy mangas you must read",
     excerptEn: "Discover the best fantasy mangas you must read. From medieval epics to magical worlds, we select the most essential works of the fantasy genre in manga.",
     contentEn: `<p>Fantasy manga is one of the most popular and varied genres. From epic worlds inspired by mythology to elaborate magic systems, the best fantasy mangas transport readers to unforgettable universes. Here's a selection of the most essential works.</p>
@@ -213,6 +108,7 @@ const ARTICLES = [
 <p>No te preocupes por leer en orden o conocer todos los géneros. Cada lector tiene su propio ritmo. Usa plataformas como MangaAura para descubrir nuevas series, sigue las recomendaciones de la comunidad y, sobre todo, disfruta del viaje. El manga es un medio increíblemente rico y hay un mundo entero esperando a que lo descubras.</p>
 
 <p>Recuerda que en MangaAura puedes unirte a clanes de lectores principiantes, compartir tus primeras impresiones y recibir recomendaciones personalizadas. La comunidad está ahí para ayudarte en cada paso.</p>`,
+
     titleEn: "How to start reading manga: a beginner's guide",
     excerptEn: "Do you want to learn how to start reading manga but don't know where to begin? This beginner's guide explains everything: genres, formats, where to read and initial recommendations.",
     contentEn: `<p>If you've always wanted to delve into the world of manga but don't know how to start reading manga, this beginner's guide is for you. The manga universe is huge and can be overwhelming, but with the right steps you'll find your first favorite manga sooner than you think.</p>
@@ -266,6 +162,7 @@ const ARTICLES = [
 <p>Todos estos títulos están disponibles en plataformas digitales. En MangaAura puedes seguir el progreso de tu lectura, ganar logros por cada serie que completes y compartir tus momentos favoritos con otros fans de la acción. La comunidad de MangaAura tiene clanes dedicados a cada uno de estos títulos, donde puedes discutir teorías y recomendar nuevas series.</p>
 
 <p>El manga de acción sigue evolucionando, y cada año aparecen nuevas obras que elevan el listón. Mantente al día con las recomendaciones de la comunidad de MangaAura.</p>`,
+
     titleEn: "Essential action manga: top 10 works",
     excerptEn: "Looking for essential action manga? We've selected the 10 most exciting works of the genre. Epic fights, supernatural powers and thrilling plots that will keep you on the edge of your seat.",
     contentEn: `<p>Action manga is the king of genres. From hand-to-hand combat to superhuman power battles, essential action manga offers some of the most exciting and well-choreographed sequences in the medium. Here's our top 10 selection that every genre lover must read.</p>
@@ -310,6 +207,7 @@ const ARTICLES = [
 <p>Las plataformas de manga con inteligencia artificial no reemplazan la experiencia humana de leer y crear manga, sino que la potencian. MangaAura está a la vanguardia de esta transformación, combinando tecnología de IA con su comunidad activa para crear la mejor experiencia de lectura posible.</p>
 
 <p>La IA también está ayudando a MangaAura a moderar su comunidad, detectar contenido inapropiado y garantizar que todos los usuarios tengan una experiencia segura y agradable.</p>`,
+
     titleEn: "Manga platforms with artificial intelligence in 2026",
     excerptEn: "Manga platforms with artificial intelligence are revolutionizing reading. Discover how AI improves recommendations, translation, and content creation on platforms like MangaAura.",
     contentEn: `<p>Artificial intelligence is transforming every aspect of our digital lives, and the manga world is no exception. Manga platforms with artificial intelligence are leading a quiet revolution that improves everything from personalized recommendations to automatic translation and content creation.</p>
@@ -356,6 +254,7 @@ const ARTICLES = [
 <p>Si te gusta leer a tu ritmo y aprecias el arte detallado, el manga es para ti. Si prefieres una experiencia audiovisual completa, el anime. Y si buscas algo rápido, colorido y optimizado para móvil, el webtoon. Pero no tienes que elegir uno solo. En plataformas como MangaAura puedes encontrar manga digital en un formato optimizado que combina lo mejor de ambos mundos: la profundidad del manga con la accesibilidad digital.</p>
 
 <p>MangaAura entiende que cada lector tiene preferencias distintas, por eso su plataforma está diseñada para ofrecer la mejor experiencia de lectura de manga digital, con funciones que ningún webtoon o anime puede ofrecer: gamificación, clanes y un sistema de recompensas que hace que cada capítulo leído cuente.</p>`,
+
     titleEn: "Differences between manga, anime and webtoon explained",
     excerptEn: "What are the differences between manga, anime and webtoon? We explain the origin, format, reading style and characteristics of each medium. Discover which one suits your preferences best.",
     contentEn: `<p>It's common to hear the terms manga, anime and webtoon used interchangeably, but each has very different characteristics. Knowing the differences between manga, anime and webtoon will help you choose the medium that best suits your tastes and consumption style.</p>
@@ -400,6 +299,7 @@ const ARTICLES = [
 
 <h2>¿Por qué unirte a una comunidad?</h2>
 <p>Formar parte de las mejores comunidades de lectura de manga online transforma tu experiencia como lector. Compartir teorías, recibir recomendaciones personalizadas y celebrar los giros argumentales con otros fans hace que cada capítulo sea más emocionante. Y si aún no formas parte de ninguna, MangaAura es el punto de partida perfecto: su comunidad es activa, acogedora y está llena de lectores apasionados como tú.</p>`,
+
     titleEn: "Best online manga reading communities",
     excerptEn: "Discover the best online manga reading communities where you can share your passion. Forums, clans, reading clubs and social networks to connect with other otakus. MangaAura leads social reading.",
     contentEn: `<p>Reading manga is incredible, but sharing that passion with other readers makes it even better. The best online manga reading communities are spaces where fans gather to recommend series, discuss theories, share fan art, and celebrate the most epic moments of their favorite works together.</p>
@@ -436,6 +336,7 @@ const ARTICLES = [
 <p>Plataformas como MangaAura tienen una creciente sección de manga romántico donde puedes descubrir nuevas series. La comunidad de MangaAura es especialmente activa en el género romántico, con clanes dedicados a recomendar y discutir las últimas historias de amor. Además, el sistema de niveles y logros de MangaAura hace que cada capítulo leído sea una recompensa en sí mismo.</p>
 
 <p>El manga romántico tiene el poder de hacernos sentir vivos. Ya sea que prefieras historias de instituto, romances de fantasía o comedias románticas para adultos, hay un manga de amor esperando a que lo descubras. Y en MangaAura, hacerlo es más fácil y divertido que nunca.</p>`,
+
     titleEn: "Romantic manga: best stories to start with",
     excerptEn: "Discover the best romantic manga to start with. From classic shojo to modern romantic comedies, we select the most moving love stories in manga for new readers.",
     contentEn: `<p>Romantic manga is one of the most exciting and varied genres. From high school stories to adult romances with emotional complexity, there's a world of romantic manga recommended to start with that will make you laugh, cry, and fall in love with its characters.</p>
@@ -480,6 +381,7 @@ const ARTICLES = [
 <p>MangaAura demuestra que se puede construir una plataforma sostenible, legal y atractiva para los lectores. Apoyar el manga legal no solo es lo correcto, sino que además ofrece una experiencia de lectura muy superior a cualquier scanlation.</p>
 
 <p>La próxima vez que te preguntes qué es un scanlation y si deberías usarlo, recuerda: el manga legal ha avanzado muchísimo. Plataformas como MangaAura ofrecen una experiencia que ningún scanlation puede igualar: calidad, seguridad, comunidad y la satisfacción de saber que estás apoyando a los creadores que hacen posible el manga que tanto amas.</p>`,
+
     titleEn: "What is scanlation and why you should read legal manga",
     excerptEn: "What is scanlation and why should you read legal manga? We explain the world of unofficial translations, their risks, and why platforms like MangaAura are the best alternative to support creators.",
     contentEn: `<p>If you've been in the manga world for a while, you've surely heard of scanlation. But what exactly is scanlation, and why are more readers choosing to read legal manga? In this article we explain everything you need to know.</p>
@@ -524,6 +426,7 @@ const ARTICLES = [
 <p>MangaAura combina lectura, gamificación, comunidad y creación en una sola plataforma. No es solo un lugar donde leer manga: es un ecosistema donde cada capítulo cuenta, cada lector importa y cada creador tiene la oportunidad de brillar. Si aún no te has registrado, esta guía completa de MangaAura sobre cómo funciona la plataforma es tu mejor punto de partida.</p>
 
 <p>La aventura te espera. Únete a MangaAura y descubre por qué miles de lectores ya han hecho de esta plataforma su hogar para el manga.</p>`,
+
     titleEn: "Complete MangaAura guide: how the platform works",
     excerptEn: "Everything you need to know about MangaAura. Complete guide on how the platform works: registration, levels, Aura currency, clans, manga publishing and exclusive features. Start your adventure today.",
     contentEn: `<p>If you've made it this far, you probably already know that MangaAura is more than just a manga reading platform. But how exactly does MangaAura work? This complete guide explains all the features, from registration to the most advanced functions. Get ready to discover the most innovative way to read and create manga.</p>
@@ -543,44 +446,3 @@ const ARTICLES = [
 <p>The adventure awaits. Join MangaAura and discover why thousands of readers have already made this platform their manga home.</p>`,
   },
 ];
-
-export async function POST() {
-  const session = await auth();
-  if (!session?.user?.id || !['ADMIN', 'OWNER'].includes(session.user.role as string)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const results: { slug: string; status: string }[] = [];
-
-  for (const article of ARTICLES) {
-    try {
-      const existing = await prisma.newsArticle.findUnique({ where: { slug: article.slug } });
-      if (existing) {
-        results.push({ slug: article.slug, status: 'already exists' });
-        continue;
-      }
-
-      await prisma.newsArticle.create({
-        data: {
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          content: article.content,
-          titleEn: article.titleEn,
-          excerptEn: article.excerptEn,
-          contentEn: article.contentEn,
-          category: article.category,
-          authorId: AUTHOR_ID,
-          isPublished: true,
-          publishedAt: new Date(),
-        },
-      });
-
-      results.push({ slug: article.slug, status: 'created' });
-    } catch (error: any) {
-      results.push({ slug: article.slug, status: `error: ${error.message}` });
-    }
-  }
-
-  return NextResponse.json({ ok: true, results });
-}

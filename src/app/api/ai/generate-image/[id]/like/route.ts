@@ -52,6 +52,36 @@ export async function POST(
       return updated;
     });
 
+    // Send notification to image owner
+    if (image.userId !== userId) {
+      try {
+        const { getNotificationService } = await import('@/core/services/NotificationService');
+        const ns = await getNotificationService();
+        const liker = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { id: true, username: true, displayName: true, avatarUrl: true },
+        });
+        if (liker) {
+          await ns.createNotification({
+            userId: image.userId,
+            type: 'IMAGE_LIKE',
+            title: '❤️ Nuevo like en tu imagen',
+            message: `${liker.displayName || liker.username} le gustó tu imagen generada con IA`,
+            data: {
+              imageId: id,
+              likerId: liker.id,
+              likerName: liker.displayName || liker.username,
+              likerAvatar: liker.avatarUrl,
+            },
+            imageUrl: liker.avatarUrl || undefined,
+            linkUrl: '/prompts',
+          });
+        }
+      } catch (notifError) {
+        console.error('[Image Like] Failed to send notification:', notifError);
+      }
+    }
+
     return NextResponse.json({ success: true, likeCount: result.likeCount, isLiked: true });
   } catch (error) {
     console.error('[Image Like] Error:', error);

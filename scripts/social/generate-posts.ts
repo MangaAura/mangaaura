@@ -1,6 +1,8 @@
 /**
  * Genera posts para redes sociales a partir de los artículos del blog de MangaAura.
  * No requiere conexión a BD — usa los datos de artículos conocidos.
+ * Todos los tweets respetan el límite de 280 caracteres de X.
+ * Los URLs nunca se truncan — X los acorta a 23 caracteres via t.co.
  *
  * Uso: npx tsx scripts/social/generate-posts.ts
  *
@@ -14,6 +16,8 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
+const MAX_TWEET_LENGTH = 280;
+const TCO_LENGTH = 23; // Twitter acorta todos los HTTPS URLs a 23 caracteres
 
 const ARTICLES = [
   {
@@ -48,26 +52,71 @@ const ARTICLES = [
   },
 ];
 
-const templates: Record<string, (title: string, slug: string, excerpt: string) => string[]> = {
-  tweet: (title, slug, excerpt) => [
-    `📖 "${title}"\n\n${excerpt}\n\nLee el artículo completo 👇\n${BASE_URL}/blog/${slug}`,
-    `¿Sabías que...? ${excerpt}\n\nEntra aquí para leer más: ${BASE_URL}/blog/${slug}`,
-    `Nuevo en el blog de MangaAura 📝\n\n"${title}"\n\n${excerpt}\n${BASE_URL}/blog/${slug}`,
-  ],
-  thread: (title, slug, excerpt) => {
-    const lines = excerpt.split('. ').filter(Boolean);
-    const thread: string[] = [
-      `🧵 ${title}\n\n${lines[0] || excerpt}`,
+/** Calcula la longitud que tendrá el tweet en X, contando URLs como 23 caracteres */
+function twitterLength(text: string): number {
+  const urlRegex = /https?:\/\/\S+/g;
+  let result = text;
+  for (const match of text.match(urlRegex) || []) {
+    result = result.replace(match, '_'.repeat(TCO_LENGTH));
+  }
+  return result.length;
+}
+
+/** Trunca el texto ANTES del URL para que quepa en 280 caracteres de X */
+function fitTweet(textWithUrl: string): string {
+  const urlMatch = textWithUrl.match(/(https?:\/\/\S+)$/);
+  if (!urlMatch) {
+    // Sin URL, truncar normal
+    if (twitterLength(textWithUrl) <= MAX_TWEET_LENGTH) return textWithUrl;
+    return textWithUrl.slice(0, MAX_TWEET_LENGTH - 3) + '...';
+  }
+
+  const url = urlMatch[1];
+  const before = textWithUrl.slice(0, -url.length);
+  const beforeLen = twitterLength(before);
+  const urlLen = TCO_LENGTH;
+  const totalLen = beforeLen + (before ? 2 : 0) + urlLen; // +2 por el salto de línea antes del URL
+
+  if (totalLen <= MAX_TWEET_LENGTH) return textWithUrl;
+
+  // Necesitamos acortar `before`
+  const excess = totalLen - MAX_TWEET_LENGTH;
+  const maxBefore = before.length - excess - 3; // -3 por "..."
+  if (maxBefore <= 0) return url; // Caso extremo: solo URL
+  return before.slice(0, maxBefore).trimEnd() + '...\n\n' + url;
+}
+
+function makeTweet(parts: string[]): string {
+  return fitTweet(parts.join('\n\n'));
+}
+
+const templates = {
+  tweet: (title: string, slug: string, excerpt: string): string[] => {
+    const url = `${BASE_URL}/blog/${slug}`;
+    return [
+      makeTweet([`📖 ${title}`, excerpt, url]),
+      makeTweet([`¿Sabías que...? ${excerpt.slice(0, 200)}`, `👉 ${url}`]),
+      makeTweet([`📝 "${title}"`, excerpt, url]),
     ];
-    for (let i = 1; i < Math.min(lines.length, 4); i++) {
-      thread.push(lines[i]);
+  },
+  thread: (title: string, slug: string, excerpt: string): string[] => {
+    const url = `${BASE_URL}/blog/${slug}`;
+    const parts = excerpt.split('. ').filter(Boolean);
+    const thread: string[] = [
+      makeTweet([`🧵 ${title}`, parts[0] || excerpt]),
+    ];
+    for (let i = 1; i < Math.min(parts.length, 4); i++) {
+      const t = parts[i].length > 260 ? parts[i].slice(0, 257) + '...' : parts[i];
+      thread.push(t);
     }
-    thread.push(`\nLee el artículo completo aquí 👇\n${BASE_URL}/blog/${slug}\n\n#Manga #MangaAura`);
+    thread.push(`👇 ${url}\n#Manga #MangaAura`);
     return thread;
   },
-  instagram: (title, slug, excerpt) => [
-    `📖 "${title}"\n\n${excerpt.slice(0, 200)}...\n\n👇 Lee más en MangaAura\n${BASE_URL}/blog/${slug}`,
-  ],
+  instagram: (title: string, slug: string, excerpt: string): string[] => {
+    const url = `${BASE_URL}/blog/${slug}`;
+    const text = `📖 "${title}"\n\n${excerpt.slice(0, 150)}...\n\n👇 Lee más en MangaAura\n${url}`;
+    return [text.slice(0, 2200)];
+  },
 };
 
 function main() {
@@ -79,31 +128,49 @@ function main() {
 
   for (const article of ARTICLES) {
     const { title, slug, excerpt } = article;
+    const url = `${BASE_URL}/blog/${slug}`;
 
     lines.push(`## ${title}`);
     lines.push(`Slug: ${slug}`);
     lines.push('');
 
-    // Tweet
     lines.push('### Tweet (X)');
     const tweetOptions = templates.tweet(title, slug, excerpt);
     tweetOptions.forEach((t, i) => {
       lines.push(`Opción ${i + 1}:`);
       lines.push(t);
+      lines.push(`(caracteres X: ${twitterLength(t)}, texto: ${t.length})`);
       lines.push('');
     });
 
-    // Thread
     lines.push('### Hilo (X)');
     const thread = templates.thread(title, slug, excerpt);
     thread.forEach((t, i) => {
-      lines.push(`[${i + 1}/${thread.length}] ${t}`);
+      lines.push(`[${i + 1}/${thread.length}]`);
+      lines.push(t);
+      lines.push(`(caracteres X: ${twitterLength(t)})`);
       lines.push('');
     });
 
     lines.push('---');
     lines.push('');
   }
+
+  // Bonus: tweets promocionales generales
+  lines.push('## Posts promocionales generales');
+  lines.push('');
+  const promos = [
+    `¿Eres creador de manga? En MangaAura publicas tus obras, recibes apoyo directo con Aura y conectas con una comunidad que ama el manga tanto como tú. 🚀\n\n${BASE_URL}`,
+    `Leer manga en MangaAura tiene recompensa 🏆 Gana XP, sube de nivel, únete a clanes y compite en rankings mientras disfrutas de tus series favoritas.\n\n${BASE_URL}`,
+    `MangaAura no es solo leer: es una experiencia. Gamificación, crowdfunding para creadores, IA para artistas y una comunidad activa. Todo en un solo lugar.\n\n${BASE_URL}`,
+    `El manga independiente necesita más apoyo. En MangaAura, cada capítulo que lees ayuda a los creadores. Publica gratis o apoya a tus artistas favoritos con Aura.\n\n${BASE_URL}`,
+  ];
+  promos.forEach((p, i) => {
+    lines.push(`Opción ${i + 1}:`);
+    lines.push(fitTweet(p));
+    lines.push(`(caracteres X: ${twitterLength(fitTweet(p))})`);
+    lines.push('');
+  });
 
   const outDir = path.join(__dirname, 'out');
   if (!fs.existsSync(outDir)) {
@@ -114,7 +181,6 @@ function main() {
   const outFile = path.join(outDir, `posts-${dateStr}.md`);
   fs.writeFileSync(outFile, lines.join('\n'), 'utf-8');
   console.log(`✅ Posts generados: ${outFile}`);
-  console.log(`   ${ARTICLES.length} artículos procesados`);
 }
 
 main();

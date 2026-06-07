@@ -21,9 +21,12 @@ import type {
   MentionData,
   ClanInviteData,
   ReferralSignupData,
+  OnboardingDay1Data,
+  OnboardingDay3Data,
+  OnboardingDay7Data,
 } from '@/infrastructure/queue/EmailQueue';
 import { getRedisCircuitBreaker } from '@/lib/circuit-breaker';
-import { baseEmailTemplate } from '@/lib/email-templates';
+import { baseEmailTemplate, onboardingDay1Email, onboardingDay3Email, onboardingDay7Email } from '@/lib/email-templates';
 import { isMockRedis } from '@/lib/redis';
 import { captureException } from '@/lib/sentry';
 import { withTimeout, WORKER_TIMEOUTS } from '@/lib/with-timeout';
@@ -225,6 +228,15 @@ export class EmailWorker {
       case 'referral-signup':
         await this.processReferralSignupEmail(job as Job<ReferralSignupData>);
         break;
+      case 'onboarding-day1':
+        await this.processOnboardingDay1Email(job as Job<OnboardingDay1Data>);
+        break;
+      case 'onboarding-day3':
+        await this.processOnboardingDay3Email(job as Job<OnboardingDay3Data>);
+        break;
+      case 'onboarding-day7':
+        await this.processOnboardingDay7Email(job as Job<OnboardingDay7Data>);
+        break;
       case 'custom':
         await this.processCustomEmail(job);
         break;
@@ -250,6 +262,9 @@ export class EmailWorker {
       case 'mention':
       case 'clan-invite':
       case 'referral-signup':
+      case 'onboarding-day1':
+      case 'onboarding-day3':
+      case 'onboarding-day7':
         return WORKER_TIMEOUTS.EMAIL_WELCOME;
       case 'new-chapter':
         return WORKER_TIMEOUTS.EMAIL_NEW_CHAPTER;
@@ -474,6 +489,27 @@ export class EmailWorker {
       html,
       text,
     });
+  }
+
+  private async processOnboardingDay1Email(job: Job<OnboardingDay1Data>): Promise<void> {
+    const { to, username } = job.data;
+    const { html, text, subject } = onboardingDay1Email(username);
+    await emailService.sendEmail(to, { subject, html, text });
+    console.info(`[EmailWorker] Onboarding Day 1 email sent to ${to}`);
+  }
+
+  private async processOnboardingDay3Email(job: Job<OnboardingDay3Data>): Promise<void> {
+    const { to, username } = job.data;
+    const { html, text, subject } = onboardingDay3Email(username);
+    await emailService.sendEmail(to, { subject, html, text });
+    console.info(`[EmailWorker] Onboarding Day 3 email sent to ${to}`);
+  }
+
+  private async processOnboardingDay7Email(job: Job<OnboardingDay7Data>): Promise<void> {
+    const { to, username } = job.data;
+    const { html, text, subject } = onboardingDay7Email(username);
+    await emailService.sendEmail(to, { subject, html, text });
+    console.info(`[EmailWorker] Onboarding Day 7 email sent to ${to}`);
   }
 
   /**

@@ -338,6 +338,106 @@ export function verificationEmail(verificationUrl: string): { html: string; text
   return { html, text, subject: 'Verifica tu cuenta - MangaAura' };
 }
 
+export function onboardingDay1Email(username: string): { html: string; text: string; subject: string } {
+  const safeUsername = escapeHtml(username);
+  const exploreUrl = 'https://mangaaura.es/explore';
+  const { html, text } = baseEmailTemplate({
+    title: `Descubre tu próxima historia, ${safeUsername}`,
+    preview: 'Explora mangas, géneros y rankings en MangaAura',
+    content: `
+      <p>¡Ya tienes tu cuenta lista! Ahora toca encontrar historias que te enganchen.</p>
+      <div style="margin: 25px 0;">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">🔍</span>
+          <div><strong>Explora mangas</strong><br><span style="color: #64748b; font-size: 14px;">Navega por nuestro catálogo y descubre nuevas series.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">🏷️</span>
+          <div><strong>Navega por géneros</strong><br><span style="color: #64748b; font-size: 14px;">Acción, romance, fantasy, horror… encuentra tu género favorito.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px;">
+          <span style="font-size: 24px;">🏆</span>
+          <div><strong>Rankings</strong><br><span style="color: #64748b; font-size: 14px;">Los mangas más populares y mejor valorados por la comunidad.</span></div>
+        </div>
+      </div>
+      <p>¿No sabes por dónde empezar? Prueba con nuestros rankings semanales.</p>
+    `,
+    ctaText: 'Explorar mangas',
+    ctaUrl: exploreUrl,
+    footerText: 'Recibirás algunos correos más para ayudarte a sacar el máximo partido a MangaAura.',
+  });
+
+  return { html, text, subject: `Descubre tu próxima historia, ${safeUsername}` };
+}
+
+export function onboardingDay3Email(username: string): { html: string; text: string; subject: string } {
+  const safeUsername = escapeHtml(username);
+  const questsUrl = 'https://mangaaura.es/quests';
+  const { html, text } = baseEmailTemplate({
+    title: `Gana mientras lees, ${safeUsername}`,
+    preview: 'Misiones, rachas, niveles y Aura — así funciona la gamificación',
+    content: `
+      <p>En MangaAura, cada capítulo que lees tiene recompensa. Así funciona:</p>
+      <div style="margin: 25px 0;">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">📋</span>
+          <div><strong>Misiones diarias y semanales</strong><br><span style="color: #64748b; font-size: 14px;">Completa desafíos y gana XP y Aura extra.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">🔥</span>
+          <div><strong>Rachas de lectura</strong><br><span style="color: #64748b; font-size: 14px;">Lee varios días seguidos para multiplicar tus recompensas.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">⬆️</span>
+          <div><strong>Sube de nivel</strong><br><span style="color: #64748b; font-size: 14px;">Cada nivel desbloquea nuevas funciones y prestigio en la comunidad.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px;">
+          <span style="font-size: 24px;">🪙</span>
+          <div><strong>Moneda virtual Aura</strong><br><span style="color: #64748b; font-size: 14px;">Úsala para apoyar a tus creadores favoritos o canjearla por ventajas.</span></div>
+        </div>
+      </div>
+      <p>Empieza hoy tu racha de lectura y acumula recompensas.</p>
+    `,
+    ctaText: 'Ver misiones',
+    ctaUrl: questsUrl,
+    footerText: '¿Prefieres no recibir estos correos? Puedes desactivarlos en tu configuración.',
+  });
+
+  return { html, text, subject: `Gana mientras lees, ${safeUsername}` };
+}
+
+export function onboardingDay7Email(username: string): { html: string; text: string; subject: string } {
+  const safeUsername = escapeHtml(username);
+  const communityUrl = 'https://mangaaura.es/community';
+  const { html, text } = baseEmailTemplate({
+    title: `La comunidad te espera, ${safeUsername}`,
+    preview: 'Únete a otros lectores, comparte y crea tu propio manga',
+    content: `
+      <p>Ya llevas una semana en MangaAura. ¿Sabías que puedes hacer mucho más que leer?</p>
+      <div style="margin: 25px 0;">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">💬</span>
+          <div><strong>Comunidad</strong><br><span style="color: #64748b; font-size: 14px;">Comenta capítulos, valora mangas y conecta con otros lectores y creadores.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+          <span style="font-size: 24px;">✍️</span>
+          <div><strong>Crea tu propio manga</strong><br><span style="color: #64748b; font-size: 14px;">Usa nuestras herramientas IA para dar vida a tus historias y publicarlas.</span></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f1f5f9; border-radius: 8px;">
+          <span style="font-size: 24px;">🎁</span>
+          <div><strong>Invita a amigos</strong><br><span style="color: #64748b; font-size: 14px;">Comparte tu código de referido y gana Aura cuando se registren.</span></div>
+        </div>
+      </div>
+      <p>Sea cual sea tu próxima aventura, aquí tienes un lugar para vivirla.</p>
+    `,
+    ctaText: 'Ir a la comunidad',
+    ctaUrl: communityUrl,
+    footerText: 'Este es el último correo de bienvenida. A partir de ahora solo recibirás notificaciones relevantes para tu actividad.',
+  });
+
+  return { html, text, subject: `La comunidad te espera, ${safeUsername}` };
+}
+
 export function securityAlertEmail(
   alertType: 'login' | 'password_change' | 'email_change',
   location?: string,

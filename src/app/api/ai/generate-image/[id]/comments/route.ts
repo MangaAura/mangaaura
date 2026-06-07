@@ -100,7 +100,7 @@ export async function POST(
     // Verify image exists and is public or owned
     const image = await prisma.imageGeneration.findFirst({
       where: { id, OR: [{ isPublic: true }, { userId }] },
-      select: { id: true },
+      select: { id: true, userId: true },
     });
     if (!image) {
       return NextResponse.json({ error: 'Imagen no encontrada' }, { status: 404 });
@@ -136,6 +136,61 @@ export async function POST(
       where: { id },
       data: { commentCount: { increment: 1 } },
     });
+
+    // Send notifications
+    try {
+      const { getNotificationService } = await import('@/core/services/NotificationService');
+      const ns = await getNotificationService();
+
+      // Notify image owner (if commenter is not the owner)
+      if (image.userId !== userId) {
+        await ns.createNotification({
+          userId: image.userId,
+          type: 'IMAGE_COMMENT',
+          title: '💬 Nuevo comentario en tu imagen',
+          message: `${comment.user.displayName || comment.user.username} comentó en tu imagen generada con IA`,
+          data: {
+            imageId: id,
+            commentId: comment.id,
+            commenterId: comment.user.id,
+            commenterName: comment.user.displayName || comment.user.username,
+            commenterAvatar: comment.user.avatarUrl,
+            content: comment.content.substring(0, 100),
+          },
+          imageUrl: comment.user.avatarUrl || undefined,
+          linkUrl: '/prompts',
+        });
+      }
+
+      // Notify parent comment owner if it's a reply
+      if (parentId) {
+        const parentComment = await prisma.imageGenerationComment.findUnique({
+          where: { id: parentId },
+          select: { userId: true },
+        });
+        if (parentComment && parentComment.userId !== userId) {
+          await ns.createNotification({
+            userId: parentComment.userId,
+            type: 'IMAGE_COMMENT',
+            title: '💬 Respuesta a tu comentario',
+            message: `${comment.user.displayName || comment.user.username} respondió a tu comentario`,
+            data: {
+              imageId: id,
+              commentId: comment.id,
+              parentCommentId: parentId,
+              commenterId: comment.user.id,
+              commenterName: comment.user.displayName || comment.user.username,
+              commenterAvatar: comment.user.avatarUrl,
+              content: comment.content.substring(0, 100),
+            },
+            imageUrl: comment.user.avatarUrl || undefined,
+            linkUrl: '/prompts',
+          });
+        }
+      }
+    } catch (notifError) {
+      console.error('[Image Comment] Failed to send notification:', notifError);
+    }
 
     return NextResponse.json({ success: true, comment }, { status: 201 });
   } catch (error) {

@@ -11,7 +11,7 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().min(16).optional().default('dev-secret-key-not-for-production-!!'),
   NEXTAUTH_URL: z.string().url().optional().default('http://localhost:3000'),
   // Auth.js v5 requires AUTH_URL (ignores NEXTAUTH_URL).
-  // Set to your app's canonical URL (e.g., https://mangaaura.vercel.app in production).
+  // Set to your app's canonical URL (e.g., https://mangaaura.es in production).
   AUTH_URL: z.string().url().optional(),
 
   GOOGLE_CLIENT_ID: z.string().optional(),

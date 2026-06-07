@@ -27,6 +27,9 @@ export type EmailJobType =
   | 'mention'
   | 'clan-invite'
   | 'referral-signup'
+  | 'onboarding-day1'
+  | 'onboarding-day3'
+  | 'onboarding-day7'
   | 'marketing'
   | 'custom';
 
@@ -137,6 +140,18 @@ export interface ReferralSignupData extends EmailJobData {
   type: 'referral-signup';
   refereeId: string;
   refereeUsername: string;
+}
+
+export interface OnboardingDay1Data extends EmailJobData {
+  type: 'onboarding-day1';
+}
+
+export interface OnboardingDay3Data extends EmailJobData {
+  type: 'onboarding-day3';
+}
+
+export interface OnboardingDay7Data extends EmailJobData {
+  type: 'onboarding-day7';
 }
 
 export interface EmailJobOptions {
@@ -353,6 +368,30 @@ export class EmailQueue {
   /** Email de nuevo referido registrado */
   async addReferralSignupEmail(data: Omit<ReferralSignupData, 'type'>): Promise<Job> {
     return this.addEmailJob('referral-signup', data, { priority: 2 });
+  }
+
+  /** Onboarding Día 1 (24h): Descubre mangas */
+  async addOnboardingDay1Email(data: Omit<OnboardingDay1Data, 'type'>): Promise<Job> {
+    return this.addEmailJob('onboarding-day1', data, {
+      priority: 2,
+      delay: 24 * 60 * 60 * 1000,
+    });
+  }
+
+  /** Onboarding Día 3 (72h): Gamificación */
+  async addOnboardingDay3Email(data: Omit<OnboardingDay3Data, 'type'>): Promise<Job> {
+    return this.addEmailJob('onboarding-day3', data, {
+      priority: 2,
+      delay: 3 * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  /** Onboarding Día 7 (168h): Comunidad */
+  async addOnboardingDay7Email(data: Omit<OnboardingDay7Data, 'type'>): Promise<Job> {
+    return this.addEmailJob('onboarding-day7', data, {
+      priority: 2,
+      delay: 7 * 24 * 60 * 60 * 1000,
+    });
   }
 
   // ─── Stats ─────────────────────────────────────────────────────
