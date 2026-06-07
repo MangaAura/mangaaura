@@ -102,6 +102,7 @@ commentCounts.forEach((cc: any) => {
       authorName: manga.authorName,
       author: manga.author,
       chapterCount: manga._count.chapters,
+      isHomepageFeatured: manga.isHomepageFeatured ?? false,
       bookmarkCount: manga._count.userMangas,
       commentCount: mangaCommentCounts.get(manga.id) || 0,
       createdAt: manga.createdAt.toISOString(),

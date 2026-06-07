@@ -2734,7 +2734,13 @@
         "low": "Baja",
         "background": "Fondo"
       }
-    }
+    },
+    "featuredManga": "Manga Destacado",
+    "homepage": "Portada",
+    "remove": "Quitar",
+    "noFeaturedManga": "Ningún manga destacado en portada",
+    "selectFeaturedManga": "Selecciona un manga para mostrar en el hero de la página principal",
+    "searchMangaToFeature": "Buscar manga para destacar..."
   },
   "comparison": {
     "heroBadge": "Comparativa de características",

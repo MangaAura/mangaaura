@@ -11,6 +11,8 @@ import {
   Trash2,
   AlertTriangle,
   XIcon,
+  Star,
+  Flame,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -74,6 +76,7 @@ interface MangaData {
   bookmarkCount: number;
   commentCount: number;
   rating: number | null;
+  isHomepageFeatured?: boolean;
   createdAt: string;
 }
 
@@ -467,6 +470,37 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
             </CardContent>
           </Card>
 
+          {/* Featured Toggle */}
+          <Card className="border-[var(--primary)]/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Flame className="w-4 h-4 text-[var(--primary)]" />
+                Portada Destacada
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {manga.isHomepageFeatured ? (
+                    <>
+                      <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/20">
+                        <Star className="w-3 h-3 mr-1 fill-amber-400" />
+                        Destacado
+                      </Badge>
+                    </>
+                  ) : (
+                    <span className="text-sm text-[var(--text-tertiary)]">No destacado</span>
+                  )}
+                </div>
+                <FeaturedToggleButton
+                  mangaId={manga.id}
+                  isFeatured={manga.isHomepageFeatured ?? false}
+                  onToggle={() => mutate()}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Author Info */}
           <Card>
             <CardHeader>
@@ -564,5 +598,47 @@ export default function EditMangaClient({ params }: { params: { slug: string } }
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function FeaturedToggleButton({ mangaId, isFeatured, onToggle }: { mangaId: string; isFeatured: boolean; onToggle: () => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleToggle = async () => {
+    setLoading(true);
+    try {
+      if (isFeatured) {
+        await fetch('/api/admin/featured-manga', { method: 'DELETE' });
+      } else {
+        await fetch('/api/admin/featured-manga', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mangaId }),
+        });
+      }
+      onToggle();
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      variant={isFeatured ? 'outline' : 'default'}
+      size="sm"
+      onClick={handleToggle}
+      disabled={loading}
+    >
+      {loading ? (
+        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+      ) : isFeatured ? (
+        <XIcon className="w-4 h-4 mr-1" />
+      ) : (
+        <Star className="w-4 h-4 mr-1" />
+      )}
+      {isFeatured ? 'Quitar' : 'Destacar'}
+    </Button>
   );
 }

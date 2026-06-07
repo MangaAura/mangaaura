@@ -82,6 +82,7 @@ export async function GET(
         authorId: manga.authorId,
         authorName: manga.authorName,
         author: manga.author,
+        isHomepageFeatured: manga.isHomepageFeatured ?? false,
         bookmarkCount: manga._count.userMangas,
         commentCount: commentCounts.reduce((sum: any, c: any) => sum + c._count.id, 0),
         chapters: manga.chapters.map((ch: any) => ({

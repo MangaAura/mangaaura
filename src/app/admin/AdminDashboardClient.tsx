@@ -20,9 +20,12 @@ import {
   Settings,
   Activity,
   BarChart3,
+  Flame,
+  Loader2,
+  Search,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo , useState, useCallback, useRef } from 'react';
 import useSWR from 'swr';
 
 import { ChartsSection } from '@/components/Admin/ChartsSection';
@@ -31,8 +34,11 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
+
 
 // Shape returned by the API
 interface ApiDashboardStats {
@@ -711,6 +717,200 @@ export default function AdminDashboardClient() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Featured Manga Manager */}
+      <FeaturedMangaManager />
     </div>
+  );
+}
+
+function FeaturedMangaManager() {
+  const t = useT();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; title: string; slug: string; coverUrl: string | null }>>([]);
+  const [searching, setSearching] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const { data: featuredData, mutate: mutateFeatured, isLoading: featuredLoading } = useSWR<{ manga: { id: string; title: string; slug: string; coverUrl: string | null; description: string | null; authorName: string } | null }>(
+    '/api/admin/featured-manga',
+    fetcher,
+    { refreshInterval: 30000 }
+  );
+
+  const featured = featuredData?.manga;
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/admin/manga?search=${encodeURIComponent(query)}&limit=8`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.mangas || []);
+        }
+      } catch {
+        // ignore
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+  }, []);
+
+  const handleSelect = async (mangaId: string) => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/featured-manga', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mangaId }),
+      });
+      if (res.ok) {
+        await mutateFeatured();
+        setSearchQuery('');
+        setSearchResults([]);
+        toast({ title: 'Manga destacado actualizado', variant: 'success' });
+      } else {
+        const err = await res.json();
+        toast({ title: 'Error', description: err.error || 'No se pudo actualizar', variant: 'error' });
+      }
+    } catch {
+      toast({ title: 'Error de conexión', variant: 'error' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/featured-manga', { method: 'DELETE' });
+      if (res.ok) {
+        await mutateFeatured();
+        toast({ title: 'Manga destacado eliminado', variant: 'success' });
+      }
+    } catch {
+      toast({ title: 'Error de conexión', variant: 'error' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="border-[var(--primary)]/20">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Flame className="w-5 h-5 text-[var(--primary)]" />
+            {t('admin.featuredManga') || 'Manga Destacado'}
+          </CardTitle>
+          <Badge variant="default" className="bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20">
+            {t('admin.homepage') || 'Portada'}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {featuredLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
+          </div>
+        ) : featured ? (
+          <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[var(--primary)]/5 to-transparent rounded-xl border border-[var(--primary)]/10">
+            <div className="w-16 h-24 rounded-lg overflow-hidden bg-[var(--surface-sunken)] flex-shrink-0">
+              {featured.coverUrl ? (
+                <img src={featured.coverUrl} alt={featured.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-white font-bold text-lg">
+                  {featured.title.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-[var(--text-primary)] truncate">{featured.title}</h3>
+                <Badge variant="default" className="bg-amber-500/15 text-amber-400 border-amber-500/20 text-[10px]">
+                  <Star className="w-2.5 h-2.5 mr-0.5" />
+                  {t('home.featured') || 'Destacado'}
+                </Badge>
+              </div>
+              <p className="text-sm text-[var(--text-tertiary)] mt-0.5">{featured.authorName}</p>
+              <div className="flex items-center gap-3 mt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs text-[var(--error)] border-[var(--error)]/20 hover:bg-[var(--error)]/10"
+                  onClick={handleRemove}
+                  disabled={saving}
+                >
+                  {saving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <XCircle className="w-3 h-3 mr-1" />}
+                  {t('admin.remove') || 'Quitar'}
+                </Button>
+                <Link href={`/manga/${featured.slug}`} target="_blank">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    {t('common.view') || 'Ver'}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-6 text-[var(--text-tertiary)]">
+            <Flame className="w-10 h-10 mx-auto mb-2 opacity-30" />
+            <p className="text-sm">{t('admin.noFeaturedManga') || 'Ningún manga destacado en portada'}</p>
+            <p className="text-xs mt-1">{t('admin.selectFeaturedManga') || 'Selecciona un manga para mostrar en el hero de la página principal'}</p>
+          </div>
+        )}
+
+        {/* Search to feature */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+          <Input
+            placeholder={t('admin.searchMangaToFeature') || 'Buscar manga para destacar...'}
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-9"
+          />
+          {searching && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-[var(--primary)]" />
+          )}
+          {searchResults.length > 0 && (
+            <div className="absolute z-50 top-full mt-1 left-0 right-0 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl shadow-xl max-h-60 overflow-y-auto">
+              {searchResults.slice(0, 8).map((manga) => (
+                <button
+                  key={manga.id}
+                  onClick={() => handleSelect(manga.id)}
+                  disabled={saving}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--surface-sunken)] transition-colors text-left border-b border-[var(--border)] last:border-0"
+                >
+                  <div className="w-8 h-11 rounded overflow-hidden bg-[var(--surface-sunken)] flex-shrink-0">
+                    {manga.coverUrl ? (
+                      <img src={manga.coverUrl} alt={manga.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] text-white text-[10px] font-bold">
+                        {manga.title.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-[var(--text-primary)] truncate flex-1">{manga.title}</span>
+                  {saving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--primary)]" />
+                  ) : (
+                    <Star className="w-3.5 h-3.5 text-[var(--text-tertiary)] hover:text-amber-400" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

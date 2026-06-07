@@ -13,6 +13,7 @@ import { AnimatedContainer } from '@/components/ui/AnimatedContainer';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 
 // Dynamic imports for below-the-fold components to reduce unused JS on initial load
 const ContinueReadingSection = lazy(() => import('@/components/Home/ContinueReadingSection').then(m => ({ default: m.ContinueReadingSection })));
@@ -98,32 +99,63 @@ export function HomeContent({
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         <GenreMarquee />
 
-        {/* Trending This Week */}
+        {/* Trending This Week — redesigned */}
         {trendingMangas && trendingMangas.length > 0 && (
           <AnimatedContainer viewport>
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <Flame className="w-6 h-6 text-[var(--error)]" /> {t('home.trendingTitle')}
-                </h2>
-                <Link href="/explore?sort=trending" aria-label={t('common.viewAll') + ' trending'}>
-                  <Button variant="ghost">{t('common.viewAll')} →</Button>
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {trendingMangas.slice(0, 8).map((manga, index) => (
-                  <div key={manga.id} className="relative">
-                    {index < 3 && (
-                      <span className="absolute -top-2 -right-2 z-10 bg-gradient-to-br from-[var(--error)] to-[var(--warning)] text-[var(--text-inverse)] text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                        <Flame className="w-3 h-3" />
-                        {t('home.trendingHot')}
-                      </span>
-                    )}
-                    <AnimatedContainer animation="fadeInUp" delay={index * 0.06}>
-                      <MangaCard manga={manga} />
-                    </AnimatedContainer>
-                  </div>
-                ))}
+            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[var(--error)]/5 via-[var(--warning)]/5 to-transparent p-6 md:p-8 border border-[var(--error)]/10">
+              {/* Background decorative elements */}
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[var(--error)]/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[var(--warning)]/5 rounded-full blur-3xl" />
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold flex items-center gap-3">
+                    <span className="relative">
+                      <Flame className="w-7 h-7 text-[var(--error)] animate-pulse" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-[var(--warning)] rounded-full animate-ping" />
+                    </span>
+                    {t('home.trendingTitle')}
+                  </h2>
+                  <Link href="/explore?sort=trending" aria-label={t('common.viewAll') + ' trending'}>
+                    <Button variant="outline" size="sm" className="text-xs border-[var(--error)]/20 hover:bg-[var(--error)]/10">
+                      <Flame className="w-3 h-3 mr-1" /> {t('common.viewAll')}
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
+                  {trendingMangas.slice(0, 8).map((manga, index) => (
+                    <div key={manga.id} className="relative group/card">
+                      {/* Rank badge */}
+                      <div className={cn(
+                        "absolute -top-2.5 -left-2.5 z-20 flex items-center justify-center w-8 h-8 rounded-full shadow-lg border-2 border-white/20 font-bold text-xs",
+                        index === 0 ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white" : "",
+                        index === 1 ? "bg-gradient-to-br from-slate-300 to-slate-400 text-gray-800" : "",
+                        index === 2 ? "bg-gradient-to-br from-amber-600 to-amber-700 text-white" : "",
+                        index >= 3 ? "bg-gradient-to-br from-[var(--error)]/80 to-[var(--warning)]/80 text-white" : "",
+                      )}>
+                        {index === 0 && <Flame className="w-3.5 h-3.5" />}
+                        {index === 1 && <span className="drop-shadow-sm">#2</span>}
+                        {index === 2 && <span className="drop-shadow-sm">#3</span>}
+                        {index >= 3 && <span className="drop-shadow-sm">#{index + 1}</span>}
+                      </div>
+
+                      {/* Hot badge for top 1 */}
+                      {index === 0 && (
+                        <span className="absolute -top-2.5 -right-2.5 z-20 bg-gradient-to-br from-[var(--error)] to-[var(--warning)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                          <Flame className="w-3 h-3" />
+                          {t('home.trendingHot')}
+                        </span>
+                      )}
+
+                      <AnimatedContainer animation="fadeInUp" delay={index * 0.06}>
+                        <div className="relative">
+                          <MangaCard manga={manga} />
+                        </div>
+                      </AnimatedContainer>
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
           </AnimatedContainer>

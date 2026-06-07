@@ -223,6 +223,7 @@ model MangaSeries {
   tags        String
   totalViews  Int      @default(0)
   rating      Float?
+  isHomepageFeatured Boolean @default(false)
   deletedAt   DateTime?
   restoredAt  DateTime?
   createdAt   DateTime @default(now())

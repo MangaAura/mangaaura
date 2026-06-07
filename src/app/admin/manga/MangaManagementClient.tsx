@@ -19,6 +19,9 @@ import {
   ImageIcon,
   ChevronLeft,
   ChevronRight,
+  Star,
+  Flame,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
@@ -59,6 +62,7 @@ interface MangaData {
   chapterCount: number;
   totalViews: number;
   bookmarkCount: number;
+  isHomepageFeatured?: boolean;
   createdAt: string;
 }
 
@@ -123,9 +127,20 @@ export default function MangaManagementClient() {
               )}
             </div>
             <div className="min-w-0">
-              <p className="font-medium text-[var(--text-primary)] truncate max-w-[200px]">
-                {row.original.title}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-[var(--text-primary)] truncate max-w-[200px]">
+                  {row.original.title}
+                </p>
+                {row.original.isHomepageFeatured && (
+                  <Badge
+                    variant="default"
+                    className="bg-amber-500/15 text-amber-400 border-amber-500/20 text-[10px] flex-shrink-0"
+                  >
+                    <Star className="w-2.5 h-2.5 mr-0.5 fill-amber-400" />
+                    Destacado
+                  </Badge>
+                )}
+              </div>
               <p className="text-xs text-[var(--text-tertiary)]">
                 by {row.original.authorName}
               </p>
@@ -200,6 +215,7 @@ export default function MangaManagementClient() {
         header: 'Actions',
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
+            <FeaturedToggleButton manga={row.original} onToggle={mutate} />
             <Link href={`/manga/${row.original.slug}`} target="_blank">
 <Button variant="ghost" size="icon" title="View" aria-label={t('admin.common.view')}>
             <Eye className="w-4 h-4 text-[var(--primary)]" />
@@ -431,5 +447,52 @@ export default function MangaManagementClient() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function FeaturedToggleButton({ manga, onToggle }: { manga: MangaData; onToggle: () => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleToggle = async () => {
+    setLoading(true);
+    try {
+      if (manga.isHomepageFeatured) {
+        await fetch('/api/admin/featured-manga', { method: 'DELETE' });
+      } else {
+        await fetch('/api/admin/featured-manga', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mangaId: manga.id }),
+        });
+      }
+      onToggle();
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={handleToggle}
+      disabled={loading}
+      title={manga.isHomepageFeatured ? 'Quitar destacado' : 'Destacar en portada'}
+      aria-label={manga.isHomepageFeatured ? 'Quitar destacado' : 'Destacar en portada'}
+    >
+      {loading ? (
+        <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)]" />
+      ) : (
+        <Flame
+          className={`w-4 h-4 ${
+            manga.isHomepageFeatured
+              ? 'text-amber-400 fill-amber-400'
+              : 'text-[var(--text-tertiary)] hover:text-amber-400'
+          }`}
+        />
+      )}
+    </Button>
   );
 }

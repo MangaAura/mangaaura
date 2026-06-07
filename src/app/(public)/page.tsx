@@ -173,8 +173,7 @@ export default async function HomePage() {
       generateCacheKey('homepage:featured', {}),
       homepageTtl,
       () => prisma.mangaSeries.findFirst({
-        where: { ...whereActive, totalViews: { gt: 0 } },
-        orderBy: { totalViews: 'desc' },
+        where: { ...whereActive, isHomepageFeatured: true },
         select: { id: true, title: true, slug: true, coverUrl: true, description: true, authorName: true },
       }),
     ),

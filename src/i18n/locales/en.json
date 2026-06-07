@@ -2821,7 +2821,13 @@
         "low": "Low",
         "background": "Background"
       }
-    }
+    },
+    "featuredManga": "Featured Manga",
+    "homepage": "Homepage",
+    "remove": "Remove",
+    "noFeaturedManga": "No featured manga on homepage",
+    "selectFeaturedManga": "Select a manga to display on the homepage hero",
+    "searchMangaToFeature": "Search manga to feature..."
   },
   "comparison": {
     "heroBadge": "Feature Comparison",
