@@ -95,7 +95,7 @@ function isProtectedRoute(pathname: string): boolean {
 // ─── Security constants ─────────────────────────────────────────────
 
 const STATIC_SKIP_PATHS = ['/_next/', '/static/', '/favicon.ico', '/manifest.json', '/sw.js', '/api/health', '/_rsc/'];
-const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/admin', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications', '/api/collections', '/api/follow', '/api/creator/mangas', '/api/manga', '/api/trash', '/api/ai', '/api/chapters'];
+const CSRF_SKIP_PATHS = ['/api/webhooks', '/api/auth', '/api/health', '/api/admin', '/api/clans', '/api/upload', '/api/user', '/api/me', '/api/comments', '/api/reports', '/api/notifications', '/api/collections', '/api/follow', '/api/creator/mangas', '/api/manga', '/api/trash', '/api/ai', '/api/chapters', '/api/cron', '/api/email/inbound', '/api/csp-report', '/api/socket'];
 const CSRF_COOKIE_NAME = '__csrf_mw';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
@@ -194,8 +194,17 @@ function validateCSRF(request: NextRequest): boolean {
 
 function setCSRFCookie(response: NextResponse) {
   const token = generateCSRFToken();
+  // HttpOnly cookie for server-side validation
   response.cookies.set(CSRF_COOKIE_NAME, token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: CSRF_COOKIE_MAX_AGE,
+    path: '/',
+  });
+  // Non-httpOnly cookie with same value for JS to read and send as header
+  response.cookies.set('__csrf_mw_js', token, {
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: CSRF_COOKIE_MAX_AGE,

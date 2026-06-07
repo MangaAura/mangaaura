@@ -1,16 +1,32 @@
 'use client';
 
-import { ArrowLeft, Calendar, User } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, User } from 'lucide-react';
 import Link from 'next/link';
 
+import { ShareButton } from '@/components/Share/ShareButton';
 import { useT } from '@/i18n';
 import type { DisplayNewsItem } from '@/lib/news';
 
-interface Props {
-  article: DisplayNewsItem;
+interface RelatedItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  titleEn?: string | null;
+  excerptEn?: string | null;
+  coverUrl: string | null;
+  category: string;
+  isFeatured: boolean;
+  publishedAt: string | null;
+  createdAt: string;
 }
 
-export function BlogArticleClient({ article }: Props) {
+interface Props {
+  article: DisplayNewsItem;
+  relatedArticles?: RelatedItem[];
+}
+
+export function BlogArticleClient({ article, relatedArticles = [] }: Props) {
   const t = useT();
   return (
     <main id="main-content" className="max-w-3xl mx-auto px-6 py-12">
@@ -53,7 +69,51 @@ export function BlogArticleClient({ article }: Props) {
             dangerouslySetInnerHTML={{ __html: article.body }}
           />
         )}
+
+        <div className="mt-12 pt-8 border-t border-[var(--border)]">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">
+              {t('blog.shareArticle')}
+            </p>
+            <div className="flex items-center gap-2">
+              <ShareButton
+                variant="outline"
+                size="sm"
+                title={article.title}
+                text={article.description || `Lee "${article.title}" en MangaAura`}
+              />
+            </div>
+          </div>
+        </div>
       </article>
+
+      {relatedArticles.length > 0 && (
+        <section className="mt-16 pt-8 border-t border-[var(--border)]">
+          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[var(--primary)]" />
+            {t('blog.relatedArticles')}
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {relatedArticles.map((r) => (
+              <Link
+                key={r.id}
+                href={`/blog/${r.slug}`}
+                className="group border border-[var(--border)] bg-[var(--surface)] rounded-xl p-4 hover:border-[var(--primary)]/40 hover:shadow-sm transition-all"
+              >
+                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--primary)]/10 text-[var(--primary)] mb-2">
+                  {r.category}
+                </span>
+                <h3 className="font-bold text-sm group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                  {r.title}
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">
+                  {r.excerpt}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

@@ -104,7 +104,8 @@ export function GenerateImageClient() {
     t('creator.imageGeneration.presetPrompt5'),
     t('creator.imageGeneration.presetPrompt6'),
   ];
-  const { auraBalance, refreshBalance } = useAuraBalance();
+  // Poll every 10s so admin-added Aura reflects quickly
+  const { auraBalance, refreshBalance } = useAuraBalance({ refreshInterval: 10000 });
 
   const router = useRouter();
 
@@ -272,7 +273,9 @@ export function GenerateImageClient() {
 
   // ── Keyboard shortcut ─────────────────────────────────────────────
   const generateRef = useRef(handleGenerate);
-  generateRef.current = handleGenerate;
+  useEffect(() => {
+    generateRef.current = handleGenerate;
+  }, [handleGenerate]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

@@ -87,6 +87,5 @@ export function dbArticleToDisplayItem(
 
 /** Build the article detail URL from a DisplayNewsItem */
 export function getArticlePath(article: DisplayNewsItem): string {
-  const [year, month] = article.date.split('-');
-  return `/news/${year}/${month}/${article.slug}`;
+  return `/blog/${article.slug}`;
 }

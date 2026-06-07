@@ -52,13 +52,10 @@ export default async function newsSitemap(): Promise<MetadataRoute.Sitemap> {
   for (const article of articles) {
     if (!article.publishedAt) continue;
 
-    const pubDate = article.publishedAt.toISOString().split('T')[0];
-    const [year, month] = pubDate.split('-');
-    const canonical = `/news/${year}/${month}/${article.slug}`;
     const ageInDays = (Date.now() - article.publishedAt.getTime()) / (1000 * 60 * 60 * 24);
 
     routes.push({
-      url: `${BASE_URL}${canonical}`,
+      url: `${BASE_URL}/blog/${article.slug}`,
       lastModified: article.updatedAt || article.publishedAt,
       changeFrequency: ageInDays <= 2 ? 'daily' : 'monthly',
       priority: ageInDays <= 2 ? 1.0 : 0.5,

@@ -4557,7 +4557,9 @@
     "404SearchIn": "Search in"
   },
   "blog": {
-    "backToBlog": "Back to blog"
+    "backToBlog": "Back to blog",
+    "shareArticle": "Share this article",
+    "relatedArticles": "You may also like"
   },
   "affiliate": {
     "heroBadge": "New — MangaAura Affiliate Program",

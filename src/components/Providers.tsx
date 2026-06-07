@@ -2,10 +2,11 @@
 
 import dynamic from 'next/dynamic';
 import { SessionProvider } from 'next-auth/react';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { SWRConfig } from 'swr';
 
 import { KeyboardShortcutsProvider } from './Layout/KeyboardShortcutsProvider';
+import { initCSRFProtection } from '@/lib/csrf';
 import { TourProvider } from './OnboardingTour';
 import { ThemeProvider } from './ThemeProvider';
 import { ToastProvider } from '@/components/ui/Toast';
@@ -32,6 +33,7 @@ interface ProvidersProps {
 }
 
 export function Providers({ children, locale }: ProvidersProps) {
+  useEffect(() => { initCSRFProtection(); }, []);
   return (
     <SessionProvider>
       <SWRConfig value={swrConfig}>

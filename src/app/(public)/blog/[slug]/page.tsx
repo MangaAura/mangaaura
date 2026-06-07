@@ -64,6 +64,35 @@ export default async function BlogArticlePage({ params }: Props) {
   const displayItem = dbArticleToDisplayItem(dbArticle);
   const canonical = `/blog/${displayItem.slug}`;
 
+  const relatedArticles = await prisma.newsArticle.findMany({
+    where: {
+      isPublished: true,
+      slug: { not: slug },
+      category: dbArticle.category,
+    },
+    orderBy: { publishedAt: 'desc' },
+    take: 3,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      titleEn: true,
+      excerptEn: true,
+      coverUrl: true,
+      category: true,
+      isFeatured: true,
+      publishedAt: true,
+      createdAt: true,
+    },
+  });
+
+  const serializedRelated = relatedArticles.map((a) => ({
+    ...a,
+    publishedAt: a.publishedAt?.toISOString() ?? null,
+    createdAt: a.createdAt.toISOString(),
+  }));
+
   return (
     <>
       <BreadcrumbStructuredData
@@ -82,7 +111,7 @@ export default async function BlogArticlePage({ params }: Props) {
         datePublished={dbArticle.publishedAt?.toISOString() || dbArticle.createdAt.toISOString()}
         dateModified={dbArticle.updatedAt?.toISOString()}
       />
-      <BlogArticleClient article={displayItem} />
+      <BlogArticleClient article={displayItem} relatedArticles={serializedRelated} />
     </>
   );
 }
