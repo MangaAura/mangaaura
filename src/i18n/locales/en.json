@@ -842,7 +842,8 @@
     "newsMinRead": "{time} min read",
     "ctaCreatorRegister": "Register as creator",
     "trendingTitle": "Trending",
-    "trendingHot": "Hot"
+    "trendingHot": "Hot",
+    "trendingSubtitle": "Most viewed this week"
   },
   "genres": {
     "accion": "Action",

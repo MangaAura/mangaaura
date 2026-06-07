@@ -99,62 +99,101 @@ export function HomeContent({
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         <GenreMarquee />
 
-        {/* Trending This Week — redesigned */}
+        {/* Trending This Week — redesigned with premium aesthetic */}
         {trendingMangas && trendingMangas.length > 0 && (
           <AnimatedContainer viewport>
-            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[var(--error)]/5 via-[var(--warning)]/5 to-transparent p-6 md:p-8 border border-[var(--error)]/10">
-              {/* Background decorative elements */}
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[var(--error)]/5 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[var(--warning)]/5 rounded-full blur-3xl" />
+            <section className="relative overflow-hidden rounded-2xl border border-[var(--error)]/10 bg-gradient-to-br from-[var(--surface-elevated)] via-[var(--surface)] to-[var(--surface-sunken)] p-6 md:p-8 shadow-xl">
+              {/* Ambient glow — warm ember feel */}
+              <div className="absolute -top-20 right-0 w-72 h-72 bg-[var(--error)]/8 rounded-full blur-[120px]" />
+              <div className="absolute -bottom-20 left-0 w-56 h-56 bg-[var(--warning)]/8 rounded-full blur-[100px]" />
+              {/* Subtle grid pattern overlay */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: 'radial-gradient(circle at 1px 1px, var(--warning) 1px, transparent 0)',
+                backgroundSize: '24px 24px',
+              }} />
 
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-3">
-                    <span className="relative">
-                      <Flame className="w-7 h-7 text-[var(--error)] animate-pulse" />
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-[var(--warning)] rounded-full animate-ping" />
-                    </span>
-                    {t('home.trendingTitle')}
-                  </h2>
+                {/* Header */}
+                <div className="flex items-end justify-between mb-8">
+                  <div>
+                    <div className="flex items-center gap-3 mb-1.5">
+                      <div className="relative">
+                        <Flame className="w-8 h-8 text-[var(--error)] drop-shadow-[0_0_8px_var(--error)]" />
+                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[var(--error)] rounded-full animate-ping opacity-70" />
+                      </div>
+                      <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                        <span className="bg-gradient-to-r from-[var(--error)] via-[var(--warning)] to-amber-400 bg-clip-text text-transparent">
+                          {t('home.trendingTitle')}
+                        </span>
+                      </h2>
+                    </div>
+                    <p className="text-sm text-[var(--text-tertiary)] ml-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--error)] animate-pulse" />
+                      {t('home.trendingSubtitle')}
+                    </p>
+                  </div>
                   <Link href="/explore?sort=trending" aria-label={t('common.viewAll') + ' trending'}>
-                    <Button variant="outline" size="sm" className="text-xs border-[var(--error)]/20 hover:bg-[var(--error)]/10">
-                      <Flame className="w-3 h-3 mr-1" /> {t('common.viewAll')}
+                    <Button variant="ghost" size="sm" className="text-xs gap-1.5 group">
+                      {t('common.viewAll')}
+                      <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                     </Button>
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
-                  {trendingMangas.slice(0, 8).map((manga, index) => (
-                    <div key={manga.id} className="relative group/card">
-                      {/* Rank badge */}
-                      <div className={cn(
-                        "absolute -top-2.5 -left-2.5 z-20 flex items-center justify-center w-8 h-8 rounded-full shadow-lg border-2 border-white/20 font-bold text-xs",
-                        index === 0 ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white" : "",
-                        index === 1 ? "bg-gradient-to-br from-slate-300 to-slate-400 text-gray-800" : "",
-                        index === 2 ? "bg-gradient-to-br from-amber-600 to-amber-700 text-white" : "",
-                        index >= 3 ? "bg-gradient-to-br from-[var(--error)]/80 to-[var(--warning)]/80 text-white" : "",
-                      )}>
-                        {index === 0 && <Flame className="w-3.5 h-3.5" />}
-                        {index === 1 && <span className="drop-shadow-sm">#2</span>}
-                        {index === 2 && <span className="drop-shadow-sm">#3</span>}
-                        {index >= 3 && <span className="drop-shadow-sm">#{index + 1}</span>}
-                      </div>
-
-                      {/* Hot badge for top 1 */}
-                      {index === 0 && (
-                        <span className="absolute -top-2.5 -right-2.5 z-20 bg-gradient-to-br from-[var(--error)] to-[var(--warning)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 animate-pulse">
-                          <Flame className="w-3 h-3" />
-                          {t('home.trendingHot')}
-                        </span>
-                      )}
-
-                      <AnimatedContainer animation="fadeInUp" delay={index * 0.06}>
-                        <div className="relative">
-                          <MangaCard manga={manga} />
+                {/* Cards grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+                  {trendingMangas.slice(0, 8).map((manga, index) => {
+                    const rank = index + 1;
+                    const isTop3 = rank <= 3;
+                    return (
+                      <div key={manga.id} className="relative group/card">
+                        {/* Rank badge — integrated, no overlap issues */}
+                        <div className={cn(
+                          "absolute -top-2.5 -left-2.5 z-20 w-8 h-8 rounded-full shadow-lg flex items-center justify-center text-xs font-bold border-2 transition-transform duration-300 group-hover/card:scale-110",
+                          rank === 1 && "bg-gradient-to-br from-yellow-300 via-yellow-400 to-orange-500 text-white border-yellow-200/40 shadow-yellow-500/20",
+                          rank === 2 && "bg-gradient-to-br from-slate-200 to-slate-400 text-slate-800 border-slate-300/40",
+                          rank === 3 && "bg-gradient-to-br from-amber-600 to-amber-800 text-white border-amber-500/30",
+                          rank >= 4 && "bg-gradient-to-br from-[var(--surface-sunken)] to-[var(--surface-elevated)] text-[var(--text-secondary)] border-[var(--border)]",
+                        )}>
+                          {rank === 1 ? (
+                            <Flame className="w-4 h-4 drop-shadow-sm" />
+                          ) : (
+                            <span>#{rank}</span>
+                          )}
                         </div>
-                      </AnimatedContainer>
-                    </div>
-                  ))}
+
+                        {/* Trend badge */}
+                        <div className={cn(
+                          "absolute -top-2.5 -right-2.5 z-20 flex items-center gap-1 rounded-full shadow-lg text-[10px] font-bold px-2 py-0.5",
+                          rank === 1 && "bg-gradient-to-r from-[var(--error)] to-[var(--warning)] text-white animate-pulse",
+                          rank === 2 && "bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)]",
+                          rank === 3 && "bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)]",
+                          rank >= 4 && "bg-[var(--surface-sunken)] text-[var(--text-tertiary)] border border-[var(--border)] opacity-0 group-hover/card:opacity-100 transition-opacity",
+                        )}>
+                          {rank <= 3 && (
+                            <Flame className={cn(
+                              "w-2.5 h-2.5",
+                              rank === 1 ? "text-white" : "text-[var(--warning)]",
+                            )} />
+                          )}
+                          <span>{rank === 1 ? t('home.trendingHot') : `#${rank}`}</span>
+                        </div>
+
+                        {/* Card wrapper with rank-based border glow */}
+                        <div className={cn(
+                          "relative rounded-xl transition-all duration-300",
+                          rank === 1 && "ring-1 ring-amber-500/20 shadow-lg shadow-amber-500/5 group-hover/card:shadow-amber-500/15 group-hover/card:ring-amber-500/30",
+                          rank === 2 && "group-hover/card:shadow-md group-hover/card:shadow-slate-500/5",
+                          rank === 3 && "group-hover/card:shadow-md group-hover/card:shadow-amber-600/5",
+                          isTop3 && "overflow-hidden",
+                        )}>
+                          <AnimatedContainer animation="fadeInUp" delay={index * 0.05}>
+                            <MangaCard manga={manga} />
+                          </AnimatedContainer>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>

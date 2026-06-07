@@ -755,7 +755,8 @@
     "newsMinRead": "{time} min de lectura",
     "ctaCreatorRegister": "Registrarse como creador",
     "trendingTitle": "Tendencias",
-    "trendingHot": "Tendencia"
+    "trendingHot": "Tendencia",
+    "trendingSubtitle": "Lo más visto de la semana"
   },
   "genres": {
     "accion": "Acción",
