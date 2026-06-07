@@ -1,6 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 
 import { PrismaClient } from "../src/generated/prisma/client.js";
+import { BLOG_COVERS } from "./data/blog-covers.js";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -538,7 +539,7 @@ async function main() {
           titleEn: article.titleEn ?? null,
           excerptEn: article.excerptEn ?? null,
           contentEn: article.contentEn ?? null,
-          coverUrl: null,
+          coverUrl: BLOG_COVERS[article.slug] || null,
           category: article.category,
           authorId: AUTHOR_ID,
           isPublished: true,
@@ -553,7 +554,7 @@ async function main() {
           titleEn: article.titleEn ?? null,
           excerptEn: article.excerptEn ?? null,
           contentEn: article.contentEn ?? null,
-          coverUrl: null,
+          coverUrl: BLOG_COVERS[article.slug] || null,
           category: article.category,
           authorId: AUTHOR_ID,
           isPublished: true,

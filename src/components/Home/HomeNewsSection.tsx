@@ -50,13 +50,11 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
 
   const isEnglish = locale === 'en';
 
-  const featuredItems = dbItems.filter((item) => item.isFeatured).slice(0, 2);
-  const regularItems = dbItems.filter((item) => !item.isFeatured);
-  const displayItems = [...featuredItems, ...regularItems].slice(0, 7);
-
-  const featured = featuredItems.length > 0 ? featuredItems[0] : null;
+  /* Take up to 7 most recent articles. First featured one becomes hero, rest go in grid. */
+  const displayItems = dbItems.slice(0, 7);
+  const featured = displayItems.find((item) => item.isFeatured) || null;
   const rest = featured
-    ? [featuredItems[1], ...regularItems].filter(Boolean).slice(0, 6)
+    ? displayItems.filter((item) => item.slug !== featured.slug).slice(0, 6)
     : displayItems.slice(0, 7);
 
   const formatDate = (dateStr: string) => {

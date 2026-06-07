@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { BLOG_COVERS } from '../../../../../../scripts/data/blog-covers';
 
 const AUTHOR_ID = "7e054872-aa97-4f0e-a354-ed7318a51c1f";
 
@@ -555,8 +556,18 @@ export async function POST() {
   for (const article of ARTICLES) {
     try {
       const existing = await prisma.newsArticle.findUnique({ where: { slug: article.slug } });
+      const coverUrl = BLOG_COVERS[article.slug] || null;
+
       if (existing) {
-        results.push({ slug: article.slug, status: 'already exists' });
+        if (coverUrl && !existing.coverUrl) {
+          await prisma.newsArticle.update({
+            where: { slug: article.slug },
+            data: { coverUrl },
+          });
+          results.push({ slug: article.slug, status: 'cover added' });
+        } else {
+          results.push({ slug: article.slug, status: 'already exists' });
+        }
         continue;
       }
 
@@ -573,6 +584,7 @@ export async function POST() {
           authorId: AUTHOR_ID,
           isPublished: true,
           publishedAt: new Date(),
+          coverUrl,
         },
       });
 

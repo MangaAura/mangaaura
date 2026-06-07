@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { ARTICLES_PHASE_3 } from './seed-blog-articles-phase3-data.js';
+import { BLOG_COVERS } from './data/blog-covers.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const AUTHOR_ID = "7e054872-aa97-4f0e-a354-ed7318a51c1f";
@@ -16,8 +17,11 @@ lines.push('-- Ejecutar en Neon Console: https://console.neon.tech → SQL Edito
 lines.push('');
 
 for (const a of ARTICLES_PHASE_3) {
-  lines.push(`INSERT INTO "NewsArticle" (id, title, slug, excerpt, content, "titleEn", "excerptEn", "contentEn", category, "authorId", "isPublished", "publishedAt", "createdAt", "updatedAt")`);
-  lines.push(`SELECT gen_random_uuid(), '${esc(a.title)}', '${esc(a.slug)}', '${esc(a.excerpt)}', '${esc(a.content)}', '${esc(a.titleEn)}', '${esc(a.excerptEn)}', '${esc(a.contentEn)}', '${esc(a.category)}', '${AUTHOR_ID}', true, NOW(), NOW(), NOW()`);
+  const coverUrl = BLOG_COVERS[a.slug] || null;
+  const coverCol = coverUrl ? `, "coverUrl"` : '';
+  const coverVal = coverUrl ? `, '${esc(coverUrl)}'` : '';
+  lines.push(`INSERT INTO "NewsArticle" (id, title, slug, excerpt, content, "titleEn", "excerptEn", "contentEn", category, "authorId", "isPublished", "publishedAt", "createdAt", "updatedAt"${coverCol})`);
+  lines.push(`SELECT gen_random_uuid(), '${esc(a.title)}', '${esc(a.slug)}', '${esc(a.excerpt)}', '${esc(a.content)}', '${esc(a.titleEn)}', '${esc(a.excerptEn)}', '${esc(a.contentEn)}', '${esc(a.category)}', '${AUTHOR_ID}', true, NOW(), NOW(), NOW()${coverVal}`);
   lines.push(`WHERE NOT EXISTS (SELECT 1 FROM "NewsArticle" WHERE slug = '${esc(a.slug)}');`);
   lines.push('');
 }
