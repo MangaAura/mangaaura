@@ -187,7 +187,7 @@ export default async function HomePage() {
             { isFeatured: 'desc' },
             { publishedAt: 'desc' },
           ],
-          take: 6,
+          take: 7,
           select: {
             id: true,
             title: true,
