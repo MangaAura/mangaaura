@@ -139,6 +139,8 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
   const [fullscreen, setFullscreen] = useState(false);
   const [refreshingBalance, setRefreshingBalance] = useState(false);
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
+  const [pollElapsed, setPollElapsed] = useState(0);
+  const pollStartRef = useRef<number | null>(null);
 
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -191,6 +193,23 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
 
   // ── Handlers ───────────────────────────────────────────────────────
 
+  // ── Elapsed time counter for polling ──────────────────────────
+  useEffect(() => {
+    if (!pendingJobId) {
+      pollStartRef.current = null;
+      return;
+    }
+
+    pollStartRef.current = Date.now();
+    const interval = setInterval(() => {
+      if (pollStartRef.current) {
+        setPollElapsed(Math.floor((Date.now() - pollStartRef.current) / 1000));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [pendingJobId]);
+
   // ── Poll for queued job completion ──────────────────────────────
   useEffect(() => {
     if (!pendingJobId) return;
@@ -201,6 +220,7 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
         if (!res.ok) {
           clearInterval(interval);
           setPendingJobId(null);
+          setPollElapsed(0);
           setIsGenerating(false);
           return;
         }
@@ -209,6 +229,7 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
         if (data.status === 'COMPLETED') {
           clearInterval(interval);
           setPendingJobId(null);
+          setPollElapsed(0);
           setIsGenerating(false);
           setResult({
             success: true,
@@ -227,6 +248,7 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
         } else if (data.status === 'FAILED') {
           clearInterval(interval);
           setPendingJobId(null);
+          setPollElapsed(0);
           setIsGenerating(false);
           setError(data.errorMessage || t('creator.imageGeneration.generatingError'));
           refreshBalance();
@@ -581,9 +603,175 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
               </Button>
             )}
 
+            {/* Loading animation while job is queued */}
+            <AnimatePresence>
+              {pendingJobId && (
+                <motion.div
+                  ref={resultRef}
+                  initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.97 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="w-full"
+                >
+                  <Card className="overflow-hidden border-[var(--primary)]/20">
+                    {/* Animated gradient bar */}
+                    <div className="h-1.5 w-full bg-[var(--surface-sunken)] overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-[var(--primary)] via-[var(--accent-purple)] to-[var(--accent-pink)]"
+                        animate={{
+                          x: ['-100%', '200%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    </div>
+
+                    <div className="p-8 flex flex-col items-center justify-center gap-5">
+                      {/* Animated illustration */}
+                      <div className="relative w-24 h-24">
+                        {/* Outer pulsing ring */}
+                        <motion.div
+                          className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20"
+                          animate={{
+                            scale: [1, 1.15, 1],
+                            opacity: [0.5, 0.8, 0.5],
+                          }}
+                          transition={{
+                            duration: 2.5,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }}
+                        />
+                        {/* Middle pulsing ring */}
+                        <motion.div
+                          className="absolute inset-2 rounded-full bg-gradient-to-br from-[var(--primary)]/30 to-[var(--accent-purple)]/30"
+                          animate={{
+                            scale: [1, 1.1, 1],
+                            opacity: [0.6, 1, 0.6],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                            delay: 0.3,
+                          }}
+                        />
+                        {/* Center icon */}
+                        <motion.div
+                          className="absolute inset-3 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-purple)] flex items-center justify-center"
+                          animate={{
+                            rotate: [0, 360],
+                          }}
+                          transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                        >
+                          <Sparkles className="w-7 h-7 text-white" />
+                        </motion.div>
+                      </div>
+
+                      {/* Status text */}
+                      <div className="text-center space-y-1.5">
+                        <motion.p
+                          className="text-base font-semibold text-[var(--text-primary)]"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          {t('creator.imageGeneration.generating')}
+                        </motion.p>
+                        <motion.p
+                          className="text-sm text-[var(--text-tertiary)]"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4 }}
+                        >
+                          <motion.span
+                            key={pollElapsed}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {pollElapsed < 60
+                              ? `${pollElapsed}s`
+                              : `${Math.floor(pollElapsed / 60)}m ${pollElapsed % 60}s`}
+                          </motion.span>
+                        </motion.p>
+                      </div>
+
+                      {/* Prompt preview */}
+                      <motion.div
+                        className="w-full max-w-md"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        <div className="p-3 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border)]">
+                          <p className="text-xs text-[var(--text-tertiary)] mb-1 font-medium">
+                            {t('creator.imageGeneration.prompt')}
+                          </p>
+                          <p className="text-sm text-[var(--text-secondary)] line-clamp-3">
+                            {prompt}
+                          </p>
+                        </div>
+                      </motion.div>
+
+                      {/* Steps indicator */}
+                      <motion.div
+                        className="flex items-center gap-6"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        {[
+                          t('creator.imageGeneration.stepValidating'),
+                          t('creator.imageGeneration.stepGenerating'),
+                          t('creator.imageGeneration.stepProcessing'),
+                        ].map((step, i) => (
+                          <div key={step} className="flex flex-col items-center gap-1.5">
+                            <motion.div
+                              className="w-6 h-6 rounded-full flex items-center justify-center"
+                              animate={{
+                                backgroundColor:
+                                  i === 0
+                                    ? ['rgba(99,102,241,0.2)', 'rgba(99,102,241,0.35)', 'rgba(99,102,241,0.2)']
+                                    : i === 1
+                                      ? ['rgba(99,102,241,0.15)', 'rgba(99,102,241,0.3)', 'rgba(99,102,241,0.15)']
+                                      : ['rgba(99,102,241,0.1)', 'rgba(99,102,241,0.2)', 'rgba(99,102,241,0.1)'],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: i * 0.4,
+                              }}
+                            >
+                              {i === 0 ? (
+                                <Check className="w-3.5 h-3.5 text-[var(--primary)]" />
+                              ) : (
+                                <div className="w-2 h-2 rounded-full bg-current text-[var(--primary)]" />
+                              )}
+                            </motion.div>
+                            <span className="text-[10px] text-[var(--text-tertiary)] whitespace-nowrap">
+                              {step}
+                            </span>
+                          </div>
+                        ))}
+                      </motion.div>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Error */}
             <AnimatePresence>
-              {error && (
+              {error && !pendingJobId && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
