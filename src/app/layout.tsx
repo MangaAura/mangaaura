@@ -3,6 +3,7 @@ import { Bebas_Neue, Inter } from "next/font/google";
 import { headers } from 'next/headers';
 import { Suspense } from 'react';
 
+import { GoogleAnalytics } from "@/components/Analytics/GoogleAnalytics";
 import { AppFooter } from "@/components/Layout/AppFooter";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { Providers } from "@/components/Providers";
@@ -198,6 +199,9 @@ export default async function RootLayout({
   return (
     <html lang={htmlLang} suppressHydrationWarning className={`${inter.variable} ${displayFont.variable}`}>
       <head>
+        {process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION && (
+          <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION} />
+        )}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ui-avatars.com" />
@@ -216,6 +220,7 @@ export default async function RootLayout({
             __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
           }}
         />
+        <GoogleAnalytics />
         <Providers locale={htmlLang}>
           <Suspense fallback={<div className="flex flex-col flex-1 noise" />}>
             <DynamicProviders>{children}</DynamicProviders>
