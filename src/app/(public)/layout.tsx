@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { ExitIntentProvider } from '@/components/ExitIntent/ExitIntentProvider';
 import { AppShell } from '@/components/Layout/AppShell';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
@@ -25,6 +26,7 @@ export default function PublicLayout({
   return (
     <AppShell showMobileBottomNav>
       {children}
+      <ExitIntentProvider />
     </AppShell>
   );
 }
