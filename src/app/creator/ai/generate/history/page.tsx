@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Container } from '@/components/Layout/Container';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 
 interface HistoryItem {
   id: string;
@@ -35,6 +36,7 @@ interface HistoryItem {
 }
 
 export default function GenerateHistoryPage() {
+  const t = useT();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,13 +51,13 @@ export default function GenerateHistoryPage() {
     const load = async () => {
       try {
         const res = await fetch('/api/ai/generate-image?limit=40');
-        if (!res.ok) throw new Error('Error al cargar historial');
+        if (!res.ok) throw new Error(t('creator.imageGeneration.historyLoadError'));
         const data = await res.json();
         setItems(data.items);
         setCursor(data.nextCursor);
         setHasMore(data.hasMore);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error de conexión');
+        setError(err instanceof Error ? err.message : t('creator.imageGeneration.connectionError'));
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +72,7 @@ export default function GenerateHistoryPage() {
 
     try {
       const res = await fetch(`/api/ai/generate-image?limit=40&cursor=${cursor}`);
-      if (!res.ok) throw new Error('Error al cargar más');
+      if (!res.ok) throw new Error(t('creator.imageGeneration.historyLoadMoreError'));
       const data = await res.json();
       setItems((prev) => [...prev, ...data.items]);
       setCursor(data.nextCursor);
@@ -106,11 +108,11 @@ export default function GenerateHistoryPage() {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
     if (days === 0) {
-      return date.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
     }
-    if (days === 1) return 'Ayer';
-    if (days < 7) return `Hace ${days} días`;
-    return date.toLocaleDateString('es', { day: 'numeric', month: 'short' });
+    if (days === 1) return t('creator.imageGeneration.yesterday');
+    if (days < 7) return t('creator.imageGeneration.daysAgo', { days });
+    return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   };
 
   return (
@@ -128,10 +130,10 @@ export default function GenerateHistoryPage() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent-purple)]/20 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-[var(--primary)]" />
               </div>
-              <h1 className="text-2xl font-bold">Historial de generaciones</h1>
+              <h1 className="text-2xl font-bold">{t('creator.imageGeneration.historyTitle')}</h1>
             </div>
             <p className="text-sm text-[var(--text-secondary)]">
-              Todas tus imágenes generadas con IA
+              {t('creator.imageGeneration.historySubtitle')}
             </p>
           </div>
         </div>
@@ -151,20 +153,20 @@ export default function GenerateHistoryPage() {
               className="mt-4"
               onClick={() => window.location.reload()}
             >
-              Reintentar
+              {t('creator.imageGeneration.historyRetry')}
             </Button>
           </Card>
         ) : items.length === 0 ? (
           <Card className="p-12 text-center">
             <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-20 text-[var(--text-tertiary)]" />
-            <h3 className="text-lg font-semibold mb-2">Sin generaciones</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('creator.imageGeneration.historyNoImages')}</h3>
             <p className="text-sm text-[var(--text-secondary)] mb-6">
-              Aún no has generado ninguna imagen.
+              {t('creator.imageGeneration.historyNoImagesDesc')}
             </p>
             <Link href="/creator/ai/generate">
               <Button variant="default">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Generar primera imagen
+                {t('creator.imageGeneration.historyGenerateFirst')}
               </Button>
             </Link>
           </Card>
@@ -219,12 +221,12 @@ export default function GenerateHistoryPage() {
                   )}
                   {item.status === 'FAILED' && (
                     <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/80 text-white backdrop-blur-sm">
-                      Falló
+                      {t('creator.imageGeneration.statusFailed')}
                     </span>
                   )}
                   {item.status === 'PROCESSING' && (
                     <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/80 text-white backdrop-blur-sm">
-                      Procesando
+                      {t('creator.imageGeneration.statusProcessing')}
                     </span>
                   )}
                 </div>
@@ -252,7 +254,7 @@ export default function GenerateHistoryPage() {
               <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
             ) : (
               <p className="text-sm text-[var(--text-tertiary)]">
-                Desplázate para cargar más
+                {t('creator.imageGeneration.historyScrollMore')}
               </p>
             )}
           </div>

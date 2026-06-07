@@ -150,19 +150,20 @@ function formatPricePerAura(pkg: { priceCents: number; aura: number }, t?: (key:
   return formatPrice(pkg.priceCents);
 }
 
-const PRESET_PROMPTS = [
-  'Retrato de guerrero samurai estilo anime, colores vibrantes, fondo de atardecer',
-  'Personaje de manga chibi con armadura brillante, estilo kawaii',
-  'Dragón estilizado, líneas dinámicas, composición épica, blanco y negro con tinta roja',
-  'Paisaje de mundo fantástico con templos flotantes y cascadas luminosas',
-  'Personaje femenino de anime con poderes mágicos, cabello brillante, fondo estrellado',
-  'Ilustración de batalla épica entre dos guerreros, estilo manga shonen',
-];
-
 // ─── Client Component ───────────────────────────────────────────────────
 
 export function GenerateImageClient() {
   const t = useT();
+
+  // ── Preset prompts (i18n) ─────────────────────────────────────────
+  const PRESET_PROMPTS = [
+    t('creator.imageGeneration.presetPrompt1'),
+    t('creator.imageGeneration.presetPrompt2'),
+    t('creator.imageGeneration.presetPrompt3'),
+    t('creator.imageGeneration.presetPrompt4'),
+    t('creator.imageGeneration.presetPrompt5'),
+    t('creator.imageGeneration.presetPrompt6'),
+  ];
   const { data: session } = useSession();
   const auraBalance = (session?.user as { auraBalance?: number } | undefined)?.auraBalance ?? 0;
 
@@ -299,8 +300,8 @@ export function GenerateImageClient() {
       const data: GenerationResponse = await res.json();
 
       if (!res.ok) {
-        setIsAuraError(data.error === 'Aura insuficiente');
-        if (data.error === 'Aura insuficiente') {
+        setIsAuraError(data.error === t('creator.imageGeneration.auraInsufficient'));
+        if (data.error === t('creator.imageGeneration.auraInsufficient')) {
           setError(t('creator.imageGeneration.auraInsufficientDesc', { cost: data.auraCost, balance: auraBalance }));
         } else {
           setError(data.error || t('creator.imageGeneration.generatingError'));
@@ -989,7 +990,7 @@ export function GenerateImageClient() {
                       </div>
                       <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
                         {pkg.discount && auraBalance < selectedModel.auraCost
-                      ? `Te da ${Math.floor(pkg.aura / selectedModel.auraCost)} generación(es)`
+                      ? t('creator.imageGeneration.generationsCount', { count: Math.floor(pkg.aura / selectedModel.auraCost) })
                       : formatPricePerAura(pkg, t)}
                       </p>
                     </div>
