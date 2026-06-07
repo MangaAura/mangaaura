@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { logSecurityEvent } from '@/lib/security-audit';
 
 const updateUserSchema = z.object({
   displayName: z.string().min(1).max(50).optional(),
@@ -231,10 +232,45 @@ export async function PATCH(
     if (auraBalance !== undefined) updateData.auraBalance = auraBalance;
     if (level !== undefined) updateData.level = level;
 
+    // Fetch old values for audit logging
+    const oldUser = await prisma.user.findUnique({
+      where: { id },
+      select: { role: true, auraBalance: true, xpPoints: true, level: true },
+    });
+
     const user = await prisma.user.update({
       where: { id },
       data: updateData,
     });
+
+    // Log admin modifications to audit trail
+    const changes: Record<string, { from: unknown; to: unknown }> = {};
+    if (auraBalance !== undefined && oldUser && oldUser.auraBalance !== auraBalance) {
+      changes.auraBalance = { from: oldUser.auraBalance, to: auraBalance };
+    }
+    if (xpPoints !== undefined && oldUser && oldUser.xpPoints !== xpPoints) {
+      changes.xpPoints = { from: oldUser.xpPoints, to: xpPoints };
+    }
+    if (level !== undefined && oldUser && oldUser.level !== level) {
+      changes.level = { from: oldUser.level, to: level };
+    }
+    if (role !== undefined && oldUser && oldUser.role !== role) {
+      changes.role = { from: oldUser.role, to: role };
+    }
+
+    if (Object.keys(changes).length > 0) {
+      await logSecurityEvent({
+        userId: session.user.id,
+        action: 'ADMIN_ACTION',
+        targetId: id,
+        targetType: 'USER',
+        severity: 'WARNING',
+        metadata: {
+          type: 'USER_UPDATE',
+          changes,
+        },
+      });
+    }
 
     return NextResponse.json({ user });
   } catch (error) {

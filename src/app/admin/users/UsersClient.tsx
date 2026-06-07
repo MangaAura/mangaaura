@@ -19,6 +19,9 @@ import {
   User,
   Check,
   Loader2,
+  Coins,
+  Zap,
+  ArrowUp,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo, useCallback } from 'react';
@@ -84,6 +87,15 @@ export default function UsersClient() {
   const [showActionDialog, setShowActionDialog] = useState(false);
   const [actionType, setActionType] = useState<'ban' | 'unban' | 'delete'>('ban');
   const [isActioning, setIsActioning] = useState(false);
+  const [showAuraDialog, setShowAuraDialog] = useState(false);
+  const [auraValue, setAuraValue] = useState(0);
+  const [isSavingAura, setIsSavingAura] = useState(false);
+  const [showXpDialog, setShowXpDialog] = useState(false);
+  const [xpValue, setXpValue] = useState(0);
+  const [isSavingXp, setIsSavingXp] = useState(false);
+  const [showLevelDialog, setShowLevelDialog] = useState(false);
+  const [levelValue, setLevelValue] = useState(1);
+  const [isSavingLevel, setIsSavingLevel] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkBanDialog, setShowBulkBanDialog] = useState(false);
   const [bulkBanType, setBulkBanType] = useState('SUSPENSION');
@@ -294,6 +306,45 @@ export default function UsersClient() {
         aria-label={t('admin.common.view')}
             >
               <Eye className="w-4 h-4 text-[var(--primary)]" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setSelectedUser(row.original);
+                setAuraValue(row.original.auraBalance);
+                setShowAuraDialog(true);
+              }}
+              title="Adjust Aura"
+              aria-label="Adjust Aura"
+            >
+              <Coins className="w-4 h-4 text-amber-500" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setSelectedUser(row.original);
+                setXpValue(row.original.xpPoints);
+                setShowXpDialog(true);
+              }}
+              title="Adjust XP"
+              aria-label="Adjust XP"
+            >
+              <Zap className="w-4 h-4 text-purple-500" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setSelectedUser(row.original);
+                setLevelValue(row.original.level);
+                setShowLevelDialog(true);
+              }}
+              title="Adjust Level"
+              aria-label="Adjust Level"
+            >
+              <ArrowUp className="w-4 h-4 text-emerald-500" />
             </Button>
             <Link href={`/admin/users/${row.original.id}`}>
 <Button variant="ghost" size="icon" title="Edit" aria-label={t('admin.common.edit')}>
@@ -645,6 +696,285 @@ export default function UsersClient() {
               {isBulkBanning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <Ban className="w-4 h-4 mr-2" />
               Ban {selectedIds.size} Users
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Aura Adjustment Dialog */}
+      <Dialog open={showAuraDialog} onOpenChange={setShowAuraDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Coins className="w-5 h-5 text-amber-500" />
+              Adjust Aura Balance
+            </DialogTitle>
+            <DialogDescription>
+              Set a new Aura balance for {selectedUser?.username}.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className="space-y-4 py-2">
+              <div className="bg-[var(--surface)] p-3 rounded-lg text-center">
+                <p className="text-xs text-[var(--text-tertiary)]">Current balance</p>
+                <p className="text-2xl font-bold text-amber-500">
+                  {selectedUser.auraBalance.toLocaleString()}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="aura-amount">New Aura Balance</Label>
+                <Input
+                  id="aura-amount"
+                  type="number"
+                  min={0}
+                  value={auraValue}
+                  onChange={(e) => setAuraValue(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="text-lg font-bold text-center"
+                />
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  {auraValue > selectedUser.auraBalance
+                    ? `Will add ${(auraValue - selectedUser.auraBalance).toLocaleString()} Aura`
+                    : auraValue < selectedUser.auraBalance
+                      ? `Will remove ${(selectedUser.auraBalance - auraValue).toLocaleString()} Aura`
+                      : 'No change'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAuraDialog(false)} disabled={isSavingAura}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!selectedUser) return;
+                setIsSavingAura(true);
+                try {
+                  const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ auraBalance: auraValue }),
+                  });
+                  if (res.ok) {
+                    await mutate();
+                    setShowAuraDialog(false);
+                    toast({
+                      title: 'Aura updated',
+                      description: `${selectedUser.username} now has ${auraValue.toLocaleString()} Aura`,
+                      variant: 'success',
+                    });
+                  } else {
+                    const err = await res.json();
+                    toast({
+                      title: 'Error',
+                      description: err.error || 'Failed to update Aura',
+                      variant: 'error',
+                    });
+                  }
+                } catch {
+                  toast({
+                    title: 'Error',
+                    description: 'Connection error',
+                    variant: 'error',
+                  });
+                } finally {
+                  setIsSavingAura(false);
+                }
+              }}
+              disabled={isSavingAura || auraValue === selectedUser?.auraBalance}
+            >
+              {isSavingAura && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Coins className="w-4 h-4 mr-2 text-amber-400" />
+              Save Aura
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* XP Adjustment Dialog */}
+      <Dialog open={showXpDialog} onOpenChange={setShowXpDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-purple-500" />
+              Adjust XP Points
+            </DialogTitle>
+            <DialogDescription>
+              Set new XP points for {selectedUser?.username}.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className="space-y-4 py-2">
+              <div className="bg-[var(--surface)] p-3 rounded-lg text-center">
+                <p className="text-xs text-[var(--text-tertiary)]">Current XP</p>
+                <p className="text-2xl font-bold text-purple-500">
+                  {selectedUser.xpPoints.toLocaleString()}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="xp-amount">New XP Points</Label>
+                <Input
+                  id="xp-amount"
+                  type="number"
+                  min={0}
+                  value={xpValue}
+                  onChange={(e) => setXpValue(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="text-lg font-bold text-center"
+                />
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  {xpValue > selectedUser.xpPoints
+                    ? `Will add ${(xpValue - selectedUser.xpPoints).toLocaleString()} XP`
+                    : xpValue < selectedUser.xpPoints
+                      ? `Will remove ${(selectedUser.xpPoints - xpValue).toLocaleString()} XP`
+                      : 'No change'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowXpDialog(false)} disabled={isSavingXp}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!selectedUser) return;
+                setIsSavingXp(true);
+                try {
+                  const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ xpPoints: xpValue }),
+                  });
+                  if (res.ok) {
+                    await mutate();
+                    setShowXpDialog(false);
+                    toast({
+                      title: 'XP updated',
+                      description: `${selectedUser.username} now has ${xpValue.toLocaleString()} XP`,
+                      variant: 'success',
+                    });
+                  } else {
+                    const err = await res.json();
+                    toast({
+                      title: 'Error',
+                      description: err.error || 'Failed to update XP',
+                      variant: 'error',
+                    });
+                  }
+                } catch {
+                  toast({
+                    title: 'Error',
+                    description: 'Connection error',
+                    variant: 'error',
+                  });
+                } finally {
+                  setIsSavingXp(false);
+                }
+              }}
+              disabled={isSavingXp || xpValue === selectedUser?.xpPoints}
+            >
+              {isSavingXp && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Zap className="w-4 h-4 mr-2 text-purple-400" />
+              Save XP
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Level Adjustment Dialog */}
+      <Dialog open={showLevelDialog} onOpenChange={setShowLevelDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowUp className="w-5 h-5 text-emerald-500" />
+              Adjust Level
+            </DialogTitle>
+            <DialogDescription>
+              Set a new level for {selectedUser?.username}.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className="space-y-4 py-2">
+              <div className="bg-[var(--surface)] p-3 rounded-lg text-center">
+                <p className="text-xs text-[var(--text-tertiary)]">Current Level</p>
+                <p className="text-2xl font-bold text-emerald-500">
+                  {selectedUser.level}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="level-amount">New Level</Label>
+                <Input
+                  id="level-amount"
+                  type="number"
+                  min={1}
+                  value={levelValue}
+                  onChange={(e) => setLevelValue(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="text-lg font-bold text-center"
+                />
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  {levelValue > selectedUser.level
+                    ? `Will increase by ${levelValue - selectedUser.level} levels`
+                    : levelValue < selectedUser.level
+                      ? `Will decrease by ${selectedUser.level - levelValue} levels`
+                      : 'No change'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLevelDialog(false)} disabled={isSavingLevel}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!selectedUser) return;
+                setIsSavingLevel(true);
+                try {
+                  const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ level: levelValue }),
+                  });
+                  if (res.ok) {
+                    await mutate();
+                    setShowLevelDialog(false);
+                    toast({
+                      title: 'Level updated',
+                      description: `${selectedUser.username} is now level ${levelValue}`,
+                      variant: 'success',
+                    });
+                  } else {
+                    const err = await res.json();
+                    toast({
+                      title: 'Error',
+                      description: err.error || 'Failed to update level',
+                      variant: 'error',
+                    });
+                  }
+                } catch {
+                  toast({
+                    title: 'Error',
+                    description: 'Connection error',
+                    variant: 'error',
+                  });
+                } finally {
+                  setIsSavingLevel(false);
+                }
+              }}
+              disabled={isSavingLevel || levelValue === selectedUser?.level}
+            >
+              {isSavingLevel && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <ArrowUp className="w-4 h-4 mr-2 text-emerald-400" />
+              Save Level
             </Button>
           </DialogFooter>
         </DialogContent>
