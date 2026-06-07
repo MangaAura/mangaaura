@@ -1,19 +1,52 @@
 /**
- * Genera posts para redes sociales a partir de artículos del blog de MangaAura.
+ * Genera posts para redes sociales a partir de los artículos del blog de MangaAura.
+ * No requiere conexión a BD — usa los datos de artículos conocidos.
  *
  * Uso: npx tsx scripts/social/generate-posts.ts
  *
- * Salida: ./scripts/social/out/posts-[fecha].md listo para copiar y pegar
+ * Salida: ./out/posts-[fecha].md
  */
 
-import { PrismaPg } from '@prisma/adapter-pg';
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 
-import { PrismaClient } from '../../src/generated/prisma/client.js';
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
+
+const ARTICLES = [
+  {
+    title: "Dónde leer manga online gratis y legal en español en 2026",
+    slug: "donde-leer-manga-online-gratis-legal-2026",
+    excerpt: "Descubre las mejores plataformas para leer manga online gratis y de forma legal en español. Comparamos MangaPlus, Webtoon, MangaAura y otras alternativas para que elijas la mejor.",
+    category: "platform",
+  },
+  {
+    title: "Cómo crear tu propio manga: guía completa para publicar online",
+    slug: "como-crear-tu-propio-manga-guia-completa-2026",
+    excerpt: "Aprende cómo crear tu propio manga desde cero. Te explicamos el proceso completo: guion, dibujo, herramientas digitales, IA, y las mejores plataformas para publicar online.",
+    category: "guides",
+  },
+  {
+    title: "Gamificación en la lectura: cómo el XP y los logros transforman tu experiencia manga",
+    slug: "gamificacion-lectura-xp-logros-manga",
+    excerpt: "Descubre cómo la gamificación está revolucionando la lectura de manga. Los sistemas de XP, logros, clanes y rankings convierten cada capítulo en una aventura.",
+    category: "features",
+  },
+  {
+    title: "Guía de géneros de manga: shonen, shojo, seinen y más explicados",
+    slug: "guia-generos-manga-shonen-shojo-seinen",
+    excerpt: "Explora los principales géneros de manga: shonen, shojo, seinen, josei y más. Te explicamos sus características, ejemplos imprescindibles y cómo elegir tu próximo manga.",
+    category: "guides",
+  },
+  {
+    title: "Manga vs Webtoon: diferencias, ventajas y cuál elegir según tu estilo",
+    slug: "manga-vs-webtoon-diferencias-ventajas",
+    excerpt: "¿Manga o webtoon? Analizamos las diferencias clave entre ambos formatos: lectura, creación, monetización y cuál se adapta mejor a cada tipo de lector y creador.",
+    category: "comparison",
+  },
+];
 
 const templates: Record<string, (title: string, slug: string, excerpt: string) => string[]> = {
   tweet: (title, slug, excerpt) => [
@@ -37,31 +70,14 @@ const templates: Record<string, (title: string, slug: string, excerpt: string) =
   ],
 };
 
-async function main() {
-  const articles = await prisma.newsArticle.findMany({
-    where: { isPublished: true },
-    orderBy: { publishedAt: 'desc' },
-    select: {
-      title: true,
-      slug: true,
-      excerpt: true,
-      category: true,
-      publishedAt: true,
-    },
-  });
-
-  if (articles.length === 0) {
-    console.log('No hay artículos publicados.');
-    await prisma.$disconnect();
-    return;
-  }
-
+function main() {
   const lines: string[] = [];
+  const now = new Date();
   lines.push('# Posts generados para redes sociales — MangaAura');
-  lines.push(`# Fecha: ${new Date().toISOString().split('T')[0]}`);
+  lines.push(`# Fecha: ${now.toISOString().split('T')[0]}`);
   lines.push('');
 
-  for (const article of articles) {
+  for (const article of ARTICLES) {
     const { title, slug, excerpt } = article;
 
     lines.push(`## ${title}`);
@@ -89,23 +105,16 @@ async function main() {
     lines.push('');
   }
 
-  const fs = await import('fs');
-  const path = await import('path');
-  const outDir = path.join(import.meta.dirname, 'out');
+  const outDir = path.join(__dirname, 'out');
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
   }
 
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = now.toISOString().split('T')[0];
   const outFile = path.join(outDir, `posts-${dateStr}.md`);
   fs.writeFileSync(outFile, lines.join('\n'), 'utf-8');
   console.log(`✅ Posts generados: ${outFile}`);
-  console.log(`   ${articles.length} artículos procesados`);
-
-  await prisma.$disconnect();
+  console.log(`   ${ARTICLES.length} artículos procesados`);
 }
 
-main().catch((e) => {
-  console.error('ERROR:', e);
-  process.exit(1);
-});
+main();
