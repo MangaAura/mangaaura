@@ -9,18 +9,25 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '24')));
     const sort = searchParams.get('sort') || 'latest'; // latest | popular
+    const searchQuery = searchParams.get('search') || '';
 
     const orderBy = sort === 'popular'
       ? [{ likeCount: 'desc' as const }, { createdAt: 'desc' as const }]
       : [{ createdAt: 'desc' as const }];
 
+    const where: any = {
+      status: 'COMPLETED',
+      isPublic: true,
+      imageUrl: { not: null },
+    };
+
+    if (searchQuery.trim()) {
+      where.prompt = { contains: searchQuery.trim(), mode: 'insensitive' };
+    }
+
     const [images, total] = await Promise.all([
       prisma.imageGeneration.findMany({
-        where: {
-          status: 'COMPLETED',
-          isPublic: true,
-          imageUrl: { not: null },
-        },
+        where,
         orderBy,
         skip: (page - 1) * limit,
         take: limit,

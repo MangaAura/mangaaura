@@ -26,7 +26,6 @@ import {
   Wand2,
   SlidersHorizontal,
   Globe,
-  Lock,
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';

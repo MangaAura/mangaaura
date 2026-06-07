@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 // POST - Like an image
 export async function POST(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -61,7 +61,7 @@ export async function POST(
 
 // DELETE - Unlike an image
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {

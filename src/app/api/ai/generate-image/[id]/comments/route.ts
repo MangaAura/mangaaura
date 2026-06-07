@@ -40,34 +40,26 @@ export async function GET(
       }),
     ]);
 
-    // Check if current user liked each comment
+    // Get session to pass to client (not checking comment likes to avoid FK constraint)
     const session = await auth();
-    let userLikes: string[] = [];
-    if (session?.user?.id) {
-      const allIds = comments.flatMap((c) => [c.id, ...c.replies.map((r) => r.id)]);
-      if (allIds.length > 0) {
-        const likes = await prisma.commentLike.findMany({
-          where: { userId: session.user.id, commentId: { in: allIds } },
-          select: { commentId: true },
-        });
-        userLikes = likes.map((l) => l.commentId);
-      }
-    }
 
-    // Transform replies to include isLikedByUser
     const transformed = comments.map((c) => ({
       id: c.id,
       content: c.content,
       createdAt: c.createdAt,
-      user: c.user,
+      user: {
+        ...c.user,
+        isCurrentUser: session?.user?.id === c.user.id,
+      },
       replies: c.replies.map((r) => ({
         id: r.id,
         content: r.content,
         createdAt: r.createdAt,
-        user: r.user,
-        isLikedByUser: userLikes.includes(r.id),
+        user: {
+          ...r.user,
+          isCurrentUser: session?.user?.id === r.user.id,
+        },
       })),
-      isLikedByUser: userLikes.includes(c.id),
     }));
 
     return NextResponse.json({
