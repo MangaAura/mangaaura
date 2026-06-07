@@ -138,6 +138,7 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [refreshingBalance, setRefreshingBalance] = useState(false);
+  const [pendingJobId, setPendingJobId] = useState<string | null>(null);
 
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -190,6 +191,56 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
 
   // ── Handlers ───────────────────────────────────────────────────────
 
+  // ── Poll for queued job completion ──────────────────────────────
+  useEffect(() => {
+    if (!pendingJobId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/ai/generate-image/${pendingJobId}/status`);
+        if (!res.ok) {
+          clearInterval(interval);
+          setPendingJobId(null);
+          setIsGenerating(false);
+          return;
+        }
+        const data = await res.json();
+
+        if (data.status === 'COMPLETED') {
+          clearInterval(interval);
+          setPendingJobId(null);
+          setIsGenerating(false);
+          setResult({
+            success: true,
+            id: data.id,
+            imageUrl: data.imageUrl,
+            auraCost: data.auraCost,
+            modelName: data.provider,
+            provider: data.provider,
+            status: 'COMPLETED',
+          });
+          refreshBalance();
+          refreshHistory();
+          setTimeout(() => {
+            resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        } else if (data.status === 'FAILED') {
+          clearInterval(interval);
+          setPendingJobId(null);
+          setIsGenerating(false);
+          setError(data.errorMessage || t('creator.imageGeneration.generatingError'));
+          refreshBalance();
+        }
+        // PENDING / PROCESSING — keep polling
+      } catch {
+        // Ignore polling errors (network blips)
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [pendingJobId, refreshBalance, refreshHistory, t]);
+
+  // ── Handle Generate ─────────────────────────────────────────────
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim() || isGenerating) return;
 
@@ -214,7 +265,7 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
         }),
       });
 
-      const data: GenerationResponse = await res.json();
+      const data: GenerationResponse & { jobId?: string } = await res.json();
 
       if (!res.ok) {
         setIsAuraError(data.error === t('creator.imageGeneration.auraInsufficient'));
@@ -227,24 +278,25 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
         return;
       }
 
+      // If the job was queued (status PENDING), start polling
+      if (data.status === 'PENDING' && data.jobId) {
+        setPendingJobId(data.id);
+        return;
+      }
+
+      // Direct processing completed (queue fallback)
       setResult(data);
       setIsGenerating(false);
-
-      // Refresh balance immediately so the user sees their deducted Aura
       refreshBalance();
-
-      // Scroll to result
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
-
-      // Refresh history
       refreshHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('creator.imageGeneration.connectionError'));
       setIsGenerating(false);
     }
-  }, [prompt, negativePrompt, selectedModelId, width, height, quality, style, seed, isGenerating, auraBalance, refreshBalance, refreshHistory, selectedModel.styles]);
+  }, [prompt, negativePrompt, selectedModelId, width, height, quality, style, seed, isGenerating, auraBalance, refreshBalance, refreshHistory, selectedModel.styles, t, setResult, setError, setIsGenerating, setIsAuraError, setPendingJobId]);
 
   const handleDownload = useCallback(async () => {
     if (!result?.imageUrl) return;
@@ -287,10 +339,10 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
   }, [prompt]);
 
   // ── Keyboard shortcut ─────────────────────────────────────────────
-  const generateRef = useRef(handleGenerate);
+  const generateRef = useRef(isGenerating ? async () => {} : handleGenerate);
   useEffect(() => {
-    generateRef.current = handleGenerate;
-  }, [handleGenerate]);
+    generateRef.current = isGenerating ? async () => {} : handleGenerate;
+  }, [isGenerating, handleGenerate]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

@@ -4,15 +4,18 @@
  */
 
 import { EmailWorker, getEmailWorker, stopEmailWorker } from './EmailWorker';
+import { ImageGenerationWorker, getImageGenerationWorker, stopImageGenerationWorker } from './ImageGenerationWorker';
 import { InboundEmailWorker, getInboundEmailWorker, stopInboundEmailWorker } from './InboundEmailWorker';
 import { NotificationWorker, getNotificationWorker, stopNotificationWorker } from './NotificationWorker';
 import { closeBullConnection } from '@/infrastructure/queue/connection';
 import { resetEmailQueue } from '@/infrastructure/queue/EmailQueue';
+import { resetImageGenerationQueue } from '@/infrastructure/queue/ImageGenerationQueue';
 import { resetInboundEmailQueue } from '@/infrastructure/queue/InboundEmailQueue';
 import { resetNotificationQueue } from '@/infrastructure/queue/NotificationQueue';
 import { closeRedisConnection } from '@/lib/redis';
 
 export { EmailWorker, getEmailWorker, stopEmailWorker };
+export { ImageGenerationWorker, getImageGenerationWorker, stopImageGenerationWorker };
 export { InboundEmailWorker, getInboundEmailWorker, stopInboundEmailWorker };
 export { NotificationWorker, getNotificationWorker, stopNotificationWorker };
 
@@ -46,6 +49,13 @@ export function startWorkers(): void {
     console.info('[Workers] InboundEmailWorker started');
   } catch (error) {
     console.error('[Workers] Failed to start InboundEmailWorker:', error);
+  }
+
+  try {
+    getImageGenerationWorker();
+    console.info('[Workers] ImageGenerationWorker started');
+  } catch (error) {
+    console.error('[Workers] Failed to start ImageGenerationWorker:', error);
   }
 }
 
@@ -95,6 +105,20 @@ export async function stopWorkers(): Promise<void> {
     console.info('[Workers] InboundEmailQueue closed');
   } catch (error) {
     console.error('[Workers] Error closing InboundEmailQueue:', error);
+  }
+
+  try {
+    stopImageGenerationWorker();
+    console.info('[Workers] ImageGenerationWorker stopped');
+  } catch (error) {
+    console.error('[Workers] Error stopping ImageGenerationWorker:', error);
+  }
+
+  try {
+    resetImageGenerationQueue();
+    console.info('[Workers] ImageGenerationQueue closed');
+  } catch (error) {
+    console.error('[Workers] Error closing ImageGenerationQueue:', error);
   }
 
   try {
