@@ -50,8 +50,8 @@ export function HomeNewsSection() {
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Star className="text-[var(--warning)]" /> {t('home.newsTitle')}
         </h2>
-        <Link href="/news">
-          <Button variant="ghost" size="sm">
+        <Link href="/news" aria-label={t('common.viewAll') + ' noticias'}>
+          <Button variant="ghost">
             {t('common.viewAll')} →
           </Button>
         </Link>

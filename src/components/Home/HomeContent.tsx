@@ -121,8 +121,8 @@ export function HomeContent({
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="w-6 h-6 text-[var(--warning)]" /> {t('home.topMangas')}
             </h2>
-            <Link href="/rankings">
-              <Button variant="ghost" size="sm">{t('common.viewAll')} →</Button>
+            <Link href="/rankings" aria-label={t('common.viewAll') + ' rankings'}>
+              <Button variant="ghost">{t('common.viewAll')} →</Button>
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -142,8 +142,8 @@ export function HomeContent({
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     <Clock className="w-6 h-6 text-[var(--primary)]" /> {t('home.latestUpdates')}
                   </h2>
-                  <Link href="/explore">
-                    <Button variant="ghost" size="sm">{t('common.viewAll')} →</Button>
+                  <Link href="/explore" aria-label={t('common.viewAll') + ' explorar'}>
+                    <Button variant="ghost">{t('common.viewAll')} →</Button>
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -319,6 +319,7 @@ export function HomeContent({
               </div>
               <Link
                 href={ctaHref}
+                aria-label={!isLoggedIn ? t('home.ctaCreatorRegister') : t('creator.newManga')}
                 className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-white"
                 style={{ background: 'linear-gradient(to right, var(--accent-purple), var(--primary))' }}
               >

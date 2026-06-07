@@ -6,7 +6,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
-import { HomeNewsSection } from '@/components/Home/HomeNewsSection';
+const HomeNewsSection = dynamic(() => import('@/components/Home/HomeNewsSection').then(m => ({ default: m.HomeNewsSection })), {
+  ssr: false,
+  loading: () => <div className="h-48 bg-tertiary/50 rounded-xl animate-pulse" />,
+});
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { MangaCard } from '@/components/MangaCard';
 import { Button } from '@/components/ui/Button';
@@ -305,7 +308,7 @@ export function HomePageClient({
 
         {/* CTA Creator */}
         <section className="relative bg-gradient-to-r from-accent-purple/20 via-accent-purple/10 to-accent-blue/20 dark:from-accent-purple/30 dark:via-accent-purple/15 dark:to-accent-blue/20 border border-accent-purple/30 dark:border-accent-purple/50 rounded-2xl p-8 md:p-12 overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-purple/20 rounded-full blur-3xl animate-glow-pulse pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-purple/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>

@@ -8,21 +8,16 @@ import { useSession } from 'next-auth/react';
 import { useT } from '@/i18n';
 
 function WelcomeLabel({ text }: { text: string }) {
-  const nodes: React.ReactNode[] = [];
-  let i = 0;
-  while (i < text.length) {
-    const c = text[i];
-    const n = text[i + 1];
-    if (n && c === n && c.toLowerCase() === 'a') {
-      nodes.push(c);
-      nodes.push(<i key={i}>{n}</i>);
-      i += 2;
-    } else {
-      nodes.push(c);
-      i += 1;
-    }
-  }
-  return <>{nodes}</>;
+  // Render the double-A with italic second character using minimal DOM nodes
+  const idx = text.indexOf('AA');
+  if (idx === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, idx + 1)}
+      <i>{text[idx + 1]}</i>
+      {text.slice(idx + 2)}
+    </>
+  );
 }
 
 function StaticNumber({ value }: { value: number }) {

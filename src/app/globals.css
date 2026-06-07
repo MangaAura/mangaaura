@@ -638,6 +638,21 @@ h6 {
   text-transform: uppercase;
 }
 
+/* ── Genre marquee CSS animation (no JS rAF loop) ── */
+@keyframes genre-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.genre-marquee-track {
+  animation: genre-marquee 40s linear infinite;
+  will-change: transform;
+}
+
 .font-sans-jp {
   font-family: var(--font-sans-jp);
 }

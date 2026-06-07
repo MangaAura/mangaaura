@@ -706,7 +706,8 @@
     "visibleFaq4A": "Tus lectores pueden darte propinas en Aura, crowdfundear tus capítulos y patrocinar tu contenido. Tú decides cuándo retirar tus ganancias.",
     "howItWorksLink": "Ver más sobre cómo funciona",
     "viewAllMangas": "Ver todos los mangas",
-    "newsMinRead": "{time} min de lectura"
+    "newsMinRead": "{time} min de lectura",
+    "ctaCreatorRegister": "Registrarse como creador"
   },
   "genres": {
     "accion": "Acción",
