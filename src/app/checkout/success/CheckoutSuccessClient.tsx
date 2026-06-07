@@ -109,14 +109,14 @@ function CheckoutSuccessContent() {
               )}
 
               <div className="flex flex-col gap-3">
-                <Button onClick={() => router.push('/library')}>
-                  {t('checkout.success.goLibrary')}
+                <Button onClick={() => router.push('/creator/ai/generate')}>
+                  {'Seguir generando imágenes'}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push('/explore')}
+                  onClick={() => router.push('/library')}
                 >
-                  {t('checkout.success.exploreManga')}
+                  {t('checkout.success.goLibrary')}
                 </Button>
               </div>
             </div>

@@ -23,6 +23,7 @@ import { AchievementsModal } from './AchievementsModal';
 import { CollectionsModal } from './CollectionsModal';
 import { FollowersModal } from './FollowersModal';
 import { LibraryModal } from './LibraryModal';
+import { CopyLinkButton } from '@/components/Share/ShareButton';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { ReadingStreakCalendar } from '@/components/Stats/ReadingStreakCalendar';
 import { PersonalStatsDashboard } from '@/components/Stats/PersonalStatsDashboard';
@@ -614,6 +615,39 @@ export default function ProfileClient({ user, xpProgress, xpForNextLevel, follow
             </TabsContent>
           </Tabs>          </motion.div>
         </div>
+
+        {/* Referral Invite Widget */}
+        <motion.div variants={itemVariants}>
+          <Card className="p-5 border border-[var(--primary)]/20 bg-gradient-to-br from-[var(--primary)]/5 to-[var(--accent-purple)]/5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)]/30 to-[var(--accent-purple)]/30 flex items-center justify-center flex-shrink-0">
+                <Share2 className="w-6 h-6 text-[var(--primary)]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Invita a tus amigos
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                  Comparte tu código de referido y gana Aura por cada amigo que se registre
+                </p>
+                <div className="flex items-center gap-2 mt-3">
+                  <code className="px-3 py-1.5 rounded-lg bg-[var(--surface-sunken)] text-sm font-mono text-[var(--primary)] border border-[var(--border)]">
+                    {user.username.toUpperCase()}
+                  </code>
+                  <CopyLinkButton
+                    url={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/register?ref=${user.username}`}
+                    label="Copiar código"
+                  />
+                </div>
+              </div>
+              <Link href="/economy/referrals" className="flex-shrink-0">
+                <Button variant="ghost" size="sm">
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </motion.div>
 
         {/* Reading Streak Calendar (visible when data is available) */}
         {user._count && user._count.library > 0 && (

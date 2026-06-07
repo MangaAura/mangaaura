@@ -97,7 +97,8 @@
     "discover": "Discover",
     "about": "About Us",
     "announcements": "Announcements",
-    "affiliate": "Affiliates"
+    "affiliate": "Affiliates",
+    "friends": "Friends"
   },
   "manga": {
     "title": "Manga",
@@ -140,7 +141,9 @@
     "yourRating": "Your rating",
     "byAuthor": "by {author}",
     "lastUpdated": "Last updated {date}",
-    "publishedOn": "Published {date}"
+    "publishedOn": "Published {date}",
+    "addToCollection": "Add to collection",
+    "report": "Report"
   },
   "reader": {
     "page": "Page",
@@ -625,7 +628,44 @@
     "noNotifications": "No notifications",
     "empty": "No notifications",
     "viewAll": "View all",
-    "noConnection": "No connection"
+    "noConnection": "No connection",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "older": "Older",
+    "loadMore": "Load more",
+    "filterChapters": "Chapters",
+    "filterReplies": "Replies",
+    "filterMentions": "Mentions",
+    "filterAchievements": "Achievements",
+    "filterLevels": "Levels",
+    "filterAura": "Aura",
+    "filterSponsorships": "Sponsorships",
+    "filterSystem": "System",
+    "fetchError": "Failed to load notifications",
+    "unreadCount": "{count} unread notification",
+    "unreadCount_plural": "{count} unread notifications",
+    "noUnread": "No pending notifications",
+    "unread": "Unread",
+    "read": "Read",
+    "deleteRead": "Delete read",
+    "emptyFiltered": "No notifications found",
+    "emptyFilteredDesc": "No notifications matched your filters. Try different filters or clear them.",
+    "emptyDesc": "You don't have any notifications yet. Explore new mangas to discover amazing stories!",
+    "clearFilters": "Clear filters",
+    "exploreMangas": "Explore mangas",
+    "searchMangas": "Search mangas",
+    "discover": "Discover",
+    "newMangas": "New mangas",
+    "follow": "Follow",
+    "yourFavorites": "Your favorites",
+    "receive": "Get",
+    "type": "Type",
+    "status": "Status",
+    "follows": "Followers",
+    "markRead": "Mark as read",
+    "delete": "Delete",
+    "deleteNotification": "Delete notification"
   },
   "sponsorships": {
     "noSponsorships": "No sponsorships yet",
@@ -795,7 +835,9 @@
     "howItWorksLink": "Learn more about how it works",
     "viewAllMangas": "View all manga",
     "newsMinRead": "{time} min read",
-    "ctaCreatorRegister": "Register as creator"
+    "ctaCreatorRegister": "Register as creator",
+    "trendingTitle": "Trending",
+    "trendingHot": "Hot"
   },
   "genres": {
     "accion": "Action",
@@ -1148,11 +1190,18 @@
     "noResultsHint": "Try adjusting the filters or using different search terms.",
     "errorSearch": "Error searching. Try again.",
     "errorConnection": "Connection error while searching.",
-    "viewAllResults": "View all results"
+    "viewAllResults": "View all results",
+    "placeholder": "Search mangas, authors, genres...",
+    "ariaLabel": "Search manga",
+    "clearSearch": "Clear search",
+    "searching": "Searching suggestions",
+    "suggestions": "Suggestions",
+    "clear": "Clear",
+    "mangaType": "Manga"
   },
   "report": {
-    "title": "Report Content",
-    "description": "Help us keep MangaAura safe for everyone",
+    "title": "Report",
+    "description": "Why do you want to report {target}?",
     "form": {
       "targetType": "Type of content",
       "targetTypeUser": "User",
@@ -1214,7 +1263,22 @@
     "dmcaProcess": "DMCA process",
     "disclaimerPart1": "False or malicious reports may result in actions against your account. Only report content that truly violates our ",
     "disclaimerPart2": ". Copyright reports must follow our ",
-    "disclaimerPart3": "."
+    "disclaimerPart3": ".",
+    "submittedTitle": "Report submitted",
+    "submittedDesc": "Thank you for reporting. We will review {target} as soon as possible.",
+    "submit": "Report",
+    "gotIt": "Got it",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "Provide more details...",
+    "characters": "characters",
+    "connectionError": "Connection error. Please try again.",
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "inappropriate": "Inappropriate content",
+      "copyright": "Copyright violation",
+      "other": "Other"
+    }
   },
   "help": {
     "title": "Help Center",
@@ -1369,7 +1433,10 @@
       "streakDays": "{count} days",
       "created": "Created",
       "collections": "Collections",
-      "referrals": "Referrals"
+      "referrals": "Referrals",
+      "readersValue": "500K+",
+      "creatorsValue": "2,000+",
+      "mangaValue": "50K+"
     },
     "roles": {
       "admin": "Admin",
@@ -3265,7 +3332,9 @@
     "retry": "Retry",
     "noMangaYet": "No manga yet",
     "noMangaYetDesc": "Start your creator journey by publishing your first manga",
-    "createFirstManga": "Create First Manga"
+    "createFirstManga": "Create First Manga",
+    "aiGenerate": "Generar Imagen con IA",
+    "aiGenerateDesc": "Crea imágenes únicas usando modelos de IA con GPT-Image o Gemini"
   },
   "analytics": {
     "title": "Dashboard",
@@ -4434,6 +4503,10 @@
     "economyAffiliate": {
       "title": "Affiliate Dashboard | MangaAura",
       "description": "Manage your affiliate program: stats, commissions, referrals, and promotional links."
+    },
+    "friends": {
+      "title": "Friends | MangaAura",
+      "description": "Manage your friends and friend requests on MangaAura"
     }
   },
   "guides": {
@@ -4546,5 +4619,177 @@
     "sortOldest": "Oldest",
     "sortTitleAZ": "A-Z",
     "sortTitleZA": "Z-A"
+  },
+  "feed": {
+    "title": "Activity",
+    "subtitle": "See what's happening in the community"
+  },
+  "polls": {
+    "title": "Polls",
+    "loginRequired": "Sign in",
+    "loginRequiredDesc": "Sign in to view and participate in polls",
+    "login": "Sign in",
+    "question": "Question",
+    "description": "Description",
+    "options": "Options",
+    "duration": "Duration",
+    "newPoll": "New poll",
+    "create": "Create poll",
+    "createError": "Failed to create poll",
+    "questionRequired": "Question is required",
+    "minOptions": "At least 2 options are required",
+    "questionPlaceholder": "What do you prefer?",
+    "descriptionPlaceholder": "Additional details (optional)",
+    "optionPlaceholder": "Option {number}",
+    "removeOption": "Remove option {number}",
+    "addOption": "Add option",
+    "noActivePolls": "No active polls",
+    "noActivePollsDesc": "No polls available at the moment.",
+    "active": "Active",
+    "finished": "Finished",
+    "noExpiry": "No expiry",
+    "removeVote": "Remove vote",
+    "timeRemainingDays": "{days}d {hours}h remaining",
+    "timeRemainingHours": "{hours}h remaining",
+    "timeRemainingLessThanHour": "Less than 1h",
+    "duration1Day": "1 day",
+    "duration3Days": "3 days",
+    "duration7Days": "7 days",
+    "duration14Days": "14 days",
+    "duration30Days": "30 days"
+  },
+  "gallery": {
+    "close": "Close",
+    "info": "Info",
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in",
+    "download": "Download",
+    "previous": "Previous",
+    "next": "Next",
+    "size": "Size",
+    "format": "Format",
+    "dimensions": "Dimensions",
+    "created": "Created"
+  },
+  "comments": {
+    "title": "Comments",
+    "placeholder": "Share your thoughts on this chapter...",
+    "post": "Comment",
+    "loading": "Loading comments",
+    "beFirst": "Be the first to comment",
+    "loadMore": "Load more comments",
+    "postError": "Failed to post comment",
+    "sending": "Sending...",
+    "ctrlEnter": "Ctrl+Enter to post",
+    "writePlaceholder": "Write a comment...",
+    "posting": "Posting...",
+    "confirmDelete": "Delete this comment?",
+    "edit": "Edit comment",
+    "delete": "Delete comment",
+    "upvote": "Upvote",
+    "downvote": "Downvote",
+    "like": "Like",
+    "unlike": "Unlike",
+    "reply": "Reply",
+    "replyPlaceholder": "Write a reply...",
+    "replies": "replies"
+  },
+  "tips": {
+    "minAmount": "Minimum amount is 1 Aura",
+    "insufficientBalance": "Insufficient balance",
+    "sendError": "Failed to send tip",
+    "sendTip": "Send Tip",
+    "support": "Support",
+    "yourBalance": "Your balance",
+    "selectAmount": "Select amount",
+    "customAmount": "Or enter a custom amount",
+    "amountPlaceholder": "Custom amount",
+    "messagePlaceholder": "Write a message of support...",
+    "optionalMessage": "Optional message",
+    "sending": "Sending...",
+    "tipSent": "Tip Sent!",
+    "youSent": "You sent",
+    "newBalance": "New balance",
+    "tip": "Tip"
+  },
+  "crowdfunding": {
+    "minAmount": "Minimum amount is 1 Aura",
+    "insufficientBalance": "Insufficient balance",
+    "contributeError": "Failed to contribute",
+    "success": "Contribution Successful!",
+    "youContributed": "You contributed",
+    "goalReached": "Goal reached!",
+    "totalRaised": "Total raised",
+    "contributeTo": "Contribute to Crowdfunding",
+    "anonymous": "Anonymous contribution",
+    "messageForAuthor": "Message for the author (optional)",
+    "selectAmount": "Select amount",
+    "customAmount": "Or enter a custom amount",
+    "customAmountPlaceholder": "Custom amount",
+    "messagePlaceholder": "Write a message of support..."
+  },
+  "suggestedUsers": {
+    "title": "Discover People",
+    "refresh": "Refresh",
+    "error": "Failed to load suggestions"
+  },
+  "follow": {
+    "follow": "Follow",
+    "followManga": "Follow manga",
+    "unfollow": "Unfollow",
+    "following": "Following",
+    "unfollowed": "Unfollowed",
+    "error": "Failed to follow"
+  },
+  "library": {
+    "reading": "Reading",
+    "completed": "Completed",
+    "planToRead": "Plan to Read",
+    "onHold": "On Hold",
+    "dropped": "Dropped"
+  },
+  "collectionPicker": {
+    "title": "Add to Collection",
+    "addTo": "Add {manga} to a collection",
+    "error": "Failed to load collections",
+    "empty": "You don't have any collections yet",
+    "createFirst": "Create your first collection",
+    "newCollection": "New collection",
+    "manga": "manga",
+    "mangas": "mangas",
+    "toggling": "Updating..."
+  },
+  "friend": {
+    "loading": "Loading...",
+    "addFriend": "Add friend",
+    "requestSent": "Request sent",
+    "cancelRequest": "Cancel request",
+    "requestReceived": "Request received",
+    "accept": "Accept",
+    "reject": "Reject",
+    "friends": "Friends",
+    "removeFriend": "Remove friend"
+  },
+  "block": {
+    "blockUser": "Block user",
+    "blocked": "Blocked",
+    "confirmUnblock": "Unblock?",
+    "loading": "Loading...",
+    "blockedSuccess": "User blocked",
+    "unblockedSuccess": "User unblocked"
+  },
+  "friends": {
+    "title": "Friends",
+    "subtitle": "Manage your friends and friend requests",
+    "tabFriends": "My friends",
+    "tabReceived": "Received",
+    "tabSent": "Sent",
+    "noFriends": "No friends yet",
+    "noFriendsDesc": "Explore the community and send friend requests to other readers",
+    "discoverUsers": "Discover users",
+    "noRequests": "No pending requests",
+    "noRequestsDesc": "When someone sends you a friend request, it will appear here",
+    "noSentRequests": "No sent requests",
+    "noSentRequestsDesc": "Requests you send will appear here"
   }
 }

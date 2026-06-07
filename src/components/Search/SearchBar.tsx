@@ -209,7 +209,7 @@ export function SearchBar({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          aria-label="Buscar manga"
+          aria-label={t('search.ariaLabel')}
           aria-autocomplete="list"
           aria-activedescendant={selectedIndex >= 0 ? (selectedIndex < suggestions.length ? `search-suggestion-${selectedIndex}` : `search-recent-${selectedIndex - suggestions.length}`) : undefined}
           className={cn(
@@ -243,7 +243,7 @@ export function SearchBar({
           <button
             onClick={clearSearch}
             className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
-            aria-label="Limpiar búsqueda"
+            aria-label={t('search.clearSearch')}
           >
             <X className="h-4 w-4" />
           </button>
@@ -257,7 +257,7 @@ export function SearchBar({
           {suggestions.length > 0 && (
             <div className="py-2">
               <div className="px-3 py-2 text-xs font-medium text-[var(--text-tertiary)] uppercase" id="search-suggestions-label">
-                Sugerencias
+                {t('search.suggestions')}
               </div>
               {suggestions.map((suggestion, index) => (
                 <button
@@ -289,7 +289,7 @@ export function SearchBar({
                   )}
                   <div className="flex-1 text-left">
                     <p className="text-sm text-[var(--text-primary)] font-medium">{suggestion.title}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">Manga</p>
+                    <p className="text-xs text-[var(--text-secondary)]">{t('search.mangaType')}</p>
                   </div>
                 </button>
               ))}
@@ -298,7 +298,7 @@ export function SearchBar({
 
           {/* Loading */}
           {isLoading && (
-            <div className="py-4 flex justify-center" role="status" aria-label="Buscando sugerencias">
+            <div className="py-4 flex justify-center" role="status" aria-label={t('search.searching')}>
               <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" aria-hidden="true" />
             </div>
           )}
@@ -308,13 +308,13 @@ export function SearchBar({
             <div className="py-2 border-t border-[var(--border-strong)]">
               <div className="px-3 py-2 flex items-center justify-between">
                 <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase">
-                  Búsquedas recientes
+                  {t('search.recentSearches')}
                 </span>
                 <button
                   onClick={(e) => { e.stopPropagation(); clearRecentSearches(); }}
                   className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
-                  Limpiar
+                  {t('search.clear')}
                 </button>
               </div>
               <AnimatePresence initial={false}>

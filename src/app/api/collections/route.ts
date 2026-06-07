@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const filter = searchParams.get('filter') as 'all' | 'public' | 'private' | null;
+    const mangaId = searchParams.get('mangaId');
     const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
     const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '12'), 1), 100);
 
@@ -30,6 +31,16 @@ export async function GET(request: NextRequest) {
 
     if (userId) {
       where.userId = userId;
+    }
+
+    // If mangaId is provided, look up which collections the manga belongs to
+    let mangaCollectionIds: string[] = [];
+    if (mangaId && currentUserId) {
+      const items = await prisma.collectionItem.findMany({
+        where: { mangaId, collection: { userId: currentUserId } },
+        select: { collectionId: true },
+      });
+      mangaCollectionIds = items.map((i) => i.collectionId);
     }
 
     if (filter === 'public') {
@@ -93,6 +104,7 @@ export async function GET(request: NextRequest) {
         title: item.manga.title,
         cover: item.manga.coverUrl,
       })),
+      inCollection: mangaId && currentUserId ? mangaCollectionIds.includes(c.id) : undefined,
     }));
 
     return NextResponse.json({

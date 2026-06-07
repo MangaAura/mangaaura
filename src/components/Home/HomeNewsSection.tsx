@@ -2,7 +2,6 @@
 
 import { Star, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import useSWR from 'swr';
 
 import { Button } from '@/components/ui/Button';
 import { useT, useLocale } from '@/i18n';
@@ -11,7 +10,6 @@ import {
   getArticlePath,
   type DisplayNewsItem,
 } from '@/lib/news';
-import { fetcher } from '@/lib/swr-config';
 
 const categoryLabelKey: Record<string, string> = {
   community: 'home.newsCategoryCommunity',
@@ -21,17 +19,16 @@ const categoryLabelKey: Record<string, string> = {
   contest: 'home.newsCategoryContest',
 };
 
-export function HomeNewsSection() {
+interface HomeNewsSectionProps {
+  articles?: Record<string, unknown>[];
+}
+
+export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
   const t = useT();
   const { locale } = useLocale();
 
-  const { data } = useSWR<{ articles: unknown[] }>('/api/news', fetcher, {
-    refreshInterval: 60000,
-    fallbackData: { articles: [] },
-  });
-
-  const dbItems: DisplayNewsItem[] = (data?.articles || [])
-    .map((a: unknown) => dbArticleToDisplayItem(a as Parameters<typeof dbArticleToDisplayItem>[0]));
+  const dbItems: DisplayNewsItem[] = articles
+    .map((a: Record<string, unknown>) => dbArticleToDisplayItem(a as Parameters<typeof dbArticleToDisplayItem>[0]));
 
   const isEnglish = locale === 'en';
 

@@ -48,8 +48,8 @@ vi.mock('@/components/ui/RepeatedChar', () => ({
   RepeatedChar: ({ text }: { text: string }) => <span>{text}</span>,
 }));
 
-vi.mock('next/image', () => ({
-  default: ({ alt }: { alt: string }) => <img alt={alt} data-testid="footer-logo" />,
+vi.mock('@/components/Logo', () => ({
+  LogoSvg: ({ size }: { size?: number }) => <img alt="" width={size} height={size} data-testid="footer-logo" />,
 }));
 
 import { Footer } from '@/components/Layout/Footer';
@@ -91,7 +91,7 @@ describe('Footer — Accessibility', () => {
   });
 
   describe('Logo accessibility', () => {
-    it('logo image has empty alt text (decorative)', () => {
+    it('logo image has descriptive alt text', () => {
       render(<Footer />);
       const logo = screen.getByTestId('footer-logo');
       expect(logo).toHaveAttribute('alt', '');

@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Clock, TrendingUp, Sparkles, BookOpen, Wand2, WifiOff, Gamepad2, Coins, HelpCircle, ArrowRight, Rocket } from 'lucide-react';
+import { Trophy, Clock, TrendingUp, Sparkles, BookOpen, Wand2, WifiOff, Gamepad2, Coins, HelpCircle, ArrowRight, Rocket, Flame } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -55,6 +55,8 @@ interface HomeContentProps {
   latestMangas: MangaData[];
   topMangas: MangaData[];
   updatingMangas: MangaData[];
+  trendingMangas?: MangaData[];
+  newsArticles?: Record<string, unknown>[];
   topUsers: UserData[];
   featuredManga: FeaturedManga | null;
   totalMangas: number;
@@ -66,6 +68,8 @@ export function HomeContent({
   latestMangas,
   topMangas,
   updatingMangas,
+  trendingMangas,
+  newsArticles,
   topUsers,
   featuredManga,
   totalMangas,
@@ -93,6 +97,37 @@ export function HomeContent({
 
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         <GenreMarquee />
+
+        {/* Trending This Week */}
+        {trendingMangas && trendingMangas.length > 0 && (
+          <AnimatedContainer viewport>
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Flame className="w-6 h-6 text-[var(--error)]" /> {t('home.trendingTitle')}
+                </h2>
+                <Link href="/explore?sort=trending" aria-label={t('common.viewAll') + ' trending'}>
+                  <Button variant="ghost">{t('common.viewAll')} →</Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {trendingMangas.slice(0, 8).map((manga, index) => (
+                  <div key={manga.id} className="relative">
+                    {index < 3 && (
+                      <span className="absolute -top-2 -right-2 z-10 bg-gradient-to-br from-[var(--error)] to-[var(--warning)] text-[var(--text-inverse)] text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
+                        <Flame className="w-3 h-3" />
+                        {t('home.trendingHot')}
+                      </span>
+                    )}
+                    <AnimatedContainer animation="fadeInUp" delay={index * 0.06}>
+                      <MangaCard manga={manga} />
+                    </AnimatedContainer>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </AnimatedContainer>
+        )}
 
         <AnimatedContainer viewport>
           <section className="text-center py-8">
@@ -156,7 +191,7 @@ export function HomeContent({
 
             <Suspense fallback={<div className="h-48 animate-pulse bg-[var(--surface-sunken)] rounded-xl" />}>
               <AnimatedContainer viewport>
-                <HomeNewsSection />
+                <HomeNewsSection articles={newsArticles} />
               </AnimatedContainer>
             </Suspense>
           </div>

@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/i18n';
 
 interface EmptyStateProps {
   hasFilters?: boolean;
@@ -43,6 +44,7 @@ export function EmptyState({
   hasFilters = false,
   onClearFilters,
 }: EmptyStateProps) {
+  const t = useT();
   const router = useRouter();
 
   return (
@@ -98,13 +100,13 @@ export function EmptyState({
         className="max-w-md space-y-4"
       >
         <h3 className="text-2xl font-bold text-foreground">
-          {hasFilters ? 'No hay notificaciones' : 'Sin notificaciones'}
+          {hasFilters ? t('notifications.emptyFiltered') : t('notifications.empty' )}
         </h3>
 
         <p className="text-muted-foreground">
           {hasFilters
-            ? 'No se encontraron notificaciones con los filtros aplicados. Intenta con otros filtros o elimina los actuales.'
-            : 'Parece que no tienes notificaciones por el momento. ¡Explora nuevos mangas para descubrir historias increíbles!'}
+            ? t('notifications.emptyFilteredDesc')
+            : t('notifications.emptyDesc')}
         </p>
 
         {/* Action Buttons */}
@@ -116,7 +118,7 @@ export function EmptyState({
               onClick={onClearFilters}
               className="w-full sm:w-auto"
             >
-              Limpiar filtros
+              {t('notifications.clearFilters')}
             </Button>
           ) : (
             <>
@@ -127,7 +129,7 @@ export function EmptyState({
                 className="group w-full sm:w-auto"
               >
                 <Compass className="mr-2 h-4 w-4" />
-                Explorar mangas
+                {t('notifications.exploreMangas')}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
 
@@ -138,7 +140,7 @@ export function EmptyState({
                 className="w-full sm:w-auto"
               >
                 <Search className="mr-2 h-4 w-4" />
-                Buscar mangas
+                {t('notifications.searchMangas')}
               </Button>
             </>
           )}
@@ -154,9 +156,9 @@ export function EmptyState({
           className="mt-12 grid grid-cols-3 gap-6 sm:gap-12"
         >
           {[
-            { icon: BookOpen, label: 'Descubre', value: 'Nuevos mangas' },
-            { icon: Sparkles, label: 'Sigue', value: 'Tus favoritos' },
-            { icon: Bell, label: 'Recibe', value: 'Notificaciones' },
+            { icon: BookOpen, label: t('notifications.discover'), value: t('notifications.newMangas') },
+            { icon: Sparkles, label: t('notifications.follow'), value: t('notifications.yourFavorites') },
+            { icon: Bell, label: t('notifications.receive'), value: t('notifications.notifications') },
           ].map((item, index) => (
             <motion.div
               key={item.label}

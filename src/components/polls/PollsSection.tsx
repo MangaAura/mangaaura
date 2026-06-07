@@ -7,6 +7,7 @@
 
 'use client';
 
+import { useT } from '@/i18n';
 import {
   BarChart3,
   Calendar,
@@ -40,20 +41,20 @@ interface PollsSectionProps {
   status?: string;
 }
 
-function getTimeRemaining(expiresAt: string | null): string {
-  if (!expiresAt) return 'Sin fecha límite';
+function getTimeRemaining(expiresAt: string | null, t: ReturnType<typeof useT>): string {
+  if (!expiresAt) return t('polls.noExpiry');
   const now = new Date();
   const expiry = new Date(expiresAt);
   const diff = expiry.getTime() - now.getTime();
 
-  if (diff <= 0) return 'Finalizada';
+  if (diff <= 0) return t('polls.finished');
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-  if (days > 0) return `${days}d ${hours}h restantes`;
-  if (hours > 0) return `${hours}h restantes`;
-  return 'Menos de 1h';
+  if (days > 0) return t('polls.timeRemainingDays', { days, hours });
+  if (hours > 0) return t('polls.timeRemainingHours', { hours });
+  return t('polls.timeRemainingLessThanHour');
 }
 
 function PollOptionCard({
@@ -102,7 +103,7 @@ function PollOptionCard({
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-sm font-semibold text-[var(--text-secondary)]">
-            {votes} voto{votes !== 1 ? 's' : ''}
+            {votes} {votes !== 1 ? 'votos' : 'voto'}
           </span>
           <span className="text-xs font-bold text-[var(--text-tertiary)] min-w-[3ch] text-right">
             {percentage.toFixed(0)}%
@@ -136,6 +137,7 @@ function PollCard({
   onRemoveVote: () => Promise<void>;
   isVoting: boolean;
 }) {
+  const t = useT();
   const totalVotes = poll.options.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
   const isExpired = poll.expiresAt && new Date(poll.expiresAt) < new Date();
   const canVote = poll.status === 'ACTIVE' && !isExpired && !poll.userVotedOptionId;
@@ -157,9 +159,9 @@ function PollCard({
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {poll.status === 'ACTIVE' && !isExpired ? (
-              <Badge variant="success">Activa</Badge>
+              <Badge variant="success">{t('polls.active')}</Badge>
             ) : (
-              <Badge variant="secondary">Finalizada</Badge>
+              <Badge variant="secondary">{t('polls.finished')}</Badge>
             )}
           </div>
         </div>
@@ -182,7 +184,7 @@ function PollCard({
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <Vote className="w-3.5 h-3.5" />
-            {totalVotes} voto{totalVotes !== 1 ? 's' : ''}
+            {totalVotes} {totalVotes !== 1 ? 'votos' : 'voto'}
           </span>
           {poll.createdBy && (
             <span className="flex items-center gap-1">
@@ -197,7 +199,7 @@ function PollCard({
           ) : (
             <Clock className="w-3.5 h-3.5" />
           )}
-          <span>{getTimeRemaining(poll.expiresAt)}</span>
+          <span>{getTimeRemaining(poll.expiresAt, t)}</span>
         </div>
         {hasVoted && canVote && (
           <button
@@ -205,7 +207,7 @@ function PollCard({
             disabled={isVoting}
             className="text-xs text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors underline underline-offset-2"
           >
-            Retirar voto
+            {t('polls.removeVote')}
           </button>
         )}
       </CardFooter>
@@ -214,6 +216,7 @@ function PollCard({
 }
 
 function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPollCreated: () => void }) {
+  const t = useT();
   const [question, setQuestion] = useState('');
   const [description, setDescription] = useState('');
   const [options, setOptions] = useState<string[]>(['', '']);
@@ -232,12 +235,12 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
 
   const handleSubmit = async () => {
     if (!question.trim()) {
-      setError('La pregunta es requerida');
+      setError(t('polls.questionRequired'));
       return;
     }
     const validOptions = options.filter((o) => o.trim());
     if (validOptions.length < 2) {
-      setError('Se requieren al menos 2 opciones');
+      setError(t('polls.minOptions'));
       return;
     }
 
@@ -269,7 +272,7 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
       onClose();
     } else {
       const data = await response.json().catch(() => ({}));
-      setError(data.error || 'Error al crear la encuesta');
+      setError(data.error || t('polls.createError'));
     }
   };
 
@@ -277,7 +280,7 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
     <Card className="border-[var(--primary)]/30 bg-[var(--surface)]">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Nueva encuesta</CardTitle>
+          <CardTitle className="text-lg">{t('polls.newPoll')}</CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
@@ -288,31 +291,31 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-[var(--text-primary)]">
-            Pregunta <span className="text-[var(--error)]">*</span>
+            {t('polls.question')} <span className="text-[var(--error)]">*</span>
           </label>
           <Input
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="¿Qué prefieres?"
+            placeholder={t('polls.questionPlaceholder')}
             maxLength={200}
           />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-[var(--text-primary)]">
-            Descripción
+            {t('polls.description')}
           </label>
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Detalles adicionales (opcional)"
+            placeholder={t('polls.descriptionPlaceholder')}
             rows={2}
           />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-[var(--text-primary)]">
-            Opciones
+            {t('polls.options')}
           </label>
           <div className="space-y-2">
             {options.map((option, index) => (
@@ -320,7 +323,7 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
                 <Input
                   value={option}
                   onChange={(e) => updateOption(index, e.target.value)}
-                  placeholder={`Opción ${index + 1}`}
+                  placeholder={t('polls.optionPlaceholder', { number: index + 1 })}
                   maxLength={100}
                   className="flex-1"
                 />
@@ -328,7 +331,7 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
                   <button
                     onClick={() => removeOption(index)}
                     className="text-[var(--text-tertiary)] hover:text-[var(--error)] transition-colors p-1"
-                    aria-label={`Eliminar opción ${index + 1}`}
+                    aria-label={t('polls.removeOption', { number: index + 1 })}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -340,35 +343,35 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
             onClick={addOption}
             className="text-sm text-[var(--primary)] hover:underline mt-1"
           >
-            + Añadir opción
+            + {t('polls.addOption')}
           </button>
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-[var(--text-primary)]">
-            Duración
+            {t('polls.duration')}
           </label>
           <select
             value={expiresIn}
             onChange={(e) => setExpiresIn(e.target.value)}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
           >
-            <option value="1">1 día</option>
-            <option value="3">3 días</option>
-            <option value="7">7 días</option>
-            <option value="14">14 días</option>
-            <option value="30">30 días</option>
-            <option value="0">Sin fecha límite</option>
+            <option value="1">{t('polls.duration1Day')}</option>
+            <option value="3">{t('polls.duration3Days')}</option>
+            <option value="7">{t('polls.duration7Days')}</option>
+            <option value="14">{t('polls.duration14Days')}</option>
+            <option value="30">{t('polls.duration30Days')}</option>
+            <option value="0">{t('polls.noExpiry')}</option>
           </select>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
         <Button variant="outline" onClick={onClose}>
-          Cancelar
+          {t('common.cancel')}
         </Button>
         <Button onClick={handleSubmit} isLoading={isSubmitting}>
           <ThumbsUp className="w-4 h-4 mr-2" />
-          Crear encuesta
+          {t('polls.create')}
         </Button>
       </CardFooter>
     </Card>
@@ -378,10 +381,11 @@ function CreatePollForm({ onClose, onPollCreated }: { onClose: () => void; onPol
 export function PollsSection({
   limit = 10,
   showCreateForm = true,
-  title = 'Encuestas',
+  title,
   className = '',
   status = 'ACTIVE',
 }: PollsSectionProps) {
+  const t = useT();
   const { data: session } = useSession();
   const { polls, isLoading, error, fetchPolls, vote, removeVote } = usePolls();
   const [showForm, setShowForm] = useState(false);
@@ -411,9 +415,9 @@ export function PollsSection({
     return (
       <EmptyState
         icon={<BarChart3 className="w-8 h-8" />}
-        title="Inicia sesión"
-        description="Inicia sesión para ver y participar en encuestas"
-        action={{ label: 'Iniciar sesión', href: '/auth/login' }}
+        title={t('polls.loginRequired')}
+        description={t('polls.loginRequiredDesc')}
+        action={{ label: t('polls.login'), href: '/auth/login' }}
       />
     );
   }
@@ -426,13 +430,14 @@ export function PollsSection({
           showCreateForm && !showForm ? (
             <Button size="sm" onClick={() => setShowForm(true)}>
               <Plus className="w-4 h-4 mr-1" />
-              Nueva encuesta
+              {t('polls.newPoll')}
             </Button>
           ) : undefined
         }
       >
-        {title}
-      </SectionTitle>          {showForm && (
+        {title || t('polls.title')}
+      </SectionTitle>
+      {showForm && (
         <div className="mb-6">
           <CreatePollForm onClose={() => setShowForm(false)} onPollCreated={loadPolls} />
         </div>
@@ -441,7 +446,7 @@ export function PollsSection({
       {error && (
         <ErrorMessage
           message={error}
-          action={{ label: 'Reintentar', onClick: loadPolls }}
+          action={{ label: t('common.retry'), onClick: loadPolls }}
           className="mb-4"
         />
       )}
@@ -458,9 +463,9 @@ export function PollsSection({
       ) : polls.length === 0 ? (
         <EmptyState
           icon={<BarChart3 className="w-8 h-8" />}
-          title="Sin encuestas activas"
-          description="No hay encuestas disponibles en este momento."
-          action={showCreateForm ? { label: 'Crear una encuesta', onClick: () => setShowForm(true) } : undefined}
+          title={t('polls.noActivePolls')}
+          description={t('polls.noActivePollsDesc')}
+          action={showCreateForm ? { label: t('polls.create'), onClick: () => setShowForm(true) } : undefined}
         />
       ) : (
         <StaggerContainer className="space-y-4" staggerDelay={0.05}>

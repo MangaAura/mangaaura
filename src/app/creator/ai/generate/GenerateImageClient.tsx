@@ -26,25 +26,17 @@ import {
   Wand2,
   SlidersHorizontal,
   X,
-  Crown,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
+import { useAuraBalance } from '@/hooks/useAuraBalance';
 import { Container } from '@/components/Layout/Container';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { loadStripe } from '@stripe/stripe-js/pure';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
@@ -98,58 +90,6 @@ interface HistoryResponse {
   hasMore: boolean;
 }
 
-// ─── Constants ──────────────────────────────────────────────────────────
-
-// ─── Aura Pack Options ────────────────────────────────────────────────
-
-const AURA_PACKS = [
-  {
-    id: 'aura_100',
-    aura: 100,
-    priceCents: 100,
-    icon: 'coins' as const,
-    popular: false,
-    discount: false,
-  },
-  {
-    id: 'aura_500',
-    aura: 500,
-    priceCents: 450,
-    icon: 'zap' as const,
-    popular: true,
-    discount: true,
-  },
-  {
-    id: 'aura_1000',
-    aura: 1000,
-    priceCents: 850,
-    icon: 'star' as const,
-    popular: false,
-    discount: true,
-  },
-  {
-    id: 'aura_5000',
-    aura: 5000,
-    priceCents: 4000,
-    icon: 'crown' as const,
-    popular: false,
-    discount: true,
-  },
-];
-
-function formatPrice(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
-}
-
-function formatPricePerAura(pkg: { priceCents: number; aura: number }, t?: (key: string, params?: Record<string, string | number>) => string): string {
-  const centsPerAura = pkg.priceCents / pkg.aura;
-  const pricePer100 = centsPerAura * 100;
-  if (pricePer100 < 1) {
-    return t ? t('creator.imageGeneration.pricePer100Aura', { price: pricePer100.toFixed(1) }) : `~${pricePer100.toFixed(1)}¢/100`;
-  }
-  return formatPrice(pkg.priceCents);
-}
-
 // ─── Client Component ───────────────────────────────────────────────────
 
 export function GenerateImageClient() {
@@ -164,8 +104,9 @@ export function GenerateImageClient() {
     t('creator.imageGeneration.presetPrompt5'),
     t('creator.imageGeneration.presetPrompt6'),
   ];
-  const { data: session } = useSession();
-  const auraBalance = (session?.user as { auraBalance?: number } | undefined)?.auraBalance ?? 0;
+  const { auraBalance, refreshBalance } = useAuraBalance();
+
+  const router = useRouter();
 
   // ── State ──────────────────────────────────────────────────────────
 
@@ -187,8 +128,6 @@ export function GenerateImageClient() {
   const [isAuraError, setIsAuraError] = useState(false);
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [buyAuraModalOpen, setBuyAuraModalOpen] = useState(false);
-  const [buyingAura, setBuyingAura] = useState<string | null>(null);
 
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -241,38 +180,6 @@ export function GenerateImageClient() {
 
   // ── Handlers ───────────────────────────────────────────────────────
 
-  const handleBuyAura = useCallback(async (packageId: string) => {
-    setBuyingAura(packageId);
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ packageId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || t('creator.imageGeneration.checkoutError'));
-      }
-
-      // Redirect to Stripe Checkout
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
-
-      if (stripe) {
-        const { error: stripeError } = await (stripe as any).redirectToCheckout({
-          sessionId: data.sessionId,
-        });
-        if (stripeError) {
-          throw new Error(stripeError.message);
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('creator.imageGeneration.processingError'));
-      setBuyingAura(null);
-    }
-  }, []);
-
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim() || isGenerating) return;
 
@@ -313,6 +220,9 @@ export function GenerateImageClient() {
       setResult(data);
       setIsGenerating(false);
 
+      // Refresh balance immediately so the user sees their deducted Aura
+      refreshBalance();
+
       // Scroll to result
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -324,7 +234,7 @@ export function GenerateImageClient() {
       setError(err instanceof Error ? err.message : t('creator.imageGeneration.connectionError'));
       setIsGenerating(false);
     }
-  }, [prompt, negativePrompt, selectedModelId, width, height, quality, style, seed, isGenerating, auraBalance, refreshHistory, selectedModel.styles]);
+  }, [prompt, negativePrompt, selectedModelId, width, height, quality, style, seed, isGenerating, auraBalance, refreshBalance, refreshHistory, selectedModel.styles]);
 
   const handleDownload = useCallback(async () => {
     if (!result?.imageUrl) return;
@@ -554,37 +464,42 @@ export function GenerateImageClient() {
               </AnimatePresence>
             </Card>
 
-            {/* Generate button */}
-            <Button
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || isGenerating || insufficientAura}
-              size="lg"
-              className="w-full gap-3 text-base"
-              title={insufficientAura ? t('creator.imageGeneration.insufficientAura') : ''}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  {t('creator.imageGeneration.generating')}
-                </>
-              ) : insufficientAura ? (
-                <>
-                  <Coins className="w-5 h-5 text-amber-400" />
-                  <span className="text-amber-400">{t('creator.imageGeneration.buyAura')}</span>
-                  <span className="text-xs opacity-80 ml-auto text-amber-400">
-                    {t('creator.imageGeneration.insufficientAura')}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  {t('creator.imageGeneration.generate')}
-                  <span className="text-xs opacity-80 ml-auto">
-                    ({t('creator.imageGeneration.auraCost', { cost: selectedModel.auraCost })})
-                  </span>
-                </>
-              )}
-            </Button>
+            {/* Generate / Buy Aura button */}
+            {insufficientAura ? (
+              <button
+                type="button"
+                onClick={() => router.push('/checkout')}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-base hover:from-amber-400 hover:to-orange-500 transition-all shadow-lg shadow-amber-500/25"
+              >
+                <Coins className="w-5 h-5" />
+                <span>{t('creator.imageGeneration.buyAura')}</span>
+                <span className="text-xs opacity-80 ml-auto">
+                  {t('creator.imageGeneration.insufficientAura')}
+                </span>
+              </button>
+            ) : (
+              <Button
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating}
+                size="lg"
+                className="w-full gap-3 text-base"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    {t('creator.imageGeneration.generating')}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    {t('creator.imageGeneration.generate')}
+                    <span className="text-xs opacity-80 ml-auto">
+                      ({t('creator.imageGeneration.auraCost', { cost: selectedModel.auraCost })})
+                    </span>
+                  </>
+                )}
+              </Button>
+            )}
 
             {/* Error */}
             <AnimatePresence>
@@ -604,7 +519,7 @@ export function GenerateImageClient() {
                         <Button
                           size="sm"
                           variant="default"
-                          onClick={() => setBuyAuraModalOpen(true)}
+                          onClick={() => router.push('/checkout')}
                           className="gap-1.5"
                         >
                           <Coins className="w-3.5 h-3.5" />
@@ -942,88 +857,6 @@ export function GenerateImageClient() {
           )}
         </AnimatePresence>
 
-        {/* ── Buy Aura Modal ──────────────────────────────────────────── */}
-        <Dialog open={buyAuraModalOpen} onOpenChange={setBuyAuraModalOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                <Coins className="w-5 h-5 text-amber-500" />
-                {t('creator.imageGeneration.buyAuraModalTitle')}
-              </DialogTitle>
-              <DialogDescription>
-                {t('creator.imageGeneration.buyAuraModalDesc')}{' '}
-                <strong className="text-[var(--text-primary)]">{t('creator.imageGeneration.auraCost', { cost: auraBalance })}</strong>.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-3 py-2">
-              {AURA_PACKS.map((pkg) => {
-                const isBuying = buyingAura === pkg.id;
-
-                return (
-                  <button
-                    key={pkg.id}
-                    onClick={() => handleBuyAura(pkg.id)}
-                    disabled={isBuying}
-                    className="relative w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] hover:border-[var(--primary)]/40 hover:bg-[var(--surface-sunken)]/50 transition-all text-left group disabled:opacity-60"
-                  >
-                    {/* Icon */}
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      pkg.icon === 'zap' ? 'bg-[var(--primary)]/15 text-[var(--primary)]' :
-                      pkg.icon === 'star' ? 'bg-purple-500/15 text-purple-500' :
-                      pkg.icon === 'crown' ? 'bg-amber-500/15 text-amber-500' :
-                      'bg-[var(--surface-sunken)] text-[var(--text-secondary)]'
-                    }`}>
-                      {pkg.icon === 'zap' ? <Zap className="w-6 h-6" /> :
-                       pkg.icon === 'star' ? <Sparkles className="w-6 h-6" /> :
-                       pkg.icon === 'crown' ? <Crown className="w-6 h-6" /> :
-                       <Coins className="w-6 h-6" />}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-base">{t('creator.imageGeneration.auraCost', { cost: pkg.aura })}</span>
-                        <span className="text-sm font-semibold text-[var(--text-secondary)]">
-                          {formatPrice(pkg.priceCents)}
-                        </span>
-                      </div>
-                      <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                        {pkg.discount && auraBalance < selectedModel.auraCost
-                      ? t('creator.imageGeneration.generationsCount', { count: Math.floor(pkg.aura / selectedModel.auraCost) })
-                      : formatPricePerAura(pkg, t)}
-                      </p>
-                    </div>
-
-                    {/* Buy button */}
-                    <div className="flex-shrink-0">
-                      {isBuying ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" />
-                      ) : (
-                        <div className="px-3 py-1.5 rounded-lg bg-[var(--primary)] text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">{t('creator.imageGeneration.buyButton')}</div>
-                      )}
-                    </div>
-
-                    {/* Popular badge */}
-                    {pkg.popular && (
-                      <div className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-purple)] text-white text-[9px] font-bold shadow-lg">{t('creator.imageGeneration.popular')}</div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="border-t border-[var(--border)] pt-4 flex items-center justify-between">
-              <p className="text-xs text-[var(--text-tertiary)]">
-                {t('creator.imageGeneration.buyAuraModalSafePayment')}
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setBuyAuraModalOpen(false)}>{t('creator.imageGeneration.cancel')}</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </Container>
     </div>
   );

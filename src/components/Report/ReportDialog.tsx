@@ -8,6 +8,7 @@ import { AccessibleModal } from '@/components/A11y/AccessibleModal';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface ReportDialogProps {
@@ -19,11 +20,11 @@ interface ReportDialogProps {
 }
 
 const reportReasons = [
-  { id: 'spam', label: 'Spam', icon: MessageSquareOff },
-  { id: 'harassment', label: 'Acoso', icon: UserX },
-  { id: 'inappropriate', label: 'Contenido inapropiado', icon: AlertTriangle },
-  { id: 'copyright', label: 'Violación de derechos', icon: ShieldAlert },
-  { id: 'other', label: 'Otro', icon: Flag },
+  { id: 'spam', labelKey: 'report.reasons.spam', icon: MessageSquareOff },
+  { id: 'harassment', labelKey: 'report.reasons.harassment', icon: UserX },
+  { id: 'inappropriate', labelKey: 'report.reasons.inappropriate', icon: AlertTriangle },
+  { id: 'copyright', labelKey: 'report.reasons.copyright', icon: ShieldAlert },
+  { id: 'other', labelKey: 'report.reasons.other', icon: Flag },
 ];
 
 export function ReportDialog({
@@ -33,6 +34,7 @@ export function ReportDialog({
   targetId,
   targetName,
 }: ReportDialogProps) {
+  const t = useT();
   const [selectedReason, setSelectedReason] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,7 +66,7 @@ export function ReportDialog({
       }
     } catch (error) {
       handleError(error);
-      setSubmitError('Error de conexión. Intenta de nuevo.');
+      setSubmitError(t('report.connectionError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -76,18 +78,16 @@ export function ReportDialog({
     setSubmitted(false);
     setSubmitError(null);
     onClose();
-  };
-
-  if (submitted) {
+  };    if (submitted) {
     return (
       <AccessibleModal
         isOpen={isOpen}
         onClose={handleClose}
-        title="Reporte enviado"
-        description={`Gracias por reportar. Revisaremos ${targetName} lo antes posible.`}
+        title={t('report.submittedTitle')}
+        description={t('report.submittedDesc', { target: targetName })}
         footer={
           <Button onClick={handleClose} className="w-full">
-            Entendido
+            {t('report.gotIt')}
           </Button>
         }
       >
@@ -104,12 +104,12 @@ export function ReportDialog({
     <AccessibleModal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Reportar"
-      description={`¿Por qué quieres reportar ${targetName}?`}
+      title={t('report.title')}
+      description={t('report.description', { target: targetName })}
       footer={
         <div className="flex gap-2 justify-end">
           <Button variant="outline" onClick={handleClose}>
-            Cancelar
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -117,7 +117,7 @@ export function ReportDialog({
             variant="destructive"
             isLoading={isSubmitting}
           >
-            Reportar
+            {t('report.submit')}
           </Button>
         </div>
       }
@@ -150,7 +150,7 @@ export function ReportDialog({
                     selectedReason === reason.id ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
                   )}
                 >
-                  {reason.label}
+                  {t(reason.labelKey)}
                 </span>
               </button>
             );
@@ -172,19 +172,19 @@ export function ReportDialog({
 
         <div>
           <label htmlFor="report-description" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-            Descripción (opcional)
+            {t('report.descriptionLabel')}
           </label>
           <textarea
             id="report-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Proporciona más detalles..."
+            placeholder={t('report.descriptionPlaceholder')}
             className="w-full h-24 p-3 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--text-primary)] resize-none text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             maxLength={500}
             aria-describedby="report-description-count"
           />
           <p id="report-description-count" className="text-xs text-[var(--text-tertiary)] mt-1">
-            {description.length}/500 caracteres
+            {description.length}/500 {t('report.characters')}
           </p>
         </div>
       </div>

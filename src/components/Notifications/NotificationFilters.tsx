@@ -4,6 +4,7 @@
  * Panel de filtros para notificaciones.
  */
 
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 type FilterType = 'all' | 'chapters' | 'comments' | 'likes' | 'mentions' | 'follows';
@@ -16,33 +17,35 @@ interface NotificationFiltersProps {
   onStatusChange: (status: FilterStatus) => void;
 }
 
-const typeOptions = [
-  { value: 'all', label: 'Todas' },
-  { value: 'chapters', label: 'Capítulos' },
-  { value: 'comments', label: 'Comentarios' },
-  { value: 'likes', label: 'Likes' },
-  { value: 'mentions', label: 'Menciones' },
-  { value: 'follows', label: 'Seguidores' },
-];
-
-const statusOptions = [
-  { value: 'all', label: 'Todas' },
-  { value: 'unread', label: 'No leídas' },
-  { value: 'read', label: 'Leídas' },
-];
-
 export function NotificationFilters({
   filterType,
   filterStatus,
   onTypeChange,
   onStatusChange,
 }: NotificationFiltersProps) {
+  const t = useT();
+
+  const typeOptions = [
+    { value: 'all', label: t('common.all') },
+    { value: 'chapters', label: t('notifications.filterChapters') },
+    { value: 'comments', label: t('notifications.filterReplies') },
+    { value: 'likes', label: t('common.likes') },
+    { value: 'mentions', label: t('notifications.filterMentions') },
+    { value: 'follows', label: t('notifications.follows') },
+  ];
+
+  const statusOptions = [
+    { value: 'all', label: t('common.all') },
+    { value: 'unread', label: t('notifications.unread') },
+    { value: 'read', label: t('notifications.read') },
+  ];
+
   return (
     <div className="bg-[var(--surface-sunken)] rounded-xl p-4 mb-6">
       <div className="flex flex-wrap gap-4">
         {/* Type filter */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-[var(--text-tertiary)] self-center mr-2">Tipo:</span>
+          <span className="text-sm text-[var(--text-tertiary)] self-center mr-2">{t('notifications.type')}:</span>
           {typeOptions.map((option) => (
             <button
               key={option.value}
@@ -61,7 +64,7 @@ export function NotificationFilters({
 
         {/* Status filter */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-[var(--text-tertiary)] self-center mr-2">Estado:</span>
+          <span className="text-sm text-[var(--text-tertiary)] self-center mr-2">{t('notifications.status')}:</span>
           {statusOptions.map((option) => (
             <button
               key={option.value}

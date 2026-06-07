@@ -31,7 +31,9 @@ import { CollectionsModal } from '@/app/(protected)/profile/CollectionsModal';
 import { FollowersModal } from '@/app/(protected)/profile/FollowersModal';
 import { LibraryModal } from '@/app/(protected)/profile/LibraryModal';
 import { ProfileHeader, ProfileTimeline } from '@/components/Profile';
+import { BlockButton } from '@/components/Social/BlockButton';
 import { FollowButton } from '@/components/Social/FollowButton';
+import { FriendButton } from '@/components/Social/FriendButton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -660,7 +662,9 @@ export function UserProfileClient({ user, isOwnProfile, sessionUserId, following
                         </motion.span>
                       )}
                     </div>
+                    <FriendButton targetUserId={user.id} />
                     <FollowButton targetId={user.id} targetType="USER" size="default" initialIsFollowing={isFollowingUser} />
+                    <BlockButton targetUserId={user.id} />
                   </>
                 )}
                 {isOwnProfile && (

@@ -7,6 +7,7 @@ import { useOptimistic, useTransition } from 'react';
 import { toggleFollow } from '@/app/social/actions';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
+import { useT } from '@/i18n';
 
 
 
@@ -25,6 +26,7 @@ export function FollowButton({
   onFollowChange,
   size = 'default',
 }: FollowButtonProps) {
+  const t = useT();
   const [isPending, startTransition] = useTransition();
   const [optimisticFollowing, addOptimistic] = useOptimistic(
     initialIsFollowing,
@@ -40,14 +42,14 @@ export function FollowButton({
         const result = await toggleFollow(targetId, targetType, pathname);
         onFollowChange?.(result.isFollowing);
         toast({
-          title: result.isFollowing ? 'Siguiendo' : 'Dejaste de seguir',
+          title: result.isFollowing ? t('follow.following') : t('follow.unfollowed'),
           description: result.message,
           variant: result.isFollowing ? 'default' : 'destructive',
         });
       } catch (error) {
         toast({
           title: 'Error',
-          description: error instanceof Error ? error.message : 'Error al seguir',
+          description: error instanceof Error ? error.message : t('follow.error'),
           variant: 'destructive',
         });
       }
@@ -67,12 +69,12 @@ export function FollowButton({
       ) : optimisticFollowing ? (
         <>
           <UserMinus className="w-4 h-4 mr-2" />
-          Dejar de seguir
+          {t('follow.unfollow')}
         </>
       ) : (
         <>
           <UserPlus className="w-4 h-4 mr-2" />
-          {targetType === 'USER' ? 'Seguir' : 'Seguir manga'}
+          {targetType === 'USER' ? t('follow.follow') : t('follow.followManga')}
         </>
       )}
     </Button>

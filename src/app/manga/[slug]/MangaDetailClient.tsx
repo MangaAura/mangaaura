@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Clock, Eye, Star, ChevronDown, CheckCircle2, PauseCircle, XCircle, User, Library, Tag } from 'lucide-react';
+import { BookOpen, Clock, Eye, Star, ChevronDown, CheckCircle2, PauseCircle, XCircle, User, Library, Tag, Plus, Flag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,11 +9,13 @@ import useSWR from 'swr';
 
 
 import { setLibraryStatus, removeFromLibrary } from './actions';
+import { CollectionPicker } from '@/components/Collections/CollectionPicker';
 import { ReviewSection } from '@/components/Reviews/ReviewSection';
 import { ShareButton } from '@/components/Share/ShareButton';
 import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { StarRating } from '@/components/ui/StarRating';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
+import { useReport } from '@/components/Report/ReportDialog';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
 import { cn, formatNumber, formatDate } from '@/lib/utils';
@@ -55,11 +57,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const LIBRARY_STATUSES = [
-  { value: 'READING', label: 'Siguiendo', icon: BookOpen, color: 'text-[var(--info)] border-[var(--info)] bg-[var(--info)]/10' },
-  { value: 'COMPLETED', label: 'Leido', icon: CheckCircle2, color: 'text-[var(--success)] border-[var(--success)] bg-[var(--success)]/10' },
-  { value: 'PLAN_TO_READ', label: 'Pendiente', icon: Clock, color: 'text-[var(--accent-purple)] border-[var(--accent-purple)] bg-[var(--accent-purple)]/10' },
-  { value: 'ON_HOLD', label: 'En espera', icon: PauseCircle, color: 'text-[var(--warning)] border-[var(--warning)] bg-[var(--warning)]/10' },
-  { value: 'DROPPED', label: 'Abandonado', icon: XCircle, color: 'text-[var(--error)] border-[var(--error)] bg-[var(--error)]/10' },
+  { value: 'READING', labelKey: 'library.reading', icon: BookOpen, color: 'text-[var(--info)] border-[var(--info)] bg-[var(--info)]/10' },
+  { value: 'COMPLETED', labelKey: 'library.completed', icon: CheckCircle2, color: 'text-[var(--success)] border-[var(--success)] bg-[var(--success)]/10' },
+  { value: 'PLAN_TO_READ', labelKey: 'library.planToRead', icon: Clock, color: 'text-[var(--accent-purple)] border-[var(--accent-purple)] bg-[var(--accent-purple)]/10' },
+  { value: 'ON_HOLD', labelKey: 'library.onHold', icon: PauseCircle, color: 'text-[var(--warning)] border-[var(--warning)] bg-[var(--warning)]/10' },
+  { value: 'DROPPED', labelKey: 'library.dropped', icon: XCircle, color: 'text-[var(--error)] border-[var(--error)] bg-[var(--error)]/10' },
 ];
 
 export default function MangaDetailClient({ manga, libraryStatus: initialStatus, userId }: Props) {
@@ -68,6 +70,8 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
   const { handleError } = useErrorHandler();
   const [showAllChapters, setShowAllChapters] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
+  const { openReport, ReportDialog: ReportDialogComponent } = useReport();
 
   // Fetch user's current rating for this manga
   const { data: userRatingData, mutate: mutateRating } = useSWR<{ rating: number | null; averageRating: number | null; totalRatings: number }>(
@@ -267,16 +271,36 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                 </Link>
               )}
               <ShareButton
-                variant="full"
-                size="md"
+                variant="outline"
+                size="default"
                 title={manga.title}
                 text={`¡Mira este manga en MangaAura: ${manga.title}!`}
                 url={typeof window !== 'undefined' ? `${window.location.origin}/manga/${manga.slug}` : ''}
-                hashtags={['MangaAura', 'Manga', ...manga.tags.slice(0, 3)]}
-                label="Compartir"
               />
+              <button
+                onClick={() => openReport('MANGA', manga.id, manga.title)}
+                className="px-4 py-2.5 border border-[var(--border)] hover:border-[var(--error)]/30 hover:bg-[var(--error)]/5 text-[var(--text-tertiary)] hover:text-[var(--error)] font-bold rounded-xl transition-all flex items-center gap-2"
+                title={t('manga.report')}
+              >
+                <Flag className="w-4 h-4" />
+                {t('manga.report')}
+              </button>
             </div>
+            {/* Add to Collection & Create buttons */}
             <div className="flex flex-wrap gap-2 mb-6">
+              <button
+                onClick={() => {
+                  if (!userId) {
+                    router.push('/auth/login?message=loginToLibrary');
+                    return;
+                  }
+                  setShowCollectionPicker(true);
+                }}
+                className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-bold transition-all flex items-center gap-1.5 hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] text-[var(--text-tertiary)]"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                {t('manga.addToCollection')}
+              </button>
               {LIBRARY_STATUSES.map((s) => {
                 const Icon = s.icon;
                 const isActive = libraryStatus === s.value;
@@ -293,7 +317,7 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
                     )}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    {s.label}
+                    {t(s.labelKey)}
                   </button>
                 );
               })}
@@ -418,6 +442,17 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
           />
         </div>
       </div>
+
+      {/* Collection Picker Modal */}
+      <CollectionPicker
+        mangaId={manga.id}
+        mangaTitle={manga.title}
+        open={showCollectionPicker}
+        onOpenChange={setShowCollectionPicker}
+      />
+
+      {/* Report Dialog */}
+      {ReportDialogComponent}
     </div>
   );
 }

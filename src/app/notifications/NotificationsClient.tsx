@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { NotificationList } from '@/components/Notifications/NotificationList';
 import type { NotificationType } from '@/core/services/NotificationService';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 type FilterType = NotificationType | 'all';
@@ -23,6 +24,7 @@ type ReadStatus = 'all' | 'unread' | 'read';
 export default function NotificationsClient() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const t = useT();
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [readStatus, setReadStatus] = useState<ReadStatus>('all');
 
@@ -73,12 +75,12 @@ export default function NotificationsClient() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
-              <Bell className="text-[var(--primary)]" size={30} /> Notificaciones
+              <Bell className="text-[var(--primary)]" size={30} /> {t('notifications.title')}
             </h1>
             <p className="text-[var(--text-secondary)] mt-1">
               {unreadCount > 0
-                ? `Tienes ${unreadCount} notificación${unreadCount !== 1 ? 'es' : ''} sin leer`
-                : 'No tienes notificaciones pendientes'
+                ? t('notifications.unreadCount', { count: unreadCount })
+                : t('notifications.noUnread')
               }
             </p>
           </div>
@@ -88,10 +90,10 @@ export default function NotificationsClient() {
               <button
                 onClick={deleteReadNotifications}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--error)] transition-colors"
-                title="Eliminar leídas"
+                title={t('notifications.deleteRead')}
               >
                 <Trash2 className="w-4 h-4" />
-                Eliminar leídas
+                {t('notifications.deleteRead')}
               </button>
             )}
             {unreadCount > 0 && (
@@ -100,7 +102,7 @@ export default function NotificationsClient() {
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
               >
                 <Check className="w-4 h-4" aria-hidden="true" />
-                Marcar todas como leídas
+                {t('notifications.markAllRead')}
               </button>
             )}
           </div>
@@ -109,9 +111,9 @@ export default function NotificationsClient() {
         {/* Read status tabs */}
         <div className="flex items-center gap-1 mb-6">
           {([
-            { value: 'all' as ReadStatus, label: 'Todas' },
-            { value: 'unread' as ReadStatus, label: 'No leídas', count: unreadCount },
-            { value: 'read' as ReadStatus, label: 'Leídas', count: readCount },
+            { value: 'all' as ReadStatus, label: t('common.all') },
+            { value: 'unread' as ReadStatus, label: t('notifications.unread'), count: unreadCount },
+            { value: 'read' as ReadStatus, label: t('notifications.read'), count: readCount },
           ]).map((tab) => (
             <button
               key={tab.value}

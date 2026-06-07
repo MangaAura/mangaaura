@@ -18,7 +18,7 @@ export function initIO(httpServer?: HTTPServer) {
   if (io) return io;
 
   if (!httpServer) {
-    console.warn('[Socket] No HTTP server provided — running in HTTP-only mode');
+    console.warn('[Socket] No HTTP server provided — running in HTTP-only mode. Real-time features will rely on polling instead.');
     return null;
   }
 

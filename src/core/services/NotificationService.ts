@@ -23,7 +23,8 @@ export type NotificationType =
   | 'CLAN_JOIN_APPROVED'
   | 'CLAN_JOIN_REJECTED'
   | 'REFERRAL_SIGNUP'
-  | 'REFERRAL_BONUS_UNLOCKED';
+  | 'REFERRAL_BONUS_UNLOCKED'
+  | 'FRIEND_REQUEST';
 
 export interface CreateNotificationDTO {
   userId: string;

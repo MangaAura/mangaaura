@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Trophy, Users, Crown, Flame, BookOpen } from 'lucide-react';
 
+import { ShareButton } from '@/components/Share/ShareButton';
 import { LeaderboardTable } from '@/components/Rankings/LeaderboardTable';
 import { Card } from '@/components/ui/Card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
@@ -62,12 +63,23 @@ export default function RankingsClient({ leaderboards, currentUserId }: Rankings
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
-        <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Trophy className="text-[var(--primary)]" size={30} /> {t('rankings.title')}
-        </h1>
-        <p className="text-[var(--text-secondary)] mt-2">
-          {t('rankings.description')}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+              <Trophy className="text-[var(--primary)]" size={30} /> {t('rankings.title')}
+            </h1>
+            <p className="text-[var(--text-secondary)] mt-2">
+              {t('rankings.description')}
+            </p>
+          </div>
+          <ShareButton
+            title="Rankings MangaAura"
+            text="Mira los rankings de MangaAura - ¿En qué puesto estás?"
+            variant="outline"
+            size="sm"
+            className="flex-shrink-0 mt-1"
+          />
+        </div>
       </motion.div>
 
       {/* Stats */}

@@ -4,6 +4,7 @@ import { Loader2, UserPlus, UserCheck, UserX, Clock, Check, X, Users } from 'luc
 import { useSession } from 'next-auth/react';
 
 import { useFriend } from '@/hooks/useFriend';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface FriendButtonProps {
@@ -12,6 +13,7 @@ interface FriendButtonProps {
 }
 
 export function FriendButton({ targetUserId, className }: FriendButtonProps) {
+  const t = useT();
   const { data: session } = useSession();
   const { status, isLoading, sendRequest, acceptRequest, rejectRequest, removeFriend, cancelRequest } = useFriend(targetUserId);
 
@@ -24,7 +26,7 @@ export function FriendButton({ targetUserId, className }: FriendButtonProps) {
         className={cn('flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--surface)] text-[var(--text-tertiary)] cursor-not-allowed', className)}
       >
         <Loader2 className="w-4 h-4 animate-spin" />
-        Cargando...
+        {t('friend.loading')}
       </button>
     );
   }
@@ -37,7 +39,7 @@ export function FriendButton({ targetUserId, className }: FriendButtonProps) {
           className={cn('flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--primary)] text-[var(--text-inverse)] hover:opacity-90 transition-all', className)}
         >
           <UserPlus className="w-4 h-4" />
-          Agregar amigo
+          {t('friend.addFriend')}
         </button>
       );
 
@@ -46,12 +48,12 @@ export function FriendButton({ targetUserId, className }: FriendButtonProps) {
         <div className={cn('flex items-center gap-2', className)}>
           <span className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--warning)]/10 text-[var(--warning)]">
             <Clock className="w-4 h-4" />
-            Solicitud enviada
+            {t('friend.requestSent')}
           </span>
           <button
             onClick={cancelRequest}
             className="p-2 text-[var(--text-muted)] hover:text-[var(--error)] rounded-lg hover:bg-[var(--surface)] transition-colors"
-            title="Cancelar solicitud"
+            title={t('friend.cancelRequest')}
           >
             <X className="w-4 h-4" />
           </button>
@@ -63,19 +65,19 @@ export function FriendButton({ targetUserId, className }: FriendButtonProps) {
         <div className={cn('flex items-center gap-2', className)}>
           <span className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--info)]/10 text-[var(--info)]">
             <Users className="w-4 h-4" />
-            Solicitud recibida
+            {t('friend.requestReceived')}
           </span>
           <button
             onClick={acceptRequest}
             className="p-2 text-[var(--success)] hover:bg-[var(--success)]/10 rounded-lg transition-colors"
-            title="Aceptar"
+            title={t('friend.accept')}
           >
             <Check className="w-4 h-4" />
           </button>
           <button
             onClick={rejectRequest}
             className="p-2 text-[var(--error)] hover:bg-[var(--error)]/10 rounded-lg transition-colors"
-            title="Rechazar"
+            title={t('friend.reject')}
           >
             <X className="w-4 h-4" />
           </button>
@@ -87,12 +89,12 @@ export function FriendButton({ targetUserId, className }: FriendButtonProps) {
         <div className={cn('flex items-center gap-2', className)}>
           <span className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--success)]/10 text-[var(--success)]">
             <UserCheck className="w-4 h-4" />
-            Amigos
+            {t('friend.friends')}
           </span>
           <button
             onClick={removeFriend}
             className="p-2 text-[var(--text-muted)] hover:text-[var(--error)] rounded-lg hover:bg-[var(--surface)] transition-colors"
-            title="Eliminar amigo"
+            title={t('friend.removeFriend')}
           >
             <UserX className="w-4 h-4" />
           </button>

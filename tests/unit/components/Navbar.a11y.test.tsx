@@ -107,8 +107,8 @@ vi.mock('@/components/ui/RepeatedChar', () => ({
   RepeatedChar: ({ text }: { text: string }) => <span>{text}</span>,
 }));
 
-vi.mock('next/image', () => ({
-  default: ({ alt }: { alt: string }) => <img alt={alt} data-testid="logo" />,
+vi.mock('@/components/Logo', () => ({
+  LogoSvg: ({ size }: { size?: number }) => <img alt="" width={size} height={size} data-testid="logo" />,
 }));
 
 // Hooks mocks

@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
+import { useT } from '@/i18n';
 import { CommentForm } from './CommentForm';
 import type { Comment } from '@/hooks/useChapterComments';
 import { cn } from '@/lib/utils';
@@ -46,6 +47,7 @@ export function CommentItem({
   const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
+  const t = useT();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
 
@@ -72,7 +74,7 @@ export function CommentItem({
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this comment?')) return;
+    if (!confirm(t('comments.confirmDelete'))) return;
     setIsDeleting(true);
     await onDelete(comment.id);
   };
@@ -116,7 +118,7 @@ export function CommentItem({
           <button
             onClick={() => setIsEditing(true)}
             className="p-1.5 text-[var(--text-muted)] hover:text-[var(--info)] rounded cursor-pointer"
-            aria-label="Editar comentario"
+            aria-label={t('comments.edit')}
           >
             <Edit2 className="w-3.5 h-3.5" />
           </button>
@@ -124,7 +126,7 @@ export function CommentItem({
             onClick={handleDelete}
             disabled={isDeleting}
             className="p-1.5 text-[var(--text-muted)] hover:text-[var(--error)] rounded cursor-pointer"
-            aria-label="Eliminar comentario"
+            aria-label={t('comments.delete')}
           >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -138,7 +140,7 @@ export function CommentItem({
                 initialContent={comment.content}
                 onSubmit={handleEdit}
                 onCancel={() => setIsEditing(false)}
-                submitLabel="Save"
+                submitLabel={t('common.save')}
                 isCompact
               />
             ) : (
@@ -155,7 +157,7 @@ export function CommentItem({
                 <motion.button
                   onClick={() => onVote(comment.id, 1)}
                   whileTap={{ scale: 0.85 }}
-                  aria-label="Upvote"
+                  aria-label={t('comments.upvote')}
                   className={cn(
                     'p-1 rounded transition-colors',
                     comment.userVote === 1
@@ -174,7 +176,7 @@ export function CommentItem({
                 <motion.button
                   onClick={() => onVote(comment.id, -1)}
                   whileTap={{ scale: 0.85 }}
-                  aria-label="Downvote"
+                  aria-label={t('comments.downvote')}
                   className={cn(
                     'p-1 rounded transition-colors',
                     comment.userVote === -1
@@ -189,7 +191,7 @@ export function CommentItem({
               <motion.button
                 onClick={handleLike}
                 whileTap={{ scale: 0.85 }}
-                aria-label={comment.isLiked ? 'Quitar me gusta' : 'Me gusta'}
+                aria-label={comment.isLiked ? t('comments.unlike') : t('comments.like')}
                 aria-pressed={comment.isLiked}
                 className={cn(
                   'flex items-center gap-1 text-sm transition-colors',
@@ -214,10 +216,10 @@ export function CommentItem({
               <button
                 onClick={() => onReply(comment.id)}
                 className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                aria-label="Responder"
+                aria-label={t('comments.reply')}
               >
                 <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                <span>Reply</span>
+                <span>{t('comments.reply')}</span>
               </button>
             </div>
           )}
@@ -228,8 +230,8 @@ export function CommentItem({
               <CommentForm
                 onSubmit={onSubmitReply}
                 onCancel={onCancelReply}
-                placeholder="Write a reply..."
-                submitLabel="Reply"
+                placeholder={t('comments.replyPlaceholder')}
+                submitLabel={t('comments.reply')}
                 isCompact
                 autoFocus
               />
@@ -250,7 +252,7 @@ export function CommentItem({
                 ) : (
                   <ChevronDown className="w-4 h-4" aria-hidden="true" />
                 )}
-                <span>{comment.replies?.length} replies</span>
+                <span>{comment.replies?.length} {t('comments.replies')}</span>
               </button>
 
               {showReplies && (

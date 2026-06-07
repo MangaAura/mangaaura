@@ -35,13 +35,9 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
   useEffect(() => {
     if (!autoConnect || !session?.user?.id) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
-
-    if (!socketUrl && typeof window !== 'undefined') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsConnected(false);
-      return;
-    }
+    // Fallback: same-origin WebSocket when no explicit SOCKET_URL is set
+    // Socket.IO will default to connecting to the current origin
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || undefined;
 
     const socket: TypedSocket = io(socketUrl, {
       query: { userId: session.user.id },

@@ -17,6 +17,7 @@ const mockUserMangaCount = vi.hoisted(() => vi.fn());
 const mockCommentLikeCount = vi.hoisted(() => vi.fn());
 const mockMangaSeriesCount = vi.hoisted(() => vi.fn());
 const mockSponsorshipCount = vi.hoisted(() => vi.fn());
+const mockReferralClaimCount = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/auth', () => ({ auth: mockAuth }));
 
@@ -45,6 +46,7 @@ vi.mock('@/lib/prisma', () => ({
     commentLike: { count: mockCommentLikeCount },
     mangaSeries: { count: mockMangaSeriesCount },
     sponsorshipBid: { count: mockSponsorshipCount },
+    referralClaim: { count: mockReferralClaimCount },
     $transaction: vi.fn(),
   },
 }));
@@ -87,6 +89,7 @@ describe('GET /api/achievements', () => {
     mockCommentLikeCount.mockResolvedValue(10);
     mockMangaSeriesCount.mockResolvedValue(1);
     mockSponsorshipCount.mockResolvedValue(0);
+    mockReferralClaimCount.mockResolvedValue(0);
     mockUserFindUnique.mockResolvedValue({ level: 3 });
   });
 

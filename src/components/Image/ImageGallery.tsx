@@ -1,6 +1,7 @@
 'use client';
 
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Info } from 'lucide-react';
+import { useT } from '@/i18n';
 import Image from 'next/image';
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
@@ -76,6 +77,7 @@ function Lightbox({
   onNavigate,
   showInfo = true,
 }: LightboxProps) {
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [zoom, setZoom] = useState(1);
   const [showMetadata, setShowMetadata] = useState(false);
@@ -165,7 +167,7 @@ function Lightbox({
       <button
         onClick={onClose}
         className="absolute top-4 right-4 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
-        aria-label="Cerrar"
+        aria-label={t('gallery.close')}
       >
         <X size={24} />
       </button>
@@ -182,7 +184,7 @@ function Lightbox({
               setShowMetadata(!showMetadata);
             }}
             className="p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
-            aria-label="Información"
+            aria-label={t('gallery.info')}
           >
             <Info size={20} />
           </button>
@@ -197,7 +199,7 @@ function Lightbox({
             handleZoomOut();
           }}
           className="p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] hover:opacity-90 rounded-full transition-colors"
-          aria-label="Alejar"
+          aria-label={t('gallery.zoomOut')}
         >
           <ZoomOut size={20} />
         </button>
@@ -216,7 +218,7 @@ function Lightbox({
             handleZoomIn();
           }}
           className="p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] hover:opacity-90 rounded-full transition-colors"
-          aria-label="Acercar"
+          aria-label={t('gallery.zoomIn')}
         >
           <ZoomIn size={20} />
         </button>
@@ -229,7 +231,7 @@ function Lightbox({
           handleDownload();
         }}
         className="absolute bottom-4 right-4 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
-        aria-label="Descargar"
+        aria-label={t('gallery.download')}
       >
         <Download size={20} />
       </button>
@@ -242,7 +244,7 @@ function Lightbox({
             onNavigate(currentIndex - 1);
           }}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
-          aria-label="Anterior"
+          aria-label={t('gallery.previous')}
         >
           <ChevronLeft size={32} />
         </button>
@@ -254,7 +256,7 @@ function Lightbox({
             onNavigate(currentIndex + 1);
           }}
           className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-2 text-[var(--text-inverse)]/70 hover:text-[var(--text-inverse)] bg-black/50 hover:bg-black/70 rounded-full transition-colors"
-          aria-label="Siguiente"
+          aria-label={t('gallery.next')}
         >
           <ChevronRight size={32} />
         </button>
@@ -292,18 +294,18 @@ function Lightbox({
           className="absolute top-16 right-4 z-50 bg-black/80 backdrop-blur-sm rounded-lg p-4 text-[var(--text-inverse)]/80 text-sm min-w-[200px]"
           onClick={(e) => e.stopPropagation()}
         >
-          <h4 className="font-semibold mb-2">Información</h4>
+          <h4 className="font-semibold mb-2">{t('gallery.info')}</h4>
           {currentImage.metadata.size && (
-            <p>Tamaño: {(currentImage.metadata.size / 1024 / 1024).toFixed(2)} MB</p>
+            <p>{t('gallery.size')}: {(currentImage.metadata.size / 1024 / 1024).toFixed(2)} MB</p>
           )}
           {currentImage.metadata.format && (
-            <p>Formato: {currentImage.metadata.format.toUpperCase()}</p>
+            <p>{t('gallery.format')}: {currentImage.metadata.format.toUpperCase()}</p>
           )}
           {currentImage.width && currentImage.height && (
-            <p>Dimensiones: {currentImage.width} x {currentImage.height}</p>
+            <p>{t('gallery.dimensions')}: {currentImage.width} x {currentImage.height}</p>
           )}
           {currentImage.metadata.createdAt && (
-            <p>Creado: {new Date(currentImage.metadata.createdAt).toLocaleDateString()}</p>
+            <p>{t('gallery.created')}: {new Date(currentImage.metadata.createdAt).toLocaleDateString()}</p>
           )}
         </div>
       )}

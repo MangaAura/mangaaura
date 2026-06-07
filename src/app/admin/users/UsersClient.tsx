@@ -22,6 +22,7 @@ import {
   Coins,
   Zap,
   ArrowUp,
+  Shield,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo, useCallback } from 'react';
@@ -82,6 +83,7 @@ export default function UsersClient() {
   const t = useT();
   const { handleError } = useErrorHandler();
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
   const [showActionDialog, setShowActionDialog] = useState(false);
@@ -96,6 +98,9 @@ export default function UsersClient() {
   const [showLevelDialog, setShowLevelDialog] = useState(false);
   const [levelValue, setLevelValue] = useState(1);
   const [isSavingLevel, setIsSavingLevel] = useState(false);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [roleValue, setRoleValue] = useState('');
+  const [isSavingRole, setIsSavingRole] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkBanDialog, setShowBulkBanDialog] = useState(false);
   const [bulkBanType, setBulkBanType] = useState('SUSPENSION');
@@ -116,11 +121,12 @@ export default function UsersClient() {
     const query = searchQuery.toLowerCase();
     return users.filter(
       (u) =>
-        u.username.toLowerCase().includes(query) ||
+        (roleFilter === 'all' || u.role === roleFilter) &&
+        (u.username.toLowerCase().includes(query) ||
         u.email.toLowerCase().includes(query) ||
-        (u.displayName && u.displayName.toLowerCase().includes(query))
+        (u.displayName && u.displayName.toLowerCase().includes(query)))
     );
-  }, [users, searchQuery]);
+  }, [users, searchQuery, roleFilter]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -346,6 +352,19 @@ export default function UsersClient() {
             >
               <ArrowUp className="w-4 h-4 text-emerald-500" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setSelectedUser(row.original);
+                setRoleValue(row.original.role);
+                setShowRoleDialog(true);
+              }}
+              title="Change Role"
+              aria-label="Change Role"
+            >
+              <Shield className="w-4 h-4 text-blue-500" />
+            </Button>
             <Link href={`/admin/users/${row.original.id}`}>
 <Button variant="ghost" size="icon" title="Edit" aria-label={t('admin.common.edit')}>
             <Edit className="w-4 h-4 text-[var(--primary)]" />
@@ -428,9 +447,9 @@ export default function UsersClient() {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Search & Filters */}
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="p-4 space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
             <Input
@@ -440,6 +459,36 @@ export default function UsersClient() {
               className="pl-10"
               aria-label={t('admin.searchUsers')}
             />
+          </div>
+
+          {/* Role filter pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">
+              Role:
+            </span>
+            {[
+              { value: 'all', label: 'All' },
+              { value: 'USER', label: 'User' },
+              { value: 'ADMIN', label: 'Admin' },
+              { value: 'BANNED', label: 'Banned' },
+            ].map((role) => (
+              <button
+                key={role.value}
+                onClick={() => setRoleFilter(role.value)}
+                className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
+                  roleFilter === role.value
+                    ? role.value === 'ADMIN'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : role.value === 'BANNED'
+                        ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                        : 'bg-[var(--primary)]/20 text-[var(--primary)] border border-[var(--primary)]/30'
+                    : 'bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)] hover:text-[var(--text-secondary)] hover:border-[var(--border)]/80'
+                }`}
+                aria-pressed={roleFilter === role.value}
+              >
+                {role.label}
+              </button>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -975,6 +1024,99 @@ export default function UsersClient() {
               {isSavingLevel && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <ArrowUp className="w-4 h-4 mr-2 text-emerald-400" />
               Save Level
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Role Adjustment Dialog */}
+      <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-500" />
+              Change Role
+            </DialogTitle>
+            <DialogDescription>
+              Set a new role for {selectedUser?.username}.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className="space-y-4 py-2">
+              <div className="bg-[var(--surface)] p-3 rounded-lg text-center">
+                <p className="text-xs text-[var(--text-tertiary)]">Current Role</p>
+                <p className="text-2xl font-bold text-blue-500 capitalize">
+                  {selectedUser.role.toLowerCase()}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="role-select">New Role</Label>
+                <Select value={roleValue} onValueChange={setRoleValue}>
+                  <SelectTrigger id="role-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="BANNED">Banned</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-[var(--text-tertiary)]">
+                  {roleValue !== selectedUser.role
+                    ? `Will change from ${selectedUser.role.toLowerCase()} to ${roleValue.toLowerCase()}`
+                    : 'No change'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRoleDialog(false)} disabled={isSavingRole}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!selectedUser) return;
+                setIsSavingRole(true);
+                try {
+                  const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: roleValue }),
+                  });
+                  if (res.ok) {
+                    await mutate();
+                    setShowRoleDialog(false);
+                    toast({
+                      title: 'Role updated',
+                      description: `${selectedUser.username} is now ${roleValue.toLowerCase()}`,
+                      variant: 'success',
+                    });
+                  } else {
+                    const err = await res.json();
+                    toast({
+                      title: 'Error',
+                      description: err.error || 'Failed to update role',
+                      variant: 'error',
+                    });
+                  }
+                } catch {
+                  toast({
+                    title: 'Error',
+                    description: 'Connection error',
+                    variant: 'error',
+                  });
+                } finally {
+                  setIsSavingRole(false);
+                }
+              }}
+              disabled={isSavingRole || roleValue === selectedUser?.role}
+            >
+              {isSavingRole && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Shield className="w-4 h-4 mr-2 text-blue-400" />
+              Save Role
             </Button>
           </DialogFooter>
         </DialogContent>

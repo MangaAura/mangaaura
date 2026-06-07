@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, Coins, Loader2, Check, X, Eye, EyeOff, Target } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+import { useT } from '@/i18n';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
@@ -46,6 +47,7 @@ export default function ContributionModal({
   const [error, setError] = useState<string | null>(null);
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const t = useT();
   const { handleError } = useErrorHandler();
   const [result, setResult] = useState<{ newTotal: number; goalReached: boolean } | null>(null);
 
@@ -82,8 +84,8 @@ export default function ContributionModal({
 
   const validateContribution = (): string | null => {
     const amount = getAmount();
-    if (amount < 1) return 'El monto mínimo es 1 Aura';
-    if (userBalance !== null && amount > userBalance) return 'Saldo insuficiente';
+    if (amount < 1) return t('crowdfunding.minAmount');
+    if (userBalance !== null && amount > userBalance) return t('crowdfunding.insufficientBalance');
     return null;
   };
 
@@ -112,7 +114,7 @@ export default function ContributionModal({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al realizar contribución');
+        throw new Error(data.error || t('crowdfunding.contributeError'));
       }
 
       setResult({
@@ -123,7 +125,7 @@ export default function ContributionModal({
       setIsSuccess(true);
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al realizar contribución');
+      setError(err instanceof Error ? err.message : t('crowdfunding.contributeError'));
     } finally {
       setIsLoading(false);
     }

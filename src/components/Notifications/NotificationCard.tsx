@@ -23,6 +23,7 @@ import {
 import { useRouter } from 'next/navigation';
 
 import type { Notification } from '@/core/services/NotificationService';
+import { useT } from '@/i18n';
 import { cn, formatTimeAgo } from '@/lib/utils';
 
 interface NotificationCardProps {
@@ -52,6 +53,7 @@ export function NotificationCard({
   index = 0,
 }: NotificationCardProps) {
   const router = useRouter();
+  const t = useT();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -230,8 +232,8 @@ export function NotificationCard({
           <button
             onClick={handleMarkAsRead}
             className="p-2 text-[var(--text-tertiary)] hover:text-[var(--primary)] rounded-lg hover:bg-[var(--surface)] cursor-pointer"
-            title="Marcar como leída"
-            aria-label="Marcar como leída"
+            title={t('notifications.markRead')}
+            aria-label={t('notifications.markRead')}
           >
             <Check className="w-4 h-4" />
           </button>
@@ -240,8 +242,8 @@ export function NotificationCard({
           <button
             onClick={handleDelete}
             className="p-2 text-[var(--text-tertiary)] hover:text-[var(--error)] rounded-lg hover:bg-[var(--surface)] cursor-pointer"
-            title="Eliminar"
-            aria-label="Eliminar notificación"
+            title={t('notifications.delete')}
+            aria-label={t('notifications.deleteNotification')}
           >
             <Trash2 className="w-4 h-4" />
           </button>

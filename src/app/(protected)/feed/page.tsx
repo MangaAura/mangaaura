@@ -1,6 +1,7 @@
 import { Activity, Globe, Users, Sparkles } from 'lucide-react';
 import { Metadata } from 'next';
 
+import { SuggestedUsers } from '@/components/Social/SuggestedUsers';
 import { ActivityFeed } from '@/components/Activity/ActivityFeed';
 import { Card } from '@/components/ui/Card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
@@ -22,16 +23,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function FeedPage() {
   const session = await auth();
+  const locale = await detectLocale();
+  const t = getT(locale);
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-20 pb-10">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Activity className="text-[var(--primary)]" size={30} /> Actividad
+          <Activity className="text-[var(--primary)]" size={30} /> {t('feed.title')}
         </h1>
         <p className="text-[var(--text-secondary)] mt-2">
-          Mira lo que está pasando en la comunidad
+          {t('feed.subtitle')}
         </p>
       </div>
 
@@ -91,6 +94,13 @@ export default async function FeedPage() {
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Suggested Users — shown when user is logged in */}
+      {session?.user?.id && (
+        <div className="mt-8">
+          <SuggestedUsers />
+        </div>
+      )}
     </div>
   );
 }

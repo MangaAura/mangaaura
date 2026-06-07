@@ -1,74 +1,102 @@
 'use client';
 
-import { Share2 } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Copy, Share2 } from 'lucide-react';
+import { useState, useCallback } from 'react';
 
-import { ShareModal } from './ShareModal';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 interface ShareButtonProps {
-  /** Title of the shared content */
+  url?: string;
   title: string;
-  /** Text description for sharing */
-  text: string;
-  /** URL to share */
-  url: string;
-  /** Optional hashtags */
-  hashtags?: string[];
-  /** Button variant */
-  variant?: 'icon' | 'full' | 'minimal';
-  /** Additional class names */
+  text?: string;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
-  /** Size */
-  size?: 'sm' | 'md';
-  /** Label override */
-  label?: string;
+  iconOnly?: boolean;
 }
 
 export function ShareButton({
+  url,
   title,
   text,
-  url,
-  hashtags,
-  variant = 'icon',
+  variant = 'outline',
+  size = 'sm',
   className,
-  size = 'md',
-  label,
+  iconOnly,
 }: ShareButtonProps) {
-  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const sizeClasses = size === 'sm'
-    ? 'p-2 text-xs'
-    : 'px-3 py-2 text-sm';
+  const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+  const shareText = text || `Mira esto en MangaAura: ${title}`;
+
+  const handleShare = useCallback(async () => {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title, text: shareText, url: shareUrl });
+        return;
+      } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  }, [shareUrl, shareText, title]);
 
   return (
-    <>
-      <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }}
-        className={cn(
-          'flex items-center gap-1.5 rounded-xl font-medium transition-all duration-200',
-          variant === 'icon' && 'p-2 hover:bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
-          variant === 'full' && `${sizeClasses} bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--primary)]/30 hover:bg-[var(--surface-sunken)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]`,
-          variant === 'minimal' && 'p-1 hover:text-[var(--primary)] text-[var(--text-tertiary)]',
-          className
-        )}
-        title="Compartir"
-        aria-label="Compartir"
-      >
-        <Share2 className={size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
-        {(variant === 'full' || label) && (
-          <span>{label || 'Compartir'}</span>
-        )}
-      </button>
+    <Button
+      variant={variant}
+      size={size}
+      onClick={handleShare}
+      className={cn(className)}
+      aria-label={copied ? 'Enlace copiado' : `Compartir ${title}`}
+    >
+      {copied ? (
+        <Check className={cn('w-4 h-4', !iconOnly && 'mr-1.5')} />
+      ) : (
+        <Share2 className={cn('w-4 h-4', !iconOnly && 'mr-1.5')} />
+      )}
+      {copied ? (
+        iconOnly ? null : <span>Copiado</span>
+      ) : iconOnly ? null : (
+        iconOnly ? null : <span>Compartir</span>
+      )}
+    </Button>
+  );
+}
 
-      <ShareModal
-        open={open}
-        onOpenChange={setOpen}
-        title={title}
-        text={text}
-        url={url}
-        hashtags={hashtags}
-      />
-    </>
+export function CopyLinkButton({
+  url,
+  label = 'Copiar enlace',
+  className,
+}: {
+  url?: string;
+  label?: string;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    const link = url || (typeof window !== 'undefined' ? window.location.href : '');
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  }, [url]);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={cn(
+        'inline-flex items-center gap-1.5 text-xs font-medium transition-colors',
+        copied ? 'text-[var(--success)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+        className,
+      )}
+    >
+      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? '¡Copiado!' : label}
+    </button>
   );
 }

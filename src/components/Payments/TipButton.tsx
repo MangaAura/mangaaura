@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Coins, Loader2, Check, X, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+import { useT } from '@/i18n';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
@@ -31,6 +32,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
   const [error, setError] = useState<string | null>(null);
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const t = useT();
   const { handleError } = useErrorHandler();
 
   const fetchBalance = async () => {
@@ -65,8 +67,8 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
 
   const validateTip = (): string | null => {
     const amount = getAmount();
-    if (amount < 1) return 'El monto mínimo es 1 Aura';
-    if (userBalance !== null && amount > userBalance) return 'Saldo insuficiente';
+    if (amount < 1) return t('tips.minAmount');
+    if (userBalance !== null && amount > userBalance) return t('tips.insufficientBalance');
     return null;
   };
 
@@ -94,14 +96,14 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al enviar propina');
+        throw new Error(data.error || t('tips.sendError'));
       }
 
       setIsSuccess(true);
       setUserBalance(data.newBalance);
       onTipSent?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al enviar propina');
+      setError(err instanceof Error ? err.message : t('tips.sendError'));
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +140,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
         className="flex items-center gap-2"
       >
         <Heart size={16} className="fill-current" />
-        <span>Enviar Propina</span>
+        <span>{t('tips.sendTip')}</span>
       </Button>
     );
   }
@@ -149,7 +151,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 p-1 rounded-full hover:bg-[var(--surface-sunken)] text-[var(--text-tertiary)] transition-colors cursor-pointer"
-          aria-label="Cerrar"
+          aria-label={t('common.close')}
         >
           <X size={20} />
         </button>
@@ -161,15 +163,15 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
                 <Heart size={28} className="fill-current" />
               </div>
               <h2 id="tip-modal-title" className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-                Enviar Propina
+                {t('tips.sendTip')}
               </h2>
               <p className="text-sm text-[var(--text-secondary)]">
-                Apoya a <span className="font-semibold text-[var(--text-primary)]">{authorName}</span> con Aura
+                {t('tips.support')} <span className="font-semibold text-[var(--text-primary)]">{authorName}</span> con Aura
               </p>
             </div>
 
             <div className="bg-[var(--surface-sunken)] rounded-xl p-3 mb-6 flex items-center justify-between">
-              <span className="text-sm text-[var(--text-secondary)]">Tu saldo:</span>
+              <span className="text-sm text-[var(--text-secondary)]">{t('tips.yourBalance')}:</span>
               <div className="flex items-center gap-1 font-bold text-[var(--text-primary)]">
                 <Coins size={16} className="text-[var(--warning)]" />
                 {isLoadingBalance ? (
@@ -182,7 +184,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
 
             <div className="mb-4">
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
-                Selecciona un monto
+                {t('tips.selectAmount')}
               </label>
               <div className="grid grid-cols-5 gap-2">
                 {PRESET_AMOUNTS.map((amount) => (
@@ -205,7 +207,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
 
             <div className="mb-4">
               <label htmlFor="custom-tip-amount" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                O ingresa un monto personalizado
+                {t('tips.customAmount')}
               </label>
               <div className="relative">
                 <Coins
@@ -219,7 +221,7 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
                   inputMode="numeric"
                   value={customAmount}
                   onChange={(e) => handleCustomAmountChange(e.target.value)}
-                  placeholder="Monto personalizado"
+                  placeholder={t('tips.amountPlaceholder')}
                   className="pl-10 text-center font-mono"
                 />
               </div>
@@ -228,13 +230,13 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
             <div className="mb-6">
               <label htmlFor="tip-message" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                 <MessageSquare size={14} className="inline mr-1" aria-hidden="true" />
-                Mensaje opcional
+                {t('tips.optionalMessage')}
               </label>
               <textarea
                 id="tip-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Escribe un mensaje de apoyo..."
+                placeholder={t('tips.messagePlaceholder')}
                 maxLength={200}
                 className="w-full h-20 px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[var(--text-primary)] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-purple)] focus:border-transparent placeholder:text-[var(--text-tertiary)]"
                 aria-describedby="tip-message-count"
@@ -268,11 +270,11 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               variant="ink"
             >
               {isLoading ? (
-                'Enviando...'
+                t('tips.sending')
               ) : (
                 <>
                   <Heart size={18} className="mr-2 fill-current" />
-                  Enviar {getAmount() > 0 ? `${getAmount().toLocaleString()} Aura` : 'Propina'}
+                  {getAmount() > 0 ? `${getAmount().toLocaleString()} Aura` : t('tips.tip')}
                 </>
               )}
             </Button>
@@ -283,10 +285,10 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               <Check size={40} />
             </div>
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
-              ¡Propina Enviada!
+              {t('tips.tipSent')}
             </h2>
             <p className="text-[var(--text-secondary)] mb-2">
-              Has enviado{' '}
+              {t('tips.youSent')}{' '}
               <span className="font-bold text-[var(--accent-purple)]">
                 {getAmount().toLocaleString()} Aura
               </span>{' '}
@@ -298,14 +300,14 @@ export default function TipButton({ chapterId, authorName, onTipSent }: TipButto
               </p>
             )}
             <p className="text-sm text-[var(--text-secondary)]">
-              Nuevo saldo: <span className="font-bold">{userBalance?.toLocaleString()} Aura</span>
+              {t('tips.newBalance')}: <span className="font-bold">{userBalance?.toLocaleString()} Aura</span>
             </p>
             <Button
               onClick={handleClose}
               className="mt-6"
               variant="secondary"
             >
-              Cerrar
+              {t('common.close')}
             </Button>
           </div>
         )}

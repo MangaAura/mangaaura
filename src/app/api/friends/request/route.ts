@@ -73,9 +73,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, status: 'ACCEPTED' });
     }
 
-    await prisma.friendRequest.create({
+    const friendRequest = await prisma.friendRequest.create({
       data: { senderId, receiverId },
     });
+
+    // Send notification to receiver about the friend request
+    try {
+      const { getNotificationService } = await import('@/core/services/NotificationService');
+      const ns = await getNotificationService();
+      const sender = await prisma.user.findUnique({
+        where: { id: senderId },
+        select: { id: true, username: true, displayName: true, avatarUrl: true },
+      });
+      if (sender) {
+        await ns.createNotification({
+          userId: receiverId,
+          type: 'FRIEND_REQUEST',
+          title: '👋 Solicitud de amistad',
+          message: `${sender.displayName || sender.username} te envió una solicitud de amistad`,
+          data: {
+            senderId: sender.id,
+            senderName: sender.displayName || sender.username,
+            senderAvatar: sender.avatarUrl,
+            requestId: friendRequest.id,
+          },
+          imageUrl: sender.avatarUrl || undefined,
+          linkUrl: '/friends',
+        });
+      }
+    } catch (notifError) {
+      console.error('[FriendRequest] Failed to send notification:', notifError);
+    }
 
     return NextResponse.json({ success: true, status: 'PENDING' }, { status: 201 });
   } catch (error) {

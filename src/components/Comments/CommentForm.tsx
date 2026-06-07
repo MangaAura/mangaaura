@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, X, Loader2 } from 'lucide-react';
 import { useState, useEffect, useRef, useActionState, useOptimistic } from 'react';
 
+import { useT } from '@/i18n';
 import { createComment } from '@/app/api/comments/actions';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useToast } from '@/components/ui/Toast';
@@ -37,8 +38,8 @@ export function CommentForm({
   initialContent = '',
   onSubmit,
   onCancel,
-  placeholder = 'Write a comment...',
-  submitLabel = 'Post',
+  placeholder = 'Escribe un comentario...',
+  submitLabel = 'Publicar',
   isCompact = false,
   autoFocus = false,
   chapterId,
@@ -58,6 +59,7 @@ export function CommentForm({
     })
   );
 
+  const t = useT();
   const { toast } = useToast();
   const charCount = content.length;
   const isOverLimit = charCount > MAX_CHARS;
@@ -81,7 +83,7 @@ export function CommentForm({
       } catch (error) {
         toast({
           title: 'Error',
-          description: error instanceof Error ? error.message : 'Error al publicar el comentario',
+          description: error instanceof Error ? error.message : t('comments.postError'),
           variant: 'destructive',
         });
       } finally {
@@ -116,7 +118,7 @@ export function CommentForm({
             exit={{ opacity: 0, y: -10 }}
             className="mb-2 p-3 rounded-lg bg-[var(--surface-elevated)]/30 border border-[var(--border)]"
             role="status"
-            aria-label="Enviando comentario"
+            aria-label={t('comments.sending')}
           >
             <p className="text-xs text-[var(--text-tertiary)] mb-1">Enviando...</p>
             <p className="text-sm text-[var(--text-secondary)]">{(optimisticState as Record<string, unknown>)?.optimisticContent as string}</p>
@@ -181,7 +183,7 @@ export function CommentForm({
 
       <div className="flex items-center justify-between">
         <div className="text-xs text-[var(--text-tertiary)]">
-          {loading ? 'Posting...' : 'Ctrl+Enter to post'}
+           {loading ? t('comments.posting') : t('comments.ctrlEnter')}
         </div>
 
         <div className="flex items-center gap-2">
@@ -230,8 +232,7 @@ export function CommentForm({
                   <Send className="w-4 h-4" aria-hidden="true" />
                 </motion.div>
               )}
-            </AnimatePresence>
-            {loading ? 'Enviando...' : submitLabel}
+            </AnimatePresence>              {loading ? t('comments.sending') : submitLabel}
           </motion.button>
         </div>
       </div>

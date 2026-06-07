@@ -16,13 +16,14 @@ const mockMangaFindMany = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/auth', () => ({ auth: mockAuth }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    user: { findUnique: mockUserFindUnique, count: mockUserCount },
+    user: { findUnique: mockUserFindUnique, count: mockUserCount, findMany: vi.fn().mockResolvedValue([]) },
     mangaSeries: { count: mockMangaCount, findMany: mockMangaFindMany },
     chapter: { count: mockChapterCount },
     comment: { count: mockCommentCount },
     userActivity: { count: mockUserActivityCount },
     chapterCorrection: { count: mockChapterCorrectionCount },
     analyticsEvent: { count: mockAnalyticsEventCount },
+    $queryRawUnsafe: vi.fn().mockRejectedValue(new Error('not supported in tests')),
   },
 }));
 

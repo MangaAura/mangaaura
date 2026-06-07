@@ -13,6 +13,7 @@ import { useRef, useCallback } from 'react';
 import { EmptyState } from './EmptyState';
 import { NotificationCard } from './NotificationCard';
 import type { Notification, NotificationType } from '@/core/services/NotificationService';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface NotificationListProps {
@@ -27,16 +28,16 @@ interface NotificationListProps {
   onFilterChange?: (type: NotificationType | 'all') => void;
 }
 
-const filterOptions: { value: NotificationType | 'all'; label: string }[] = [
-  { value: 'all', label: 'Todas' },
-  { value: 'NEW_CHAPTER', label: 'Capítulos' },
-  { value: 'COMMENT_REPLY', label: 'Respuestas' },
-  { value: 'MENTION', label: 'Menciones' },
-  { value: 'ACHIEVEMENT_UNLOCKED', label: 'Logros' },
-  { value: 'LEVEL_UP', label: 'Niveles' },
-  { value: 'AURA_RECEIVED', label: 'Aura' },
-  { value: 'SPONSORSHIP_WON', label: 'Patrocinios' },
-  { value: 'SYSTEM', label: 'Sistema' },
+const FILTER_KEYS: { value: NotificationType | 'all'; labelKey: string }[] = [
+  { value: 'all', labelKey: 'common.all' },
+  { value: 'NEW_CHAPTER', labelKey: 'notifications.filterChapters' },
+  { value: 'COMMENT_REPLY', labelKey: 'notifications.filterReplies' },
+  { value: 'MENTION', labelKey: 'notifications.filterMentions' },
+  { value: 'ACHIEVEMENT_UNLOCKED', labelKey: 'notifications.filterAchievements' },
+  { value: 'LEVEL_UP', labelKey: 'notifications.filterLevels' },
+  { value: 'AURA_RECEIVED', labelKey: 'notifications.filterAura' },
+  { value: 'SPONSORSHIP_WON', labelKey: 'notifications.filterSponsorships' },
+  { value: 'SYSTEM', labelKey: 'notifications.filterSystem' },
 ];
 
 export function NotificationList({
@@ -49,6 +50,8 @@ export function NotificationList({
   filterType = 'all',
   onFilterChange,
 }: NotificationListProps) {
+  const t = useT();
+  const filterOptions = FILTER_KEYS.map(k => ({ value: k.value, label: t(k.labelKey) }));
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,13 +84,13 @@ export function NotificationList({
     const thisWeek = new Date(today);
     thisWeek.setDate(thisWeek.getDate() - 7);
 
-    let group = 'Anteriores';
+    let group = 'notifications.older';
     if (date.toDateString() === today.toDateString()) {
-      group = 'Hoy';
+      group = 'notifications.today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-      group = 'Ayer';
+      group = 'notifications.yesterday';
     } else if (date >= thisWeek) {
-      group = 'Esta semana';
+      group = 'notifications.thisWeek';
     }
 
     if (!acc[group]) acc[group] = [];
@@ -95,7 +98,12 @@ export function NotificationList({
     return acc;
   }, {} as Record<string, Notification[]>);
 
-  const groups = ['Hoy', 'Ayer', 'Esta semana', 'Anteriores'];
+  const groupLabels: Record<string, string> = {
+    'notifications.today': t('notifications.today'),
+    'notifications.yesterday': t('notifications.yesterday'),
+    'notifications.thisWeek': t('notifications.thisWeek'),
+    'notifications.older': t('notifications.older'),
+  };
 
   if (isLoading && notifications.length === 0) {
     return (
@@ -157,14 +165,14 @@ export function NotificationList({
 
       {/* Notifications by group */}
       <div className="space-y-8">
-        {groups.map((group) => {
+        {Object.keys(groupLabels).map((group) => {
           const groupNotifications = grouped[group];
           if (!groupNotifications?.length) return null;
 
           return (
             <div key={group}>
               <h3 className="text-sm font-medium text-[var(--text-tertiary)] mb-4 sticky top-0 bg-[var(--background)] py-2 z-10">
-                {group}
+                {groupLabels[group]}
               </h3>
 
               <div className="space-y-2">
@@ -193,7 +201,7 @@ export function NotificationList({
               onClick={onLoadMore}
               className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] text-sm transition-colors"
             >
-              Cargar más
+              {t('notifications.loadMore')}
             </button>
           )}
         </div>

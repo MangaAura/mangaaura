@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import ReaderContent from '@/app/reader/ReaderContent';
+import { BreadcrumbStructuredData, ChapterStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { prisma } from '@/lib/prisma';
@@ -99,9 +100,44 @@ export default async function ReaderPage({ params }: PageProps) {
 
   const { slug, chapterNumber } = parsed;
 
+  // Fetch manga + chapter data for structured data
+  const manga = await prisma.mangaSeries.findUnique({
+    where: { slug },
+    select: { id: true, title: true, authorName: true },
+  });
+
+  const chapter = manga ? await prisma.chapter.findFirst({
+    where: { mangaId: manga.id, chapterNumber: Number(chapterNumber) },
+    select: { id: true, title: true, createdAt: true, totalPages: true, coverUrl: true },
+  }) : null;
+
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <ReaderContent slug={slug} chapterNumber={chapterNumber} />
-    </Suspense>
+    <>
+      {manga && chapter && (
+        <>
+          <ChapterStructuredData
+            title={chapter.title || `Capítulo ${chapterNumber}`}
+            chapterNumber={Number(chapterNumber)}
+            mangaTitle={manga.title}
+            mangaSlug={slug}
+            author={manga.authorName || 'MangaAura'}
+            coverUrl={chapter.coverUrl || undefined}
+            publishedAt={chapter.createdAt.toISOString()}
+            pageCount={chapter.totalPages}
+          />
+          <BreadcrumbStructuredData
+            items={[
+              { name: 'Inicio', item: '/' },
+              { name: 'Explorar', item: '/explore' },
+              { name: manga.title, item: `/manga/${slug}` },
+              { name: `Capítulo ${chapterNumber}`, item: `/${slugChapter}` },
+            ]}
+          />
+        </>
+      )}
+      <Suspense fallback={<LoadingSpinner />}>
+        <ReaderContent slug={slug} chapterNumber={chapterNumber} />
+      </Suspense>
+    </>
   );
 }

@@ -2,7 +2,7 @@ export function LogoSvg({ size = 28, className = '' }: { size?: number; classNam
   return (
     <img
       src="/MangaAura_logo_circular.svg"
-      alt="MangaAura"
+      alt=""
       width={size}
       height={size}
       className={className}

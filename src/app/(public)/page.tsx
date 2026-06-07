@@ -103,7 +103,7 @@ export default async function HomePage() {
 
   const homepageTtl = 360; // longer than ISR revalidate (300) so cache is always hot during revalidation
 
-  const [latestMangas, topMangas, updatingMangas, topUsers, featuredManga, stats] = await Promise.all([
+  const [latestMangas, topMangas, updatingMangas, trendingMangas, topUsers, featuredManga, newsArticles, stats] = await Promise.all([
     withCache(
       generateCacheKey('homepage:latest', {}),
       homepageTtl,
@@ -147,6 +147,20 @@ export default async function HomePage() {
       }),
     ),
     withCache(
+      generateCacheKey('homepage:trending', {}),
+      homepageTtl,
+      () => prisma.mangaSeries.findMany({
+        where: { ...whereActive, totalViews: { gt: 0 } },
+        take: 8,
+        orderBy: [{ totalViews: 'desc' }, { updatedAt: 'desc' }],
+        select: {
+          id: true, title: true, slug: true, coverUrl: true, status: true,
+          tags: true, authorName: true, author: { select: { username: true } },
+          rating: true, totalViews: true, _count: { select: { chapters: true } },
+        },
+      }),
+    ),
+    withCache(
       generateCacheKey('homepage:toplectores', {}),
       homepageTtl,
       () => prisma.user.findMany({
@@ -163,6 +177,48 @@ export default async function HomePage() {
         orderBy: { totalViews: 'desc' },
         select: { id: true, title: true, slug: true, coverUrl: true, description: true, authorName: true },
       }),
+    ),
+    withCache(
+      generateCacheKey('homepage:news', {}),
+      homepageTtl,
+      async () => {
+        const articles = await prisma.newsArticle.findMany({
+          where: { isPublished: true },
+          orderBy: [
+            { isFeatured: 'desc' },
+            { publishedAt: 'desc' },
+          ],
+          take: 6,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            content: true,
+            titleEn: true,
+            excerptEn: true,
+            contentEn: true,
+            coverUrl: true,
+            category: true,
+            isFeatured: true,
+            publishedAt: true,
+            createdAt: true,
+            author: {
+              select: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        });
+        return articles.map((a) => ({
+          ...a,
+          publishedAt: a.publishedAt?.toISOString() ?? null,
+          createdAt: a.createdAt.toISOString(),
+        }));
+      },
     ),
     statsPromise,
   ]);
@@ -248,6 +304,8 @@ export default async function HomePage() {
         latestMangas={latestMangas.map(normalizeManga)}
         topMangas={topMangas.map(normalizeManga)}
         updatingMangas={updatingMangas.map(normalizeManga)}
+        trendingMangas={trendingMangas.map(normalizeManga)}
+        newsArticles={newsArticles}
         topUsers={topUsers}
         featuredManga={featuredManga}
         totalMangas={totalMangas}

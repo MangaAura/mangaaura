@@ -11,6 +11,7 @@ import { MessageSquare, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
+import { useT } from '@/i18n';
 import { CommentForm } from './CommentForm';
 import { CommentItem } from './CommentItem';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
@@ -45,6 +46,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
     setReplyingTo(null);
   };
 
+  const t = useT();
   const topLevelComments = comments.filter((c) => !c.parentId);
   const totalComments = comments.length;
 
@@ -54,7 +56,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
 <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
         <MessageSquare className="w-5 h-5 text-[var(--info)]" />
-          Comentarios
+          {t('comments.title')}
           <span className="text-sm font-normal text-[var(--text-muted)]">
             ({totalComments})
           </span>
@@ -66,8 +68,8 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
         <div className="px-6 py-4 border-b border-[var(--border)]">
           <CommentForm
             onSubmit={handleSubmit}
-            placeholder="Comparte tus pensamientos sobre este capítulo..."
-            submitLabel="Comentar"
+            placeholder={t('comments.placeholder')}
+            submitLabel={t('comments.post')}
           />
         </div>
       )}
@@ -75,7 +77,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
       {/* Lista de comentarios */}
       <div className="px-6 py-4">
         {isLoading && comments.length === 0 ? (
-          <div role="status" aria-label="Cargando comentarios" className="flex items-center justify-center py-8">
+          <div role="status" aria-label={t('comments.loading')} className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
           </div>
         ) : error ? (
@@ -90,7 +92,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
           </AnimatePresence>
         ) : comments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-[var(--text-muted)]">Sé el primero en comentar</p>
+            <p className="text-[var(--text-muted)]">{t('comments.beFirst')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -119,7 +121,7 @@ export function CommentSection({ chapterId, className }: CommentSectionProps) {
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mx-auto" aria-hidden="true" />
                 ) : (
-                  'Cargar más comentarios'
+                  t('comments.loadMore')
                 )}
               </button>
             )}

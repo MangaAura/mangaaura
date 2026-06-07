@@ -16,7 +16,8 @@ export type NotificationType =
   | 'CLAN_JOIN_REJECTED'
   | 'RATED_MANGA'
   | 'REFERRAL_SIGNUP'
-  | 'REFERRAL_BONUS_UNLOCKED';
+  | 'REFERRAL_BONUS_UNLOCKED'
+  | 'FRIEND_REQUEST';
 
 export interface NotificationRecord {
   id: string;

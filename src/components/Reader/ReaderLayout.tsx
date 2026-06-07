@@ -2,8 +2,10 @@
 
 import { Settings, MessageSquare, AlertTriangle, Share2, Menu, X, ArrowLeft, Coins, Moon, Sun, Monitor, Coffee } from 'lucide-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+
+import { useAuraBalance } from '@/hooks/useAuraBalance';
 
 import { CrowdfundingWidget } from '@/components/Payments';
 import { cn } from '@/lib/utils';
@@ -47,7 +49,10 @@ export default function ReaderLayout({
   chapter,
   allChapters,
 }: ReaderLayoutProps) {
-  const { data: session } = useSession();
+  const router = useRouter();
+
+  // Real-time aura balance (not from session which may be stale)
+  const { auraBalance } = useAuraBalance();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
@@ -155,10 +160,14 @@ export default function ReaderLayout({
           </div>
           
           <div className="flex items-center space-x-1 sm:space-x-2">
-            <div className="hidden sm:flex items-center px-3 py-1 bg-tertiary rounded-full mr-2">
+            <button
+              onClick={() => router.push('/checkout')}
+              className="hidden sm:flex items-center px-3 py-1 bg-tertiary rounded-full mr-2 hover:bg-[var(--primary)]/10 transition-colors cursor-pointer"
+              title="Comprar Aura"
+            >
               <Coins size={16} className="text-accent-orange mr-1" />
-              <span className="text-sm font-bold">{(session?.user as { auraBalance?: number } | undefined)?.auraBalance ?? 0}</span>
-            </div>
+              <span className="text-sm font-bold">{auraBalance.toLocaleString()}</span>
+            </button>
             
             <div className="relative">
               <button onClick={toggleSettings} className={`p-2 rounded transition-colors cursor-pointer ${isSettingsOpen ? 'bg-tertiary' : 'hover:bg-tertiary'}`} title="Configuración" aria-label="Configuración">
