@@ -1,46 +1,127 @@
-const W = 'w=800&h=450&fit=crop&auto=format';
-const U = (id: string) => `https://images.unsplash.com/photo-${id}?${W}`;
+/**
+ * Blog article cover image resolver.
+ * Uses MangaAura brand assets and manga covers from the DB instead of external stock images.
+ */
 
-export const BLOG_COVERS: Record<string, string> = {
-  // Phase 1 — already in DB
-  'donde-leer-manga-online-gratis-legal-2026': U('1523240795612-9a054b0db644'),
-  'como-crear-tu-propio-manga-guia-completa': U('1460661419201-fd4cecdf8a8b'),
-  'gamificacion-lectura-xp-logros-manga': U('1517694712202-14dd9538aa97'),
-  'guia-generos-manga-shonen-shojo-seinen': U('1495446815901-a7297e633e8d'),
-  'manga-vs-webtoon-diferencias-ventajas': U('1517245386807-bb43f82c33c4'),
+const BRAND = {
+  /** MangaAura OG banner (landscape 1200x630) — best for article covers */
+  og: '/og-image.webp',
+  /** Main logo SVG — use for MangaAura platform articles */
+  logo: '/MangaAura_logo.svg',
+  /** Circular logo variant */
+  logoCircular: '/MangaAura_logo_circular.svg',
+} as const;
 
-  // Phase 2 — seed-blog-articles-phase2.ts / .sql
-  'mejor-manga-romance-2026': U('1494979118697-1deb2bb55138'),
-  'manga-seinen-recomendado': U('1532153975070-2e9ab71f1b14'),
-  'mejores-mangas-fantasia-epica': U('1518709263855-3f8e6b71b9d3'),
-  'manga-terror-psicologico': U('1509245312802-0c6ed7e8b97d'),
-  'manhwa-recomendado-2026': U('1498050108023-c5249f4df085'),
-  'mejor-manga-accion-2026': U('1487189343488-9ef409b9c3e3'),
-  'webtoon-recomendado-2026': U('1521737604893-d14cc237f11d'),
-  'mejores-mangas-cortos': U('1512820790803-83ca734da794'),
-  'manga-aoi-superacion': U('1507003211169-0a1dd7228f2d'),
+/**
+ * Slug-specific cover assignments.
+ * For articles about specific manga/anime, we try DB lookup first,
+ * then fall back to these branded images.
+ */
+const SLUG_COVERS: Record<string, string> = {
+  // === MangaAura platform articles ===
+  'donde-leer-manga-online-gratis-legal-2026': BRAND.logo,
+  'gamificacion-lectura-xp-logros-manga': BRAND.logo,
+  'manga-vs-webtoon-diferencias-ventajas': BRAND.og,
+  'guia-generos-manga-shonen-shojo-seinen': BRAND.og,
+  'como-crear-tu-propio-manga-guia-completa': BRAND.og,
+  'mejores-paginas-leer-manga-espanol': BRAND.og,
+  'comunidad-manga-online-foros-clanes': BRAND.logoCircular,
+  'manga-y-lectura-digital-beneficios': BRAND.og,
 
-  // Phase 3 — seed-blog-articles-phase3-data.ts
-  'manga-comedia-romance-recomendado': U('1456513080510-7bf3a84b82f8'),
-  'manga-isekai-recomendado': U('1513364776144-60967b0f800f'),
-  'mejores-mangas-deporte': U('1461891615477-2be42682f3f4'),
-  'manga-slice-of-life': U('1499755312798-5a3f6fdde72b'),
-  'manga-drama-recomendado': U('1488192014695-8fabc3dfd5b0'),
-  'mejor-manga-suspense': U('1506905925346-21ef0ad8f3a9'),
-  'manga-shoujo-recomendado': U('1513295230947-9cb0c8adfcef'),
-  'manga-aventura-epica': U('1501785888046-af2a7f4d6b3f'),
-  'mejores-manhwa-fantasia': U('1518709263855-3f8e6b71b9d3'),
-  'manga-psicologico-recomendado': U('1434030216411-0b793f4b4173'),
+  // === Genre articles — will try DB manga cover first ===
+  'mejor-manga-romance-2026': BRAND.og,
+  'manga-seinen-recomendado': BRAND.og,
+  'mejores-mangas-fantasia-epica': BRAND.og,
+  'manga-terror-psicologico': BRAND.og,
+  'manhwa-recomendado-2026': BRAND.og,
+  'mejor-manga-accion-2026': BRAND.og,
+  'webtoon-recomendado-2026': BRAND.og,
+  'mejores-mangas-cortos': BRAND.og,
+  'manga-aoi-superacion': BRAND.og,
+  'manga-comedia-romance-recomendado': BRAND.og,
+  'manga-isekai-recomendado': BRAND.og,
+  'mejores-mangas-deporte': BRAND.og,
+  'manga-slice-of-life': BRAND.og,
+  'manga-drama-recomendado': BRAND.og,
+  'mejor-manga-suspense': BRAND.og,
+  'manga-shoujo-recomendado': BRAND.og,
+  'manga-aventura-epica': BRAND.og,
+  'mejores-manhwa-fantasia': BRAND.og,
+  'manga-psicologico-recomendado': BRAND.og,
 
-  // API route extras (from /admin/news/seed)
-  'mejores-paginas-leer-manga-espanol': U('1523240795612-9a054b0db644'),
-  'aplicaciones-dibujar-manga-pc-tablet': U('1460661419201-fd4cecdf8a8b'),
-  'como-ganar-dinero-dibujando-manga-2026': U('1513364776144-60967b0f800f'),
-  'mejores-plataformas-publicar-manga-online': U('1521737604893-d14cc237f11d'),
-  'crowdfunding-manga-como-funciona': U('1553729786-e1d9e2a7aa9f'),
-  'herramientas-ia-crear-manga-2026': U('1677442136019-21780ecad995'),
-  'como-escribir-guion-manga': U('1455390588535-5b9c1b2a7b0e'),
-  'consejos-dibujo-digital-manga': U('1460661419201-fd4cecdf8a8b'),
-  'comunidad-manga-online-foros-clanes': U('1529156065264-49936e8a5dd5'),
-  'manga-y-lectura-digital-beneficios': U('1498050108023-c5249f4df085'),
+  // === Creator/tool articles ===
+  'aplicaciones-dibujar-manga-pc-tablet': BRAND.og,
+  'como-ganar-dinero-dibujando-manga-2026': BRAND.og,
+  'mejores-plataformas-publicar-manga-online': BRAND.og,
+  'crowdfunding-manga-como-funciona': BRAND.og,
+  'herramientas-ia-crear-manga-2026': BRAND.og,
+  'como-escribir-guion-manga': BRAND.og,
+  'consejos-dibujo-digital-manga': BRAND.og,
 };
+
+/**
+ * Get the best cover for an article — tries DB manga lookup first,
+ * then falls back to the static slug map, then brand fallback.
+ *
+ * @param slug   Article slug
+ * @param title  Article title (for DB manga matching)
+ * @param excerpt Article excerpt (for DB manga matching)
+ * @param prisma Optional PrismaClient instance for DB lookup
+ */
+export async function getArticleCover(
+  slug: string,
+  title?: string,
+  excerpt?: string,
+  prisma?: { mangaSeries: { findFirst: (args: unknown) => Promise<{ coverUrl: string | null } | null> } },
+): Promise<string> {
+  // 1. Try to find a matching manga from the DB based on article content
+  if (prisma && (title || excerpt)) {
+    const searchText = `${title ?? ''} ${excerpt ?? ''}`.toLowerCase();
+
+    // Known manga title keywords we can search for in the DB
+    const mangaKeywords = [
+      'one piece', 'jujutsu', 'kaisen', 'berserk', 'naruto', 'dragon ball',
+      'demon slayer', 'kimetsu', 'my hero academia', 'boku no hero',
+      'attack on titan', 'shingeki', 'vinland saga', 'tokyo ghoul',
+      'fullmetal alchemist', 'hagane no renkinjutsushi',
+      'sailor moon', 'fruits basket', 'kimi ni todoke',
+      'monster', 'death note', 'code geass', 'steins;gate',
+      're:zero', 'mushoku tensei', 'konosuba',
+      'evangelion', 'gundam', 'one punch man', 'mob psycho',
+      'slam dunk', 'haikyuu', 'kuroko no basket',
+      'spy x family', 'chainsaw man', 'dandadan',
+      'solo leveling', 'tower of god', 'the god of high school',
+      'horimiya', 'tonikaku kawaii', 'kaguya-sama',
+      'made in abyss', 'promised neverland',
+      'violet evergarden', 'your lie in april', 'shigatsu wa kimi no uso',
+    ];
+
+    for (const keyword of mangaKeywords) {
+      if (searchText.includes(keyword)) {
+        try {
+          // Try to find a manga whose title contains this keyword
+          const manga = await prisma.mangaSeries.findFirst({
+            where: {
+              title: { contains: keyword, mode: 'insensitive' },
+              coverUrl: { not: null },
+            },
+            select: { coverUrl: true },
+          });
+          if (manga?.coverUrl) return manga.coverUrl;
+        } catch {
+          // DB lookup failed, try next keyword
+          continue;
+        }
+      }
+    }
+  }
+
+  // 2. Static slug map
+  if (SLUG_COVERS[slug]) return SLUG_COVERS[slug];
+
+  // 3. Ultimate brand fallback
+  return BRAND.og;
+}
+
+// Legacy static map for backward compatibility (seed scripts that don't use async)
+export const BLOG_COVERS: Record<string, string> = { ...SLUG_COVERS };
