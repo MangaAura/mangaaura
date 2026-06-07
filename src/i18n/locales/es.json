@@ -505,6 +505,8 @@
       "historyLoadMoreError": "Error al cargar más",
       "statusFailed": "Falló",
       "statusProcessing": "Procesando",
+      "publish": "Publicar en galería",
+      "published": "Publicado",
       "stepValidating": "Validando entrada...",
       "stepGenerating": "Generando imagen con IA...",
       "stepProcessing": "Procesando resultado...",

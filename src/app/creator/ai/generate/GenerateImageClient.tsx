@@ -25,6 +25,8 @@ import {
   Info,
   Wand2,
   SlidersHorizontal,
+  Globe,
+  Lock,
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -140,6 +142,8 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
   const [refreshingBalance, setRefreshingBalance] = useState(false);
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
   const [pollElapsed, setPollElapsed] = useState(0);
+  const [isPublic, setIsPublic] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const pollStartRef = useRef<number | null>(null);
 
   const resultRef = useRef<HTMLDivElement>(null);
@@ -351,6 +355,25 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, []);
+
+  // ── Publish / Unpublish toggle ──────────────────────────────────
+  const handleTogglePublish = useCallback(async () => {
+    if (!result?.id) return;
+    setPublishing(true);
+    try {
+      const res = await fetch(`/api/ai/generate-image/${result.id}/publish`, {
+        method: 'PATCH',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsPublic(data.isPublic);
+      }
+    } catch {
+      // silent
+    } finally {
+      setPublishing(false);
+    }
+  }, [result?.id]);
 
   // ── Auto-resize textarea ───────────────────────────────────────────
   useEffect(() => {
@@ -882,7 +905,7 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
                         {prompt}
                       </p>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button onClick={handleDownload} variant="secondary" size="sm" className="gap-2">
                           <Download className="w-4 h-4" />{t('creator.imageGeneration.download')}</Button>
                         <Button
@@ -897,11 +920,27 @@ export function GenerateImageClient({ initialAuraBalance }: GenerateImageClientP
                         >
                           <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />{t('creator.imageGeneration.regenerate')}</Button>
                         <Button
+                          onClick={handleTogglePublish}
+                          variant={isPublic ? 'default' : 'outline'}
+                          size="sm"
+                          className={`gap-2 ${isPublic ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500' : ''}`}
+                          disabled={publishing}
+                        >
+                          {publishing ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : isPublic ? (
+                            <><Globe className="w-4 h-4" />{t('creator.imageGeneration.published')}</>
+                          ) : (
+                            <><Globe className="w-4 h-4" />{t('creator.imageGeneration.publish')}</>
+                          )}
+                        </Button>
+                        <Button
                           onClick={() => {
                             setPrompt('');
                             setResult(null);
                             setError(null);
                             setIsAuraError(false);
+                            setIsPublic(false);
                           }}
                           variant="ghost"
                           size="sm"
