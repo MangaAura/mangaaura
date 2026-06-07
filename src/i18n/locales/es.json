@@ -756,7 +756,14 @@
     "ctaCreatorRegister": "Registrarse como creador",
     "trendingTitle": "Tendencias",
     "trendingHot": "Tendencia",
-    "trendingSubtitle": "Lo más visto de la semana"
+    "trendingSubtitle": "Lo más visto de la semana",
+    "newsCategoryTools": "HERRAMIENTAS",
+    "newsCategoryMobile": "MOVIL",
+    "newsCategoryContest": "CONCURSO",
+    "newsCategoryComparison": "COMPARATIVA",
+    "newsCategoryFeatures": "FUNCIONALIDADES",
+    "newsCategoryTechnology": "TECNOLOGIA",
+    "newsCategoryCreator": "CREADORES"
   },
   "genres": {
     "accion": "Acción",
@@ -2427,7 +2434,11 @@
         "community": "Comunidad",
         "tools": "Herramientas",
         "mobile": "Móvil",
-        "contest": "Concurso"
+        "contest": "Concurso",
+        "comparison": "Comparativa",
+        "features": "Funcionalidades",
+        "technology": "Tecnologia",
+        "creator": "Creadores"
       },
       "fieldLabels": {
         "title": "Título",

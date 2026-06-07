@@ -843,7 +843,14 @@
     "ctaCreatorRegister": "Register as creator",
     "trendingTitle": "Trending",
     "trendingHot": "Hot",
-    "trendingSubtitle": "Most viewed this week"
+    "trendingSubtitle": "Most viewed this week",
+    "newsCategoryTools": "TOOLS",
+    "newsCategoryMobile": "MOBILE",
+    "newsCategoryContest": "CONTEST",
+    "newsCategoryComparison": "COMPARISON",
+    "newsCategoryFeatures": "FEATURES",
+    "newsCategoryTechnology": "TECHNOLOGY",
+    "newsCategoryCreator": "CREATORS"
   },
   "genres": {
     "accion": "Action",
@@ -2514,7 +2521,11 @@
         "community": "Community",
         "tools": "Tools",
         "mobile": "Mobile",
-        "contest": "Contest"
+        "contest": "Contest",
+        "comparison": "Comparison",
+        "features": "Features",
+        "technology": "Technology",
+        "creator": "Creators"
       },
       "fieldLabels": {
         "title": "Title",

@@ -26,6 +26,10 @@ const categoryLabelKey: Record<string, string> = {
   tools: 'home.newsCategoryTools',
   mobile: 'home.newsCategoryMobile',
   contest: 'home.newsCategoryContest',
+  comparison: 'home.newsCategoryComparison',
+  features: 'home.newsCategoryFeatures',
+  technology: 'home.newsCategoryTechnology',
+  creator: 'home.newsCategoryCreator',
 };
 
 const categoryAccent: Record<string, string> = {
@@ -34,6 +38,10 @@ const categoryAccent: Record<string, string> = {
   tools: '#0ea5e9',
   mobile: '#10b981',
   contest: '#f43f5e',
+  comparison: '#8b5cf6',
+  features: '#22c55e',
+  technology: '#06b6d4',
+  creator: '#f97316',
 };
 
 

@@ -59,7 +59,7 @@ import { fetcher } from '@/lib/swr-config';
 
 // ─── Constants ────────────────────────────────────────────────────────
 
-const CATEGORY_VALUES = ['platform', 'community', 'tools', 'mobile', 'contest'] as const;
+const CATEGORY_VALUES = ['platform', 'community', 'tools', 'mobile', 'contest', 'comparison', 'features', 'technology', 'creator'] as const;
 
 const CATEGORY_COLORS: Record<string, string> = {
   platform: 'from-blue-600/40 to-blue-600/10',
@@ -67,6 +67,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   tools: 'from-purple-600/40 to-purple-600/10',
   mobile: 'from-green-600/40 to-green-600/10',
   contest: 'from-red-600/40 to-red-600/10',
+  comparison: 'from-violet-600/40 to-violet-600/10',
+  features: 'from-emerald-600/40 to-emerald-600/10',
+  technology: 'from-cyan-600/40 to-cyan-600/10',
+  creator: 'from-orange-600/40 to-orange-600/10',
 };
 
 const CATEGORY_BADGE: Record<string, string> = {
@@ -75,6 +79,10 @@ const CATEGORY_BADGE: Record<string, string> = {
   tools: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
   mobile: 'bg-green-500/15 text-green-400 border-green-500/20',
   contest: 'bg-red-500/15 text-red-400 border-red-500/20',
+  comparison: 'bg-violet-500/15 text-violet-400 border-violet-500/20',
+  features: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+  technology: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/20',
+  creator: 'bg-orange-500/15 text-orange-400 border-orange-500/20',
 };
 
 interface NewsArticle {
@@ -1048,6 +1056,10 @@ export default function AdminNewsClient() {
       tools: { variant: 'secondary' },
       mobile: { variant: 'success' },
       contest: { variant: 'destructive' },
+      comparison: { variant: 'secondary' },
+      features: { variant: 'success' },
+      technology: { variant: 'default' },
+      creator: { variant: 'warning' },
     };
     return config[cat] || { variant: 'default' as const };
   };
