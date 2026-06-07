@@ -31,12 +31,12 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
-import { useAuraBalance } from '@/hooks/useAuraBalance';
 import { Container } from '@/components/Layout/Container';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { useAuraBalance } from '@/hooks/useAuraBalance';
 import { useT } from '@/i18n';
 import { fetcher } from '@/lib/swr-config';
 
@@ -129,6 +129,7 @@ export function GenerateImageClient() {
   const [isAuraError, setIsAuraError] = useState(false);
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [refreshingBalance, setRefreshingBalance] = useState(false);
 
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -257,6 +258,12 @@ export function GenerateImageClient() {
     }
   }, [result]);
 
+  const handleRefreshBalance = useCallback(() => {
+    setRefreshingBalance(true);
+    refreshBalance();
+    setTimeout(() => setRefreshingBalance(false), 400);
+  }, [refreshBalance]);
+
   const handleCopyPrompt = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -312,6 +319,16 @@ export function GenerateImageClient() {
               <Coins className="w-4 h-4 text-amber-500" />
               <span className="text-sm font-bold">{auraBalance.toLocaleString()}</span>
               <span className="text-xs text-[var(--text-tertiary)]">{t('creator.imageGeneration.aura')}</span>
+              {/* Manual refresh button */}
+              <button
+                onClick={handleRefreshBalance}
+                disabled={refreshingBalance}
+                className="ml-1 p-0.5 rounded-md hover:bg-amber-500/20 transition-colors disabled:opacity-50"
+                title={t('common.refresh')}
+                aria-label={t('common.refresh')}
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${refreshingBalance ? 'animate-spin' : ''}`} />
+              </button>
             </div>
 
             {/* History button */}
