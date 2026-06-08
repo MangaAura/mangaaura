@@ -26,7 +26,6 @@ interface AuthSectionProps {
 }
 
 function RoleBadge({ role, t }: { role?: string; t: (key: string) => string }) {
-  if (!role || role === 'USER') return null;
   const styles: Record<string, string> = {
     MODERATOR: 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
     ADMIN: 'bg-gradient-to-r from-rose-500/20 to-rose-600/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
@@ -39,6 +38,7 @@ function RoleBadge({ role, t }: { role?: string; t: (key: string) => string }) {
     MODERATOR: t('roles.moderator'),
     ADMIN: t('roles.admin'),
   };
+  if (!role || !styles[role]) return null;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${styles[role] || ''}`}>
       {icons[role]}
