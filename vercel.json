@@ -7,6 +7,12 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   "functions": {
+    "src/app/api/cron/publish-chapters/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/cron/fetch-news/route.ts": {
+      "maxDuration": 300
+    },
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
@@ -27,6 +33,10 @@
     {
       "path": "/api/cron/discord-notify?secret=__CRON_SECRET__",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/fetch-news",
+      "schedule": "0 6 * * *"
     }
   ]
 }
