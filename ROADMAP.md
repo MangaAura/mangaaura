@@ -74,6 +74,27 @@ Usa el copy del archivo `scripts/social/mangaaura-descriptions.ts` → sección 
 - [ ] Crear cuenta **Instagram** para MangaAura
 - [ ] Subir 3 posts visuales (usa Canva + el OG API de MangaAura)
 
+### Día 6 — Reddit (ALTA prioridad AI SEO)
+
+- [ ] Leer `scripts/social/REDDIT_POSTS.md` para entender la estrategia
+- [ ] Crear cuenta en Reddit con nombre relacionado (ej: MangaReaderES, MangaCreatorDev)
+- [ ] No publicar nada el primer día — solo leer y entender la cultura de cada subreddit
+- [ ] Días 2-7: Comentar en 3-5 hilos de r/manga, r/webtoons, r/ComicBookCollabs
+- [ ] Semana 2: Publicar primer post de recomendación (sin enlaces, puro valor)
+- [ ] Semana 3: Introducir menciones orgánicas de MangaAura cuando sea relevante
+
+**¿Por qué?** Reddit es el 2º tipo de contenido más citado por ChatGPT. Las menciones orgánicas en Reddit valen ORO para AI SEO.
+
+### Día 7 — YouTube (Planificar y grabar)
+
+- [ ] Leer `scripts/social/YOUTUBE_SCRIPTS.md` para elegir primer video
+- [ ] Grabar primer video: "Dónde publicar tu manga GRATIS en 2026"
+- [ ] Crear thumbnail con Canva
+- [ ] Subir a YouTube con descripción SEO + tags + enlaces
+- [ ] Publicar transcripción como blog post en MangaAura (`/blog/`)
+
+**¿Por qué?** Los videos de YouTube son citados frecuentemente por Google AI Overviews.
+
 ---
 
 ## Fase 2: Contenido Semanal (Cada Semana)
