@@ -44,6 +44,18 @@ const categoryAccent: Record<string, string> = {
   creator: '#f97316',
 };
 
+const categoryBadgeSolid: Record<string, string> = {
+  community: 'bg-amber-600 text-white dark:bg-amber-600',
+  platform: 'bg-indigo-600 text-white dark:bg-indigo-500',
+  tools: 'bg-sky-600 text-white dark:bg-sky-500',
+  mobile: 'bg-emerald-600 text-white dark:bg-emerald-500',
+  contest: 'bg-rose-600 text-white dark:bg-rose-500',
+  comparison: 'bg-violet-600 text-white dark:bg-violet-500',
+  features: 'bg-green-600 text-white dark:bg-green-600',
+  technology: 'bg-cyan-600 text-white dark:bg-cyan-500',
+  creator: 'bg-orange-600 text-white dark:bg-orange-600',
+};
+
 
 interface HomeNewsSectionProps {
   articles?: Record<string, unknown>[];
@@ -97,8 +109,8 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
             {t('home.newsPageDesc')}
           </span>
         </div>
-        <Link href="/news" aria-label={t('common.viewAll') + ' noticias'}>
-          <Button variant="ghost" size="sm" className="group text-xs">
+        <Link href="/news" aria-label={t('common.viewAll') + ' noticias'} className="min-h-[44px] inline-flex items-center">
+          <Button variant="ghost" size="sm" className="group text-xs min-h-[44px] py-2.5">
             {t('common.viewAll')}
             <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </Button>
@@ -177,8 +189,6 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
       {rest.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {rest.map((item, index) => {
-            const accentColor = categoryAccent[item.category] || '#818cf8';
-
             return (
               <div
                 key={item.slug}
@@ -199,6 +209,7 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
                             decoding="async"
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                             sizes="112px"
+                            quality={30}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
@@ -212,11 +223,7 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
                       <div className="flex-1 min-w-0 p-4 flex flex-col">
                         <div className="flex items-center gap-2 mb-2">
                           <span
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
-                            style={{
-                              backgroundColor: `${accentColor}14`,
-                              color: accentColor,
-                            }}
+                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${categoryBadgeSolid[item.category] || 'bg-[var(--primary)] text-white'}`}
                           >
                             {getCategoryLabel(item)}
                           </span>
@@ -229,11 +236,11 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
                           {isEnglish && item.titleEn ? item.titleEn : item.title}
                         </h3>
 
-                        <p className="text-[11px] text-[var(--text-tertiary)]/70 line-clamp-1 mt-0.5">
+                        <p className="text-[11px] text-[var(--text-secondary)] line-clamp-1 mt-0.5">
                           {isEnglish && item.descriptionEn ? item.descriptionEn : item.description}
                         </p>
 
-                        <time className="text-[11px] text-[var(--text-tertiary)]/60 flex items-center gap-1 mt-auto pt-2">
+                        <time className="text-[11px] text-[var(--text-secondary)] flex items-center gap-1 mt-auto pt-2">
                           <Clock className="w-3 h-3" />
                           {formatDate(item.date)}
                         </time>

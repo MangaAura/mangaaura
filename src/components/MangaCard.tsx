@@ -179,13 +179,13 @@ export const MangaCard = memo(function MangaCard({
                 key={`tag-${i}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/explore?genres[]=${encodeURIComponent(tag)}`);
+                  router.push(`/explore?genres[]=${encodeURIComponent(tag)}&sort=popularity`);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     e.stopPropagation();
-                    router.push(`/explore?genres[]=${encodeURIComponent(tag)}`);
+                    router.push(`/explore?genres[]=${encodeURIComponent(tag)}&sort=popularity`);
                   }
                 }}
                 role="link"

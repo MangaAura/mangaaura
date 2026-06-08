@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { headers } from 'next/headers';
@@ -12,6 +13,7 @@ import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/
 import { detectLocale } from '@/i18n/server';
 import { ensureInfrastructure } from "@/infrastructure/init";
 import { validateEnv } from "@/lib/env";
+import { withHreflang } from '@/lib/seo';
 import "./globals.css";
 
 validateEnv();
@@ -107,6 +109,10 @@ export async function generateMetadata(): Promise<Metadata> {
       ...baseMetadata.openGraph,
       locale: locale === 'es' ? 'es_ES' : 'en_US',
     },
+    // Override alternates with locale-aware canonical and hreflang
+    // so pages that don't set their own get correct locale-prefixed URLs.
+    // Pages with explicit alternates override these via Next.js metadata merging.
+    ...withHreflang('/', locale),
   };
 }
 
@@ -202,8 +208,6 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION && (
           <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION} />
         )}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ui-avatars.com" />
         <link rel="dns-prefetch" href="//supabase.co" />
         <link rel="dns-prefetch" href="//vercel-storage.com" />
@@ -220,7 +224,8 @@ export default async function RootLayout({
             __html: `(function(){try{var e=localStorage.getItem("mangaaura-theme");if(e==="dark"||(e!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
           }}
         />
-        <GoogleAnalytics />
+        <GoogleAnalytics nonce={nonce} />
+        <Analytics />
         <Providers locale={htmlLang}>
           <Suspense fallback={<div className="flex flex-col flex-1 noise" />}>
             <DynamicProviders>{children}</DynamicProviders>
