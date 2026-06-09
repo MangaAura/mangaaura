@@ -57,6 +57,39 @@ Use codegraph for **structural** questions — what calls what, what would break
 The MCP server returns "not initialized." Ask the user: *"I notice this project doesn't have CodeGraph initialized. Want me to run `codegraph init -i` to build the index?"*
 <!-- CODEGRAPH_END -->
 
+<!-- BEGIN:social-content-rules -->
+# Social Content Creation Rules
+
+When creating ANY social media content (Reddit posts, YouTube scripts, tweets, LinkedIn posts, Instagram captions, TikTok scripts, etc.), you MUST:
+
+1. **Load the relevant skills first** — Always load these skills before writing social content:
+   - `marketing-psychology` — Apply psychological hooks (curiosity gap, loss aversion, social proof, anchoring, scarcity, reciprocity, commitment)
+   - `copywriting` — Structure CTAs, headlines, value propositions
+   - `social` — Platform-specific engagement mechanics (3-second rule, hook formulas, repurposing)
+   - `content-strategy` — Topic selection, audience alignment, content pillars
+
+2. **Apply the principles explicitly** — Each piece of content should include:
+   - A **curiosity-driven hook** in the title/headline (not generic questions)
+   - **Social proof** (data, anecdotes, testimonials — must be REAL, never fabricated)
+   - **CTAs using loss aversion, commitment, or reciprocity** (not generic "what do you think?")
+   - **Specificity** (concrete numbers, examples, comparisons)
+
+3. **NO fabricated statistics** — All data must be verifiable or honestly caveated as "in my experience", "I've seen cases of...", or "according to [source]". Fabricated stats erode trust.
+
+4. **Authenticity over promotion** — Content should be 90% valuable / 10% promotional. MangaAura mentions must be:
+   - Organic (mentioned as one option among equals)
+   - Balanced (pros AND cons when compared directly)
+   - Never as direct links (unless explicitly allowed)
+
+5. **Post-audit checklist** — Before delivering:
+   - [ ] Hook creates curiosity without being clickbait
+   - [ ] CTA uses psychology (loss aversion, commitment, or reciprocity)
+   - [ ] No fabricated statistics
+   - [ ] MangaAura mentions are balanced and organic
+   - [ ] Platform ToS respected (no spam patterns, no direct referral links)
+   - [ ] Tone is authentic, not marketing-bot
+<!-- END:social-content-rules -->
+
 <!-- BEGIN:agentmemory -->
 ## AgentMemory
 

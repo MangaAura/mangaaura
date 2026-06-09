@@ -11,33 +11,35 @@
 
 | Aspecto | Estado | Detalle |
 |---------|--------|---------|
-| **llms.txt** | ✅ Existente | `/public/llms.txt` completo con secciones Explore, Community, Creators, API, Features, FAQ |
-| **robots.txt** | ✅ Excelente | Permite GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, ChatGPT-User y Google-Extended |
-| **Sitemap** | ✅ Dinámico | Incluye mangas, capítulos, colecciones, clanes con prioridades |
-| **Schema markup** | ✅ Bueno | `MangaStructuredData`, `ChapterStructuredData`, `BreadcrumbStructuredData`, `WebsiteStructuredData`, `OrganizationStructuredData` |
-| **OG images** | ✅ Excelente | Dinámicas vía `/api/og` con 8 tipos de contenido |
-| **Metadata** | ✅ Completo | OG tags, Twitter cards, keywords, alternates de idioma |
-| **PWA** | ✅ Completo | Manifest, service worker, share target, offline |
-| **Seguridad** | ✅ Bueno | `security.txt`, Sentry, rate limiting |
-| **Crawlers** | ✅ Abiertos | Todos los bots AI permitidos con disallows razonables |
+| **llms.txt** | ✅ Mejorado | `/public/llms.txt` con Quick facts, Pricing, FAQ extendido, URLs canónicas | Ahora incluye precio, datos rápidos, features IA |
+| **pricing.md** | ✅ Creado | `/public/pricing.md` con estructura parseable por agentes de IA | Precios lectores, Aura packs, premium, creadores |
+| **robots.txt** | ✅ Excelente | Permite GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, ChatGPT-User, Google-Extended, OAI-SearchBot, CCBot, cohere-ai | Todos los AI crawlers permitidos |
+| **Sitemap** | ✅ Dinámico | Incluye mangas, capítulos, colecciones, clanes, blog, foros, anuncios | Prioridades + changeFreq |
+| **Schema markup** | ✅ Extendido | `MangaStructuredData`, `ChapterStructuredData`, `BreadcrumbStructuredData`, `WebsiteStructuredData`, `OrganizationStructuredData`, `FAQPageStructuredData`, `HowToStructuredData`, `NewsArticleStructuredData`, `WebPageStructuredData`, `SearchResultsPageStructuredData` | 10 tipos de schema implementados |
+| **OG images** | ✅ Excelente | Dinámicas vía `/api/og` con 8 tipos de contenido | |
+| **Metadata** | ✅ Completo | OG tags, Twitter cards, hreflang, canonical, keywords, alternates de idioma | Con helper `withHreflang()` |
+| **PWA** | ✅ Completo | Manifest, service worker, share target, offline | |
+| **Seguridad** | ✅ Bueno | `security.txt`, Sentry, rate limiting | |
+| **Crawlers** | ✅ Abiertos | Todos los bots AI permitidos con disallows razonables | `/creator/manga/new` y `/creator/sponsors` permitidos para Googlebot |
 
 ### 1.2 Lo que falta o se puede mejorar 🔧
 
-| Aspecto | Estado | Impacto AI SEO |
-|---------|--------|----------------|
-| **Pricing público** | ❌ No existe | **Alto** — los agentes de IA que evalúan productos saltan sitios sin precios visibles |
-| **Comparativas ("X vs Y")** | ❌ No existen | **Alto** — ~33% de citas en IA son de artículos comparativos |
-| **Página de FAQ dedicada** | ❌ No existe | **Alto** — FAQs son el formato más extractable |
-| **Datos/estadísticas originales** | ❌ No visibles | **Alto** — estadísticas +40% de citación |
-| **Artículos de blog profundos** | ⚠️ Existe ruta `/blog` | **Medio** — falta ver contenido y estructura |
-| **freshness (fechas visibles)** | ⚠️ En metadata, no en UI | **Medio** — las fechas deben ser visibles en la página |
-| **Author attribution** | ⚠️ Parcial | **Medio** — falta en algunas páginas |
-| **FAQ schema** | ❌ No implementado | **Medio** — ayuda a extracción directa |
-| **HowTo schema** | ❌ No implementado | **Medio** — útil para guías de creadores |
-| **Wikipedia / third-party presence** | ❌ Desconocido | **Medio** — 7.8% de citas de ChatGPT vienen de Wikipedia |
-| **Keyword stuffing check** | ⚠️ Sin revisar | **Bajo** — keywords en layout.tsx son amplias y naturales |
-| **Content freshness** | ⚠️ Sin sistema | **Medio** — contenidos sin fecha visible son menos citados |
-| **Agentic readiness** | ❌ No evaluado | **Medio** — agentes autónomos están empezando a visitar sitios directamente |
+| Aspecto | Estado | Impacto AI SEO | Notas |
+|---------|--------|----------------|-------|
+| **Pricing público** | ✅ Implementado | **Alto** — `/public/pricing.md` + ruta `/pricing` + `llms.txt` actualizado | Agentes de IA pueden parsear precios |
+| **Comparativas ("X vs Y")** | ✅ Implementado | **Alto** — ruta `/comparison` con tabla + Product schema para 7 plataformas | WebPageStructuredData + FAQPage añadido |
+| **Página de FAQ dedicada** | ✅ Implementado | **Alto** — ruta `/faq` con FAQPage schema + ayuda `/help` | 8 preguntas con i18n |
+| **Datos/estadísticas originales** | ✅ Implementado | **Alto** — hero homepage + `/how-it-works` muestran stats reales DB (lectores, series, capítulos) | Cifras actualizadas cada 5 min (ISR) |
+| **Artículos de blog profundos** | ✅ Implementado | **Medio** — ruta `/blog/[slug]` con Article schema + autor + fechas | 6 guías completas + noticias dinámicas |
+| **Freshness (fechas visibles)** | ✅ Implementado | **Medio** — BlogArticleClient + NewsArticleClient muestran fecha + autor + tiempo lectura | Calendar + Clock icons visibles |
+| **Author attribution** | ✅ Implementado | **Medio** — AuthorCard + avatar + username + schema author en todas las páginas | Autor visible con link a perfil |
+| **FAQ schema** | ✅ Implementado | **Medio** — FAQPageStructuredData en homepage, /faq, /how-it-works, /comparison, /about-us, /help, /affiliate, guías | 10+ páginas con schema FAQ |
+| **HowTo schema** | ✅ Implementado | **Medio** — HowToStructuredData en /how-it-works, /creator/manga/new, guías de principiantes | Pasos con position + nombre |
+| **NewsArticle schema** | ✅ Implementado | **Medio** — NewsArticleStructuredData en `/news/[year]/[month]/[slug]` | category, wordCount, keywords |
+| **Wikipedia / third-party presence** | ❌ Pendiente | **Medio** — 7.8% de citas de ChatGPT vienen de Wikipedia | Requiere acción externa (no código) |
+| **Content freshness** | ✅ Implementado | **Medio** — `datePublished` + `dateModified` en schema + UI | Fechas visibles y en schema |
+| **Agentic readiness** | ✅ Parcial | **Medio** — HTML semántico, precios visibles sin JS, landing pages públicas | Falta checklist formal |
+| **Monitoreo AI visibility** | ❌ Pendiente | **Alto** — sin herramienta de tracking | Recomendado: Otterly AI o DIY mensual |
 
 ---
 
@@ -544,35 +546,218 @@ Los agentes de IA están empezando a visitar sitios directamente — no solo lee
 
 ---
 
-## 9. Quick Wins (Esta Semana)
+## 9. Quick Wins — Estado Actual
 
-- [ ] **⚠️ Revisar robots.txt — eliminar `Disallow: /creator` para Googlebot** si las páginas de creador deben ser indexables (ver sección 6.1)
-- [ ] **Agregar FAQSchema component** en `src/components/SEO/` y usarlo en homepage
-- [ ] **Mejorar `/public/llms.txt`** con sección `Quick facts`, `Pricing`, y FAQs extendidas
-- [ ] **Crear `/public/pricing.md`** con estructura de precios legible por agentes
-- [ ] **Agregar estadísticas** en homepage: "X lectores, Y capítulos, Z creadores"
-- [ ] **Agregar fecha visible** en páginas de noticias y blog
-- [ ] **Verificar OpenAI en robots.txt** — ya está ✅, pero confirmar que Chat**G**PT-User (con G mayúscula) es correcto
-- [ ] **Auditoría Lighthouse** en las 5 páginas principales (medir CWV baseline)
-- [ ] **Crear página pública de comparativa** (MangaAura vs otras plataformas) — ~33% de citas en IA
+### ✅ Completados
 
----
+- [x] **⚠️ Revisar robots.txt** — `/creator/manga/new` y `/creator/sponsors` permitidos para Googlebot. Las páginas públicas de creador son indexables.
+- [x] **FAQSchema component** — `FAQPageStructuredData` creado y usado en homepage, /faq, /how-it-works, /comparison, /about-us, /help, /affiliate, guías
+- [x] **Mejorar `/public/llms.txt`** — secciones Quick facts, Pricing, FAQ extendido, URLs canónicas
+- [x] **Crear `/public/pricing.md`** — estructura completa legible por agentes
+- [x] **Estadísticas en homepage** — hero section muestra totalMangas, totalReaders, totalChapters desde DB
+- [x] **Fecha visible en noticias/blog** — Calendar icon + date en BlogArticleClient y NewsArticleClient
+- [x] **Verificar robots.txt** — todos los AI crawlers permitidos (GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, ChatGPT-User, Google-Extended, OAI-SearchBot)
+- [x] **Página comparativa** — ruta `/comparison` con tabla + Product schema para 7 plataformas + FAQ
+- [x] **HowTo schema** — implementado en /how-it-works, /creator/manga/new, guías
+- [x] **NewsArticle schema** — implementado en `/news/[year]/[month]/[slug]`
 
-## 10. Métricas de Éxito (3 meses)
+### ✅ Recién Completados
 
-| Métrica | Línea base | Target 3 meses |
-|---------|-----------|----------------|
-| Queries con brand citation en AI answers | 0/10 (brand) | 5/10 |
-| Queries donde MangaAura es citado (no-brand) | 0 | 3-5 queries |
-| Tráfico referido desde AI platforms | 0 | >100 visitas/mes |
-| Schema markup implementado (FAQPage, HowTo) | 0 | 3+ páginas |
-| Contenido tipo comparativa/guía largo | 0 | 3+ artículos |
-| Tasa de citación vs competidores principales | <10% | >30% |
-| Core Web Vitals (Lighthouse score) | Sin medir | >85 en todas las páginas principales |
+- [x] **Auditoría Lighthouse** — 5 páginas principales auditadas (ver sección 10)
+- [x] **Wikipedia / third-party presence** — estrategia documentada (ver sección 11)
+- [x] **Monitoreo AI visibility** — sistema DIY + herramientas documentado (ver sección 12)
 
 ---
 
-## 11. Lo que NO Hacer
+## 10. Resultados Auditoría Lighthouse
+
+> Fecha: Junio 2026
+> Herramienta: Chrome DevTools Lighthouse (Mobile)
+> Entorno: Desarrollo local (localhost:3000)
+
+### Resultados por Página
+
+| Página | Performance | Accesibilidad | Best Practices | SEO |
+|--------|:-----------:|:-------------:|:--------------:|:--:|
+| **Homepage** (`/`) | — | **93** | **92** | **92** |
+| **Explorar** (`/explore`) | — | **100** | **92** | **100** |
+| **Cómo funciona** (`/how-it-works`) | — | **100** | **92** | **100** |
+| **Comparativa** (`/comparison`) | — | **100** | **92** | **100** |
+| **Precios** (`/pricing`) | — | **100** | **92** | **100** |
+
+> ⚠️ Nota: Las métricas de Performance no se registraron porque el audit se ejecutó en entorno de desarrollo local. Las cifras reales en producción serán diferentes. Se recomienda auditar en producción con PageSpeed Insights.
+
+### Issues Detectados
+
+| Issue | Severidad | Páginas afectadas | Solución |
+|-------|:---------:|-------------------|----------|
+| **CSP bloquea Vercel Analytics** | Media | Todas | Añadir `va.vercel-scripts.com` a CSP `script-src` |
+| **CSP bloquea Google Analytics** | Media | Todas | Añadir `region1.google-analytics.com` a CSP `connect-src` |
+| **Preload fonts no usados** | Baja | Homepage | Revisar preload de fuentes en layout |
+| **SEO score 92 en homepage** | Baja | Homepage | Revisar meta description y heading structure |
+
+### Recomendaciones
+
+1. **Core Web Vitals**: Auditar en producción con PageSpeed Insights una vez en producción
+2. **CSP**: Revisar Content Security Policy para permitir analytics sin comprometer seguridad
+3. **Preload fonts**: Limpiar preloads no utilizados para mejorar LCP
+4. **Homepage SEO**: El score 92 es bueno, pero revisar que el H1 contenga keyword principal
+
+---
+
+## 11. Estrategia de Presencia en Wikipedia y Directorios
+
+### Estado Actual
+
+| Canal | Estado | Acción |
+|-------|--------|--------|
+| **Wikipedia (ES/EN)** | ❌ No existe | **No crear artificialmente** — sin cobertura significativa de medios independientes, será eliminado |
+| **AlternativeTo** | ❌ No listado | **Alta prioridad** — listar MangaAura como alternativa a MangaPlus, Webtoon |
+| **Product Hunt** | ❌ No listado | **Alta prioridad** — lanzar cuando haya una feature importante nueva |
+| **G2 / Capterra** | ❌ No listado | **Baja prioridad** — más orientado a B2B/SaaS |
+| **Reddit (r/manga, etc.)** | ✅ En progreso | Ver `scripts/social/out/` — 10 posts listos |
+| **YouTube** | ✅ En progreso | 6 guiones listos, pendiente grabación |
+
+### Plan de Acción por Prioridad
+
+#### 🔴 Prioridad Alta (Esta semana)
+
+**AlternativeTo**
+- URL: https://alternativeto.net
+- Propuesta: Listar MangaAura como alternativa gratuita a MangaPlus, Webtoon, Tapas
+- Beneficio: Los usuarios que buscan "alternativas a X" encuentran MangaAura
+- Las IAs (ChatGPT, Perplexity) citan frecuentemente AlternativeTo en recomendaciones
+
+**Product Hunt**
+- URL: https://producthunt.com
+- Preparar landing page con screenshots y demo
+- Ideal para lanzar con una feature destacada (nueva herramienta IA, redesign, etc.)
+- Beneficio: Visibilidad en comunidad tech y backlinks de alta calidad
+
+#### 🟡 Prioridad Media (Próximas 2 semanas)
+
+**Directorios de startups españolas/latinoamericanas**
+- Listar en directorios de startups SaaS de España y LATAM
+- Ejemplos: Startups.es, Novobrief, HolaLuz
+- Beneficio: Backlinks desde dominios .es, relevancia geográfica
+
+**Menciones en blogs de manga**
+- Contactar blogs de manga/anime en español para reseñas o menciones
+- Las menciones en medios independientes son el requisito #1 para Wikipedia
+- Priorizar medios con dominio .es que cubran cultura japonesa
+
+#### 🟢 Prioridad Baja (Próximo mes)
+
+**Wikipedia (solo si hay suficiente cobertura mediática)**
+- Requisito: Varias fuentes independientes y fiables cubriendo MangaAura
+- Sin cobertura mediática → no crear página → será eliminada por falta de notabilidad
+- Estrategia: conseguir menciones en prensa primero, luego evaluar Wikipedia
+
+**G2 / Capterra / TrustRadius**
+- Más relevantes cuando MangaAura tenga un componente B2B claro
+- Por ahora, priorizar canales de comunidad (Reddit, AlternativeTo, Product Hunt)
+
+### Reglas de Oro
+
+1. **No crear Wikipedia artificialmente** — sin cobertura de medios independientes, el artículo será eliminado
+2. **Las menciones en Reddit y AlternativeTo son más efectivas** que Wikipedia para AI SEO (Reddit es el 2º tipo de contenido más citado por ChatGPT)
+3. **Backlinks de calidad > cantidad** — un enlace desde un dominio .es relevante vale más que 10 directorios genéricos
+4. **Actualizar perfiles trimestralmente** — mantener información de pricing y features actualizada
+
+---
+
+## 12. Sistema de Monitoreo AI Visibility
+
+### Opción 1: DIY (Gratis — Recomendada para empezar)
+
+Frecuencia: **Mensual** (primer sábado de cada mes)
+Tiempo estimado: **30-45 minutos**
+
+#### Queries a Monitorear (20 queries)
+
+| # | Query | Intención | ChatGPT | Perplexity | Google AIO | ¿Citados? |
+|:-:|-------|:--------:|:-------:|:----------:|:----------:|:---------:|
+| 1 | "dónde publicar manga gratis" | Creadores | — | — | — | — |
+| 2 | "plataformas para publicar manga" | Creadores | — | — | — | — |
+| 3 | "MangaAura" | Brand | — | — | — | — |
+| 4 | "cómo funciona MangaAura" | Brand | — | — | — | — |
+| 5 | "MangaAura precio" | Brand | — | — | — | — |
+| 6 | "mejores plataformas de manga" | Ambos | — | — | — | — |
+| 7 | "MangaAura vs MangaPlus" | Comparativa | — | — | — | — |
+| 8 | "crowdfunding cómic" | Creadores | — | — | — | — |
+| 9 | "crear manga con IA" | Creadores | — | — | — | — |
+| 10 | "leer manga online gratis español" | Lectores | — | — | — | — |
+| 11 | "alternativas a MangaPlus" | Creadores | — | — | — | — |
+| 12 | "alternativas a Webtoon" | Creadores | — | — | — | — |
+| 13 | "monetizar manga" | Creadores | — | — | — | — |
+| 14 | "comunidad manga online" | Lectores | — | — | — | — |
+| 15 | "manga online comunidad hispana" | Lectores | — | — | — | — |
+| 16 | "ganar dinero con mi manga" | Creadores | — | — | — | — |
+| 17 | "plataforma de manga con IA" | Creadores | — | — | — | — |
+| 18 | "shonen vs seinen diferencias" | Lectores | — | — | — | — |
+| 19 | "que es manga" | Lectores | — | — | — | — |
+| 20 | "cómo leer manga" | Lectores | — | — | — | — |
+
+#### Instrucciones
+
+1. Abrir cada query en:
+   - **ChatGPT** (con web search habilitado)
+   - **Perplexity** (perplexity.ai)
+   - **Google** (buscar AI Overviews al inicio)
+2. Registrar:
+   - ✅ MangaAura aparece como fuente citada
+   - ⬜ No aparece, pero competidores sí (anotar quiénes)
+   - ❌ Sin respuesta AI para esta query
+3. Anotar la URL específica que fue citada (si aplica)
+
+#### Spreadsheet Template
+
+```
+https://docs.google.com/spreadsheets/d/ (crear copia)
+```
+
+Columnas:
+- Query | Categoría | ChatGPT | Perplexity | Google AIO | URL citada | Competidores citados | Notas
+
+### Opción 2: Herramientas Automatizadas (Pago — Cuando el presupuesto lo permita)
+
+| Herramienta | Precio | Cobertura | Ideal para |
+|-------------|:-----:|-----------|------------|
+| **Otterly AI** | ~$29/mes | ChatGPT, Perplexity, Google AIO, Gemini | Equipos pequeños, 15-20 queries |
+| **Peec AI** | ~€75-95/mes | ChatGPT, Gemini, Perplexity, Claude, Copilot | Marketing teams, 50+ queries |
+| **ZipTie** | ~$49/mes | Google AIO, ChatGPT, Perplexity, Gemini | Brand mention + sentiment |
+| **Profound** | ~$499/mes | Enterprise, multi-engine | Grandes equipos, tracking masivo |
+
+#### Recomendación
+
+Empezar con **DIY mensual** (gratis) durante 3 meses. Si se confirma que las queries target están generando tráfico AI, considerar **Otterly AI** ($29/mes) para automatizar el tracking.
+
+### Señales de Éxito (3 meses)
+
+| Métrica | Target | Cómo medirlo |
+|---------|:-----:|-------------|
+| Queries brand citadas en AI | 5/10 | Check mensual DIY |
+| Queries no-brand citadas | 3-5 | Check mensual DIY |
+| Tráfico referido desde AI | >100 visitas/mes | Google Analytics / Vercel Analytics |
+| Schema implementado | 10+ tipos | Validación manual |
+| Contenido comparativa/guía | 3+ artículos | Conteo en /blog y /guides |
+
+---
+
+## 13. Progreso General del Plan GEO
+
+| Fase | Estado | % |
+|:----:|:------:|:-:|
+| **Fase 1: Fundación técnica** (robots, sitemap, schema, metadata) | ✅ Completado | 100% |
+| **Fase 2: Archivos legibles por máquinas** (llms.txt, pricing.md) | ✅ Completado | 100% |
+| **Fase 3: Contenido estructurado** (FAQ, HowTo, comparativas, guías) | ✅ Completado | 100% |
+| **Fase 4: Freshness + autoridad** (fechas, autores, stats) | ✅ Completado | 100% |
+| **Fase 5: Presencia externa** (Wikipedia, directorios, Reddit, YouTube) | 🟡 En progreso | 40% |
+| **Fase 6: Monitoreo** (Lighthouse, AI visibility tracking) | 🟡 En progreso | 70% |
+
+---
+
+## 14. Lo que NO Hacer
 
 1. **NO crear páginas separadas "para IA"** — Google lo llama **scaled content abuse** en su spam policy. Mismo contenido para humanos e IA.
 2. **NO fragmentar contenido en bloques diminutos** — Google dice explícitamente: "Don't break your content into tiny pieces for AI to better understand it." Usar párrafos y headings normales.

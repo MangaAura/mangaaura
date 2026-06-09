@@ -1,17 +1,22 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
+export type ThemeVariant = 'default' | 'mangaPaper';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  themeVariant: ThemeVariant;
+  setThemeVariant: (variant: ThemeVariant) => void;
   resolvedTheme: 'light' | 'dark';
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+const THEME_VARIANT_KEY = 'mangaaura-theme-variant';
 
 function hexToRgb(hex: string) {
   const cleaned = hex.replace('#', '');
@@ -68,9 +73,24 @@ function applyPrimaryColor(lightColor: string, darkColor: string) {
   }
 }
 
+function applyThemeVariant(variant: ThemeVariant) {
+  const root = document.documentElement;
+  if (variant === 'mangaPaper') {
+    root.classList.add('manga-paper');
+  } else {
+    root.classList.remove('manga-paper');
+  }
+  // Add theme-transitioning class for smooth CSS transitions, remove after transition completes
+  root.classList.add('theme-transitioning');
+  setTimeout(() => {
+    root.classList.remove('theme-transitioning');
+  }, 400); // matches --transition-base ~200ms * 2 for safety
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
   const [theme, setThemeState] = useState<Theme>('system');
+  const [themeVariant, setThemeVariantState] = useState<ThemeVariant>('default');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
@@ -81,6 +101,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (savedTheme) {
        
       setThemeState(savedTheme);
+    }
+    const savedVariant = localStorage.getItem(THEME_VARIANT_KEY) as ThemeVariant | null;
+    if (savedVariant) {
+      setThemeVariantState(savedVariant);
+      applyThemeVariant(savedVariant);
     }
     const savedColor = localStorage.getItem('primaryColor');
     if (savedColor) {
@@ -101,6 +126,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         if (appearance.theme) {
           setThemeState(appearance.theme);
           localStorage.setItem('mangaaura-theme', appearance.theme);
+        }
+        if (appearance.themeVariant) {
+          setThemeVariantState(appearance.themeVariant);
+          localStorage.setItem(THEME_VARIANT_KEY, appearance.themeVariant);
+          applyThemeVariant(appearance.themeVariant);
         }
         if (appearance.primaryColor) {
           const darkColor = appearance.primaryColorDark || lighten(appearance.primaryColor, 0.35);
@@ -173,10 +203,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('mangaaura-theme', newTheme);
   };
 
+  const setThemeVariant = useCallback((variant: ThemeVariant) => {
+    setThemeVariantState(variant);
+    localStorage.setItem(THEME_VARIANT_KEY, variant);
+    applyThemeVariant(variant);
+  }, []);
+
   // Prevent hydration mismatch by providing default values during SSR/initial mount
   const contextValue = mounted
-    ? { theme, setTheme, resolvedTheme }
-    : { theme: 'system' as Theme, setTheme: () => {}, resolvedTheme: 'light' as const };
+    ? { theme, setTheme, themeVariant, setThemeVariant, resolvedTheme }
+    : { theme: 'system' as Theme, setTheme: () => {}, themeVariant: 'default' as ThemeVariant, setThemeVariant: () => {}, resolvedTheme: 'light' as const };
 
   return (
     <ThemeContext.Provider value={contextValue}>

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 import { DiscoverClient } from './DiscoverClient';
-import { BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { BreadcrumbStructuredData, FAQPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { withCache, generateCacheKey } from '@/lib/apiCache';
@@ -60,6 +60,22 @@ export default async function DiscoverPage() {
         items={[
           { name: t('nav.home'), item: '/' },
           { name: t('nav.discover'), item: '/discover' },
+        ]}
+      />
+      <FAQPageStructuredData
+        items={[
+          {
+            question: '¿Qué es MangaAura?',
+            answer: 'MangaAura es la plataforma de manga con IA para leer, crear y crowdfundear capítulos. Es gratis para lectores y ofrece herramientas de IA para creadores.',
+          },
+          {
+            question: '¿Es gratis leer manga en MangaAura?',
+            answer: 'Sí, leer manga en MangaAura es completamente gratis. No hay suscripciones obligatorias ni límites de lectura.',
+          },
+          {
+            question: '¿Cómo se compara MangaAura con Webtoon o Manga Plus?',
+            answer: 'MangaAura ofrece lectura gratuita como Webtoon y Manga Plus, pero añade herramientas de IA para creadores, crowdfunding de capítulos con Aura, gamificación con XP y una comunidad activa con clanes y foros. Compara todas las plataformas en mangaaura.es/comparison.',
+          },
         ]}
       />
       <DiscoverClient {...data} />

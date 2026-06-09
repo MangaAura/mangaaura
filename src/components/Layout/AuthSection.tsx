@@ -3,7 +3,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
   Bell, ChevronDown, User, Library, FolderOpen, MessageCircle,
-  Rss, Sparkles, Shield, Settings, LogOut, Zap,
+  Rss, Sparkles, Shield, Settings, LogOut, Zap, Coins,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -11,6 +11,7 @@ import { signOut } from 'next-auth/react';
 import { useState, forwardRef } from 'react';
 
 import { localeHref } from './NavLinks';
+import { useAuraBalance } from '@/hooks/useAuraBalance';
 import { NotificationDropdown } from './NotificationDropdown';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { useT } from '@/i18n';
@@ -78,6 +79,7 @@ export function AuthSection({
   const t = useT();
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const { auraBalance } = useAuraBalance();
   const [prevPathname, setPrevPathname] = useState(pathname);
   const [prevImage, setPrevImage] = useState(session?.user?.image);
 
@@ -183,8 +185,14 @@ export function AuthSection({
                     <p className="text-xs text-[var(--text-tertiary)] truncate mt-0.5">
                       {session?.user?.email}
                     </p>
-                    <div className="mt-1.5">
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                       <RoleBadge role={session?.user?.role} t={t} />
+                      {auraBalance > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-amber-500/30 bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-600 dark:text-amber-400">
+                          <Coins className="w-3 h-3" />
+                          {auraBalance.toLocaleString()} {t('profile.aura')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

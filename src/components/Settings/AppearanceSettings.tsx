@@ -1,13 +1,14 @@
-﻿'use client';
+'use client';
 
-import { Sun, Moon, Monitor, Check, Palette, Layout, Type, Paintbrush } from 'lucide-react';
+import { Sun, Moon, Monitor, Check, Palette, Layout, Type, Paintbrush, Sparkles } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
-import { useTheme } from '@/components/ThemeProvider';
+import { useTheme, type ThemeVariant } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { extractApiError } from '@/lib/extract-api-error';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -25,6 +26,16 @@ const PRESET_COLORS = [
   { name: 'Verde', light: '#059669', dark: '#34d399' },
   { name: 'Rojo', light: '#dc2626', dark: '#f87171' },
   { name: 'Rosa', light: '#ec4899', dark: '#f472b6' },
+];
+
+/* Manga-paper accent palette — warm earthy tones */
+const MANGA_PAPER_ACCENTS = [
+  { name: 'Tierra', light: '#8b5e3c', dark: '#b47a5a' },
+  { name: 'Arcilla', light: '#a0714f', dark: '#c08a68' },
+  { name: 'Musgo', light: '#6b7b3a', dark: '#b8c878' },
+  { name: 'Vino', light: '#7a3c5a', dark: '#b88aa8' },
+  { name: 'Oxido', light: '#9a4a3a', dark: '#c87a6a' },
+  { name: 'Miel', light: '#b0863a', dark: '#d8b86a' },
 ];
 
 function parseHex(hex: string) {
@@ -96,9 +107,13 @@ function applyPrimaryColor(lightColor: string, darkColor: string) {
   }
 }
 
+const THEME_VARIANT_KEY = 'mangaaura-theme-variant';
+
+const MANGA_PAPER_LIGHT_PRIMARY = '#8b5e3c';
+
 export function AppearanceSettings() {
-  const { setTheme: setThemeProvider } = useTheme();
-  const [theme, setTheme] = useState<Theme>('dark');
+  const { theme, setTheme: setThemeProvider, themeVariant, setThemeVariant: setContextThemeVariant } = useTheme();
+  const t = useT();
   const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [layoutDensity, setLayoutDensity] = useState<LayoutDensity>('normal');
   const [primaryColor, setPrimaryColor] = useState(DEFAULT_COLOR);
@@ -106,39 +121,34 @@ export function AppearanceSettings() {
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Sync non-context local state from localStorage and API on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('mangaaura-theme') as Theme;
+    // Initialize from localStorage synchronously on first render
     const savedFontSize = localStorage.getItem('fontSize') as FontSize;
     const savedLayout = localStorage.getItem('layoutDensity') as LayoutDensity;
     const savedColor = localStorage.getItem('primaryColor');
 
-    const timer = setTimeout(() => {
-      if (savedTheme && savedTheme !== theme) setTheme(savedTheme);
-      if (savedFontSize && savedFontSize !== fontSize) setFontSize(savedFontSize);
-      if (savedLayout && savedLayout !== layoutDensity) setLayoutDensity(savedLayout);
-      if (savedColor && savedColor !== primaryColor) {
-        setPrimaryColor(savedColor);
-        const stored = localStorage.getItem('primaryColorDark');
-        const darkColor = stored || lighten(savedColor, 0.35);
-        applyPrimaryColor(savedColor, darkColor);
-      } else if (!savedColor) {
+    if (savedFontSize) setFontSize(savedFontSize);
+    if (savedLayout) setLayoutDensity(savedLayout);
+    if (savedColor) {
+      setPrimaryColor(savedColor);
+      const storedDark = localStorage.getItem('primaryColorDark');
+      const darkColor = storedDark || lighten(savedColor, 0.35);
+      applyPrimaryColor(savedColor, darkColor);
+    } else if (!savedColor) {
+      // Only apply default if no color was ever saved
+      const neverSaved = !localStorage.getItem('primaryColor');
+      if (neverSaved) {
         applyPrimaryColor(DEFAULT_COLOR, DEFAULT_DARK);
       }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [theme, fontSize, layoutDensity, primaryColor]);
+    }
 
-  useEffect(() => {
+    // Then fetch from API to get server-side values (only for non-context local state)
     fetch('/api/me/preferences')
       .then((r) => r.json())
       .then((data) => {
         const appearance = data?.preferences?.appearance;
         if (!appearance) return;
-        if (appearance.theme) {
-          setTheme(appearance.theme);
-          setThemeProvider(appearance.theme);
-          localStorage.setItem('mangaaura-theme', appearance.theme);
-        }
         if (appearance.fontSize) {
           setFontSize(appearance.fontSize);
           localStorage.setItem('fontSize', appearance.fontSize);
@@ -156,10 +166,10 @@ export function AppearanceSettings() {
         }
       })
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme);
     setThemeProvider(newTheme);
     setIsDirty(true);
   };
@@ -192,10 +202,23 @@ export function AppearanceSettings() {
     setIsDirty(true);
   };
 
+  const handleThemeVariantChange = (variant: ThemeVariant) => {
+    setContextThemeVariant(variant);
+    setIsDirty(true);
+    if (variant === 'mangaPaper') {
+      // Suggest warm primary colors for manga paper theme
+      const savedPrimary = localStorage.getItem('primaryColor');
+      if (!savedPrimary || savedPrimary === DEFAULT_COLOR) {
+        handlePrimaryColorChange(MANGA_PAPER_LIGHT_PRIMARY);
+      }
+    }
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
       localStorage.setItem('mangaaura-theme', theme);
+      localStorage.setItem(THEME_VARIANT_KEY, themeVariant);
       localStorage.setItem('fontSize', fontSize);
       localStorage.setItem('layoutDensity', layoutDensity);
       localStorage.setItem('primaryColor', primaryColor);
@@ -205,7 +228,7 @@ export function AppearanceSettings() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          appearance: { theme, fontSize, layoutDensity, primaryColor, primaryColorDark: lighten(primaryColor, 0.35) },
+          appearance: { theme, themeVariant, fontSize, layoutDensity, primaryColor, primaryColorDark: lighten(primaryColor, 0.35) },
         }),
       });
 
@@ -293,6 +316,92 @@ export function AppearanceSettings() {
         </div>
       </div>
 
+      {/* Estilo del tema (variante secundaria) — con preview visual */}
+      <div className="pt-6 border-t border-[var(--border)]">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-5 h-5 text-[var(--primary)]" />
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">Estilo de tema</h2>
+        </div>
+        <p className="text-sm text-[var(--text-secondary)] mb-4">
+          Elige entre el tema estándar o el estilo papel manga para una experiencia de lectura más cálida y tradicional
+        </p>
+
+        <div className="grid grid-cols-2 gap-6">
+          {/* Standard preview */}
+          <button
+            onClick={() => handleThemeVariantChange('default')}
+            className={cn(
+              'p-4 rounded-lg border-2 text-left transition-all cursor-pointer group',
+              themeVariant === 'default'
+                ? 'border-[var(--primary)] bg-[var(--primary)]/10'
+                : 'border-[var(--border)] hover:border-[var(--border-strong)]'
+            )}
+          >
+            {/* Preview card */}
+            <div className="w-full h-28 rounded-lg border border-[var(--border)] bg-white dark:bg-[#141414] overflow-hidden mb-3 shadow-sm transition-all duration-200">
+              <div className="p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[var(--primary)]" />
+                  <div className="h-2 w-24 rounded bg-[var(--text-tertiary)]/30" />
+                </div>
+                <div className="h-2 w-full rounded bg-[var(--text-tertiary)]/20" />
+                <div className="h-2 w-3/4 rounded bg-[var(--text-tertiary)]/20" />
+                <div className="h-2 w-1/2 rounded bg-[var(--text-tertiary)]/20" />
+              </div>
+            </div>
+            <p className={cn(
+              'font-medium text-sm',
+              themeVariant === 'default' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
+            )}>
+              {t('theme.variantDefault')}
+            </p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              {t('theme.variantDefaultDesc')}
+            </p>
+            {themeVariant === 'default' && (
+              <Check className="w-4 h-4 mt-2 text-[var(--primary)]" />
+            )}
+          </button>
+
+          {/* Manga Paper preview */}
+          <button
+            onClick={() => handleThemeVariantChange('mangaPaper')}
+            className={cn(
+              'p-4 rounded-lg border-2 text-left transition-all cursor-pointer group relative overflow-hidden',
+              themeVariant === 'mangaPaper'
+                ? 'border-[var(--primary)] bg-[var(--primary)]/10'
+                : 'border-[var(--border)] hover:border-[var(--border-strong)]'
+            )}
+          >
+            {/* Preview card */}
+            <div className="w-full h-28 rounded-lg border border-[#cdc0b0] bg-[#f5efe4] dark:bg-[#231d17] dark:border-[#4a3e34] overflow-hidden mb-3 shadow-sm transition-all duration-200">
+              <div className="p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#8b5e3c]" />
+                  <div className="h-2 w-24 rounded bg-[#8a7a6a]/40 dark:bg-[#9a8a7a]/40" />
+                </div>
+                <div className="h-2 w-full rounded bg-[#8a7a6a]/30 dark:bg-[#9a8a7a]/30" />
+                <div className="h-2 w-3/4 rounded bg-[#8a7a6a]/30 dark:bg-[#9a8a7a]/30" />
+                <div className="h-2 w-1/2 rounded bg-[#5c4e3e]/30 dark:bg-[#b8aa98]/30" />
+              </div>
+            </div>
+            <p className={cn(
+              'font-medium text-sm',
+              themeVariant === 'mangaPaper' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
+            )}>
+              {t('theme.variantMangaPaper')}
+            </p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              {t('theme.variantMangaPaperDesc')}
+            </p>
+            {themeVariant === 'mangaPaper' && (
+              <Check className="w-4 h-4 mt-2 text-[var(--primary)]" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Color primario — con paleta de acentos cálidos si manga-paper está activo */}
       <div className="pt-6 border-t border-[var(--border)]">
         <div className="flex items-center gap-2 mb-4">
           <Paintbrush className="w-5 h-5 text-[var(--primary)]" />
@@ -318,6 +427,32 @@ export function AppearanceSettings() {
             />
           ))}
         </div>
+
+        {/* Manga-paper accent palette — visible when variant is active */}
+        {themeVariant === 'mangaPaper' && (
+          <div className="mb-4 p-3 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)]">
+            <p className="text-xs font-medium text-[var(--text-secondary)] mb-2 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3" />
+              {t('theme.variantAccentTitle')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {MANGA_PAPER_ACCENTS.map((accent) => (
+                <button
+                  key={accent.name}
+                  onClick={() => handlePrimaryColorChange(accent.light)}
+                  className={cn(
+                    'w-8 h-8 rounded-full border-2 transition-all cursor-pointer',
+                    primaryColor === accent.light
+                      ? 'border-[var(--text-primary)] scale-110 ring-2 ring-[var(--primary)]/30'
+                      : 'border-transparent hover:scale-110'
+                  )}
+                  style={{ backgroundColor: accent.light }}
+                  title={`${accent.name} (${accent.light})`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           <Input
@@ -447,11 +582,13 @@ export function AppearanceSettings() {
           <Button
             variant="outline"
               onClick={() => {
-                  setTheme('dark');
                   setThemeProvider('dark');
+                  setContextThemeVariant('default');
                   setFontSize('normal');
                   setLayoutDensity('normal');
                   setPrimaryColor(DEFAULT_COLOR);
+                  localStorage.setItem('fontSize', 'normal');
+                  localStorage.setItem('layoutDensity', 'normal');
                   localStorage.removeItem('primaryColor');
                   localStorage.removeItem('primaryColorDark');
                   applyPrimaryColor(DEFAULT_COLOR, DEFAULT_DARK);

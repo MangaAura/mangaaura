@@ -72,7 +72,14 @@ const staticRoutes = [
   { path: '/legal/privacy', priority: 0.4, changefreq: 'monthly' },
   { path: '/legal/terms', priority: 0.4, changefreq: 'monthly' },
   { path: '/legal/dmca', priority: 0.3, changefreq: 'monthly' },
-  { path: '/comparison', priority: 0.5, changefreq: 'monthly' },
+  { path: '/comparison', priority: 0.9, changefreq: 'weekly' },
+  { path: '/comparison/vs/webtoon', priority: 0.8, changefreq: 'weekly' },
+  { path: '/comparison/vs/manga-plus', priority: 0.8, changefreq: 'weekly' },
+  { path: '/comparison/vs/tapas', priority: 0.8, changefreq: 'weekly' },
+  { path: '/comparison/vs/shonen-jump', priority: 0.8, changefreq: 'weekly' },
+  { path: '/comparison/vs/mangadex', priority: 0.8, changefreq: 'weekly' },
+  { path: '/comparison/vs/inkr', priority: 0.8, changefreq: 'weekly' },
+
   { path: '/about-us', priority: 0.5, changefreq: 'monthly' },
 
   // Onboarding

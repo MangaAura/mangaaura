@@ -128,6 +128,15 @@ export default function DondeLeerMangaPage() {
             </div>
           </div>
 
+          <div className="text-center mt-8">
+            <Link
+              href="/comparison"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            >
+              Compara MangaAura vs Webtoon, Manga Plus y más →
+            </Link>
+          </div>
+
           <h2 className="text-2xl font-semibold mt-10 mb-4">¿Por qué elegir plataformas legales?</h2>
           <ul className="list-disc pl-5 space-y-2 text-fg-secondary">
             <li><strong>Seguridad:</strong> Sin malware, anuncios engañosos ni riesgos de phishing.</li>

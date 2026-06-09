@@ -17,6 +17,7 @@ import { ForumThreadClient } from './ForumThreadClient';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { DiscussionForumPostingStructuredData } from '@/components/SEO/StructuredData';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -114,9 +115,20 @@ export default async function ForumThreadPage({ params }: ForumThreadPageProps) 
   })();
 
   const canReply = !!(session?.user?.id);
+  const cleanContent = thread.content.replace(/<[^>]*>/g, '').slice(0, 500);
+  const authorName = thread.author?.displayName || thread.author?.username || '';
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <DiscussionForumPostingStructuredData
+        title={thread.title}
+        description={cleanContent.slice(0, 200)}
+        url={`/community/forum/${thread.slug}`}
+        authorName={authorName}
+        datePublished={thread.createdAt?.toISOString() || new Date().toISOString()}
+        articleBody={cleanContent.length > 200 ? cleanContent : undefined}
+      />
+      <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         {/* Back link */}
         <Link
@@ -222,5 +234,6 @@ export default async function ForumThreadPage({ params }: ForumThreadPageProps) 
         />
       </div>
     </div>
+    </>
   );
 }

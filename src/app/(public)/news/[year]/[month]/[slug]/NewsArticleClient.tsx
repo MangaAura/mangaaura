@@ -276,6 +276,30 @@ export function NewsArticleClient({
           </div>
         </Container>
 
+        {/* Comparison CTA */}
+        <Container size="small" className="pb-0">
+          <div className="max-w-[720px] mx-auto">
+            <div className="p-6 bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-accent-purple/10 border border-[var(--primary)]/20 rounded-xl">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
+                    {t('blog.compareTitle')}
+                  </h3>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">
+                    {t('blog.compareDescription')}
+                  </p>
+                </div>
+                <Link
+                  href="/comparison"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-accent-purple text-[var(--text-inverse)] font-semibold rounded-xl hover:opacity-90 transition-all whitespace-nowrap shrink-0"
+                >
+                  {t('nav.comparison')}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Container>
+
         {/* Related */}
         <Container className="pb-16 sm:pb-20">
           <RelatedArticles category={article.category} excludeId={article.id} />

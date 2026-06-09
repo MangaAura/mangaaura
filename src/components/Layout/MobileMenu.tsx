@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  Rss, MessageCircle, FolderOpen, Plus, Settings, X, Bell, Crown, LogOut, Medal,
+  Rss, MessageCircle, FolderOpen, Plus, Settings, X, Bell, Crown, LogOut, Medal, Coins,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -13,6 +13,7 @@ import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useT } from '@/i18n';
+import { useAuraBalance } from '@/hooks/useAuraBalance';
 
 interface MobileMenuProps {
   open: boolean;
@@ -30,6 +31,7 @@ export function MobileMenu({
 }: MobileMenuProps) {
   const pathname = usePathname();
   const t = useT();
+  const { auraBalance } = useAuraBalance();
   const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -74,6 +76,14 @@ export function MobileMenu({
             {mounted && isLoggedIn && (
               <>
                 <div className="my-2 border-t border-[var(--border)]" />
+
+                {auraBalance > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-600 dark:text-amber-400 bg-gradient-to-r from-amber-500/10 to-amber-600/5 border border-amber-500/20">
+                    <Coins className="w-5 h-5" aria-hidden="true" />
+                    <span className="font-bold">{auraBalance.toLocaleString()}</span>
+                    <span className="text-amber-500/70 dark:text-amber-400/70">{t('profile.aura')}</span>
+                  </div>
+                )}
 
                 <Link
                   href={localeHref(pathname, '/feed')}

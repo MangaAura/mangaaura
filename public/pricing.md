@@ -1,47 +1,37 @@
 # Pricing — MangaAura
 
-MangaAura is a platform for reading, discovering, and creating manga. This page lists all current pricing for Aura (in-app currency) packs and Premium subscriptions.
+## For Readers (Free)
+- Price: $0/month (free)
+- Features: Unlimited reading, personal library, reading progress sync across devices, XP and achievements, reading streaks, global rankings
+- Limits: None — all manga content is free to read
 
----
+## Aura Virtual Currency
+- 100 Aura: $1.00
+- 500 Aura: $4.50 (10% discount)
+- 1000 Aura: $8.00 (20% discount)
+- 5000 Aura: $35.00 (30% discount)
+- Payment method: Stripe (credit/debit card)
+- Use cases: Crowdfund chapters, tip creators, sponsor content, participate in events
 
-## Aura Packs (One-Time Purchase)
+## Premium Monthly
+- Price: $4.99/month
+- Features: Exclusive early-access chapters, ad-free reading, offline mode, premium badges, priority support
 
-Aura is the in-app currency used for tips, unlocking content, and supporting creators.
+## Premium Annual
+- Price: $49.99/year (save $10 compared to monthly)
+- Features: Same as Premium Monthly, plus annual badge, exclusive cosmetics
 
-| Pack | Aura | Price (USD) | Discount |
-|------|------|-------------|----------|
-| 100 Aura | 100 | $1.00 | — |
-| 500 Aura | 500 | $4.50 | 10% off |
-| 1000 Aura | 1000 | $8.50 | 15% off |
-| 5000 Aura | 5000 | $40.00 | 20% off |
+## For Creators (Free)
+- Price: $0/month (free)
+- Features: Creator dashboard, analytics, chapter upload with drag & drop, AI-powered description generation, automatic multi-language translation, crowdfunding system
+- Revenue: Creators keep 100% of crowdfunding and sponsorships — zero platform fees
+- Limits: No limits on series or chapters
 
-All Aura packs are one-time purchases. Aura never expires.
+## Sponsorships
+- Readers can sponsor creators directly with Aura
+- Sponsors get recognition badges and exclusive content access
+- No monthly subscription required for readers to sponsor
 
----
-
-## Premium Subscription
-
-Premium gives you access to exclusive chapters, ad-free reading, offline mode, and premium badges.
-
-| Plan | Price | Interval | Savings |
-|------|-------|----------|---------|
-| Premium Mensual | $4.99 | Monthly | — |
-| Premium Anual | $49.99 | Yearly | 2 months free (~$10 savings) |
-
-Premium features:
-- Exclusive chapters
-- Ad-free reading
-- Offline mode
-- Premium badges
-- Priority support (Annual only)
-
----
-
-## How to Purchase
-
-1. Create an account at https://mangaaura.es/auth/register
-2. Go to the pricing page at https://mangaaura.es/pricing
-3. Select your pack or subscription
-4. Complete payment via Stripe
-
-Contact: support@mangaaura.es
+## Payment Methods
+- Stripe (credit/debit cards)
+- Secure checkout at https://mangaaura.es/checkout

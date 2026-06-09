@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  BarChart3,
   BookOpen,
   Users,
   Trophy,
@@ -68,6 +69,7 @@ const footerLinks = {
     { labelKey: 'nav.rankings', href: '/rankings', icon: Trophy },
     { labelKey: 'nav.news', href: '/news', icon: CalendarDays },
     { labelKey: 'nav.pricing', href: '/pricing', icon: CreditCard },
+    { labelKey: 'nav.comparison', href: '/comparison', icon: BarChart3 },
     { labelKey: 'nav.community', href: '/community', icon: Users },
     { labelKey: 'nav.library', href: '/library', icon: Heart },
   ],

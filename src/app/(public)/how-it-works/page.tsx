@@ -399,6 +399,13 @@ export default async function ComoFuncionaPage() {
                 <Coins className="w-5 h-5" />
                 {t('page.howItWorks.ctaPricing')}
               </Link>
+              <Link
+                href="/comparison"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] font-bold rounded-xl hover:bg-[var(--surface-elevated)] transition-all"
+              >
+                <BookOpen className="w-5 h-5" />
+                {t('nav.comparison')}
+              </Link>
             </div>
           </div>
         </Container>

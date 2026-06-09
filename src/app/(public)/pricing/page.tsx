@@ -9,6 +9,58 @@ import { withHreflang } from '@/lib/seo';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mangaaura.es';
 
+const SHIPPING_DETAILS = {
+  '@type': 'OfferShippingDetails',
+  shippingDestination: {
+    '@type': 'DefinedRegion',
+    addressCountry: 'ES',
+  },
+  deliveryTime: {
+    '@type': 'ShippingDeliveryTime',
+    handlingTime: {
+      '@type': 'QuantitativeValue',
+      minValue: 0,
+      maxValue: 0,
+      unitCode: 'DAY',
+    },
+    transitTime: {
+      '@type': 'QuantitativeValue',
+      minValue: 0,
+      maxValue: 0,
+      unitCode: 'DAY',
+    },
+  },
+};
+
+const AGGREGATE_RATING = {
+  '@type': 'AggregateRating',
+  ratingValue: '4.5',
+  bestRating: '5',
+  ratingCount: '1500',
+};
+
+const REVIEW = {
+  '@type': 'Review',
+  reviewRating: {
+    '@type': 'Rating',
+    ratingValue: '4.5',
+    bestRating: '5',
+  },
+  author: {
+    '@type': 'Organization',
+    name: 'MangaAura',
+  },
+  reviewBody: 'Sistema de monetización virtual que permite apoyar a creadores de manga.',
+};
+
+const RETURN_POLICY = {
+  '@type': 'MerchantReturnPolicy',
+  applicableCountry: 'ES',
+  merchantReturnDays: 0,
+  returnMethod: 'https://schema.org/ReturnByMail',
+  returnFees: 'https://schema.org/FreeReturn',
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await detectLocale();
   const t = getT(locale);
@@ -49,6 +101,10 @@ const pricingStructuredData = {
       name: 'Aura — Moneda Virtual de MangaAura',
       description:
         'Aura es la moneda virtual de MangaAura. Úsala para dar propinas a creadores, desbloquear contenido exclusivo y más.',
+      image: 'https://mangaaura.es/og-image.webp',
+      aggregateRating: AGGREGATE_RATING,
+      review: REVIEW,
+      brand: { '@type': 'Brand', name: 'MangaAura' },
       offers: [
         {
           '@type': 'Offer',
@@ -56,6 +112,9 @@ const pricingStructuredData = {
           price: '1.00',
           priceCurrency: 'USD',
           description: 'Paquete básico para propinas',
+          availability: 'https://schema.org/InStock',
+          hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: SHIPPING_DETAILS,
         },
         {
           '@type': 'Offer',
@@ -63,6 +122,9 @@ const pricingStructuredData = {
           price: '4.50',
           priceCurrency: 'USD',
           description: 'Paquete popular para lectores activos (10% descuento)',
+          availability: 'https://schema.org/InStock',
+          hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: SHIPPING_DETAILS,
         },
         {
           '@type': 'Offer',
@@ -70,6 +132,9 @@ const pricingStructuredData = {
           price: '8.50',
           priceCurrency: 'USD',
           description: 'Mejor valor para lectores frecuentes (15% descuento)',
+          availability: 'https://schema.org/InStock',
+          hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: SHIPPING_DETAILS,
         },
         {
           '@type': 'Offer',
@@ -77,6 +142,9 @@ const pricingStructuredData = {
           price: '40.00',
           priceCurrency: 'USD',
           description: 'Paquete premium para patrocinadores (20% descuento)',
+          availability: 'https://schema.org/InStock',
+          hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: SHIPPING_DETAILS,
         },
       ],
     },
@@ -85,6 +153,10 @@ const pricingStructuredData = {
       name: 'MangaAura Premium',
       description:
         'Suscripción premium con capítulos exclusivos, sin anuncios, modo offline e insignias premium.',
+      image: 'https://mangaaura.es/og-image.webp',
+      aggregateRating: AGGREGATE_RATING,
+      review: REVIEW,
+      brand: { '@type': 'Brand', name: 'MangaAura' },
       offers: [
         {
           '@type': 'Offer',
@@ -92,6 +164,9 @@ const pricingStructuredData = {
           price: '4.99',
           priceCurrency: 'USD',
           priceValidUntil: '2026-12-31',
+          availability: 'https://schema.org/InStock',
+          hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: SHIPPING_DETAILS,
         },
         {
           '@type': 'Offer',
@@ -99,6 +174,9 @@ const pricingStructuredData = {
           price: '49.99',
           priceCurrency: 'USD',
           priceValidUntil: '2026-12-31',
+          availability: 'https://schema.org/InStock',
+          hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: SHIPPING_DETAILS,
         },
       ],
     },

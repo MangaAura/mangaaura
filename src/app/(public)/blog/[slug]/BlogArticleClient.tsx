@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Calendar, FileText, User } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, User, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 
 import { ShareButton } from '@/components/Share/ShareButton';
@@ -114,6 +114,27 @@ export function BlogArticleClient({ article, relatedArticles = [] }: Props) {
           </div>
         </section>
       )}
+
+      {/* Comparison CTA */}
+      <section className="mt-12 p-6 bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-accent-purple/10 border border-[var(--primary)]/20 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-bold text-[var(--text-primary)]">
+              {t('blog.compareTitle')}
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
+              {t('blog.compareDescription')}
+            </p>
+          </div>
+          <Link
+            href="/comparison"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-accent-purple text-[var(--text-inverse)] font-semibold rounded-xl hover:opacity-90 transition-all whitespace-nowrap shrink-0"
+          >
+            <BarChart3 className="w-4 h-4" />
+            {t('nav.comparison')}
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

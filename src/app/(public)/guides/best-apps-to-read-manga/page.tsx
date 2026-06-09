@@ -156,9 +156,12 @@ export default function MejoresAppsPage() {
             </div>
           </div>
 
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/explore" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-opacity">
               Explora mangas en MangaAura
+            </Link>
+            <Link href="/comparison" className="inline-flex items-center gap-2 px-6 py-3 border border-border text-fg-primary font-semibold rounded-xl hover:bg-muted transition-colors">
+              Compara alternativas a Webtoon y Manga Plus
             </Link>
           </div>
         </article>

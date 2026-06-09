@@ -248,6 +248,85 @@
   --fg-muted: var(--text-tertiary);
 }
 
+/* ── Manga Paper secondary theme ── */
+/* Warm, vintage paper tones reminiscent of physical manga volumes */
+
+.manga-paper {
+  --background: #f5efe4;
+  --foreground: #2a2118;
+  --surface: #faf5ec;
+  --surface-elevated: #fdfaf3;
+  --surface-sunken: #efe7d8;
+  --text-primary: #2a2118;
+  --text-secondary: #5c4e3e;
+  --text-tertiary: #8a7a6a;
+  --text-muted: #9a8a78;
+  --text-inverse: #f5efe4;
+  --border: #dcd0c0;
+  --border-subtle: #e8e0d4;
+  --border-strong: #cdc0b0;
+  --shadow-xs: 0 1px 2px rgba(42, 33, 24, 0.06);
+  --shadow-sm: 0 1px 3px rgba(42, 33, 24, 0.08), 0 1px 2px rgba(42, 33, 24, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(42, 33, 24, 0.08), 0 2px 4px -2px rgba(42, 33, 24, 0.05);
+  --shadow-lg:
+    0 10px 15px -3px rgba(42, 33, 24, 0.08), 0 4px 6px -4px rgba(42, 33, 24, 0.04);
+  --shadow-xl:
+    0 20px 25px -5px rgba(42, 33, 24, 0.08), 0 8px 10px -6px rgba(42, 33, 24, 0.04);
+  --shadow-glow: 0 0 20px
+    rgba(var(--primary-r), var(--primary-g), var(--primary-b), 0.12);
+  /* Warm accent palette for manga-paper variant */
+  --accent-blue: #8b7355;
+  --accent-blue-hover: #7a6348;
+  --accent-green: #6b7b3a;
+  --accent-purple: #7a5c6a;
+  --accent-purple-hover: #6a4e5c;
+  --accent-red: #8b3a3a;
+  --accent-orange: #9a6a3a;
+  --ink-glow: 0 0 20px rgba(139, 94, 60, 0.2);
+  --ink-glow-magenta: 0 0 20px rgba(122, 92, 106, 0.2);
+  --accent-gradient: linear-gradient(135deg, #8b5e3c, #7a5c6a);
+  --accent-gradient-2: linear-gradient(135deg, #6b7b3a, #8b7355);
+}
+
+.manga-paper.dark {
+  --background: #1a1510;
+  --foreground: #ece3d4;
+  --surface: #231d17;
+  --surface-elevated: #2b241d;
+  --surface-sunken: #15100d;
+  --text-primary: #ece3d4;
+  --text-secondary: #b8aa98;
+  --text-tertiary: #9a8a7a;
+  --text-muted: #8a7a6a;
+  --text-inverse: #1a1510;
+  --border: #3a3028;
+  --border-subtle: #2a241e;
+  --border-strong: #4a3e34;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.25);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 0 30px
+    rgba(var(--primary-r), var(--primary-g), var(--primary-b), 0.2);
+  /* Warm accent palette for manga-paper dark */
+  --accent-blue: #8b7355;
+  --accent-blue-hover: #7a6348;
+  --accent-green: #b8c878;
+  --accent-purple: #b89aa8;
+  --accent-purple-hover: #a88898;
+  --accent-red: #c86a6a;
+  --accent-orange: #c89a6a;
+  --ink-glow: 0 0 30px rgba(139, 94, 60, 0.15);
+  --ink-glow-magenta: 0 0 30px rgba(184, 154, 168, 0.15);
+  --accent-gradient: linear-gradient(135deg, #b47a5a, #b89aa8);
+  --accent-gradient-2: linear-gradient(135deg, #b8c878, #8b7355);
+}
+
 * {
   border-color: var(--border);
 }
@@ -267,6 +346,19 @@ body {
     color var(--transition-slow);
   /* Override Tailwind preflight vendor-prefixed properties with valid values */
   -webkit-text-size-adjust: 100%;
+}
+
+/* ── Smooth theme variant transitions — only when transitioning ── */
+/* The .theme-transitioning class is added to <html> when user changes the theme variant
+   and removed after the transition completes to avoid perf cost on every paint */
+html.theme-transitioning body,
+html.theme-transitioning .card,
+html.theme-transitioning .card-ghost,
+html.theme-transitioning button:not(.no-transition),
+html.theme-transitioning input,
+html.theme-transitioning select,
+html.theme-transitioning textarea {
+  transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 h1,

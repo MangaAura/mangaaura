@@ -9,7 +9,7 @@ import { AppFooter } from "@/components/Layout/AppFooter";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { Providers } from "@/components/Providers";
 import { PwaComponents } from '@/components/pwa/PwaComponents';
-import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/SEO/StructuredData';
+import { OrganizationStructuredData, WebsiteStructuredData, SoftwareApplicationStructuredData } from '@/components/SEO/StructuredData';
 import { detectLocale } from '@/i18n/server';
 import { ensureInfrastructure } from "@/infrastructure/init";
 import { validateEnv } from "@/lib/env";
@@ -52,7 +52,7 @@ const baseMetadata: Metadata = {
     languages: {
       'x-default': siteUrl,
       es: siteUrl,
-      en: siteUrl,
+      en: `${siteUrl}/en`,
     },
     types: {
       'application/rss+xml': `${siteUrl}/api/feed/rss`,
@@ -214,6 +214,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//blob.vercel-storage.com" />
         <WebsiteStructuredData />
         <OrganizationStructuredData />
+        <SoftwareApplicationStructuredData />
       </head>
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <script
@@ -231,7 +232,10 @@ export default async function RootLayout({
             <DynamicProviders>{children}</DynamicProviders>
           </Suspense>
         </Providers>
-      </body>
+      {process.env.NODE_ENV !== 'production' && (
+        <script src="http://127.0.0.1:8400/live.js" />
+      )}
+</body>
     </html>
   );
 }

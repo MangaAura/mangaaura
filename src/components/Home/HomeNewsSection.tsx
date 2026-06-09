@@ -45,15 +45,15 @@ const categoryAccent: Record<string, string> = {
 };
 
 const categoryBadgeSolid: Record<string, string> = {
-  community: 'bg-amber-600 text-white dark:bg-amber-600',
-  platform: 'bg-indigo-600 text-white dark:bg-indigo-500',
-  tools: 'bg-sky-600 text-white dark:bg-sky-500',
-  mobile: 'bg-emerald-600 text-white dark:bg-emerald-500',
-  contest: 'bg-rose-600 text-white dark:bg-rose-500',
-  comparison: 'bg-violet-600 text-white dark:bg-violet-500',
-  features: 'bg-green-600 text-white dark:bg-green-600',
-  technology: 'bg-cyan-600 text-white dark:bg-cyan-500',
-  creator: 'bg-orange-600 text-white dark:bg-orange-600',
+  community: 'bg-amber-800 text-white dark:bg-amber-400 dark:text-[var(--background)]',
+  platform: 'bg-indigo-700 text-white dark:bg-indigo-400 dark:text-[var(--background)]',
+  tools: 'bg-sky-800 text-white dark:bg-sky-400 dark:text-[var(--background)]',
+  mobile: 'bg-emerald-800 text-white dark:bg-emerald-400 dark:text-[var(--background)]',
+  contest: 'bg-rose-800 text-white dark:bg-rose-400 dark:text-[var(--background)]',
+  comparison: 'bg-violet-700 text-white dark:bg-violet-400 dark:text-[var(--background)]',
+  features: 'bg-green-800 text-white dark:bg-green-400 dark:text-[var(--background)]',
+  technology: 'bg-cyan-800 text-white dark:bg-cyan-400 dark:text-[var(--background)]',
+  creator: 'bg-orange-800 text-white dark:bg-orange-400 dark:text-[var(--background)]',
 };
 
 
@@ -109,12 +109,12 @@ export function HomeNewsSection({ articles = [] }: HomeNewsSectionProps) {
             {t('home.newsPageDesc')}
           </span>
         </div>
-        <Link href="/news" aria-label={t('common.viewAll') + ' noticias'} className="min-h-[44px] inline-flex items-center">
-          <Button variant="ghost" size="sm" className="group text-xs min-h-[44px] py-2.5">
+        <Button variant="ghost" size="sm" asChild className="min-h-[48px] group text-xs">
+          <Link href="/news" aria-label={t('common.viewAll') + ' noticias'}>
             {t('common.viewAll')}
             <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       {/* Featured article — hero card with cover image */}

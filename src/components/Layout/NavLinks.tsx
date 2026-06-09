@@ -2,7 +2,7 @@
 
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
-  BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
+  BarChart3, BookOpen, Compass, Trophy, MessageCircle, Users, Library, Shield,
   Bell, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
   Coins, Newspaper, Tags, CalendarDays, CreditCard,
 } from 'lucide-react';
@@ -28,6 +28,7 @@ export const ALL_NAV_LINKS: NavLinkDef[] = [
   { name: 'Blog', path: '/blog', iconName: 'Newspaper', i18nKey: 'nav.blog' },
   { name: 'Noticias', path: '/news', iconName: 'CalendarDays', i18nKey: 'nav.news' },
   { name: 'Precios', path: '/pricing', iconName: 'CreditCard', i18nKey: 'nav.pricing' },
+  { name: 'Comparativa', path: '/comparison', iconName: 'BarChart3', i18nKey: 'nav.comparison' },
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
@@ -48,6 +49,7 @@ export const MORE_NAV_LINKS: NavLinkDef[] = [
   { name: 'Blog', path: '/blog', iconName: 'Newspaper', i18nKey: 'nav.blog' },
   { name: 'Noticias', path: '/news', iconName: 'CalendarDays', i18nKey: 'nav.news' },
   { name: 'Precios', path: '/pricing', iconName: 'CreditCard', i18nKey: 'nav.pricing' },
+  { name: 'Comparativa', path: '/comparison', iconName: 'BarChart3', i18nKey: 'nav.comparison' },
   { name: 'Misiones', path: '/quests', iconName: 'Target', i18nKey: 'nav.quests' },
   { name: 'Foro', path: '/community/forum', iconName: 'MessageCircle', i18nKey: 'nav.forum' },
   { name: 'Comunidad', path: '/community', iconName: 'Users', i18nKey: 'nav.community' },
@@ -57,7 +59,7 @@ export const MORE_NAV_LINKS: NavLinkDef[] = [
 ];
 
 const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
-  BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
+  BarChart3, BookOpen, Compass, Trophy, Users, Library, Shield, Bell,
   MessageCircle, Plus, Rss, Calendar, FolderOpen, Settings, Sparkles, Search, Target,
   Coins, Newspaper, Tags, CalendarDays, CreditCard,
 };

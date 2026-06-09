@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 
 import { HomeContent } from '@/components/Home/HomeContent';
-import { BreadcrumbStructuredData, WebPageStructuredData } from '@/components/SEO/StructuredData';
+import { BreadcrumbStructuredData, FAQPageStructuredData, WebPageStructuredData } from '@/components/SEO/StructuredData';
 import { getT } from '@/i18n/getT';
 import { detectLocale } from '@/i18n/server';
 import { withCache, generateCacheKey, cacheConfig } from '@/lib/apiCache';
@@ -224,51 +223,28 @@ export default async function HomePage() {
 
   const { totalMangas, totalReaders, totalChapters } = stats;
 
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: '¿Qué es MangaAura?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `MangaAura es una plataforma de manga con IA que cuenta con más de ${totalMangas.toLocaleString()} series de manga, ${totalChapters.toLocaleString()} capítulos publicados y una comunidad activa de más de ${totalReaders.toLocaleString()} lectores. Puedes leer mangas gratis, crear tus propias series con herramientas de IA, crowdfundear capítulos usando Aura y ganar XP mientras lees.`,        },
-      },
-      {
-        '@type': 'Question',
-        name: '¿Cómo puedo crear mi propio manga?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Crear tu propio manga en MangaAura es sencillo: regístrate como creador, accede al panel de creador y sube tus capítulos con portada y descripción. MangaAura ofrece herramientas potenciadas por IA para generar descripciones automáticas, traducciones a múltiples idiomas y recomendaciones inteligentes que aumentan la visibilidad de tu obra entre los lectores.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: '¿Qué es Aura y cómo funciona?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Aura es la moneda virtual de MangaAura. Los lectores la usan para crowdfundear capítulos (apoyando económicamente a los creadores), dar propinas, patrocinar contenido exclusivo y participar en eventos especiales. Los creadores reciben Aura como recompensa por su trabajo, creando un ecosistema sostenible donde todos ganan.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: '¿Es gratis leer mangas en MangaAura?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Sí, leer mangas en MangaAura es completamente gratuito. Actualmente la plataforma alberga ${totalMangas.toLocaleString()} series con ${totalChapters.toLocaleString()} capítulos disponibles sin costo. Además, mientras lees acumulas XP, subes de nivel en más de 50 logros, mantienes rachas de lectura y apareces en los rankings globales. Todo 100% gratis, sin límites de lectura ni suscripciones obligatorias.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: '¿Cómo funciona el crowdfunding de capítulos?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'El crowdfunding en MangaAura permite a los lectores contribuir con Aura directamente a los capítulos que quieren ver publicados. Cada capítulo tiene una meta de financiamiento. Cuando la comunidad alcanza la meta, el capítulo se libera para todos los lectores. Este sistema permite a los creadores recibir apoyo directo de su audiencia mientras mantienen el contenido accesible para toda la comunidad.',
-        },
-      },
-    ],
-  };
+  const faqItems = [
+    {
+      question: '¿Qué es MangaAura?',
+      answer: `MangaAura es una plataforma de manga con IA que cuenta con más de ${totalMangas.toLocaleString()} series de manga, ${totalChapters.toLocaleString()} capítulos publicados y una comunidad activa de más de ${totalReaders.toLocaleString()} lectores. Puedes leer mangas gratis, crear tus propias series con herramientas de IA, crowdfundear capítulos usando Aura y ganar XP mientras lees.`,
+    },
+    {
+      question: '¿Cómo puedo crear mi propio manga?',
+      answer: 'Crear tu propio manga en MangaAura es sencillo: regístrate como creador, accede al panel de creador y sube tus capítulos con portada y descripción. MangaAura ofrece herramientas potenciadas por IA para generar descripciones automáticas, traducciones a múltiples idiomas y recomendaciones inteligentes que aumentan la visibilidad de tu obra entre los lectores.',
+    },
+    {
+      question: '¿Qué es Aura y cómo funciona?',
+      answer: 'Aura es la moneda virtual de MangaAura. Los lectores la usan para crowdfundear capítulos (apoyando económicamente a los creadores), dar propinas, patrocinar contenido exclusivo y participar en eventos especiales. Los creadores reciben Aura como recompensa por su trabajo, creando un ecosistema sostenible donde todos ganan.',
+    },
+    {
+      question: '¿Es gratis leer mangas en MangaAura?',
+      answer: `Sí, leer mangas en MangaAura es completamente gratuito. Actualmente la plataforma alberga ${totalMangas.toLocaleString()} series con ${totalChapters.toLocaleString()} capítulos disponibles sin costo. Además, mientras lees acumulas XP, subes de nivel en más de 50 logros, mantienes rachas de lectura y apareces en los rankings globales. Todo 100% gratis, sin límites de lectura ni suscripciones obligatorias.`,
+    },
+    {
+      question: '¿Cómo funciona el crowdfunding de capítulos?',
+      answer: 'El crowdfunding en MangaAura permite a los lectores contribuir con Aura directamente a los capítulos que quieren ver publicados. Cada capítulo tiene una meta de financiamiento. Cuando la comunidad alcanza la meta, el capítulo se libera para todos los lectores. Este sistema permite a los creadores recibir apoyo directo de su audiencia mientras mantienen el contenido accesible para toda la comunidad.',
+    },
+  ];
 
   // Preload the hero cover image (LCP element) for faster paint
   const heroCoverUrl = featuredManga?.coverUrl;
@@ -294,11 +270,7 @@ export default async function HomePage() {
           { name: 'Inicio', item: '/' },
         ]}
       />
-      <Script
-        id="faq-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <FAQPageStructuredData items={faqItems} />
       <HomeContent
         latestMangas={latestMangas.map(normalizeManga)}
         topMangas={topMangas.map(normalizeManga)}

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { NewsArticleClient } from './NewsArticleClient';
-import { ArticleStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import { NewsArticleStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 import { dbArticleToDisplayItem } from '@/lib/news';
 import { prisma } from '@/lib/prisma';
 import { withHreflang } from '@/lib/seo';
@@ -86,7 +86,7 @@ export default async function NewsArticlePage({ params }: Props) {
           { name: displayItem.title, item: canonical },
         ]}
       />
-      <ArticleStructuredData
+      <NewsArticleStructuredData
         title={`${displayItem.title} | MangaAura`}
         description={displayItem.description}
         url={`https://mangaaura.es${canonical}`}
@@ -94,6 +94,9 @@ export default async function NewsArticlePage({ params }: Props) {
         authorName={displayItem.authorName || 'MangaAura'}
         datePublished={dbArticle.publishedAt?.toISOString() || dbArticle.createdAt.toISOString()}
         dateModified={dbArticle.updatedAt?.toISOString()}
+        category={dbArticle.category || undefined}
+        keywords={['noticias manga', 'manga', dbArticle.category || 'noticias', displayItem.title]}
+        wordCount={displayItem.description?.split(' ').length || 0}
       />
       <NewsArticleClient article={displayItem} />
     </>

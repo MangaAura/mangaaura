@@ -59,6 +59,27 @@ export function DiscoverClient({ trending, recent, topRated, featuredManga }: Di
       <Section title="Tendencias" icon={<TrendingUp size={18} className="text-accent-red" />} manga={trending} />
       <Section title="Mejor calificados" icon={<Star size={18} className="text-[var(--warning)]" />} manga={topRated} />
       <Section title="Recién agregados" icon={<Clock size={18} className="text-accent-blue" />} manga={recent} />
+
+      {/* Comparison CTA */}
+      <section className="mb-10 p-6 bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-accent-purple/10 border border-[var(--primary)]/20 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">
+              ¿Te preguntas cómo se compara MangaAura con Webtoon, Manga Plus y otras plataformas?
+            </h2>
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
+              Descubre nuestra comparativa detallada con todas las características.
+            </p>
+          </div>
+          <Link
+            href="/comparison"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-accent-purple text-[var(--text-inverse)] font-semibold rounded-xl hover:opacity-90 transition-all whitespace-nowrap shrink-0"
+          >
+            Ver comparativa
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

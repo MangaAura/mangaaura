@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Trophy, TrendingUp, Clock, Sparkles } from 'lucide-react';
+import { Trophy, TrendingUp, Clock, Sparkles, BarChart3 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -132,10 +132,11 @@ export function HomePageClient({
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="text-[var(--warning)]" /> {t('home.topMangas')}
             </h2>
-            <Link href="/rankings">                  <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" asChild className="min-h-[48px]">
+              <Link href="/rankings">
                 {t('common.viewAll')}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {topMangas.map((manga: MangaSummary, index: number) => (
@@ -169,11 +170,11 @@ export function HomePageClient({
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                   <Clock className="text-accent-blue" /> {t('home.latestUpdates')}
                 </h2>
-                <Link href="/explore">
-                  <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" asChild className="min-h-[48px]">
+                  <Link href="/explore">
                     {t('home.viewAllMangas')}
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {updatingMangas.map((manga: MangaSummary) => (
@@ -255,7 +256,7 @@ export function HomePageClient({
                     ))}
                   </div>
                   <Link href="/rankings">
-                    <Button variant="outline" className="w-full mt-4">
+                    <Button variant="outline" className="w-full mt-4 h-12">
                       {t('home.viewFullRankings')}
                     </Button>
                   </Link>
@@ -297,16 +298,14 @@ export function HomePageClient({
               </CardContent>
               <CardFooter>
                 <Link href="/discover" className="w-full">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full h-12">
                     {t('home.viewAllNewReleases')}
                   </Button>
                 </Link>
               </CardFooter>
             </Card>
           </div>
-        </div>
-
-        {/* CTA Creator */}
+        </div>          {/* CTA Creator */}
         <section className="relative bg-gradient-to-r from-accent-purple/20 via-accent-purple/10 to-accent-blue/20 dark:from-accent-purple/30 dark:via-accent-purple/15 dark:to-accent-blue/20 border border-accent-purple/30 dark:border-accent-purple/50 rounded-2xl p-8 md:p-12 overflow-hidden">
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-purple/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
@@ -321,11 +320,32 @@ export function HomePageClient({
               </div>
               <Link
                 href={ctaHref}
-                className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-[var(--text-inverse)] cursor-pointer"
+                className="inline-flex items-center justify-center min-h-[48px] px-8 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-[var(--text-inverse)] cursor-pointer"
                 style={{ background: 'linear-gradient(to right, var(--accent-purple), var(--primary))' }}
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 {ctaLabel}
+              </Link>
+            </div>
+          </section>
+
+          {/* Comparison CTA */}
+          <section className="relative bg-gradient-to-r from-[var(--primary)]/10 via-transparent to-accent-purple/10 border border-[var(--primary)]/20 rounded-2xl p-8 md:p-12 overflow-hidden">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">
+                  Comparativa de plataformas
+                </h2>
+                <p className="text-muted">
+                  ¿Te preguntas cómo se compara MangaAura con Webtoon, Manga Plus y otras plataformas? Descubre nuestra comparativa detallada.
+                </p>
+              </div>
+              <Link
+                href="/comparison"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-accent-purple text-[var(--text-inverse)] font-bold rounded-xl hover:opacity-90 transition-all hover:scale-105 shrink-0"
+              >
+                <BarChart3 className="w-5 h-5" />
+                {t('nav.comparison')}
               </Link>
             </div>
           </section>

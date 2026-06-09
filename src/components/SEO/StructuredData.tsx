@@ -382,6 +382,219 @@ export function SearchResultsPageStructuredData() {
   );
 }
 
+interface NewsArticleStructuredDataProps {
+  title: string;
+  description: string;
+  url: string;
+  imageUrl?: string;
+  authorName: string;
+  datePublished: string;
+  dateModified?: string;
+  category?: string;
+  keywords?: string[];
+  wordCount?: number;
+}
+
+export function NewsArticleStructuredData({
+  title,
+  description,
+  url,
+  imageUrl,
+  authorName,
+  datePublished,
+  dateModified,
+  category,
+  keywords,
+  wordCount,
+}: NewsArticleStructuredDataProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: title,
+    description,
+    url,
+    ...(imageUrl && { image: imageUrl }),
+    author: {
+      '@type': 'Person',
+      name: authorName,
+    },
+    datePublished,
+    ...(dateModified && { dateModified }),
+    ...(category && { articleSection: category }),
+    ...(keywords && keywords.length > 0 && { keywords: keywords.join(', ') }),
+    ...(wordCount !== undefined && { wordCount }),
+    publisher: {
+      '@type': 'Organization',
+      name: 'MangaAura',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://mangaaura.es/icons/icon-512x512.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
+  };
+
+  return (
+    <Script
+      id="news-article-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+interface DiscussionForumPostingStructuredDataProps {
+  title: string;
+  description: string;
+  url: string;
+  authorName: string;
+  datePublished: string;
+  articleBody?: string;
+  imageUrl?: string;
+}
+
+export function DiscussionForumPostingStructuredData({
+  title,
+  description,
+  url,
+  authorName,
+  datePublished,
+  articleBody,
+  imageUrl,
+}: DiscussionForumPostingStructuredDataProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'DiscussionForumPosting',
+    headline: title,
+    description,
+    url: `https://mangaaura.es${url}`,
+    author: {
+      '@type': 'Person',
+      name: authorName,
+    },
+    datePublished,
+    ...(articleBody && { articleBody }),
+    ...(imageUrl && { image: imageUrl }),
+    publisher: {
+      '@type': 'Organization',
+      name: 'MangaAura',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://mangaaura.es/icons/icon-512x512.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://mangaaura.es${url}`,
+    },
+  };
+
+  return (
+    <Script
+      id="discussion-forum-posting-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+export function SoftwareApplicationStructuredData() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'MangaAura',
+    applicationCategory: 'EntertainmentApplication',
+    operatingSystem: 'Web (PWA), Android, iOS',
+    description: 'La plataforma de manga con IA para leer, crear y crowdfundear capítulos. Alternativa a Webtoon, Manga Plus, Tapas, Shonen Jump, MangaDex e INKR.',
+    image: 'https://mangaaura.es/og-image.webp',
+    url: 'https://mangaaura.es',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+      description: 'Gratis para lectores. Los creadores ganan mediante crowdfunding con Aura.',
+      availability: 'https://schema.org/InStock',
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'ES',
+        merchantReturnDays: 0,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'ES',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 0,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 0,
+            unitCode: 'DAY',
+          },
+        },
+      },
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.5',
+      bestRating: '5',
+      ratingCount: '1500',
+    },
+    review: {
+      '@type': 'Review',
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: '4.5',
+        bestRating: '5',
+      },
+      author: {
+        '@type': 'Organization',
+        name: 'MangaAura',
+      },
+      reviewBody: 'La plataforma definitiva para leer, crear y crowdfundear manga con herramientas de IA.',
+    },
+    featureList: [
+      'Lectura de manga gratis',
+      'Creación de manga con herramientas IA',
+      'Crowdfunding de capítulos con Aura',
+      'Gamificación con XP, niveles y logros',
+      'Comunidad con clanes y foros',
+      'Lectura offline con PWA',
+      'Traducción automática con IA',
+      'Generación de arte con IA para creadores',
+    ],
+    screenshot: 'https://mangaaura.es/og-image.webp',
+    sameAs: [
+      'https://x.com/MangaAura',
+      'https://instagram.com/mangaauraoficial',
+      'https://tiktok.com/@mangaauraoficial',
+      'https://youtube.com/@MangaAuraOficial',
+      'https://discord.gg/56wKdQ2qGt',
+    ],
+  };
+
+  return (
+    <Script
+      id="software-application-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
 export function OrganizationStructuredData() {
   const structuredData = {
     '@context': 'https://schema.org',

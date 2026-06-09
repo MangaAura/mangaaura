@@ -909,7 +909,12 @@
     "dark": "Dark",
     "system": "System",
     "switchToLight": "Switch to light mode",
-    "switchToDark": "Switch to dark mode"
+    "switchToDark": "Switch to dark mode",
+    "variantDefault": "Standard",
+    "variantMangaPaper": "Manga Paper",
+    "variantDefaultDesc": "Modern interface",
+    "variantMangaPaperDesc": "Vintage tone",
+    "variantAccentTitle": "Warm accents for Manga Paper"
   },
   "time": {
     "now": "Now",
@@ -2266,7 +2271,9 @@
         "tabPreview": "Preview",
         "tabFullscreen": "Fullscreen",
         "tabExitFullscreen": "Exit",
-        "formRequired": "Please fill in all required fields (title, excerpt, and content)"
+        "formRequired": "Please fill in all required fields (title, excerpt, and content)",
+        "compareTitle": "Looking for alternatives to Webtoon or Manga Plus?",
+        "compareDescription": "See how MangaAura stacks up against other manga platforms in our full comparison guide."
       },
       "webhooks": {
         "title": "Webhooks",
@@ -2897,28 +2904,29 @@
     "feature": {
       "freeReading": "Free reading",
       "offlineReading": "Offline reading",
-      "pwa": "PWA / Mobile app",
+      "pwa": "PWA & mobile app",
       "aiRecs": "AI recommendations",
-      "syncProgress": "Reading progress sync",
-      "gamification": "Gamification (XP, levels, streaks)",
-      "community": "Community (forums, clans, events)",
-      "adFree": "Ad-free option",
+      "syncProgress": "Sync progress",
+      "gamification": "Gamification",
+      "community": "Community",
+      "adFree": "Ad-free",
       "multiLanguage": "Multi-language",
-      "darkMode": "Dark mode / themes",
+      "darkMode": "Dark mode",
       "openPublishing": "Open publishing",
       "aiArt": "AI art tools",
       "aiTranslate": "AI translation",
-      "analytics": "Creator analytics",
-      "directFunding": "Direct reader funding",
-      "tipping": "Tipping / Donations",
-      "crowdfunding": "Crowdfunding / Sponsorships",
-      "revenueShare": "Revenue sharing"
+      "analytics": "Analytics",
+      "directFunding": "Direct funding",
+      "tipping": "Tipping",
+      "crowdfunding": "Crowdfunding",
+      "revenueShare": "Revenue share"
     },
     "yes": "Yes",
     "no": "No",
     "limited": "Limited",
     "comingSoon": "Coming soon",
     "footerText": "Data updated May 2026. Features may vary by region and platform version.",
+    "scrollHint": "Swipe to see more platforms",
     "advantagesTitle": "What makes MangaAura unique",
     "advantagesSubtitle": "Features you won't find anywhere else",
     "advantageAI": "AI-powered creation",
@@ -2938,17 +2946,6 @@
     "platformWebtoonDesc": "Leading webcomic platform with CANVAS for independent creators. Massive existing audience.",
     "platformTapasDesc": "Webcomic and novel platform with monetization tools for creators. Open submission.",
     "platformInkrDesc": "Premium curated comic platform with AI-powered translation technology.",
-    "creation.feature.aiArt": "AI Art tools",
-    "creation.feature.crowdfunding": "Crowdfunding",
-    "creation.feature.gamification": "Gamification",
-    "platform.mangaplus.simulpub": "Simultaneous releases",
-    "platform.mangaplus.official": "Official titles",
-    "platform.webtoon.canvas": "Canvas open",
-    "platform.webtoon.audience": "Large audience",
-    "platform.taps.open": "Open platform",
-    "platform.taps.monetization": "Monetization",
-    "platform.inkr.aitranslate": "AI translate",
-    "platform.inkr.curated": "Curated",
     "faqTitle": "Comparison FAQ",
     "faqSubtitle": "Common questions about how MangaAura compares to other platforms.",
     "faq1Q": "Is MangaAura really free?",
@@ -2962,7 +2959,41 @@
     "ctaTitle": "Ready to see the difference?",
     "ctaSubtitle": "Create your free account and discover a platform built for both readers and creators.",
     "ctaButton": "Create free account",
-    "ctaExplore": "Explore manga"
+    "ctaExplore": "Explore manga",
+    "faq5Q": "Is MangaAura a good alternative to Webtoon?",
+    "faq5A": "Yes. MangaAura is an excellent alternative to Webtoon, especially for creators. It offers AI tools for manga creation and translation, chapter crowdfunding with Aura (zero platform fees for creators), gamification with XP and clans, and offline reading via PWA. While Webtoon has a larger audience, MangaAura provides more creator tools and better revenue potential.",
+    "faq6Q": "What advantages does MangaAura have over Manga Plus?",
+    "faq6A": "Shueisha's Manga Plus is great for reading official Shonen Jump manga, but doesn't allow publishing your own works or offer AI tools. MangaAura lets you both read AND create manga, includes generative AI for art and translation, has a crowdfunding system where creators keep 100%, and offers full gamification with levels, achievements, and clans. MangaAura also has offline PWA reading.",
+    "faq7Q": "How is MangaAura different from Tapas?",
+    "faq7A": "Tapas allows webcomic publishing and tipping monetization, but MangaAura goes further with AI creator tools (art generation, auto-translation), zero-commission chapter crowdfunding, and a complete gamification system with XP, levels, and clans. MangaAura is also 100% free for readers with no locked episode models.",
+    "bestFor": "Ideal para",
+    "tradeoffs": "Consideraciones",
+    "featureLabel": "Característica",
+    "creation": {
+      "feature": {
+        "aiArt": "AI Art tools",
+        "crowdfunding": "Crowdfunding",
+        "gamification": "Gamification"
+      }
+    },
+    "platform": {
+      "mangaplus": {
+        "simulpub": "Simultaneous releases",
+        "official": "Official titles"
+      },
+      "webtoon": {
+        "canvas": "Canvas open",
+        "audience": "Large audience"
+      },
+      "taps": {
+        "open": "Open platform",
+        "monetization": "Monetization"
+      },
+      "inkr": {
+        "aitranslate": "AI translate",
+        "curated": "Curated"
+      }
+    }
   },
   "pricing": {
     "heroBadge": "Transparent pricing",
@@ -4121,10 +4152,36 @@
       "twitterDescription": "Buy Aura to support your favorite creators or subscribe to Premium."
     },
     "comparison": {
-      "title": "MangaAura vs Other Platforms | 2026 Comparison",
-      "description": "We compare MangaAura with Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex and INKR. Discover which platform offers more for manga readers and creators.",
-      "ogDescription": "We compare MangaAura with the leading manga platforms: Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex and INKR. Features for readers and creators.",
-      "twitterDescription": "Discover how MangaAura compares with other manga platforms. The most comprehensive comparison for readers and creators."
+      "title": "Alternatives to Webtoon and MangaPlus | MangaAura Comparison 2026",
+      "description": "Discover the best alternatives to Webtoon, Manga Plus and other manga platforms. We compare MangaAura with Manga Plus, Webtoon, Tapas, Shonen Jump, MangaDex and INKR for readers and creators.",
+      "ogDescription": "Looking for alternatives to Webtoon, Manga Plus and other manga platforms? We compare MangaAura with all the leading platforms for readers and creators.",
+      "twitterDescription": "Looking for alternatives to Webtoon or Manga Plus? See how MangaAura stacks up against the top manga platforms. The ultimate comparison guide for readers and creators.",
+      "vs": {
+        "webtoon": {
+          "title": "MangaAura vs Webtoon: Which is better for reading and creating manga?",
+          "description": "Detailed comparison between MangaAura and Webtoon. We analyze reader and creator features: AI tools, gamification, crowdfunding, monetization and more."
+        },
+        "manga-plus": {
+          "title": "MangaAura vs Manga Plus: Manga platform comparison",
+          "description": "MangaAura or Manga Plus by Shueisha? We compare free reading, catalog, creator tools, gamification and crowdfunding."
+        },
+        "tapas": {
+          "title": "MangaAura vs Tapas: Which webcomic platform should you choose?",
+          "description": "Comparison between MangaAura and Tapas. We analyze creator monetization, AI tools, free reading, community and more."
+        },
+        "shonen-jump": {
+          "title": "MangaAura vs Shonen Jump: Free alternative to Viz Media subscription",
+          "description": "Is Shonen Jump worth it or is MangaAura better? We compare price, catalog, AI tools, crowdfunding and gamification."
+        },
+        "mangadex": {
+          "title": "MangaAura vs MangaDex: Community manga platform comparison",
+          "description": "MangaAura vs MangaDex: Which is better for reading and creating manga? We compare legality, AI tools, creator monetization and community."
+        },
+        "inkr": {
+          "title": "MangaAura vs INKR: AI-powered comic platform comparison",
+          "description": "MangaAura vs INKR Comics: Two platforms with AI but different approaches. We compare free reading, creation tools, catalog and monetization."
+        }
+      }
     },
     "userNotFound": {
       "title": "User not found"

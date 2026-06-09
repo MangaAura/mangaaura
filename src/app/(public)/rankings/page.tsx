@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Script from 'next/script';
 
 import RankingsClient from './RankingsClient';
 import { getT } from '@/i18n/getT';
@@ -160,10 +161,52 @@ export default async function RankingsPage() {
   const session = await auth();
   const leaderboards = await getLeaderboards();
 
+  const itemListData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Rankings MangaAura',
+    description: 'Los mejores lectores, creadores, clanes y mangas de la comunidad MangaAura.',
+    url: 'https://mangaaura.es/rankings',
+    numberOfItems: leaderboards.readers.length + leaderboards.creators.length + leaderboards.clans.length + leaderboards.manga.length,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Top Lectores',
+        description: 'Los 50 lectores con más XP en MangaAura',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Top Creadores',
+        description: 'Los 50 creadores más vistos en MangaAura',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'Top Clanes',
+        description: 'Los 50 clanes con más puntuación en MangaAura',
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: 'Manga Tendencia',
+        description: 'Los 50 mangas más vistos en MangaAura',
+      },
+    ],
+  };
+
   return (
-    <RankingsClient 
-      leaderboards={leaderboards}
-      currentUserId={session?.user?.id}
-    />
+    <>
+      <Script
+        id="rankings-itemlist-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListData) }}
+      />
+      <RankingsClient 
+        leaderboards={leaderboards}
+        currentUserId={session?.user?.id}
+      />
+    </>
   );
 }
