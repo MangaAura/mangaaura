@@ -112,7 +112,7 @@ export function ReadingHistoryClient({ progress }: { progress: ReadingEntry[] })
           </Link>
           <div className="divide-y divide-custom">
             {chapters.map((entry) => (
-              <Link key={entry.id} href={`/manga/${manga.slug}/${entry.chapter.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-tertiary transition-colors group/link">
+              <Link key={entry.id} href={`/${manga.slug}-${entry.chapter.chapterNumber}`} className="flex items-center justify-between px-4 py-3 hover:bg-tertiary transition-colors group/link">
                 <div className="flex items-center gap-3 min-w-0">
                   {entry.completed ? (
                     <CheckCircle size={16} className="shrink-0 text-accent-green" />

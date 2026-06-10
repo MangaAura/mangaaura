@@ -86,7 +86,7 @@ function BidCard({ bid, type }: { bid: BidData; type: 'active' | 'won' | 'histor
   const statusIcon = type === 'active' ? <Crown size={16} className="text-[var(--warning)]" /> : type === 'won' ? <CheckCircle2 size={16} className="text-accent-green" /> : <XCircle size={16} className="text-muted" />;
 
   return (
-    <Link href={`/manga/${bid.chapter.manga.slug}/${bid.chapter.id}`} className="block bg-secondary border border-custom rounded-xl p-4 hover:bg-tertiary transition-colors">
+    <Link href={`/${bid.chapter.manga.slug}-${bid.chapter.chapterNumber}`} className="block bg-secondary border border-custom rounded-xl p-4 hover:bg-tertiary transition-colors">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">

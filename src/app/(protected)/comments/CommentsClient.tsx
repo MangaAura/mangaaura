@@ -89,7 +89,7 @@ export function CommentsClient({ comments }: { comments: CommentData[] }) {
         filtered.map((comment) => (
           <div key={comment.id} className="bg-secondary border border-custom rounded-xl p-4">
             <div className="flex items-start justify-between gap-3 mb-2">
-              <Link href={`/manga/${comment.chapter.manga.slug}/${comment.chapter.id}`} className="flex items-center gap-2 text-sm text-muted hover:text-accent-blue transition-colors min-w-0">
+              <Link href={`/${comment.chapter.manga.slug}-${comment.chapter.chapterNumber}`} className="flex items-center gap-2 text-sm text-muted hover:text-accent-blue transition-colors min-w-0">
                 <span className="font-semibold truncate">{comment.chapter.manga.title}</span>
                 <span className="shrink-0">· Cap. {comment.chapter.chapterNumber}</span>
                 <ExternalLink size={12} className="shrink-0" />
