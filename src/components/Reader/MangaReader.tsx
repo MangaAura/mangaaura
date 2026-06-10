@@ -181,7 +181,7 @@ export const MangaReader = memo(function MangaReader({
   }, []);
 
   const navigateToChapter = useCallback((chapterNum: number) => {
-    router.push(`/manga/${mangaSlug}/${chapterNum}`);
+    router.push(`/${mangaSlug}-${chapterNum}`);
   }, [router, mangaSlug]);
 
   // Preload adjacent pages
@@ -358,7 +358,7 @@ export const MangaReader = memo(function MangaReader({
         setCurrentPage(next);
         setVisiblePage(next);
       } else if (nextChapter && !continuousReading) {
-        window.location.href = `/manga/${mangaSlug}/${nextChapter.chapterNumber}`;
+        window.location.href = `/${mangaSlug}-${nextChapter.chapterNumber}`;
       }
     } else if (currentPage < pages.length - step) {
       setCurrentPage(p => p + step);
@@ -366,7 +366,7 @@ export const MangaReader = memo(function MangaReader({
       scrollToTop();
       setIsLoading(true);
     } else if (nextChapter && !continuousReading) {
-      window.location.href = `/manga/${mangaSlug}/${nextChapter.chapterNumber}`;
+      window.location.href = `/${mangaSlug}-${nextChapter.chapterNumber}`;
     }
   }, [currentPage, pages.length, nextChapter, mangaSlug, scrollToTop, viewMode, scrollMode, continuousReading, navigateToChapter]);
 
@@ -380,7 +380,7 @@ export const MangaReader = memo(function MangaReader({
         setCurrentPage(prev);
         setVisiblePage(prev);
       } else if (prevChapter) {
-        window.location.href = `/manga/${mangaSlug}/${prevChapter.chapterNumber}`;
+        window.location.href = `/${mangaSlug}-${prevChapter.chapterNumber}`;
       }
     } else if (currentPage >= step) {
       setCurrentPage(p => p - step);
@@ -388,7 +388,7 @@ export const MangaReader = memo(function MangaReader({
       scrollToTop();
       setIsLoading(true);
     } else if (prevChapter) {
-      window.location.href = `/manga/${mangaSlug}/${prevChapter.chapterNumber}`;
+      window.location.href = `/${mangaSlug}-${prevChapter.chapterNumber}`;
     }
   }, [currentPage, prevChapter, mangaSlug, scrollToTop, viewMode, scrollMode]);
 
@@ -1160,7 +1160,7 @@ export const MangaReader = memo(function MangaReader({
 
             <div className="flex items-center gap-2">
               {prevChapter && (
-                <Link href={`/manga/${mangaSlug}/${prevChapter.chapterNumber}`}>
+                <Link href={`/${mangaSlug}-${prevChapter.chapterNumber}`}>
                   <Button variant="ghost" size="sm" aria-label="Capítulo anterior">
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
@@ -1199,7 +1199,7 @@ export const MangaReader = memo(function MangaReader({
                 <ChevronRight className="w-5 h-5" />
               </ControlButton>
               {nextChapter && (
-                <Link href={`/manga/${mangaSlug}/${nextChapter.chapterNumber}`}>
+                <Link href={`/${mangaSlug}-${nextChapter.chapterNumber}`}>
                   <Button variant="ghost" size="sm">
                     <ChevronRight className="w-4 h-4" />
                     Siguiente
