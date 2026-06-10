@@ -16,7 +16,6 @@ import {
   Menu,
   Columns,
   LayoutList,
-  HelpCircle,
   MousePointerClick,
   Crown,
   Type,
@@ -45,7 +44,6 @@ import { StarRating } from '@/components/ui/StarRating';
 import { useAutoSaveProgress } from '@/hooks/useReadingProgress';
 import { cn } from '@/lib/utils';
 
-const QuizPopup = dynamic(() => import('@/components/Reader/QuizPopup'), { ssr: false });
 const SponsorshipModal = dynamic(() => import('@/components/Reader/SponsorshipModal'), { ssr: false });
 const MemeGeneratorModal = dynamic(() => import('@/components/Reader/MemeGeneratorModal'), { ssr: false });
 
@@ -120,7 +118,6 @@ export const MangaReader = memo(function MangaReader({
     if (typeof window === 'undefined') return false;
     try { return localStorage.getItem('mangaaura-oled-mode') === 'true'; } catch { return false; }
   });
-  const [showQuiz, setShowQuiz] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showSponsor, setShowSponsor] = useState(false);
   const [showMeme, setShowMeme] = useState(false);
@@ -499,7 +496,6 @@ export const MangaReader = memo(function MangaReader({
         }
         setShowHelp(false);
         setShowSettings(false);
-        setShowQuiz(false);
         setShowEditor(false);
         setShowSponsor(false);
         setShowMeme(false);
@@ -832,9 +828,6 @@ export const MangaReader = memo(function MangaReader({
               </ControlButton>
             )}
 
-            <ControlButton onClick={() => setShowQuiz(true)} title="Pop Quiz" aria-label="Pop Quiz">
-              <HelpCircle className="w-5 h-5" />
-            </ControlButton>
             <ControlButton onClick={() => setShowEditor(true)} title="Modo Edición" aria-label="Modo Edición">
               <MousePointerClick className="w-5 h-5" />
             </ControlButton>
@@ -1593,13 +1586,6 @@ export const MangaReader = memo(function MangaReader({
         </div>
       </FocusLock>
       )}
-
-      <QuizPopup
-        isOpen={showQuiz}
-        onClose={() => setShowQuiz(false)}
-        chapterTitle={`${mangaTitle} - Capítulo ${chapterNumber}`}
-        chapterId={chapterId}
-      />
 
       <EditorModeOverlay
         isOpen={showEditor}

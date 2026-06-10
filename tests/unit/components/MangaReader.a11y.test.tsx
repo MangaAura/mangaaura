@@ -65,11 +65,6 @@ vi.mock('@/components/Image/OptimizedImage', () => ({
 }));
 
 // Mock dynamic imports
-vi.mock('@/components/Reader/QuizPopup', () => ({
-  default: ({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? <div data-testid="quiz-popup">Quiz</div> : null,
-}));
-
 vi.mock('@/components/Reader/SponsorshipModal', () => ({
   default: ({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <div data-testid="sponsorship-modal">Sponsor</div> : null,

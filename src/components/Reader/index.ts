@@ -13,7 +13,6 @@ export { default as MangaReader } from './MangaReader';
 export { default as PartyReader } from './PartyReader';
 export { default as ReaderViewer } from './ReaderViewer';
 export { default as MemeGeneratorModal } from './MemeGeneratorModal';
-export { default as QuizPopup } from './QuizPopup';
 export { default as SponsorshipModal } from './SponsorshipModal';
 export { default as EditorModeOverlay } from './EditorModeOverlay';
 
