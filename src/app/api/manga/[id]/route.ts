@@ -4,6 +4,7 @@ import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { safeJsonParse } from '@/lib/utils';
 
 // Helper para generar slug
 function generateSlug(title: string): string {
@@ -63,7 +64,7 @@ export async function GET(
         description: manga.description,
         coverUrl: manga.coverUrl,
         status: manga.status,
-        tags: manga.tags ? JSON.parse(manga.tags) : [],
+        tags: safeJsonParse<string[]>(manga.tags, []),
         authorId: manga.authorId,
         authorName: manga.authorName,
         rating: manga.rating,
@@ -244,7 +245,7 @@ export async function PUT(
         description: updated.description,
         coverUrl: updated.coverUrl,
         status: updated.status,
-        tags: updated.tags ? JSON.parse(updated.tags) : [],
+        tags: safeJsonParse<string[]>(updated.tags, []),
         authorId: updated.authorId,
         authorName: updated.authorName,
         rating: updated.rating,

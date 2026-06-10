@@ -32,5 +32,12 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "tests", "scripts", "open-design", "redis-backup"]
+  "exclude": [
+    "node_modules",
+    "tests",
+    "scripts",
+    "open-design",
+    "redis-backup",
+    "_trash"
+  ]
 }

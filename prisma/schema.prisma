@@ -131,6 +131,7 @@ model User {
   mangaCollaborators MangaCollaborator[]
   webhookEndpoints   WebhookEndpoint[]
   bookmarks          Bookmark[]
+  mangaAnnouncements MangaAnnouncement[]
   newsArticles       NewsArticle[]
   reposts          Repost[]           @relation("Reposts")
   announcements    Announcement[]
@@ -240,6 +241,7 @@ model MangaSeries {
   mangaGenres     MangaGenre[]
   collaborators   MangaCollaborator[]
   reviews         Review[]
+  announcements    MangaAnnouncement[]
 
   @@index([slug])
   @@index([authorId])
@@ -1643,6 +1645,25 @@ model DeletedMangaBundle {
 
   @@index([authorId])
   @@index([expiresAt])
+}
+
+// ─── Manga Announcements (Creator → Followers) ────────────────────────
+model MangaAnnouncement {
+  id        String   @id @default(uuid())
+  mangaId   String
+  authorId  String
+  title     String
+  content   String
+  isPublished Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  manga  MangaSeries @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([mangaId, createdAt])
+  @@index([mangaId, isPublished])
+  @@index([authorId])
 }
 
 // ─── AI Image Generation ──────────────────────────────────────────────

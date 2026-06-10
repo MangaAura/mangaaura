@@ -738,7 +738,7 @@ export const MangaReader = memo(function MangaReader({
               <h1 className="text-[var(--text-primary)] font-medium truncate max-w-xs">
                 {mangaTitle}
               </h1>
-              <p className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
+              <div className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
                 Capítulo {chapterNumber}
                 {scrollMode === 'continuous' && (
                   <span className="text-[var(--info)] text-xs">· {continuousLayout === 'double' ? '2 columnas' : 'Continuo'}</span>
@@ -758,7 +758,7 @@ export const MangaReader = memo(function MangaReader({
                     />
                   </span>
                 )}
-              </p>
+              </div>
             </div>
           </div>
 

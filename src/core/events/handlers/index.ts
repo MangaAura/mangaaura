@@ -164,6 +164,42 @@ function register(): void {
     }
   });
 
+  eventBus.subscribe('CHAPTER_PUBLISHED', async (event: DomainEvent) => {
+    try {
+      const mangaId = event.payload.mangaId as string;
+      const chapterId = event.payload.chapterId as string;
+      const chapterNumber = event.payload.chapterNumber as number;
+      const title = event.payload.title as string | undefined;
+
+      if (mangaId && chapterId) {
+        const { notifyFollowersNewChapter } = await import('@/lib/notifications/newChapterNotifier');
+
+        const manga = await prisma.mangaSeries.findUnique({
+          where: { id: mangaId },
+          select: { id: true, title: true, slug: true, coverUrl: true },
+        });
+
+        if (manga) {
+          await notifyFollowersNewChapter(
+            {
+              id: manga.id,
+              title: manga.title,
+              slug: manga.slug,
+              coverUrl: manga.coverUrl,
+            },
+            {
+              id: chapterId,
+              chapterNumber,
+              title: title || null,
+            },
+          );
+        }
+      }
+    } catch (error) {
+      console.error('[DomainEvents] Error handling CHAPTER_PUBLISHED:', error);
+    }
+  });
+
   eventBus.subscribe('ACHIEVEMENT_UNLOCKED', async (event: DomainEvent) => {
     try {
       const userId = event.payload.userId as string;

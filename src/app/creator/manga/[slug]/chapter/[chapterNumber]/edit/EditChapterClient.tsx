@@ -541,8 +541,8 @@ export default function EditChapterClient({ params }: PageProps) {
           });
 
           if (!uploadRes.ok) {
-            const errData = await uploadRes.json();
-            throw new Error(errData.error || "Error al subir imagen");
+            const errData = await uploadRes.json().catch(() => ({}));
+            throw new Error(errData?.error || "Error al subir imagen");
           }
 
           const uploadData = await uploadRes.json();
@@ -567,11 +567,9 @@ export default function EditChapterClient({ params }: PageProps) {
             pageUrls: finalUrls,
           }),
         },
-      );
-
-      if (!updateRes.ok) {
-        const errData = await updateRes.json();
-        throw new Error(errData.error || "Error al actualizar el capítulo");
+      );          if (!updateRes.ok) {
+        const errData = await updateRes.json().catch(() => ({}));
+        throw new Error(errData?.error || "Error al actualizar el capítulo");
       }
 
       setIsSuccess(true);

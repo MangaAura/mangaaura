@@ -4,6 +4,7 @@ import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { safeJsonParse } from '@/lib/utils';
 
 // GET /api/manga/[id]/chapters/[chapterId] - Obtener capítulo específico
 export async function GET(
@@ -53,7 +54,7 @@ export async function GET(
       title: chapter.title,
       coverUrl: chapter.coverUrl,
       totalPages: chapter.totalPages,
-      pageUrls: chapter.pageUrls ? JSON.parse(chapter.pageUrls) : [],
+      pageUrls: safeJsonParse<string[]>(chapter.pageUrls, []),
       createdAt: chapter.createdAt,
       viewCount: chapter.viewCount,
       crowdfunding: chapter.crowdfundingGoal
@@ -250,7 +251,7 @@ export async function PUT(
         title: updated.title,
         coverUrl: updated.coverUrl,
         totalPages: updated.totalPages,
-        pageUrls: updated.pageUrls ? JSON.parse(updated.pageUrls) : [],
+        pageUrls: safeJsonParse<string[]>(updated.pageUrls, []),
         createdAt: updated.createdAt,
         viewCount: updated.viewCount,
         crowdfunding: updated.crowdfundingGoal

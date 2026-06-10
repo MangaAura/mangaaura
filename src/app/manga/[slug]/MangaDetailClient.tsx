@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Clock, Eye, Star, ChevronDown, CheckCircle2, PauseCircle, XCircle, User, Library, Tag, Plus, Flag } from 'lucide-react';
+import { BookOpen, Clock, Eye, Star, ChevronDown, CheckCircle2, PauseCircle, XCircle, User, Library, Tag, Plus, Flag, Megaphone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -10,15 +10,17 @@ import useSWR from 'swr';
 
 import { setLibraryStatus, removeFromLibrary } from './actions';
 import { CollectionPicker } from '@/components/Collections/CollectionPicker';
+import { ContinueReadingBanner } from '@/components/Manga/ContinueReadingBanner';
+import { SimilarMangasSection } from '@/components/Manga/SimilarMangasSection';
+import { useReport } from '@/components/Report/ReportDialog';
 import { ReviewSection } from '@/components/Reviews/ReviewSection';
 import { ShareButton } from '@/components/Share/ShareButton';
 import { MangaTagsDisplay } from '@/components/tags/MangaTagsDisplay';
 import { StarRating } from '@/components/ui/StarRating';
 import { normalizeGenreKey, ENGLISH_TO_SLUG, SLUG_TO_ENGLISH } from '@/constants/genres';
-import { useReport } from '@/components/Report/ReportDialog';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useT } from '@/i18n';
-import { cn, formatNumber, formatDate } from '@/lib/utils';
+import { cn, formatNumber, formatDate, formatTimeAgo } from '@/lib/utils';
 
 interface Props {
   manga: {
@@ -103,6 +105,23 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
       setOptimisticRating(null);
     }
   };
+
+  // Fetch announcements for this manga
+  const { data: announcementsData } = useSWR<{
+    announcements: Array<{
+      id: string;
+      title: string;
+      content: string;
+      createdAt: string;
+      author: { id: string; username: string; displayName: string | null; avatarUrl: string | null };
+    }>;
+  }>(
+    `/api/manga/${manga.id}/announcements`,
+    (url: string) => fetch(url).then(r => r.json()),
+    { revalidateOnFocus: false, refreshInterval: 60000 }
+  );
+
+  const announcements = announcementsData?.announcements ?? [];
 
   const displayedChapters = showAllChapters
     ? manga.chapters
@@ -356,6 +375,60 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
           </div>
         </div>
 
+        {/* Continue Reading Banner */}
+        <div className="mt-8 animate-ac-fade-in-up" style={{ animationDelay: '0.43s' }}>
+          <ContinueReadingBanner
+            mangaId={manga.id}
+            mangaSlug={manga.slug}
+            chapters={manga.chapters.map((c) => ({
+              id: c.id,
+              chapterNumber: c.chapterNumber,
+              title: c.title,
+            }))}
+          />
+        </div>
+
+        {/* Announcements Section */}
+        {announcements.length > 0 && (
+          <div className="mt-8 animate-ac-fade-in-up" style={{ animationDelay: '0.45s' }}>
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Megaphone className="w-5 h-5 text-amber-500" />
+              {t('manga.announcements')}
+              <span className="text-xs font-normal text-[var(--text-tertiary)] bg-amber-500/10 px-2 py-0.5 rounded-full">
+                {announcements.length}
+              </span>
+            </h2>
+            <div className="space-y-3">
+              {announcements.slice(0, 5).map((announcement) => (
+                <div
+                  key={announcement.id}
+                  className="p-4 bg-gradient-to-r from-amber-500/5 to-transparent border border-amber-500/15 rounded-xl hover:border-amber-500/30 transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Megaphone className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-[var(--text-primary)] text-sm">
+                        {announcement.title}
+                      </h3>
+                      <p className="text-sm text-[var(--text-secondary)] mt-1 whitespace-pre-line">
+                        {announcement.content}
+                      </p>
+                      <p className="text-xs text-[var(--text-tertiary)] mt-2">
+                        {formatTimeAgo(announcement.createdAt)}
+                        {announcement.author.displayName && (
+                          <> &middot; por {announcement.author.displayName}</>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Chapters List */}
         <div className="mt-8 animate-ac-fade-in-up" style={{ animationDelay: '0.5s' }}>
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -440,6 +513,11 @@ export default function MangaDetailClient({ manga, libraryStatus: initialStatus,
             mangaSlug={manga.slug}
             averageRating={manga.rating}
           />
+        </div>
+
+        {/* Similar Mangas */}
+        <div className="mt-12">
+          <SimilarMangasSection mangaId={manga.id} />
         </div>
       </div>
 

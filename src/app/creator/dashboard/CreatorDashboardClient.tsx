@@ -14,10 +14,13 @@ import {
   LayersIcon,
   WandIcon,
   LayoutDashboardIcon,
+  CalendarDaysIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
+import { CreatorOnboardingWizard } from '@/components/Creator/CreatorOnboardingWizard';
+import { EditorialCalendar } from '@/components/Creator/EditorialCalendar';
 import { MangaCard } from '@/components/Creator/MangaCard';
 import { Skeletons } from '@/components/Skeletons';
 import { Button } from '@/components/ui/Button';
@@ -284,6 +287,36 @@ export default function CreatorDashboardClient() {
             ))}
           </div>
         </div>
+
+        {/* Creator Onboarding Wizard */}
+        <CreatorOnboardingWizard />
+
+        {/* Editorial Calendar Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.4, ease: 'easeOut' }}
+          className="space-y-5"
+        >
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-indigo-500/10">
+              <CalendarDaysIcon className="w-5 h-5 text-indigo-500" />
+            </div>
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+              Calendario Editorial
+            </h2>
+            <Link
+              href="/creator/upload"
+              className="ml-auto"
+            >
+              <Button size="sm" variant="outline">
+                <PlusIcon className="w-4 h-4 mr-1.5" />
+                Subir Capítulo
+              </Button>
+            </Link>
+          </div>
+          <EditorialCalendar />
+        </motion.div>
 
         {/* Mangas Section */}
         <div className="space-y-5">

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getNotificationService } from '@/core/services/NotificationService';
 import { withCache, generateCacheKey, cacheConfig, invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -235,91 +234,31 @@ export async function POST(
       );
     }
 
-    // Notificar a seguidores del manga
-    try {
-      const followers = await prisma.userManga.findMany({
-        where: { mangaId: id },
-        include: { user: { select: { id: true, email: true, username: true } } },
+    // Notificar a seguidores del manga (3 canales: in-app + push + email)
+    // Fire-and-forget: no bloquea la respuesta
+    import('@/lib/notifications/newChapterNotifier').then(async ({ notifyFollowersNewChapter }) => {
+      const mangaData = await prisma.mangaSeries.findUnique({
+        where: { id },
+        select: { id: true, title: true, slug: true, coverUrl: true },
       });
-
-      if (followers.length > 0) {
-        const mangaData = await prisma.mangaSeries.findUnique({
-          where: { id },
-        });
-
-        if (mangaData) {
-          const followerIds = followers.map((f: any) => f.userId);
-
-          // Notificaciones in-app (batch insert en DB)
-          (await getNotificationService()).notifyMultiple(
-            followerIds,
-            {
-              type: 'NEW_CHAPTER',
-              title: '📖 Nuevo Capítulo',
-              message: `${mangaData.title} - Capítulo ${chapterNum}${title ? `: ${title}` : ''}`,
-              data: {
-                mangaId: id,
-                mangaTitle: mangaData.title,
-                chapterId: chapter.id,
-                chapterNumber: chapterNum,
-                chapterTitle: title,
-                coverUrl: mangaData.coverUrl,
-              },
-              imageUrl: mangaData.coverUrl || undefined,
-              linkUrl: `/manga/${mangaData.slug}/chapter/${chapterNum}`,
-            }
-          ).catch(err => console.error('Error notifying followers:', err));
-
-          // Push notifications via BullMQ (asíncrono, con retries)
-          const { getNotificationQueue } = await import('@/infrastructure/queue/NotificationQueue');
-          getNotificationQueue().addBulkPushNotification({
-            userIds: followerIds,
-            payload: {
-              title: '📖 Nuevo Capítulo',
-              body: `${mangaData.title} - Capítulo ${chapterNum}${title ? `: ${title}` : ''}`,
-              url: `/manga/${mangaData.slug}/chapter/${chapterNum}`,
-              icon: '/icon-192x192.png',
-              badge: '/badge-72x72.png',
-              tag: `new-chapter-${chapter.id}`,
-            },
-          }).catch(err => console.error('[NewChapter] Error queueing push notifications:', err));
-
-          // Emails a seguidores directamente (fire-and-forget, no bloquea la respuesta)
-          import('@/infrastructure/adapters/emailService').then(async ({ emailService }) => {
-            const batchSize = 10;
-            for (let i = 0; i < followers.length; i += batchSize) {
-              const batch = followers.slice(i, i + batchSize);
-              await Promise.allSettled(
-                batch.map((follower: any) =>
-                  emailService.sendNewChapterNotification(
-                    { id: follower.user.id, email: follower.user.email, username: follower.user.username },
-                    {
-                      id,
-                      title: mangaData.title,
-                      slug: mangaData.slug,
-                      coverUrl: mangaData.coverUrl,
-                      authorName: '',
-                    },
-                    {
-                      id: chapter.id,
-                      chapterNumber: chapterNum,
-                      title,
-                    }
-                  ).catch((err: unknown) => {
-                    console.error(`[NewChapter] Error sending email to ${follower.user.email}:`, err);
-                  })
-                )
-              );
-            }
-            console.info(`[NewChapter] New chapter emails sent to ${followers.length} followers`);
-          }).catch((err: unknown) => {
-            console.error('[NewChapter] Error loading email service:', err);
-          });
-        }
+      if (mangaData) {
+        await notifyFollowersNewChapter(
+          {
+            id: mangaData.id,
+            title: mangaData.title,
+            slug: mangaData.slug,
+            coverUrl: mangaData.coverUrl,
+          },
+          {
+            id: chapter.id,
+            chapterNumber: chapterNum,
+            title: title || null,
+          },
+        );
       }
-    } catch (notifyError) {
-      console.error('Error notifying followers of new chapter:', notifyError);
-    }
+    }).catch((err: unknown) => {
+      console.error('[NewChapter] Error loading notifier:', err);
+    });
 
     return NextResponse.json(
       {

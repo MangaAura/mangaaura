@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
       select: { slug: true, titleEn: true },
     });
     const existingSlugs = new Set(existing.map(a => a.slug));
-    const existingTitles = new Set(existing.filter(a => a.titleEn !== null).map(a => a.titleEn));
+    const existingTitles = new Set(existing.map(a => a.titleEn).filter((t): t is string => t !== null));
     const loadMs = Date.now() - t1;
 
     const items = feed.items.slice(0, MAX_ARTICLES);

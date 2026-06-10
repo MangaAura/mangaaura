@@ -33,9 +33,7 @@
     "design:diff": "npx @google/design.md diff",
     "analyze": "ANALYZE=true npx next build",
     "analyze:bundle": "npx next build && npx @next/bundle-analyzer .next/build-manifest.json",
-    "prepare": "husky",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "prepare": "husky"
   },
   "browserslist": [
     "Chrome >= 92",

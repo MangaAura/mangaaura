@@ -36,8 +36,10 @@ export function trackEvent(event: AnalyticsEvent) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...event,
-        timestamp: new Date().toISOString(),
+        event: {
+          ...event,
+          timestamp: new Date().toISOString(),
+        },
       }),
       keepalive: true,
     }).catch(() => {

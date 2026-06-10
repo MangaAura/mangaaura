@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getNotificationService } from '@/core/services/NotificationService';
 import { invalidateCache } from '@/lib/apiCache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -120,92 +119,24 @@ export async function PATCH(
     await invalidateCache(`manga:${chapter.manga.id}`);
     await invalidateCache(`chapter:${chapterId}`);
 
-    // Notify followers asynchronously
-    try {
-      const followers = await prisma.userManga.findMany({
-        where: { mangaId: chapter.manga.id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              username: true,
-            },
-          },
+    // Notificar a seguidores (fire-and-forget)
+    import('@/lib/notifications/newChapterNotifier').then(async ({ notifyFollowersNewChapter }) => {
+      await notifyFollowersNewChapter(
+        {
+          id: chapter.manga.id,
+          title: chapter.manga.title,
+          slug: chapter.manga.slug,
+          coverUrl: chapter.manga.coverUrl,
         },
-      });
-
-      if (followers.length > 0) {
-        const followerIds = followers.map((f: any) => f.userId);
-
-        // Notificaciones in-app (batch insert en DB)
-        (await getNotificationService())
-          .notifyMultiple(followerIds, {
-            type: 'NEW_CHAPTER',
-            title: '📖 Nuevo Capítulo',
-            message: `${chapter.manga.title} - Capítulo ${chapter.chapterNumber}${chapter.title ? `: ${chapter.title}` : ''}`,
-            data: {
-              mangaId: chapter.manga.id,
-              mangaTitle: chapter.manga.title,
-              chapterId: chapter.id,
-              chapterNumber: chapter.chapterNumber,
-              chapterTitle: chapter.title,
-              coverUrl: chapter.manga.coverUrl,
-            },
-            imageUrl: chapter.manga.coverUrl || undefined,              linkUrl: `/${chapter.manga.slug}-${chapter.chapterNumber}`,
-          })
-          .catch((err) => console.error('Error notifying followers:', err));
-
-        // Push notifications via BullMQ (asíncrono, con retries)
-        const { getNotificationQueue } = await import('@/infrastructure/queue/NotificationQueue');
-        getNotificationQueue().addBulkPushNotification({
-          userIds: followerIds,
-          payload: {
-            title: '📖 Nuevo Capítulo',
-            body: `${chapter.manga.title} - Capítulo ${chapter.chapterNumber}${chapter.title ? `: ${chapter.title}` : ''}`,
-            url: `/${chapter.manga.slug}-${chapter.chapterNumber}`,
-            icon: '/icon-192x192.png',
-            badge: '/badge-72x72.png',
-            tag: `new-chapter-${chapter.id}`,
-          },
-        }).catch(err => console.error('[Finalize] Error queueing push notifications:', err));
-
-        // Send emails directly to followers (fire-and-forget, no bloquea la respuesta)
-        import('@/infrastructure/adapters/emailService').then(async ({ emailService }) => {
-          const batchSize = 10;
-          for (let i = 0; i < followers.length; i += batchSize) {
-            const batch = followers.slice(i, i + batchSize);
-            await Promise.allSettled(
-              batch.map((follower: any) =>
-                emailService.sendNewChapterNotification(
-                  { id: follower.user.id, email: follower.user.email, username: follower.user.username },
-                  {
-                    id: chapter.manga.id,
-                    title: chapter.manga.title,
-                    slug: chapter.manga.slug,
-                    coverUrl: chapter.manga.coverUrl,
-                    authorName: '',
-                  },
-                  {
-                    id: chapter.id,
-                    chapterNumber: chapter.chapterNumber,
-                    title: chapter.title,
-                  }
-                ).catch((err: unknown) => {
-                  console.error(`[Finalize] Error sending email to ${follower.user.email}:`, err);
-                })
-              )
-            );
-          }
-          console.info(`[Finalize] New chapter emails sent to ${followers.length} followers`);
-        }).catch((err: unknown) => {
-          console.error('[Finalize] Error loading email service:', err);
-        });
-      }
-    } catch (notifyError) {
-      console.error('Error notifying followers of finalized chapter:', notifyError);
-      // Don't fail the request if notifications fail
-    }
+        {
+          id: chapter.id,
+          chapterNumber: chapter.chapterNumber,
+          title: chapter.title,
+        },
+      );
+    }).catch((err: unknown) => {
+      console.error('[Finalize] Error loading notifier:', err);
+    });
 
     return NextResponse.json({
       success: true,

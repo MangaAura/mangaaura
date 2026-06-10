@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextConfig from "eslint-config-next";
 import nextTs from "eslint-config-next/typescript";
@@ -21,6 +18,7 @@ const eslintConfig = defineConfig([...nextConfig, ...nextTs, globalIgnores([
   "open-design/**",
   "*.config.*",
   "redis-backup/**",
+  "_trash/**",
 ]), {
   name: "mangaaura-custom-rules",
   files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
@@ -63,6 +61,6 @@ const eslintConfig = defineConfig([...nextConfig, ...nextTs, globalIgnores([
     "prefer-const": "warn",
     "no-var": "error",
   },
-}, ...storybook.configs["flat/recommended"]]);
+}]);
 
 export default eslintConfig;

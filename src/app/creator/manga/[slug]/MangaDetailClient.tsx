@@ -10,17 +10,23 @@ import {
   UsersIcon,
   TrendingUpIcon,
   BarChart3Icon,
- Trash2Icon } from 'lucide-react';
+  Trash2Icon,
+  CalendarDaysIcon,
+  MegaphoneIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import { use , useState } from 'react';
 
 import { ChapterList, ChapterListChapter } from '@/components/Creator/ChapterList';
+import { CreatorAnnouncementsManager } from '@/components/Creator/CreatorAnnouncementsManager';
+import { EditorialCalendar } from '@/components/Creator/EditorialCalendar';
 import { OptimizedImage } from '@/components/Image/OptimizedImage';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useManga } from '@/hooks/useManga';
 import { useT } from '@/i18n';
 import { cn, formatNumber } from '@/lib/utils';
+
 
 
 interface PageProps {
@@ -261,6 +267,30 @@ export default function MangaDetailClient({ params }: PageProps) {
                 <BarChart3Icon className="w-4 h-4 mr-2" />
                 Estadísticas
               </TabsTrigger>
+              <TabsTrigger
+                value="schedule"
+                className={cn(
+                  'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                  activeTab === 'schedule'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                )}
+              >
+                <CalendarDaysIcon className="w-4 h-4 mr-2" />
+                Calendario
+              </TabsTrigger>
+              <TabsTrigger
+                value="announcements"
+                className={cn(
+                  'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                  activeTab === 'announcements'
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                )}
+              >
+                <MegaphoneIcon className="w-4 h-4 mr-2" />
+                Anuncios
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="chapters" className="space-y-4">
@@ -288,6 +318,22 @@ export default function MangaDetailClient({ params }: PageProps) {
           mangaSlug={manga.slug}
           onDelete={deleteChapter}
         />
+            </TabsContent>
+
+            <TabsContent value="schedule" className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 rounded-lg bg-indigo-500/10">
+                  <CalendarDaysIcon className="w-5 h-5 text-indigo-500" />
+                </div>
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                  Calendario de Publicación
+                </h2>
+              </div>
+              <EditorialCalendar />
+            </TabsContent>
+
+            <TabsContent value="announcements" className="space-y-6">
+              <CreatorAnnouncementsManager mangaId={manga.id} />
             </TabsContent>
 
             <TabsContent value="stats" className="space-y-6">

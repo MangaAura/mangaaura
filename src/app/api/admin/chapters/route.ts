@@ -108,6 +108,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Notificar a seguidores si el capítulo se publica inmediatamente
+    if ((status || 'PUBLISHED') === 'PUBLISHED' && manga) {
+      import('@/lib/notifications/newChapterNotifier').then(async ({ notifyFollowersNewChapter }) => {
+        await notifyFollowersNewChapter(
+          {
+            id: manga.id,
+            title: manga.title,
+            slug: manga.slug,
+            coverUrl: manga.coverUrl,
+          },
+          {
+            id: chapter.id,
+            chapterNumber,
+            title: title || null,
+          },
+        );
+      }).catch((err: unknown) => {
+        console.error('[AdminCreateChapter] Error notifying followers:', err);
+      });
+    }
+
     return NextResponse.json({ chapter, message: 'Chapter created successfully' }, { status: 201 });
   } catch (error) {
     console.error('Error creating chapter:', error);

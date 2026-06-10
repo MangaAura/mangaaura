@@ -19,7 +19,8 @@ export type NotificationType =
   | 'REFERRAL_BONUS_UNLOCKED'
   | 'FRIEND_REQUEST'
   | 'IMAGE_LIKE'
-  | 'IMAGE_COMMENT';
+  | 'IMAGE_COMMENT'
+  | 'ANNOUNCEMENT';
 
 export interface NotificationRecord {
   id: string;

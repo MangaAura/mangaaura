@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
+import { safeJsonParse } from '@/lib/utils';
 
 export async function GET(
   _request: NextRequest,
@@ -42,7 +43,7 @@ export async function GET(
       chapterNumber: chapter.chapterNumber,
       title: chapter.title,
       totalPages: chapter.totalPages,
-      pageUrls: chapter.pageUrls ? JSON.parse(chapter.pageUrls) : [],
+      pageUrls: safeJsonParse<string[]>(chapter.pageUrls, []),
       createdAt: chapter.createdAt,
       viewCount: chapter.viewCount,
       crowdfunding: chapter.crowdfundingGoal

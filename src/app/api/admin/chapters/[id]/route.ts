@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { withRateLimit } from '@/lib/rate-limit-middleware';
+import { safeJsonParse } from '@/lib/utils';
 
 export async function GET(
   _request: NextRequest,
@@ -30,7 +31,7 @@ export async function GET(
     return NextResponse.json({
       chapter: {
         ...chapter,
-        pageUrls: typeof chapter.pageUrls === 'string' ? JSON.parse(chapter.pageUrls) : chapter.pageUrls,
+        pageUrls: typeof chapter.pageUrls === 'string' ? safeJsonParse<string[]>(chapter.pageUrls, []) : chapter.pageUrls,
         scheduledAt: chapter.scheduledAt?.toISOString() || null,
         createdAt: chapter.createdAt.toISOString(),
         updatedAt: chapter.updatedAt.toISOString(),

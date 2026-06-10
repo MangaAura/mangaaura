@@ -16,6 +16,7 @@ import { useT } from '@/i18n';
 
 // Dynamic imports for below-the-fold components to reduce unused JS on initial load
 const ContinueReadingSection = lazy(() => import('@/components/Home/ContinueReadingSection').then(m => ({ default: m.ContinueReadingSection })));
+const RecommendedForYouSection = lazy(() => import('@/components/Home/RecommendedForYouSection').then(m => ({ default: m.RecommendedForYouSection })));
 const HomeNewsSection = lazy(() => import('@/components/Home/HomeNewsSection').then(m => ({ default: m.HomeNewsSection })));
 const HomeRankingsSidebar = lazy(() => import('@/components/Home/HomeRankingsSidebar').then(m => ({ default: m.HomeRankingsSidebar })));
 const QuestPanelWrapper = lazy(() => import('@/components/Home/QuestPanelWrapper').then(m => ({ default: m.QuestPanelWrapper })));
@@ -167,6 +168,10 @@ export function HomeContent({
               <AnimatedContainer viewport>
                 <HomeNewsSection articles={newsArticles} />
               </AnimatedContainer>
+            </Suspense>
+
+            <Suspense fallback={<div className="h-48 animate-pulse bg-[var(--surface-sunken)] rounded-xl" />}>
+              <RecommendedForYouSection />
             </Suspense>
           </div>
 
