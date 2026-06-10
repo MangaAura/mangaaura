@@ -1453,10 +1453,9 @@ export const MangaReader = memo(function MangaReader({
                     <Pause className="w-4 h-4" /> Desactivar
                   </button>
                 </div>
-                {autoScrollEnabled && (
-                  <div className="mt-3">
+                <div className="mt-3">
                     <label className="text-xs text-[var(--text-tertiary)] block mb-2">
-                      Velocidad de scroll
+                      Velocidad de scroll: {(autoScrollSpeed / 1000).toFixed(1)}s
                     </label>
                     <input
                       type="range"
@@ -1472,7 +1471,6 @@ export const MangaReader = memo(function MangaReader({
                       <span>Lento</span>
                     </div>
                   </div>
-                )}
                 <p className="text-xs text-[var(--text-tertiary)] mt-2">
                   El auto-scroll avanza automáticamente entre páginas en modo continuo.
                 </p>
