@@ -9,7 +9,6 @@ import {
   RotateCcw,
   Maximize,
   Minimize,
-  BookOpen,
   Settings,
   X,
   Keyboard,
@@ -104,7 +103,7 @@ export const MangaReader = memo(function MangaReader({
   const [readingDirection, setReadingDirection] = useState<'ltr' | 'rtl'>('ltr');
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'single' | 'double'>('single');
-  const [scrollMode, setScrollMode] = useState<'single' | 'continuous'>('single');
+  const [scrollMode, setScrollMode] = useState<'single' | 'continuous'>('continuous');
   const [continuousLayout, setContinuousLayout] = useState<'single' | 'double'>(() => {
     if (typeof window === 'undefined') return 'single';
     try { return (localStorage.getItem('mangaaura-continuous-layout') as 'single' | 'double') || 'single'; } catch { return 'single'; }
@@ -308,7 +307,7 @@ export const MangaReader = memo(function MangaReader({
     };
   }, [scrollMode]);
 
-  // Auto-scroll effect for slideshow mode
+  // Auto-scroll effect for smooth continuous scrolling (pixel-by-pixel)
   useEffect(() => {
     if (!autoScrollEnabled || scrollMode !== 'continuous') {
       if (autoScrollTimerRef.current) {
@@ -318,16 +317,20 @@ export const MangaReader = memo(function MangaReader({
       return;
     }
 
+    // Scroll pixel-by-pixel at ~60fps for a smooth gradual effect
+    // autoScrollSpeed: 1500 (fast) → ~4px/tick (240px/s), 15000 (slow) → ~0.5px/tick (30px/s)
     autoScrollTimerRef.current = setInterval(() => {
-      const next = currentPageRef.current + 1;
-      if (next < pages.length) {
-        const el = pageRefs.current[next] as HTMLElement | undefined;
-        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setCurrentPage(next);
-      } else {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (window.scrollY >= maxScroll - 2) {
         setAutoScrollEnabled(false);
+        return;
       }
-    }, autoScrollSpeed);
+
+      // Linear interpolation from speed setting to pixels per tick
+      const t = (autoScrollSpeed - 1500) / (15000 - 1500);
+      const pxPerTick = Math.max(0.5, 4 - 3.5 * t);
+      window.scrollBy({ top: pxPerTick });
+    }, 16);
 
     return () => {
       if (autoScrollTimerRef.current) {
@@ -737,7 +740,7 @@ export const MangaReader = memo(function MangaReader({
               <div className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
                 Capítulo {chapterNumber}
                 {scrollMode === 'continuous' && (
-                  <span className="text-[var(--info)] text-xs">· {continuousLayout === 'double' ? '2 columnas' : 'Continuo'}</span>
+                  <span className="text-[var(--info)] text-xs">· {continuousLayout === 'double' ? 'Libro' : 'Cascada'}</span>
                 )}
                 {continuousReading && nextChapter && (
                   <span className="text-[var(--success)] text-xs">· Auto-siguiente</span>
@@ -772,19 +775,9 @@ export const MangaReader = memo(function MangaReader({
               <RotateCcw className="w-5 h-5" />
             </ControlButton>
             <div className="w-px h-6 bg-[var(--text-inverse)]/10 mx-2" />
-            <ControlButton onClick={() => setScrollMode(m => m === 'single' ? 'continuous' : 'single')} title="Modo desplazamiento (C)" aria-label="Modo desplazamiento">
-              <BookOpen className="w-5 h-5" />
+            <ControlButton onClick={() => setContinuousLayout(l => l === 'single' ? 'double' : 'single')} title={continuousLayout === 'double' ? 'Libro (Q)' : 'Cascada (Q)'} aria-label={continuousLayout === 'double' ? 'Modo libro' : 'Modo cascada'}>
+              {continuousLayout === 'double' ? <LayoutList className="w-5 h-5" /> : <Columns2 className="w-5 h-5" />}
             </ControlButton>
-            {/* In continuous mode: toggle single/double column layout */}
-            {scrollMode === 'continuous' ? (
-              <ControlButton onClick={() => setContinuousLayout(l => l === 'single' ? 'double' : 'single')} title="Columnas (Q)" aria-label="Distribución de columnas">
-                {continuousLayout === 'double' ? <LayoutList className="w-5 h-5" /> : <Columns2 className="w-5 h-5" />}
-              </ControlButton>
-            ) : (
-              <ControlButton onClick={() => setViewMode(v => v === 'single' ? 'double' : 'single')} title="Modo de vista (W)" aria-label="Modo de vista">
-                {viewMode === 'single' ? <Columns className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
-              </ControlButton>
-            )}
             <ControlButton
               onClick={() => setContinuousReading(v => !v)}
               disabled={!nextChapter}
@@ -1324,41 +1317,36 @@ export const MangaReader = memo(function MangaReader({
                 </div>
               </div>
 
-              {/* Continuous mode column layout – only relevant in scroll mode */}
               <div>
                 <label className="text-sm mb-2 block text-[var(--text-secondary)]">
-                  Distribución (modo continuo)
+                  Modo de lectura
                 </label>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setContinuousLayout('single')}
-                    disabled={scrollMode !== 'continuous'}
                     className={cn(
                       'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
-                      scrollMode !== 'continuous' && 'opacity-40 cursor-not-allowed',
                       continuousLayout === 'single'
                         ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
                         : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
                     )}
                   >
-                    <LayoutList className="w-4 h-4" /> 1 columna
+                    <LayoutList className="w-4 h-4" /> Cascada
                   </button>
                   <button
                     onClick={() => setContinuousLayout('double')}
-                    disabled={scrollMode !== 'continuous'}
                     className={cn(
                       'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer',
-                      scrollMode !== 'continuous' && 'opacity-40 cursor-not-allowed',
                       continuousLayout === 'double'
                         ? 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--surface)]'
                         : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
                     )}
                   >
-                    <Columns3 className="w-4 h-4" /> 2 columnas
+                    <Columns3 className="w-4 h-4" /> Libro
                   </button>
                 </div>
                 <p className="text-xs text-[var(--text-tertiary)] mt-2">
-                  En modo continuo con 2 columnas, las páginas se muestran lado a lado en desktop para una experiencia similar a un manga impreso.
+                  Cascada: páginas en una columna vertical. Libro: dos páginas lado a lado como un manga impreso.
                 </p>
               </div>
 
@@ -1387,7 +1375,7 @@ export const MangaReader = memo(function MangaReader({
                         : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)]'
                     )}
                   >
-                    <BookOpen className="w-4 h-4" /> Desplazamiento continuo
+                    <LayoutList className="w-4 h-4" /> Desplazamiento continuo
                   </button>
                 </div>
               </div>
@@ -1468,7 +1456,7 @@ export const MangaReader = memo(function MangaReader({
                 {autoScrollEnabled && (
                   <div className="mt-3">
                     <label className="text-xs text-[var(--text-tertiary)] block mb-2">
-                      Velocidad: {(autoScrollSpeed / 1000).toFixed(1)}s por página
+                      Velocidad de scroll
                     </label>
                     <input
                       type="range"
